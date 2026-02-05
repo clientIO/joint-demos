@@ -1,0 +1,91 @@
+.navigator {
+    font-size: 12px;
+    line-height: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: var(--jj-navigator-border-radius, 8px);
+    background-color: var(--jj-navigator-bg-color, #FFFFFF);
+    color: var(--jj-navigator-text-color, #333333);
+    font-family: var(--jj-navigator-font-family, 'Inter', sans-serif);
+    box-shadow: 0px 4px 11px 0px #00000014;
+
+    .joint-toolbar {
+        border-radius: 8px;
+
+        .joint-toolbar-group {
+            gap: 4px;
+        }
+
+        .joint-widget[data-type="iconButton"] {
+            background: transparent;
+            padding: 10px;
+            cursor: pointer;
+            border: none;
+
+            &.active {
+                background-color: var(--app-bg-active);
+            }
+        }
+
+        div.joint-widget[data-type="zoomSlider"] {
+            padding: 6px 4px;
+
+            &:hover {
+                background-color: unset;
+            }
+
+            output {
+                min-width: 28px;
+            }
+
+            input {
+                color: var(--app-border-navigator);
+                outline-offset: 4px;
+                --brightness-hover: 100%;
+                --brightness-down: 100%;
+
+                &:hover {
+                    color: var(--app-primary);
+                }
+            }
+        }
+    }
+}
+
+.joint-navigator {
+    max-height: 180px;
+    transform: scale(1);
+    transform-origin: center bottom;
+    transition: 0.3s ease-in-out;
+    transition-property: max-height, transform;
+
+    .current-view:not(&.hidden) {
+        opacity: 1;
+        transition-delay: 0.3s;
+        transition-property: opacity;
+        transition-duration: 0.3s;
+        transition-timing-function: ease-in-out;
+    }
+
+    .joint-paper {
+        box-shadow: none;
+
+        .joint-link {
+
+            .labels {
+                display: none;
+            }
+        }
+    }
+
+    &.hidden {
+        max-height: 0;
+        transform: scale(0);
+
+        .current-view {
+            opacity: 0;
+            transition: none;
+        }
+    }
+}

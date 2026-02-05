@@ -1,0 +1,192 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+:root {
+    --jj-stencil-paper-drag-opacity: 1;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+.container {
+    height: 100%;
+    width: 100%;
+
+    #canvas {
+        width: calc(100% - 240px - 340px);
+        height: 100%;
+        position: absolute;
+        left: 240px;
+
+        .joint-paper {
+            border: 1px solid #E2E2E2;
+            margin: 0 auto;
+        }
+
+        .paper-scroller-background {
+            background: #FBFBFB;
+        }
+
+        .active-container {
+            stroke: #1592E6;
+        }
+
+        .joint-free-transform {
+
+            border: 2px solid #0058FF;
+
+            .resize {
+                width: 10px;
+                height: 10px;
+                background: #0058FF;
+                &.nw {
+                    transform: translate(-2px,-2px);
+                }
+                &.sw {
+                    transform: translate(-2px,2px);
+                }
+                &.ne {
+                    transform: translate(2px,-2px);
+                }
+                &.se {
+                    transform: translate(2px,2px);
+                }
+                &.w {
+                    transform: translate(-2px,-2px);
+                }
+                &.s {
+                    transform: translate(-2px,2px);
+                }
+                &.n {
+                    transform: translate(-2px,-2px);
+                }
+                &.e {
+                    transform: translate(2px,-2px);
+                }
+
+            }
+        }
+    }
+
+    #products-stencil, #shelves-stencil {
+        width: 240px;
+        height: 100%;
+        position: absolute;
+        z-index: 1;
+
+        .joint-stencil {
+            border: none;
+            border-right: 1px solid #D4D4D4;
+            width: 100%;
+            background: #FFFFFF;
+
+            &:after {
+                font-weight: 700;
+                font-family: Roboto, sans-serif;
+                font-size: 14px;
+                color: rgba(0, 0, 0, 0.7);
+            }
+
+            .search-wrap {
+
+                border-bottom: 1px solid #DDDDDD;
+
+                .search {
+                    color: #222222;
+                    border-color: #DDDDDD;
+                    border-radius: 4px;
+                    background: #FFFFFF;
+                    font-weight: 300;
+                    font-family: Roboto, sans-serif;
+                    font-size: 14px;
+                    margin: 8px auto;
+                    width: calc(100% - 16px);
+                }
+            }
+
+            .group:not(:first-child) .group-label {
+                border-top: 1px solid #DDDDDD;
+            }
+
+            .group {
+
+                .group-label {
+                    font-family: Roboto, sans-serif;
+                    font-size: 14px;
+                    text-transform: capitalize;
+                    display: flex;
+                    background: none;
+                    color: #222222;
+
+                    &:before {
+                            left: 10px;
+                        background-image: url(./../assets/collapse.svg);
+                    }
+
+                    h3 {
+                        margin-left: 4px;
+                    }
+                }
+
+                &.closed {
+                    .group-label {
+                        &:before {
+                            background-image: url(./../assets/expand.svg);
+                        }
+                    }
+                }
+            }
+
+            .not-found.searchable:after {
+                font-family: Roboto, sans-serif;
+                font-size: 14px;
+            }
+        }
+    }
+
+    #products-stencil {
+        left: 0;
+    }
+
+    #shelves-stencil {
+        width: 340px;
+        position: absolute;
+        right: 0;
+    }
+
+
+}
+
+button.rappid-button {
+    width: 84px;
+    height: 32px;
+    background: #FFFFFF;
+    border: 1px solid #0000001F;
+    border-radius: 16px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 16px;
+    font-family: 'Roboto', sans-serif;
+    letter-spacing: 0.25px;
+    color: #000000DE;
+    cursor: pointer;
+
+    &:hover {
+        background: #4666E51F;
+        border: 1px solid #4666E5;
+        color: #4666E5;
+    }
+}
+
+.invalid rect {
+    stroke: #EB5368;
+    stroke-width: 3px;
+    fill-opacity: 0.4;
+}
+
+.invalid [joint-selector="topForeground"] {
+    display: none;
+}

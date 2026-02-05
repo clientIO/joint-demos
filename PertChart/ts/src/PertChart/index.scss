@@ -1,0 +1,190 @@
+@import '@joint/plus/joint-plus.css';
+
+.joint-pert-chart {
+
+    --pc-fill: #ffffff;
+    --pc-stroke: #333333;
+    --pc-accent-fill: #F5F3FD;
+    --pc-accent-stroke: #5540E1;
+
+    --pc-tooltip-bg: #FFFFFF;
+    --pc-tooltip-color: #2c3e50;
+    --pc-tooltip-radius: 6px;
+
+    --pc-border-radius: 8px;
+    --pc-box-shadow: 0 2px 8px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .04);
+    --pc-bg-color: #fafafa;
+    --pc-border-color: #e0e0e0;
+    --pc-button-transition: all 0.15s ease-in-out;
+
+    // Highlight for the assignee drop target
+    .assignee-drop-target {
+        stroke: #FAB3A9;
+        stroke-width: 2px;
+        stroke-dasharray: 2, 4;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+    }
+
+    .assignee:hover > rect {
+        fill: var(--pc-accent-fill);
+        stroke: var(--pc-accent-stroke);
+    }
+
+    // Tooltips on tasks and the stencil
+    .joint-tooltip {
+        background: var(--pc-tooltip-bg);
+        border: none;
+        border-radius: var(--pc-tooltip-radius);
+        color: var(--pc-tooltip-color);
+        box-shadow: 3px 3px 7px 2px #0000001F;
+
+        font-family: Arial, sans-serif;
+        font-weight: 600;
+        font-size: 11px;
+        line-height: 15px;
+
+        // Mask general
+        --arrow-mask-size: 4px;
+        --arrow-mask-margin: calc(var(--arrow-mask-size) * -1);
+
+        .tooltip-arrow-mask {
+            border-width: var(--arrow-mask-size);
+        }
+
+        &.top .tooltip-arrow-mask,
+        &.bottom .tooltip-arrow-mask {
+            margin-left: var(--arrow-mask-margin);
+        }
+
+        &.left .tooltip-arrow-mask,
+        &.right .tooltip-arrow-mask {
+            margin-top: var(--arrow-mask-margin);
+        }
+
+        // Mask specific
+        &.top .tooltip-arrow-mask {
+            border-bottom-color: var(--pc-tooltip-bg);
+        }
+
+        &.right .tooltip-arrow-mask {
+            border-left-color: var(--pc-tooltip-bg);
+        }
+
+        &.bottom .tooltip-arrow-mask {
+            border-top-color: var(--pc-tooltip-bg);
+        }
+
+        &.left .tooltip-arrow-mask {
+            border-right-color: var(--pc-tooltip-bg);
+        }
+
+        // Arrow general
+        --arrow-size: 6px;
+        --arrow-margin: calc(var(--arrow-size) * -1);
+
+        .tooltip-arrow {
+            border-width: var(--arrow-size);
+        }
+
+        &.top .tooltip-arrow,
+        &.bottom .tooltip-arrow {
+            margin-left: var(--arrow-margin);
+        }
+
+        &.left .tooltip-arrow,
+        &.right .tooltip-arrow {
+            margin-top: var(--arrow-margin);
+        }
+
+        // Arrow specific
+        &.top .tooltip-arrow {
+            border-bottom-color: var(--pc-tooltip-bg);
+        }
+
+        &.right .tooltip-arrow {
+            border-left-color: var(--pc-tooltip-bg);
+        }
+
+        &.bottom .tooltip-arrow {
+            border-top-color: var(--pc-tooltip-bg);
+        }
+
+        &.left .tooltip-arrow {
+            border-right-color: var(--pc-tooltip-bg);
+        }
+    }
+
+    // Minimap
+    .joint-navigator {
+        border-radius: var(--pc-border-radius);
+        background-color: var(--pc-bg-color);
+        box-shadow: var(--pc-box-shadow);
+        border: 1px solid var(--pc-border-color);
+    }
+
+    // Zoom toolbar
+    .joint-toolbar {
+
+        padding: 4px 2px;
+        border-radius: var(--pc-border-radius);
+        background-color: var(--pc-bg-color);
+        box-shadow: var(--pc-box-shadow);
+        border: 1px solid var(--pc-border-color);
+
+        .joint-toolbar-group {
+            flex-direction: column;
+        }
+
+        button {
+            cursor: pointer;
+            background: none;
+            border: 1px solid transparent;
+            padding: 3px;
+            margin: 0 2px;
+            border-radius: 4px;
+            transition: var(--pc-button-transition);
+
+            &:hover {
+                border: 1px solid var(--pc-accent-stroke);
+                background-color: var(--pc-accent-fill);
+            }
+
+            &:active {
+                background-color: var(--pc-active-fill);
+            }
+        }
+    }
+
+    // Resource stencil
+    .joint-stencil {
+
+        transition: width 0.05s ease-in-out;
+        border-radius: var(--pc-border-radius);
+        background-color: var(--pc-bg-color);
+        box-shadow: var(--pc-box-shadow);
+        border: 1px solid var(--pc-border-color);
+
+        &:hover {
+            width: 100px !important;
+            transition: width 0.2s ease-in-out;
+        }
+
+        > .content {
+            position: relative !important;
+            max-height: calc(100vh - 180px);
+            scrollbar-width: none;
+        }
+
+        .stencil-background-highlight {
+            fill: transparent;
+            stroke: transparent;
+            transition: var(--pc-button-transition);
+        }
+
+        .joint-element:hover>.stencil-background-highlight {
+            fill: var(--pc-accent-fill);
+            stroke: var(--pc-accent-stroke);
+        }
+    }
+}

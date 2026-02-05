@@ -1,0 +1,57 @@
+@use 'mixins' as *;
+
+.joint-select-box.joint-theme-light {
+    box-sizing: border-box;
+    border-radius: var(--jj-border-radius-small);
+    border: 1px solid var(--jj-border-secondary);
+    color: var(--jj-text-primary);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 18px;
+    text-align: left;
+    transition: border-color 0.2s ease-in-out;
+
+    // Hover effect specific for the select box
+    &[data-type="select-box"]:hover {
+        border-color: var(--jj-border-primary);
+    }
+
+    .select-box-option:hover {
+        background-color: var(--jj-accent-hover);
+    }
+
+    .select-box-selection {
+        &::after {
+            @include dropdown-icon;
+        }
+    }
+}
+
+.joint-select-box-options.joint-select-box.joint-theme-light:not(.joint-color-palette) {
+    $border-width: 1px;
+
+    box-sizing: border-box;
+    background-color: var(--jj-bg-primary);
+    color: var(--jj-text-primary);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 18px;
+    border-radius: var(--jj-border-radius-small);
+    border: $border-width solid var(--jj-border-secondary);
+    transform: translate(-$border-width, -$border-width);
+    box-shadow: 0px 4px 12px 0px #00000014;
+
+    .select-box-option.selected::after {
+        @include dropdown-icon('/assets/select-box/icon-selected-option.svg', 10px, 7px);
+    }
+
+    & > div.select-box-option-content:first-of-type {
+        border-radius: var(--jj-border-radius-small) var(--jj-border-radius-small) 0 0;
+    }
+
+    & > div.select-box-option-content:nth-last-child(2) {
+        border-radius: 0 0 var(--jj-border-radius-small) var(--jj-border-radius-small);
+    }
+}

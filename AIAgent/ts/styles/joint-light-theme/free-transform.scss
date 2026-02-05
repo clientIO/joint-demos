@@ -1,0 +1,16 @@
+.joint-free-transform.joint-theme-light {
+    border: 1px solid var(--jj-border-selector);
+
+    .resize {
+        border-radius: 1px !important;
+        width: 6px;
+        height: 6px;
+
+        &.nw,
+        &.ne,
+        &.se,
+        &.sw {
+            background: var(--jj-border-selector);
+        }
+    }
+}

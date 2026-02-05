@@ -1,0 +1,128 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+}
+
+.application-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 1200px;
+    padding: 12px;
+}
+
+.form {
+    font-family: sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 15.73px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #666666;
+    align-self: flex-start;
+    box-shadow: 1px 2px 9.1px 0px #00000014;
+    padding: 8px 24px;
+    border: 1px solid #F3F4F6;
+    border-radius: 4px;
+
+    form {
+        display: flex;
+        align-items: center;
+
+        input:not(:first-of-type) {
+            margin-left: 28px;
+        }
+
+        input[type="checkbox"] {
+            accent-color: #6F89B0;
+        }
+
+        input[type="number"] {
+            border: 1px solid #9CA3AF;
+            border-radius: 2.5px;
+        }
+
+        label[for="inputLevel"] {
+            font-size: 13px;
+            margin-right: 8px;
+        }
+    }
+}
+
+.unavailable {
+    cursor: grabbing;
+}
+
+.unavailable .joint-link {
+    pointer-events: none;
+}
+
+.unavailable .joint-element.available {
+    opacity: 1;
+    pointer-events: auto;
+    cursor: grabbing;
+}
+
+.unavailable .joint-element {
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.unavailable .joint-element.joint-type-button {
+    opacity: 0;
+}
+
+.joint-element.joint-type-button:hover text {
+    fill: #415676;
+}
+
+#edit-description-dialog {
+
+    --dialog-color: #FEFEFE;
+    --controls-color: #FFFFFF;
+
+    .titlebar {
+        background-color: var(--dialog-color);
+        color: #333;
+        border: none;
+        font-weight: 700;
+    }
+
+    .fg {
+        background-color: var(--dialog-color);
+    }
+
+    textarea {
+        box-sizing: border-box;
+        width: 100%;
+        height: 100px;
+        resize: none;
+        box-shadow: 1px 2px 9.1px 0px rgba(0, 0, 0, 0.14);
+        border: 1px solid #E68946;
+        font-family: sans-serif;
+        padding: 0.5em;
+        font-size: 0.9em;
+        border-radius: 4px;
+        background-color: var(--controls-color);
+    }
+
+    .control-button {
+        color: #6F89B0;
+        box-shadow: 1px 2px 9.1px 0px rgba(0, 0, 0, 0.14);
+        border: 1px solid #F3F4F6;
+        border-radius: 10px;
+        background-color: var(--controls-color);
+        margin-top: 0;
+        &:hover {
+            color: #415676;
+            background-color: var(--controls-color);
+        }
+    }
+}

@@ -1,0 +1,35 @@
+.joint-halo.joint-theme-light {
+    .handle {
+        &.nw, &.sw, &.w {
+            transform: translate(-5px, 0);
+        }
+
+        &.ne, &.se, &.e {
+            transform: translate(5px, 0);
+        }
+
+        &.remove {
+            background-image: url(/assets/halo/icon-remove.svg);
+        }
+
+        &.unlink {
+            background-image: url(/assets/halo/icon-unlink.svg);
+        }
+
+        &.rotate {
+            background-image: url(/assets/halo/icon-rotate.svg);
+        }
+
+        &.fork {
+            background-image: url(/assets/halo/icon-fork.svg);
+        }
+
+        &.link {
+            background-image: url(/assets/halo/icon-link.svg);
+        }
+
+        &.clone {
+            background-image: url(/assets/halo/icon-clone.svg);
+        }
+    }
+}

@@ -1,0 +1,39 @@
+// CSS Variables
+:root {
+    --jj-border-radius-small: 4px;
+    --jj-border-radius-medium: 6px;
+    --jj-border-radius-large: 12px;
+
+    // Background
+    --jj-bg-tooltip: #374151;
+    --jj-bg-navigator-path-fill: #8DA9D3;
+    --jj-bg-primary: #FFFFFF;
+    --jj-bg-secondary: #4B5563;
+    --jj-bg-tertiary: #D1D5DB;
+    --jj-bg-quaternary: #EDF1F8;
+
+    // Border
+    --jj-border-navigator: #4D6490;
+    --jj-border-selector: #137BDD;
+    --jj-border-primary: #9CA3AF;
+    --jj-border-secondary: #D1D5DB;
+    --jj-border-tertiary: #E0E6EA;
+    --jj-border-quaternary: #374151;
+
+    // Text
+    --jj-text-context-toolbar: #1F2937;
+    --jj-text-primary: #4B5563;
+    --jj-text-secondary: #6B7280;
+    --jj-text-tertiary: #9CA3AF;
+    --jj-text-disabled: #D1D5DB;
+
+    // Accent
+    --jj-accent-primary: #E2E9F4;
+    --jj-accent-secondary: #D9E2F2;
+    --jj-accent-tertiary: #D2DDE5;
+    --jj-accent-hover: #EDF1F8;
+}
+
+// SCSS Variables
+
+$context-animation: fadeIn 0.2s ease-in-out;

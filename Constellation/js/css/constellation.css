@@ -1,0 +1,51 @@
+/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+
+Copyright (c) 2025 client IO
+
+This Source Code Form is subject to the terms of the JointJS+
+License, v. 2.0. If a copy of the JointJS+ License was not
+distributed with this file, You can obtain one at
+https://www.jointjs.com/license or from the JointJS+ archive as was
+distributed by client IO. See the LICENSE file.
+*/
+
+html, body { 
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+#universe {
+    margin: 30px auto 10px;
+    width: 800px;
+    height: 650px;
+    display: block;
+    position: relative;
+    border: 1px solid lightgray;
+    background: black;
+}
+
+#next {
+    text-transform: capitalize;
+    font-size: 30px;
+    font-family: fantasy;
+    color: steelblue;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.joint-paper-scroller {
+    width: 100%;
+    height: 100%;
+}
+
+.joint-element ellipse, .joint-element text {
+    vector-effect: none;
+}
+
+.joint-link .connection-wrap {
+    stroke-width: 30 !important;
+    opacity: 0 !important;
+}

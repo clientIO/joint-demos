@@ -1,0 +1,82 @@
+@import './fonts';
+$color-transition-duration: 200ms;
+
+.toolbar-container {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+
+    .joint-toolbar.joint-theme-light {
+        padding: 8px;
+        border-radius: 8px;
+        height: unset;
+
+        button {
+            height: 30px;
+            transition:
+                color $color-transition-duration ease-in-out,
+                border-color $color-transition-duration ease-in-out,
+                background-color $color-transition-duration ease-in-out;
+
+            &:not(:disabled):hover {
+                background-color: var(--app-accent-hover) !important;
+            }
+        }
+
+        [data-type="undo"],
+        [data-type="redo"] {
+            width: 32px;
+        }
+
+        [data-group="save-load"],
+        [data-group="run"] {
+
+            button {
+                font-family: 'Inter', sans-serif;
+                font-size: 12px;
+                font-weight: 500;
+                border-radius: var(--app-border-radius-small);
+                border: 1px solid var(--app-border-primary);
+                background-color: var(--app-bg-primary);
+                color: var(--app-text-primary);
+                padding: 6px 10px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 4px;
+
+                &:hover {
+                    border-color: var(--app-border-accent-hover);
+                    color: var(--app-primary);
+                }
+            }
+        }
+
+        button[data-name="publish"] {
+            border-width: 0;
+            color: white;
+            background-color: #374151;
+
+            &:hover {
+                background-color: #272E3A !important;
+                color: white;
+            }
+        }
+
+        [data-type="separator"] {
+            margin-left: 6px;
+        }
+    }
+}
+
+#app .joint-context-toolbar {
+    button {
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+
+        &:hover {
+            background-color: var(--app-accent-hover);
+        }
+    }
+}

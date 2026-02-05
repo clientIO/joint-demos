@@ -1,0 +1,24 @@
+.joint-selection.joint-theme-light {
+    background-color: var(--jj-accent-primary);
+    border: 1px solid var(--jj-border-selector);
+
+    .selection-wrapper {
+        border: 1px solid var(--jj-border-selector);
+    }
+
+    .handle.rotate {
+        background-image: url(/assets/selection/icon-rotate.svg);
+    }
+
+    .handle.resize {
+        background-image: url(/assets/selection/icon-resize.svg);
+
+        &.se {
+            cursor: se-resize
+        }
+    }
+
+    .joint-selection-frame {
+        border: 1px dashed var(--jj-border-selector) !important;
+    }
+}

@@ -1,0 +1,162 @@
+{
+    "aws_cloudwatch": {
+        "name": "AWS CloudWatch",
+        "icon": "aws_cloudwatch.svg",
+        "triggers": [
+            {
+                "id": "alarm_state_change",
+                "name": "Alarm State Change",
+                "description": "Triggers when a CloudWatch alarm changes state (OK, ALARM, INSUFFICIENT_DATA)."
+            },
+            {
+                "id": "new_log_event",
+                "name": "New Log Event",
+                "description": "Triggers when a new log event is received in a specified log group."
+            }
+        ]
+    },
+    "jira": {
+        "name": "Jira",
+        "icon": "jira.svg",
+        "triggers": [
+            {
+                "id": "issue_created",
+                "name": "Issue Created",
+                "description": "Triggers when a new Jira issue is created."
+            },
+            {
+                "id": "issue_updated",
+                "name": "Issue Updated",
+                "description": "Triggers when a Jira issue is updated."
+            }
+        ]
+    },
+    "jenkins": {
+        "name": "Jenkins",
+        "icon": "jenkins.svg",
+        "triggers": [
+            {
+                "id": "build_completed",
+                "name": "Build Completed",
+                "description": "Triggers when a Jenkins build completes (success, unstable, or failure)."
+            },
+            {
+                "id": "job_failed",
+                "name": "Job Failed",
+                "description": "Triggers when a Jenkins job fails."
+            }
+        ]
+    },
+    "datadog": {
+        "name": "Datadog",
+        "icon": "datadog.svg",
+        "triggers": [
+            {
+                "id": "monitor_alert_triggered",
+                "name": "Monitor Alert Triggered",
+                "description": "Triggers when a Datadog monitor alert is triggered."
+            },
+            {
+                "id": "event_posted",
+                "name": "New Event",
+                "description": "Triggers when a new event is posted to Datadog's event stream."
+            }
+        ]
+    },
+    "pagerduty": {
+        "name": "PagerDuty",
+        "icon": "pagerduty.svg",
+        "triggers": [
+            {
+                "id": "incident_triggered",
+                "name": "Incident Triggered",
+                "description": "Triggers when a new incident is created in PagerDuty."
+            },
+            {
+                "id": "incident_resolved",
+                "name": "Incident Resolved",
+                "description": "Triggers when an incident is resolved."
+            }
+        ]
+    },
+    "servicenow": {
+        "name": "ServiceNow",
+        "icon": "servicenow.png",
+        "triggers": [
+            {
+                "id": "ticket_created",
+                "name": "Ticket Created",
+                "description": "Triggers when a new ServiceNow incident ticket is created."
+            },
+            {
+                "id": "ticket_updated",
+                "name": "Ticket Updated",
+                "description": "Triggers when an incident ticket is updated."
+            }
+        ]
+    },
+    "kubernetes": {
+        "name": "Kubernetes",
+        "icon": "kubernetes.png",
+        "triggers": [
+            {
+                "id": "pod_failed",
+                "name": "Pod Failed",
+                "description": "Triggers when a Kubernetes Pod enters a Failed state."
+            },
+            {
+                "id": "deployment_scaled",
+                "name": "Deployment Scaled",
+                "description": "Triggers when a Deployment’s replica count changes."
+            }
+        ]
+    },
+    "aws_ec2": {
+        "name": "AWS EC2",
+        "icon": "aws_ec2.svg",
+        "triggers": [
+            {
+                "id": "instance_state_change",
+                "name": "Instance State Change",
+                "description": "Triggers when an EC2 instance changes state (pending, running, stopped, terminated)."
+            },
+            {
+                "id": "new_instance_launched",
+                "name": "New Instance Launched",
+                "description": "Triggers when a new EC2 instance is launched."
+            }
+        ]
+    },
+    "gitlab": {
+        "name": "GitLab",
+        "icon": "gitlab.svg",
+        "triggers": [
+            {
+                "id": "pipeline_succeeded",
+                "name": "Pipeline Succeeded",
+                "description": "Triggers when a GitLab pipeline finishes successfully."
+            },
+            {
+                "id": "merge_request_opened",
+                "name": "Merge Request Opened",
+                "description": "Triggers when a new merge request is opened."
+            }
+        ]
+    },
+    "azure_devops": {
+        "name": "Azure DevOps",
+        "icon": "azure_devops.webp",
+        "triggers": [
+            {
+                "id": "work_item_created",
+                "name": "Work Item Created",
+                "description": "Triggers when a new work item is created in Azure DevOps."
+            },
+            {
+                "id": "build_completed",
+                "name": "Build Completed",
+                "description": "Triggers when a pipeline build completes."
+            }
+        ]
+    }
+}

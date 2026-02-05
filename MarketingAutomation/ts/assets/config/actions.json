@@ -1,0 +1,889 @@
+{
+    "communication": {
+        "name": "Communication",
+        "icon": "mail.svg",
+        "iconBackground": "#ebf6ff",
+        "minimapBackground": "#A0CFF5",
+        "actions": [
+            {
+                "id": "send_email",
+                "name": "Send email",
+                "description": "Send an email to the contact or associated contacts.",
+                "data": {
+                    "to": {
+                        "name": "Recipients",
+                        "type": "string",
+                        "description": "Email addresses, contact IDs, or lists to send to."
+                    },
+                    "subject": {
+                        "name": "Subject",
+                        "type": "string",
+                        "description": "Subject line for the email."
+                    },
+                    "body": {
+                        "name": "Body",
+                        "type": "text",
+                        "description": "Email content. Supports personalization tokens."
+                    },
+                    "include_associated_contacts": {
+                        "name": "Include associated contacts",
+                        "type": "boolean",
+                        "description": "Also send the email to contacts associated with the enrolled record."
+                    }
+                }
+            },
+            {
+                "id": "send_in_app_notification",
+                "name": "Send in-app notification",
+                "description": "Send a notification to any of your team members.",
+                "data": {
+                    "recipients": {
+                        "name": "Recipients",
+                        "type": "string",
+                        "description": "User IDs or emails to notify (comma-separated)."
+                    },
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "Headline shown in the notification."
+                    },
+                    "message": {
+                        "name": "Message",
+                        "type": "text",
+                        "description": "Body of the notification."
+                    },
+                    "link_url": {
+                        "name": "Link URL",
+                        "type": "string",
+                        "description": "Optional URL to open when the notification is clicked."
+                    }
+                }
+            },
+            {
+                "id": "send_internal_email_notification",
+                "name": "Send internal email notification",
+                "description": "Send an email to any of your team members.",
+                "data": {
+                    "to": {
+                        "name": "Recipients",
+                        "type": "string",
+                        "description": "Internal recipient emails."
+                    },
+                    "cc": {
+                        "name": "CC",
+                        "type": "string",
+                        "description": "Optional CC recipients."
+                    },
+                    "subject": {
+                        "name": "Subject",
+                        "type": "string",
+                        "description": "Subject line for the internal email."
+                    },
+                    "body": {
+                        "name": "Body",
+                        "type": "text",
+                        "description": "Message content for the internal email."
+                    }
+                }
+            },
+            {
+                "id": "send_internal_marketing_email",
+                "name": "Send internal marketing email",
+                "description": "Send a marketing email to any of your team members.",
+                "data": {
+                    "recipients": {
+                        "name": "Recipients",
+                        "type": "string",
+                        "description": "Internal team members to receive the marketing email."
+                    },
+                    "template_id": {
+                        "name": "Template ID",
+                        "type": "string",
+                        "description": "Marketing email template to use."
+                    },
+                    "subject": {
+                        "name": "Subject",
+                        "type": "string",
+                        "description": "Subject line override for the template."
+                    },
+                    "preheader": {
+                        "name": "Preheader",
+                        "type": "string",
+                        "description": "Optional preheader text shown in inbox previews."
+                    },
+                    "track_metrics": {
+                        "name": "Track metrics",
+                        "type": "boolean",
+                        "description": "Enable internal tracking of opens and clicks."
+                    }
+                }
+            }
+        ]
+    },
+    "customer_relationship_management": {
+        "name": "Customer Relationship Management",
+        "icon": "hub.svg",
+        "iconBackground": "#ECFDF5",
+        "minimapBackground": "#B7EBCA",
+        "actions": [
+            {
+                "id": "apply_association_labels",
+                "name": "Apply association labels",
+                "description": "Apply labels to a contact or company association.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "Contact record to label."
+                    },
+                    "company_id": {
+                        "name": "Company ID",
+                        "type": "string",
+                        "description": "Company associated with the contact."
+                    },
+                    "labels": {
+                        "name": "Labels",
+                        "type": "string",
+                        "description": "Comma-separated labels to add to the association."
+                    }
+                }
+            },
+            {
+                "id": "copy_company_property_value",
+                "name": "Copy company property value",
+                "description": "Copy a company property value from the contact to another CRM record.",
+                "data": {
+                    "source_property": {
+                        "name": "Source property",
+                        "type": "string",
+                        "description": "Company property API name to read from the enrolled contact."
+                    },
+                    "target_object_type": {
+                        "name": "Target object type",
+                        "type": "string",
+                        "description": "Record type to copy the value to (contact, deal, ticket, etc.)."
+                    },
+                    "target_record_id": {
+                        "name": "Target record ID",
+                        "type": "string",
+                        "description": "ID of the record that should receive the copied value."
+                    },
+                    "target_property": {
+                        "name": "Target property",
+                        "type": "string",
+                        "description": "Property API name on the target record."
+                    },
+                    "overwrite_existing": {
+                        "name": "Overwrite existing",
+                        "type": "boolean",
+                        "description": "Allow replacing an existing value on the target record."
+                    }
+                }
+            },
+            {
+                "id": "create_associations",
+                "name": "Create associations",
+                "description": "Create a new association between a contact and a company.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "Contact to associate."
+                    },
+                    "company_id": {
+                        "name": "Company ID",
+                        "type": "string",
+                        "description": "Company to associate with the contact."
+                    },
+                    "association_type": {
+                        "name": "Association type",
+                        "type": "string",
+                        "description": "Type of association (primary, billing, technical, etc.)."
+                    },
+                    "labels": {
+                        "name": "Labels",
+                        "type": "string",
+                        "description": "Optional labels to apply to the association."
+                    }
+                }
+            },
+            {
+                "id": "create_note",
+                "name": "Create note",
+                "description": "Create a new note attached to the enrolled object.",
+                "data": {
+                    "record_type": {
+                        "name": "Record type",
+                        "type": "string",
+                        "description": "Object to attach the note to (contact, company, deal, etc.)."
+                    },
+                    "record_id": {
+                        "name": "Record ID",
+                        "type": "string",
+                        "description": "Identifier of the record that will receive the note."
+                    },
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "Optional note title."
+                    },
+                    "body": {
+                        "name": "Body",
+                        "type": "text",
+                        "description": "Rich text content of the note."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "User ID or email responsible for the note."
+                    }
+                }
+            },
+            {
+                "id": "create_record",
+                "name": "Create record",
+                "description": "Create a contact, company, deal, etc. in your CRM.",
+                "data": {
+                    "object_type": {
+                        "name": "Object type",
+                        "type": "string",
+                        "description": "Record type to create (contact, company, deal, ticket, etc.)."
+                    },
+                    "properties": {
+                        "name": "Properties",
+                        "type": "text",
+                        "description": "Key-value pairs for the new record (JSON or key:value lines)."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "User ID or email to assign as record owner."
+                    },
+                    "pipeline_or_stage": {
+                        "name": "Pipeline / stage",
+                        "type": "string",
+                        "description": "Optional pipeline, stage, or lifecycle value for the new record."
+                    }
+                }
+            },
+            {
+                "id": "create_task",
+                "name": "Create task",
+                "description": "Create a new task in your CRM.",
+                "data": {
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "Task title."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "Details about the task."
+                    },
+                    "due_date": {
+                        "name": "Due date",
+                        "type": "string",
+                        "description": "Due date or time for the task."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "User responsible for the task."
+                    },
+                    "priority": {
+                        "name": "Priority",
+                        "type": "string",
+                        "description": "Priority label (low, medium, high)."
+                    }
+                }
+            },
+            {
+                "id": "delete_contact",
+                "name": "Delete contact",
+                "description": "Delete the enrolled contact.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "Contact to delete (defaults to the enrolled contact)."
+                    },
+                    "hard_delete": {
+                        "name": "Hard delete",
+                        "type": "boolean",
+                        "description": "Permanently delete instead of archiving."
+                    },
+                    "reason": {
+                        "name": "Reason",
+                        "type": "string",
+                        "description": "Reason for deletion for audit logs."
+                    }
+                }
+            },
+            {
+                "id": "edit_record",
+                "name": "Edit record",
+                "description": "Edit, copy, and clear CRM property values.",
+                "data": {
+                    "object_type": {
+                        "name": "Object type",
+                        "type": "string",
+                        "description": "Type of record to update (contact, company, deal, etc.)."
+                    },
+                    "record_id": {
+                        "name": "Record ID",
+                        "type": "string",
+                        "description": "Identifier of the record to edit."
+                    },
+                    "property_name": {
+                        "name": "Property name",
+                        "type": "string",
+                        "description": "API name of the property to modify."
+                    },
+                    "operation": {
+                        "name": "Operation",
+                        "type": "string",
+                        "description": "Action to perform: set, copy_from, or clear."
+                    },
+                    "value": {
+                        "name": "Value",
+                        "type": "string",
+                        "description": "New value when using the set operation."
+                    },
+                    "source_property": {
+                        "name": "Source property",
+                        "type": "string",
+                        "description": "Property to copy from when using copy_from."
+                    }
+                }
+            },
+            {
+                "id": "enrich_record",
+                "name": "Enrich record",
+                "description": "Enrich a company or contact record using Data Enrichment.",
+                "data": {
+                    "object_type": {
+                        "name": "Object type",
+                        "type": "string",
+                        "description": "Record type to enrich (contact or company)."
+                    },
+                    "record_id": {
+                        "name": "Record ID",
+                        "type": "string",
+                        "description": "Identifier of the record to enrich."
+                    },
+                    "provider": {
+                        "name": "Provider",
+                        "type": "string",
+                        "description": "Enrichment provider or data source to use."
+                    },
+                    "fields_to_enrich": {
+                        "name": "Fields to enrich",
+                        "type": "string",
+                        "description": "Comma-separated list of properties to update."
+                    },
+                    "overwrite_existing": {
+                        "name": "Overwrite existing",
+                        "type": "boolean",
+                        "description": "Allow replacing values already present on the record."
+                    }
+                }
+            },
+            {
+                "id": "increase_or_decrease_property_value",
+                "name": "Increase or decrease property value",
+                "description": "Increase or decrease the value of a number property.",
+                "data": {
+                    "object_type": {
+                        "name": "Object type",
+                        "type": "string",
+                        "description": "Record type that contains the numeric property."
+                    },
+                    "record_id": {
+                        "name": "Record ID",
+                        "type": "string",
+                        "description": "Identifier of the record to update."
+                    },
+                    "property_name": {
+                        "name": "Property name",
+                        "type": "string",
+                        "description": "Numeric property API name."
+                    },
+                    "change_amount": {
+                        "name": "Change amount",
+                        "type": "number",
+                        "description": "Value to add (positive) or subtract (negative)."
+                    },
+                    "min_value": {
+                        "name": "Minimum value",
+                        "type": "number",
+                        "description": "Lower bound after the change (optional)."
+                    },
+                    "max_value": {
+                        "name": "Maximum value",
+                        "type": "number",
+                        "description": "Upper bound after the change (optional)."
+                    }
+                }
+            },
+            {
+                "id": "manage_communication_subscriptions",
+                "name": "Manage communication subscriptions",
+                "description": "Subscribe or unsubscribe a contact from communication messaging statuses.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "Contact whose subscription should be updated."
+                    },
+                    "subscription_type": {
+                        "name": "Subscription type",
+                        "type": "string",
+                        "description": "Email, SMS, WhatsApp, or other channel."
+                    },
+                    "action": {
+                        "name": "Action",
+                        "type": "string",
+                        "description": "Subscribe or unsubscribe."
+                    },
+                    "legal_basis": {
+                        "name": "Legal basis",
+                        "type": "string",
+                        "description": "Consent or legitimate interest justification."
+                    },
+                    "legal_basis_explanation": {
+                        "name": "Legal basis explanation",
+                        "type": "text",
+                        "description": "Notes about how consent was obtained."
+                    }
+                }
+            },
+            {
+                "id": "remove_association_labels",
+                "name": "Remove association labels",
+                "description": "Remove labels from a contact or company association.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "Contact whose association labels will be removed."
+                    },
+                    "company_id": {
+                        "name": "Company ID",
+                        "type": "string",
+                        "description": "Company linked to the association."
+                    },
+                    "labels": {
+                        "name": "Labels",
+                        "type": "string",
+                        "description": "Comma-separated labels to remove."
+                    }
+                }
+            },
+            {
+                "id": "reset_marketing_lead_engagement",
+                "name": "Reset marketing lead engagement",
+                "description": "Reset contact engagement score of this record to 0.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "Contact whose engagement score will be reset."
+                    },
+                    "reason": {
+                        "name": "Reason",
+                        "type": "string",
+                        "description": "Reason for resetting the engagement score."
+                    },
+                    "notify_owner": {
+                        "name": "Notify owner",
+                        "type": "boolean",
+                        "description": "Send a notification to the record owner about the reset."
+                    }
+                }
+            },
+            {
+                "id": "rotate_record_to_owner",
+                "name": "Rotate record to owner",
+                "description": "Assign which team member should be the owner.",
+                "data": {
+                    "record_type": {
+                        "name": "Record type",
+                        "type": "string",
+                        "description": "Object to assign (contact, company, deal, etc.)."
+                    },
+                    "record_id": {
+                        "name": "Record ID",
+                        "type": "string",
+                        "description": "Identifier of the record to assign."
+                    },
+                    "owner_pool": {
+                        "name": "Owner pool",
+                        "type": "string",
+                        "description": "User, team, or round-robin queue used for assignment."
+                    },
+                    "fallback_owner": {
+                        "name": "Fallback owner",
+                        "type": "string",
+                        "description": "Owner to use if the rotation pool cannot assign."
+                    },
+                    "rotation_mode": {
+                        "name": "Rotation mode",
+                        "type": "string",
+                        "description": "Round_robin, load_balance, or random."
+                    }
+                }
+            },
+            {
+                "id": "stop_tracking_intent_signals",
+                "name": "Stop tracking intent signals",
+                "description": "Deactivate tracking and continuous enrichment of intent signals for a company.",
+                "data": {
+                    "company_id": {
+                        "name": "Company ID",
+                        "type": "string",
+                        "description": "Company whose intent signals should stop being tracked."
+                    },
+                    "reason": {
+                        "name": "Reason",
+                        "type": "string",
+                        "description": "Reason for stopping intent tracking."
+                    },
+                    "suppress_until": {
+                        "name": "Suppress until",
+                        "type": "string",
+                        "description": "Date or time until tracking should remain disabled."
+                    }
+                }
+            },
+            {
+                "id": "track_intent_signals",
+                "name": "Track intent signals",
+                "description": "Activate tracking and continuous enrichment of intent signals for a company.",
+                "data": {
+                    "company_id": {
+                        "name": "Company ID",
+                        "type": "string",
+                        "description": "Company to start tracking."
+                    },
+                    "topics": {
+                        "name": "Topics",
+                        "type": "string",
+                        "description": "Comma-separated list of intent topics to watch."
+                    },
+                    "minimum_intensity": {
+                        "name": "Minimum intensity",
+                        "type": "number",
+                        "description": "Minimum intent score required before acting."
+                    },
+                    "refresh_interval_days": {
+                        "name": "Refresh interval (days)",
+                        "type": "number",
+                        "description": "How often to refresh enrichment data."
+                    }
+                }
+            },
+            {
+                "id": "update_association_labels",
+                "name": "Update association labels",
+                "description": "Update labels of a contact or company association.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "Contact whose association labels will be updated."
+                    },
+                    "company_id": {
+                        "name": "Company ID",
+                        "type": "string",
+                        "description": "Company linked to the association."
+                    },
+                    "add_labels": {
+                        "name": "Add labels",
+                        "type": "string",
+                        "description": "Comma-separated labels to add."
+                    },
+                    "remove_labels": {
+                        "name": "Remove labels",
+                        "type": "string",
+                        "description": "Comma-separated labels to remove."
+                    }
+                }
+            },
+            {
+                "id": "validate_and_format_phone_number",
+                "name": "Validate and format phone number",
+                "description": "Validate a phone number, and transform it to into canonical E.164 format.",
+                "data": {
+                    "record_type": {
+                        "name": "Record type",
+                        "type": "string",
+                        "description": "Object containing the phone number (contact, company, etc.)."
+                    },
+                    "record_id": {
+                        "name": "Record ID",
+                        "type": "string",
+                        "description": "Identifier of the record that holds the phone number."
+                    },
+                    "phone_property": {
+                        "name": "Phone property",
+                        "type": "string",
+                        "description": "Property API name that stores the raw phone number."
+                    },
+                    "country_hint": {
+                        "name": "Country hint",
+                        "type": "string",
+                        "description": "Default country code to assume when none is provided."
+                    }
+                }
+            }
+        ]
+    },
+    "marketing": {
+        "name": "Marketing",
+        "icon": "campaign.svg",
+        "iconBackground": "#fff3eb",
+        "minimapBackground": "#F5BF99",
+        "actions": [
+            {
+                "id": "add_to_ads_audience",
+                "name": "Add to ads audience",
+                "description": "Add contact to an existing Facebook or Google audience.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "Contact to add to the audience."
+                    },
+                    "platform": {
+                        "name": "Platform",
+                        "type": "string",
+                        "description": "Ads platform (facebook or google)."
+                    },
+                    "audience_id": {
+                        "name": "Audience ID",
+                        "type": "string",
+                        "description": "Destination audience identifier."
+                    },
+                    "sync_if_missing": {
+                        "name": "Sync if missing",
+                        "type": "boolean",
+                        "description": "Create or sync the audience if it does not already exist."
+                    }
+                }
+            },
+            {
+                "id": "add_to_static_list",
+                "name": "Add to static list",
+                "description": "Add record to an existing static list.",
+                "data": {
+                    "list_id": {
+                        "name": "List ID",
+                        "type": "string",
+                        "description": "Static list identifier."
+                    },
+                    "record_type": {
+                        "name": "Record type",
+                        "type": "string",
+                        "description": "Type of record being added (contact, company, etc.)."
+                    },
+                    "record_id": {
+                        "name": "Record ID",
+                        "type": "string",
+                        "description": "Identifier of the record to add."
+                    }
+                }
+            },
+            {
+                "id": "remove_from_ads_audience",
+                "name": "Remove from ads audience",
+                "description": "Remove contact from an existing Facebook or Google audience.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "Contact to remove from the audience."
+                    },
+                    "platform": {
+                        "name": "Platform",
+                        "type": "string",
+                        "description": "Ads platform (facebook or google)."
+                    },
+                    "audience_id": {
+                        "name": "Audience ID",
+                        "type": "string",
+                        "description": "Audience identifier to remove from."
+                    },
+                    "keep_suppressed": {
+                        "name": "Keep suppressed",
+                        "type": "boolean",
+                        "description": "Mark the contact as suppressed instead of deleting from the audience."
+                    }
+                }
+            },
+            {
+                "id": "remove_from_static_list",
+                "name": "Remove from static list",
+                "description": "Remove record from an existing static list.",
+                "data": {
+                    "list_id": {
+                        "name": "List ID",
+                        "type": "string",
+                        "description": "Static list identifier."
+                    },
+                    "record_type": {
+                        "name": "Record type",
+                        "type": "string",
+                        "description": "Type of record being removed (contact, company, etc.)."
+                    },
+                    "record_id": {
+                        "name": "Record ID",
+                        "type": "string",
+                        "description": "Identifier of the record to remove."
+                    }
+                }
+            },
+            {
+                "id": "set_marketing_contact_status",
+                "name": "Set marketing contact status",
+                "description": "Change if contact can be marketed to or not.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "Contact whose marketing status will change."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "string",
+                        "description": "Marketing status to apply (marketing, non-marketing, unsubscribed)."
+                    },
+                    "legal_basis": {
+                        "name": "Legal basis",
+                        "type": "string",
+                        "description": "Consent justification for marketing communications."
+                    },
+                    "legal_basis_explanation": {
+                        "name": "Legal basis explanation",
+                        "type": "text",
+                        "description": "Notes about consent capture or exemptions."
+                    }
+                }
+            }
+        ]
+    },
+    "slack": {
+        "name": "Slack",
+        "icon": "slack.svg",
+        "actions": [
+            {
+                "id": "send_slack_notification",
+                "name": "Send slack notification",
+                "description": "Send a notification to a slack channel.",
+                "data": {
+                    "channel_id": {
+                        "name": "Channel ID",
+                        "type": "string",
+                        "description": "Slack channel ID to post to."
+                    },
+                    "message": {
+                        "name": "Message",
+                        "type": "text",
+                        "description": "Notification text to send."
+                    },
+                    "mention_user_ids": {
+                        "name": "Mention user IDs",
+                        "type": "string",
+                        "description": "Comma-separated Slack user IDs to mention."
+                    },
+                    "thread_ts": {
+                        "name": "Thread timestamp",
+                        "type": "string",
+                        "description": "Post as a reply in this thread timestamp."
+                    },
+                    "include_contact_context": {
+                        "name": "Include contact context",
+                        "type": "boolean",
+                        "description": "Attach summary details about the enrolled contact."
+                    }
+                }
+            }
+        ]
+    },
+    "zoom": {
+        "name": "Zoom",
+        "icon": "zoom.svg",
+        "actions": [
+            {
+                "id": "add_contact_to_zoom_webinar",
+                "name": "Add contact to zoom webinar",
+                "description": "Add a contact to a zoom webinar meeting.",
+                "data": {
+                    "webinar_id": {
+                        "name": "Webinar ID",
+                        "type": "string",
+                        "description": "Zoom webinar identifier."
+                    },
+                    "contact_email": {
+                        "name": "Contact email",
+                        "type": "string",
+                        "description": "Email address of the contact to register."
+                    },
+                    "first_name": {
+                        "name": "First name",
+                        "type": "string",
+                        "description": "First name of the registrant."
+                    },
+                    "last_name": {
+                        "name": "Last name",
+                        "type": "string",
+                        "description": "Last name of the registrant."
+                    },
+                    "send_confirmation": {
+                        "name": "Send confirmation",
+                        "type": "boolean",
+                        "description": "Email a confirmation to the contact."
+                    }
+                }
+            }
+        ]
+    },
+    "google_sheets": {
+        "name": "Google Sheets",
+        "icon": "google-sheets.png",
+        "actions": [
+            {
+                "id": "create_google_sheet_row",
+                "name": "Create google sheet row",
+                "description": "Create a new row in a google sheet.",
+                "data": {
+                    "spreadsheet_id": {
+                        "name": "Spreadsheet ID",
+                        "type": "string",
+                        "description": "Google Sheet file identifier."
+                    },
+                    "sheet_name": {
+                        "name": "Sheet name",
+                        "type": "string",
+                        "description": "Worksheet/tab name to append the row to."
+                    },
+                    "row_values": {
+                        "name": "Row values",
+                        "type": "text",
+                        "description": "Values for the new row (JSON array or comma-separated)."
+                    },
+                    "insert_at": {
+                        "name": "Insert at",
+                        "type": "string",
+                        "description": "Position to insert (top, bottom, or specific row number)."
+                    },
+                    "include_timestamp": {
+                        "name": "Include timestamp",
+                        "type": "boolean",
+                        "description": "Append the current timestamp as the first column."
+                    }
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+@import './navigator/Navigator.scss';
+
+.navigator-container {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    border-radius: 8px;
+    background-color: var(--app-bg-primary);
+    color: var(--app-text-secondary);
+
+    .joint-link [joint-selector="line"] {
+        stroke-width: 8;
+    }
+}

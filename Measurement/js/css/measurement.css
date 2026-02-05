@@ -1,0 +1,69 @@
+/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+
+Copyright (c) 2025 client IO
+
+This Source Code Form is subject to the terms of the JointJS+
+License, v. 2.0. If a copy of the JointJS+ License was not
+distributed with this file, You can obtain one at
+https://www.jointjs.com/license or from the JointJS+ archive as was
+distributed by client IO. See the LICENSE file.
+*/
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    overflow-y: hidden;
+}
+
+.measurement .joint-paper {
+    border: 1px solid #E2E2E2;
+    margin: 0 auto;
+}
+
+.measurement .joint-tool [joint-selector="area"] {
+    display: none;
+}
+
+.measurement .joint-tool[data-tool-name="source-anchor"] circle,
+.measurement .joint-tool[data-tool-name="target-anchor"] circle {
+    stroke: #464554
+}
+
+.measurement .joint-free-transform {
+    border: none;
+}
+
+.measurement .joint-free-transform .resize {
+    background-color: #8D8DB6;
+    border: 1px solid #F3F7F6;
+    border-radius: 1px;
+    z-index: 1;
+}
+
+.measurement .joint-free-transform .rotate {
+    background-color: #8D8DB6;
+    border: none;
+    border-radius: 1px;
+    transform: rotate(45deg);
+}
+
+.measurement .joint-free-transform .rotate:hover,
+.measurement .joint-free-transform.in-operation .rotate {
+    background-color: #464554;
+    transition: 200ms transform;
+    transform: rotate(405deg) scale(1.5);
+}
+
+.measurement .joint-free-transform .resize:hover,
+.measurement .joint-free-transform.in-operation .resize {
+    background-color: #464554;
+    transform: scale(1.5);
+    transition: 200ms transform;
+}

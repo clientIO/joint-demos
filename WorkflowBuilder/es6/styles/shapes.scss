@@ -1,0 +1,179 @@
+$fade-in-duration: 300ms;
+$color-transition-duration: 200ms;
+
+.joint-cell {
+
+    [joint-selector="body"] {
+        transition: stroke $color-transition-duration ease-in-out;
+    }
+
+    &.connection-target,
+    &.connection-candidate {
+        [joint-selector="outline"] {
+            fill: var(--app-connection-outline);
+            opacity: 0.95;
+        }
+    }
+
+    &.selected {
+        [joint-selector="body"] {
+            stroke: var(--app-border-selection);
+            stroke-width: 4;
+        }
+    }
+
+    &:not(.selected).hover {
+        [joint-selector="body"] {
+            stroke: var(--app-border-accent-hover);
+            stroke-width: 2;
+        }
+    }
+
+    &[data-configured="false"] {
+
+        [joint-selector="body"] {
+            stroke: var(--app-border-non-configured);
+        }
+
+        [joint-selector="outline"] {
+            fill: var(--app-outline-non-configured);
+        }
+    }
+
+    &.joint-type-edge {
+        transition: stroke $color-transition-duration ease-in-out;
+
+        &.selected {
+            [joint-selector="line"] {
+                stroke: var(--app-border-selection);
+                stroke-width: 2;
+            }
+        }
+
+        &:not(.selected).hover {
+            [joint-selector="line"] {
+                stroke: var(--app-border-accent-hover);
+                stroke-width: 1;
+            }
+        }
+    }
+
+    .joint-port {
+        [port-group="out"] {
+            [joint-selector="portBody"] {
+                transition: stroke $color-transition-duration ease-in-out,
+                            fill $color-transition-duration ease-in-out;
+            }
+
+            [joint-selector="icon"] {
+                transition: fill $color-transition-duration ease-in-out;
+            }
+
+            &:hover {
+                [joint-selector="portBody"] {
+                    stroke: var(--app-border-selection);
+                    fill: var(--app-border-selection);
+                }
+
+                [joint-selector="icon"] {
+                    fill: var(--app-bg-primary);
+                }
+            }
+        }
+    }
+
+    &.selected {
+        .joint-port {
+            [port-group="out"] {
+                [joint-selector="portBody"] {
+                    stroke: var(--app-border-selection);
+                    fill: var(--app-border-selection);
+                }
+
+                [joint-selector="icon"] {
+                    fill: var(--app-bg-primary);
+                }
+            }
+
+            &:hover {
+                [joint-selector="portBody"] {
+                    stroke: var(--app-primary-hover);
+                    fill: var(--app-primary-hover);
+                }
+
+                [joint-selector="icon"] {
+                    fill: var(--app-bg-primary);
+                }
+            }
+        }
+    }
+
+    &:not(.selected).hover {
+        [joint-selector="body"] {
+            stroke: var(--app-border-accent-hover);
+            stroke-width: 2;
+        }
+    }
+
+    &.joint-type-note {
+
+        foreignObject {
+            font-family: 'Inter', sans-serif;
+            color: #333333;
+
+            p {
+                margin-top: 0;
+            }
+        }
+    }
+}
+
+.joint-tools {
+    .joint-tool {
+
+        &[data-tool-name="insert-node-tool"] {
+            circle {
+                transition:
+                    fill $color-transition-duration ease-in-out,
+                    stroke $color-transition-duration ease-in-out;
+            }
+
+            path {
+                transition: stroke $color-transition-duration ease-in-out;
+            }
+
+            &:hover {
+                circle {
+                    fill: var(--app-border-selection);
+                    stroke: var(--app-border-selection);
+                }
+
+                path {
+                    stroke: var(--app-bg-primary);
+                }
+            }
+        }
+
+        .menu-button-icon,
+        .resize-button-icon {
+            transition: fill $color-transition-duration ease-in-out;
+            fill: var(--app-text-secondary);
+        }
+
+        &:hover {
+            .menu-button-icon,
+            .resize-button-icon {
+                fill: var(--app-text-primary);
+            }
+        }
+    }
+}
+
+.fade-in {
+    @starting-style {
+        opacity: 0;
+    }
+
+    opacity: 1;
+    transition: opacity $fade-in-duration ease;
+}

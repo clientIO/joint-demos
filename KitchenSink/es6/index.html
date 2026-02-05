@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The JointJS+ Kitchen Sink application serves as a template to help bring your idea to life in no time.">
+    <title>JointJS+ KitchenSink Application</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="./node_modules/@joint/plus/joint-plus.css">
+
+    <!-- Theme-specific application CSS: -->
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+</head>
+<body>
+
+    <!-- Application: -->
+    <div id="app" class="joint-app">
+        <div class="app-header">
+            <img src = "/assets/icons/joint-js.svg" alt="JointJS"/>
+        </div>
+        <div class="toolbar-container"></div>
+        <div class="app-body">
+            <div class="stencil-container"></div>
+            <div class="paper-container"></div>
+            <div class="inspector-container">
+                <div class="inspector-header hidden">
+                    <button class="open-groups-btn"></button>
+                    <button class="close-groups-btn"></button>
+                    <span class="inspector-header-text">Properties</span>
+                </div>
+                <div class="inspector-content"></div>
+            </div>
+            <div class="navigator-container"></div>
+        </div>
+    </div>
+
+    <!-- JointJS+ package: -->
+    <script src="./node_modules/@joint/plus/joint-plus.js"></script>
+
+    <!-- Directed Graph package: -->
+    <script src="./node_modules/@dagrejs/graphlib/dist/graphlib.core.js"></script>
+    <script src="./node_modules/@dagrejs/dagre/dist/dagre.js"></script>
+    <script src="./node_modules/@joint/layout-directed-graph/dist/DirectedGraph.js"></script>
+
+    <!-- Application files: -->
+    <script src="js/config/selection.js"></script>
+    <script src="js/config/halo.js"></script>
+    <script src="js/config/inspector.js"></script>
+    <script src="js/config/stencil.js"></script>
+    <script src="js/config/toolbar.js"></script>
+    <script src="js/config/sample-graphs.js"></script>
+    <script src="js/config/font-style-sheet.js"></script>
+    <script src="js/views/main.js"></script>
+    <script src="js/shapes/stencil-higlighter.js"></script>
+    <script src="js/shapes/links.js"></script>
+    <script src="js/shapes/navigator.js"></script>
+    <script src="js/index.js"></script>
+
+    <!-- Local file warning: -->
+    <div id="message-fs" style="display: none;">
+        <p>The application was opened locally using the file protocol. It is recommended to access it through a <strong>Web server</strong>.</p>
+        <p>Please see <a href="README.md">instructions</a>.</p>
+    </div>
+    <script>
+        (function() {
+            var fs = (document.location.protocol === 'file:');
+            var ff = (navigator.userAgent.toLowerCase().indexOf('firefox') !== -1);
+            if (fs && !ff) {
+                var content = document.getElementById('message-fs');
+                content.style.display = 'block';
+                (new joint.ui.Dialog({
+                    width: 300,
+                    type: 'alert',
+                    title: 'Local File',
+                    content
+                })).open();
+            }
+        })();
+    </script>
+
+</body>
+</html>

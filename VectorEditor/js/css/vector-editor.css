@@ -1,0 +1,98 @@
+/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+
+Copyright (c) 2025 client IO
+
+This Source Code Form is subject to the terms of the JointJS+
+License, v. 2.0. If a copy of the JointJS+ License was not
+distributed with this file, You can obtain one at
+https://www.jointjs.com/license or from the JointJS+ archive as was
+distributed by client IO. See the LICENSE file.
+*/
+
+html, body { 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Helvetica Neue Light', 'Helvetica Neue', 'Source Sans Pro', sans-serif;
+}
+
+#info {
+    width: 800px;
+    margin: auto;
+}
+
+.joint-vector-editor {
+    position: relative;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+#workspace {
+    text-align: center;
+    margin: 10px;
+}
+
+#workspace #paper-scroller {
+    position: relative;
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #6a6c8a;
+}
+
+.joint-paper-scroller.joint-theme-modern {
+    background-color: #c6c7e2;
+}
+
+#workspace #paper-scroller #paper {
+    background-color: white;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+}
+
+.joint-path-editor.joint-theme-modern .direction-path {
+    stroke: #6a6c8a;
+    stroke-width: 1px;
+}
+
+.joint-path-drawer {
+    cursor: crosshair;
+    position: relative;
+    display: block;
+    margin: auto;
+    background: transparent;
+}
+
+.joint-path-drawer.joint-theme-modern .start-point {
+    fill: #c6c7e2;
+    stroke: #6a6c8a;
+    stroke-width: 2px;
+}
+.joint-path-drawer.joint-theme-modern .start-point:hover {
+    fill: #6a6c8a;
+}
+
+.joint-path-drawer.joint-theme-modern .control-path {
+    fill: none;
+    stroke: green;
+    stroke-linecap: round;
+}
+
+#workspace #inspector {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    margin-left: 20px;
+    font-size: 14px;
+    float: right;
+}
+
+.joint-inspector {
+    position: relative;
+    text-align: left;
+}

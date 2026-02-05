@@ -1,0 +1,19 @@
+#toolbar {
+    font-family: sans-serif;
+    background: none;
+    border: none;
+    display: inline-block;
+    position: absolute;
+    left: 5px;
+    top: 10px;
+}
+
+#toolbar button {
+    border-radius: 30px;
+    padding: 0 1em;
+    text-transform: capitalize;
+}
+
+#toolbar button:not(:last-child) {
+    margin-right: 0.5em;
+}

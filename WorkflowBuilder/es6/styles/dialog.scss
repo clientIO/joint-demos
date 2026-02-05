@@ -1,0 +1,63 @@
+$color-transition-duration: 200ms;
+
+.joint-dialog {
+    .joint-stencil {
+        .content {
+            padding: 0 8px;
+
+
+            .group {
+                padding: 0 !important;
+            }
+        }
+
+        .group-label {
+            font-family: 'Inter', sans-serif !important;
+            height: 24px !important;
+            background-color: unset !important;
+        }
+
+        .joint-element:hover {
+            [joint-selector="body"] {
+                stroke: var(--app-border-accent-hover);
+            }
+        }
+    }
+
+    &.mock-dialog {
+        div.body {
+            padding: 16px;
+            color: var(--app-text-primary);
+            font-size: 14px;
+        }
+
+        div.controls {
+
+            button.control-button {
+                margin-left: 16px !important;
+                font-family: 'Inter', sans-serif;
+                font-size: 12px;
+                font-weight: 500;
+                border-radius: var(--app-border-radius-small);
+                border: 1px solid var(--app-border-primary);
+                background-color: var(--app-bg-primary);
+                color: var(--app-text-primary);
+                padding: 6px 10px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition:
+                    color $color-transition-duration ease-in-out,
+                    border-color $color-transition-duration ease-in-out,
+                    background-color $color-transition-duration ease-in-out;
+
+                &:hover {
+                    border-color: var(--app-border-accent-hover);
+                    color: var(--app-primary);
+                    background-color: var(--app-accent-hover);
+                }
+            }
+        }
+    }
+}

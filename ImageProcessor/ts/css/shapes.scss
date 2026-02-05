@@ -1,0 +1,219 @@
+.node-port-body {
+    fill: var(--node-port-fill-color);
+    stroke: var(--node-port-stroke-color);
+}
+
+.node-port-label {
+    fill: var(--node-text-color);
+    font-size: .7em;
+}
+
+.node-body {
+    fill: var(--node-color);
+}
+
+.node-header {
+    &.basic {
+        fill: var(--node-header-color-1);
+    }
+
+    &.filters {
+        fill: var(--node-header-color-2);
+    }
+
+    &.transform {
+        fill: var(--node-header-color-3);
+    }
+
+    &.inputs {
+        fill: var(--node-header-color-4);
+    }
+
+    &.math {
+        fill: var(--node-header-color-5);
+    }
+}
+
+.node-label {
+    font-size: .8em;
+    font-weight: bold;
+
+    &.basic {
+        fill: var(--node-header-text-color-1);
+    }
+
+    &.filters {
+        fill: var(--node-header-text-color-2);
+    }
+
+    &.transform {
+        fill: var(--node-header-text-color-2);
+    }
+
+    &.inputs {
+        fill: var(--node-header-text-color-2);
+    }
+
+    &.math {
+        fill: var(--node-header-text-color-2);
+    }
+}
+
+.node-help {
+    visibility: hidden;
+
+    &.basic {
+        fill: var(--node-header-text-color-1);
+    }
+
+    &.filters {
+        fill: var(--node-header-text-color-2);
+    }
+
+    &.transform {
+        fill: var(--node-header-text-color-2);
+    }
+
+    &.inputs {
+        fill: var(--node-header-text-color-2);
+    }
+
+    &.math {
+        fill: var(--node-header-text-color-2);
+    }
+}
+
+.node-help-hitbox {
+    fill: none;
+    stroke: none;
+    pointer-events: visible;
+}
+
+.joint-element {
+
+    textarea:focus,
+    input:focus {
+        outline: none;
+    }
+
+    input.toggle {
+        opacity: 0;
+        width: 100%;
+        z-index: 100;
+        height: 20px;
+        position: absolute;
+        cursor: pointer;
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+
+        +span {
+            display: block;
+            position: absolute;
+            z-index: 90;
+            top: 0;
+            border: 1px solid var(--Gray-2);
+            border-radius: 40px;
+            width: 100%;
+            height: 20px;
+            box-sizing: border-box;
+            background: var(--Gray-6);
+            text-align: center;
+        }
+
+        +span::before {
+            content: 'False';
+            color: var(--Gray-2);
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.8em;
+            font-style: normal;
+            top: -1px;
+            position: relative;
+        }
+    }
+
+    input.toggle:checked {
+        +span {
+            background: var(--Gray-8-White);
+        }
+
+        +span::before {
+            content: 'True'
+        }
+    }
+
+    .spinner {
+        animation: rotate 2s linear infinite;
+        z-index: 2;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin: -25px 0 0 -25px;
+        width: 50px;
+        height: 50px;
+
+        & .path {
+            stroke: var(--Gray-2);
+            stroke-linecap: round;
+            animation: dash 1.5s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes dash {
+            0% {
+                stroke-dasharray: 1, 150;
+                stroke-dashoffset: 0;
+            }
+
+            50% {
+                stroke-dasharray: 90, 150;
+                stroke-dashoffset: -35;
+            }
+
+            100% {
+                stroke-dasharray: 90, 150;
+                stroke-dashoffset: -124;
+            }
+        }
+    }
+}
+
+.display-image {
+    cursor: pointer;
+}
+
+.joint-cell input[type='number'] {
+    width: calc(100% - 10px);
+}
+
+.joint-cell input[type='text'] {
+    width: calc(100% - 10px);
+}
+
+.node-body[processing='true'] {
+    border: 3px dashed red;
+}
+
+.connection-hover {
+    path[joint-selector='line']  {
+        stroke-opacity: 0.9;
+    }
+}
+
+.connection-error {
+    stroke-width: 3;
+    stroke: red;
+}
+
+.node-hover {
+    .node-help {
+        visibility: visible;
+    }
+}

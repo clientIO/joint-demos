@@ -1,0 +1,61 @@
+@import 'css/fonts.scss';
+@import 'css/theme.scss';
+@import 'css/toolbar.scss';
+@import 'css/stencil.scss';
+@import 'css/inspector.scss';
+@import 'css/shapes.scss';
+@import 'css/selection.scss';
+@import 'css/context-toolbar.scss';
+@import 'css/navigator.scss';
+@import 'css/dialog.scss';
+@import 'css/popup.scss';
+@import 'css/help.scss';
+
+html,
+body,
+.joint-app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    -webkit-user-select: none;
+    -moz-user-select: -moz-none;
+    user-select: none;
+    font-family: sans-serif, Arial;
+    overflow: hidden;
+    background: var(--light-background-color);
+}
+
+.app-body {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.paper-container {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    left: 240px;
+    right: 240px;
+
+    .joint-paper-scroller {
+        overflow: hidden;
+    }
+}
+
+#logo {
+    position: absolute;
+    bottom: 24px;
+    right: 264px;
+    fill: var(--logo-color);
+}

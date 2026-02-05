@@ -1,0 +1,8 @@
+# PERT Chart
+
+Effective project management relies on clear visualization techniques. One such technique is the PERT chart, which you can explore in the read-only demo below. It highlights key JointJS+ features like zoom and pan, automatic layout, events and custom shapes.
+
+## Available Versions
+
+- [JS](js/)
+- [TypeScript](ts/)

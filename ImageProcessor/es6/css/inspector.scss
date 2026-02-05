@@ -1,0 +1,245 @@
+.inspector-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 240px;
+    box-sizing: border-box;
+    background: var(--Gray-8-White, #FFF);
+    border-top: 1px solid var(--Gray-6, #D1D5DB);
+    box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.08);
+
+    .joint-inspector.joint-theme-light {
+        background: transparent;
+        background: var(--Gray-8-White, #FFF);
+        display: flex;
+        padding: 13px 8px 13px 8px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        flex-shrink: 0;
+
+        .group {
+            width: 100%;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+
+            .group-label {
+                border-radius: var(--border-radius);
+                background: var(--fill-blue, #E6EEF4);
+                color: var(--Gray-3);
+                font-family: 'Open Sans', sans-serif;
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 600;
+                text-transform: uppercase;
+                padding: 6px 5px 6px 5px;
+                height: 30px;
+                box-sizing: border-box;
+                display: flex;
+            }
+
+            .group-label:hover {
+                background: var(--fill-blue-hover, #E6EEF4);
+                color: var(--Gray-2);
+            }
+
+            .group-label::before {
+                content: url(../assets/stencil/icon-opened.svg);
+                width: 18.75px;
+                height: 18.75px;
+                flex-shrink: 0;
+                display: block;
+                margin-right: 6px;
+                top: 0;
+                left: 0;
+            }
+
+            .field {
+                padding-top: 0;
+                padding-bottom: 0;
+
+                &.toggle-field {
+                    display: flex;
+                    justify-content: space-between;
+
+                    .toggle {
+                        width: 60px;
+
+                        input:checked {
+                            +span {
+                                background: white;
+
+                                i {
+                                    background: lightgrey;
+                                }
+
+                                i::before {
+                                    content: 'on';
+                                    right: 30%;
+                                    color: black;
+                                }
+                            }
+                        }
+
+                        span {
+                            background: lightgrey;
+                            border: 1px solid lightgrey;
+                            border-radius: 40px;
+
+                            i {
+                                background: white;
+                                width: 50%;
+                                right: 50%;
+                            }
+
+                            i::before {
+                                content: 'off';
+                                position: absolute;
+                                right: -80%;
+                                text-transform: uppercase;
+                                color: black;
+                                font-family: 'Open Sans', sans-serif;
+                                font-size: 10px;
+                                font-style: normal;
+                            }
+                        }
+                    }
+                }
+
+                &.range-field {
+
+                    output {
+                        color: var(--Gray-3, #4B5563);
+                        font-family: 'Open Sans', sans-serif;
+                        font-size: 12px;
+                        font-style: normal;
+                        font-weight: 600;
+                        line-height: normal;
+                        margin-top: 0;
+                        margin-bottom: 6px;
+                    }
+
+                    span {
+                        color: var(--Gray-3, #4B5563);
+                        font-family: 'Open Sans', sans-serif;
+                        font-size: 12px;
+                        font-style: normal;
+                        font-weight: 600;
+                        line-height: normal;
+                        margin-top: 0;
+                        margin-bottom: 6px;
+                    }
+                }
+
+                &[disabled="true"] {
+                    .toggle {
+                        pointer-events: none;
+                        cursor: default;
+
+                        span {
+                            background: lightgrey !important;
+
+                            i {
+                                background: lightgrey !important;
+                            }
+                        }
+                    }
+                }
+
+                label {
+                    color: var(--Gray-3, #4B5563);
+                    font-family: 'Open Sans', sans-serif;
+                    font-size: 12px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: normal;
+                    margin-top: 0;
+                    margin-bottom: 6px;
+                }
+
+                input[type="text"],
+                input[type="number"] {
+                    width: 100%;
+                    height: 32px;
+                    box-sizing: border-box;
+                    border-radius: var(--border-radius);
+                    border: 2px solid var(--fill-blue, #E6EEF4);
+                    padding: 9px 7px 9px 9px;
+                }
+
+                input:focus {
+                    outline-color: var(--Gray-3);
+                }
+
+                .joint-select-box {
+                    font-family: 'Open Sans', sans-serif;
+                    font-size: 13px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: 14px;
+                    color: var(--Gray-3, #4B5563);
+
+                    .select-box-selection {
+                        border-radius: var(--border-radius);
+                        border: 2px solid var(--fill-blue, #E6EEF4);
+                        padding: 9px 7px 9px 9px;
+                    }
+
+                    .select-box-selection::after {
+                        width: 13px;
+                        height: 13px;
+                        content: url(../assets/inspector/selectbox-arrow.svg);
+                    }
+                }
+            }
+        }
+
+        .group.closed {
+            max-height: 30px;
+
+            .group-label::before {
+                content: url(../assets/stencil/icon-closed.svg);
+                width: 18.75px;
+                height: 18.75px;
+                flex-shrink: 0;
+                display: block;
+                margin-right: 6px;
+                top: 0;
+                left: 0;
+            }
+        }
+    }
+}
+
+.joint-select-box-options.joint-theme-light {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 14px;
+    color: var(--Gray-3, #4B5563);
+    border-radius: var(--border-radius);
+    border: 2px solid var(--fill-blue, #E6EEF4);
+    background: var(--Gray-8-White, #FFF);
+
+    .select-box-option {
+        cursor: pointer;
+        padding: 9px 7px 9px 9px;
+        position: relative;
+        box-sizing: border-box;
+        border-radius: var(--border-radius);
+    }
+
+    .select-box-option.selected::after {
+        width: 13px;
+        height: 13px;
+        content: url(../assets/inspector/selectbox-selected.svg);
+    }
+
+    .select-box-option:hover {
+        background-color: var(--Gray-6);
+    }
+}

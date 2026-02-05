@@ -1,0 +1,62 @@
+:root {
+    --app-primary: #275EE7;
+    --app-primary-hover: #3A6FEB;
+
+    --app-bg-primary: #FFFFFF;
+    --app-bg-secondary: #4E5663;
+    --app-bg-tertiary: #F8F9FC;
+    --app-bg-quaternary: #F2F4F6;
+    --app-bg-tooltip: #3A4452;
+
+    --app-border-primary: #DCDFE5;
+    --app-border-secondary: #E8EAED;
+    --app-border-accent: #BECDF4;
+    --app-border-accent-hover: #93ACEC;
+    --app-border-selection: #275EE7;
+    --app-border-navigator: #2F59C1;
+
+    --app-text-primary: #1F2433;
+    --app-text-secondary: #6E7A91;
+    --app-text-tertiary: #636D83;
+
+    --app-border-radius-medium: 8px;
+    --app-border-radius-small: 6px;
+
+    --app-accent-hover: #EBEFF9;
+
+    --app-border-non-configured: #CCCED3;
+    --app-outline-non-configured: #DBDBDB;
+    --app-connection-outline: #E6C685;
+
+    --app-bg-button: #FCFCFD;
+
+    --app-toolbar-height: 52px;
+    --app-inspector-width: 330px;
+    --app-inspector-top-offset: var(--app-toolbar-height);
+    /** Overriding variables from JointJS theme **/
+
+    --jj-primary: var(--app-primary);
+    --jj-primary-hover: var(--app-primary-hover);
+
+    --jj-bg-primary: var(--app-bg-primary);
+    --jj-bg-secondary: var(--app-bg-secondary);
+    --jj-bg-tertiary: var(--app-bg-tertiary);
+    --jj-bg-quaternary: var(--app-bg-quaternary);
+    --jj-bg-tooltip: var(--app-bg-tooltip);
+
+    --jj-border-primary: var(--app-border-primary);
+    --jj-border-secondary: var(--app-border-secondary);
+    --jj-border-accent: var(--app-border-accent);
+    --jj-border-accent-hover: var(--app-border-accent-hover);
+    --jj-border-selection: var(--app-border-selection);
+    --jj-border-navigator: var(--app-border-navigator);
+
+    --jj-text-primary: var(--app-text-primary);
+    --jj-text-secondary: var(--app-text-secondary);
+    --jj-text-tertiary: var(--app-text-tertiary);
+
+    --jj-border-radius-medium: var(--app-border-radius-medium);
+    --jj-border-radius-small: var(--app-border-radius-small);
+
+    --jj-accent-hover: var(--app-accent-hover);
+}

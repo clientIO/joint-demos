@@ -1,0 +1,39 @@
+@import './navigator/Navigator.scss';
+
+.navigator-container {
+
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    border-radius: 8px;
+    background-color: var(--jj-bg-primary);
+    color: var(--jj-text-secondary);
+
+    .joint-element {
+
+        .trigger {
+            fill: #739EDB;
+            stroke: #4A7AC1;
+        }
+
+        .action {
+            fill: #A3C2E8;
+            stroke: #7FAEDB;
+        }
+
+        .condition {
+            fill: #92E39A;
+            stroke: #76D681;
+        }
+
+        .agent {
+            fill: #F3D19C;
+            stroke: #E2B87A;
+        }
+
+        .note {
+            fill: #E8EDF8;
+            stroke: #B6C6F2;
+        }
+    }
+}

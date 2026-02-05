@@ -1,0 +1,77 @@
+.joint-tooltip.joint-theme-light {
+    background: var(--jj-bg-tooltip);
+    border: none;
+    border-radius: var(--jj-border-radius-medium);
+    box-shadow: 0px 4px 14px 0px #0000000F;
+    color: var(--jj-accent-tertiary);
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 15px;
+
+    // Mask general
+    --arrow-mask-size: 4px;
+    --arrow-mask-margin: calc(var(--arrow-mask-size) * -1);
+    .tooltip-arrow-mask {
+        border-width: var(--arrow-mask-size);
+    }
+
+    &.top .tooltip-arrow-mask, &.bottom .tooltip-arrow-mask {
+        margin-left: var(--arrow-mask-margin);
+    }
+
+    &.left .tooltip-arrow-mask, &.right .tooltip-arrow-mask {
+        margin-top: var(--arrow-mask-margin);
+    }
+
+    // Mask specific
+
+    &.top .tooltip-arrow-mask {
+        border-bottom-color: var(--jj-bg-tooltip);
+    }
+
+    &.right .tooltip-arrow-mask {
+        border-left-color: var(--jj-bg-tooltip);
+    }
+
+    &.bottom .tooltip-arrow-mask {
+        border-top-color: var(--jj-bg-tooltip);
+    }
+
+    &.left .tooltip-arrow-mask {
+        border-right-color: var(--jj-bg-tooltip);
+    }
+
+    // Arrow general
+    --arrow-size: 6px;
+    --arrow-margin: calc(var(--arrow-size) * -1);
+    .tooltip-arrow {
+        border-width: var(--arrow-size);
+    }
+
+    &.top .tooltip-arrow, &.bottom .tooltip-arrow {
+        margin-left: var(--arrow-margin);
+    }
+
+    &.left .tooltip-arrow, &.right .tooltip-arrow {
+        margin-top: var(--arrow-margin);
+    }
+
+    // Arrow specific
+
+    &.top .tooltip-arrow {
+        border-bottom-color: var(--jj-bg-tooltip);
+    }
+
+    &.right .tooltip-arrow {
+        border-left-color: var(--jj-bg-tooltip);
+    }
+
+    &.bottom .tooltip-arrow {
+        border-top-color: var(--jj-bg-tooltip);
+    }
+
+    &.left .tooltip-arrow {
+        border-right-color: var(--jj-bg-tooltip);
+    }
+}

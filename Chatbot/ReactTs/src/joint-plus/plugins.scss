@@ -1,0 +1,149 @@
+@import "../assets/fonts";
+
+.joint-scope {
+
+    /*  Toolbar  */
+    .joint-toolbar {
+        display: flex;
+        position: absolute;
+        right: 368px;
+        top: 8px;
+        z-index: 2;
+        background: none;
+        border: none;
+        padding: 0;
+
+        .joint-toolbar-group {
+            display: flex;
+
+            .joint-widget {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 2px;
+                border: 1px solid #D4D4D4;
+                border-radius: 0;
+                height: 28px;
+                width: 28px;
+                color: #191919;
+                font-weight: 700;
+                font-size: 20px;
+                @include icon;
+
+                &:enabled:hover {
+                    background: #F7F8F9;
+                }
+
+                &:disabled {
+                    color: #BEBEBE;
+                }
+            }
+
+            .joint-widget[data-type="button"] {
+                width: 102px;
+                font-family: realist, sans-serif;
+                font-size: 14px;
+                padding: 8px 16px;
+                white-space: nowrap;
+                font-weight: 600;
+            }
+
+            .joint-widget[data-type="undo"]:after {
+                content: '\E166'
+            }
+
+            .joint-widget[data-type="redo"]:after {
+                content: '\E15A'
+            }
+
+            .joint-widget[data-type="zoomIn"]:after {
+                content: '\E8FF'
+            }
+
+            .joint-widget[data-type="zoomOut"]:after {
+                content: '\E900'
+            }
+
+            .joint-widget[data-type="zoomToFit"]:after {
+                content: '\E56B'
+            }
+        }
+    }
+
+    /* Paper */
+    .joint-paper {
+
+        [magnet="active"]:hover {
+            fill: #585858;
+        }
+
+        .joint-highlight-stroke {
+            stroke: #F5B720;
+        }
+
+        .joint-element.joint-type-app.selected [joint-selector="body"] {
+            stroke-width: 2;
+            stroke: #212121;
+        }
+
+        .joint-element {
+            cursor: move;
+
+            [joint-selector="portBody"] {
+                cursor: pointer
+            }
+        }
+    }
+
+    /* Stencil */
+    .joint-stencil {
+        border: none;
+        border-right: 1px solid #D4D4D4;
+        background: #FCFCFC;
+    }
+
+    /*  Tooltip  */
+    .joint-tooltip {
+        background-color: #444444;
+        color: #FFFFFF;
+        font-size: 13px;
+        line-height: 15px;
+        font-family: realist, sans-serif;
+    }
+
+    .joint-tooltip.top {
+
+        .tooltip-arrow,
+        .tooltip-arrow-mask {
+            border-bottom-color: #444444;
+        }
+    }
+
+    .joint-tooltip.bottom {
+
+        .tooltip-arrow,
+        .tooltip-arrow-mask {
+            border-top-color: #444444;
+        }
+    }
+
+    .joint-tooltip.left {
+
+        .tooltip-arrow,
+        .tooltip-arrow-mask {
+            border-right-color: #444444;
+        }
+    }
+
+    .joint-tooltip.right {
+
+        .tooltip-arrow,
+        .tooltip-arrow-mask {
+            border-left-color: #444444;
+        }
+    }
+
+    .joint-tooltip i {
+        color: #BEBEBE
+    }
+}

@@ -1,0 +1,274 @@
+#app {
+
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    font-family: sans-serif;
+    overflow: hidden;
+
+    .canvas {
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        position: absolute;
+        background: #F3F7F6;
+
+        .joint-element {
+            filter: drop-shadow(0.10rem 0.10rem 0.15rem rgba(0, 0, 0, 0.2));
+        }
+
+        [magnet="item"]:hover,
+        .column-connected {
+            fill: #efefef;
+            stroke: #dddddd;
+        }
+
+        .source-arrowhead,
+        .target-arrowhead {
+            fill: #A0A0A0;
+            stroke-width: 1;
+        }
+    }
+
+    /*
+        ***  ui.Dialog ***
+    */
+
+    .joint-dialog.joint-theme-default {
+
+        .body {
+            padding: 0;
+            max-height: 500px;
+            overflow-y: scroll;
+        }
+
+        .fg {
+            border: none;
+            border-radius: 0px;
+            filter: drop-shadow(0.10rem 0.10rem 0.15rem rgba(0, 0, 0, 0.2));
+        }
+
+        .titlebar {
+            padding: 16px;
+            border-radius: 0px;
+            color: #3D3D3D;
+            background: #FFF;
+            border: none;
+            border-bottom: 1px solid #dddddd;
+            font-size: 20px;
+
+            .titletab {
+                height: 5px;
+                position: absolute;
+                top: -5px;
+                left: 0;
+                width: 100%;
+            }
+        }
+
+        .controls {
+            border: none;
+            border-top: 1px solid #dddddd;
+
+            & .control-button {
+                color: #303030;
+                border: 1px solid #CCC;
+                background: #FFF;
+                border-radius: 0px;
+                min-width: 82px;
+
+                &:hover {
+                    border: 1px solid #CCC;
+                    background: #CCC;
+                    opacity: 0.8;
+                    transition: .1s linear;
+                }
+                // Remove button
+                &.left {
+                    color: #F8F8FF;
+                    background: #F6511D;
+                    border: 1px solid #F6511D;
+                }
+            }
+        }
+    }
+
+    /*
+        ***  ui.Inspector ***
+    */
+
+    .joint-paper {
+
+        .joint-element {
+            cursor: move
+        }
+
+        .record-item-body {
+            cursor: pointer
+        }
+    }
+
+    .joint-inspector.joint-theme-default {
+        border: none;
+        background: #FFF;
+        padding: 5px 16px;
+
+         .field {
+            padding: 0;
+         }
+
+        // Column Elements
+        .list-item {
+            color: #636363;
+            background: #FFF;
+            border: none;
+            border-top: 1px solid #CCC;
+            box-shadow: none;
+            padding: 0;
+            padding-top: 12px;
+            padding-bottom: 16px;
+            margin: 0;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .btn-list-add,
+        .btn-list-del {
+            margin: 0;
+            height: 30px;
+            background: transparent;
+            color: #F8F8FF;
+            box-shadow: none;
+            border-radius: 0px;
+
+            &:hover {
+                transition: .1s linear;
+            }
+        }
+
+        .btn-list-add {
+            margin-top: 4px;
+            margin-bottom: 8px;
+            width: 100%;
+            background: #015EFF;
+            border: 1px solid #015EFF;
+
+            &:hover {
+                opacity: 0.8;
+            }
+        }
+
+        .btn-list-del {
+            order: 4;
+            align-self: flex-end;
+            margin-top: 8px;
+            text-align: center;
+            min-width: 82px;
+            color: #F6511D;
+            border: 1px solid #F6511D;
+
+            &:hover {
+                color: #F8F8FF;
+                background: #F6511D;
+            }
+        }
+
+        // Text Labels
+        label,
+        output,
+        .units {
+            color: #3D3D3D;
+            text-transform: none;
+            text-shadow: none;
+            font-size: 12px;
+            margin: 0;
+            line-height: 28px;
+        }
+
+        label:after {
+            content: '';
+        }
+
+        // Inputs
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        .content-editable,
+        select {
+            margin-bottom: 12px;
+            width: 100%;
+            height: auto;
+            line-height: 16px;
+            text-shadow: none;
+            box-shadow: none;
+            box-sizing: border-box;
+            outline: none;
+            padding: 16px 12px;
+            overflow: auto;
+
+            color: #303030;
+            background: #FFF;
+            border: 1px solid #CCC;
+            border-radius: 0px;
+        }
+
+        // Select Input
+        select {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="none" stroke-width="2" stroke="grey"><path d="M6 9l6 6 6-6"/></svg>');
+            background-repeat: no-repeat;
+            background-position-x: 100%;
+            background-position-y: 50%;
+            background-origin: content-box;
+
+            -webkit-appearance: none;
+            cursor: pointer;
+
+            &::-ms-expand {
+                display: none;
+            }
+        }
+
+        // Color Input
+        input[type="color"] {
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        // Toggle
+        .toggle {
+            width: 40px;
+            height: 20px;
+
+            & span,
+            & input:checked + span {
+                border: 1px solid #015EFF;
+                background: #015EFF;
+            }
+
+            & span,
+            & input:not(:checked) + span {
+                border: 1px solid #CCC;
+                background: #CCC;
+            }
+
+            & span {
+                box-shadow: none;
+            }
+
+            & span i:before {
+                content: "";
+            }
+
+            & input:checked + span i:before {
+                content: "";
+            }
+
+            & span i {
+                background: #FFF;
+                transition: .2s;
+            }
+        }
+    }
+}

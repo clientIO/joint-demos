@@ -1,0 +1,81 @@
+
+{
+    "switch": {
+        "name": "Switch",
+        "icon": "switch.png",
+        "inboundPorts": [{
+            "id": "input"
+        }],
+        "outboundPorts": [{
+            "id": "out1",
+            "label": "out 1"
+        }, {
+            "id": "out2",
+            "label": "out 2"
+        }, {
+            "id": "out3",
+            "label": "out 3"
+        }, {
+            "id": "else",
+            "label": "else"
+        }],
+        "description": "A switch control that routes the flow based on conditions.",
+        "data": {
+            "out1": {
+                "name": "Output 1 condition",
+                "type": "string",
+                "description": "Condition for output 1, example: ${country} = 'US'"
+            },
+            "out2": {
+                "name": "Output 2 condition",
+                "type": "string",
+                "description": "Condition for output 2, example: ${country} = 'UK'"
+            },
+            "out3": {
+                "name": "Output 2 condition",
+                "type": "string",
+                "description": "Condition for output 3, example: ${country} = 'CA'"
+            }
+        }
+    },
+    "condition": {
+        "name": "Condition",
+        "icon": "condition.svg",
+        "inboundPorts": [{
+            "id": "input"
+        }],
+        "outboundPorts": [{
+            "id": "out-true",
+            "label": "true"
+        }, {
+            "id": "out-false",
+            "label": "false"
+        }],
+        "description": "A condition control that routes the flow based on a true/false evaluation.",
+        "data": {
+            "condition": {
+                "name": "Condition expression",
+                "type": "string",
+                "description": "An expression that evaluates to true or false, example: ${age} > 18"
+            }
+        }
+    },
+    "wait": {
+        "name": "Wait",
+        "icon": "wait.svg",
+        "inboundPorts": [{
+            "id": "input"
+        }],
+        "outboundPorts": [{
+            "id": "output"
+        }],
+        "description": "A filter control that routes the flow based on a filtering condition.",
+        "data": {
+            "duration": {
+                "name": "Duration",
+                "type": "string",
+                "description": "Unit may be m - minutes, h - hours, d - days, w - weeks, M - months, y - years, example: 5m, 7d"
+            }
+        }
+    }
+}

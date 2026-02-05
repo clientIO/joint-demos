@@ -1,0 +1,20 @@
+.chatbot-json-editor {
+    border-top: 1px solid #D4D4D4;
+    height: 200px;
+    box-sizing: border-box;
+    background: #F5F5F5;
+
+    textarea {
+        height: 100%;
+        width: 100%;
+        background: #F5F5F5;
+        border: none;
+        resize: none;
+        color: #212121;
+        font-family: realist, sans-serif;
+        font-size: 13px;
+        line-height: 15px;
+        padding: 16px;
+        outline: none;
+    }
+}

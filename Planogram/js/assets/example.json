@@ -1,0 +1,995 @@
+{
+  "cells": [
+    {
+      "type": "app.Shelf",
+      "position": {
+        "x": 120,
+        "y": 90
+      },
+      "size": {
+        "width": 540,
+        "height": 90
+      },
+      "angle": 0,
+      "shelfType": "TOP",
+      "id": "c4a840e1-2aad-4a38-945f-8dc5d8aa30d3",
+      "z": 144,
+      "embeds": [
+        "e808cbb8-f345-4747-93ca-98b844f4e95a",
+        "81130709-c377-4570-b04b-9c3c4bfef1e2",
+        "92e6381e-af35-417f-84d3-2a4597e630eb",
+        "9c97a1f6-1128-4504-b8ff-ac6648206657",
+        "8bfc4fd7-3ce9-415d-8bea-01bb7b879a8f",
+        "739d6afb-b4c2-450b-b47f-7331b02817cd",
+        "f432538d-b7c7-42d4-85f9-ea876336802a",
+        "cd982c2b-ef9f-4a1f-81d8-e15f355dd123",
+        "cd007cd2-60b8-40df-9a18-fe0174df6b89"
+      ],
+      "attrs": {
+        "top": {
+          "display": "block"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 120,
+        "y": 90
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "chips1",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "e808cbb8-f345-4747-93ca-98b844f4e95a",
+      "z": 145,
+      "parent": "c4a840e1-2aad-4a38-945f-8dc5d8aa30d3",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/chips/1.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 180,
+        "y": 90
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "chips2",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "81130709-c377-4570-b04b-9c3c4bfef1e2",
+      "z": 146,
+      "parent": "c4a840e1-2aad-4a38-945f-8dc5d8aa30d3",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/chips/2.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 240,
+        "y": 90
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "chips3",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "92e6381e-af35-417f-84d3-2a4597e630eb",
+      "z": 147,
+      "parent": "c4a840e1-2aad-4a38-945f-8dc5d8aa30d3",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/chips/3.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 300,
+        "y": 90
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "nachos1",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "9c97a1f6-1128-4504-b8ff-ac6648206657",
+      "z": 148,
+      "parent": "c4a840e1-2aad-4a38-945f-8dc5d8aa30d3",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/nachos/1.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 360,
+        "y": 90
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "nachos2",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "8bfc4fd7-3ce9-415d-8bea-01bb7b879a8f",
+      "z": 149,
+      "parent": "c4a840e1-2aad-4a38-945f-8dc5d8aa30d3",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/nachos/2.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 420,
+        "y": 90
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "nachos3",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "739d6afb-b4c2-450b-b47f-7331b02817cd",
+      "z": 150,
+      "parent": "c4a840e1-2aad-4a38-945f-8dc5d8aa30d3",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/nachos/3.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 480,
+        "y": 90
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "bombay_mix1",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "f432538d-b7c7-42d4-85f9-ea876336802a",
+      "z": 151,
+      "parent": "c4a840e1-2aad-4a38-945f-8dc5d8aa30d3",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/bombay_mix/1.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 540,
+        "y": 90
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "bombay_mix2",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "cd982c2b-ef9f-4a1f-81d8-e15f355dd123",
+      "z": 152,
+      "parent": "c4a840e1-2aad-4a38-945f-8dc5d8aa30d3",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/bombay_mix/2.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 600,
+        "y": 90
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "bombay_mix3",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "cd007cd2-60b8-40df-9a18-fe0174df6b89",
+      "z": 153,
+      "parent": "c4a840e1-2aad-4a38-945f-8dc5d8aa30d3",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/bombay_mix/3.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Shelf",
+      "position": {
+        "x": 120,
+        "y": 180
+      },
+      "size": {
+        "width": 540,
+        "height": 120
+      },
+      "angle": 0,
+      "shelfType": "MIDDLE",
+      "id": "c109b39f-1233-48a5-82c8-3ed75bd9e514",
+      "z": 154,
+      "embeds": [
+        "0057a4a6-9297-45d5-b0fe-57076a113a23",
+        "e4a18ba3-a060-47b9-b422-795834b3707d",
+        "25a082c6-296a-4e4e-8ea2-bbad88b0ab5c",
+        "a35a2f84-6d11-4764-9cca-b65dc68138d9",
+        "ed873499-5bd4-4e5f-937f-ae047e03be2c",
+        "a3c0cdd3-4712-4854-b13a-9e85f9727d7e"
+      ],
+      "attrs": {}
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 540,
+        "y": 180
+      },
+      "size": {
+        "width": 120,
+        "height": 120
+      },
+      "angle": 0,
+      "productType": "biscuit",
+      "productSize": {
+        "width": 2,
+        "height": 2
+      },
+      "id": "0057a4a6-9297-45d5-b0fe-57076a113a23",
+      "z": 155,
+      "parent": "c109b39f-1233-48a5-82c8-3ed75bd9e514",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/snacks/2.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 420,
+        "y": 210
+      },
+      "size": {
+        "width": 120,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "chocolate",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "e4a18ba3-a060-47b9-b422-795834b3707d",
+      "z": 156,
+      "parent": "c109b39f-1233-48a5-82c8-3ed75bd9e514",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/snacks/3.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 360,
+        "y": 210
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "candy3",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "25a082c6-296a-4e4e-8ea2-bbad88b0ab5c",
+      "z": 157,
+      "parent": "c109b39f-1233-48a5-82c8-3ed75bd9e514",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/candy/3.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 300,
+        "y": 210
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "candy2",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "a35a2f84-6d11-4764-9cca-b65dc68138d9",
+      "z": 158,
+      "parent": "c109b39f-1233-48a5-82c8-3ed75bd9e514",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/candy/2.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 240,
+        "y": 210
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "candy1",
+      "productSize": {
+        "width": 2,
+        "height": 3
+      },
+      "id": "ed873499-5bd4-4e5f-937f-ae047e03be2c",
+      "z": 159,
+      "parent": "c109b39f-1233-48a5-82c8-3ed75bd9e514",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/candy/1.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 120,
+        "y": 180
+      },
+      "size": {
+        "width": 120,
+        "height": 120
+      },
+      "angle": 0,
+      "productType": "nuts",
+      "productSize": {
+        "width": 2,
+        "height": 2
+      },
+      "id": "a3c0cdd3-4712-4854-b13a-9e85f9727d7e",
+      "z": 160,
+      "parent": "c109b39f-1233-48a5-82c8-3ed75bd9e514",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/snacks/1.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Shelf",
+      "position": {
+        "x": 120,
+        "y": 300
+      },
+      "size": {
+        "width": 540,
+        "height": 120
+      },
+      "angle": 0,
+      "shelfType": "MIDDLE",
+      "id": "8f26048c-2417-4fef-9aaf-3594e31204c5",
+      "z": 161,
+      "embeds": [
+        "21176fdb-ea7a-4526-a7cd-b3a984c5dda2",
+        "f00aa3b0-433d-4fb3-b98f-7dcb4a929547",
+        "eebae6a3-b77b-4956-be45-eadda01022d1",
+        "705b8c99-4048-49b1-809a-adc7ae32d7c4",
+        "4cfe1082-32f6-4273-b59a-405fcca1b36c",
+        "7eb32167-2b52-49c0-8f45-5e3c01630a07",
+        "3cda0b51-5bb5-493d-90f7-55ec79889ba9",
+        "8a8691a8-2ccc-4295-b123-1c3be1f3b837",
+        "cbf3dddc-5c08-41cb-a186-1036bcb805b7",
+        "d3f94c98-a003-45ec-acda-98a8333abab7",
+        "8030f18b-29e4-4535-8447-5f3d378235ce"
+      ],
+      "attrs": {}
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 120,
+        "y": 330
+      },
+      "size": {
+        "width": 30,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "sports_drink1",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "21176fdb-ea7a-4526-a7cd-b3a984c5dda2",
+      "z": 162,
+      "parent": "8f26048c-2417-4fef-9aaf-3594e31204c5",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/sports_drink/1.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 150,
+        "y": 330
+      },
+      "size": {
+        "width": 30,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "sports_drink2",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "f00aa3b0-433d-4fb3-b98f-7dcb4a929547",
+      "z": 163,
+      "parent": "8f26048c-2417-4fef-9aaf-3594e31204c5",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/sports_drink/2.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 180,
+        "y": 330
+      },
+      "size": {
+        "width": 30,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "sports_drink3",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "eebae6a3-b77b-4956-be45-eadda01022d1",
+      "z": 164,
+      "parent": "8f26048c-2417-4fef-9aaf-3594e31204c5",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/sports_drink/3.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 210,
+        "y": 330
+      },
+      "size": {
+        "width": 30,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "sports_drink4",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "705b8c99-4048-49b1-809a-adc7ae32d7c4",
+      "z": 165,
+      "parent": "8f26048c-2417-4fef-9aaf-3594e31204c5",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/sports_drink/4.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 240,
+        "y": 330
+      },
+      "size": {
+        "width": 30,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "sports_drink5",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "4cfe1082-32f6-4273-b59a-405fcca1b36c",
+      "z": 166,
+      "parent": "8f26048c-2417-4fef-9aaf-3594e31204c5",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/sports_drink/5.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 270,
+        "y": 300
+      },
+      "size": {
+        "width": 60,
+        "height": 120
+      },
+      "angle": 0,
+      "productType": "soda1",
+      "productSize": {
+        "width": 1,
+        "height": 2
+      },
+      "id": "7eb32167-2b52-49c0-8f45-5e3c01630a07",
+      "z": 167,
+      "parent": "8f26048c-2417-4fef-9aaf-3594e31204c5",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/soda/1.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 330,
+        "y": 300
+      },
+      "size": {
+        "width": 60,
+        "height": 120
+      },
+      "angle": 0,
+      "productType": "soda2",
+      "productSize": {
+        "width": 1,
+        "height": 2
+      },
+      "id": "3cda0b51-5bb5-493d-90f7-55ec79889ba9",
+      "z": 168,
+      "parent": "8f26048c-2417-4fef-9aaf-3594e31204c5",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/soda/2.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 390,
+        "y": 300
+      },
+      "size": {
+        "width": 60,
+        "height": 120
+      },
+      "angle": 0,
+      "productType": "soda3",
+      "productSize": {
+        "width": 1,
+        "height": 2
+      },
+      "id": "8a8691a8-2ccc-4295-b123-1c3be1f3b837",
+      "z": 169,
+      "parent": "8f26048c-2417-4fef-9aaf-3594e31204c5",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/soda/3.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 600,
+        "y": 300
+      },
+      "size": {
+        "width": 60,
+        "height": 120
+      },
+      "angle": 0,
+      "productType": "cordial3",
+      "productSize": {
+        "width": 1,
+        "height": 4
+      },
+      "id": "cbf3dddc-5c08-41cb-a186-1036bcb805b7",
+      "z": 170,
+      "parent": "8f26048c-2417-4fef-9aaf-3594e31204c5",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/cordial/3.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 510,
+        "y": 300
+      },
+      "size": {
+        "width": 90,
+        "height": 120
+      },
+      "angle": 0,
+      "productType": "cordial2",
+      "productSize": {
+        "width": 1,
+        "height": 4
+      },
+      "id": "d3f94c98-a003-45ec-acda-98a8333abab7",
+      "z": 171,
+      "parent": "8f26048c-2417-4fef-9aaf-3594e31204c5",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/cordial/2.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 450,
+        "y": 300
+      },
+      "size": {
+        "width": 60,
+        "height": 120
+      },
+      "angle": 0,
+      "productType": "cordial1",
+      "productSize": {
+        "width": 1,
+        "height": 4
+      },
+      "id": "8030f18b-29e4-4535-8447-5f3d378235ce",
+      "z": 172,
+      "parent": "8f26048c-2417-4fef-9aaf-3594e31204c5",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/cordial/1.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Shelf",
+      "position": {
+        "x": 120,
+        "y": 420
+      },
+      "size": {
+        "width": 540,
+        "height": 90
+      },
+      "angle": 0,
+      "shelfType": "BOTTOM",
+      "id": "206f1ef4-17df-4837-b68a-df7be8c22271",
+      "z": 173,
+      "embeds": [
+        "4a2e418a-da7e-4b07-a950-3c7459247a0c",
+        "c203af10-76db-4d7c-b9c7-2b69bba7023d",
+        "6d7e2574-6b7b-489f-98ad-13129c9be337",
+        "40ede30c-4538-4186-88ae-4be77f26d24c",
+        "c4dfe57b-1b11-4aa3-8544-1fdc855c678d",
+        "dba46b6d-70a7-4c2b-9bc6-a3186bc3b16b",
+        "181e14a6-c238-471b-bd89-49f2a6583b08",
+        "03048eaa-8a94-4d44-a955-bc1a89a374fb",
+        "53f88b77-4527-4eed-a7ca-9661a2258507"
+      ],
+      "attrs": {
+        "bottom": {
+          "display": "block"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 120,
+        "y": 420
+      },
+      "size": {
+        "width": 120,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "cola1",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "4a2e418a-da7e-4b07-a950-3c7459247a0c",
+      "z": 174,
+      "parent": "206f1ef4-17df-4837-b68a-df7be8c22271",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/cola/1.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 240,
+        "y": 420
+      },
+      "size": {
+        "width": 120,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "cola2",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "c203af10-76db-4d7c-b9c7-2b69bba7023d",
+      "z": 175,
+      "parent": "206f1ef4-17df-4837-b68a-df7be8c22271",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/cola/2.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 360,
+        "y": 420
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "pop1",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "6d7e2574-6b7b-489f-98ad-13129c9be337",
+      "z": 176,
+      "parent": "206f1ef4-17df-4837-b68a-df7be8c22271",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/pop/1.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 420,
+        "y": 420
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "pop2",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "40ede30c-4538-4186-88ae-4be77f26d24c",
+      "z": 177,
+      "parent": "206f1ef4-17df-4837-b68a-df7be8c22271",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/pop/2.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 480,
+        "y": 420
+      },
+      "size": {
+        "width": 60,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "pop3",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "c4dfe57b-1b11-4aa3-8544-1fdc855c678d",
+      "z": 178,
+      "parent": "206f1ef4-17df-4837-b68a-df7be8c22271",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/pop/3.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 540,
+        "y": 420
+      },
+      "size": {
+        "width": 30,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "ice_tea1",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "dba46b6d-70a7-4c2b-9bc6-a3186bc3b16b",
+      "z": 179,
+      "parent": "206f1ef4-17df-4837-b68a-df7be8c22271",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/ice_tea/1.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 570,
+        "y": 420
+      },
+      "size": {
+        "width": 30,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "ice_tea2",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "181e14a6-c238-471b-bd89-49f2a6583b08",
+      "z": 180,
+      "parent": "206f1ef4-17df-4837-b68a-df7be8c22271",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/ice_tea/2.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 600,
+        "y": 420
+      },
+      "size": {
+        "width": 30,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "ice_tea3",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "03048eaa-8a94-4d44-a955-bc1a89a374fb",
+      "z": 181,
+      "parent": "206f1ef4-17df-4837-b68a-df7be8c22271",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/ice_tea/3.svg"
+        }
+      }
+    },
+    {
+      "type": "app.Product",
+      "position": {
+        "x": 630,
+        "y": 420
+      },
+      "size": {
+        "width": 30,
+        "height": 90
+      },
+      "angle": 0,
+      "productType": "ice_tea4",
+      "productSize": {
+        "width": 1,
+        "height": 3
+      },
+      "id": "53f88b77-4527-4eed-a7ca-9661a2258507",
+      "z": 182,
+      "parent": "206f1ef4-17df-4837-b68a-df7be8c22271",
+      "attrs": {
+        "body": {
+          "productImage": "assets/products/ice_tea/4.svg"
+        }
+      }
+    }
+  ],
+  "group": "chips"
+}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta name="description" content="The JointJS+ Vector Editor application serves as a template to help bring your idea to life in no time.">
+
+    <title>JointJS+ VectorEditor Application</title>
+
+    
+
+    <link rel="stylesheet" type="text/css" href="./css/header.css" />
+    <link rel="stylesheet" type="text/css" href="./css/toolbar.css" />
+
+    <link rel="stylesheet" type="text/css" href="./css/vector-editor.css" />
+  </head>
+  <body>
+    <header id="header">
+      <h1>VectorEditor</h1>
+      <p>Using PathEditor and PathDrawer in an application.</p>
+    </header>
+
+    <section id="app">
+
+      <div id="toolbar">
+        <button id="btn-undo" class="btn">Undo</button>
+        <button id="btn-redo" class="btn">Redo</button>
+        <button id="btn-clear" class="btn">Clear Canvas</button>
+        <button id="btn-example" class="btn">Load Example</button>
+        <button id="btn-zoom-in" class="btn">Zoom In</button>
+        <button id="btn-zoom-out" class="btn">Zoom Out</button>
+        <button id="btn-download" class="btn">Download</button>
+      </div>
+
+      <div id="workspace">
+        <div id="paper-scroller">
+          <div id="paper"></div>
+        </div>
+        <div id="inspector"></div>
+      </div>
+
+    </section>
+
+    
+        <script type="module" src="/src/main.js"></script>
+    </body>
+</html>

@@ -1,0 +1,153 @@
+$transform-duration: 300ms;
+$fade-in-duration: 300ms;
+$color-transition-duration: 200ms;
+$shadow-transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+
+.paper-container {
+
+    .joint-element {
+
+        &.hover {
+            .node-body {
+                --drop-shadow: 0px 2px 4px rgb(0 0 0 / 0.1);
+
+                filter: drop-shadow(var(--drop-shadow));
+                -webkit-filter: drop-shadow(var(--drop-shadow));
+            }
+        }
+
+        &.hover {
+            .joint-warning-effect {
+                display: none;
+            }
+        }
+
+        &.joint-type-note {
+
+            :first-child {
+                margin-top: 0px; // Remove top margin for the first child
+            }
+
+            foreignObject {
+                /** Separator line **/
+                hr {
+                    color: #FCD44E;
+                    border-style: solid;
+                    border-width: 1px 0 0 0;
+                }
+            }
+        }
+    }
+
+    // Animation element transform changes
+    // exclude elements that have the 'no-transition' - for example, order preview
+    // exclude hovered elements - they are meant to remain interactive
+    .joint-element:not(.no-transition):not(.joint-type-note),
+    .joint-element:not(.no-transition).joint-type-note:not(.hover) {
+        transition: transform $transform-duration ease;
+
+        // Animate trigger height and add criteria button container transform
+        &.joint-type-trigger {
+
+            .trigger-body {
+                transition: height $transform-duration ease, filter $color-transition-duration $shadow-transition-timing-function;
+            }
+
+            .trigger-criteria {
+                transition: transform $transform-duration ease;
+            }
+
+            .add-criteria-button-container {
+                transition: transform $transform-duration ease;
+
+                .add-criteria-button {
+                    transition: fill $color-transition-duration ease-in-out;
+                }
+
+                &:hover .add-criteria-button {
+                    fill: var(--app-primary-hover);
+                }
+            }
+
+            .trigger-criteria-remove {
+                transition: filter $color-transition-duration ease-in-out;
+
+                &:hover {
+                    filter: brightness(80%);
+                }
+            }
+        }
+
+        .node-body {
+            transition: filter $color-transition-duration $shadow-transition-timing-function;
+        }
+    }
+
+    /* Tools and buttons hover effects */
+    .joint-type-placeholder,
+    .joint-type-button,
+    .joint-tool {
+
+        $button-color-hover: #EAEBFB;
+        $button-icon-color-hover: #3F4EDA;
+        $menu-button-hover-color: #e8eaed;
+
+        .resize-button-body,
+        .menu-button-body,
+        .add-button-body,
+        .add-button-icon {
+            transition:
+                fill $color-transition-duration ease-in-out,
+                stroke $color-transition-duration ease-in-out;
+        }
+
+        &:hover {
+            .add-button-body {
+                fill: $button-color-hover;
+                stroke: $button-icon-color-hover;
+            }
+
+            .add-button-icon {
+                stroke: $button-icon-color-hover;
+            }
+
+            .resize-button-body,
+            .menu-button-body {
+                fill: $menu-button-hover-color;
+            }
+        }
+    }
+
+    .joint-link {
+
+        // Animation link d changes
+        // exclude links that have the 'no-transition' - for example, dragged link
+        [joint-selector="line"]:not(.no-transition) {
+            transition: d $transform-duration ease;
+        }
+
+        // Animation link label transform changes
+        .label {
+            transition: transform $transform-duration ease;
+        }
+    }
+
+    // Target the labels container when it has no-transition
+    .label.no-transition {
+        transition: none;
+    }
+
+    .fade-in {
+        @starting-style {
+            opacity: 0;
+        }
+
+        opacity: 1;
+        transition: opacity $fade-in-duration ease;
+    }
+
+    .selection-effect:not([data-type="note"]) {
+        // Fade-in effect is inherited from .fade-in
+        transition: opacity $fade-in-duration ease, d $transform-duration ease;
+    }
+}

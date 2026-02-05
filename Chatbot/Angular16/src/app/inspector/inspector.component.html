@@ -1,0 +1,16 @@
+<div class="inspector-container" [ngClass]="{'disabled-container': !cell}">
+    <ng-container *ngIf="cell; else empty" [ngSwitch]="cell.get('type')">
+        <app-message-inspector [cell]="cell"
+                               *ngSwitchCase="shapeTypesEnum.MESSAGE"></app-message-inspector>
+        <app-link-inspector [cell]="cell" *ngSwitchCase="shapeTypesEnum.LINK"></app-link-inspector>
+        <app-label-inspector [cell]="cell" *ngSwitchCase="shapeTypesEnum.FLOWCHART_START"></app-label-inspector>
+        <app-label-inspector [cell]="cell" *ngSwitchCase="shapeTypesEnum.FLOWCHART_END"></app-label-inspector>
+    </ng-container>
+    <ng-template #empty>
+        <h1>Component</h1>
+        <label>Label
+            <input disabled/>
+        </label>
+    </ng-template>
+</div>
+

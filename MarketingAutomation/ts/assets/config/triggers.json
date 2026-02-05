@@ -1,0 +1,1387 @@
+{
+    "call_events": {
+        "name": "Call events",
+        "icon": "call.svg",
+        "triggers": [
+            {
+                "id": "call_ended",
+                "name": "Call ended",
+                "description": "Triggers when a call with the contact ends.",
+                "data": {
+                    "contact_filter": {
+                        "name": "Contact filter",
+                        "type": "string",
+                        "description": "ID, email, or list slug that limits which contacts are evaluated."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "CRM owner ID or email address to restrict the call to."
+                    },
+                    "duration_seconds": {
+                        "name": "Minimum duration (seconds)",
+                        "type": "number",
+                        "description": "Only trigger when the call lasted at least this many seconds."
+                    },
+                    "call_direction": {
+                        "name": "Call direction",
+                        "type": "string",
+                        "description": "Accepted values: inbound or outbound. Leave blank to match all calls."
+                    }
+                }
+            },
+            {
+                "id": "call_started",
+                "name": "Call started",
+                "description": "Triggers when a call with the contact starts.",
+                "data": {
+                    "contact_filter": {
+                        "name": "Contact filter",
+                        "type": "string",
+                        "description": "ID, email, or list slug that limits which contacts are evaluated."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "CRM owner ID or email address to restrict the call to."
+                    },
+                    "expected_duration_seconds": {
+                        "name": "Expected duration (seconds)",
+                        "type": "number",
+                        "description": "Optional minimum duration threshold for the scheduled call."
+                    },
+                    "call_direction": {
+                        "name": "Call direction",
+                        "type": "string",
+                        "description": "Accepted values: inbound or outbound. Leave blank to match all calls."
+                    }
+                }
+            }
+        ]
+    },
+    "contact_signal_events": {
+        "name": "Contact signal events",
+        "icon": "person_alert.svg",
+        "triggers": [
+            {
+                "id": "email_bounce",
+                "name": "Email bounce",
+                "description": "Triggers when an email sent to the contact bounces.",
+                "data": {
+                    "contact_email": {
+                        "name": "Contact email",
+                        "type": "string",
+                        "description": "Specific email address to monitor for bounce events."
+                    },
+                    "campaign_name": {
+                        "name": "Campaign name",
+                        "type": "string",
+                        "description": "Optional campaign identifier to restrict which sends are evaluated."
+                    },
+                    "bounce_type": {
+                        "name": "Bounce type",
+                        "type": "string",
+                        "description": "Soft, hard, or any. Leave blank to accept every bounce classification."
+                    },
+                    "retry_window_hours": {
+                        "name": "Retry window (hours)",
+                        "type": "number",
+                        "description": "How long to wait before re-triggering for the same email address."
+                    }
+                }
+            },
+            {
+                "id": "job_ended",
+                "name": "Job ended",
+                "description": "Triggers when the contact's current job or position ends.",
+                "data": {
+                    "contact_email": {
+                        "name": "Contact email",
+                        "type": "string",
+                        "description": "Specific contact email to watch for employment changes."
+                    },
+                    "company_name": {
+                        "name": "Company name",
+                        "type": "string",
+                        "description": "Company or account name where the contact previously worked."
+                    },
+                    "job_title": {
+                        "name": "Job title",
+                        "type": "string",
+                        "description": "Job title (or wildcard) that should match the ended role."
+                    },
+                    "effective_date": {
+                        "name": "Effective date",
+                        "type": "date",
+                        "description": "Date when the employment change became effective."
+                    }
+                }
+            },
+            {
+                "id": "job_started",
+                "name": "Job started",
+                "description": "Triggers when the contact starts a new job or position.",
+                "data": {
+                    "contact_email": {
+                        "name": "Contact email",
+                        "type": "string",
+                        "description": "Specific contact email to watch for employment changes."
+                    },
+                    "company_name": {
+                        "name": "Company name",
+                        "type": "string",
+                        "description": "Company or account name where the contact started working."
+                    },
+                    "job_title": {
+                        "name": "Job title",
+                        "type": "string",
+                        "description": "Job title (or wildcard) that should match the new role."
+                    },
+                    "effective_date": {
+                        "name": "Effective date",
+                        "type": "date",
+                        "description": "Date when the employment change became effective."
+                    }
+                }
+            }
+        ]
+    },
+    "data_events": {
+        "name": "Data events",
+        "icon": "database.svg",
+        "triggers": [
+            {
+                "id": "property_value_changed",
+                "name": "Property value changed",
+                "description": "Triggers when a specified property value on a record changes.",
+                "data": {
+                    "object_type": {
+                        "name": "Object type",
+                        "type": "string",
+                        "description": "Record type to monitor (e.g., contact, deal, account)."
+                    },
+                    "property_name": {
+                        "name": "Property name",
+                        "type": "string",
+                        "description": "API name of the property to evaluate."
+                    },
+                    "comparison_operator": {
+                        "name": "Comparison operator",
+                        "type": "string",
+                        "description": "Supported operators: equals, contains, greater_than, less_than."
+                    },
+                    "comparison_value": {
+                        "name": "Comparison value",
+                        "type": "string",
+                        "description": "Value to compare the property against."
+                    },
+                    "time_window_days": {
+                        "name": "Time window (days)",
+                        "type": "number",
+                        "description": "Number of days during which repeated changes should be ignored."
+                    }
+                }
+            },
+            {
+                "id": "record_created",
+                "name": "Record created",
+                "description": "Triggers when a new record is created in your database or CRM.",
+                "data": {
+                    "object_type": {
+                        "name": "Object type",
+                        "type": "string",
+                        "description": "Record type to monitor (e.g., lead, deal, ticket)."
+                    },
+                    "pipeline": {
+                        "name": "Pipeline/stage",
+                        "type": "string",
+                        "description": "Optional pipeline or stage identifier used for filtering."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "User or team responsible for the record."
+                    },
+                    "source": {
+                        "name": "Source",
+                        "type": "string",
+                        "description": "Lifecycle source, campaign, or import used when record was created."
+                    }
+                }
+            },
+            {
+                "id": "segment_membership_changed",
+                "name": "Segment membership changed",
+                "description": "Triggers when a contact is added to or removed from a segment or list.",
+                "data": {
+                    "segment_name": {
+                        "name": "Segment name",
+                        "type": "string",
+                        "description": "Name or ID of the list, view, or audience segment."
+                    },
+                    "membership_state": {
+                        "name": "Membership state",
+                        "type": "string",
+                        "description": "Expected values: added, removed, or any."
+                    },
+                    "threshold": {
+                        "name": "Minimum match threshold",
+                        "type": "number",
+                        "description": "Optional percentage threshold for intent-based segments."
+                    },
+                    "source": {
+                        "name": "Source",
+                        "type": "string",
+                        "description": "Origin of the data powering the segment (form, workflow, import, etc.)."
+                    }
+                }
+            }
+        ]
+    },
+    "document_events": {
+        "name": "Document events",
+        "icon": "description.svg",
+        "triggers": [
+            {
+                "id": "contact_finished_viewing_document",
+                "name": "Contact finished viewing a document",
+                "description": "Triggers when a contact finishes viewing a tracked document.",
+                "data": {
+                    "document_id": {
+                        "name": "Document ID",
+                        "type": "string",
+                        "description": "Internal or public identifier of the tracked document."
+                    },
+                    "contact_email": {
+                        "name": "Contact email",
+                        "type": "string",
+                        "description": "Specific contact email to monitor."
+                    },
+                    "minimum_seconds_viewed": {
+                        "name": "Minimum seconds viewed",
+                        "type": "number",
+                        "description": "Only trigger when the viewer spends at least this amount of time."
+                    },
+                    "share_channel": {
+                        "name": "Share channel",
+                        "type": "string",
+                        "description": "Channel used to distribute the document (email, link, workspace)."
+                    }
+                }
+            },
+            {
+                "id": "contact_viewed_document",
+                "name": "Contact viewed a document",
+                "description": "Triggers when a contact views a tracked document.",
+                "data": {
+                    "document_id": {
+                        "name": "Document ID",
+                        "type": "string",
+                        "description": "Internal or public identifier of the tracked document."
+                    },
+                    "contact_email": {
+                        "name": "Contact email",
+                        "type": "string",
+                        "description": "Specific contact email to monitor."
+                    },
+                    "page_threshold": {
+                        "name": "Page threshold",
+                        "type": "number",
+                        "description": "Minimum number of pages that must be viewed before triggering."
+                    },
+                    "share_channel": {
+                        "name": "Share channel",
+                        "type": "string",
+                        "description": "Channel used to distribute the document (email, link, workspace)."
+                    }
+                }
+            },
+            {
+                "id": "document_shared_with_contact",
+                "name": "Document shared with contact",
+                "description": "Triggers when a document is shared with a contact.",
+                "data": {
+                    "document_id": {
+                        "name": "Document ID",
+                        "type": "string",
+                        "description": "Internal or public identifier of the tracked document."
+                    },
+                    "contact_email": {
+                        "name": "Contact email",
+                        "type": "string",
+                        "description": "Specific contact email to monitor."
+                    },
+                    "shared_by": {
+                        "name": "Shared by",
+                        "type": "string",
+                        "description": "User or team that shared the document."
+                    },
+                    "share_channel": {
+                        "name": "Share channel",
+                        "type": "string",
+                        "description": "Channel used to distribute the document (email, link, workspace)."
+                    }
+                }
+            }
+        ]
+    },
+    "email_events": {
+        "name": "Email events",
+        "icon": "mail.svg",
+        "triggers": [
+            {
+                "id": "clicked_link_in_marketing_email",
+                "name": "Clicked link in marketing email",
+                "description": "Triggers when a tracked link is clicked in a marketing email.",
+                "data": {
+                    "campaign_id": {
+                        "name": "Campaign ID",
+                        "type": "string",
+                        "description": "Marketing campaign to monitor."
+                    },
+                    "link_url": {
+                        "name": "Tracked URL",
+                        "type": "string",
+                        "description": "Exact URL or substring of the link that must be clicked."
+                    },
+                    "contact_email": {
+                        "name": "Contact email",
+                        "type": "string",
+                        "description": "Optional contact email to limit the trigger scope."
+                    },
+                    "utm_medium": {
+                        "name": "UTM medium",
+                        "type": "string",
+                        "description": "Filter clicks based on a matching UTM medium value."
+                    }
+                }
+            },
+            {
+                "id": "marketing_or_sales_email_bounced",
+                "name": "Marketing or sales email bounced",
+                "description": "Triggers when a marketing or sales email bounces.",
+                "data": {
+                    "mailbox": {
+                        "name": "Mailbox",
+                        "type": "string",
+                        "description": "Sending mailbox or connected inbox identifier."
+                    },
+                    "bounce_type": {
+                        "name": "Bounce type",
+                        "type": "string",
+                        "description": "Soft, hard, or any. Leave empty to include all bounce categories."
+                    },
+                    "contact_email": {
+                        "name": "Contact email",
+                        "type": "string",
+                        "description": "Specific contact email to watch."
+                    },
+                    "campaign_id": {
+                        "name": "Campaign ID",
+                        "type": "string",
+                        "description": "Marketing campaign to monitor."
+                    }
+                }
+            },
+            {
+                "id": "marketing_or_sales_email_delivered",
+                "name": "Marketing or sales email delivered",
+                "description": "Triggers when a marketing or sales email is successfully delivered.",
+                "data": {
+                    "mailbox": {
+                        "name": "Mailbox",
+                        "type": "string",
+                        "description": "Sending mailbox or connected inbox identifier."
+                    },
+                    "campaign_id": {
+                        "name": "Campaign ID",
+                        "type": "string",
+                        "description": "Marketing campaign to monitor."
+                    },
+                    "contact_email": {
+                        "name": "Contact email",
+                        "type": "string",
+                        "description": "Specific contact email to watch."
+                    },
+                    "time_window_minutes": {
+                        "name": "Re-fire window (minutes)",
+                        "type": "number",
+                        "description": "Prevent duplicate triggers within this window."
+                    }
+                }
+            },
+            {
+                "id": "marketing_or_sales_email_sent",
+                "name": "Marketing or sales email sent",
+                "description": "Triggers when a marketing or sales email is sent.",
+                "data": {
+                    "mailbox": {
+                        "name": "Mailbox",
+                        "type": "string",
+                        "description": "Sending mailbox or connected inbox identifier."
+                    },
+                    "campaign_id": {
+                        "name": "Campaign ID",
+                        "type": "string",
+                        "description": "Marketing campaign to monitor."
+                    },
+                    "recipient_list": {
+                        "name": "Recipient list",
+                        "type": "string",
+                        "description": "Audience, list, or segment identifier to filter on."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "User responsible for the send."
+                    }
+                }
+            },
+            {
+                "id": "opened_marketing_email",
+                "name": "Opened marketing email",
+                "description": "Triggers when a marketing email is opened.",
+                "data": {
+                    "campaign_id": {
+                        "name": "Campaign ID",
+                        "type": "string",
+                        "description": "Marketing campaign to monitor."
+                    },
+                    "contact_email": {
+                        "name": "Contact email",
+                        "type": "string",
+                        "description": "Specific contact email to watch."
+                    },
+                    "mailbox": {
+                        "name": "Mailbox",
+                        "type": "string",
+                        "description": "Sending mailbox or connected inbox identifier."
+                    },
+                    "device_type": {
+                        "name": "Device type",
+                        "type": "string",
+                        "description": "Desktop, mobile, tablet, or any."
+                    }
+                }
+            },
+            {
+                "id": "replied_to_marketing_email",
+                "name": "Replied to marketing email",
+                "description": "Triggers when a contact replies to a marketing email.",
+                "data": {
+                    "contact_email": {
+                        "name": "Contact email",
+                        "type": "string",
+                        "description": "Specific contact email to watch."
+                    },
+                    "mailbox": {
+                        "name": "Mailbox",
+                        "type": "string",
+                        "description": "Inbox that should receive the reply."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "User responsible for following up with the reply."
+                    },
+                    "response_contains": {
+                        "name": "Response contains",
+                        "type": "string",
+                        "description": "Keyword or phrase that must be present in the reply."
+                    }
+                }
+            }
+        ]
+    },
+    "form_events": {
+        "name": "Form events",
+        "icon": "assignment.svg",
+        "triggers": [
+            {
+                "id": "form_interaction",
+                "name": "Form interaction",
+                "description": "Triggers when a contact interacts with a form (for example by starting to fill in fields).",
+                "data": {
+                    "form_id": {
+                        "name": "Form ID",
+                        "type": "string",
+                        "description": "Identifier of the form to monitor."
+                    },
+                    "page_url": {
+                        "name": "Page URL",
+                        "type": "string",
+                        "description": "Specific page or URL pattern containing the form."
+                    },
+                    "interaction_type": {
+                        "name": "Interaction type",
+                        "type": "string",
+                        "description": "Focus, field_change, validation_error, etc."
+                    },
+                    "device_type": {
+                        "name": "Device type",
+                        "type": "string",
+                        "description": "Desktop, mobile, tablet, or any."
+                    }
+                }
+            },
+            {
+                "id": "form_submission",
+                "name": "Form submission",
+                "description": "Triggers when a contact submits a form.",
+                "data": {
+                    "form_id": {
+                        "name": "Form ID",
+                        "type": "string",
+                        "description": "Identifier of the form to monitor."
+                    },
+                    "page_url": {
+                        "name": "Page URL",
+                        "type": "string",
+                        "description": "Specific page or URL pattern containing the form."
+                    },
+                    "utm_source": {
+                        "name": "UTM source",
+                        "type": "string",
+                        "description": "Traffic source that must match before triggering."
+                    },
+                    "minimum_score": {
+                        "name": "Minimum lead score",
+                        "type": "number",
+                        "description": "Only trigger when the submitter's score exceeds this value."
+                    }
+                }
+            },
+            {
+                "id": "form_view",
+                "name": "Form view",
+                "description": "Triggers when a contact views a page containing a form.",
+                "data": {
+                    "form_id": {
+                        "name": "Form ID",
+                        "type": "string",
+                        "description": "Identifier of the form to monitor."
+                    },
+                    "page_url": {
+                        "name": "Page URL",
+                        "type": "string",
+                        "description": "Specific page or URL pattern containing the form."
+                    },
+                    "traffic_source": {
+                        "name": "Traffic source",
+                        "type": "string",
+                        "description": "Organic, paid, referral, or any."
+                    },
+                    "device_type": {
+                        "name": "Device type",
+                        "type": "string",
+                        "description": "Desktop, mobile, tablet, or any."
+                    }
+                }
+            }
+        ]
+    },
+    "meeting_events": {
+        "name": "Meeting events",
+        "icon": "event.svg",
+        "triggers": [
+            {
+                "id": "meeting_booked",
+                "name": "Meeting booked",
+                "description": "Triggers when a meeting is booked with a contact.",
+                "data": {
+                    "meeting_type": {
+                        "name": "Meeting type",
+                        "type": "string",
+                        "description": "Name of the scheduling template or meeting type."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "User who should receive the meeting booking."
+                    },
+                    "minimum_attendees": {
+                        "name": "Minimum attendees",
+                        "type": "number",
+                        "description": "Minimum attendee count required for this trigger."
+                    },
+                    "booking_link": {
+                        "name": "Booking link",
+                        "type": "string",
+                        "description": "Specific scheduling page or link slug."
+                    }
+                }
+            },
+            {
+                "id": "meeting_outcome_change",
+                "name": "Meeting outcome change",
+                "description": "Triggers when the outcome or status of a meeting is updated.",
+                "data": {
+                    "meeting_type": {
+                        "name": "Meeting type",
+                        "type": "string",
+                        "description": "Name of the scheduling template or meeting type."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "User who hosted the meeting."
+                    },
+                    "new_outcome": {
+                        "name": "New outcome",
+                        "type": "string",
+                        "description": "Completed, no_show, rescheduled, canceled, etc."
+                    },
+                    "pipeline_stage": {
+                        "name": "Linked pipeline stage",
+                        "type": "string",
+                        "description": "Deal or opportunity stage that should be updated."
+                    }
+                }
+            }
+        ]
+    },
+    "sequence_events": {
+        "name": "Sequence events",
+        "icon": "timeline.svg",
+        "triggers": [
+            {
+                "id": "contact_booked_meeting_through_sequence",
+                "name": "Contact booked meeting through a sequence",
+                "description": "Triggers when a contact books a meeting through a sequence.",
+                "data": {
+                    "sequence_id": {
+                        "name": "Sequence ID",
+                        "type": "string",
+                        "description": "Identifier of the sequence that should be monitored."
+                    },
+                    "owner": {
+                        "name": "Sequence owner",
+                        "type": "string",
+                        "description": "Rep or mailbox that owns the enrollment."
+                    },
+                    "step_number": {
+                        "name": "Step number",
+                        "type": "number",
+                        "description": "Step at which the meeting was booked."
+                    },
+                    "meeting_type": {
+                        "name": "Meeting type",
+                        "type": "string",
+                        "description": "Name of the meeting template that should count."
+                    }
+                }
+            },
+            {
+                "id": "contract_enrolled_in_sequence",
+                "name": "Contract enrolled in a sequence",
+                "description": "Triggers when a contact is enrolled in a sequence.",
+                "data": {
+                    "sequence_id": {
+                        "name": "Sequence ID",
+                        "type": "string",
+                        "description": "Identifier of the sequence that should be monitored."
+                    },
+                    "enrollment_source": {
+                        "name": "Enrollment source",
+                        "type": "string",
+                        "description": "Manual, workflow, import, or API."
+                    },
+                    "owner": {
+                        "name": "Sequence owner",
+                        "type": "string",
+                        "description": "Rep or mailbox that owns the enrollment."
+                    },
+                    "starting_step": {
+                        "name": "Starting step",
+                        "type": "number",
+                        "description": "First step that should be used when the contact is enrolled."
+                    }
+                }
+            },
+            {
+                "id": "contract_unenrolled_from_sequence",
+                "name": "Contract unenrolled from a sequence",
+                "description": "Triggers when a contact is unenrolled from a sequence.",
+                "data": {
+                    "sequence_id": {
+                        "name": "Sequence ID",
+                        "type": "string",
+                        "description": "Identifier of the sequence that should be monitored."
+                    },
+                    "owner": {
+                        "name": "Sequence owner",
+                        "type": "string",
+                        "description": "Rep or mailbox that owns the enrollment."
+                    },
+                    "step_number": {
+                        "name": "Last completed step",
+                        "type": "number",
+                        "description": "Step index when the unenrollment happened."
+                    },
+                    "reason": {
+                        "name": "Unenrollment reason",
+                        "type": "string",
+                        "description": "Bounced, replied, manual, converted, etc."
+                    }
+                }
+            },
+            {
+                "id": "contact_unenrolled_from_sequence_via_workflow",
+                "name": "Contact unenrolled from a sequence via a workflow",
+                "description": "Triggers when a workflow unenrolls a contact from a sequence.",
+                "data": {
+                    "sequence_id": {
+                        "name": "Sequence ID",
+                        "type": "string",
+                        "description": "Identifier of the sequence that should be monitored."
+                    },
+                    "workflow_id": {
+                        "name": "Workflow ID",
+                        "type": "string",
+                        "description": "Workflow responsible for the unenrollment."
+                    },
+                    "owner": {
+                        "name": "Sequence owner",
+                        "type": "string",
+                        "description": "Rep or mailbox that owns the enrollment."
+                    },
+                    "reason": {
+                        "name": "Unenrollment reason",
+                        "type": "string",
+                        "description": "Bounced, replied, manual, converted, etc."
+                    }
+                }
+            },
+            {
+                "id": "contact_unenrolled_manually_from_sequence",
+                "name": "Contact unenrolled manually from a sequence",
+                "description": "Triggers when a contact is manually unenrolled from a sequence.",
+                "data": {
+                    "sequence_id": {
+                        "name": "Sequence ID",
+                        "type": "string",
+                        "description": "Identifier of the sequence that should be monitored."
+                    },
+                    "owner": {
+                        "name": "Sequence owner",
+                        "type": "string",
+                        "description": "Rep or mailbox that owns the enrollment."
+                    },
+                    "actor": {
+                        "name": "Actor",
+                        "type": "string",
+                        "description": "User who performed the manual unenrollment."
+                    },
+                    "reason": {
+                        "name": "Unenrollment reason",
+                        "type": "string",
+                        "description": "Bounced, replied, manual, converted, etc."
+                    }
+                }
+            },
+            {
+                "id": "sequence_finished",
+                "name": "Sequence finished",
+                "description": "Triggers when a sequence finishes for a contact.",
+                "data": {
+                    "sequence_id": {
+                        "name": "Sequence ID",
+                        "type": "string",
+                        "description": "Identifier of the sequence that should be monitored."
+                    },
+                    "owner": {
+                        "name": "Sequence owner",
+                        "type": "string",
+                        "description": "Rep or mailbox that owns the enrollment."
+                    },
+                    "duration_days": {
+                        "name": "Duration (days)",
+                        "type": "number",
+                        "description": "Minimum duration the contact stayed enrolled before finishing."
+                    },
+                    "success_state": {
+                        "name": "Success state",
+                        "type": "string",
+                        "description": "Converted, exhausted, bounced, or any."
+                    }
+                }
+            }
+        ]
+    },
+    "website_events": {
+        "name": "Website events",
+        "icon": "language.svg",
+        "triggers": [
+            {
+                "id": "cta_click",
+                "name": "CTA click",
+                "description": "Triggers when a contact clicks a CTA on your website.",
+                "data": {
+                    "cta_id": {
+                        "name": "CTA ID",
+                        "type": "string",
+                        "description": "Identifier or slug of the CTA element."
+                    },
+                    "page_url": {
+                        "name": "Page URL",
+                        "type": "string",
+                        "description": "Page or URL pattern where the CTA lives."
+                    },
+                    "traffic_source": {
+                        "name": "Traffic source",
+                        "type": "string",
+                        "description": "Organic, paid, referral, or any."
+                    },
+                    "minimum_sessions": {
+                        "name": "Minimum sessions",
+                        "type": "number",
+                        "description": "Only fire when the visitor has at least this many sessions."
+                    }
+                }
+            },
+            {
+                "id": "cta_view",
+                "name": "CTA view",
+                "description": "Triggers when a contact views a CTA on your website.",
+                "data": {
+                    "cta_id": {
+                        "name": "CTA ID",
+                        "type": "string",
+                        "description": "Identifier or slug of the CTA element."
+                    },
+                    "page_url": {
+                        "name": "Page URL",
+                        "type": "string",
+                        "description": "Page or URL pattern where the CTA lives."
+                    },
+                    "traffic_source": {
+                        "name": "Traffic source",
+                        "type": "string",
+                        "description": "Organic, paid, referral, or any."
+                    },
+                    "view_threshold": {
+                        "name": "Required impressions",
+                        "type": "number",
+                        "description": "Number of impressions required before triggering."
+                    }
+                }
+            },
+            {
+                "id": "page_visited",
+                "name": "Page visited",
+                "description": "Triggers when a contact visits a tracked page on your website.",
+                "data": {
+                    "url_pattern": {
+                        "name": "URL pattern",
+                        "type": "string",
+                        "description": "Exact URL or pattern (regex, wildcard) that must match."
+                    },
+                    "traffic_source": {
+                        "name": "Traffic source",
+                        "type": "string",
+                        "description": "Organic, paid, referral, or any."
+                    },
+                    "minimum_sessions": {
+                        "name": "Minimum sessions",
+                        "type": "number",
+                        "description": "Only fire when the visitor has at least this many sessions."
+                    },
+                    "device_type": {
+                        "name": "Device type",
+                        "type": "string",
+                        "description": "Desktop, mobile, tablet, or any."
+                    }
+                }
+            }
+        ]
+    },
+    "website_and_media_events": {
+        "name": "Website & media events",
+        "icon": "subscriptions.svg",
+        "triggers": [
+            {
+                "id": "ad_interaction",
+                "name": "Ad interaction",
+                "description": "Triggers when a contact interacts with a tracked ad.",
+                "data": {
+                    "campaign_id": {
+                        "name": "Campaign ID",
+                        "type": "string",
+                        "description": "Ad campaign identifier."
+                    },
+                    "placement": {
+                        "name": "Placement",
+                        "type": "string",
+                        "description": "Network or placement (search, social, display)."
+                    },
+                    "creative_id": {
+                        "name": "Creative ID",
+                        "type": "string",
+                        "description": "Version of the ad creative to monitor."
+                    },
+                    "engagement_type": {
+                        "name": "Engagement type",
+                        "type": "string",
+                        "description": "Click, impression, video_view, etc."
+                    }
+                }
+            },
+            {
+                "id": "media_play",
+                "name": "Media play",
+                "description": "Triggers when a contact plays a tracked media asset such as a video or audio clip.",
+                "data": {
+                    "asset_id": {
+                        "name": "Asset ID",
+                        "type": "string",
+                        "description": "Identifier of the media asset."
+                    },
+                    "campaign_id": {
+                        "name": "Campaign ID",
+                        "type": "string",
+                        "description": "Marketing campaign associated with the asset."
+                    },
+                    "percent_complete": {
+                        "name": "Percent complete",
+                        "type": "number",
+                        "description": "Minimum playback percentage before the trigger fires."
+                    },
+                    "media_type": {
+                        "name": "Media type",
+                        "type": "string",
+                        "description": "Video, audio, livestream, etc."
+                    }
+                }
+            }
+        ]
+    },
+    "workflow_events": {
+        "name": "Workflow events",
+        "icon": "schema.svg",
+        "triggers": [
+            {
+                "id": "achieved_workflow_goal",
+                "name": "Achieved workflow goal",
+                "description": "Triggers when a contact achieves the defined goal of a workflow.",
+                "data": {
+                    "workflow_id": {
+                        "name": "Workflow ID",
+                        "type": "string",
+                        "description": "Identifier of the workflow to monitor."
+                    },
+                    "goal_name": {
+                        "name": "Goal name",
+                        "type": "string",
+                        "description": "Specific goal or conversion to match."
+                    },
+                    "audience_filter": {
+                        "name": "Audience filter",
+                        "type": "string",
+                        "description": "List, lifecycle stage, or segment to limit goal tracking."
+                    },
+                    "time_window_days": {
+                        "name": "Goal window (days)",
+                        "type": "number",
+                        "description": "Minimum days before repeat goal completions trigger again."
+                    }
+                }
+            },
+            {
+                "id": "enrolled_in_workflow",
+                "name": "Enrolled in workflow",
+                "description": "Triggers when a contact is enrolled in a workflow.",
+                "data": {
+                    "workflow_id": {
+                        "name": "Workflow ID",
+                        "type": "string",
+                        "description": "Identifier of the workflow to monitor."
+                    },
+                    "source": {
+                        "name": "Enrollment source",
+                        "type": "string",
+                        "description": "Manual, list, API, form, or any."
+                    },
+                    "owner": {
+                        "name": "Workflow owner",
+                        "type": "string",
+                        "description": "User responsible for the workflow."
+                    },
+                    "starting_step": {
+                        "name": "Starting step",
+                        "type": "string",
+                        "description": "Name or ID of the first step used for enrollment."
+                    }
+                }
+            },
+            {
+                "id": "unenrolled_from_workflow",
+                "name": "Unenrolled from workflow",
+                "description": "Triggers when a contact is unenrolled from a workflow.",
+                "data": {
+                    "workflow_id": {
+                        "name": "Workflow ID",
+                        "type": "string",
+                        "description": "Identifier of the workflow to monitor."
+                    },
+                    "owner": {
+                        "name": "Workflow owner",
+                        "type": "string",
+                        "description": "User responsible for the workflow."
+                    },
+                    "exit_reason": {
+                        "name": "Exit reason",
+                        "type": "string",
+                        "description": "Goal_met, manual, suppression, or error."
+                    },
+                    "step_name": {
+                        "name": "Step name",
+                        "type": "string",
+                        "description": "Workflow step where the unenrollment occurred."
+                    }
+                }
+            }
+        ]
+    },
+    "freshdesk_events": {
+        "name": "Freshdesk events",
+        "icon": "freshdesk.webp",
+        "triggers": [
+            {
+                "id": "closed_ticket",
+                "name": "Closed ticket",
+                "description": "Triggers when a Freshdesk ticket is closed.",
+                "data": {
+                    "group_id": {
+                        "name": "Group ID",
+                        "type": "integer",
+                        "description": "Numeric ID of the Freshdesk group handling the ticket."
+                    },
+                    "agent_id": {
+                        "name": "Agent ID",
+                        "type": "integer",
+                        "description": "Optional agent assigned to the ticket."
+                    },
+                    "priority": {
+                        "name": "Priority",
+                        "type": "integer",
+                        "description": "Priority level (1-4) that must match."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "integer",
+                        "description": "Status code expected before closure."
+                    }
+                }
+            },
+            {
+                "id": "created_ticket",
+                "name": "Created ticket",
+                "description": "Triggers when a new Freshdesk ticket is created.",
+                "data": {
+                    "group_id": {
+                        "name": "Group ID",
+                        "type": "integer",
+                        "description": "Numeric ID of the Freshdesk group handling the ticket."
+                    },
+                    "source": {
+                        "name": "Source",
+                        "type": "string",
+                        "description": "Email, phone, portal, social, chat, etc."
+                    },
+                    "priority": {
+                        "name": "Priority",
+                        "type": "integer",
+                        "description": "Priority level (1-4) that must match."
+                    },
+                    "tag": {
+                        "name": "Tag",
+                        "type": "string",
+                        "description": "Ticket tag that must be present."
+                    }
+                }
+            },
+            {
+                "id": "received_survey",
+                "name": "Received survey",
+                "description": "Triggers when a Freshdesk satisfaction survey response is received.",
+                "data": {
+                    "survey_type": {
+                        "name": "Survey type",
+                        "type": "string",
+                        "description": "CSAT, CES, or NPS."
+                    },
+                    "rating_threshold": {
+                        "name": "Rating threshold",
+                        "type": "number",
+                        "description": "Minimum or maximum rating that should trigger."
+                    },
+                    "agent_id": {
+                        "name": "Agent ID",
+                        "type": "integer",
+                        "description": "Agent associated with the survey."
+                    },
+                    "comment_contains": {
+                        "name": "Comment contains",
+                        "type": "string",
+                        "description": "Keyword or phrase that must appear in the response."
+                    }
+                }
+            },
+            {
+                "id": "resolved_ticket",
+                "name": "Resolved ticket",
+                "description": "Triggers when a Freshdesk ticket is marked as resolved.",
+                "data": {
+                    "group_id": {
+                        "name": "Group ID",
+                        "type": "integer",
+                        "description": "Numeric ID of the Freshdesk group handling the ticket."
+                    },
+                    "agent_id": {
+                        "name": "Agent ID",
+                        "type": "integer",
+                        "description": "Optional agent assigned to the ticket."
+                    },
+                    "resolution_time_hours": {
+                        "name": "Resolution time (hours)",
+                        "type": "number",
+                        "description": "Maximum time allowed between creation and resolution."
+                    },
+                    "satisfaction_threshold": {
+                        "name": "Satisfaction threshold",
+                        "type": "number",
+                        "description": "Minimum CSAT value associated with the ticket."
+                    }
+                }
+            }
+        ]
+    },
+    "hublead_events": {
+        "name": "Hublead events",
+        "icon": "hublead.png",
+        "triggers": [
+            {
+                "id": "linked_in_invitation_sent",
+                "name": "LinkedIn invitation sent",
+                "description": "Triggers when a LinkedIn connection invitation is sent to a prospect.",
+                "data": {
+                    "prospect_profile": {
+                        "name": "Prospect profile URL",
+                        "type": "string",
+                        "description": "LinkedIn URL of the prospect profile."
+                    },
+                    "campaign_name": {
+                        "name": "Campaign name",
+                        "type": "string",
+                        "description": "Outbound campaign or playbook being used."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "Rep sending the invitation."
+                    },
+                    "follow_up_in_days": {
+                        "name": "Follow-up in days",
+                        "type": "number",
+                        "description": "How many days to wait before the next step if no response."
+                    }
+                }
+            },
+            {
+                "id": "LinkedIn message received",
+                "name": "LinkedIn message received",
+                "description": "Triggers when a LinkedIn message is received from a prospect.",
+                "data": {
+                    "prospect_profile": {
+                        "name": "Prospect profile URL",
+                        "type": "string",
+                        "description": "LinkedIn URL of the prospect profile."
+                    },
+                    "campaign_name": {
+                        "name": "Campaign name",
+                        "type": "string",
+                        "description": "Outbound campaign or playbook being used."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "Rep responsible for the conversation."
+                    },
+                    "message_contains": {
+                        "name": "Message contains",
+                        "type": "string",
+                        "description": "Keyword or phrase that must appear in the inbound message."
+                    }
+                }
+            },
+            {
+                "id": "LinkedIn message sent",
+                "name": "LinkedIn message sent",
+                "description": "Triggers when a LinkedIn message is sent to a prospect.",
+                "data": {
+                    "prospect_profile": {
+                        "name": "Prospect profile URL",
+                        "type": "string",
+                        "description": "LinkedIn URL of the prospect profile."
+                    },
+                    "campaign_name": {
+                        "name": "Campaign name",
+                        "type": "string",
+                        "description": "Outbound campaign or playbook being used."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "Rep responsible for the conversation."
+                    },
+                    "message_template": {
+                        "name": "Message template",
+                        "type": "string",
+                        "description": "Template or snippet identifier used for the send."
+                    }
+                }
+            },
+            {
+                "id": "New LinkedIn connection",
+                "name": "New LinkedIn connection",
+                "description": "Triggers when a new LinkedIn connection is created.",
+                "data": {
+                    "prospect_profile": {
+                        "name": "Prospect profile URL",
+                        "type": "string",
+                        "description": "LinkedIn URL of the prospect profile."
+                    },
+                    "campaign_name": {
+                        "name": "Campaign name",
+                        "type": "string",
+                        "description": "Outbound campaign or playbook being used."
+                    },
+                    "owner": {
+                        "name": "Owner",
+                        "type": "string",
+                        "description": "Rep responsible for the conversation."
+                    },
+                    "connection_source": {
+                        "name": "Connection source",
+                        "type": "string",
+                        "description": "LinkedIn import, automation, manual search, or event."
+                    }
+                }
+            }
+        ]
+    },
+    "mailchimp_events": {
+        "name": "Mailchimp events",
+        "icon": "mailchimp.png",
+        "triggers": [
+            {
+                "id": "bounce",
+                "name": "Bounce",
+                "description": "Triggers when a Mailchimp email sent to a contact bounces.",
+                "data": {
+                    "audience_id": {
+                        "name": "Audience ID",
+                        "type": "string",
+                        "description": "Mailchimp list or audience identifier."
+                    },
+                    "campaign_id": {
+                        "name": "Campaign ID",
+                        "type": "string",
+                        "description": "Campaign to monitor."
+                    },
+                    "email_address": {
+                        "name": "Email address",
+                        "type": "string",
+                        "description": "Specific recipient email to filter on."
+                    },
+                    "bounce_type": {
+                        "name": "Bounce type",
+                        "type": "string",
+                        "description": "Hard, soft, or any."
+                    }
+                }
+            },
+            {
+                "id": "click",
+                "name": "Click",
+                "description": "Triggers when a tracked link is clicked in a Mailchimp email.",
+                "data": {
+                    "audience_id": {
+                        "name": "Audience ID",
+                        "type": "string",
+                        "description": "Mailchimp list or audience identifier."
+                    },
+                    "campaign_id": {
+                        "name": "Campaign ID",
+                        "type": "string",
+                        "description": "Campaign to monitor."
+                    },
+                    "link_url": {
+                        "name": "Tracked URL",
+                        "type": "string",
+                        "description": "Exact link that must be clicked."
+                    },
+                    "email_address": {
+                        "name": "Email address",
+                        "type": "string",
+                        "description": "Specific recipient email to filter on."
+                    }
+                }
+            },
+            {
+                "id": "open",
+                "name": "Open",
+                "description": "Triggers when a Mailchimp email is opened.",
+                "data": {
+                    "audience_id": {
+                        "name": "Audience ID",
+                        "type": "string",
+                        "description": "Mailchimp list or audience identifier."
+                    },
+                    "campaign_id": {
+                        "name": "Campaign ID",
+                        "type": "string",
+                        "description": "Campaign to monitor."
+                    },
+                    "email_address": {
+                        "name": "Email address",
+                        "type": "string",
+                        "description": "Specific recipient email to filter on."
+                    },
+                    "device_type": {
+                        "name": "Device type",
+                        "type": "string",
+                        "description": "Desktop, mobile, tablet, or any."
+                    }
+                }
+            },
+            {
+                "id": "sent",
+                "name": "Sent",
+                "description": "Triggers when a Mailchimp email is sent.",
+                "data": {
+                    "audience_id": {
+                        "name": "Audience ID",
+                        "type": "string",
+                        "description": "Mailchimp list or audience identifier."
+                    },
+                    "campaign_id": {
+                        "name": "Campaign ID",
+                        "type": "string",
+                        "description": "Campaign to monitor."
+                    },
+                    "segment_name": {
+                        "name": "Segment name",
+                        "type": "string",
+                        "description": "Audience segment that must be targeted."
+                    },
+                    "send_time": {
+                        "name": "Send time",
+                        "type": "datetime",
+                        "description": "Restrict to sends that happen within this window."
+                    }
+                }
+            }
+        ]
+    }
+}

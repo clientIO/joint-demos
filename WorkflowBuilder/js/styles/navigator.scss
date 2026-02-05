@@ -1,0 +1,34 @@
+@import './navigator/navigator.scss';
+
+.joint-navigator {
+    .joint-paper {
+
+        svg {
+            shape-rendering: geometricPrecision !important;
+        }
+
+        .joint-element {
+
+            .trigger {
+                fill: #CCD9E1;
+                stroke: #C0D2D8;
+            }
+
+            .action {
+                fill: #8DA9D3;
+                stroke: #799BC8;
+            }
+
+            .control {
+                fill: #92E39A;
+                stroke: #76D681;
+            }
+
+            .note {
+                fill: #F1F0D7;
+                stroke: #F1F0D7;
+            }
+
+        }
+    }
+}

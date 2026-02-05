@@ -1,0 +1,37 @@
+/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+
+Copyright (c) 2025 client IO
+
+This Source Code Form is subject to the terms of the JointJS+
+License, v. 2.0. If a copy of the JointJS+ License was not
+distributed with this file, You can obtain one at
+https://www.jointjs.com/license or from the JointJS+ archive as was
+distributed by client IO. See the LICENSE file.
+*/
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+}
+
+.example {
+    text-align: center;
+    font-family: 'Helvetica Neue Light','Helvetica Neue','Source Sans Pro',sans-serif;
+}
+a {
+    display: inline-block;
+    margin-top: 32px;
+    color: #3c4260;
+    text-decoration: underline;
+}
+a:hover {
+    color: #31d0c6;
+    text-decoration: underline;
+}

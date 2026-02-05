@@ -1,0 +1,137 @@
+$border-color: #e2e2e2;
+$bg-color: #ffffff;
+$header-color: #f2f2f2;
+$hover-color: #d3d3d3;
+$color: #333333;
+
+@mixin btn() {
+    border: 1px solid $border-color;
+    background-color: $bg-color;
+    color: $color;
+    padding: 4px;
+    font-size: 12px;
+    border-radius: 4px;
+    line-height: unset;
+    min-height: 30px;
+
+    &:hover:not(:disabled) {
+        background-color: $hover-color
+    }
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+.app {
+    width: 100%;
+    height: 100%;
+
+    .joint-paper {
+        border: 1px solid $border-color;
+        margin: 0 auto;
+
+        .caret.placeholder {
+            background: none;
+            font-family: sans-serif;
+        }
+
+        > svg {
+            overflow: visible;
+        }
+
+        .joint-type-idea {
+            cursor: pointer;
+        }
+    }
+
+    .joint-toolbar {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        border: 1px solid $border-color;
+
+        * {
+            text-transform: capitalize;
+            font-family: sans-serif;
+        }
+
+        &.joint-theme-modern {
+            background-color: $bg-color;
+            padding: 4px;
+            border-radius: 3px;
+        }
+
+        button.joint-widget {
+            @include btn;
+        }
+
+        [data-name="idea-image"] {
+            &::before {
+                width: 16px;
+                content: '⬆';
+            }
+            &.image-removal::before {
+                content: '✖';
+            }
+        }
+
+        [data-type^="zoom"]::after {
+            width: 10px;
+        }
+    }
+
+    .joint-dialog {
+
+        * {
+            font-family: sans-serif;
+        }
+
+        .fg {
+            border: 1px solid $border-color;
+            background-color: $bg-color;
+            box-shadow: 2px 2px 2px rgba($border-color, .7);
+
+            .titlebar {
+                background-color: $header-color;
+                padding: 8px;
+            }
+
+            button {
+                @include btn;
+
+                &.btn-close {
+                    min-height: auto;
+                }
+            }
+
+            td {
+                padding: 0 10px;
+
+                .key, .pointer {
+                    display: inline-block;
+                    border: 1px solid #3c4260;
+                    background: #F8F8F8;
+                    border-radius: 4px;
+                    padding: 4px;
+                    margin: 1px 0;
+                    font-size: 12px;
+                }
+                .pointer {
+                    border-style: dotted;
+                }
+            }
+
+            .joint-inspector {
+                position: relative;
+
+                label {
+                    font-size: 12px;
+                }
+            }
+        }
+    }
+}

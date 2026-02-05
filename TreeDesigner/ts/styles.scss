@@ -1,0 +1,371 @@
+$bg-connection: #E4EBF1;
+
+$border-connection: #2B3A49;
+
+@mixin highlight {
+    border: 1.5px solid #131E29 !important;
+    background: #E8EEF3;
+    box-shadow: 0px 0px 7px 0px #185EB680;
+    scroll-margin-top: 25px;
+}
+
+html {
+    height: 100%;
+}
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#paper {
+    position: relative;
+    flex: 2;
+    width: auto;
+}
+
+#inspector {
+    flex: 1;
+    max-width: 500px;
+    overflow-y: auto;
+    background-color: #f5f7f6;
+    font-family: Arial, sans-serif;
+    border: 1px dashed #BBC0CF;
+
+    #inspector-header {
+        background-color: #FBFBFB;
+        margin: 15px 5px;
+        padding-left: 10px;
+        height: 36px;
+        box-sizing: border-box;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        border: 1px solid #BBC0CF;
+        border-radius: 8px;
+
+        span {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 17.25px;
+            text-align: left;
+        }
+    }
+}
+
+#inspector .joint-inspector {
+    background: #f5f7f6;
+    color: #151e28;
+    overflow-y: hidden;
+    position: static;
+    border: 1px solid #f5f7f6;
+    border-radius: 8px;
+}
+
+#inspector .toggle-field {
+
+    & > * {
+        display: inline-block;
+    }
+
+    & > .toggle {
+
+        input {
+            margin-top: 2px;
+        }
+
+        &  > span {
+            display: none;
+        }
+    }
+}
+
+#inspector .list-field {
+
+    position: relative;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    & > label {
+        margin-top: 0;
+        margin-bottom: 16px;
+    }
+
+    .btn-list-add,
+    .btn-list-del {
+        color: white;
+        position: absolute;
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 15.7px;
+        text-align: center;
+        border-radius: 20px;
+        border: none;
+    }
+
+    .btn-list-add {
+        background: #2274A5;
+        top: 0;
+        right: 8px;
+    }
+
+    .btn-list-del {
+        background: #ED2637;
+        color: white;
+        top: 12px;
+        right: 0;
+    }
+
+    .list-item {
+        border-radius: 4px;
+        border: 1px solid #d4d4d4;
+        background-color: #f5f7f6;
+        position: relative;
+        padding: 0;
+        padding-top: 10px;
+        margin-top: 10px;
+
+        [data-field$="label"] {
+
+            label {
+                display: flex;
+                align-items: center;
+            }
+
+            label::before {
+                content: url('/assets/inspector/icon-child-label.svg');
+                width: 10px;
+                height: 18px;
+                margin-right: 16px;
+            }
+        }
+    }
+}
+
+#inspector .object-field {
+    padding: 0;
+}
+
+#inspector label {
+    font-weight: bold;
+}
+
+#inspector input,
+#inspector select,
+#inspector [contenteditable] {
+    background: white;
+    border: 1px solid #d4d4d4;
+    padding: 4px 6px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+#inspector {
+    select, [contenteditable], input[type='text'], input[type='number'] {
+        min-height: 30px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 17.25px;
+        text-align: left;
+        cursor: pointer;
+
+        transition: border-color 0.2s ease-in;
+
+        &:focus:not([readonly]), &:hover:not([readonly]) {
+            border-color: #304254;
+        }
+    }
+}
+
+#inspector input[readonly] {
+    background: #E4EBF1;
+    cursor: initial;
+}
+
+#inspector input[type='number'] {
+    width: 50px;
+}
+
+#inspector .toggle {
+    width: auto;
+    left: auto;
+    right: auto;
+    margin: 0 3px;
+}
+
+#inspector input[type='checkbox'] {
+    opacity: 1;
+    -webkit-appearance: checkbox;
+}
+
+
+/* #inspector .list-item:hover:not(:has(.list-item:hover)) {
+    border: 1px solid #ed2637;
+    background: #fcf3f1;
+} */
+
+#inspector .highlighted {
+    @include highlight;
+}
+
+#toolbar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 3px;
+    background: #F5F7F6;
+    border: 1px solid #BBC0CF;
+    border-radius: 4px;
+
+    .joint-toolbar {
+        border: none;
+        padding: 0;
+
+        .joint-toolbar-group {
+            gap: 4px;
+        }
+    }
+
+    button.joint-widget {
+
+        --undo-redo-icon-size: 20px;
+
+        margin: 0;
+
+        &:hover:not(:disabled) {
+            background-color: #EEF1F8;
+        }
+
+        &[data-type="undo"], &[data-type="redo"] {
+            width: 40px;
+            height: 30px;
+            justify-content: center;
+
+            &:disabled {
+
+                cursor: initial;
+
+                &::after {
+                    opacity: 0.5;
+                }
+            }
+        }
+
+        &[data-type="undo"]::after {
+            content: url('/assets/toolbar/icon-undo.svg');
+            width: var(--undo-redo-icon-size);
+            height: var(--undo-redo-icon-size);
+        }
+
+        &[data-type="redo"]::after {
+            content: url('/assets/toolbar/icon-redo.svg');
+            width: var(--undo-redo-icon-size);
+            height: var(--undo-redo-icon-size);
+        }
+
+        &[data-name="new"] {
+            text-transform: uppercase;
+            padding: 0 10px;
+            font-size: 13px;
+            line-height: 17.7px;
+            text-align: center;
+        }
+    }
+}
+
+button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 1px solid #BBC0CF;
+    background: white;
+}
+
+#inspector .highlighted .field[data-field^='data/connection'],
+#inspector .highlighted > .field > .object > .object-properties > .object-property[data-property^='connection'] > .field,
+#inspector .highlighted > .field > .object > .object-properties > .object-property[data-property="connections"]::before {
+    // background: #CBE7F6;
+}
+
+#inspector {
+
+    :not(.object-property) > .field[data-field*='connections'] {
+        margin: 0 10px;
+        border: 1px dashed $border-connection;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        border-bottom: none;
+    }
+
+    .field[data-field*='connectionDirection'] {
+        margin: 0 10px;
+        border-left: 1px dashed $border-connection;
+        border-right: 1px dashed #2B3A49
+    }
+
+    .field[data-field*='connectionStyle'] {
+        margin: 0 10px;
+        border: 1px dashed $border-connection;
+        border-top: none;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+}
+
+#inspector .object-property[data-property='connections']::before {
+    content: 'Connections:';
+    font-weight: bold;
+    display: block;
+    font-size: 16px;
+    padding: 10px;
+    margin: 0;
+}
+
+#inspector .field[data-field='data/connections']::before {
+    content: 'Connections:';
+    font-weight: bold;
+    display: block;
+    font-size: 16px;
+    padding: 10px 0;
+    margin: 0;
+}
+
+#inspector .field[data-field^='data/connection'] {
+    background: $bg-connection;
+    font-size: 13px;
+}
+
+#inspector .object-property[data-property='connectionStyle'] .field,
+#inspector .field[data-field='data/connectionStyle'] {
+    padding-bottom: 15px;
+    margin-bottom: 12px;
+}
+
+#inspector .object-property[data-property^='connection'] {
+    font-size: 13px;
+
+    & > *, &::before {
+        background: $bg-connection;
+    }
+}
+
+#inspector .object-property[data-property='connections'] {
+    margin: 0 10px;
+    border: 1px dashed $border-connection;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom: none;
+
+    &::before {
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+}

@@ -1,0 +1,254 @@
+// Button styling variables
+$button-fill-hover: #F9F9F9;
+$accent-color: #F0D394;
+
+$category-fill-hover-direction-T: #CDE0FE;
+$category-fill-hover-direction-B: #BCEBDA;
+$milestone-fill-hover: #26567D;
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #F7F7F7;
+    overflow: hidden;
+}
+
+#paper-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    .joint-paper-scroller {
+        overscroll-behavior: contain;
+    }
+}
+
+#stencil {
+    left: 8px;
+    top: 8px;
+    width: 198px;
+    height: 54px;
+    display: block;
+    position: absolute;
+    border-radius: 8px;
+    background-color: #FAFAFA;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    border: none;
+
+    rect[joint-selector="body"] {
+        transition: fill 0.2s;
+    }
+
+    [model-id="placeholder-category"]:hover > rect[joint-selector="body"] {
+        fill: #CDE0FE;
+    }
+
+    [model-id="placeholder-event"]:hover > rect[joint-selector="body"] {
+        fill: #F4F5F5;
+    }
+}
+
+#edit-description-dialog {
+    --dialog-color: #FEFEFE;
+    --controls-color: #FFFFFF;
+
+    .titlebar {
+        background-color: var(--dialog-color);
+        color: #333;
+        border: none;
+        font-weight: 700;
+    }
+
+    .fg {
+        background-color: var(--dialog-color);
+
+        .body>div {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+            label {
+                display: block;
+                text-transform: capitalize;
+                font-size: 0.8em;
+                font-weight: 600;
+                color: #333;
+
+                &:after {
+                    content: ':';
+                }
+            }
+
+            textarea,
+            input {
+                box-sizing: border-box;
+                width: 100%;
+                resize: none;
+                box-shadow: 1px 2px 9.1px 0px rgba(0, 0, 0, 0.14);
+                border: 1px solid $accent-color;
+                font-family: sans-serif;
+                padding: 0.5em;
+                font-size: 0.9em;
+                border-radius: 4px;
+                background-color: var(--controls-color);
+            }
+
+            textarea {
+                height: 100px;
+            }
+        }
+    }
+
+    .control-button {
+        color: #6F89B0;
+        box-shadow: 1px 2px 9.1px 0px rgba(0, 0, 0, 0.14);
+        border: 1px solid #F3F4F6;
+        border-radius: 10px;
+        background-color: var(--controls-color);
+        margin-top: 0;
+
+        &:hover {
+            color: #415676;
+            background-color: var(--controls-color);
+        }
+    }
+}
+
+#navigator-container {
+    position: absolute;
+    bottom: 20px;
+    left: 8px;
+}
+
+// Previews
+.tree-layout-preview-group .tree-layout-preview {
+    stroke: $accent-color;
+    stroke-width: 2;
+}
+
+.tree-layout-box.translate .joint-cell {
+    opacity: 0.5;
+
+    rect[joint-selector="body"] {
+        stroke: $accent-color;
+    }
+}
+
+.tree-layout-preview-group .tree-layout-preview.child {
+    fill: $accent-color;
+}
+
+.tree-layout-preview-group .tree-layout-preview.parent {
+    fill: none;
+}
+
+// Navigator styles
+
+.joint-navigator {
+
+    .joint-paper {
+        box-shadow: none;
+    }
+
+    .current-view {
+
+        margin-top: -4px;
+        border: 2px solid #FFFFFF !important;
+        border-radius: 4px;
+
+        &:before {
+            content: "";
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 25%;
+            height: calc(100% + 2px);
+            background-color: #FFFFFF;
+            clip-path: polygon(0 0%,
+                    100% 0%,
+                    100% 25%,
+                    25% 50%,
+                    100% 75%,
+                    100% 100%,
+                    0 100%);
+        }
+
+        &:after {
+            content: "";
+            position: absolute;
+            top: -1px;
+            right: -1px;
+            width: 25%;
+            height: calc(100% + 2px);
+            background-color: #FFFFFF;
+            clip-path: polygon(0% 0%,
+                    100% 0%,
+                    100% 100%,
+                    0% 100%,
+                    0% 75%,
+                    75% 50%,
+                    0% 25%);
+        }
+    }
+}
+
+// Button hover styles for add milestone buttons
+.joint-add-milestone-button {
+    transition: filter 0.1s ease-out;
+
+    rect:not(.joint-highlight-mask) {
+        transition: fill 0.1s ease-out;
+    }
+
+    &:hover {
+
+        filter: drop-shadow(0px 2px 3px rgba(12, 12, 13, 0.08));
+
+        rect {
+            fill: $button-fill-hover;
+        }
+    }
+}
+
+// Event hover styles
+.joint-cell[data-type="timeline.Event"] {
+    filter: drop-shadow(0px 1px 65.9px rgba(12, 12, 13, 0.06));
+    transition: filter 0.1s ease-out;
+
+    &:hover {
+        filter: drop-shadow(0px 1px 65.9px rgba(12, 12, 13, 0.1));
+    }
+}
+
+// Category hover styles
+.joint-cell[data-type="timeline.Category"] {
+    filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.04));
+
+    & > rect:not(.joint-highlight-mask) {
+        transition: fill 0.1s ease-out;
+    }
+
+    &[data-direction="T"]:hover > rect:not(.joint-highlight-mask) {
+        fill: $category-fill-hover-direction-T;
+    }
+
+    &[data-direction="B"]:hover > rect:not(.joint-highlight-mask) {
+        fill: $category-fill-hover-direction-B;
+    }
+}
+
+// Milestone hover styles
+.joint-cell[data-type="timeline.Milestone"] {
+    filter: drop-shadow(0px 4px 30.2px rgba(0, 0, 0, 0.12));
+
+    & > rect:not(.joint-highlight-mask) {
+        transition: fill 0.1s ease-out;
+    }
+
+    &:hover > rect:not(.joint-highlight-mask) {
+        fill: $milestone-fill-hover;
+    }
+}

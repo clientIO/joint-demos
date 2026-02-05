@@ -1,0 +1,15 @@
+@font-face {
+    font-family: "Inter";
+    src: url("../assets/fonts/Inter-VariableFont_opsz,wght.ttf") format("opentype-variations");
+    font-weight: 100 900;
+    font-style: normal;
+}
+
+/* Material design icons (https://material.io/resources/icons) */
+@font-face {
+    font-family: 'material-icons';
+    src: url('../assets/fonts/MaterialIcons-Regular.woff2') format('woff2'),
+    url('../assets/fonts/MaterialIcons-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}

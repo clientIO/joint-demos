@@ -1,0 +1,91 @@
+{
+    "start": {
+        "type": "trigger",
+        "triggerKey": "freshdesk-new_ticket",
+        "label": "New support ticket",
+        "to": [{ "id": "fa88ef23-041b-47eb-b6c3-64a5c3607774" }]
+    },
+    "fa88ef23-041b-47eb-b6c3-64a5c3607774": {
+        "to": [
+            {
+                "prompt": "Solved",
+                "id": "a7ae474e-7e3c-4326-ac0b-0508fddbb256"
+            },
+            {
+                "prompt": "Needs human support",
+                "id": "965de6d8-e484-46c4-9c0e-590645cb302b"
+            }
+        ],
+        "type": "agent",
+        "skills": {
+            "quickbooks-create_invoice": {
+                "id": "quickbooks-create_invoice",
+                "name": "Create Invoice",
+                "icon": "assets/icons/providers/quickbooks.svg"
+            },
+            "stripe-create_refund": {
+                "id": "stripe-create_refund",
+                "name": "Create Refund",
+                "icon": "assets/icons/providers/stripe.webp"
+            },
+            "freshdesk-update_ticket": {
+                "id": "freshdesk-update_ticket",
+                "name": "Update Ticket",
+                "icon": "assets/icons/providers/freshdesk.webp"
+            }
+        },
+        "label": "Customer support AI agent",
+        "prompt": "You're a support agent resolving customer queries using online knowledge and tools like Freshdesk, QuickBooks, and Stripe.\n\nIf you solve the ticket, follow the \"Solved\" path. If not, take the \"Needs human support\" path so a human can take over."
+    },
+    "a7ae474e-7e3c-4326-ac0b-0508fddbb256": {
+        "to": [{ "id": "db34ff9e-1d85-45c6-a0f3-82178d5dd9bb" }],
+        "type": "action",
+        "actionKey": "freshdesk-update_ticket",
+        "label": "Update Ticket"
+    },
+    "db34ff9e-1d85-45c6-a0f3-82178d5dd9bb": {
+        "to": [],
+        "type": "action",
+        "actionKey": "slack-send_channel_message",
+        "label": "Send to Slack"
+    },
+    "965de6d8-e484-46c4-9c0e-590645cb302b": {
+        "to": [{ "id": "b89ad921-cc1f-4151-953b-e99990c8f1a9" }],
+        "type": "action",
+        "actionKey": "jira-create_issue",
+        "label": "Create Issue"
+    },
+    "b89ad921-cc1f-4151-953b-e99990c8f1a9": {
+        "to": [
+            {
+                "prompt": "Low priority",
+                "id": "a63a18f5-3608-45de-a17e-687e9104bd73"
+            },
+            {
+                "id": "f72f92c0-f48e-4fd9-b594-71a98092018e",
+                "prompt": "High priority"
+            }
+        ],
+        "type": "condition",
+        "label": "Check priority"
+    },
+    "a63a18f5-3608-45de-a17e-687e9104bd73": {
+        "to": [],
+        "type": "action",
+        "actionKey": "slack-send_channel_message",
+        "label": "Send to Slack"
+    },
+    "f72f92c0-f48e-4fd9-b594-71a98092018e": {
+        "to": [],
+        "type": "action",
+        "actionKey": "twilio-send_sms",
+        "label": "Send SMS"
+    },
+    "950ecaf4-9ac3-41b8-b361-2a4f8df3417b": {
+        "to": [],
+        "type": "note",
+        "customPosition": { "refId": "start", "x": -630, "y": 52 },
+        "size": { "width": 785.4900817871094, "height": 256.6383819580078 },
+        "markdown": "## 🤖 AI Agent Setup\n\n- **📝 Review the prompt** to instruct the AI agent  \n- **🧰 Remove or add skills** (tools) the AI agent can use  \n- **⚙️ Set up conditions** to follow using additional prompts  \n- **🚀 <a href=\"https://www.appmixer.com/product/features/ai-agents?utm_source=jointjs&utm_medium=referral&utm_campaign=ai-agent-demo-app-note\" target=\"_blank\" rel=\"noopener noreferrer\">Easter egg? Just a seriously good no-code AI agent platform</a>**"
+    }
+}

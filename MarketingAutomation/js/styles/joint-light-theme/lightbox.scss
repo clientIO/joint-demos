@@ -1,0 +1,27 @@
+.joint-lightbox.joint-theme-light {
+
+    .bg {
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .fg {
+        background-color: #F6F6F6 !important;
+    }
+
+    .controls {
+
+        button {
+            line-height: 17.7px;
+            height: auto;
+            box-sizing: content-box;
+            border-radius: var(--jj-border-radius-small);
+            padding: 8px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--jj-text-primary);
+            background-color: var(--jj-bg-primary);
+            border: none;
+        }
+    }
+}

@@ -1,0 +1,669 @@
+{
+    "aws_cloudwatch": {
+        "name": "AWS CloudWatch",
+        "icon": "aws_cloudwatch.svg",
+        "actions": [
+            {
+                "id": "put_metric_alarm",
+                "name": "Create/Update Alarm",
+                "description": "Creates or updates a CloudWatch alarm.",
+                "data": {
+                    "alarm_name": {
+                        "name": "Alarm Name",
+                        "type": "string",
+                        "description": "Unique name for the alarm."
+                    },
+                    "namespace": {
+                        "name": "Namespace",
+                        "type": "string",
+                        "description": "Metric namespace (e.g., AWS/EC2)."
+                    },
+                    "metric_name": {
+                        "name": "Metric Name",
+                        "type": "string",
+                        "description": "Metric to alarm on."
+                    },
+                    "dimensions": {
+                        "name": "Dimensions",
+                        "type": "array",
+                        "description": "Array of { Name, Value } pairs."
+                    },
+                    "statistic": {
+                        "name": "Statistic",
+                        "type": "string",
+                        "description": "Sample statistic (Average|Sum|Minimum|Maximum|SampleCount)."
+                    },
+                    "period": {
+                        "name": "Period (s)",
+                        "type": "number",
+                        "description": "Evaluation period in seconds."
+                    },
+                    "evaluation_periods": {
+                        "name": "Evaluation Periods",
+                        "type": "number",
+                        "description": "Number of periods to evaluate."
+                    },
+                    "threshold": {
+                        "name": "Threshold",
+                        "type": "number",
+                        "description": "Alarm threshold value."
+                    },
+                    "comparison_operator": {
+                        "name": "Comparison Operator",
+                        "type": "string",
+                        "description": "GreaterThanOrEqualToThreshold|GreaterThanThreshold|LessThanThreshold|LessThanOrEqualToThreshold."
+                    },
+                    "treat_missing_data": {
+                        "name": "Treat Missing Data",
+                        "type": "string",
+                        "description": "breaching|notBreaching|ignore|missing."
+                    },
+                    "alarm_actions": {
+                        "name": "Alarm Actions",
+                        "type": "array",
+                        "description": "List of SNS topic ARNs to notify on ALARM."
+                    },
+                    "ok_actions": {
+                        "name": "OK Actions",
+                        "type": "array",
+                        "description": "List of SNS topic ARNs to notify on OK."
+                    }
+                }
+            },
+            {
+                "id": "set_alarm_state",
+                "name": "Set Alarm State",
+                "description": "Manually sets the state of an alarm (testing).",
+                "data": {
+                    "alarm_name": {
+                        "name": "Alarm Name",
+                        "type": "string",
+                        "description": "Target alarm name."
+                    },
+                    "state_value": {
+                        "name": "State Value",
+                        "type": "string",
+                        "description": "OK|ALARM|INSUFFICIENT_DATA."
+                    },
+                    "state_reason": {
+                        "name": "State Reason",
+                        "type": "string",
+                        "description": "Human-readable reason for state change."
+                    }
+                }
+            }
+        ]
+    },
+    "jira": {
+        "name": "Jira",
+        "icon": "jira.svg",
+        "actions": [
+            {
+                "id": "create_issue",
+                "name": "Create Issue",
+                "description": "Creates a new Jira issue.",
+                "data": {
+                    "project_key": {
+                        "name": "Project Key",
+                        "type": "string",
+                        "description": "e.g., ENG."
+                    },
+                    "issue_type": {
+                        "name": "Issue Type",
+                        "type": "string",
+                        "description": "Bug|Task|Story|Epic or custom type ID."
+                    },
+                    "summary": {
+                        "name": "Summary",
+                        "type": "string",
+                        "description": "Issue summary."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "Issue description (ADF or plain text)."
+                    },
+                    "assignee_account_id": {
+                        "name": "Assignee Account ID",
+                        "type": "string",
+                        "description": "User accountId."
+                    },
+                    "labels": {
+                        "name": "Labels",
+                        "type": "array",
+                        "description": "Array of label strings."
+                    },
+                    "priority": {
+                        "name": "Priority",
+                        "type": "string",
+                        "description": "Priority name or ID."
+                    }
+                }
+            },
+            {
+                "id": "transition_issue",
+                "name": "Transition Issue",
+                "description": "Moves an issue to a new workflow state.",
+                "data": {
+                    "issue_id_or_key": {
+                        "name": "Issue ID/Key",
+                        "type": "string",
+                        "description": "e.g., ENG-123."
+                    },
+                    "transition_id": {
+                        "name": "Transition ID",
+                        "type": "string",
+                        "description": "ID of the target transition."
+                    },
+                    "comment": {
+                        "name": "Comment",
+                        "type": "text",
+                        "description": "Optional comment added during transition."
+                    }
+                }
+            }
+        ]
+    },
+    "jenkins": {
+        "name": "Jenkins",
+        "icon": "jenkins.svg",
+        "actions": [
+            {
+                "id": "build_job",
+                "name": "Trigger Job Build",
+                "description": "Queues a build, optionally with parameters.",
+                "data": {
+                    "job_name": {
+                        "name": "Job Name",
+                        "type": "string",
+                        "description": "Exact Jenkins job name or folder/job."
+                    },
+                    "parameters": {
+                        "name": "Parameters",
+                        "type": "object",
+                        "description": "Key-value map of build parameters."
+                    },
+                    "token": {
+                        "name": "Token",
+                        "type": "string",
+                        "description": "Job token if required."
+                    },
+                    "cause": {
+                        "name": "Cause",
+                        "type": "string",
+                        "description": "Reason shown in build cause."
+                    }
+                }
+            },
+            {
+                "id": "stop_build",
+                "name": "Stop Build",
+                "description": "Stops a running build.",
+                "data": {
+                    "job_name": {
+                        "name": "Job Name",
+                        "type": "string",
+                        "description": "Target job name."
+                    },
+                    "build_number": {
+                        "name": "Build Number",
+                        "type": "number",
+                        "description": "Build ID to stop."
+                    }
+                }
+            }
+        ]
+    },
+    "datadog": {
+        "name": "Datadog",
+        "icon": "datadog.svg",
+        "actions": [
+            {
+                "id": "create_monitor",
+                "name": "Create Monitor",
+                "description": "Creates a Datadog monitor.",
+                "data": {
+                    "name": {
+                        "name": "Name",
+                        "type": "string",
+                        "description": "Monitor name."
+                    },
+                    "type": {
+                        "name": "Type",
+                        "type": "string",
+                        "description": "metric alert|query alert|log alert|apm alert|..."
+                    },
+                    "query": {
+                        "name": "Query",
+                        "type": "text",
+                        "description": "Datadog monitor query string."
+                    },
+                    "message": {
+                        "name": "Message",
+                        "type": "text",
+                        "description": "Alert message (supports @-mentions)."
+                    },
+                    "tags": {
+                        "name": "Tags",
+                        "type": "array",
+                        "description": "Array of tag strings."
+                    },
+                    "options": {
+                        "name": "Options",
+                        "type": "object",
+                        "description": "Monitor options (thresholds, evaluation, notify_audit, etc.)."
+                    }
+                }
+            },
+            {
+                "id": "post_event",
+                "name": "Post Event",
+                "description": "Posts an event to the Datadog event stream.",
+                "data": {
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "Event title."
+                    },
+                    "text": {
+                        "name": "Text",
+                        "type": "text",
+                        "description": "Event body."
+                    },
+                    "tags": {
+                        "name": "Tags",
+                        "type": "array",
+                        "description": "Array of tag strings."
+                    },
+                    "alert_type": {
+                        "name": "Alert Type",
+                        "type": "string",
+                        "description": "info|success|warning|error."
+                    },
+                    "host": {
+                        "name": "Host",
+                        "type": "string",
+                        "description": "Associated host."
+                    },
+                    "priority": {
+                        "name": "Priority",
+                        "type": "string",
+                        "description": "normal|low."
+                    }
+                }
+            }
+        ]
+    },
+    "pagerduty": {
+        "name": "PagerDuty",
+        "icon": "pagerduty.svg",
+        "actions": [
+            {
+                "id": "create_incident",
+                "name": "Create Incident",
+                "description": "Creates a new incident for a service.",
+                "data": {
+                    "service_id": {
+                        "name": "Service ID",
+                        "type": "string",
+                        "description": "Target service ID."
+                    },
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "Incident title."
+                    },
+                    "urgency": {
+                        "name": "Urgency",
+                        "type": "string",
+                        "description": "high|low."
+                    },
+                    "body": {
+                        "name": "Body",
+                        "type": "text",
+                        "description": "Incident details."
+                    },
+                    "assign_user_ids": {
+                        "name": "Assign User IDs",
+                        "type": "array",
+                        "description": "Array of user IDs to assign."
+                    }
+                }
+            },
+            {
+                "id": "update_incident_status",
+                "name": "Update Incident Status",
+                "description": "Acknowledges or resolves an incident.",
+                "data": {
+                    "incident_id": {
+                        "name": "Incident ID",
+                        "type": "string",
+                        "description": "PagerDuty incident ID."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "string",
+                        "description": "acknowledged|resolved."
+                    },
+                    "resolution": {
+                        "name": "Resolution",
+                        "type": "text",
+                        "description": "Resolution notes (required when resolving)."
+                    }
+                }
+            }
+        ]
+    },
+    "servicenow": {
+        "name": "ServiceNow",
+        "icon": "servicenow.png",
+        "actions": [
+            {
+                "id": "create_incident",
+                "name": "Create Incident",
+                "description": "Creates a new incident record.",
+                "data": {
+                    "short_description": {
+                        "name": "Short Description",
+                        "type": "string",
+                        "description": "Summary of the issue."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "Detailed description."
+                    },
+                    "urgency": {
+                        "name": "Urgency",
+                        "type": "string",
+                        "description": "1 - High|2 - Medium|3 - Low."
+                    },
+                    "impact": {
+                        "name": "Impact",
+                        "type": "string",
+                        "description": "1 - High|2 - Medium|3 - Low."
+                    },
+                    "assignment_group": {
+                        "name": "Assignment Group",
+                        "type": "string",
+                        "description": "Group sys_id."
+                    },
+                    "assigned_to": {
+                        "name": "Assigned To",
+                        "type": "string",
+                        "description": "User sys_id."
+                    }
+                }
+            },
+            {
+                "id": "update_incident",
+                "name": "Update Incident",
+                "description": "Updates fields on an incident.",
+                "data": {
+                    "sys_id": {
+                        "name": "Incident Sys ID",
+                        "type": "string",
+                        "description": "Unique sys_id of the incident."
+                    },
+                    "fields": {
+                        "name": "Fields",
+                        "type": "object",
+                        "description": "Key-value map of fields to update (e.g., state, work_notes)."
+                    }
+                }
+            }
+        ]
+    },
+    "kubernetes": {
+        "name": "Kubernetes",
+        "icon": "kubernetes.png",
+        "actions": [
+            {
+                "id": "scale_deployment",
+                "name": "Scale Deployment",
+                "description": "Scales a Deployment to the desired number of replicas.",
+                "data": {
+                    "namespace": {
+                        "name": "Namespace",
+                        "type": "string",
+                        "description": "Target namespace."
+                    },
+                    "deployment_name": {
+                        "name": "Deployment Name",
+                        "type": "string",
+                        "description": "apps/v1 Deployment name."
+                    },
+                    "replicas": {
+                        "name": "Replicas",
+                        "type": "number",
+                        "description": "Desired replica count."
+                    }
+                }
+            },
+            {
+                "id": "delete_pod",
+                "name": "Delete Pod",
+                "description": "Deletes a Pod.",
+                "data": {
+                    "namespace": {
+                        "name": "Namespace",
+                        "type": "string",
+                        "description": "Target namespace."
+                    },
+                    "pod_name": {
+                        "name": "Pod Name",
+                        "type": "string",
+                        "description": "Pod metadata.name."
+                    },
+                    "grace_period_seconds": {
+                        "name": "Grace Period (s)",
+                        "type": "number",
+                        "description": "Optional termination grace period."
+                    }
+                }
+            }
+        ]
+    },
+    "aws_ec2": {
+        "name": "AWS EC2",
+        "icon": "aws_ec2.svg",
+        "actions": [
+            {
+                "id": "start_instances",
+                "name": "Start Instances",
+                "description": "Starts one or more EC2 instances.",
+                "data": {
+                    "instance_ids": {
+                        "name": "Instance IDs",
+                        "type": "array",
+                        "description": "Array of instance IDs (e.g., i-0123456789abcdef0)."
+                    }
+                }
+            },
+            {
+                "id": "stop_instances",
+                "name": "Stop Instances",
+                "description": "Stops one or more EC2 instances.",
+                "data": {
+                    "instance_ids": {
+                        "name": "Instance IDs",
+                        "type": "array",
+                        "description": "Array of instance IDs."
+                    },
+                    "force": {
+                        "name": "Force",
+                        "type": "boolean",
+                        "description": "Force stop (may cause data loss)."
+                    }
+                }
+            },
+            {
+                "id": "create_snapshot",
+                "name": "Create Snapshot",
+                "description": "Creates a snapshot of an EBS volume.",
+                "data": {
+                    "volume_id": {
+                        "name": "Volume ID",
+                        "type": "string",
+                        "description": "e.g., vol-0123abcd."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "string",
+                        "description": "Snapshot description."
+                    },
+                    "tags": {
+                        "name": "Tags",
+                        "type": "array",
+                        "description": "Array of { Key, Value } pairs."
+                    }
+                }
+            }
+        ]
+    },
+    "gitlab": {
+        "name": "GitLab",
+        "icon": "gitlab.svg",
+        "actions": [
+            {
+                "id": "create_issue",
+                "name": "Create Issue",
+                "description": "Creates a new issue in a project.",
+                "data": {
+                    "project_id": {
+                        "name": "Project ID/Path",
+                        "type": "string",
+                        "description": "Numeric ID or URL-encoded path."
+                    },
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "Issue title."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "Issue body (Markdown allowed)."
+                    },
+                    "assignee_ids": {
+                        "name": "Assignee IDs",
+                        "type": "array",
+                        "description": "Array of user IDs."
+                    },
+                    "labels": {
+                        "name": "Labels",
+                        "type": "array",
+                        "description": "Array of labels."
+                    },
+                    "milestone_id": {
+                        "name": "Milestone ID",
+                        "type": "number",
+                        "description": "Optional milestone ID."
+                    }
+                }
+            },
+            {
+                "id": "trigger_pipeline",
+                "name": "Trigger Pipeline",
+                "description": "Triggers a pipeline for a specific ref.",
+                "data": {
+                    "project_id": {
+                        "name": "Project ID/Path",
+                        "type": "string",
+                        "description": "Numeric ID or URL-encoded path."
+                    },
+                    "ref": {
+                        "name": "Ref",
+                        "type": "string",
+                        "description": "Branch or tag name."
+                    },
+                    "variables": {
+                        "name": "Variables",
+                        "type": "object",
+                        "description": "Key-value map of CI variables."
+                    }
+                }
+            }
+        ]
+    },
+    "azure_devops": {
+        "name": "Azure DevOps",
+        "icon": "azure_devops.webp",
+        "actions": [
+            {
+                "id": "queue_build",
+                "name": "Queue Build",
+                "description": "Queues a pipeline run.",
+                "data": {
+                    "organization": {
+                        "name": "Organization",
+                        "type": "string",
+                        "description": "Azure DevOps org name."
+                    },
+                    "project": {
+                        "name": "Project",
+                        "type": "string",
+                        "description": "Project name."
+                    },
+                    "definition_id": {
+                        "name": "Definition ID",
+                        "type": "number",
+                        "description": "Build definition/pipeline ID."
+                    },
+                    "source_branch": {
+                        "name": "Source Branch",
+                        "type": "string",
+                        "description": "e.g., refs/heads/main."
+                    },
+                    "parameters": {
+                        "name": "Parameters",
+                        "type": "object",
+                        "description": "JSON string/object of pipeline parameters."
+                    }
+                }
+            },
+            {
+                "id": "create_work_item",
+                "name": "Create Work Item",
+                "description": "Creates a new work item (e.g., Issue, Bug, Task).",
+                "data": {
+                    "organization": {
+                        "name": "Organization",
+                        "type": "string",
+                        "description": "Azure DevOps org name."
+                    },
+                    "project": {
+                        "name": "Project",
+                        "type": "string",
+                        "description": "Project name."
+                    },
+                    "work_item_type": {
+                        "name": "Work Item Type",
+                        "type": "string",
+                        "description": "Issue|Bug|Task or custom type."
+                    },
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "Work item title."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "Work item description (HTML allowed)."
+                    },
+                    "assigned_to": {
+                        "name": "Assigned To",
+                        "type": "string",
+                        "description": "User principal name or display name."
+                    },
+                    "area_path": {
+                        "name": "Area Path",
+                        "type": "string",
+                        "description": "Area path (optional)."
+                    }
+                }
+            }
+        ]
+    }
+}

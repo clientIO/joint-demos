@@ -1,0 +1,218 @@
+{
+    "diagram": {
+        "51f51507-8c23-4f3f-86be-1eed94d69b6d": {
+            "to": [
+                {
+                    "id": "96c14ddc-68bf-46fd-bfac-39b91e699742",
+                    "sourcePortId": "output",
+                    "targetPortId": "input"
+                }
+            ],
+            "type": "trigger",
+            "triggerKey": "gitlab-pipeline_succeeded",
+            "label": "orders-api / main"
+        },
+        "96c14ddc-68bf-46fd-bfac-39b91e699742": {
+            "to": [
+                {
+                    "id": "f4e8dd51-3967-4762-b756-aaf5ee48b97c",
+                    "sourcePortId": "out-false",
+                    "targetPortId": "input"
+                },
+                {
+                    "id": "85621d0e-ad40-476f-b573-448b03084268",
+                    "sourcePortId": "out-true",
+                    "targetPortId": "input"
+                }
+            ],
+            "type": "control",
+            "controlKey": "condition",
+            "label": "Commit message contains \"Production\"",
+            "data": {
+                "condition": "${message} = production"
+            }
+        },
+        "f4e8dd51-3967-4762-b756-aaf5ee48b97c": {
+            "to": [
+                {
+                    "id": "361d66fe-a12a-48e6-8d29-2fac418e85c4",
+                    "sourcePortId": "output",
+                    "targetPortId": "input"
+                }
+            ],
+            "type": "action",
+            "actionKey": "kubernetes-scale_deployment",
+            "data": {
+                "namespace": "",
+                "deployment_name": "",
+                "replicas": null
+            },
+            "label": "Development"
+        },
+        "361d66fe-a12a-48e6-8d29-2fac418e85c4": {
+            "to": [],
+            "type": "action",
+            "actionKey": "datadog-post_event",
+            "label": "Deployed to dev"
+        },
+        "85621d0e-ad40-476f-b573-448b03084268": {
+            "to": [
+                {
+                    "id": "14946592-5fc1-4ccf-8795-3e965f99d784",
+                    "sourcePortId": "output",
+                    "targetPortId": "input"
+                }
+            ],
+            "type": "action",
+            "actionKey": "kubernetes-scale_deployment",
+            "data": {
+                "namespace": "",
+                "deployment_name": "",
+                "replicas": null
+            },
+            "label": "Staging"
+        },
+        "14946592-5fc1-4ccf-8795-3e965f99d784": {
+            "to": [
+                {
+                    "id": "d48e1cb1-0363-47aa-8eda-ec1c0ec7136f",
+                    "sourcePortId": "out1",
+                    "targetPortId": "input"
+                },
+                {
+                    "id": "168e367d-7c58-4492-b86e-7f1cde46432e",
+                    "sourcePortId": "out2",
+                    "targetPortId": "input"
+                },
+                {
+                    "id": "9e5e901a-0777-4843-b70b-896f954905ca",
+                    "sourcePortId": "else",
+                    "targetPortId": "input"
+                },
+                {
+                    "id": "6ed53de7-5486-4035-896c-866e23f2079a",
+                    "sourcePortId": "out3",
+                    "targetPortId": "input"
+                }
+            ],
+            "type": "control",
+            "controlKey": "switch",
+            "label": "Health check",
+            "data": {
+                "out1": "${result} = 'healthy'",
+                "out2": "${result} = 'degraded'",
+                "out3": "${result} = 'failed'"
+            }
+        },
+        "d48e1cb1-0363-47aa-8eda-ec1c0ec7136f": {
+            "to": [
+                {
+                    "id": "5f08ec9f-3f78-42b7-b30a-0a061aeee6e3",
+                    "sourcePortId": "output",
+                    "targetPortId": "input"
+                }
+            ],
+            "type": "action",
+            "actionKey": "kubernetes-scale_deployment",
+            "label": "Production"
+        },
+        "5f08ec9f-3f78-42b7-b30a-0a061aeee6e3": {
+            "to": [
+                {
+                    "id": "fcf771c8-8499-4842-90f2-7141c9c943a9",
+                    "sourcePortId": "output",
+                    "targetPortId": "input"
+                }
+            ],
+            "type": "action",
+            "actionKey": "datadog-post_event",
+            "label": "Deployed to prod"
+        },
+        "fcf771c8-8499-4842-90f2-7141c9c943a9": {
+            "to": [],
+            "type": "action",
+            "actionKey": "jira-transition_issue",
+            "label": "Release ticket: Done"
+        },
+        "168e367d-7c58-4492-b86e-7f1cde46432e": {
+            "to": [
+                {
+                    "id": "0cf6091a-e4cc-4a7e-85aa-1c4849e8479d",
+                    "sourcePortId": "output",
+                    "targetPortId": "input"
+                }
+            ],
+            "type": "action",
+            "actionKey": "pagerduty-create_incident",
+            "label": "Degraded deployment"
+        },
+        "0cf6091a-e4cc-4a7e-85aa-1c4849e8479d": {
+            "to": [],
+            "type": "action",
+            "actionKey": "servicenow-create_incident",
+            "label": "Degraded deployment"
+        },
+        "6ed53de7-5486-4035-896c-866e23f2079a": {
+            "to": [
+                {
+                    "id": "3c7ba454-a010-4f69-8c2e-edb08987dfea",
+                    "sourcePortId": "output",
+                    "targetPortId": "input"
+                }
+            ],
+            "type": "action",
+            "actionKey": "pagerduty-create_incident",
+            "label": "Failed deployment"
+        },
+        "9e5e901a-0777-4843-b70b-896f954905ca": {
+            "to": [
+                {
+                    "id": "12774e3c-91b2-43bc-adf2-c2868a48d9b1",
+                    "sourcePortId": "output",
+                    "targetPortId": "input"
+                }
+            ],
+            "type": "action",
+            "actionKey": "aws_cloudwatch-put_metric_alarm",
+            "label": "Anomaly alarm"
+        },
+        "12774e3c-91b2-43bc-adf2-c2868a48d9b1": {
+            "to": [
+                {
+                    "id": "0a4fe4bb-2ad1-499c-a328-61a03fed371e",
+                    "sourcePortId": "output",
+                    "targetPortId": "input"
+                }
+            ],
+            "type": "action",
+            "actionKey": "jira-create_issue",
+            "label": "Investigate"
+        },
+        "0a4fe4bb-2ad1-499c-a328-61a03fed371e": {
+            "to": [],
+            "type": "action",
+            "actionKey": "datadog-post_event",
+            "label": "Track anomalies"
+        },
+        "519b3702-bd0c-4194-860e-dc71164f3fc9": {
+            "to": [],
+            "type": "note",
+            "customPosition": {
+                "x": 960,
+                "y": -180
+            },
+            "markdown": "### 📝 Outcome-specific responses\n\nEach _Switch_ output triggers a different automated response based on **deployment health**:\n- Successful rollout is promoted and documented\n- Degraded or failed states create incidents\n- Missing signals fall back to alarms and issue tracking",
+            "size": {
+                "width": 765,
+                "height": 940
+            }
+        },
+        "3c7ba454-a010-4f69-8c2e-edb08987dfea": {
+            "to": [],
+            "type": "action",
+            "actionKey": "jira-create_issue",
+            "label": "Release ticket: Failed"
+        }
+    },
+    "name": "GitLab Deployment"
+}

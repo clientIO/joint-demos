@@ -1,0 +1,320 @@
+@font-face {
+    font-family: 'JJ BPMN Icons';
+    font-weight: normal;
+    font-style: normal;
+    src: url(../assets/fonts/JJBPMNIcons.ttf);
+}
+
+span[class^="jj-bpmn-icon-"] {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::before {
+        font-family: 'JJ BPMN Icons';
+
+        display: inline-block;
+        text-decoration: inherit;
+        width: 1em;
+        text-align: center;
+
+        /* For safety - reset parent styles, that can break glyph codes*/
+        font-variant: normal;
+        text-transform: none;
+        font-weight: normal;
+
+        line-height: 1em;
+
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    // Markers
+
+    &.jj-bpmn-icon-marker-parallel::before {
+        content: '\e065'
+    }
+
+    &.jj-bpmn-icon-marker-sequential::before {
+        content: '\e066'
+    }
+
+    &.jj-bpmn-icon-marker-compensation::before {
+        content: '\e092'
+    }
+
+    &.jj-bpmn-icon-marker-ad-hoc::before {
+        content: '\e062'
+    }
+
+    &.jj-bpmn-icon-marker-loop::before {
+        content: '\e064'
+    }
+
+    // Activities
+
+    &.jj-bpmn-icon-task::before {
+        content: '\e077';
+    }
+
+    &.jj-bpmn-icon-send-task::before {
+        content: '\e075';
+    }
+
+    &.jj-bpmn-icon-service-task::before {
+        content: '\e095';
+    }
+
+    &.jj-bpmn-icon-manual-task::before {
+        content: '\e073';
+    }
+
+    &.jj-bpmn-icon-business-rule-task::before {
+        content: '\e072';
+    }
+
+    &.jj-bpmn-icon-receive-task::before {
+        content: '\e094';
+    }
+
+    &.jj-bpmn-icon-user-task::before {
+        content: '\e076';
+    }
+
+    &.jj-bpmn-icon-script-task::before {
+        content: '\e074';
+    }
+
+    &.jj-bpmn-icon-subprocess-collapsed::before {
+        content: '\e003';
+    }
+
+    &.jj-bpmn-icon-subprocess-expanded::before {
+        content: '\e011';
+    }
+
+    &.jj-bpmn-icon-call-activity::before {
+        content: '\e071';
+    }
+
+    &.jj-bpmn-icon-event-subprocess-collapsed::before {
+        content: '\e009';
+    }
+
+    &.jj-bpmn-icon-event-subprocess-expanded::before {
+        content: '\e010';
+    }
+
+    // Annotations
+
+    &.jj-bpmn-icon-text-annotation::before {
+        content: '\e018';
+    }
+
+    // Data
+
+    &.jj-bpmn-icon-data-store::before {
+        content: '\e084';
+    }
+
+    &.jj-bpmn-icon-data-object::before {
+        content: '\e086';
+    }
+
+    &.jj-bpmn-icon-data-input::before {
+        content: '\e088';
+    }
+
+    &.jj-bpmn-icon-data-output::before {
+        content: '\e087';
+    }
+
+    // Events - Start
+
+    &.jj-bpmn-icon-start-event-none::before {
+        content: '\e036';
+    }
+
+    &.jj-bpmn-icon-start-event-message::before {
+        content: '\e033';
+    }
+
+    &.jj-bpmn-icon-start-event-timer::before {
+        content: '\e054';
+    }
+
+    &.jj-bpmn-icon-start-event-condition::before {
+        content: '\e032';
+    }
+
+    &.jj-bpmn-icon-start-event-signal::before {
+        content: '\e053';
+    }
+
+    // Events - Intermediate Catching
+
+    &.jj-bpmn-icon-intermediate-event-none::before {
+        content: '\e013';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-message::before {
+        content: '\e067';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-timer::before {
+        content: '\e008';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-condition::before {
+        content: '\e055';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-link::before {
+        content: '\e058';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-signal::before {
+        content: '\e007';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-error::before {
+        content: '\e056';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-escalation::before {
+        content: '\e057';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-compensation::before {
+        content: '\e049';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-cancel::before {
+        content: '\e059';
+    }
+
+    // Events - Intermediate Catching Non-Interrupting
+
+    &.jj-bpmn-icon-intermediate-event-catch-non-interrupting-message::before {
+        content: '\e004';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-non-interrupting-timer::before {
+        content: '\e025';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-non-interrupting-condition::before {
+        content: '\e070';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-non-interrupting-signal::before {
+        content: '\e069';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-catch-non-interrupting-escalation::before {
+        content: '\e068';
+    }
+
+    // Events - Intermediate Throwing
+
+    &.jj-bpmn-icon-intermediate-event-throw-message::before {
+        content: '\e017';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-throw-link::before {
+        content: '\e016';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-throw-signal::before {
+        content: '\e022';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-throw-escalation::before {
+        content: '\e015';
+    }
+
+    &.jj-bpmn-icon-intermediate-event-throw-compensation::before {
+        content: '\e014';
+    }
+
+    // Events - End
+
+    &.jj-bpmn-icon-end-event-none::before {
+        content: '\e046';
+    }
+
+    &.jj-bpmn-icon-end-event-message::before {
+        content: '\e038';
+    }
+
+    &.jj-bpmn-icon-end-event-signal::before {
+        content: '\e048';
+    }
+
+    &.jj-bpmn-icon-end-event-error::before {
+        content: '\e061';
+    }
+
+    &.jj-bpmn-icon-end-event-escalation::before {
+        content: '\e037';
+    }
+
+    &.jj-bpmn-icon-end-event-termination::before {
+        content: '\e047';
+    }
+
+    &.jj-bpmn-icon-end-event-compensation::before {
+        content: '\e031';
+    }
+
+    &.jj-bpmn-icon-end-event-cancel::before {
+        content: '\e030';
+    }
+
+    // Flows
+
+    &.jj-bpmn-icon-sequence-flow::before {
+        content: '\e128';
+    }
+
+    &.jj-bpmn-icon-condition-flow::before {
+        content: '\e001';
+    }
+
+    &.jj-bpmn-icon-default-flow::before {
+        content: '\e002';
+    }
+
+    // Gateways
+
+    &.jj-bpmn-icon-gateway-none::before {
+        content: '\e021';
+    }
+
+    &.jj-bpmn-icon-gateway-xor::before {
+        content: '\e028';
+    }
+
+    &.jj-bpmn-icon-gateway-or::before {
+        content: '\e027';
+    }
+
+    &.jj-bpmn-icon-gateway-eventbased::before {
+        content: '\e020';
+    }
+
+    &.jj-bpmn-icon-gateway-parallel::before {
+        content: '\e029';
+    }
+
+    &.jj-bpmn-icon-gateway-complex::before {
+        content: '\e019';
+    }
+
+    // Groups
+
+    &.jj-bpmn-icon-group::before {
+        content: '\e085';
+    }
+}

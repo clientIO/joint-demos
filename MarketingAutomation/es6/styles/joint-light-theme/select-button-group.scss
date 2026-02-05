@@ -1,0 +1,14 @@
+.joint-select-button-group.joint-theme-light {
+
+    .select-button-group-button {
+        border-radius: var(--jj-border-radius-small);
+        border: 1px solid var(--jj-border-secondary);
+        box-sizing: border-box;
+        margin: 0 4px;
+
+        &.selected {
+            background: var(--jj-accent-primary);
+            border-color: var(--jj-accent-primary);
+        }
+    }
+}

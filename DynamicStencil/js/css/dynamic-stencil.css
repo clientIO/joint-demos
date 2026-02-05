@@ -1,0 +1,51 @@
+/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+
+Copyright (c) 2025 client IO
+
+This Source Code Form is subject to the terms of the JointJS+
+License, v. 2.0. If a copy of the JointJS+ License was not
+distributed with this file, You can obtain one at
+https://www.jointjs.com/license or from the JointJS+ archive as was
+distributed by client IO. See the LICENSE file.
+*/
+
+html, body {
+    background-color: #FAFAFA;
+}
+#app {
+    margin: 40px auto;
+    width: 1000px;
+}
+#paper {
+    border: 1px solid lightgray;
+    margin-left: -1px;
+    box-sizing: border-box;
+    float: left;
+}
+#stencil {
+   position: relative;
+   width: 200px;
+   height: 600px;
+   float: left;
+}
+/* Element Tools */
+.joint-tool[data-tool-name="button"] circle {
+    fill: #187BD3;
+}
+/* Selection */
+.selection-box {
+    opacity: 0.3;
+    pointer-events: none;
+}
+.selection-wrapper {
+    padding: 16px;
+    margin-left: -16px;
+    margin-top: -16px;
+}
+.joint-selection .handle[data-action="add-to-stencil"] {
+    width: 40px;
+    height: 25px;
+    background-size: contain;
+    top: -25px !important;
+    right: -40px !important;
+}

@@ -1,0 +1,168 @@
+@import './fonts';
+$color-transition-duration: 200ms;
+
+.toolbar-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+
+    .joint-toolbar.joint-theme-light {
+        padding: 8px 20px;
+        height: 52px;
+        box-shadow: 0px 4px 8px #00000012;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+
+        button {
+            height: 30px;
+            transition:
+                color $color-transition-duration ease-in-out,
+                border-color $color-transition-duration ease-in-out,
+                background-color $color-transition-duration ease-in-out;
+        }
+
+        [data-group="left"] {
+            justify-self: start;
+        }
+
+        [data-group="right"] {
+            justify-self: end;
+        }
+
+        [data-type="redo"] {
+            margin-left: 6px;
+        }
+
+        [data-type="undo"],
+        [data-type="redo"] {
+                width: 32px;
+                margin-right: 6px;
+        }
+
+        [data-type="button"] {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: var(--app-border-radius-small);
+            border: 1px solid var(--app-border-primary);
+            background-color: var(--app-bg-primary);
+            color: var(--app-text-primary);
+            padding: 6px 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                border-color: var(--app-border-accent-hover);
+                color: var(--app-primary);
+            }
+
+            &:not(:first-of-type) {
+                margin-left: 8px;
+            }
+        }
+
+        button[data-name="test"] {
+            min-width: 88px;
+            border-width: 0;
+            color: var(--app-on-primary);
+            background-color: var(--app-primary);
+
+            &:hover {
+                --jj-accent-hover: var(--app-primary-hover);
+                color: var(--app-on-primary);
+            }
+        }
+
+        .joint-widget[data-type="editableText"] {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--app-text-primary);
+            outline: none;
+            border: none;
+            text-align: center;
+            padding: 7px 15px;
+
+            &:hover {
+                background-color: transparent;
+            }
+
+            &:focus {
+                border: 2px solid var(--app-primary);
+                border-radius: var(--app-border-radius-medium);
+                padding: 7px 13px;
+            }
+        }
+    }
+}
+
+#app .joint-context-toolbar {
+    button {
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+
+        &:hover {
+            color: var(--app-primary);
+            background-color: var(--app-accent-hover);
+        }
+    }
+}
+
+/* Toolbar button testing animation */
+
+.dot-flashing {
+    position: relative;
+    width: 2px;
+    height: 2px;
+    border-radius: 1px;
+    background-color: var(--app-on-primary);
+    color: var(--app-on-primary);
+    animation: dot-flashing 0.4s infinite linear alternate;
+    animation-delay: 0.2s;
+    margin: 4px 0 0 6px;
+}
+
+.dot-flashing::before,
+.dot-flashing::after {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    top: 0;
+}
+
+.dot-flashing::before {
+    left: -3px;
+    width: 2px;
+    height: 2px;
+    border-radius: 1px;
+    background-color: var(--app-on-primary);
+    color: var(--app-on-primary);
+    animation: dot-flashing 0.4s infinite alternate;
+    animation-delay: 0s;
+}
+
+.dot-flashing::after {
+    left: 3px;
+    width: 2px;
+    height: 2px;
+    border-radius: 1px;
+    background-color: var(--app-on-primary);
+    color: var(--app-on-primary);
+    animation: dot-flashing 1s infinite alternate;
+    animation-delay: 0.4s;
+}
+
+@keyframes dot-flashing {
+    0% {
+        background-color: var(--app-on-primary);
+    }
+
+    50%,
+    100% {
+        background-color: #6462DD;
+    }
+}

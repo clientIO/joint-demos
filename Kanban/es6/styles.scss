@@ -1,0 +1,61 @@
+@import 'css/toolbar.scss';
+
+body {
+    margin: 0;
+    overflow-y: scroll;
+}
+
+.kanban {
+    width: 1000px;
+    height: 100%;
+    margin: 10px auto;
+    display: block;
+    position: relative;
+
+    .joint-paper {
+        border: 1px solid #E2E2E2;
+
+        svg {
+            overflow: visible;
+        }
+
+        .joint-tool {
+            circle {
+                fill: white;
+                stroke: #d3d3d3;
+            }
+
+            &[data-tool-name="remove"] path {
+                fill: #333;
+                stroke: #333;
+                stroke-width: 2;
+            }
+
+            &[data-tool-name="connect"] path {
+                fill: #333;
+            }
+        }
+
+        .highlighter-selection rect:first-of-type {
+            stroke: #333;
+            stroke-width: 2;
+        }
+
+        .highlighter-connection rect:first-of-type {
+            stroke: #F93943;
+            stroke-width: 2;
+        }
+
+        .joint-type-kanban-task {
+            cursor: grab;
+        }
+
+        .joint-type-kanban-addbutton {
+            cursor: pointer;
+        }
+
+        .stack-layout-ghost {
+            cursor: grabbing;
+        }
+    }
+}

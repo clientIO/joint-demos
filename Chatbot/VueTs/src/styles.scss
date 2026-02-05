@@ -1,0 +1,23 @@
+@import '~@joint/plus/joint-plus.css';
+@import "./assets/fonts";
+@import "./joint-plus/plugins";
+
+html, body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+    * {
+        box-sizing: border-box;
+    }
+}
+
+body {
+    -webkit-user-select: none;
+    -moz-user-select: -moz-none;
+    user-select: none;
+    font-family: sans-serif, Arial;
+}

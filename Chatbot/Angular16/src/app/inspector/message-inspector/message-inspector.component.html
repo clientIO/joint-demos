@@ -1,0 +1,48 @@
+<ng-container>
+    <h1>Component</h1>
+
+    <label>Label
+        <input type="text"
+               batch
+               placeholder="Enter label"
+               [(ngModel)]="label"
+               (ngModelChange)="changeCellProp(props.label, label)">
+    </label>
+
+    <label>Description
+        <input type="text"
+               batch
+               placeholder="Enter description"
+               [(ngModel)]="description"
+               (ngModelChange)="changeCellProp(props.description, description)">
+    </label>
+
+    <label>Icon (Base64)
+        <span class="icon-input-logo"></span>
+        <input type="text"
+               class="icon-input"
+               batch
+               placeholder="Enter icon"
+               spellcheck="false"
+               [(ngModel)]="icon"
+               (ngModelChange)="changeCellProp(props.icon, icon)">
+    </label>
+
+    <div class="ports">
+        <div class="out-ports-bar">
+            <span>Out Ports</span>
+            <button [disabled]="!canAddPort"
+                    (click)="addCellPort()"
+                    class="add-port"
+                    data-tooltip="Add Output Port">
+            </button>
+        </div>
+        <div class="port" *ngFor="let port of ports; trackBy: trackByPortId">
+            <input placeholder="Label" batch [(ngModel)]="port.label" (ngModelChange)="changeCellPort(port)"/>
+            <button class="remove-port"
+                    (click)="removeCellPort(port.id)"
+                    data-tooltip="Remove Output Port">
+            </button>
+        </div>
+    </div>
+</ng-container>

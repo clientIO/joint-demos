@@ -1,0 +1,234 @@
+// Utility Mixins
+$group-transition-duration: 0.3s;
+
+@mixin group-open {
+    max-height: 1000px;
+    transition: max-height $group-transition-duration ease-in;
+}
+
+@mixin group-closed {
+    max-height: 32px;
+    transition: max-height $group-transition-duration ease-out;
+}
+
+@mixin group-icon {
+    width: 10px !important;
+    height: 16px !important;
+    transition: transform $group-transition-duration ease;
+}
+
+@mixin group-icon-closed {
+    transform: rotate(-90deg);
+    filter: invert(0.5);
+}
+
+@mixin dropdown-icon(
+    $path: '../assets/icons/inspector/icon-arrow-down.svg',
+    $icon-width: 10px,
+    $icon-height: 6px
+) {
+    width: $icon-width;
+    height: $icon-height;
+    background-image: url($path);
+    background-size: $icon-width $icon-height;
+}
+
+// Widget Mixins
+@mixin range-widget {
+    color: var(--jj-bg-secondary);
+    --thumb-height: 0.875em;
+    --track-height: 0.125em;
+    --track-color: var(--jj-bg-tertiary);
+    --brightness-hover: 130%;
+    --brightness-down: 80%;
+    --clip-edges: 0.125em;
+
+    /* === range commons === */
+
+    & {
+        position: relative;
+        background: none;
+        overflow: hidden;
+        padding: 6px 0;
+    }
+
+    &:active {
+        cursor: grabbing;
+    }
+
+    &:disabled {
+        filter: grayscale(1);
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    /* === WebKit specific styles === */
+
+    &,
+    &::-webkit-slider-runnable-track,
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        transition: all ease 100ms;
+        height: var(--thumb-height);
+    }
+
+    &::-webkit-slider-runnable-track,
+    &::-webkit-slider-thumb {
+        position: relative;
+    }
+
+    &::-webkit-slider-thumb {
+        --thumb-radius: calc((var(--thumb-height) * 0.5) - 1px);
+        --clip-top: calc((var(--thumb-height) - var(--track-height)) * 0.5 - 0.5px);
+        --clip-bottom: calc(var(--thumb-height) - var(--clip-top));
+        --clip-further: calc(100% + 1px);
+        --box-fill: calc(-100vmax - var(--thumb-width, var(--thumb-height))) 0 0 100vmax currentColor;
+
+        width: var(--thumb-width, var(--thumb-height));
+        background: linear-gradient(currentColor 0 0) scroll no-repeat left center / 50% calc(var(--track-height) + 1px);
+        background-color: currentColor;
+        box-shadow: var(--box-fill);
+        border-radius: var(--thumb-width, var(--thumb-height));
+
+        filter: brightness(100%);
+        clip-path: polygon(100% -1px,
+                var(--clip-edges) -1px,
+                0 var(--clip-top),
+                -100vmax var(--clip-top),
+                -100vmax var(--clip-bottom),
+                0 var(--clip-bottom),
+                var(--clip-edges) 100%,
+                var(--clip-further) var(--clip-further));
+    }
+
+    &:hover::-webkit-slider-thumb {
+        filter: brightness(var(--brightness-hover));
+        cursor: grab;
+    }
+
+    &:active::-webkit-slider-thumb {
+        filter: brightness(var(--brightness-down));
+        cursor: grabbing;
+    }
+
+    &::-webkit-slider-runnable-track {
+        background: linear-gradient(var(--track-color) 0 0) scroll no-repeat center / 100% calc(var(--track-height) + 1px);
+    }
+
+    &:disabled::-webkit-slider-thumb {
+        cursor: not-allowed;
+    }
+
+    /* === Firefox specific styles === */
+
+    &,
+    &::-moz-range-track,
+    &::-moz-range-thumb {
+        appearance: none;
+        transition: all ease 100ms;
+        height: var(--thumb-height);
+    }
+
+    &::-moz-range-track,
+    &::-moz-range-thumb,
+    &::-moz-range-progress {
+        background: #fff0;
+    }
+
+    &::-moz-range-thumb {
+        background: currentColor;
+        border: 0;
+        width: var(--thumb-width, var(--thumb-height));
+        border-radius: var(--thumb-width, var(--thumb-height));
+        cursor: grab;
+    }
+
+    &:active::-moz-range-thumb {
+        cursor: grabbing;
+    }
+
+    &::-moz-range-track {
+        width: 100%;
+        background: var(--track-color);
+    }
+
+    &::-moz-range-progress {
+        appearance: none;
+        background: currentColor;
+        transition-delay: 30ms;
+    }
+
+    &::-moz-range-track,
+    &::-moz-range-progress {
+        height: calc(var(--track-height) + 1px);
+        border-radius: var(--track-height);
+    }
+
+    &::-moz-range-thumb,
+    &::-moz-range-progress {
+        filter: brightness(100%);
+    }
+
+    &:hover::-moz-range-thumb,
+    &:hover::-moz-range-progress {
+        filter: brightness(var(--brightness-hover));
+    }
+
+    &:active::-moz-range-thumb,
+    &:active::-moz-range-progress {
+        filter: brightness(var(--brightness-down));
+    }
+
+    &:disabled::-moz-range-thumb {
+        cursor: not-allowed;
+    }
+}
+
+@mixin checkbox-widget {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    border-radius: var(--jj-border-radius-small);
+    margin: 0;
+
+    input[type='checkbox'] {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+
+        &:after {
+            cursor: pointer;
+            line-height: 1.5em;
+            content: ' ';
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            background: var(--jj-bg-quaternary);
+            border: 1px solid var(--jj-border-secondary);
+            border-radius: var(--jj-border-radius-small);
+        }
+
+        &:checked:after {
+            content: url('../assets/icons/widgets/icon-checkbox-tick.svg');
+            text-align: center;
+        }
+    }
+}
+
+@mixin color-picker-widget {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    padding: 0;
+    border: 1px solid var(--jj-border-quaternary);
+    border-radius: var(--jj-border-radius-small);
+    overflow: hidden;
+}

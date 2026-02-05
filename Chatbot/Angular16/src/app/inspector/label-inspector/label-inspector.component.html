@@ -1,0 +1,11 @@
+<ng-container>
+    <h1>Component</h1>
+
+    <label>Label
+        <input type="text"
+               batch
+               placeholder="Enter label"
+               [(ngModel)]="label"
+               (ngModelChange)="changeCellProp(props.label, label)">
+    </label>
+</ng-container>

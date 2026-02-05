@@ -1,0 +1,131 @@
+$inspector-vertical-padding: 8px;
+
+.inspector-container {
+    position: absolute;
+    right: 0;
+    flex-shrink: 0;
+    width: 240px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+    padding: 10px $inspector-vertical-padding 8px $inspector-vertical-padding;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0px 4px 12px 0px #00000014;
+    overflow-x: hidden;
+    background-color: var(--jj-bg-primary);
+
+    .inspector-header {
+        height: 24px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        &.hidden {
+            display: none;
+        }
+
+        button {
+            position: relative;
+            background: transparent;
+            color: transparent;
+            height: 20px;
+            width: 20px;
+            box-sizing: content-box;
+            border: 1px solid var(--jj-border-secondary);
+            border-radius: var(--jj-border-radius-small);
+            cursor: pointer;
+            padding: 0;
+            transition: background-color 0.2s ease-in-out;
+
+            &:hover {
+                background: var(--jj-accent-hover);
+            }
+
+            &::before {
+                display: block;
+                content: '';
+                background-size: 8px 12px;
+                background-repeat: no-repeat;
+                background-position-x: center;
+                background-position-y: center;
+                height: 100%;
+                width: 100%;
+            }
+
+            &.open-groups-btn {
+                &::before {
+                    background-image: url(/assets/inspector/icon-expand.svg);
+                }
+            }
+
+            &.close-groups-btn {
+                &::before {
+                    background-image: url(/assets/inspector/icon-collapse.svg);
+                }
+            }
+        }
+
+        span.inspector-header-text {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 16px;
+            text-transform: uppercase;
+            margin-left: 10px;
+            padding: 0;
+            color: var(--jj-text-secondary);
+        }
+    }
+
+    .inspector-content {
+        & > div {
+            position: static;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field {
+
+            .object-property[data-property$="/fill"],
+            .object-property[data-property$="/stroke"],
+            &[data-field$="/fill"],
+            &[data-field$="/stroke"] {
+                display: inline-block !important;
+                vertical-align: top;
+                width: 50%;
+
+                & > div {
+                    width: 100%;
+                }
+            }
+
+            input[type="file"] {
+                padding-bottom: 1px;
+            }
+        }
+    }
+
+    // Special width for nested select boxes in the inspector
+    $select-box-width: 200px;
+    $field-padding: 4px;
+    $field-padding-combined: calc(2 * ($field-padding + $inspector-vertical-padding));
+
+    .joint-select-box-options.joint-select-box:not(.joint-color-palette) {
+        width: calc(100% - $field-padding-combined);
+
+        // Change the width for the nested select box
+        &.list-select-box {
+            $extra-list-padding: 18px;
+            $list-filed-padding-combined: calc($field-padding-combined + 2 * $extra-list-padding);
+
+            width: calc(100% - $list-filed-padding-combined);
+        }
+    }
+}
+
+
+

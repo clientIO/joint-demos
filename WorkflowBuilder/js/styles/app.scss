@@ -1,0 +1,38 @@
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+.paper-container {
+    position: absolute;
+    overflow: hidden;
+    box-sizing: border-box;
+    width: calc(100% - var(--app-inspector-width));
+    height: calc(100% - var(--app-toolbar-height));
+    top: var(--app-toolbar-height);
+
+    .joint-paper {
+        background-color: var(--app-bg-quaternary);
+    }
+
+    .joint-paper-scroller {
+        overflow: hidden;
+    }
+
+    &.drop-zone::after {
+        position: absolute;
+        display: flex;
+        pointer-events: none;
+        inset: 0px;
+        content: 'Drop file here';
+        text-align: center;
+        background: rgba(255, 255, 255, 0.7);
+        flex-direction: column;
+        justify-content: center;
+        color: var(--app-text-secondary);
+        font-family: 'Inter', sans-serif;
+        font-size: 1.5em;
+    }
+}

@@ -1,0 +1,92 @@
+.joint-toolbar {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    height: 54px;
+    padding: 0 16px;
+    background-color: var(--jj-bg-primary);
+    border-bottom: 1px solid var(--jj-border-primary);
+
+    .joint-toolbar-group[data-group="right"], .joint-toolbar-group[data-group="left"] {
+        gap: 6px;
+    }
+
+    .joint-widget {
+
+        &[data-name="open-file-dropdown"] {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 19px;
+            text-align: center;
+            color: var(--jj-text-secondary);
+            outline: none;
+            background: transparent;
+            border: 1px solid var(--jj-border-button);
+
+            &::before {
+                content: url(../assets/toolbar/icon-file.svg);
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        &[data-name="clear-all"],
+        &[data-name="print"] {
+            background: transparent;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 1;
+        }
+
+        &[data-name="clear-all"]::before {
+            content: url(../assets/toolbar/icon-bin.svg);
+            max-height: 19px;
+        }
+
+        &[data-name="print"]::before {
+            content: url(../assets/toolbar/icon-print.svg);
+            max-height: 20px;
+        }
+
+        &[data-type="label"] {
+            margin-right: 8px;
+            color: var(--jj-text-secondary);
+            font-family: 'Open Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 17.7px;
+            text-align: center;
+        }
+
+        &[data-name$="dropdown"] {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+
+            &::after {
+                content: url(../assets/toolbar/icon-dropdown.svg);
+            }
+        }
+
+        &[data-name^="save"] {
+            box-sizing: border-box;
+            justify-content: center;
+            padding: 0 4px;
+            min-width: 48px;
+            height: 32px;
+            border-radius: var(--jj-border-radius-small);
+            border: 1px solid var(--jj-border-save-button);
+            background-color: var(--jj-bg-secondary);
+            color: var(--jj-text-secondary);
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 19px;
+            text-align: center;
+        }
+    }
+}

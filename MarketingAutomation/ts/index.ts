@@ -1,0 +1,25 @@
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import '@joint/plus/joint-plus.css';
+import './styles/main.scss';
+import { App } from './src/app';
+import { setTheme } from '@joint/plus';
+
+const appEl = document.getElementById('app') as HTMLDivElement;
+
+Promise.all([
+    fetch('assets/config/actions.json').then(res => res.json()),
+    fetch('assets/config/triggers.json').then(res => res.json()),
+    fetch('assets/flows/example.json').then(res => res.json()),
+]).then(([actions, triggers, example]) => {
+
+    // Initialize the application with loaded configuration
+    const app = new App(appEl, { triggers, actions });
+    // Load example diagram
+    app.loadDiagram(example);
+
+}).catch((err) => {
+    console.warn('Failed to load configuration files:', err);
+});
+
+setTheme('light');

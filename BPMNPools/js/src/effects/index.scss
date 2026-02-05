@@ -1,0 +1,39 @@
+.hgl-container [joint-selector="body"] {
+    fill: #EAF1FC;
+    transition: fill 0.4s;
+}
+
+.hgl-container [joint-selector="header"] {
+    fill: #B5CDF8;
+}
+
+.hgl-swimlane-source [joint-selector="body"] {
+    fill: #EAF1FC;
+}
+
+.hgl-target {
+    stroke: #0075f2;
+    stroke-width: 2;
+    fill: #EAF1FC;
+}
+
+.hgl-phase-element [joint-selector="body"],
+.hgl-phase-element [joint-selector="border"] {
+    stroke: #0075f2;
+}
+
+[joint-selector="header"] {
+    transition: fill 0.4s;
+}
+
+.hgl-phase [joint-selector="header"] {
+    fill: #B5CDF8;
+}
+
+.hgl-invalid-drop rect {
+    stroke: #ed2637;
+}
+
+.hgl-invalid-drop text {
+    fill: #ed2637;
+}

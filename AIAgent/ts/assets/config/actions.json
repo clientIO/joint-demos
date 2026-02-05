@@ -1,0 +1,3884 @@
+{
+    "github": {
+        "name": "GitHub",
+        "icon": "github.svg",
+        "actions": [
+            {
+                "id": "create_issue",
+                "name": "Create Issue",
+                "description": "Creates a new issue in a repository.",
+                "data": {
+                    "repository": {
+                        "name": "Repository",
+                        "type": "string",
+                        "description": "The name of the repository (e.g., 'owner/repo')."
+                    },
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "The title of the issue."
+                    },
+                    "body": {
+                        "name": "Body",
+                        "type": "text",
+                        "description": "The contents of the issue."
+                    },
+                    "assignees": {
+                        "name": "Assignees",
+                        "type": "array",
+                        "description": "Usernames to assign to the issue."
+                    },
+                    "labels": {
+                        "name": "Labels",
+                        "type": "array",
+                        "description": "Labels to assign to the issue."
+                    }
+                }
+            },
+            {
+                "id": "close_issue",
+                "name": "Close Issue",
+                "description": "Closes an existing issue.",
+                "data": {
+                    "repository": {
+                        "name": "Repository",
+                        "type": "string",
+                        "description": "The name of the repository (e.g., 'owner/repo')."
+                    },
+                    "issue_number": {
+                        "name": "Issue Number",
+                        "type": "integer",
+                        "description": "The number of the issue to close."
+                    }
+                }
+            },
+            {
+                "id": "comment_on_issue",
+                "name": "Comment on Issue",
+                "description": "Adds a comment to an issue.",
+                "data": {
+                    "repository": {
+                        "name": "Repository",
+                        "type": "string",
+                        "description": "The name of the repository (e.g., 'owner/repo')."
+                    },
+                    "issue_number": {
+                        "name": "Issue Number",
+                        "type": "integer",
+                        "description": "The number of the issue to comment on."
+                    },
+                    "comment": {
+                        "name": "Comment",
+                        "type": "text",
+                        "description": "The content of the comment."
+                    }
+                }
+            },
+            {
+                "id": "create_pull_request",
+                "name": "Create Pull Request",
+                "description": "Creates a new pull request.",
+                "data": {
+                    "repository": {
+                        "name": "Repository",
+                        "type": "string",
+                        "description": "The name of the repository (e.g., 'owner/repo')."
+                    },
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "The title of the pull request."
+                    },
+                    "head": {
+                        "name": "Head Branch",
+                        "type": "string",
+                        "description": "The name of the branch where your changes are implemented."
+                    },
+                    "base": {
+                        "name": "Base Branch",
+                        "type": "string",
+                        "description": "The name of the branch you want the changes pulled into."
+                    },
+                    "body": {
+                        "name": "Body",
+                        "type": "text",
+                        "description": "The contents of the pull request."
+                    }
+                }
+            },
+            {
+                "id": "merge_pull_request",
+                "name": "Merge Pull Request",
+                "description": "Merges an existing pull request.",
+                "data": {
+                    "repository": {
+                        "name": "Repository",
+                        "type": "string",
+                        "description": "The name of the repository (e.g., 'owner/repo')."
+                    },
+                    "pull_number": {
+                        "name": "Pull Request Number",
+                        "type": "integer",
+                        "description": "The number of the pull request to merge."
+                    },
+                    "commit_title": {
+                        "name": "Commit Title",
+                        "type": "string",
+                        "description": "Title for the automatic commit message."
+                    },
+                    "commit_message": {
+                        "name": "Commit Message",
+                        "type": "text",
+                        "description": "Extra detail to append to automatic commit message."
+                    },
+                    "merge_method": {
+                        "name": "Merge Method",
+                        "type": "string",
+                        "description": "Merge method to use (merge, squash, or rebase)."
+                    }
+                }
+            },
+            {
+                "id": "comment_on_pull_request",
+                "name": "Comment on Pull Request",
+                "description": "Adds a comment to a pull request.",
+                "data": {
+                    "repository": {
+                        "name": "Repository",
+                        "type": "string",
+                        "description": "The name of the repository (e.g., 'owner/repo')."
+                    },
+                    "pull_number": {
+                        "name": "Pull Request Number",
+                        "type": "integer",
+                        "description": "The number of the pull request to comment on."
+                    },
+                    "comment": {
+                        "name": "Comment",
+                        "type": "text",
+                        "description": "The content of the comment."
+                    }
+                }
+            }
+        ]
+    },
+    "gmail": {
+        "name": "Gmail",
+        "icon": "gmail.webp",
+        "actions": [
+            {
+                "id": "archive",
+                "name": "Archive",
+                "description": "Archives an email.",
+                "data": {
+                    "email_id": {
+                        "name": "Email ID",
+                        "type": "string",
+                        "description": "The ID of the email to mark as read."
+                    }
+                }
+            },
+            {
+                "id": "draft_email",
+                "name": "Draft Email",
+                "description": "Saves an email as a draft.",
+                "data": {
+                    "subject": {
+                        "name": "Subject",
+                        "type": "string",
+                        "description": "The subject of the email."
+                    },
+                    "body": {
+                        "name": "Body",
+                        "type": "text",
+                        "description": "The body of the email."
+                    },
+                    "to": {
+                        "name": "To",
+                        "type": "string",
+                        "description": "The recipient of the email."
+                    }
+                }
+            },
+            {
+                "id": "send_email",
+                "name": "Send Email",
+                "description": "Sends an email.",
+                "data": {
+                    "subject": {
+                        "name": "Subject",
+                        "type": "string",
+                        "description": "The subject of the email."
+                    },
+                    "body": {
+                        "name": "Body",
+                        "type": "text",
+                        "description": "The body of the email."
+                    },
+                    "to": {
+                        "name": "To",
+                        "type": "string",
+                        "description": "The recipient of the email."
+                    }
+                }
+            },
+            {
+                "id": "mark_as_read",
+                "name": "Mark as Read",
+                "description": "Marks an email as read.",
+                "data": {
+                    "email_id": {
+                        "name": "Email ID",
+                        "type": "string",
+                        "description": "The ID of the email to mark as read."
+                    }
+                }
+            },
+            {
+                "id": "mark_as_unread",
+                "name": "Mark as Unread",
+                "description": "Marks an email as unread.",
+                "data": {
+                    "email_id": {
+                        "name": "Email ID",
+                        "type": "string",
+                        "description": "The ID of the email to mark as unread."
+                    }
+                }
+            },
+            {
+                "id": "move_to_trash",
+                "name": "Move to Trash",
+                "description": "Moves an email to trash.",
+                "data": {
+                    "email_id": {
+                        "name": "Email ID",
+                        "type": "string",
+                        "description": "The ID of the email to move to trash."
+                    }
+                }
+            }
+        ]
+    },
+    "slack": {
+        "name": "Slack",
+        "icon": "slack.webp",
+        "actions": [
+            {
+                "id": "send_channel_message",
+                "name": "Send Channel Message",
+                "description": "Sends a message to a public channel.",
+                "data": {
+                    "channel_id": {
+                        "name": "Channel ID",
+                        "type": "string",
+                        "description": "The ID of the channel to send the message to."
+                    },
+                    "message": {
+                        "name": "Message",
+                        "type": "text",
+                        "description": "The content of the message to send."
+                    }
+                }
+            },
+            {
+                "id": "send_direct_message",
+                "name": "Send Direct Message",
+                "description": "Sends a direct message to a user.",
+                "data": {
+                    "user_id": {
+                        "name": "User ID",
+                        "type": "string",
+                        "description": "The ID of the user to send the message to."
+                    },
+                    "message": {
+                        "name": "Message",
+                        "type": "text",
+                        "description": "The content of the message to send."
+                    }
+                }
+            },
+            {
+                "id": "add_reaction",
+                "name": "Add Reaction",
+                "description": "Adds an emoji reaction to a message.",
+                "data": {
+                    "channel_id": {
+                        "name": "Channel ID",
+                        "type": "string",
+                        "description": "The ID of the channel containing the message."
+                    },
+                    "timestamp": {
+                        "name": "Message Timestamp",
+                        "type": "string",
+                        "description": "The timestamp of the message to react to."
+                    },
+                    "emoji": {
+                        "name": "Emoji",
+                        "type": "string",
+                        "description": "The emoji to use for the reaction (e.g., :thumbsup:)."
+                    }
+                }
+            },
+            {
+                "id": "create_channel",
+                "name": "Create Channel",
+                "description": "Creates a new channel.",
+                "data": {
+                    "channel_name": {
+                        "name": "Channel Name",
+                        "type": "string",
+                        "description": "The name of the new channel."
+                    },
+                    "is_private": {
+                        "name": "Is Private",
+                        "type": "boolean",
+                        "description": "Whether the channel should be private."
+                    }
+                }
+            },
+            {
+                "id": "invite_user_to_channel",
+                "name": "Invite User to Channel",
+                "description": "Invites a user to a channel.",
+                "data": {
+                    "channel_id": {
+                        "name": "Channel ID",
+                        "type": "string",
+                        "description": "The ID of the channel to invite the user to."
+                    },
+                    "user_id": {
+                        "name": "User ID",
+                        "type": "string",
+                        "description": "The ID of the user to invite."
+                    }
+                }
+            }
+        ]
+    },
+    "salesforce": {
+        "name": "Salesforce",
+        "icon": "salesforce.png",
+        "actions": [
+            {
+                "id": "create_lead",
+                "name": "Create Lead",
+                "description": "Creates a new lead in Salesforce.",
+                "data": {
+                    "first_name": {
+                        "name": "First Name",
+                        "type": "string",
+                        "description": "The first name of the lead."
+                    },
+                    "last_name": {
+                        "name": "Last Name",
+                        "type": "string",
+                        "description": "The last name of the lead."
+                    },
+                    "company": {
+                        "name": "Company",
+                        "type": "string",
+                        "description": "The company associated with the lead."
+                    },
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The email address of the lead."
+                    }
+                }
+            },
+            {
+                "id": "update_lead",
+                "name": "Update Lead",
+                "description": "Updates an existing lead in Salesforce.",
+                "data": {
+                    "lead_id": {
+                        "name": "Lead ID",
+                        "type": "string",
+                        "description": "The ID of the lead to update."
+                    },
+                    "fields": {
+                        "name": "Fields",
+                        "type": "object",
+                        "description": "A key-value map of fields to update."
+                    }
+                }
+            },
+            {
+                "id": "create_contact",
+                "name": "Create Contact",
+                "description": "Creates a new contact in Salesforce.",
+                "data": {
+                    "first_name": {
+                        "name": "First Name",
+                        "type": "string",
+                        "description": "The first name of the contact."
+                    },
+                    "last_name": {
+                        "name": "Last Name",
+                        "type": "string",
+                        "description": "The last name of the contact."
+                    },
+                    "account_id": {
+                        "name": "Account ID",
+                        "type": "string",
+                        "description": "The ID of the account associated with the contact."
+                    },
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The email address of the contact."
+                    }
+                }
+            },
+            {
+                "id": "update_contact",
+                "name": "Update Contact",
+                "description": "Updates an existing contact in Salesforce.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "The ID of the contact to update."
+                    },
+                    "fields": {
+                        "name": "Fields",
+                        "type": "object",
+                        "description": "A key-value map of fields to update."
+                    }
+                }
+            },
+            {
+                "id": "create_opportunity",
+                "name": "Create Opportunity",
+                "description": "Creates a new opportunity in Salesforce.",
+                "data": {
+                    "name": {
+                        "name": "Opportunity Name",
+                        "type": "string",
+                        "description": "The name of the opportunity."
+                    },
+                    "close_date": {
+                        "name": "Close Date",
+                        "type": "string",
+                        "description": "The expected close date of the opportunity."
+                    },
+                    "stage": {
+                        "name": "Stage",
+                        "type": "string",
+                        "description": "The sales stage of the opportunity."
+                    },
+                    "amount": {
+                        "name": "Amount",
+                        "type": "number",
+                        "description": "The amount associated with the opportunity."
+                    }
+                }
+            }
+        ]
+    },
+    "google_calendar": {
+        "name": "Google Calendar",
+        "icon": "google_calendar.webp",
+        "actions": [
+            {
+                "id": "create_event",
+                "name": "Create Event",
+                "description": "Creates a new event in the specified calendar.",
+                "data": {
+                    "calendar_id": {
+                        "name": "Calendar ID",
+                        "type": "string",
+                        "description": "The ID of the calendar to add the event to."
+                    },
+                    "summary": {
+                        "name": "Summary",
+                        "type": "string",
+                        "description": "The title of the event."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "Details about the event."
+                    },
+                    "start_time": {
+                        "name": "Start Time",
+                        "type": "datetime",
+                        "description": "The start time of the event."
+                    },
+                    "end_time": {
+                        "name": "End Time",
+                        "type": "datetime",
+                        "description": "The end time of the event."
+                    },
+                    "attendees": {
+                        "name": "Attendees",
+                        "type": "array",
+                        "description": "List of attendee email addresses."
+                    }
+                }
+            },
+            {
+                "id": "update_event",
+                "name": "Update Event",
+                "description": "Updates an existing event in the calendar.",
+                "data": {
+                    "calendar_id": {
+                        "name": "Calendar ID",
+                        "type": "string",
+                        "description": "The ID of the calendar containing the event."
+                    },
+                    "event_id": {
+                        "name": "Event ID",
+                        "type": "string",
+                        "description": "The ID of the event to update."
+                    },
+                    "summary": {
+                        "name": "Summary",
+                        "type": "string",
+                        "description": "The updated title of the event."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "Updated details about the event."
+                    },
+                    "start_time": {
+                        "name": "Start Time",
+                        "type": "datetime",
+                        "description": "The updated start time of the event."
+                    },
+                    "end_time": {
+                        "name": "End Time",
+                        "type": "datetime",
+                        "description": "The updated end time of the event."
+                    },
+                    "attendees": {
+                        "name": "Attendees",
+                        "type": "array",
+                        "description": "Updated list of attendee email addresses."
+                    }
+                }
+            },
+            {
+                "id": "delete_event",
+                "name": "Delete Event",
+                "description": "Deletes an event from the calendar.",
+                "data": {
+                    "calendar_id": {
+                        "name": "Calendar ID",
+                        "type": "string",
+                        "description": "The ID of the calendar containing the event."
+                    },
+                    "event_id": {
+                        "name": "Event ID",
+                        "type": "string",
+                        "description": "The ID of the event to delete."
+                    }
+                }
+            },
+            {
+                "id": "add_attendee",
+                "name": "Add Attendee",
+                "description": "Adds an attendee to an existing event.",
+                "data": {
+                    "calendar_id": {
+                        "name": "Calendar ID",
+                        "type": "string",
+                        "description": "The ID of the calendar containing the event."
+                    },
+                    "event_id": {
+                        "name": "Event ID",
+                        "type": "string",
+                        "description": "The ID of the event to update."
+                    },
+                    "attendee_email": {
+                        "name": "Attendee Email",
+                        "type": "string",
+                        "description": "The email address of the attendee to add."
+                    }
+                }
+            },
+            {
+                "id": "remove_attendee",
+                "name": "Remove Attendee",
+                "description": "Removes an attendee from an existing event.",
+                "data": {
+                    "calendar_id": {
+                        "name": "Calendar ID",
+                        "type": "string",
+                        "description": "The ID of the calendar containing the event."
+                    },
+                    "event_id": {
+                        "name": "Event ID",
+                        "type": "string",
+                        "description": "The ID of the event to update."
+                    },
+                    "attendee_email": {
+                        "name": "Attendee Email",
+                        "type": "string",
+                        "description": "The email address of the attendee to remove."
+                    }
+                }
+            }
+        ]
+    },
+    "trello": {
+        "name": "Trello",
+        "icon": "trello.svg",
+        "actions": [
+            {
+                "id": "create_card",
+                "name": "Create Card",
+                "description": "Creates a new card in a specified list.",
+                "data": {
+                    "list_id": {
+                        "name": "List ID",
+                        "type": "string",
+                        "description": "The ID of the list where the card will be created."
+                    },
+                    "name": {
+                        "name": "Card Name",
+                        "type": "string",
+                        "description": "The name of the card."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "The description of the card."
+                    },
+                    "due": {
+                        "name": "Due Date",
+                        "type": "datetime",
+                        "description": "The due date of the card."
+                    },
+                    "members": {
+                        "name": "Members",
+                        "type": "array",
+                        "description": "List of member IDs to assign to the card."
+                    },
+                    "labels": {
+                        "name": "Labels",
+                        "type": "array",
+                        "description": "List of label IDs to assign to the card."
+                    }
+                }
+            },
+            {
+                "id": "update_card",
+                "name": "Update Card",
+                "description": "Updates an existing card's details.",
+                "data": {
+                    "card_id": {
+                        "name": "Card ID",
+                        "type": "string",
+                        "description": "The ID of the card to update."
+                    },
+                    "name": {
+                        "name": "Card Name",
+                        "type": "string",
+                        "description": "The new name of the card."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "The new description of the card."
+                    },
+                    "due": {
+                        "name": "Due Date",
+                        "type": "datetime",
+                        "description": "The new due date of the card."
+                    },
+                    "closed": {
+                        "name": "Closed",
+                        "type": "boolean",
+                        "description": "Whether the card is archived."
+                    },
+                    "members": {
+                        "name": "Members",
+                        "type": "array",
+                        "description": "List of member IDs to assign to the card."
+                    },
+                    "labels": {
+                        "name": "Labels",
+                        "type": "array",
+                        "description": "List of label IDs to assign to the card."
+                    }
+                }
+            },
+            {
+                "id": "move_card",
+                "name": "Move Card",
+                "description": "Moves a card to a different list or board.",
+                "data": {
+                    "card_id": {
+                        "name": "Card ID",
+                        "type": "string",
+                        "description": "The ID of the card to move."
+                    },
+                    "list_id": {
+                        "name": "List ID",
+                        "type": "string",
+                        "description": "The ID of the destination list."
+                    },
+                    "board_id": {
+                        "name": "Board ID",
+                        "type": "string",
+                        "description": "The ID of the destination board (optional)."
+                    }
+                }
+            },
+            {
+                "id": "add_comment",
+                "name": "Add Comment",
+                "description": "Adds a comment to a card.",
+                "data": {
+                    "card_id": {
+                        "name": "Card ID",
+                        "type": "string",
+                        "description": "The ID of the card to comment on."
+                    },
+                    "text": {
+                        "name": "Comment Text",
+                        "type": "text",
+                        "description": "The content of the comment."
+                    }
+                }
+            },
+            {
+                "id": "add_member_to_card",
+                "name": "Add Member to Card",
+                "description": "Adds a member to a card.",
+                "data": {
+                    "card_id": {
+                        "name": "Card ID",
+                        "type": "string",
+                        "description": "The ID of the card."
+                    },
+                    "member_id": {
+                        "name": "Member ID",
+                        "type": "string",
+                        "description": "The ID of the member to add."
+                    }
+                }
+            }
+        ]
+    },
+    "notion": {
+        "name": "Notion",
+        "icon": "notion.webp",
+        "actions": [
+            {
+                "id": "create_page",
+                "name": "Create Page",
+                "description": "Creates a new page in a specified parent page or database.",
+                "data": {
+                    "parent_id": {
+                        "name": "Parent ID",
+                        "type": "string",
+                        "description": "The ID of the parent page or database."
+                    },
+                    "properties": {
+                        "name": "Properties",
+                        "type": "object",
+                        "description": "A dictionary of property values for the new page."
+                    },
+                    "children": {
+                        "name": "Children",
+                        "type": "array",
+                        "description": "Optional content blocks to include in the page."
+                    }
+                }
+            },
+            {
+                "id": "update_page_properties",
+                "name": "Update Page Properties",
+                "description": "Updates the properties of an existing page.",
+                "data": {
+                    "page_id": {
+                        "name": "Page ID",
+                        "type": "string",
+                        "description": "The ID of the page to update."
+                    },
+                    "properties": {
+                        "name": "Properties",
+                        "type": "object",
+                        "description": "A dictionary of property values to update."
+                    }
+                }
+            },
+            {
+                "id": "append_block_children",
+                "name": "Append Block Children",
+                "description": "Appends content blocks to an existing page or block.",
+                "data": {
+                    "block_id": {
+                        "name": "Block ID",
+                        "type": "string",
+                        "description": "The ID of the block to append children to."
+                    },
+                    "children": {
+                        "name": "Children",
+                        "type": "array",
+                        "description": "Content blocks to append."
+                    }
+                }
+            },
+            {
+                "id": "create_database",
+                "name": "Create Database",
+                "description": "Creates a new database as a subpage in the specified parent page.",
+                "data": {
+                    "parent_id": {
+                        "name": "Parent ID",
+                        "type": "string",
+                        "description": "The ID of the parent page."
+                    },
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "The title of the new database."
+                    },
+                    "properties": {
+                        "name": "Properties",
+                        "type": "object",
+                        "description": "A dictionary defining the schema of the database."
+                    }
+                }
+            },
+            {
+                "id": "add_comment",
+                "name": "Add Comment",
+                "description": "Adds a comment to a page or discussion thread.",
+                "data": {
+                    "parent_id": {
+                        "name": "Parent ID",
+                        "type": "string",
+                        "description": "The ID of the page or discussion thread."
+                    },
+                    "discussion_id": {
+                        "name": "Discussion ID",
+                        "type": "string",
+                        "description": "The ID of the discussion thread (optional)."
+                    },
+                    "rich_text": {
+                        "name": "Rich Text",
+                        "type": "array",
+                        "description": "The content of the comment in rich text format."
+                    }
+                }
+            }
+        ]
+    },
+    "asana": {
+        "name": "Asana",
+        "icon": "asana.svg",
+        "actions": [
+            {
+                "id": "create_task",
+                "name": "Create Task",
+                "description": "Creates a new task in a specified project or workspace.",
+                "data": {
+                    "workspace": {
+                        "name": "Workspace ID",
+                        "type": "string",
+                        "description": "The ID of the workspace where the task will be created."
+                    },
+                    "project": {
+                        "name": "Project ID",
+                        "type": "string",
+                        "description": "The ID of the project to associate with the task."
+                    },
+                    "name": {
+                        "name": "Task Name",
+                        "type": "string",
+                        "description": "The name of the task."
+                    },
+                    "notes": {
+                        "name": "Notes",
+                        "type": "text",
+                        "description": "The description or notes for the task."
+                    },
+                    "assignee": {
+                        "name": "Assignee",
+                        "type": "string",
+                        "description": "The ID of the user to assign the task to."
+                    },
+                    "due_date": {
+                        "name": "Due Date",
+                        "type": "date",
+                        "description": "The due date of the task."
+                    }
+                }
+            },
+            {
+                "id": "update_task",
+                "name": "Update Task",
+                "description": "Updates an existing task's details.",
+                "data": {
+                    "task_id": {
+                        "name": "Task ID",
+                        "type": "string",
+                        "description": "The ID of the task to update."
+                    },
+                    "name": {
+                        "name": "Task Name",
+                        "type": "string",
+                        "description": "The new name of the task."
+                    },
+                    "notes": {
+                        "name": "Notes",
+                        "type": "text",
+                        "description": "The new description or notes for the task."
+                    },
+                    "assignee": {
+                        "name": "Assignee",
+                        "type": "string",
+                        "description": "The ID of the new assignee."
+                    },
+                    "due_date": {
+                        "name": "Due Date",
+                        "type": "date",
+                        "description": "The new due date of the task."
+                    }
+                }
+            },
+            {
+                "id": "add_comment",
+                "name": "Add Comment",
+                "description": "Adds a comment to a task.",
+                "data": {
+                    "task_id": {
+                        "name": "Task ID",
+                        "type": "string",
+                        "description": "The ID of the task to comment on."
+                    },
+                    "text": {
+                        "name": "Comment Text",
+                        "type": "text",
+                        "description": "The content of the comment."
+                    }
+                }
+            },
+            {
+                "id": "create_project",
+                "name": "Create Project",
+                "description": "Creates a new project in a workspace.",
+                "data": {
+                    "workspace": {
+                        "name": "Workspace ID",
+                        "type": "string",
+                        "description": "The ID of the workspace where the project will be created."
+                    },
+                    "name": {
+                        "name": "Project Name",
+                        "type": "string",
+                        "description": "The name of the project."
+                    },
+                    "notes": {
+                        "name": "Notes",
+                        "type": "text",
+                        "description": "The description or notes for the project."
+                    }
+                }
+            },
+            {
+                "id": "create_subtask",
+                "name": "Create Subtask",
+                "description": "Adds a subtask to an existing task.",
+                "data": {
+                    "parent_task_id": {
+                        "name": "Parent Task ID",
+                        "type": "string",
+                        "description": "The ID of the parent task."
+                    },
+                    "name": {
+                        "name": "Subtask Name",
+                        "type": "string",
+                        "description": "The name of the subtask."
+                    },
+                    "assignee": {
+                        "name": "Assignee",
+                        "type": "string",
+                        "description": "The ID of the user to assign the subtask to."
+                    },
+                    "due_date": {
+                        "name": "Due Date",
+                        "type": "date",
+                        "description": "The due date of the subtask."
+                    }
+                }
+            }
+        ]
+    },
+    "hubspot": {
+        "name": "HubSpot",
+        "icon": "hubspot.webp",
+        "actions": [
+            {
+                "id": "create_contact",
+                "name": "Create Contact",
+                "description": "Creates a new contact in HubSpot.",
+                "data": {
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The email address of the contact."
+                    },
+                    "firstname": {
+                        "name": "First Name",
+                        "type": "string",
+                        "description": "The first name of the contact."
+                    },
+                    "lastname": {
+                        "name": "Last Name",
+                        "type": "string",
+                        "description": "The last name of the contact."
+                    },
+                    "phone": {
+                        "name": "Phone Number",
+                        "type": "string",
+                        "description": "The phone number of the contact."
+                    }
+                }
+            },
+            {
+                "id": "update_contact",
+                "name": "Update Contact",
+                "description": "Updates an existing contact's information.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "The unique ID of the contact to update."
+                    },
+                    "properties": {
+                        "name": "Properties",
+                        "type": "object",
+                        "description": "A dictionary of properties to update."
+                    }
+                }
+            },
+            {
+                "id": "create_deal",
+                "name": "Create Deal",
+                "description": "Creates a new deal in HubSpot.",
+                "data": {
+                    "dealname": {
+                        "name": "Deal Name",
+                        "type": "string",
+                        "description": "The name of the deal."
+                    },
+                    "amount": {
+                        "name": "Amount",
+                        "type": "number",
+                        "description": "The monetary value of the deal."
+                    },
+                    "pipeline": {
+                        "name": "Pipeline",
+                        "type": "string",
+                        "description": "The pipeline ID for the deal."
+                    },
+                    "dealstage": {
+                        "name": "Deal Stage",
+                        "type": "string",
+                        "description": "The stage ID within the pipeline."
+                    },
+                    "associated_contact_ids": {
+                        "name": "Associated Contact IDs",
+                        "type": "array",
+                        "description": "List of contact IDs to associate with the deal."
+                    }
+                }
+            },
+            {
+                "id": "update_deal",
+                "name": "Update Deal",
+                "description": "Updates an existing deal's information.",
+                "data": {
+                    "deal_id": {
+                        "name": "Deal ID",
+                        "type": "string",
+                        "description": "The unique ID of the deal to update."
+                    },
+                    "properties": {
+                        "name": "Properties",
+                        "type": "object",
+                        "description": "A dictionary of properties to update."
+                    }
+                }
+            },
+            {
+                "id": "add_note_to_contact",
+                "name": "Add Note to Contact",
+                "description": "Adds a note to a specific contact.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "The unique ID of the contact."
+                    },
+                    "note_body": {
+                        "name": "Note Body",
+                        "type": "text",
+                        "description": "The content of the note."
+                    },
+                    "timestamp": {
+                        "name": "Timestamp",
+                        "type": "datetime",
+                        "description": "The time the note was created."
+                    }
+                }
+            }
+        ]
+    },
+    "zendesk": {
+        "name": "Zendesk",
+        "icon": "zendesk.svg",
+        "actions": [
+            {
+                "id": "create_ticket",
+                "name": "Create Ticket",
+                "description": "Creates a new support ticket.",
+                "data": {
+                    "subject": {
+                        "name": "Subject",
+                        "type": "string",
+                        "description": "The subject of the ticket."
+                    },
+                    "comment": {
+                        "name": "Comment",
+                        "type": "text",
+                        "description": "The initial comment or description of the issue."
+                    },
+                    "priority": {
+                        "name": "Priority",
+                        "type": "string",
+                        "description": "The priority level of the ticket (e.g., low, normal, high, urgent)."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "string",
+                        "description": "The status of the ticket (e.g., new, open, pending, solved)."
+                    },
+                    "requester": {
+                        "name": "Requester",
+                        "type": "object",
+                        "description": "Information about the person requesting support, including name and email."
+                    }
+                }
+            },
+            {
+                "id": "update_ticket",
+                "name": "Update Ticket",
+                "description": "Updates an existing support ticket.",
+                "data": {
+                    "ticket_id": {
+                        "name": "Ticket ID",
+                        "type": "string",
+                        "description": "The unique identifier of the ticket to update."
+                    },
+                    "subject": {
+                        "name": "Subject",
+                        "type": "string",
+                        "description": "The updated subject of the ticket."
+                    },
+                    "comment": {
+                        "name": "Comment",
+                        "type": "text",
+                        "description": "An additional comment or update to the ticket."
+                    },
+                    "priority": {
+                        "name": "Priority",
+                        "type": "string",
+                        "description": "The updated priority level of the ticket."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "string",
+                        "description": "The updated status of the ticket."
+                    }
+                }
+            },
+            {
+                "id": "add_comment_to_ticket",
+                "name": "Add Comment to Ticket",
+                "description": "Adds a comment to an existing ticket.",
+                "data": {
+                    "ticket_id": {
+                        "name": "Ticket ID",
+                        "type": "string",
+                        "description": "The unique identifier of the ticket."
+                    },
+                    "comment": {
+                        "name": "Comment",
+                        "type": "text",
+                        "description": "The content of the comment to add."
+                    },
+                    "public": {
+                        "name": "Public",
+                        "type": "boolean",
+                        "description": "Whether the comment is public (true) or internal (false)."
+                    }
+                }
+            },
+            {
+                "id": "create_user",
+                "name": "Create User",
+                "description": "Creates a new user in Zendesk.",
+                "data": {
+                    "name": {
+                        "name": "Name",
+                        "type": "string",
+                        "description": "The full name of the user."
+                    },
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The email address of the user."
+                    },
+                    "role": {
+                        "name": "Role",
+                        "type": "string",
+                        "description": "The role assigned to the user (e.g., end-user, agent, admin)."
+                    },
+                    "phone": {
+                        "name": "Phone",
+                        "type": "string",
+                        "description": "The phone number of the user."
+                    }
+                }
+            },
+            {
+                "id": "update_user",
+                "name": "Update User",
+                "description": "Updates information for an existing user.",
+                "data": {
+                    "user_id": {
+                        "name": "User ID",
+                        "type": "string",
+                        "description": "The unique identifier of the user to update."
+                    },
+                    "name": {
+                        "name": "Name",
+                        "type": "string",
+                        "description": "The updated full name of the user."
+                    },
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The updated email address of the user."
+                    },
+                    "phone": {
+                        "name": "Phone",
+                        "type": "string",
+                        "description": "The updated phone number of the user."
+                    },
+                    "role": {
+                        "name": "Role",
+                        "type": "string",
+                        "description": "The updated role assigned to the user."
+                    }
+                }
+            }
+        ]
+    },
+    "zoom": {
+        "name": "Zoom",
+        "icon": "zoom.svg",
+        "actions": [
+            {
+                "id": "create_meeting",
+                "name": "Create Meeting",
+                "description": "Creates a new Zoom meeting.",
+                "data": {
+                    "user_id": {
+                        "name": "User ID",
+                        "type": "string",
+                        "description": "The user ID or email address of the meeting host."
+                    },
+                    "topic": {
+                        "name": "Topic",
+                        "type": "string",
+                        "description": "The topic of the meeting."
+                    },
+                    "type": {
+                        "name": "Meeting Type",
+                        "type": "integer",
+                        "description": "The type of meeting: 1 for instant, 2 for scheduled, 3 for recurring with no fixed time, 8 for recurring with fixed time."
+                    },
+                    "start_time": {
+                        "name": "Start Time",
+                        "type": "datetime",
+                        "description": "The start time of the meeting in ISO 8601 format."
+                    },
+                    "duration": {
+                        "name": "Duration",
+                        "type": "integer",
+                        "description": "The duration of the meeting in minutes."
+                    },
+                    "timezone": {
+                        "name": "Time Zone",
+                        "type": "string",
+                        "description": "The time zone for the meeting start time."
+                    },
+                    "agenda": {
+                        "name": "Agenda",
+                        "type": "string",
+                        "description": "The agenda of the meeting."
+                    }
+                }
+            },
+            {
+                "id": "update_meeting",
+                "name": "Update Meeting",
+                "description": "Updates an existing Zoom meeting.",
+                "data": {
+                    "meeting_id": {
+                        "name": "Meeting ID",
+                        "type": "string",
+                        "description": "The ID of the meeting to update."
+                    },
+                    "topic": {
+                        "name": "Topic",
+                        "type": "string",
+                        "description": "The updated topic of the meeting."
+                    },
+                    "start_time": {
+                        "name": "Start Time",
+                        "type": "datetime",
+                        "description": "The updated start time of the meeting in ISO 8601 format."
+                    },
+                    "duration": {
+                        "name": "Duration",
+                        "type": "integer",
+                        "description": "The updated duration of the meeting in minutes."
+                    },
+                    "timezone": {
+                        "name": "Time Zone",
+                        "type": "string",
+                        "description": "The updated time zone for the meeting start time."
+                    },
+                    "agenda": {
+                        "name": "Agenda",
+                        "type": "string",
+                        "description": "The updated agenda of the meeting."
+                    }
+                }
+            },
+            {
+                "id": "add_meeting_registrant",
+                "name": "Add Meeting Registrant",
+                "description": "Registers a participant for a Zoom meeting.",
+                "data": {
+                    "meeting_id": {
+                        "name": "Meeting ID",
+                        "type": "string",
+                        "description": "The ID of the meeting."
+                    },
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The email address of the registrant."
+                    },
+                    "first_name": {
+                        "name": "First Name",
+                        "type": "string",
+                        "description": "The first name of the registrant."
+                    },
+                    "last_name": {
+                        "name": "Last Name",
+                        "type": "string",
+                        "description": "The last name of the registrant."
+                    }
+                }
+            },
+            {
+                "id": "create_webinar",
+                "name": "Create Webinar",
+                "description": "Creates a new Zoom webinar.",
+                "data": {
+                    "user_id": {
+                        "name": "User ID",
+                        "type": "string",
+                        "description": "The user ID or email address of the webinar host."
+                    },
+                    "topic": {
+                        "name": "Topic",
+                        "type": "string",
+                        "description": "The topic of the webinar."
+                    },
+                    "type": {
+                        "name": "Webinar Type",
+                        "type": "integer",
+                        "description": "The type of webinar: 5 for webinar."
+                    },
+                    "start_time": {
+                        "name": "Start Time",
+                        "type": "datetime",
+                        "description": "The start time of the webinar in ISO 8601 format."
+                    },
+                    "duration": {
+                        "name": "Duration",
+                        "type": "integer",
+                        "description": "The duration of the webinar in minutes."
+                    },
+                    "timezone": {
+                        "name": "Time Zone",
+                        "type": "string",
+                        "description": "The time zone for the webinar start time."
+                    },
+                    "agenda": {
+                        "name": "Agenda",
+                        "type": "string",
+                        "description": "The agenda of the webinar."
+                    }
+                }
+            },
+            {
+                "id": "add_webinar_registrant",
+                "name": "Add Webinar Registrant",
+                "description": "Registers a participant for a Zoom webinar.",
+                "data": {
+                    "webinar_id": {
+                        "name": "Webinar ID",
+                        "type": "string",
+                        "description": "The ID of the webinar."
+                    },
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The email address of the registrant."
+                    },
+                    "first_name": {
+                        "name": "First Name",
+                        "type": "string",
+                        "description": "The first name of the registrant."
+                    },
+                    "last_name": {
+                        "name": "Last Name",
+                        "type": "string",
+                        "description": "The last name of the registrant."
+                    }
+                }
+            }
+        ]
+    },
+    "microsoft_teams": {
+        "name": "Microsoft Teams",
+        "icon": "microsoft_teams.webp",
+        "actions": [
+            {
+                "id": "create_team",
+                "name": "Create Team",
+                "description": "Creates a new team within Microsoft Teams.",
+                "data": {
+                    "displayName": {
+                        "name": "Display Name",
+                        "type": "string",
+                        "description": "The name of the team."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "string",
+                        "description": "A description for the team."
+                    },
+                    "visibility": {
+                        "name": "Visibility",
+                        "type": "string",
+                        "description": "Specifies the visibility of the team: 'public' or 'private'."
+                    }
+                }
+            },
+            {
+                "id": "create_channel",
+                "name": "Create Channel",
+                "description": "Creates a new channel within a specified team.",
+                "data": {
+                    "team_id": {
+                        "name": "Team ID",
+                        "type": "string",
+                        "description": "The ID of the team where the channel will be created."
+                    },
+                    "displayName": {
+                        "name": "Display Name",
+                        "type": "string",
+                        "description": "The name of the channel."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "string",
+                        "description": "A description for the channel."
+                    },
+                    "membershipType": {
+                        "name": "Membership Type",
+                        "type": "string",
+                        "description": "Specifies the membership type: 'standard' or 'private'."
+                    }
+                }
+            },
+            {
+                "id": "send_channel_message",
+                "name": "Send Channel Message",
+                "description": "Sends a message to a specific channel within a team.",
+                "data": {
+                    "team_id": {
+                        "name": "Team ID",
+                        "type": "string",
+                        "description": "The ID of the team."
+                    },
+                    "channel_id": {
+                        "name": "Channel ID",
+                        "type": "string",
+                        "description": "The ID of the channel."
+                    },
+                    "message": {
+                        "name": "Message",
+                        "type": "text",
+                        "description": "The content of the message to send."
+                    }
+                }
+            },
+            {
+                "id": "create_meeting",
+                "name": "Create Meeting",
+                "description": "Schedules a new meeting in Microsoft Teams.",
+                "data": {
+                    "organizer_id": {
+                        "name": "Organizer ID",
+                        "type": "string",
+                        "description": "The ID of the user organizing the meeting."
+                    },
+                    "subject": {
+                        "name": "Subject",
+                        "type": "string",
+                        "description": "The subject or title of the meeting."
+                    },
+                    "start_time": {
+                        "name": "Start Time",
+                        "type": "datetime",
+                        "description": "The start time of the meeting."
+                    },
+                    "end_time": {
+                        "name": "End Time",
+                        "type": "datetime",
+                        "description": "The end time of the meeting."
+                    },
+                    "attendees": {
+                        "name": "Attendees",
+                        "type": "array",
+                        "description": "A list of attendee email addresses."
+                    }
+                }
+            },
+            {
+                "id": "add_member_to_team",
+                "name": "Add Member to Team",
+                "description": "Adds a new member to a specified team.",
+                "data": {
+                    "team_id": {
+                        "name": "Team ID",
+                        "type": "string",
+                        "description": "The ID of the team."
+                    },
+                    "user_id": {
+                        "name": "User ID",
+                        "type": "string",
+                        "description": "The ID of the user to add."
+                    },
+                    "role": {
+                        "name": "Role",
+                        "type": "string",
+                        "description": "The role assigned to the user: 'owner' or 'member'."
+                    }
+                }
+            }
+        ]
+    },
+    "google_drive": {
+        "name": "Google Drive",
+        "icon": "google_drive.webp",
+        "actions": [
+            {
+                "id": "create_file",
+                "name": "Create File",
+                "description": "Creates a new file in Google Drive.",
+                "data": {
+                    "name": {
+                        "name": "File Name",
+                        "type": "string",
+                        "description": "The name of the new file."
+                    },
+                    "mimeType": {
+                        "name": "MIME Type",
+                        "type": "string",
+                        "description": "The MIME type of the file (e.g., 'application/vnd.google-apps.document')."
+                    },
+                    "parents": {
+                        "name": "Parent Folder IDs",
+                        "type": "array",
+                        "description": "An array of folder IDs to contain the new file."
+                    },
+                    "content": {
+                        "name": "File Content",
+                        "type": "string",
+                        "description": "The content of the file, if applicable."
+                    }
+                }
+            },
+            {
+                "id": "create_folder",
+                "name": "Create Folder",
+                "description": "Creates a new folder in Google Drive.",
+                "data": {
+                    "name": {
+                        "name": "Folder Name",
+                        "type": "string",
+                        "description": "The name of the new folder."
+                    },
+                    "parents": {
+                        "name": "Parent Folder IDs",
+                        "type": "array",
+                        "description": "An array of folder IDs to contain the new folder."
+                    }
+                }
+            },
+            {
+                "id": "upload_file",
+                "name": "Upload File",
+                "description": "Uploads a file to Google Drive.",
+                "data": {
+                    "name": {
+                        "name": "File Name",
+                        "type": "string",
+                        "description": "The name of the file to upload."
+                    },
+                    "mimeType": {
+                        "name": "MIME Type",
+                        "type": "string",
+                        "description": "The MIME type of the file."
+                    },
+                    "parents": {
+                        "name": "Parent Folder IDs",
+                        "type": "array",
+                        "description": "An array of folder IDs to contain the uploaded file."
+                    },
+                    "fileContent": {
+                        "name": "File Content",
+                        "type": "string",
+                        "description": "The binary content of the file, encoded as a base64 string."
+                    }
+                }
+            },
+            {
+                "id": "delete_file",
+                "name": "Delete File",
+                "description": "Permanently deletes a file from Google Drive.",
+                "data": {
+                    "fileId": {
+                        "name": "File ID",
+                        "type": "string",
+                        "description": "The ID of the file to delete."
+                    }
+                }
+            },
+            {
+                "id": "share_file",
+                "name": "Share File",
+                "description": "Shares a file with specified users or groups.",
+                "data": {
+                    "fileId": {
+                        "name": "File ID",
+                        "type": "string",
+                        "description": "The ID of the file to share."
+                    },
+                    "type": {
+                        "name": "Permission Type",
+                        "type": "string",
+                        "description": "The type of permission to grant (e.g., 'user', 'group', 'domain', 'anyone')."
+                    },
+                    "role": {
+                        "name": "Role",
+                        "type": "string",
+                        "description": "The role to assign (e.g., 'reader', 'commenter', 'writer')."
+                    },
+                    "emailAddress": {
+                        "name": "Email Address",
+                        "type": "string",
+                        "description": "The email address of the user or group to share with."
+                    }
+                }
+            }
+        ]
+    },
+    "airtable": {
+        "name": "Airtable",
+        "icon": "airtable.webp",
+        "actions": [
+            {
+                "id": "create_record",
+                "name": "Create Record",
+                "description": "Creates a new record in a specified table.",
+                "data": {
+                    "base_id": {
+                        "name": "Base ID",
+                        "type": "string",
+                        "description": "The ID of the base containing the table."
+                    },
+                    "table_name": {
+                        "name": "Table Name",
+                        "type": "string",
+                        "description": "The name of the table where the record will be created."
+                    },
+                    "fields": {
+                        "name": "Fields",
+                        "type": "object",
+                        "description": "A key-value map of field names and their corresponding values."
+                    }
+                }
+            },
+            {
+                "id": "update_record",
+                "name": "Update Record",
+                "description": "Updates an existing record in a specified table.",
+                "data": {
+                    "base_id": {
+                        "name": "Base ID",
+                        "type": "string",
+                        "description": "The ID of the base containing the table."
+                    },
+                    "table_name": {
+                        "name": "Table Name",
+                        "type": "string",
+                        "description": "The name of the table containing the record."
+                    },
+                    "record_id": {
+                        "name": "Record ID",
+                        "type": "string",
+                        "description": "The ID of the record to update."
+                    },
+                    "fields": {
+                        "name": "Fields",
+                        "type": "object",
+                        "description": "A key-value map of field names and their updated values."
+                    }
+                }
+            },
+            {
+                "id": "delete_record",
+                "name": "Delete Record",
+                "description": "Deletes a record from a specified table.",
+                "data": {
+                    "base_id": {
+                        "name": "Base ID",
+                        "type": "string",
+                        "description": "The ID of the base containing the table."
+                    },
+                    "table_name": {
+                        "name": "Table Name",
+                        "type": "string",
+                        "description": "The name of the table containing the record."
+                    },
+                    "record_id": {
+                        "name": "Record ID",
+                        "type": "string",
+                        "description": "The ID of the record to delete."
+                    }
+                }
+            },
+            {
+                "id": "retrieve_record",
+                "name": "Retrieve Record",
+                "description": "Retrieves a specific record from a table.",
+                "data": {
+                    "base_id": {
+                        "name": "Base ID",
+                        "type": "string",
+                        "description": "The ID of the base containing the table."
+                    },
+                    "table_name": {
+                        "name": "Table Name",
+                        "type": "string",
+                        "description": "The name of the table containing the record."
+                    },
+                    "record_id": {
+                        "name": "Record ID",
+                        "type": "string",
+                        "description": "The ID of the record to retrieve."
+                    }
+                }
+            },
+            {
+                "id": "find_records",
+                "name": "Find Records",
+                "description": "Finds records in a table that match a specified formula.",
+                "data": {
+                    "base_id": {
+                        "name": "Base ID",
+                        "type": "string",
+                        "description": "The ID of the base containing the table."
+                    },
+                    "table_name": {
+                        "name": "Table Name",
+                        "type": "string",
+                        "description": "The name of the table to search."
+                    },
+                    "filter_formula": {
+                        "name": "Filter Formula",
+                        "type": "string",
+                        "description": "A formula used to filter records."
+                    }
+                }
+            }
+        ]
+    },
+    "jira": {
+        "name": "Jira",
+        "icon": "jira.svg",
+        "actions": [
+            {
+                "id": "create_issue",
+                "name": "Create Issue",
+                "description": "Creates a new issue in a specified project.",
+                "data": {
+                    "project_key": {
+                        "name": "Project Key",
+                        "type": "string",
+                        "description": "The key of the project where the issue will be created."
+                    },
+                    "summary": {
+                        "name": "Summary",
+                        "type": "string",
+                        "description": "A brief summary of the issue."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "A detailed description of the issue."
+                    },
+                    "issue_type": {
+                        "name": "Issue Type",
+                        "type": "string",
+                        "description": "The type of issue (e.g., Bug, Task, Story)."
+                    },
+                    "assignee": {
+                        "name": "Assignee",
+                        "type": "string",
+                        "description": "The username of the person to assign the issue to."
+                    }
+                }
+            },
+            {
+                "id": "update_issue",
+                "name": "Update Issue",
+                "description": "Updates fields of an existing issue.",
+                "data": {
+                    "issue_id": {
+                        "name": "Issue ID",
+                        "type": "string",
+                        "description": "The ID or key of the issue to update."
+                    },
+                    "fields": {
+                        "name": "Fields",
+                        "type": "object",
+                        "description": "A dictionary of fields to update with their new values."
+                    }
+                }
+            },
+            {
+                "id": "add_comment",
+                "name": "Add Comment",
+                "description": "Adds a comment to an existing issue.",
+                "data": {
+                    "issue_id": {
+                        "name": "Issue ID",
+                        "type": "string",
+                        "description": "The ID or key of the issue to comment on."
+                    },
+                    "comment": {
+                        "name": "Comment",
+                        "type": "text",
+                        "description": "The content of the comment."
+                    }
+                }
+            },
+            {
+                "id": "assign_issue",
+                "name": "Assign Issue",
+                "description": "Assigns an issue to a user.",
+                "data": {
+                    "issue_id": {
+                        "name": "Issue ID",
+                        "type": "string",
+                        "description": "The ID or key of the issue to assign."
+                    },
+                    "assignee": {
+                        "name": "Assignee",
+                        "type": "string",
+                        "description": "The username of the person to assign the issue to."
+                    }
+                }
+            },
+            {
+                "id": "transition_issue",
+                "name": "Transition Issue",
+                "description": "Transitions an issue to a new status.",
+                "data": {
+                    "issue_id": {
+                        "name": "Issue ID",
+                        "type": "string",
+                        "description": "The ID or key of the issue to transition."
+                    },
+                    "transition_id": {
+                        "name": "Transition ID",
+                        "type": "string",
+                        "description": "The ID of the transition to apply."
+                    }
+                }
+            }
+        ]
+    },
+    "intercom": {
+        "name": "Intercom",
+        "icon": "intercom.svg",
+        "actions": [
+            {
+                "id": "create_user",
+                "name": "Create User",
+                "description": "Creates a new user in Intercom.",
+                "data": {
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The email address of the user."
+                    },
+                    "name": {
+                        "name": "Name",
+                        "type": "string",
+                        "description": "The full name of the user."
+                    },
+                    "phone": {
+                        "name": "Phone",
+                        "type": "string",
+                        "description": "The phone number of the user."
+                    },
+                    "custom_attributes": {
+                        "name": "Custom Attributes",
+                        "type": "object",
+                        "description": "A set of custom attributes to associate with the user."
+                    }
+                }
+            },
+            {
+                "id": "update_user",
+                "name": "Update User",
+                "description": "Updates an existing user's information.",
+                "data": {
+                    "user_id": {
+                        "name": "User ID",
+                        "type": "string",
+                        "description": "The unique identifier of the user to update."
+                    },
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The updated email address of the user."
+                    },
+                    "name": {
+                        "name": "Name",
+                        "type": "string",
+                        "description": "The updated full name of the user."
+                    },
+                    "phone": {
+                        "name": "Phone",
+                        "type": "string",
+                        "description": "The updated phone number of the user."
+                    },
+                    "custom_attributes": {
+                        "name": "Custom Attributes",
+                        "type": "object",
+                        "description": "Updated custom attributes for the user."
+                    }
+                }
+            },
+            {
+                "id": "add_note",
+                "name": "Add Note",
+                "description": "Adds a note to a user's profile.",
+                "data": {
+                    "user_id": {
+                        "name": "User ID",
+                        "type": "string",
+                        "description": "The unique identifier of the user."
+                    },
+                    "body": {
+                        "name": "Note Body",
+                        "type": "text",
+                        "description": "The content of the note."
+                    }
+                }
+            },
+            {
+                "id": "send_message",
+                "name": "Send Message",
+                "description": "Sends a message to a user.",
+                "data": {
+                    "user_id": {
+                        "name": "User ID",
+                        "type": "string",
+                        "description": "The unique identifier of the user."
+                    },
+                    "message_type": {
+                        "name": "Message Type",
+                        "type": "string",
+                        "description": "The type of message: 'in_app' or 'email'."
+                    },
+                    "subject": {
+                        "name": "Subject",
+                        "type": "string",
+                        "description": "The subject of the message (required for emails)."
+                    },
+                    "body": {
+                        "name": "Body",
+                        "type": "text",
+                        "description": "The content of the message."
+                    }
+                }
+            },
+            {
+                "id": "add_event",
+                "name": "Add Event",
+                "description": "Tags a user with a specific event.",
+                "data": {
+                    "user_id": {
+                        "name": "User ID",
+                        "type": "string",
+                        "description": "The unique identifier of the user."
+                    },
+                    "event_name": {
+                        "name": "Event Name",
+                        "type": "string",
+                        "description": "The name of the event."
+                    },
+                    "metadata": {
+                        "name": "Metadata",
+                        "type": "object",
+                        "description": "Additional data associated with the event."
+                    }
+                }
+            }
+        ]
+    },
+    "quickbooks": {
+        "name": "QuickBooks",
+        "icon": "quickbooks.svg",
+        "actions": [
+            {
+                "id": "create_invoice",
+                "name": "Create Invoice",
+                "description": "Creates a new invoice for a customer.",
+                "data": {
+                    "customer_id": {
+                        "name": "Customer ID",
+                        "type": "string",
+                        "description": "The ID of the customer to invoice."
+                    },
+                    "line_items": {
+                        "name": "Line Items",
+                        "type": "array",
+                        "description": "An array of line items, each including item ID, quantity, and amount."
+                    },
+                    "due_date": {
+                        "name": "Due Date",
+                        "type": "date",
+                        "description": "The due date for the invoice."
+                    },
+                    "custom_fields": {
+                        "name": "Custom Fields",
+                        "type": "object",
+                        "description": "Optional custom fields to include in the invoice."
+                    }
+                }
+            },
+            {
+                "id": "create_customer",
+                "name": "Create Customer",
+                "description": "Adds a new customer to QuickBooks.",
+                "data": {
+                    "display_name": {
+                        "name": "Display Name",
+                        "type": "string",
+                        "description": "The display name of the customer."
+                    },
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The email address of the customer."
+                    },
+                    "phone": {
+                        "name": "Phone",
+                        "type": "string",
+                        "description": "The phone number of the customer."
+                    },
+                    "billing_address": {
+                        "name": "Billing Address",
+                        "type": "object",
+                        "description": "The billing address of the customer."
+                    }
+                }
+            },
+            {
+                "id": "create_bill",
+                "name": "Create Bill",
+                "description": "Records a new bill from a vendor.",
+                "data": {
+                    "vendor_id": {
+                        "name": "Vendor ID",
+                        "type": "string",
+                        "description": "The ID of the vendor."
+                    },
+                    "line_items": {
+                        "name": "Line Items",
+                        "type": "array",
+                        "description": "An array of line items, each including item ID, quantity, and amount."
+                    },
+                    "bill_date": {
+                        "name": "Bill Date",
+                        "type": "date",
+                        "description": "The date of the bill."
+                    },
+                    "due_date": {
+                        "name": "Due Date",
+                        "type": "date",
+                        "description": "The due date for the bill."
+                    }
+                }
+            },
+            {
+                "id": "create_payment",
+                "name": "Create Payment",
+                "description": "Records a payment for an invoice.",
+                "data": {
+                    "customer_id": {
+                        "name": "Customer ID",
+                        "type": "string",
+                        "description": "The ID of the customer making the payment."
+                    },
+                    "invoice_id": {
+                        "name": "Invoice ID",
+                        "type": "string",
+                        "description": "The ID of the invoice being paid."
+                    },
+                    "payment_date": {
+                        "name": "Payment Date",
+                        "type": "date",
+                        "description": "The date the payment was received."
+                    },
+                    "amount": {
+                        "name": "Amount",
+                        "type": "number",
+                        "description": "The amount of the payment."
+                    },
+                    "payment_method": {
+                        "name": "Payment Method",
+                        "type": "string",
+                        "description": "The method of payment (e.g., cash, check, credit card)."
+                    }
+                }
+            },
+            {
+                "id": "create_vendor",
+                "name": "Create Vendor",
+                "description": "Adds a new vendor to QuickBooks.",
+                "data": {
+                    "display_name": {
+                        "name": "Display Name",
+                        "type": "string",
+                        "description": "The display name of the vendor."
+                    },
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The email address of the vendor."
+                    },
+                    "phone": {
+                        "name": "Phone",
+                        "type": "string",
+                        "description": "The phone number of the vendor."
+                    },
+                    "billing_address": {
+                        "name": "Billing Address",
+                        "type": "object",
+                        "description": "The billing address of the vendor."
+                    }
+                }
+            }
+        ]
+    },
+    "xero": {
+        "name": "Xero",
+        "icon": "xero.svg",
+        "actions": [
+            {
+                "id": "create_invoice",
+                "name": "Create Invoice",
+                "description": "Creates a new sales invoice.",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "The ID of the contact to invoice."
+                    },
+                    "line_items": {
+                        "name": "Line Items",
+                        "type": "array",
+                        "description": "An array of line items, each including description, quantity, unit amount, and account code."
+                    },
+                    "due_date": {
+                        "name": "Due Date",
+                        "type": "date",
+                        "description": "The due date for the invoice."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "string",
+                        "description": "The status of the invoice (e.g., DRAFT, SUBMITTED, AUTHORISED)."
+                    },
+                    "reference": {
+                        "name": "Reference",
+                        "type": "string",
+                        "description": "Additional reference number for the invoice."
+                    }
+                }
+            },
+            {
+                "id": "create_contact",
+                "name": "Create Contact",
+                "description": "Adds a new contact.",
+                "data": {
+                    "name": {
+                        "name": "Name",
+                        "type": "string",
+                        "description": "The name of the contact."
+                    },
+                    "email_address": {
+                        "name": "Email Address",
+                        "type": "string",
+                        "description": "The email address of the contact."
+                    },
+                    "phone_number": {
+                        "name": "Phone Number",
+                        "type": "string",
+                        "description": "The phone number of the contact."
+                    },
+                    "address": {
+                        "name": "Address",
+                        "type": "object",
+                        "description": "The address details of the contact."
+                    }
+                }
+            },
+            {
+                "id": "create_bill",
+                "name": "Create Bill",
+                "description": "Records a new bill (accounts payable).",
+                "data": {
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "The ID of the supplier."
+                    },
+                    "line_items": {
+                        "name": "Line Items",
+                        "type": "array",
+                        "description": "An array of line items, each including description, quantity, unit amount, and account code."
+                    },
+                    "due_date": {
+                        "name": "Due Date",
+                        "type": "date",
+                        "description": "The due date for the bill."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "string",
+                        "description": "The status of the bill (e.g., DRAFT, SUBMITTED, AUTHORISED)."
+                    },
+                    "reference": {
+                        "name": "Reference",
+                        "type": "string",
+                        "description": "Additional reference number for the bill."
+                    }
+                }
+            },
+            {
+                "id": "create_payment",
+                "name": "Create Payment",
+                "description": "Records a payment for an invoice or bill.",
+                "data": {
+                    "invoice_id": {
+                        "name": "Invoice ID",
+                        "type": "string",
+                        "description": "The ID of the invoice or bill being paid."
+                    },
+                    "account_id": {
+                        "name": "Account ID",
+                        "type": "string",
+                        "description": "The ID of the bank account the payment is made from."
+                    },
+                    "amount": {
+                        "name": "Amount",
+                        "type": "number",
+                        "description": "The amount of the payment."
+                    },
+                    "date": {
+                        "name": "Date",
+                        "type": "date",
+                        "description": "The date the payment was made."
+                    },
+                    "reference": {
+                        "name": "Reference",
+                        "type": "string",
+                        "description": "Additional reference for the payment."
+                    }
+                }
+            },
+            {
+                "id": "create_bank_transaction",
+                "name": "Create Bank Transaction",
+                "description": "Creates a new bank transaction.",
+                "data": {
+                    "type": {
+                        "name": "Transaction Type",
+                        "type": "string",
+                        "description": "The type of bank transaction (e.g., RECEIVE, SPEND)."
+                    },
+                    "contact_id": {
+                        "name": "Contact ID",
+                        "type": "string",
+                        "description": "The ID of the contact associated with the transaction."
+                    },
+                    "line_items": {
+                        "name": "Line Items",
+                        "type": "array",
+                        "description": "An array of line items, each including description, quantity, unit amount, and account code."
+                    },
+                    "bank_account_id": {
+                        "name": "Bank Account ID",
+                        "type": "string",
+                        "description": "The ID of the bank account for the transaction."
+                    },
+                    "date": {
+                        "name": "Date",
+                        "type": "date",
+                        "description": "The date of the transaction."
+                    },
+                    "reference": {
+                        "name": "Reference",
+                        "type": "string",
+                        "description": "Additional reference for the transaction."
+                    }
+                }
+            }
+        ]
+    },
+    "clickup": {
+        "name": "ClickUp",
+        "icon": "clickup.png",
+        "actions": [
+            {
+                "id": "create_task",
+                "name": "Create Task",
+                "description": "Creates a new task within a specified list.",
+                "data": {
+                    "list_id": {
+                        "name": "List ID",
+                        "type": "string",
+                        "description": "The ID of the list where the task will be created."
+                    },
+                    "name": {
+                        "name": "Task Name",
+                        "type": "string",
+                        "description": "The name of the task."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "A detailed description of the task."
+                    },
+                    "assignees": {
+                        "name": "Assignees",
+                        "type": "array",
+                        "description": "An array of user IDs to assign to the task."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "string",
+                        "description": "The status of the task (e.g., 'to do', 'in progress', 'done')."
+                    },
+                    "priority": {
+                        "name": "Priority",
+                        "type": "integer",
+                        "description": "The priority level of the task: 1 (Urgent), 2 (High), 3 (Normal), 4 (Low)."
+                    },
+                    "due_date": {
+                        "name": "Due Date",
+                        "type": "datetime",
+                        "description": "The due date and time for the task."
+                    }
+                }
+            },
+            {
+                "id": "update_task",
+                "name": "Update Task",
+                "description": "Updates an existing task's details.",
+                "data": {
+                    "task_id": {
+                        "name": "Task ID",
+                        "type": "string",
+                        "description": "The ID of the task to update."
+                    },
+                    "name": {
+                        "name": "Task Name",
+                        "type": "string",
+                        "description": "The updated name of the task."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "The updated description of the task."
+                    },
+                    "assignees": {
+                        "name": "Assignees",
+                        "type": "array",
+                        "description": "An array of user IDs to assign to the task."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "string",
+                        "description": "The updated status of the task."
+                    },
+                    "priority": {
+                        "name": "Priority",
+                        "type": "integer",
+                        "description": "The updated priority level of the task."
+                    },
+                    "due_date": {
+                        "name": "Due Date",
+                        "type": "datetime",
+                        "description": "The updated due date and time for the task."
+                    }
+                }
+            },
+            {
+                "id": "add_comment",
+                "name": "Add Comment",
+                "description": "Adds a comment to a specified task.",
+                "data": {
+                    "task_id": {
+                        "name": "Task ID",
+                        "type": "string",
+                        "description": "The ID of the task to comment on."
+                    },
+                    "comment_text": {
+                        "name": "Comment Text",
+                        "type": "text",
+                        "description": "The content of the comment."
+                    }
+                }
+            },
+            {
+                "id": "create_list",
+                "name": "Create List",
+                "description": "Creates a new list within a specified folder.",
+                "data": {
+                    "folder_id": {
+                        "name": "Folder ID",
+                        "type": "string",
+                        "description": "The ID of the folder where the list will be created."
+                    },
+                    "name": {
+                        "name": "List Name",
+                        "type": "string",
+                        "description": "The name of the new list."
+                    },
+                    "content": {
+                        "name": "Content",
+                        "type": "text",
+                        "description": "Additional content or description for the list."
+                    }
+                }
+            },
+            {
+                "id": "add_time_tracking",
+                "name": "Add Time Tracking",
+                "description": "Adds a time entry to a specified task.",
+                "data": {
+                    "task_id": {
+                        "name": "Task ID",
+                        "type": "string",
+                        "description": "The ID of the task to add time tracking to."
+                    },
+                    "start_time": {
+                        "name": "Start Time",
+                        "type": "datetime",
+                        "description": "The start time of the time entry."
+                    },
+                    "end_time": {
+                        "name": "End Time",
+                        "type": "datetime",
+                        "description": "The end time of the time entry."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "A description of the time entry."
+                    }
+                }
+            }
+        ]
+    },
+    "freshdesk": {
+        "name": "Freshdesk",
+        "icon": "freshdesk.webp",
+        "actions": [
+            {
+                "id": "create_ticket",
+                "name": "Create Ticket",
+                "description": "Creates a new support ticket.",
+                "data": {
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The email address of the requester."
+                    },
+                    "subject": {
+                        "name": "Subject",
+                        "type": "string",
+                        "description": "The subject of the ticket."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "The detailed description of the issue."
+                    },
+                    "priority": {
+                        "name": "Priority",
+                        "type": "integer",
+                        "description": "Priority level: 1 (Low), 2 (Medium), 3 (High), 4 (Urgent)."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "integer",
+                        "description": "Status code: 2 (Open), 3 (Pending), 4 (Resolved), 5 (Closed)."
+                    },
+                    "group_id": {
+                        "name": "Group ID",
+                        "type": "integer",
+                        "description": "ID of the group to assign the ticket to."
+                    },
+                    "responder_id": {
+                        "name": "Responder ID",
+                        "type": "integer",
+                        "description": "ID of the agent to assign the ticket to."
+                    },
+                    "tags": {
+                        "name": "Tags",
+                        "type": "array",
+                        "description": "Tags associated with the ticket."
+                    }
+                }
+            },
+            {
+                "id": "update_ticket",
+                "name": "Update Ticket",
+                "description": "Updates an existing ticket's details.",
+                "data": {
+                    "ticket_id": {
+                        "name": "Ticket ID",
+                        "type": "integer",
+                        "description": "The ID of the ticket to update."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "integer",
+                        "description": "New status code for the ticket."
+                    },
+                    "priority": {
+                        "name": "Priority",
+                        "type": "integer",
+                        "description": "New priority level for the ticket."
+                    },
+                    "group_id": {
+                        "name": "Group ID",
+                        "type": "integer",
+                        "description": "ID of the new group to assign the ticket to."
+                    },
+                    "responder_id": {
+                        "name": "Responder ID",
+                        "type": "integer",
+                        "description": "ID of the new agent to assign the ticket to."
+                    },
+                    "tags": {
+                        "name": "Tags",
+                        "type": "array",
+                        "description": "Updated tags for the ticket."
+                    }
+                }
+            },
+            {
+                "id": "add_note",
+                "name": "Add Note",
+                "description": "Adds a note to an existing ticket.",
+                "data": {
+                    "ticket_id": {
+                        "name": "Ticket ID",
+                        "type": "integer",
+                        "description": "The ID of the ticket to add a note to."
+                    },
+                    "body": {
+                        "name": "Note Body",
+                        "type": "text",
+                        "description": "The content of the note."
+                    },
+                    "private": {
+                        "name": "Private",
+                        "type": "boolean",
+                        "description": "Whether the note is private (true) or public (false)."
+                    }
+                }
+            },
+            {
+                "id": "assign_ticket",
+                "name": "Assign Ticket",
+                "description": "Assigns a ticket to a specific agent or group.",
+                "data": {
+                    "ticket_id": {
+                        "name": "Ticket ID",
+                        "type": "integer",
+                        "description": "The ID of the ticket to assign."
+                    },
+                    "responder_id": {
+                        "name": "Responder ID",
+                        "type": "integer",
+                        "description": "ID of the agent to assign the ticket to."
+                    },
+                    "group_id": {
+                        "name": "Group ID",
+                        "type": "integer",
+                        "description": "ID of the group to assign the ticket to."
+                    }
+                }
+            },
+            {
+                "id": "close_ticket",
+                "name": "Close Ticket",
+                "description": "Closes an existing ticket.",
+                "data": {
+                    "ticket_id": {
+                        "name": "Ticket ID",
+                        "type": "integer",
+                        "description": "The ID of the ticket to close."
+                    }
+                }
+            }
+        ]
+    },
+    "google_sheets": {
+        "name": "Google Sheets",
+        "icon": "google-sheets.png",
+        "actions": [
+            {
+                "id": "create_spreadsheet",
+                "name": "Create Spreadsheet",
+                "description": "Creates a new spreadsheet with a specified title.",
+                "data": {
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "The title of the new spreadsheet."
+                    }
+                }
+            },
+            {
+                "id": "add_sheet",
+                "name": "Add Sheet",
+                "description": "Adds a new sheet to an existing spreadsheet.",
+                "data": {
+                    "spreadsheet_id": {
+                        "name": "Spreadsheet ID",
+                        "type": "string",
+                        "description": "The ID of the spreadsheet to add the sheet to."
+                    },
+                    "sheet_title": {
+                        "name": "Sheet Title",
+                        "type": "string",
+                        "description": "The title of the new sheet."
+                    }
+                }
+            },
+            {
+                "id": "append_row",
+                "name": "Append Row",
+                "description": "Appends a row of values to the end of a sheet.",
+                "data": {
+                    "spreadsheet_id": {
+                        "name": "Spreadsheet ID",
+                        "type": "string",
+                        "description": "The ID of the spreadsheet."
+                    },
+                    "range": {
+                        "name": "Range",
+                        "type": "string",
+                        "description": "The A1 notation of a range to search for a logical table of data."
+                    },
+                    "values": {
+                        "name": "Values",
+                        "type": "array",
+                        "description": "An array of values to append as a new row."
+                    }
+                }
+            },
+            {
+                "id": "update_cell",
+                "name": "Update Cell",
+                "description": "Updates a specific cell in a sheet.",
+                "data": {
+                    "spreadsheet_id": {
+                        "name": "Spreadsheet ID",
+                        "type": "string",
+                        "description": "The ID of the spreadsheet."
+                    },
+                    "range": {
+                        "name": "Range",
+                        "type": "string",
+                        "description": "The A1 notation of the cell to update."
+                    },
+                    "value": {
+                        "name": "Value",
+                        "type": "string",
+                        "description": "The value to set in the specified cell."
+                    }
+                }
+            },
+            {
+                "id": "read_range",
+                "name": "Read Range",
+                "description": "Reads values from a specified range in a sheet.",
+                "data": {
+                    "spreadsheet_id": {
+                        "name": "Spreadsheet ID",
+                        "type": "string",
+                        "description": "The ID of the spreadsheet."
+                    },
+                    "range": {
+                        "name": "Range",
+                        "type": "string",
+                        "description": "The A1 notation of the range to read."
+                    }
+                }
+            }
+        ]
+    },
+    "microsoft_excel": {
+        "name": "Microsoft Excel",
+        "icon": "microsoft_excel.jpg",
+        "actions": [
+            {
+                "id": "create_workbook",
+                "name": "Create Workbook",
+                "description": "Creates a new Excel workbook.",
+                "data": {
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "The title of the new workbook."
+                    }
+                }
+            },
+            {
+                "id": "add_worksheet",
+                "name": "Add Worksheet",
+                "description": "Adds a new worksheet to an existing workbook.",
+                "data": {
+                    "workbook_id": {
+                        "name": "Workbook ID",
+                        "type": "string",
+                        "description": "The ID of the workbook."
+                    },
+                    "sheet_name": {
+                        "name": "Sheet Name",
+                        "type": "string",
+                        "description": "The name of the new worksheet."
+                    }
+                }
+            },
+            {
+                "id": "insert_row",
+                "name": "Insert Row",
+                "description": "Inserts a new row into a worksheet.",
+                "data": {
+                    "workbook_id": {
+                        "name": "Workbook ID",
+                        "type": "string",
+                        "description": "The ID of the workbook."
+                    },
+                    "worksheet_name": {
+                        "name": "Worksheet Name",
+                        "type": "string",
+                        "description": "The name of the worksheet."
+                    },
+                    "row_index": {
+                        "name": "Row Index",
+                        "type": "integer",
+                        "description": "The index at which to insert the new row."
+                    },
+                    "values": {
+                        "name": "Values",
+                        "type": "array",
+                        "description": "An array of values to insert into the new row."
+                    }
+                }
+            },
+            {
+                "id": "update_cell",
+                "name": "Update Cell",
+                "description": "Updates the value of a specific cell.",
+                "data": {
+                    "workbook_id": {
+                        "name": "Workbook ID",
+                        "type": "string",
+                        "description": "The ID of the workbook."
+                    },
+                    "worksheet_name": {
+                        "name": "Worksheet Name",
+                        "type": "string",
+                        "description": "The name of the worksheet."
+                    },
+                    "cell_address": {
+                        "name": "Cell Address",
+                        "type": "string",
+                        "description": "The address of the cell (e.g., 'A1')."
+                    },
+                    "value": {
+                        "name": "Value",
+                        "type": "string",
+                        "description": "The new value for the cell."
+                    }
+                }
+            },
+            {
+                "id": "read_range",
+                "name": "Read Range",
+                "description": "Reads values from a specified range in a worksheet.",
+                "data": {
+                    "workbook_id": {
+                        "name": "Workbook ID",
+                        "type": "string",
+                        "description": "The ID of the workbook."
+                    },
+                    "worksheet_name": {
+                        "name": "Worksheet Name",
+                        "type": "string",
+                        "description": "The name of the worksheet."
+                    },
+                    "range": {
+                        "name": "Range",
+                        "type": "string",
+                        "description": "The A1 notation of the range to read."
+                    }
+                }
+            },
+            {
+                "id": "delete_row",
+                "name": "Delete Row",
+                "description": "Deletes a specific row from a worksheet.",
+                "data": {
+                    "workbook_id": {
+                        "name": "Workbook ID",
+                        "type": "string",
+                        "description": "The ID of the workbook."
+                    },
+                    "worksheet_name": {
+                        "name": "Worksheet Name",
+                        "type": "string",
+                        "description": "The name of the worksheet."
+                    },
+                    "row_index": {
+                        "name": "Row Index",
+                        "type": "integer",
+                        "description": "The index of the row to delete."
+                    }
+                }
+            }
+        ]
+    },
+    "calendly": {
+        "name": "Calendly",
+        "icon": "calendly.png",
+        "actions": [
+            {
+                "id": "create_one_off_event_type",
+                "name": "Create One-Off Event Type",
+                "description": "Creates a one-time event type for scheduling.",
+                "data": {
+                    "host": {
+                        "name": "Host URI",
+                        "type": "string",
+                        "description": "The URI of the user hosting the event."
+                    },
+                    "name": {
+                        "name": "Event Name",
+                        "type": "string",
+                        "description": "The name of the event."
+                    },
+                    "duration": {
+                        "name": "Duration",
+                        "type": "integer",
+                        "description": "Duration of the event in minutes."
+                    },
+                    "date_setting": {
+                        "name": "Date Setting",
+                        "type": "object",
+                        "description": "Settings for the event's date and time."
+                    }
+                }
+            },
+            {
+                "id": "create_single_use_scheduling_link",
+                "name": "Create Single-Use Scheduling Link",
+                "description": "Generates a one-time scheduling link for an event type.",
+                "data": {
+                    "owner": {
+                        "name": "Owner URI",
+                        "type": "string",
+                        "description": "The URI of the user owning the event type."
+                    },
+                    "max_event_count": {
+                        "name": "Max Event Count",
+                        "type": "integer",
+                        "description": "Maximum number of events that can be scheduled with this link."
+                    },
+                    "owner_type": {
+                        "name": "Owner Type",
+                        "type": "string",
+                        "description": "Type of the owner (e.g., 'User')."
+                    },
+                    "event_type": {
+                        "name": "Event Type URI",
+                        "type": "string",
+                        "description": "The URI of the event type."
+                    }
+                }
+            },
+            {
+                "id": "list_event_types",
+                "name": "List Event Types",
+                "description": "Retrieves a list of event types for a user.",
+                "data": {
+                    "user": {
+                        "name": "User URI",
+                        "type": "string",
+                        "description": "The URI of the user whose event types are to be listed."
+                    }
+                }
+            },
+            {
+                "id": "list_event_type_available_times",
+                "name": "List Event Type Available Times",
+                "description": "Retrieves available times for a specific event type.",
+                "data": {
+                    "event_type": {
+                        "name": "Event Type URI",
+                        "type": "string",
+                        "description": "The URI of the event type."
+                    },
+                    "start_time": {
+                        "name": "Start Time",
+                        "type": "datetime",
+                        "description": "The start of the time range to check for availability."
+                    },
+                    "end_time": {
+                        "name": "End Time",
+                        "type": "datetime",
+                        "description": "The end of the time range to check for availability."
+                    }
+                }
+            },
+            {
+                "id": "list_scheduled_events",
+                "name": "List Scheduled Events",
+                "description": "Retrieves a list of scheduled events for a user.",
+                "data": {
+                    "user": {
+                        "name": "User URI",
+                        "type": "string",
+                        "description": "The URI of the user whose scheduled events are to be listed."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "string",
+                        "description": "Filter events by status (e.g., 'active', 'canceled')."
+                    }
+                }
+            }
+        ]
+    },
+    "docusign": {
+        "name": "DocuSign",
+        "icon": "docusign.webp",
+        "actions": [
+            {
+                "id": "create_envelope",
+                "name": "Create Envelope",
+                "description": "Creates a new envelope to send documents for signature.",
+                "data": {
+                    "email_subject": {
+                        "name": "Email Subject",
+                        "type": "string",
+                        "description": "The subject line of the email sent to recipients."
+                    },
+                    "email_blurb": {
+                        "name": "Email Blurb",
+                        "type": "string",
+                        "description": "The body of the email sent to recipients."
+                    },
+                    "status": {
+                        "name": "Status",
+                        "type": "string",
+                        "description": "The status of the envelope: 'created' (draft) or 'sent'."
+                    },
+                    "documents": {
+                        "name": "Documents",
+                        "type": "array",
+                        "description": "An array of documents to include in the envelope, each with 'documentBase64', 'name', 'fileExtension', and 'documentId'."
+                    },
+                    "recipients": {
+                        "name": "Recipients",
+                        "type": "object",
+                        "description": "An object specifying the recipients, including 'signers', 'carbonCopies', etc."
+                    }
+                }
+            },
+            {
+                "id": "add_recipient",
+                "name": "Add Recipient",
+                "description": "Adds a recipient to an existing envelope.",
+                "data": {
+                    "envelope_id": {
+                        "name": "Envelope ID",
+                        "type": "string",
+                        "description": "The ID of the envelope to which the recipient will be added."
+                    },
+                    "recipient": {
+                        "name": "Recipient",
+                        "type": "object",
+                        "description": "An object specifying the recipient details, such as 'name', 'email', 'recipientId', and 'routingOrder'."
+                    }
+                }
+            },
+            {
+                "id": "send_envelope",
+                "name": "Send Envelope",
+                "description": "Sends a draft envelope to the specified recipients.",
+                "data": {
+                    "envelope_id": {
+                        "name": "Envelope ID",
+                        "type": "string",
+                        "description": "The ID of the envelope to send."
+                    }
+                }
+            },
+            {
+                "id": "get_envelope_status",
+                "name": "Get Envelope Status",
+                "description": "Retrieves the current status of an envelope.",
+                "data": {
+                    "envelope_id": {
+                        "name": "Envelope ID",
+                        "type": "string",
+                        "description": "The ID of the envelope whose status is to be retrieved."
+                    }
+                }
+            },
+            {
+                "id": "download_document",
+                "name": "Download Document",
+                "description": "Downloads a specific document from an envelope.",
+                "data": {
+                    "envelope_id": {
+                        "name": "Envelope ID",
+                        "type": "string",
+                        "description": "The ID of the envelope containing the document."
+                    },
+                    "document_id": {
+                        "name": "Document ID",
+                        "type": "string",
+                        "description": "The ID of the document to download."
+                    }
+                }
+            }
+        ]
+    },
+    "stripe": {
+        "name": "Stripe",
+        "icon": "stripe.webp",
+        "actions": [
+            {
+                "id": "create_customer",
+                "name": "Create Customer",
+                "description": "Creates a new customer object to store information for recurring charges and subscriptions.",
+                "data": {
+                    "name": {
+                        "name": "Name",
+                        "type": "string",
+                        "description": "The customer's full name."
+                    },
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The customer's email address."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "string",
+                        "description": "An arbitrary string attached to the customer for display purposes."
+                    },
+                    "phone": {
+                        "name": "Phone",
+                        "type": "string",
+                        "description": "The customer's phone number."
+                    },
+                    "address": {
+                        "name": "Address",
+                        "type": "object",
+                        "description": "The customer's address, including line1, city, state, postal_code, and country."
+                    }
+                }
+            },
+            {
+                "id": "create_charge",
+                "name": "Create Charge",
+                "description": "Creates a new charge object to collect payment from a customer.",
+                "data": {
+                    "amount": {
+                        "name": "Amount",
+                        "type": "integer",
+                        "description": "Amount to charge in the smallest currency unit (e.g., cents)."
+                    },
+                    "currency": {
+                        "name": "Currency",
+                        "type": "string",
+                        "description": "Three-letter ISO currency code (e.g., 'usd')."
+                    },
+                    "customer": {
+                        "name": "Customer ID",
+                        "type": "string",
+                        "description": "The ID of an existing customer to charge."
+                    },
+                    "source": {
+                        "name": "Payment Source",
+                        "type": "string",
+                        "description": "A payment source to be charged, such as a card token or ID."
+                    },
+                    "description": {
+                        "name": "Description",
+                        "type": "string",
+                        "description": "An arbitrary string attached to the charge for display purposes."
+                    }
+                }
+            },
+            {
+                "id": "create_subscription",
+                "name": "Create Subscription",
+                "description": "Creates a new subscription for a customer.",
+                "data": {
+                    "customer": {
+                        "name": "Customer ID",
+                        "type": "string",
+                        "description": "The ID of the customer to subscribe."
+                    },
+                    "items": {
+                        "name": "Subscription Items",
+                        "type": "array",
+                        "description": "An array of subscription items, each with a price ID and quantity."
+                    },
+                    "trial_period_days": {
+                        "name": "Trial Period Days",
+                        "type": "integer",
+                        "description": "Number of trial period days before the subscription starts."
+                    },
+                    "default_payment_method": {
+                        "name": "Default Payment Method",
+                        "type": "string",
+                        "description": "ID of the default payment method for the subscription."
+                    }
+                }
+            },
+            {
+                "id": "create_refund",
+                "name": "Create Refund",
+                "description": "Initiates a refund for an existing charge.",
+                "data": {
+                    "charge": {
+                        "name": "Charge ID",
+                        "type": "string",
+                        "description": "The ID of the charge to refund."
+                    },
+                    "amount": {
+                        "name": "Amount",
+                        "type": "integer",
+                        "description": "Amount to refund in the smallest currency unit (optional)."
+                    },
+                    "reason": {
+                        "name": "Reason",
+                        "type": "string",
+                        "description": "Reason for the refund (e.g., 'requested_by_customer')."
+                    }
+                }
+            },
+            {
+                "id": "create_payment_intent",
+                "name": "Create Payment Intent",
+                "description": "Creates a PaymentIntent object to initiate a payment flow.",
+                "data": {
+                    "amount": {
+                        "name": "Amount",
+                        "type": "integer",
+                        "description": "Amount intended to be collected in the smallest currency unit."
+                    },
+                    "currency": {
+                        "name": "Currency",
+                        "type": "string",
+                        "description": "Three-letter ISO currency code (e.g., 'usd')."
+                    },
+                    "customer": {
+                        "name": "Customer ID",
+                        "type": "string",
+                        "description": "The ID of an existing customer (optional)."
+                    },
+                    "payment_method": {
+                        "name": "Payment Method ID",
+                        "type": "string",
+                        "description": "ID of the payment method to attach to the PaymentIntent (optional)."
+                    },
+                    "confirmation_method": {
+                        "name": "Confirmation Method",
+                        "type": "string",
+                        "description": "Method of confirmation ('automatic' or 'manual')."
+                    },
+                    "confirm": {
+                        "name": "Confirm",
+                        "type": "boolean",
+                        "description": "Whether to confirm the PaymentIntent immediately."
+                    }
+                }
+            }
+        ]
+    },
+    "shopify": {
+        "name": "Shopify",
+        "icon": "shopify.svg",
+        "actions": [
+            {
+                "id": "create_product",
+                "name": "Create Product",
+                "description": "Creates a new product in the Shopify store.",
+                "data": {
+                    "title": {
+                        "name": "Title",
+                        "type": "string",
+                        "description": "The name of the product."
+                    },
+                    "body_html": {
+                        "name": "Description",
+                        "type": "text",
+                        "description": "The description of the product in HTML format."
+                    },
+                    "vendor": {
+                        "name": "Vendor",
+                        "type": "string",
+                        "description": "The name of the product vendor."
+                    },
+                    "product_type": {
+                        "name": "Product Type",
+                        "type": "string",
+                        "description": "The category of the product."
+                    },
+                    "tags": {
+                        "name": "Tags",
+                        "type": "array",
+                        "description": "An array of tags associated with the product."
+                    },
+                    "variants": {
+                        "name": "Variants",
+                        "type": "array",
+                        "description": "An array of variant objects for the product."
+                    },
+                    "images": {
+                        "name": "Images",
+                        "type": "array",
+                        "description": "An array of image URLs for the product."
+                    }
+                }
+            },
+            {
+                "id": "create_order",
+                "name": "Create Order",
+                "description": "Creates a new order in the Shopify store.",
+                "data": {
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The email address of the customer."
+                    },
+                    "line_items": {
+                        "name": "Line Items",
+                        "type": "array",
+                        "description": "An array of line item objects representing the products in the order."
+                    },
+                    "billing_address": {
+                        "name": "Billing Address",
+                        "type": "object",
+                        "description": "The billing address for the order."
+                    },
+                    "shipping_address": {
+                        "name": "Shipping Address",
+                        "type": "object",
+                        "description": "The shipping address for the order."
+                    },
+                    "financial_status": {
+                        "name": "Financial Status",
+                        "type": "string",
+                        "description": "The financial status of the order (e.g., 'paid', 'pending')."
+                    },
+                    "fulfillment_status": {
+                        "name": "Fulfillment Status",
+                        "type": "string",
+                        "description": "The fulfillment status of the order (e.g., 'fulfilled', 'unfulfilled')."
+                    }
+                }
+            },
+            {
+                "id": "create_customer",
+                "name": "Create Customer",
+                "description": "Creates a new customer in the Shopify store.",
+                "data": {
+                    "first_name": {
+                        "name": "First Name",
+                        "type": "string",
+                        "description": "The customer's first name."
+                    },
+                    "last_name": {
+                        "name": "Last Name",
+                        "type": "string",
+                        "description": "The customer's last name."
+                    },
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The customer's email address."
+                    },
+                    "phone": {
+                        "name": "Phone",
+                        "type": "string",
+                        "description": "The customer's phone number."
+                    },
+                    "addresses": {
+                        "name": "Addresses",
+                        "type": "array",
+                        "description": "An array of address objects associated with the customer."
+                    },
+                    "tags": {
+                        "name": "Tags",
+                        "type": "array",
+                        "description": "An array of tags associated with the customer."
+                    }
+                }
+            },
+            {
+                "id": "add_metafield",
+                "name": "Add Metafield",
+                "description": "Adds a custom metafield to a Shopify resource.",
+                "data": {
+                    "owner_resource": {
+                        "name": "Owner Resource",
+                        "type": "string",
+                        "description": "The type of resource to which the metafield will be attached (e.g., 'product', 'order', 'customer')."
+                    },
+                    "owner_id": {
+                        "name": "Owner ID",
+                        "type": "string",
+                        "description": "The ID of the resource to which the metafield will be attached."
+                    },
+                    "namespace": {
+                        "name": "Namespace",
+                        "type": "string",
+                        "description": "A container for a group of metafields."
+                    },
+                    "key": {
+                        "name": "Key",
+                        "type": "string",
+                        "description": "The key for the metafield."
+                    },
+                    "value": {
+                        "name": "Value",
+                        "type": "string",
+                        "description": "The value of the metafield."
+                    },
+                    "value_type": {
+                        "name": "Value Type",
+                        "type": "string",
+                        "description": "The type of the metafield value (e.g., 'string', 'integer')."
+                    }
+                }
+            },
+            {
+                "id": "update_inventory",
+                "name": "Update Inventory",
+                "description": "Updates the inventory level for a specific product variant.",
+                "data": {
+                    "inventory_item_id": {
+                        "name": "Inventory Item ID",
+                        "type": "string",
+                        "description": "The ID of the inventory item to update."
+                    },
+                    "location_id": {
+                        "name": "Location ID",
+                        "type": "string",
+                        "description": "The ID of the location where the inventory is stocked."
+                    },
+                    "available": {
+                        "name": "Available",
+                        "type": "integer",
+                        "description": "The new available inventory quantity."
+                    }
+                }
+            }
+        ]
+    },
+    "zoominfo": {
+        "name": "ZoomInfo",
+        "icon": "zoominfo.svg",
+        "actions": [
+            {
+                "id": "search_contacts",
+                "name": "Search Contacts",
+                "description": "Searches for contacts based on specified criteria.",
+                "data": {
+                    "first_name": {
+                        "name": "First Name",
+                        "type": "string",
+                        "description": "The first name of the contact."
+                    },
+                    "last_name": {
+                        "name": "Last Name",
+                        "type": "string",
+                        "description": "The last name of the contact."
+                    },
+                    "company": {
+                        "name": "Company",
+                        "type": "string",
+                        "description": "The company the contact is associated with."
+                    },
+                    "location": {
+                        "name": "Location",
+                        "type": "string",
+                        "description": "The location of the contact."
+                    },
+                    "job_title": {
+                        "name": "Job Title",
+                        "type": "string",
+                        "description": "The job title of the contact."
+                    }
+                }
+            },
+            {
+                "id": "enrich_contact",
+                "name": "Enrich Contact",
+                "description": "Enriches a contact's information based on provided details.",
+                "data": {
+                    "email": {
+                        "name": "Email",
+                        "type": "string",
+                        "description": "The email address of the contact."
+                    },
+                    "phone": {
+                        "name": "Phone",
+                        "type": "string",
+                        "description": "The phone number of the contact."
+                    },
+                    "linkedin_url": {
+                        "name": "LinkedIn URL",
+                        "type": "string",
+                        "description": "The LinkedIn profile URL of the contact."
+                    }
+                }
+            },
+            {
+                "id": "search_companies",
+                "name": "Search Companies",
+                "description": "Searches for companies based on specified criteria.",
+                "data": {
+                    "company_name": {
+                        "name": "Company Name",
+                        "type": "string",
+                        "description": "The name of the company."
+                    },
+                    "domain": {
+                        "name": "Domain",
+                        "type": "string",
+                        "description": "The website domain of the company."
+                    },
+                    "location": {
+                        "name": "Location",
+                        "type": "string",
+                        "description": "The location of the company."
+                    },
+                    "industry": {
+                        "name": "Industry",
+                        "type": "string",
+                        "description": "The industry the company operates in."
+                    }
+                }
+            },
+            {
+                "id": "enrich_company",
+                "name": "Enrich Company",
+                "description": "Enriches a company's information based on provided details.",
+                "data": {
+                    "domain": {
+                        "name": "Domain",
+                        "type": "string",
+                        "description": "The website domain of the company."
+                    },
+                    "company_name": {
+                        "name": "Company Name",
+                        "type": "string",
+                        "description": "The name of the company."
+                    },
+                    "linkedin_url": {
+                        "name": "LinkedIn URL",
+                        "type": "string",
+                        "description": "The LinkedIn profile URL of the company."
+                    }
+                }
+            },
+            {
+                "id": "get_usage",
+                "name": "Get Usage",
+                "description": "Retrieves the current API usage statistics.",
+                "data": {}
+            }
+        ]
+    },
+    "twilio": {
+        "name": "Twilio",
+        "icon": "twilio.svg",
+        "actions": [
+            {
+                "id": "send_sms",
+                "name": "Send SMS",
+                "description": "Sends an SMS message to a specified phone number.",
+                "data": {
+                    "to": {
+                        "name": "To",
+                        "type": "string",
+                        "description": "The recipient's phone number in E.164 format."
+                    },
+                    "from": {
+                        "name": "From",
+                        "type": "string",
+                        "description": "A Twilio phone number in your account."
+                    },
+                    "body": {
+                        "name": "Message Body",
+                        "type": "string",
+                        "description": "The content of the SMS message."
+                    }
+                }
+            },
+            {
+                "id": "make_call",
+                "name": "Make Call",
+                "description": "Initiates a voice call to a specified phone number.",
+                "data": {
+                    "to": {
+                        "name": "To",
+                        "type": "string",
+                        "description": "The recipient's phone number in E.164 format."
+                    },
+                    "from": {
+                        "name": "From",
+                        "type": "string",
+                        "description": "A Twilio phone number in your account."
+                    },
+                    "twiml": {
+                        "name": "TwiML",
+                        "type": "string",
+                        "description": "Twilio Markup Language instructions for the call."
+                    }
+                }
+            },
+            {
+                "id": "create_conference",
+                "name": "Create Conference",
+                "description": "Creates a new conference call room.",
+                "data": {
+                    "friendly_name": {
+                        "name": "Friendly Name",
+                        "type": "string",
+                        "description": "A user-defined name for the conference."
+                    },
+                    "record": {
+                        "name": "Record",
+                        "type": "boolean",
+                        "description": "Whether to record the conference."
+                    }
+                }
+            },
+            {
+                "id": "add_participant",
+                "name": "Add Participant",
+                "description": "Adds a participant to an existing conference.",
+                "data": {
+                    "conference_sid": {
+                        "name": "Conference SID",
+                        "type": "string",
+                        "description": "The unique identifier for the conference."
+                    },
+                    "to": {
+                        "name": "To",
+                        "type": "string",
+                        "description": "The phone number of the participant to add."
+                    },
+                    "from": {
+                        "name": "From",
+                        "type": "string",
+                        "description": "A Twilio phone number in your account."
+                    }
+                }
+            },
+            {
+                "id": "send_verification_code",
+                "name": "Send Verification Code",
+                "description": "Sends a verification code to a user's phone number.",
+                "data": {
+                    "to": {
+                        "name": "To",
+                        "type": "string",
+                        "description": "The recipient's phone number in E.164 format."
+                    },
+                    "channel": {
+                        "name": "Channel",
+                        "type": "string",
+                        "description": "The channel to use for verification (e.g., 'sms', 'call')."
+                    }
+                }
+            },
+            {
+                "id": "check_verification_code",
+                "name": "Check Verification Code",
+                "description": "Checks if the provided verification code is correct.",
+                "data": {
+                    "to": {
+                        "name": "To",
+                        "type": "string",
+                        "description": "The recipient's phone number in E.164 format."
+                    },
+                    "code": {
+                        "name": "Code",
+                        "type": "string",
+                        "description": "The verification code provided by the user."
+                    }
+                }
+            }
+        ]
+    },
+    "monday": {
+        "name": "Monday.com",
+        "icon": "monday.svg",
+        "actions": [
+            {
+                "id": "create_item",
+                "name": "Create Item",
+                "description": "Creates a new item in a specified board and group.",
+                "data": {
+                    "board_id": {
+                        "name": "Board ID",
+                        "type": "string",
+                        "description": "The ID of the board where the item will be created."
+                    },
+                    "group_id": {
+                        "name": "Group ID",
+                        "type": "string",
+                        "description": "The ID of the group within the board."
+                    },
+                    "item_name": {
+                        "name": "Item Name",
+                        "type": "string",
+                        "description": "The name of the new item."
+                    },
+                    "column_values": {
+                        "name": "Column Values",
+                        "type": "object",
+                        "description": "A JSON object of column values to set for the item."
+                    }
+                }
+            },
+            {
+                "id": "update_item",
+                "name": "Update Item",
+                "description": "Updates column values of an existing item.",
+                "data": {
+                    "item_id": {
+                        "name": "Item ID",
+                        "type": "string",
+                        "description": "The ID of the item to update."
+                    },
+                    "column_values": {
+                        "name": "Column Values",
+                        "type": "object",
+                        "description": "A JSON object of column values to update."
+                    }
+                }
+            },
+            {
+                "id": "create_board",
+                "name": "Create Board",
+                "description": "Creates a new board.",
+                "data": {
+                    "board_name": {
+                        "name": "Board Name",
+                        "type": "string",
+                        "description": "The name of the new board."
+                    },
+                    "board_kind": {
+                        "name": "Board Kind",
+                        "type": "string",
+                        "description": "The kind of board: public or private."
+                    },
+                    "workspace_id": {
+                        "name": "Workspace ID",
+                        "type": "string",
+                        "description": "The ID of the workspace where the board will be created."
+                    }
+                }
+            },
+            {
+                "id": "create_group",
+                "name": "Create Group",
+                "description": "Creates a new group in a specified board.",
+                "data": {
+                    "board_id": {
+                        "name": "Board ID",
+                        "type": "string",
+                        "description": "The ID of the board where the group will be created."
+                    },
+                    "group_name": {
+                        "name": "Group Name",
+                        "type": "string",
+                        "description": "The name of the new group."
+                    }
+                }
+            },
+            {
+                "id": "add_subscriber",
+                "name": "Add Subscriber",
+                "description": "Adds a user as a subscriber to a board.",
+                "data": {
+                    "board_id": {
+                        "name": "Board ID",
+                        "type": "string",
+                        "description": "The ID of the board."
+                    },
+                    "user_id": {
+                        "name": "User ID",
+                        "type": "string",
+                        "description": "The ID of the user to add as a subscriber."
+                    }
+                }
+            }
+        ]
+    },
+    "box": {
+        "name": "Box",
+        "icon": "box.svg",
+        "actions": [
+            {
+                "id": "create_folder",
+                "name": "Create Folder",
+                "description": "Creates a new folder within a specified parent folder.",
+                "data": {
+                    "name": {
+                        "name": "Folder Name",
+                        "type": "string",
+                        "description": "The name of the new folder."
+                    },
+                    "parent_id": {
+                        "name": "Parent Folder ID",
+                        "type": "string",
+                        "description": "The ID of the parent folder where the new folder will be created. Use '0' for the root folder."
+                    }
+                }
+            },
+            {
+                "id": "upload_file",
+                "name": "Upload File",
+                "description": "Uploads a file to a specified folder.",
+                "data": {
+                    "file_name": {
+                        "name": "File Name",
+                        "type": "string",
+                        "description": "The name of the file to be uploaded."
+                    },
+                    "file_content": {
+                        "name": "File Content",
+                        "type": "binary",
+                        "description": "The binary content of the file."
+                    },
+                    "parent_id": {
+                        "name": "Parent Folder ID",
+                        "type": "string",
+                        "description": "The ID of the folder where the file will be uploaded. Use '0' for the root folder."
+                    }
+                }
+            },
+            {
+                "id": "download_file",
+                "name": "Download File",
+                "description": "Downloads a file by its ID.",
+                "data": {
+                    "file_id": {
+                        "name": "File ID",
+                        "type": "string",
+                        "description": "The ID of the file to download."
+                    }
+                }
+            },
+            {
+                "id": "delete_file",
+                "name": "Delete File",
+                "description": "Deletes a file by its ID.",
+                "data": {
+                    "file_id": {
+                        "name": "File ID",
+                        "type": "string",
+                        "description": "The ID of the file to delete."
+                    }
+                }
+            },
+            {
+                "id": "delete_folder",
+                "name": "Delete Folder",
+                "description": "Deletes a folder by its ID.",
+                "data": {
+                    "folder_id": {
+                        "name": "Folder ID",
+                        "type": "string",
+                        "description": "The ID of the folder to delete."
+                    }
+                }
+            }
+        ]
+    }
+}

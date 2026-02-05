@@ -1,0 +1,1117 @@
+{
+    "cells": [
+        {
+            "shapeType": "pool",
+            "type": "pool.HorizontalPool",
+            "size": {
+                "width": 1150,
+                "height": 370
+            },
+            "attrs": {
+                "header": {
+                    "fill": "#d6eaf8"
+                },
+                "headerText": {
+                    "text": "Customer"
+                }
+            },
+            "padding": {
+                "left": 30
+            },
+            "headerTextMargin": 5,
+            "contentMargin": 20,
+            "minimumLaneSize": 60,
+            "headerSide": "left",
+            "position": {
+                "x": -40,
+                "y": -110
+            },
+            "angle": 0,
+            "id": "id-54d8a5a1-c344-492c-bf9f-b29ad9662303",
+            "embeds": [
+                "_c529c195-690b-472a-9bde-fa2776a44e6b"
+            ],
+            "z": 153
+        },
+        {
+            "shapeType": "swimlane",
+            "type": "pool.HorizontalSwimlane",
+            "size": {
+                "width": 1120,
+                "height": 370
+            },
+            "attrs": {
+                "headerText": {
+                    "text": ""
+                },
+                "body": {
+                    "fill": "#f5fafc"
+                }
+            },
+            "headerSize": 30,
+            "headerTextMargin": 5,
+            "contentMargin": 20,
+            "headerSide": "left",
+            "position": {
+                "x": -10,
+                "y": -110
+            },
+            "angle": 0,
+            "id": "_c529c195-690b-472a-9bde-fa2776a44e6b",
+            "z": 154,
+            "parent": "id-54d8a5a1-c344-492c-bf9f-b29ad9662303",
+            "embeds": [
+                "_1a9544c0-b0b0-4106-a087-3efe69818b3a",
+                "_31fb07d2-2773-49e9-8a0c-3232f95788f5",
+                "id-88ed032f-2ad4-4688-987e-77b41bb11ede",
+                "_15223d2b-3040-487d-95cc-c6bd9112ac60",
+                "_36e662ce-50bd-4084-b44f-c04e6af63640",
+                "_4a7ec3a2-bbb9-4228-bd8b-620eb7b55f1e",
+                "id-6bd3013b-8646-4137-ade7-499b31893131",
+                "id-d4d348ba-02b9-4f83-8106-257e0e1a5500",
+                "_1e3d18ca-0824-4207-9d00-ec41e3b603e6",
+                "_39f37b25-448f-4633-95e8-f252183be3f4",
+                "_e02f3c76-11ef-4c94-9f50-1b494861be71",
+                "_fb7c084b-423f-4479-adba-195e535103c6",
+                "id-add7903c-fc54-40ce-9fa5-d7f5894d584c",
+                "_1ebf8cba-a683-41d9-9d56-935983e038ad"
+            ]
+        },
+        {
+            "type": "gateway.Exclusive",
+            "attrs": {
+                "label": {
+                    "text": "Which wash program?"
+                },
+                "body": {
+                    "fill": "#ffc107"
+                }
+            },
+            "shapeType": "gateway",
+            "size": {
+                "width": 50,
+                "height": 50
+            },
+            "position": {
+                "x": 450,
+                "y": -60
+            },
+            "angle": 0,
+            "id": "id-6bd3013b-8646-4137-ade7-499b31893131",
+            "z": 155,
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b"
+        },
+        {
+            "type": "event.End",
+            "attrs": {
+                "label": {
+                    "text": ""
+                },
+                "background": {
+                    "fill": "#f44336"
+                }
+            },
+            "shapeType": "event",
+            "size": {
+                "width": 40,
+                "height": 40
+            },
+            "position": {
+                "x": 1030,
+                "y": -55
+            },
+            "angle": 0,
+            "id": "id-d4d348ba-02b9-4f83-8106-257e0e1a5500",
+            "z": 156,
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b"
+        },
+        {
+            "type": "activity.User",
+            "attrs": {
+                "label": {
+                    "text": "Chooses wash "
+                }
+            },
+            "shapeType": "activity",
+            "markers": [],
+            "size": {
+                "width": 100,
+                "height": 80
+            },
+            "position": {
+                "x": 270,
+                "y": -75
+            },
+            "angle": 0,
+            "id": "_39f37b25-448f-4633-95e8-f252183be3f4",
+            "z": 157,
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b",
+            "embeds": []
+        },
+        {
+            "type": "activity.User",
+            "attrs": {
+                "label": {
+                    "text": "Pays 8"
+                }
+            },
+            "shapeType": "activity",
+            "markers": [],
+            "size": {
+                "width": 100,
+                "height": 80
+            },
+            "position": {
+                "x": 595,
+                "y": -75
+            },
+            "angle": 0,
+            "id": "_e02f3c76-11ef-4c94-9f50-1b494861be71",
+            "z": 158,
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b",
+            "embeds": []
+        },
+        {
+            "type": "activity.User",
+            "attrs": {
+                "label": {
+                    "text": "Pulls car up to car wash"
+                }
+            },
+            "shapeType": "activity",
+            "markers": [],
+            "size": {
+                "width": 100,
+                "height": 80
+            },
+            "position": {
+                "x": 110,
+                "y": -75
+            },
+            "angle": 0,
+            "id": "_1e3d18ca-0824-4207-9d00-ec41e3b603e6",
+            "z": 161,
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b",
+            "embeds": []
+        },
+        {
+            "type": "activity.User",
+            "attrs": {
+                "label": {
+                    "text": "Pays 15"
+                }
+            },
+            "shapeType": "activity",
+            "markers": [],
+            "size": {
+                "width": 100,
+                "height": 80
+            },
+            "position": {
+                "x": 425,
+                "y": 140
+            },
+            "angle": 0,
+            "id": "_fb7c084b-423f-4479-adba-195e535103c6",
+            "z": 163,
+            "embeds": [],
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b"
+        },
+        {
+            "type": "event.Start",
+            "shapeType": "event",
+            "attrs": {
+                "label": {
+                    "text": ""
+                },
+                "background": {
+                    "fill": "#4caf50"
+                }
+            },
+            "size": {
+                "width": 40,
+                "height": 40
+            },
+            "position": {
+                "x": 40,
+                "y": 55
+            },
+            "angle": 0,
+            "id": "id-add7903c-fc54-40ce-9fa5-d7f5894d584c",
+            "z": 165,
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b"
+        },
+        {
+            "type": "activity.User",
+            "attrs": {
+                "label": {
+                    "text": "Drives away"
+                }
+            },
+            "shapeType": "activity",
+            "markers": [],
+            "size": {
+                "width": 100,
+                "height": 80
+            },
+            "position": {
+                "x": 930,
+                "y": 35
+            },
+            "angle": 0,
+            "id": "_1ebf8cba-a683-41d9-9d56-935983e038ad",
+            "z": 167,
+            "embeds": [],
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b"
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {
+                "line": {
+                    "stroke": "#333",
+                    "sourceMarker": null,
+                    "targetMarker": {
+                        "type": "path",
+                        "d": "M 12 -5 0 0 12 5 z"
+                    },
+                    "strokeDasharray": "none"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "id-add7903c-fc54-40ce-9fa5-d7f5894d584c",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 40,
+                        "dy": 20
+                    }
+                }
+            },
+            "target": {
+                "id": "_1e3d18ca-0824-4207-9d00-ec41e3b603e6",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 50,
+                        "dy": 80
+                    }
+                }
+            },
+            "id": "_31fb07d2-2773-49e9-8a0c-3232f95788f5",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b",
+            "labels": [],
+            "vertices": [],
+            "z": 168
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {
+                "line": {
+                    "stroke": "#333",
+                    "sourceMarker": null,
+                    "targetMarker": {
+                        "type": "path",
+                        "d": "M 12 -5 0 0 12 5 z"
+                    },
+                    "strokeDasharray": "none"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "_1e3d18ca-0824-4207-9d00-ec41e3b603e6"
+            },
+            "target": {
+                "id": "_39f37b25-448f-4633-95e8-f252183be3f4",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 0,
+                        "dy": 40
+                    }
+                }
+            },
+            "id": "_15223d2b-3040-487d-95cc-c6bd9112ac60",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b",
+            "labels": [],
+            "vertices": [],
+            "z": 168
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {
+                "line": {
+                    "stroke": "#333"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "_39f37b25-448f-4633-95e8-f252183be3f4"
+            },
+            "target": {
+                "id": "id-6bd3013b-8646-4137-ade7-499b31893131",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 0,
+                        "dy": 25
+                    }
+                }
+            },
+            "id": "_4a7ec3a2-bbb9-4228-bd8b-620eb7b55f1e",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b",
+            "labels": [],
+            "vertices": [],
+            "z": 168
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {
+                "line": {
+                    "stroke": "#333"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "id-6bd3013b-8646-4137-ade7-499b31893131"
+            },
+            "target": {
+                "id": "_e02f3c76-11ef-4c94-9f50-1b494861be71",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 0,
+                        "dy": 40
+                    }
+                }
+            },
+            "id": "_36e662ce-50bd-4084-b44f-c04e6af63640",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b",
+            "labels": [
+                {
+                    "attrs": {
+                        "label": {
+                            "text": "Eco"
+                        }
+                    }
+                }
+            ],
+            "vertices": [],
+            "z": 168
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {},
+            "shapeType": "flow",
+            "source": {
+                "id": "id-6bd3013b-8646-4137-ade7-499b31893131",
+                "anchor": {
+                    "name": "modelCenter",
+                    "args": {
+                        "dx": 0,
+                        "dy": 25
+                    }
+                }
+            },
+            "target": {
+                "id": "_fb7c084b-423f-4479-adba-195e535103c6",
+                "anchor": {
+                    "name": "modelCenter",
+                    "args": {
+                        "dx": 0,
+                        "dy": -40
+                    }
+                }
+            },
+            "id": "id-88ed032f-2ad4-4688-987e-77b41bb11ede",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "labels": [
+                {
+                    "attrs": {
+                        "label": {
+                            "text": "Polish Plus"
+                        }
+                    }
+                }
+            ],
+            "vertices": [],
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b",
+            "z": 168
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {
+                "line": {
+                    "stroke": "#333",
+                    "sourceMarker": null,
+                    "targetMarker": {
+                        "type": "path",
+                        "d": "M 12 -5 0 0 12 5 z"
+                    },
+                    "strokeDasharray": "none"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "_1ebf8cba-a683-41d9-9d56-935983e038ad"
+            },
+            "target": {
+                "id": "id-d4d348ba-02b9-4f83-8106-257e0e1a5500",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 0,
+                        "dy": 20
+                    }
+                }
+            },
+            "id": "_1a9544c0-b0b0-4106-a087-3efe69818b3a",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "parent": "_c529c195-690b-472a-9bde-fa2776a44e6b",
+            "labels": [],
+            "vertices": [],
+            "z": 168
+        },
+        {
+            "shapeType": "pool",
+            "type": "pool.HorizontalPool",
+            "size": {
+                "width": 1150,
+                "height": 350
+            },
+            "attrs": {
+                "header": {
+                    "fill": "#d7e8ba"
+                },
+                "headerText": {
+                    "text": "Car Wash Machine"
+                }
+            },
+            "padding": {
+                "left": 30
+            },
+            "headerTextMargin": 5,
+            "contentMargin": 20,
+            "minimumLaneSize": 60,
+            "headerSide": "left",
+            "position": {
+                "x": -40,
+                "y": 280
+            },
+            "angle": 0,
+            "id": "id-ba446fe3-fc5a-468a-879f-636efa8ae458",
+            "embeds": [
+                "_bf50614d-40a6-450e-a101-85c440f9bde6"
+            ],
+            "z": 201
+        },
+        {
+            "shapeType": "swimlane",
+            "type": "pool.HorizontalSwimlane",
+            "size": {
+                "width": 1120,
+                "height": 350
+            },
+            "attrs": {
+                "headerText": {
+                    "text": ""
+                },
+                "body": {
+                    "fill": "#f7faf1"
+                }
+            },
+            "headerSize": 30,
+            "headerTextMargin": 5,
+            "contentMargin": 20,
+            "headerSide": "left",
+            "position": {
+                "x": -10,
+                "y": 280
+            },
+            "angle": 0,
+            "id": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "z": 202,
+            "parent": "id-ba446fe3-fc5a-468a-879f-636efa8ae458",
+            "embeds": [
+                "id-de245238-6e8a-4d57-b623-72f986474d09",
+                "_8023fc4b-05c4-4053-8bc3-b94a0bbba67b",
+                "_c97f38b9-efbf-442f-adf7-729cc665b53e",
+                "_3721385f-85a4-4bb2-9c80-847bde2b9694",
+                "_3b41cfa6-5867-4946-9f11-9446cc63f1e5",
+                "_1527cce3-ee31-49f1-8774-9725c48c6668",
+                "id-7297e7a8-c9b6-4154-93e0-02fec7ce9b85",
+                "id-eb413d52-5649-47d4-9c0a-1fe4b0fdbf98",
+                "_0ef29172-273e-4f01-a69a-67b1e07f058a",
+                "_2e9c0dcb-90f7-485b-941f-51ba317ea65c",
+                "_a7fb2a39-2057-446d-affc-04dd77fe8fba",
+                "_bef24fa3-8990-4e0a-b3db-7865a63f4566",
+                "_838fd814-f7c8-4885-9987-e2f5ee0bd904",
+                "_84c6c61a-844b-41eb-8dcd-a44f1200847c"
+            ]
+        },
+        {
+            "type": "activity.Service",
+            "attrs": {
+                "label": {
+                    "text": "Wheel Clean"
+                }
+            },
+            "shapeType": "activity",
+            "markers": [],
+            "size": {
+                "width": 100,
+                "height": 80
+            },
+            "position": {
+                "x": 780,
+                "y": 310
+            },
+            "angle": 0,
+            "id": "_2e9c0dcb-90f7-485b-941f-51ba317ea65c",
+            "z": 203,
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "embeds": []
+        },
+        {
+            "type": "activity.Service",
+            "attrs": {
+                "label": {
+                    "text": "Soft Cloth Wash"
+                }
+            },
+            "shapeType": "activity",
+            "markers": [],
+            "size": {
+                "width": 100,
+                "height": 80
+            },
+            "position": {
+                "x": 425,
+                "y": 310
+            },
+            "angle": 0,
+            "id": "_0ef29172-273e-4f01-a69a-67b1e07f058a",
+            "z": 204,
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "embeds": []
+        },
+        {
+            "type": "gateway.Exclusive",
+            "attrs": {
+                "label": {
+                    "text": "Which wash program?"
+                },
+                "body": {
+                    "fill": "#ffc107"
+                }
+            },
+            "shapeType": "gateway",
+            "size": {
+                "width": 50,
+                "height": 50
+            },
+            "position": {
+                "x": 595,
+                "y": 325
+            },
+            "angle": 0,
+            "id": "id-eb413d52-5649-47d4-9c0a-1fe4b0fdbf98",
+            "z": 205,
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6"
+        },
+        {
+            "type": "activity.Service",
+            "attrs": {
+                "label": {
+                    "text": "Dry"
+                }
+            },
+            "shapeType": "activity",
+            "markers": [],
+            "size": {
+                "width": 100,
+                "height": 80
+            },
+            "position": {
+                "x": 930,
+                "y": 310
+            },
+            "angle": 0,
+            "id": "_a7fb2a39-2057-446d-affc-04dd77fe8fba",
+            "z": 206,
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "embeds": []
+        },
+        {
+            "type": "activity.Service",
+            "attrs": {
+                "label": {
+                    "text": "Clear Coat Protection"
+                }
+            },
+            "shapeType": "activity",
+            "markers": [],
+            "size": {
+                "width": 100,
+                "height": 80
+            },
+            "position": {
+                "x": 770,
+                "y": 520
+            },
+            "angle": 0,
+            "id": "_838fd814-f7c8-4885-9987-e2f5ee0bd904",
+            "z": 207,
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "embeds": []
+        },
+        {
+            "type": "activity.Service",
+            "attrs": {
+                "label": {
+                    "text": "Wheel Luster Wheel Clean"
+                }
+            },
+            "shapeType": "activity",
+            "markers": [],
+            "size": {
+                "width": 100,
+                "height": 80
+            },
+            "position": {
+                "x": 930,
+                "y": 520
+            },
+            "angle": 0,
+            "id": "_bef24fa3-8990-4e0a-b3db-7865a63f4566",
+            "z": 208,
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "embeds": []
+        },
+        {
+            "type": "activity.Service",
+            "attrs": {
+                "label": {
+                    "text": "Double Polish"
+                }
+            },
+            "shapeType": "activity",
+            "markers": [],
+            "size": {
+                "width": 100,
+                "height": 80
+            },
+            "position": {
+                "x": 570,
+                "y": 520
+            },
+            "angle": 0,
+            "id": "_84c6c61a-844b-41eb-8dcd-a44f1200847c",
+            "z": 209,
+            "embeds": [],
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6"
+        },
+        {
+            "type": "flow.Message",
+            "attrs": {
+                "line": {
+                    "stroke": "#333"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "_a7fb2a39-2057-446d-affc-04dd77fe8fba"
+            },
+            "target": {
+                "id": "_1ebf8cba-a683-41d9-9d56-935983e038ad",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 50,
+                        "dy": 80
+                    }
+                }
+            },
+            "id": "_3df4593f-2533-4163-accd-c93cdb46a7cf",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "labels": [],
+            "vertices": [],
+            "z": 210
+        },
+        {
+            "type": "flow.Message",
+            "attrs": {
+                "line": {
+                    "stroke": "#333"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "_fb7c084b-423f-4479-adba-195e535103c6"
+            },
+            "target": {
+                "id": "_0ef29172-273e-4f01-a69a-67b1e07f058a",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 50,
+                        "dy": 0
+                    }
+                }
+            },
+            "id": "_9a824c6a-88a5-4ec7-8b6e-6a53f986cef1",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "labels": [],
+            "vertices": [],
+            "z": 210
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {},
+            "shapeType": "flow",
+            "source": {
+                "id": "id-eb413d52-5649-47d4-9c0a-1fe4b0fdbf98",
+                "anchor": {
+                    "name": "modelCenter",
+                    "args": {
+                        "dx": 0,
+                        "dy": 25
+                    }
+                }
+            },
+            "target": {
+                "id": "_84c6c61a-844b-41eb-8dcd-a44f1200847c",
+                "anchor": {
+                    "name": "modelCenter",
+                    "args": {
+                        "dx": 0,
+                        "dy": -40
+                    }
+                }
+            },
+            "id": "id-de245238-6e8a-4d57-b623-72f986474d09",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "labels": [
+                {
+                    "attrs": {
+                        "label": {
+                            "text": "Polish Plus"
+                        }
+                    }
+                }
+            ],
+            "vertices": [],
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "z": 210
+        },
+        {
+            "type": "flow.Message",
+            "attrs": {
+                "line": {
+                    "stroke": "#333",
+                    "sourceMarker": {
+                        "type": "circle",
+                        "cx": 5,
+                        "r": 5,
+                        "strokeWidth": 2,
+                        "fill": "#FFFFFF"
+                    },
+                    "targetMarker": {
+                        "type": "path",
+                        "d": "M 12 -5 0 0 12 5 z",
+                        "strokeWidth": 2,
+                        "fill": "#FFFFFF"
+                    },
+                    "strokeDasharray": "5,2"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "_e02f3c76-11ef-4c94-9f50-1b494861be71"
+            },
+            "target": {
+                "id": "_0ef29172-273e-4f01-a69a-67b1e07f058a",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 65,
+                        "dy": 0
+                    }
+                }
+            },
+            "id": "_e6d32897-7a72-49e4-aab4-725c220fca23",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "labels": [],
+            "vertices": [
+                {
+                    "x": 570,
+                    "y": 270
+                }
+            ],
+            "z": 210
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {
+                "line": {
+                    "stroke": "#333"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "_838fd814-f7c8-4885-9987-e2f5ee0bd904"
+            },
+            "target": {
+                "id": "_bef24fa3-8990-4e0a-b3db-7865a63f4566",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 0,
+                        "dy": 40
+                    }
+                }
+            },
+            "id": "_c97f38b9-efbf-442f-adf7-729cc665b53e",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "labels": [],
+            "vertices": [],
+            "z": 211
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {
+                "line": {
+                    "stroke": "#333"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "_bef24fa3-8990-4e0a-b3db-7865a63f4566"
+            },
+            "target": {
+                "id": "_a7fb2a39-2057-446d-affc-04dd77fe8fba",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 50,
+                        "dy": 80
+                    }
+                }
+            },
+            "id": "_3721385f-85a4-4bb2-9c80-847bde2b9694",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "labels": [],
+            "vertices": [],
+            "z": 212
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {
+                "line": {
+                    "stroke": "#333"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "_2e9c0dcb-90f7-485b-941f-51ba317ea65c"
+            },
+            "target": {
+                "id": "_a7fb2a39-2057-446d-affc-04dd77fe8fba",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 0,
+                        "dy": 40
+                    }
+                }
+            },
+            "id": "_3b41cfa6-5867-4946-9f11-9446cc63f1e5",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "labels": [],
+            "vertices": [],
+            "z": 213
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {
+                "line": {
+                    "stroke": "#333"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "_0ef29172-273e-4f01-a69a-67b1e07f058a"
+            },
+            "target": {
+                "id": "id-eb413d52-5649-47d4-9c0a-1fe4b0fdbf98",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 0,
+                        "dy": 25
+                    }
+                }
+            },
+            "id": "_1527cce3-ee31-49f1-8774-9725c48c6668",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "labels": [],
+            "vertices": [],
+            "z": 214
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {},
+            "shapeType": "flow",
+            "source": {
+                "id": "id-eb413d52-5649-47d4-9c0a-1fe4b0fdbf98",
+                "anchor": {
+                    "name": "modelCenter",
+                    "args": {
+                        "dx": 25,
+                        "dy": 0
+                    }
+                }
+            },
+            "target": {
+                "id": "_2e9c0dcb-90f7-485b-941f-51ba317ea65c",
+                "anchor": {
+                    "name": "modelCenter",
+                    "args": {
+                        "dx": -50,
+                        "dy": 0
+                    }
+                }
+            },
+            "id": "id-7297e7a8-c9b6-4154-93e0-02fec7ce9b85",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "labels": [
+                {
+                    "attrs": {
+                        "label": {
+                            "text": "ECO"
+                        }
+                    }
+                }
+            ],
+            "vertices": [],
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "z": 215
+        },
+        {
+            "type": "flow.Sequence",
+            "attrs": {
+                "line": {
+                    "stroke": "#333"
+                }
+            },
+            "shapeType": "flow",
+            "source": {
+                "id": "_84c6c61a-844b-41eb-8dcd-a44f1200847c"
+            },
+            "target": {
+                "id": "_838fd814-f7c8-4885-9987-e2f5ee0bd904",
+                "anchor": {
+                    "name": "topLeft",
+                    "args": {
+                        "dx": 0,
+                        "dy": 40
+                    }
+                }
+            },
+            "id": "_8023fc4b-05c4-4053-8bc3-b94a0bbba67b",
+            "router": {
+                "name": "rightAngle",
+                "args": {
+                    "useVertices": true
+                }
+            },
+            "parent": "_bf50614d-40a6-450e-a101-85c440f9bde6",
+            "labels": [],
+            "vertices": [],
+            "z": 216
+        }
+    ]
+}

@@ -1,0 +1,171 @@
+:root {
+    --primary-color: #1b998b;
+    --secondary-color: #a3cbc5;
+    --text-color: #131e29;
+    --text-color-disabled: #ccc;
+    --snaplines-color: #a3cbc5;
+    --bg-color: #e6efeb;
+    --error-color: #ed2637;
+    --snaplines-overflow: 50px;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#app {
+    display: flex;
+    flex-direction: row;
+}
+
+/* Stencil */
+
+#stencil {
+    width: 20vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-color);
+    max-width: 300px;
+}
+
+#stencil .joint-stencil {
+    position: relative;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    border: 2px solid var(--secondary-color);
+    border-bottom-color: var(--primary-color);
+    border-right-color: var(--primary-color);
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+
+}
+
+#stencil .joint-stencil .content {
+    position: relative;
+    border: none;
+}
+
+/* Paper */
+
+#paper {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-color);
+}
+
+#paper .joint-paper {
+    border: none;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+}
+
+#paper .joint-tool[data-tool-name='remove'] circle {
+    fill: var(--primary-color);
+    stroke: #fff;
+}
+
+#paper .snapline.horizontal {
+    border-bottom: 1px solid var(--snaplines-color);
+    width: calc(100% + var(--snaplines-overflow));
+    left: calc(-1 * var(--snaplines-overflow) / 2);
+}
+
+#paper .snapline.vertical {
+    border-right: 1px solid var(--snaplines-color);
+    height: calc(100% + var(--snaplines-overflow));
+    top: calc(-1 * var(--snaplines-overflow) / 2);
+}
+
+/* Toolbar */
+
+#toolbar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 4px;
+    background: white;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    font-family: sans-serif;
+    border: 2px solid var(--secondary-color);
+    border-bottom-color: var(--primary-color);
+    border-right-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+#toolbar .joint-toolbar {
+    border: none;
+    padding: 0;
+}
+
+#toolbar [data-type='separator'] {
+    margin: 0 6px;
+    height: 24px;
+    width: 1px;
+    background: #ccc;
+}
+
+#toolbar button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 24px;
+    text-align: center;
+    color: #333;
+    font-size: 18px;
+}
+
+#toolbar button::after {
+    content: '';
+}
+
+#toolbar button:hover {
+    color: var(--primary-color);
+}
+
+#toolbar button:disabled {
+    color: var(--text-color-disabled);
+    cursor: not-allowed;
+}
+
+#toolbar input[type='checkbox'] {
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+/* Area */
+
+#leftovers {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    pointer-events: none;
+    font-family: sans-serif;
+}
+
+/* Shapes */
+
+.overlapped-shape {
+    stroke: var(--error-color) !important;
+    fill-opacity: 0.5;
+    transition: stroke 0.5s;
+}
+
+.selected-shape {
+    stroke: var(--primary-color);
+    stroke-dasharray: none;
+    stroke-width: 2;
+}
+
+.overflown-shape {
+    stroke: var(--error-color);
+    fill: var(--error-color);
+    fill-opacity: 0.1;
+}

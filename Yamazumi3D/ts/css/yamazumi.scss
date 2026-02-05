@@ -1,0 +1,115 @@
+.jj-yamazumi {
+
+    width: 900px;
+    height: 100%;
+    margin: 10px auto;
+    display: block;
+    position: relative;
+    font-family: 'Noto Sans', sans-serif;
+
+    .joint-paper {
+        border: 1px solid #E2E2E2;
+        margin: 0 auto;
+
+        .stack-layout-ghost-invalid text {
+            fill: red;
+        }
+
+        .joint-type-yamazumi-taskelement.dragging {
+            opacity: 0.4;
+
+            text, .joint-highlight {
+                display: none;
+            }
+        }
+
+        .joint-type-yamazumi-bottomelement {
+            cursor: default;
+        }
+
+        .stack-layout-ghost {
+            opacity: 1;
+            rect, path {
+                opacity: 0.6;
+            }
+            .joint-highlight {
+                display: none;
+            }
+        }
+
+        .jj-yamazumi-prism-text {
+            stroke: none;
+            text-anchor: start;
+            font-size: 10px;
+            font-family: 'Noto Sans', sans-serif;
+            font-weight: 600;
+        }
+
+        .jj-yamazumi-duration-handle {
+            cursor: ns-resize;
+            stroke-width: 1;
+            stroke: #FFFFFF;
+        }
+
+        .jj-yamazumi-duration-text {
+            text-anchor: middle;
+            font-family: 'Noto Sans', sans-serif;
+            font-size: 9.375px;
+            font-style: normal;
+            font-weight: 600;
+        }
+
+        .jj-yamazumi-duration-input {
+            padding: 0;
+            margin-left: 2px;
+            width: 15px;
+            height: 20px;
+            box-sizing: border-box;
+            display: block;
+            font-family: 'Noto Sans', sans-serif;
+            font-size: 9.375px;
+            font-style: normal;
+            font-weight: 600;
+            background-color: transparent;
+            border: none;
+            text-align: center;
+        }
+
+        .jj-yamazumi-duration-input:focus {
+            outline: none;
+        }
+
+        .jj-yamazumi-error-text {
+            font-family: 'Noto Sans', sans-serif;
+            font-size: 8px;
+            font-style: normal;
+            font-weight: 600;
+            fill: white;
+            text-anchor: middle;
+        }
+
+        .jj-yamazumi-preview-line {
+            stroke-width: 3;
+            stroke-linecap: round;
+            fill: none;
+        }
+
+        .jj-yamazumi-takt {
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .jj-yamazumi-legend-text {
+            fill: black;
+            text-anchor: middle;
+            font-family: 'Noto Sans', sans-serif;
+            font-style: normal;
+            font-weight: 600;
+        }
+
+        .jj-yamazumi-legend-line {
+            stroke: lightgray;
+            stroke-width: 2;
+        }
+    }
+}

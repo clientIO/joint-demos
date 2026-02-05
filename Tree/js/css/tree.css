@@ -1,0 +1,26 @@
+/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+
+Copyright (c) 2025 client IO
+
+This Source Code Form is subject to the terms of the JointJS+
+License, v. 2.0. If a copy of the JointJS+ License was not
+distributed with this file, You can obtain one at
+https://www.jointjs.com/license or from the JointJS+ archive as was
+distributed by client IO. See the LICENSE file.
+*/
+
+html, body, #tree-app,
+.joint-paper-scroller.joint-theme-material {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.joint-halo.joint-theme-material  .box {
+    width: 160px;
+    text-align: left;
+    font-size: 0.9em;
+    color: #3c4260;
+    background-color: rgba(255,255,255,0.7);
+}

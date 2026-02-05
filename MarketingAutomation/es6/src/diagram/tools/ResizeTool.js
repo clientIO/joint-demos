@@ -1,0 +1,58 @@
+import { elementTools, util } from '@joint/plus';
+import Theme from '../theme';
+
+const resizeToolMarkup = util.svg /* xml */ `
+    <g @selector="handle">
+        <rect
+            class="resize-button-body"
+            width="${Theme.NodeToolSize}"
+            height="${Theme.NodeToolSize}"
+            fill="transparent"
+            stroke="none"
+            rx="8"
+            ry="8"
+
+        />
+        <image
+            class="resize-button-icon"
+            x="${Theme.NodeToolPadding}"
+            y="${Theme.NodeToolPadding}"
+            width="${Theme.NodeToolSize - Theme.NodeToolPadding * 2}"
+            height="${Theme.NodeToolSize - Theme.NodeToolPadding * 2}"
+            href="assets/icons/resize.svg#icon"
+        />
+    </g>
+`;
+
+export default class ResizeTool extends elementTools.Control {
+    
+    preinitialize() {
+        this.attributes = {
+            cursor: 'nwse-resize'
+        };
+        this.children = resizeToolMarkup;
+    }
+    
+    initialize() {
+        super.initialize();
+        this.el.classList.add('fade-in');
+    }
+    
+    getPosition(view) {
+        const model = view.model;
+        const { width, height } = model.size();
+        return { x: width - 25, y: height - 25 };
+    }
+    
+    setPosition(view, coordinates) {
+        const model = view.model;
+        model.resize(Math.max(coordinates.x + 12, 1), Math.max(coordinates.y + 12, 1));
+    }
+    
+    onPointerUp(evt) {
+        var _a, _b;
+        super.onPointerUp(evt);
+        const note = this.relatedView.model;
+        (_b = (_a = this.options).onResizeEnd) === null || _b === void 0 ? void 0 : _b.call(_a, note.size());
+    }
+}

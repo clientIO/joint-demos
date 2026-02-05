@@ -1,0 +1,45 @@
+.joint-context-toolbar.joint-theme-light.joint-vertical {
+    box-shadow: 0px 4px 14px 0px rgba(0, 0, 0, 0.06);
+
+    .tools {
+        display: flex;
+        padding: 8px 0px 12px 0px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        border-radius: var(--border-radius);
+        border: 1px solid #E6EEF4;
+        background: var(--Gray-8-White, #FFF);
+        cursor: default;
+
+        .tool {
+            display: flex;
+            height: 28px;
+            width: 100%;
+            padding: 0px 12px;
+            align-items: center;
+            color: var(--Gray-2, #1F2937);
+            text-align: center;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 11px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+            border: none;
+            background: var(--Gray-8-White, #FFF);
+        }
+
+        .tool:hover {
+            background: var(--fill-blue, #FFF);
+        }
+
+        .tool[disabled] {
+            color: var(--Gray-6);
+            cursor: inherit;
+        }
+
+        .tool[disabled]:hover {
+            background: var(--Gray-8-White, #FFF);
+        }
+    }
+}

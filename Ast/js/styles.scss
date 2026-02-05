@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    background-color: #FFFFFF;
+}
+
+.ctr-buttons {
+    height: 10%;
+    display: flex;
+    justify-content: center;
+
+    & > button {
+        margin-right: 10px;
+    }
+}
+
+.ast {
+    width: 100%;
+    height: 30%;
+    display: flex;
+
+    & > div {
+        width: 50%;
+        padding: 20px;
+    }
+
+    .code-sample {
+        display: flex;
+        flex-direction: column;
+
+        #select-program {
+            max-width: 200px;
+        }
+    }
+
+    #program {
+        width: 100%;
+        border: 1px solid black;
+        resize: none;
+        height: 100%;
+        overflow-y: scroll;
+    }
+
+    .info {
+        #stats {
+            height: 100%;
+
+            label {
+                font-weight: bold;
+                margin-right: 10px;
+            }
+
+            .stats-tokens {
+                list-style-type: none;
+                overflow-y: scroll;
+                margin: 0;
+                padding: 10px 0;
+                height: 80%;
+            }
+
+            .stats-tokens li {
+                float: left;
+                margin-left: 10px;
+                padding: 2px 5px;
+                cursor: pointer;
+            }
+
+            .stats-tokens li span {
+                font-family: monospace;
+                font-weight: bold;
+                pointer-events: none;
+            }
+
+            .stats-tokens li:hover {
+                background-color: #77c63d;
+                color: white;
+                border-radius: 5px;
+            }
+        }
+    }
+}
+
+.highlight {
+    background-color: #77c63d;
+    border-radius: 2px;
+    color: white;
+}
+
+.canvas {
+    height: 60%;
+
+    .joint-paper {
+        margin: 0 auto;
+    }
+}
+
+#stats {
+    height: 100%;
+
+    .stats-tokens {
+        list-style-type: none;
+        overflow-y: scroll;
+        margin: 0;
+        padding: 10px 0;
+        height: 80%;
+    }
+
+    .stats-tokens li {
+        float: left;
+        margin-left: 10px;
+        padding: 2px 5px;
+        cursor: pointer;
+    }
+
+    .stats-tokens li span {
+        font-family: monospace;
+        font-weight: bold;
+    }
+
+    .stats-tokens li:hover {
+        background-color: #77c63d;
+        color: white;
+        border-radius: 5px;
+    }
+}
+
+button.joint-button {
+    width: 84px;
+    height: 40px;
+    background: #FFFFFF;
+    border: 1px solid #0000001F;
+    border-radius: 16px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 16px;
+    font-family: 'Roboto', sans-serif;
+    letter-spacing: 0.25px;
+    color: #000000DE;
+    cursor: pointer;
+
+    &:hover {
+        background: #4666E51F;
+        border: 1px solid #4666E5;
+        color: #4666E5;
+    }
+}
+

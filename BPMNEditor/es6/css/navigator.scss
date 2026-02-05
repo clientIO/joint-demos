@@ -1,0 +1,122 @@
+.navigator-container {
+    position: absolute;
+    width: 318px;
+    bottom: 14px;
+    right: 14px;
+    z-index: 1;
+    border-radius: var(--jj-border-radius-small);
+    border: 1px solid var(--jj-border-primary);
+    background-color: var(--jj-bg-primary);
+    color: var(--jj-text-secondary);
+    justify-content: center;
+
+    .joint-toolbar {
+        height: 48px;
+        padding: 0;
+        border-bottom: none;
+        border-radius: var(--jj-border-radius-small);
+        width: 100%;
+        justify-content: center;
+        box-shadow: 0px 4px 12px 0px #00000014;
+
+        .joint-toolbar-group {
+            flex: 1;
+            justify-content: space-evenly;
+        }
+
+        .joint-widget {
+            margin: 0 !important;
+        }
+
+        .joint-widget[data-type="iconButton"] {
+            background: transparent;
+            border-width: 1px;
+            border-style: solid;
+            border-color: transparent;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .joint-widget[data-type="iconButton"].active, .joint-widget[data-type="iconButton"]:hover {
+            background: var(--jj-accent-primary);
+            border-color: var(--jj-border-hover);
+        }
+
+        .joint-widget[data-type="separator"] {
+            width: 0;
+            height: 33px;
+            border-right-color: var(--jj-bg-quaternary);
+        }
+
+        .joint-widget[data-type="zoomSlider"] {
+            box-sizing: border-box;
+            width: 141px;
+            height: 32px;
+            padding: 6px 4px;
+            color: var(--jj-text-tertiary);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 16.3px;
+            text-align: left;
+
+            output {
+                min-width: 28px;
+            }
+        }
+    }
+}
+
+.joint-navigator {
+    max-height: 130px;
+    transform: scale(1);
+    transform-origin: center bottom;
+    transition: 0.3s ease-in-out;
+    transition-property: max-height, transform, padding;
+    box-sizing: border-box;
+    background-color: #FAFAFB;
+    border-top-left-radius: var(--jj-border-radius-small);
+    border-top-right-radius: var(--jj-border-radius-small);
+
+    &.hidden {
+        padding: 0 !important;
+    }
+
+    .current-view:not(&.hidden) {
+        border: 1px solid var(--jj-border-navigator-view);
+        opacity: 1;
+        transition-delay: 0.3s;
+        transition-property: opacity;
+        transition-duration: 0.3s;
+        transition-timing-function: ease-in-out;
+    }
+
+    .joint-paper {
+        box-shadow: none;
+
+        .joint-cell {
+            & > rect {
+                fill-opacity: 0.4;
+                fill: var(--jj-navigator-element-view);
+            }
+
+            &[data-type$="Swimlane"] > rect {
+                fill: transparent;
+                stroke: var(--jj-navigator-element-view);
+            }
+
+            &[data-type$="Pool"] > rect {
+                stroke: var(--jj-navigator-element-view);
+            }
+        }
+    }
+
+    &.hidden {
+        max-height: 0;
+        transform: scale(0);
+
+        .current-view {
+            opacity: 0;
+            transition: none;
+        }
+    }
+}

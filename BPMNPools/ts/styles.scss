@@ -1,0 +1,57 @@
+@import "./src/effects";
+@import "./src/tools";
+
+body,
+html {
+    overflow: hidden;
+}
+
+#stencil-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    bottom: 0;
+
+    .joint-type-custom-verticalphase [joint-selector="body"],
+    .joint-type-custom-horizontalphase [joint-selector="body"] {
+        pointer-events: all;
+        fill: white;
+    }
+}
+
+#toolbar-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #f7f7f7;
+    border-bottom: 1px solid #ddd;
+    z-index: 1;
+
+    .joint-toolbar {
+        padding: 5px;
+    }
+
+    button::after {
+        margin-left: 2px;
+    }
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 100px;
+    bottom: 0;
+    overflow: hidden;
+}
+
+#paper-container.drag-over .joint-paper .joint-paper-background {
+    background-color: #FBF8C5 !important
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}

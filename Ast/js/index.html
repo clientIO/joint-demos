@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The JointJS+ JavaScript AST Visualiser application serves as a template to help bring your idea to life in no time.">
+    <title>JointJS+ JavaScript AST Visualiser Application</title>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+</head>
+<body>
+
+<div class="ast">
+    <div class="code-sample">
+        <select id="select-program">
+            <option value="function">Function</option>
+            <option value="basic">Basic</option>
+            <option value="y-combinator">Y Combinator</option>
+            <option value="foreach">forEach polyfill</option>
+        </select>
+        <div id="program"></div>
+    </div>
+    <div class="info">
+        <div id="stats">
+            <label># of nodes:</label><span class="stats-n-nodes"></span><br/>
+            <label># of tokens:</label><span class="stats-n-tokens"></span><br/>
+            <label>Tokens:</label><ul class="stats-tokens"></ul>
+        </div>
+    </div>
+</div>
+<div class="ctr-buttons">
+    <button class="btn joint-button" id="btn-clear">Clear</button>
+    <button class="btn joint-button" id="btn-visualize">Show AST</button>
+    <button class="btn btn-icon joint-button" id="btn-export-svg">Export to SVG</button>
+    <button class="btn btn-icon joint-button" id="btn-export-png">Export to PNG</button>
+</div>
+<div id="canvas" class="canvas"></div>
+
+<!-- Application files:  -->
+<script src="bundle.js"></script>
+
+</body>
+</html>

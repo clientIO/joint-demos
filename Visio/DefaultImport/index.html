@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JointJS+ Visio Default Import</title>
+    <link rel="stylesheet" type="text/css" href="../../../build/package/joint-plus.css">
+    <link rel="stylesheet" type="text/css" href="./css/index.css">
+</head>
+<body>
+
+    <!-- Pre-load fonts: -->
+    <div class="font-loader" style="visibility: hidden">
+        <div style="font-family: 'Calibri', sans-serif; font-weight: 400;">Calibri 400</div>
+        <div style="font-family: 'Calibri', sans-serif; font-weight: 700;">Calibri 700</div>
+    </div>
+
+    <!-- Application: -->
+    <div id="paper"></div>
+    <div id="loader"></div>
+
+    <!-- JointJS+ package: -->
+    <script src="../../../build/package/joint-plus.js"></script>
+
+    <!-- Visio package: -->
+    <script src="./node_modules/jszip/dist/jszip.js"></script>
+    <script src="./node_modules/hot-formula-parser/dist/formula-parser.js"></script>
+    <script src="../../../build/package-visio/dist/joint-visio.js"></script>
+
+    <!-- Application file: -->
+    <script src="./src/index.js"></script>
+
+    <!-- Local file warning: -->
+    <div id="message-fs" style="display: none;">
+        <p>The application was opened locally using the file protocol. It is necessary to access it through a <strong>Web server</strong>.</p>
+        <p>Please see <a href="README.md">instructions</a>.</p>
+    </div>
+    <script>
+        (function() {
+            var fs = (document.location.protocol === 'file:');
+            if (fs) {
+                var content = document.getElementById('message-fs');
+                content.style.display = 'block';
+                (new joint.ui.Dialog({
+                    theme: 'material',
+                    width: 300,
+                    type: 'alert',
+                    title: 'Local File',
+                    content
+                })).open();
+            }
+        })();
+    </script>
+
+</body>
+</html>

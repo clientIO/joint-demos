@@ -1,0 +1,16 @@
+<div #toolbar></div>
+<div class="side-bar">
+    <div class="toggle-bar">
+        <div (click)="toggleStencil()" class="icon toggle-stencil" [ngClass]="{'disabled-icon': !stencilOpened}"
+             data-tooltip="Toggle Element Palette" data-tooltip-position-selector=".toggle-bar"></div>
+        <div (click)="toggleJsonEditor()" class="icon toggle-editor"
+             [ngClass]="{'disabled-icon': !jsonEditorOpened}" data-tooltip="Toggle JSON Editor"
+             data-tooltip-position-selector=".toggle-bar"></div>
+    </div>
+    <div [hidden]="!stencilOpened" #stencil class="stencil-container"></div>
+</div>
+<div class="main-container">
+    <div #paper class="paper-container"></div>
+    <chatbot-json-editor *ngIf="jsonEditorOpened" [content]="fileJSON"></chatbot-json-editor>
+</div>
+<chatbot-inspector></chatbot-inspector>

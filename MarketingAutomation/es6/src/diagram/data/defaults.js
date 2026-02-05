@@ -1,0 +1,52 @@
+import { util } from '@joint/plus';
+import { getCustomPosition } from '../../system/diagram/custom-positions';
+// Diagram
+import { Branch, Action, Note, Trigger, Delay } from '../models';
+import { Attribute, START_NODE_ID } from '../const';
+
+export function getDefaultNoteData(graph, position) {
+    const customPosition = getCustomPosition(graph, position, START_NODE_ID);
+    
+    return {
+        type: Note.type,
+        [Attribute.CustomPosition]: customPosition,
+        [Attribute.Markdown]: ''
+    };
+}
+
+export function getDefaultTriggerData() {
+    return {
+        type: Trigger.type,
+        [Attribute.Criteria]: []
+    };
+}
+
+export function getDefaultActionData() {
+    return {
+        type: Action.type,
+        [Attribute.ActionKey]: null
+    };
+}
+
+export function getDefaultBranchData() {
+    return {
+        type: Branch.type,
+        [Attribute.Label]: 'Branch',
+        to: [{
+                // Add an extra condition to the existing one
+                [Attribute.EdgeCondition]: '',
+                id: util.uuid()
+            }]
+    };
+}
+
+export function getDefaultDelayData() {
+    return {
+        type: Delay.type,
+        [Attribute.Duration]: {
+            days: 0,
+            hours: 0,
+            minutes: 0
+        }
+    };
+}

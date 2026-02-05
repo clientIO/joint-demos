@@ -1,0 +1,189 @@
+import { dia, ui, util } from '@joint/plus';
+import { ZOOM_SETTINGS } from '../configs/navigator-config';
+import NavigatorController from '../controllers/navigator-controller';
+
+const baseUrl = 'assets/navigator';
+
+const IconButton = ui.widgets.button.extend({
+    render: function () {
+        const size = this.options.size || 20;
+        const imageEl = document.createElement('img');
+        imageEl.style.width = `${size}px`;
+        imageEl.style.height = `${size}px`;
+        this.el.appendChild(imageEl);
+        this.setIcon(this.options.icon);
+        this.setTooltip(this.options.tooltip);
+        return this;
+    },
+    setIcon: function (icon = '') {
+        this.el.querySelector('img').src = icon;
+    },
+    setTooltip: function (tooltip = '') {
+        this.el.dataset.tooltip = tooltip;
+    }
+});
+
+// Simplified navigator element view
+
+const UpdateFlags = {
+    Render: '@render',
+    Update: '@update',
+    Transform: '@transform'
+};
+
+const NavigatorElementView = dia.ElementView.extend({
+    body: null,
+    markup: util.svg /* xml */ `<rect @selector="body" />`,
+    // updates run on view initialization
+    initFlag: [UpdateFlags.Render, UpdateFlags.Update, UpdateFlags.Transform],
+    // updates run when the model attribute changes
+    presentationAttributes: {
+        position: [UpdateFlags.Transform],
+        angle: [UpdateFlags.Transform],
+        size: [UpdateFlags.Update], // shape
+    },
+    // calls in an animation frame after a multiple changes
+    // has been made to the model
+    confirmUpdate: function (flags) {
+        if (this.hasFlag(flags, UpdateFlags.Render))
+            this.render();
+        if (this.hasFlag(flags, UpdateFlags.Update))
+            this.update();
+        // using the original `updateTransformation()` method
+        if (this.hasFlag(flags, UpdateFlags.Transform))
+            this.updateTransformation();
+    },
+    render: function () {
+        const doc = util.parseDOMJSON(this.markup);
+        this.body = doc.selectors.body;
+        this.el.appendChild(doc.fragment);
+    },
+    update: function () {
+        const { model, body } = this;
+        // shape
+        const { width, height } = model.size();
+        body.setAttribute('width', width.toString());
+        body.setAttribute('height', height.toString());
+    }
+});
+
+export default class NavigatorService {
+    
+    constructor(element) {
+        this.element = element;
+    }
+    
+    create(paperScroller) {
+        this.paperScroller = paperScroller;
+        this.toolbar = new ui.Toolbar({
+            autoToggle: true,
+            references: {
+                paperScroller
+            },
+            tools: [
+                {
+                    type: 'icon-button',
+                    name: 'fit-to-screen',
+                    icon: `${baseUrl}/icon-zoom-to-fit.svg`,
+                    tooltip: 'Fit to screen',
+                    attrs: { button: { 'data-tooltip-position': 'top' } }
+                },
+                {
+                    type: 'icon-button',
+                    name: 'fullscreen',
+                    attrs: { button: { 'data-tooltip-position': 'top' } }
+                    /* icon and tooltip are set in updateToolbarButtons() */
+                },
+                {
+                    type: 'zoom-slider',
+                    min: ZOOM_SETTINGS.min * 100,
+                    max: ZOOM_SETTINGS.max * 100,
+                    step: 10,
+                    attrs: { input: { 'data-tooltip': 'Slide to zoom', 'data-tooltip-position': 'top' } }
+                },
+                { type: 'separator' },
+                {
+                    type: 'icon-button',
+                    name: 'minimap',
+                    icon: `${baseUrl}/icon-minimap.svg`,
+                    attrs: { button: { 'data-tooltip-position': 'top' } }
+                }
+            ],
+            widgetNamespace: Object.assign(Object.assign({}, ui.widgets), { iconButton: IconButton })
+        });
+        
+        this.navigatorController = new NavigatorController({
+            navigatorService: this
+        });
+        
+        this.toolbar.render();
+        this.updateToolbarButtons();
+        this.element.appendChild(this.toolbar.el);
+        
+        this.navigator = new ui.Navigator({
+            paperScroller: this.paperScroller,
+            width: 318,
+            height: 130,
+            padding: 10,
+            zoom: false,
+            useContentBBox: true,
+            dynamicZoom: true,
+            paperOptions: {
+                async: true,
+                autoFreeze: true,
+                sorting: dia.Paper.sorting.APPROX,
+                elementView: NavigatorElementView,
+                cellViewNamespace: {},
+                viewManagement: true,
+                // Don't render links in the navigator
+                cellVisibility: (cell) => !cell.isLink(),
+                background: {
+                    color: 'transparent'
+                }
+            }
+        });
+        
+        this.element.prepend(this.navigator.el);
+        this.navigator.render();
+        this.toolbar.getWidgetByName('minimap').el.classList.add('active');
+        
+        this.navigatorController.startListening();
+    }
+    
+    isMinimapVisible() {
+        var _a;
+        return !((_a = this.navigator) === null || _a === void 0 ? void 0 : _a.el.classList.contains('hidden'));
+    }
+    
+    showMinimap() {
+        var _a;
+        (_a = this.navigator) === null || _a === void 0 ? void 0 : _a.el.classList.remove('hidden');
+    }
+    
+    hideMiniMap() {
+        var _a;
+        (_a = this.navigator) === null || _a === void 0 ? void 0 : _a.el.classList.add('hidden');
+    }
+    
+    updateToolbarButtons() {
+        var _a, _b;
+        // Minimap
+        const minimapButton = (_a = this.toolbar) === null || _a === void 0 ? void 0 : _a.getWidgetByName('minimap');
+        if (this.isMinimapVisible()) {
+            minimapButton === null || minimapButton === void 0 ? void 0 : minimapButton.setTooltip('Hide minimap');
+        }
+        else {
+            minimapButton === null || minimapButton === void 0 ? void 0 : minimapButton.setTooltip('Show minimap');
+        }
+        // Full screen
+        const fullscreenButton = (_b = this.toolbar) === null || _b === void 0 ? void 0 : _b.getWidgetByName('fullscreen');
+        if (document.fullscreenElement) {
+            fullscreenButton === null || fullscreenButton === void 0 ? void 0 : fullscreenButton.setIcon(`${baseUrl}/icon-exit-fullscreen.svg`);
+            fullscreenButton === null || fullscreenButton === void 0 ? void 0 : fullscreenButton.setTooltip('Exit full screen');
+        }
+        else {
+            fullscreenButton === null || fullscreenButton === void 0 ? void 0 : fullscreenButton.setIcon(`${baseUrl}/icon-enter-fullscreen.svg`);
+            fullscreenButton === null || fullscreenButton === void 0 ? void 0 : fullscreenButton.setTooltip('Toggle full screen');
+        }
+    }
+}

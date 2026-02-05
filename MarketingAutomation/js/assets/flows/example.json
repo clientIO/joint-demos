@@ -1,0 +1,158 @@
+{
+    "diagram": {
+        "start": {
+            "type": "trigger",
+            "label": "Trigger enrollment for contacts",
+            "criteria": [
+                {
+                    "id": "form_events-form_submission",
+                    "name": "Form submission",
+                    "icon": "assets/icons/providers/assignment.svg"
+                }
+            ],
+            "to": [
+                {
+                    "id": "7bb59112-021b-403b-a65c-f3240e63e90c"
+                }
+            ]
+        },
+        "c26b4277-e554-4a75-b6c1-f848c0437561": {
+            "to": [
+                {
+                    "condition": "Customer",
+                    "id": "0940f46e-d454-4c73-9183-1b148c87446e"
+                },
+                {
+                    "condition": "Opportunity",
+                    "id": "8b63ea25-fa54-4e09-b190-0e51acffb47c"
+                },
+                {
+                    "condition": "Lead",
+                    "id": "48c661e7-1d0f-43b9-9423-60cf9299cda9"
+                },
+                {
+                    "id": "123b32b2-3f1d-4102-a194-69ae4d4ebc86",
+                    "condition": ""
+                }
+            ],
+            "type": "branch",
+            "label": "Check lifecycle stage",
+            "id": "start-button"
+        },
+        "7bb59112-021b-403b-a65c-f3240e63e90c": {
+            "to": [
+                {
+                    "id": "c26b4277-e554-4a75-b6c1-f848c0437561"
+                }
+            ],
+            "type": "action",
+            "actionKey": "communication-send_email",
+            "label": "Send the ROI analysis"
+        },
+        "0940f46e-d454-4c73-9183-1b148c87446e": {
+            "to": [],
+            "type": "action",
+            "actionKey": "slack-send_slack_notification",
+            "label": "Notify customer success team"
+        },
+        "8b63ea25-fa54-4e09-b190-0e51acffb47c": {
+            "to": [
+                {
+                    "id": "7e2f82fd-8885-463d-9efb-5cd271490e48"
+                }
+            ],
+            "type": "action",
+            "actionKey": "slack-send_slack_notification",
+            "label": "Notify sales team"
+        },
+        "7e2f82fd-8885-463d-9efb-5cd271490e48": {
+            "to": [],
+            "type": "action",
+            "actionKey": "customer_relationship_management-create_task",
+            "label": "Task \"Get in touch\""
+        },
+        "443dae72-1d50-40ae-8bef-c1410d46f7dd": {
+            "to": [
+                {
+                    "id": "64162843-a43e-4636-ba4d-dfb1864c128e"
+                }
+            ],
+            "type": "action",
+            "actionKey": "communication-send_email",
+            "label": "Send follow-up email #1"
+        },
+        "123b32b2-3f1d-4102-a194-69ae4d4ebc86": {
+            "to": [],
+            "type": "action",
+            "actionKey": "customer_relationship_management-create_task",
+            "label": "Check lifecycle stage manually"
+        },
+        "48c661e7-1d0f-43b9-9423-60cf9299cda9": {
+            "to": [
+                {
+                    "id": "443dae72-1d50-40ae-8bef-c1410d46f7dd"
+                }
+            ],
+            "type": "delay",
+            "duration": {
+                "days": 1,
+                "hours": 0,
+                "minutes": 0
+            }
+        },
+        "64162843-a43e-4636-ba4d-dfb1864c128e": {
+            "to": [
+                {
+                    "id": "a7a4634b-93f7-453a-a074-8ce4f818516c"
+                }
+            ],
+            "type": "delay",
+            "duration": {
+                "days": 3,
+                "hours": 0,
+                "minutes": 0
+            }
+        },
+        "a7a4634b-93f7-453a-a074-8ce4f818516c": {
+            "to": [
+                {
+                    "condition": "Yes",
+                    "id": "357be254-e66a-4aea-9abf-c3bb4d4dd87d"
+                },
+                {
+                    "condition": "No",
+                    "id": "a4e19548-6e0d-441d-9b07-9d536751992f"
+                }
+            ],
+            "type": "branch",
+            "label": "Replied positively?"
+        },
+        "357be254-e66a-4aea-9abf-c3bb4d4dd87d": {
+            "to": [],
+            "type": "action",
+            "actionKey": "customer_relationship_management-increase_or_decrease_property_value",
+            "label": "Increase lead score by 10"
+        },
+        "a4e19548-6e0d-441d-9b07-9d536751992f": {
+            "to": [],
+            "type": "action",
+            "actionKey": "marketing-add_to_ads_audience",
+            "label": "Add to remarketing list"
+        },
+        "34ef434a-fbd7-4306-a11c-d2b5003f66e1": {
+            "to": [],
+            "type": "note",
+            "customPosition": {
+                "refId": "start",
+                "x": -710,
+                "y": -160
+            },
+            "markdown": "## 🔁 Workflow Description\n\nAutomatically deliver a **detailed ROI calculation** and route follow-up actions based on the contact’s lifecycle stage and engagement.\n\n---\n\n### 🟢 Trigger\n- **Form submission**\n  - The workflow starts when a contact submits a form requesting an ROI analysis.\n\n---\n\n### ✉️ Initial Action\n- **Send ROI analysis email**\n  - The customer immediately receives a detailed ROI calculation.\n\n---\n\n### 🔀 Branch: Check lifecycle stage\n\nThe workflow adapts its actions based on the contact’s lifecycle stage:\n\n- **Customer** → Notify the Customer Success team in Slack  \n- **Opportunity** → Notify Sales in Slack and create a **“Get in touch”** task  \n- **Lead** → Send a follow-up after 1 day, wait 3 more days, then:\n    - **Positive reply** → Increase lead score by +10  \n    - **No reply** → Add to remarketing audience  \n- **Unknown / Other** → Create a task to manually review the lifecycle stage",
+            "size": {
+                "width": 556.7799682617188,
+                "height": 571.726318359375
+            }
+        }
+    },
+    "name": "ROI Analysis Follow-Up Workflow"
+}

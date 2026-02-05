@@ -1,0 +1,116 @@
+$tool-color: #9CA7A9;
+$tool-color-hover: #374151;
+$agent-skill-button-hover-color: #EDF2F1;
+$fade-in-duration: 300ms;
+$color-transition-duration: 150ms;
+$node-shadow: drop-shadow(0px 3px 5px rgba(0, 0, 0, 0.08));
+
+.paper-container {
+
+    .joint-cell {
+
+        &.hover {
+
+            /* Border highlight on hover (when not selected) */
+            .note-body:not(.selected),
+            .node-body:not(.selected) {
+                stroke: var(--app-border-selector);
+                stroke-width: 1;
+            }
+
+            /* Hide warning effect on hover */
+            .joint-warning-effect {
+                display: none;
+            }
+
+            /* Button hover effects */
+            .add-button-body {
+                stroke: var(--app-border-selector);
+            }
+            .add-button-icon {
+                stroke: var(--app-border-selector);
+            }
+        }
+
+        /* Border highlight when a node is selected */
+        .selected {
+            stroke: var(--app-border-selector);
+            stroke-width: 2;
+        }
+
+        /* Node background element */
+        .note-body,
+        .node-body {
+            transition: stroke $color-transition-duration ease-in-out;
+            -webkit-filter: $node-shadow;
+            filter: $node-shadow;
+        }
+
+        /* Agent add skill hover effect */
+        .agent-add-skill-button:hover .agent-add-skill-button-body {
+            transition: fill $color-transition-duration ease-in-out;
+            fill: $agent-skill-button-hover-color;
+        }
+
+        /* Agent remove skill hover effect */
+        .agent-skill-remove:hover {
+            transition: opacity $color-transition-duration ease-in-out;
+            opacity: .8;
+        }
+
+        /* Note */
+        &.joint-type-note {
+
+            :first-child {
+                margin-top: 0px; // Remove top margin for the first child
+            }
+
+            a {
+                color: inherit;
+            }
+        }
+    }
+
+    /* Fade-in animation */
+    .fade-in {
+        @starting-style {
+            opacity: 0;
+        }
+
+        opacity: 1;
+        transition: opacity $fade-in-duration ease;
+    }
+
+    /* Add button (insert node) hover effect */
+    .add-button-body {
+        transition: stroke $color-transition-duration ease-in-out;
+    }
+
+    .add-button-icon {
+        transition: stroke $color-transition-duration ease-in-out;
+    }
+
+    /* Tool button hover effects */
+    .joint-tools {
+        .joint-tool {
+            pointer-events: visible;
+
+            .tool-button-icon {
+                transition: fill $color-transition-duration ease-in-out;
+                fill: $tool-color;
+            }
+
+            &:hover .tool-button-icon {
+                fill: $tool-color-hover;
+            }
+
+            &:hover .add-button-body {
+                stroke: var(--app-border-selector);
+            }
+
+            &:hover .add-button-icon {
+                stroke: var(--app-border-selector);
+            }
+        }
+    }
+}

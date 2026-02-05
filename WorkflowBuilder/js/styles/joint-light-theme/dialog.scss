@@ -1,0 +1,89 @@
+.joint-dialog.joint-theme-light {
+    font-family: 'Inter', sans-serif;
+
+    .fg {
+        border: 1px solid #E4E5E7;
+        background-color: #FFFFFF;
+        border-radius: 8px;
+        overflow: hidden;
+
+        box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.16)
+    }
+
+    .titlebar {
+        color: #333333;
+        font-weight: 600;
+        text-shadow: none;
+        background-color: #FFFFFF;
+        padding-top: 16px;
+        padding-left: 16px;
+        padding-right: 25px;
+    }
+
+    &.inlined {
+
+        .fg {
+            position: relative;
+            top: auto;
+            left: auto;
+            z-index: auto;
+            margin: 0;
+        }
+
+    }
+}
+
+.joint-dialog.joint-theme-light[data-type="alert"] .fg {
+    border-color: #C00D0F;
+}
+.joint-dialog.joint-theme-light[data-type="alert"] .titlebar {
+    color:#deebfb;
+    background-color: #C00D0F;
+}
+.joint-dialog.joint-theme-light[data-type="warning"] .fg {
+    border-color: #daac0f;
+}
+.joint-dialog.joint-theme-light[data-type="warning"] .titlebar {
+    color: #deebfb;
+    background-color: #daac0f;
+}
+.joint-dialog.joint-theme-light[data-type="success"] .fg {
+    border-color: #5fa9ee;
+}
+.joint-dialog.joint-theme-light[data-type="success"] .titlebar {
+    color: #deebfb;
+    background-color: #5fa9ee;
+}
+
+.joint-dialog.joint-theme-light .btn-close {
+    color: #6a6c8a;
+    font-size: 16px;
+    padding: 16px;
+    font-weight: 500;
+    background-color: transparent;
+    border: none;
+}
+.joint-dialog.joint-theme-light[data-type="alert"] .btn-close,
+.joint-dialog.joint-theme-light[data-type="warning"] .btn-close,
+.joint-dialog.joint-theme-light[data-type="success"] .btn-close {
+    color: #f6f6f6;
+}
+
+.joint-dialog.joint-theme-light .body {
+    color: #55627b;
+    padding: 10px;
+}
+
+.joint-dialog.joint-theme-light .controls .control-button {
+    border: none;
+    color: #fefefe;
+    background-color: #5faaee;
+    border-radius: 8px;
+    padding: 0 15px;
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+.joint-dialog.joint-theme-light .controls .control-button:hover {
+    background-color: #4C88BE;
+}

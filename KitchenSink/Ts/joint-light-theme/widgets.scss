@@ -1,0 +1,80 @@
+@use 'mixins' as *;
+
+.joint-widget.joint-theme-light {
+    border-radius: var(--jj-border-radius-small);
+    transition: background-color 0.2s ease-in-out;
+
+    &:hover:not([data-type="separator"]):not(:disabled) {
+        background-color: var(--jj-accent-hover);
+    }
+
+    &[data-type="separator"] {
+        width: 0px;
+        border-color: var(--jj-border-tertiary);
+    }
+
+    &[data-name="undo"],
+    &[data-name="redo"] {
+        width: 40px;
+        height: 40px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &[data-name="undo"] {
+
+        &::before {
+            content: url('/assets/widgets/icon-undo.svg');
+        }
+    }
+
+    &[data-name="redo"] {
+
+        &::before {
+            content: url('/assets/widgets/icon-redo.svg');
+        }
+    }
+
+    & input[type="range"] {
+        margin-right: 8px;
+        @include range-widget;
+    }
+
+    &[data-type="checkbox"] {
+        @include checkbox-widget;
+    }
+
+    &[data-type="colorPicker"] {
+        @include color-picker-widget;
+        width: 24px;
+        height: 24px;
+    }
+
+    &:disabled {
+        filter: opacity(0.5);
+        cursor: initial;
+    }
+}
+
+// color-picker-widget
+::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+::-webkit-color-swatch{
+    border: 0;
+    border-radius: 0;
+}
+
+::-moz-color-swatch,
+::-moz-focus-inner{
+    border: 0;
+}
+
+::-moz-focus-inner{
+    padding: 0;
+}

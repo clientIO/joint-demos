@@ -1,0 +1,11 @@
+.joint-snaplines.joint-theme-bpmn > .snapline {
+    opacity: 0.3;
+
+    &.horizontal {
+        border-bottom: 2px solid var(--jj-selector);
+    }
+
+    &.vertical {
+        border-right: 2px solid var(--jj-selector);
+    }
+}

@@ -1,0 +1,178 @@
+/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+
+Copyright (c) 2025 client IO
+
+This Source Code Form is subject to the terms of the JointJS+
+License, v. 2.0. If a copy of the JointJS+ License was not
+distributed with this file, You can obtain one at
+https://www.jointjs.com/license or from the JointJS+ archive as was
+distributed by client IO. See the LICENSE file.
+*/
+
+:root {
+    --bg-blue: #4666E5;
+    --toggle-height: 20px;
+    --toggle-width: 35px;
+}
+
+html, body { 
+    margin: 0; padding: 0; 
+    font-family: 'Source Sans Pro', 'Helvetica Neue Light', 'Helvetica Neue', sans-serif;
+    text-align: center;
+}
+#paper {
+    margin: 30px auto;
+    width: 800px;
+    display: block;
+    position: relative;
+    border: 1px solid lightgray;
+}
+#path {
+    margin: 35px auto;
+    width: 800px;
+    display: block;
+    position: absolute;
+    padding-left: 10px;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    text-transform: uppercase;
+}
+.example {
+    width: 100%;
+}
+.options {
+    justify-content: center;
+    display: flex;
+    margin-top: 30px;
+    margin-left: auto;
+}
+#edit-mode-help {
+    display: none;
+    color: gray;
+}
+#opt-edit:checked + #edit-mode-help {
+    display: inline;
+}
+#header {
+    height: 50px;
+    background-color: #F6F6F6;
+    color: #696c8a;
+    text-align: center;
+}
+#header h1 {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    line-height: 50px;
+    margin-left: 20px;
+    font-size: 14px;
+    float: left;
+}
+#header p {
+    display: inline-block;
+    font-size: 12px;
+    line-height: 50px;
+    margin: 0;
+    padding: 0;
+}
+#header a {
+    float: right;
+    margin-right: 10px;
+    line-height: 50px;
+    font-weight: bold;
+    color: inherit;
+    text-decoration: none;
+}
+#header img {
+    max-height: 30px;
+    float: right;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+#popup {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    max-width: 250px;
+    padding: 10px 20px;
+    background: #4666E51F;
+    border: 1px solid #4666E5;
+    text-align: left;
+    font-weight: 600;
+    color: #241332;
+    z-index: 999;
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+}
+#popup.displayed {
+    opacity: 1;
+}
+
+.info {
+    font-weight: 600;
+    color: #241332;
+}
+
+.checkbox-label {
+    display: block;
+    background: #f3f3f3;
+    transition: background-color .2s ease-in-out, box-shadow .2s ease-in-out;
+    height: var(--toggle-height);
+    width: var(--toggle-width);
+    border-radius: 50px;
+    position: relative;
+    box-shadow: 0 0 0 2px #dddddd;
+    margin-right: 100px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.checkbox-label > span {
+    min-width: 80px;
+    text-align: start;
+    position: absolute;
+    z-index: 0;
+    font-size: 12px;
+    top: calc(var(--toggle-height) / 2 - 6px);
+    left: calc(var(--toggle-width) + 10px);
+}
+
+.checkbox-label:before {
+    transition: left .2s ease-in-out;
+    content: '';
+    display: block;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    border-radius: 50px;
+    height: var(--toggle-height);
+    width: var(--toggle-height);
+    background: white;
+    box-shadow: 0 3px 3px rgba(0, 0, 0, .2), 0 0 0 2px #dddddd;
+}
+
+.checkbox {
+    position: absolute;
+    left: -5000px;
+}
+
+.checkbox:checked + .checkbox-label {
+    background: var(--bg-blue);
+    box-shadow: 0 0 0 2px var(--bg-blue);
+}
+
+.checkbox:checked+.checkbox-label:before {
+    left: calc(100% - var(--toggle-height));
+}
+
+[data-tool-name="hover-connect"] circle {
+    stroke: white;
+}
