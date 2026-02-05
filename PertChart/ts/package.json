@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@joint/layout-directed-graph": "~4.2.3",
-    "@joint/plus": "file:../../../build/package/joint-plus.tgz"
+    "@joint/plus": "^4.2.2"
   },
   "devDependencies": {
     "concurrently": "4.1.0",

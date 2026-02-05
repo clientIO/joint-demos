@@ -7,7 +7,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "@joint/plus": "file:../../../build/package/joint-plus.tgz",
+    "@joint/plus": "^4.2.2",
     "core-js": "^3.6.4",
     "rxjs": "^6.5.5",
     "vue": "^2.6.11",

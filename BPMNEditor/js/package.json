@@ -13,12 +13,9 @@
   "dependencies": {
     "@joint/format-bpmn-export": "file:../../../build/package-bpmn-export/joint-bpmn-export.tgz",
     "@joint/format-bpmn-import": "file:../../../build/package-bpmn-import/joint-bpmn-import.tgz",
-    "@joint/plus": "file:../../../build/package/joint-plus.tgz"
+    "@joint/plus": "^4.2.2"
   },
   "devDependencies": {
-    "@babel/core": "7.10.4",
-    "@babel/preset-env": "7.10.4",
-    "babel-loader": "8.1.0",
     "concurrently": "4.1.0",
     "copy-webpack-plugin": "9.0.1",
     "core-js": "3.6.1",

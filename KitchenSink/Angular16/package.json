@@ -21,7 +21,7 @@
     "@angular/platform-browser-dynamic": "^16.2.6",
     "@angular/router": "^16.2.6",
     "@joint/layout-directed-graph": "~4.2.3",
-    "@joint/plus": "file:../../../build/package/joint-plus.tgz",
+    "@joint/plus": "^4.2.2",
     "rxjs": "^7.8.1",
     "tslib": "^2.6.2",
     "zone.js": "~0.13.0"

@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@joint/plus": "file:../../../build/package/joint-plus.tgz"
+    "@joint/plus": "^4.2.2"
   },
   "devDependencies": {
     "vite": "^5.3.1"
