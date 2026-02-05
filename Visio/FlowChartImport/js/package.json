@@ -12,8 +12,8 @@
     "start": "webpack serve --config webpack.config.js"
   },
   "dependencies": {
-    "@joint/plus": "file:../../../../build/package/joint-plus.tgz",
-    "@joint/format-visio": "file:../../../../build/package-visio/joint-visio.tgz"
+    "@joint/plus": "^4.2.2",
+    "@joint/format-visio": "^4.2.2"
   },
   "devDependencies": {
     "copy-webpack-plugin": "8.1.0",

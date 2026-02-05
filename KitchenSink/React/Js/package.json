@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@joint/layout-directed-graph": "~4.2.3",
-    "@joint/plus": "file:../../../../build/package/joint-plus.tgz",
+    "@joint/plus": "^4.2.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

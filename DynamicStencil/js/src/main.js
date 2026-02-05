@@ -1,5 +1,6 @@
 // Import JointJS+
 import '@joint/plus/joint-plus.css';
+import '../css/dynamic-stencil.css';
 import * as joint from '@joint/plus';
 
 // Make joint available globally for the existing scripts
@@ -7,7 +8,7 @@ window.joint = joint;
 
 // Load existing scripts in order
 const scripts = [
-    './dynamic-stencil.js'
+    './src/dynamic-stencil.js'
 ];
 
 // Load scripts sequentially

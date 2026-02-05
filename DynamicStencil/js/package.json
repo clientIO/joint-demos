@@ -13,6 +13,6 @@
     "@joint/plus": "^4.2.2"
   },
   "devDependencies": {
-    "vite": "^5.3.1"
+    "vite": "^7.3.1"
   }
 }

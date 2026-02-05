@@ -4,6 +4,7 @@ import * as joint from '@joint/plus';
 
 // Make joint available globally for the existing scripts
 window.joint = joint;
+window.V = joint.V;
 
 // SVG polyfill
 SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function (toElement) {
@@ -12,10 +13,10 @@ SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformTo
 
 // Load existing scripts in order
 const scripts = [
-    './controller.js',
-    './controllers/view-controller.js',
-    './controllers/edit-controller.js',
-    './dijkstra.js'
+    './src/controller.js',
+    './src/controllers/view-controller.js',
+    './src/controllers/edit-controller.js',
+    './src/dijkstra.js'
 ];
 
 // Load scripts sequentially

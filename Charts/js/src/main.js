@@ -7,12 +7,12 @@ window.joint = joint;
 
 // Load existing scripts in order
 const scripts = [
-    './charts-ams-temp.js',
-    './charts-ams-rain.js',
-    './charts-global-traffic.js',
-    './charts-pie-visits.js',
-    './charts-donut.js',
-    './charts-knobs.js'
+    './src/charts-ams-temp.js',
+    './src/charts-ams-rain.js',
+    './src/charts-global-traffic.js',
+    './src/charts-pie-visits.js',
+    './src/charts-donut.js',
+    './src/charts-knobs.js'
 ];
 
 // Load scripts sequentially

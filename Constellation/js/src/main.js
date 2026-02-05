@@ -7,7 +7,7 @@ window.joint = joint;
 
 // Load existing scripts in order
 const scripts = [
-    './constellation.js'
+    './src/constellation.js'
 ];
 
 // Load scripts sequentially

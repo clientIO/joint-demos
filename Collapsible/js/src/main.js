@@ -7,10 +7,10 @@ window.joint = joint;
 
 // Load existing scripts in order
 const scripts = [
-    './fonts.js',
-    './data.js',
-    './shapes.js',
-    './collapsible.js'
+    './src/fonts.js',
+    './src/data.js',
+    './src/shapes.js',
+    './src/collapsible.js'
 ];
 
 // Load scripts sequentially
