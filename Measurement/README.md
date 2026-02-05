@@ -4,7 +4,4 @@ The angles demo allows you to dynamically calculate the angle that is formed whe
 
 ## Available Versions
 
-- [JS](js/)
-
-- [Css](css/)
-- [Src](src/)
+- [JavaScript](./js/)

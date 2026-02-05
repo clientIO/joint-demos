@@ -11,8 +11,8 @@
     "start": "concurrently \"npm run build\" \"webpack serve --config webpack.config.js\""
   },
   "dependencies": {
-    "@joint/format-bpmn-export": "file:../../../build/package-bpmn-export/joint-bpmn-export.tgz",
-    "@joint/format-bpmn-import": "file:../../../build/package-bpmn-import/joint-bpmn-import.tgz",
+    "@joint/format-bpmn-export": "^4.2.2",
+    "@joint/format-bpmn-import": "^4.2.2",
     "@joint/plus": "^4.2.2"
   },
   "devDependencies": {

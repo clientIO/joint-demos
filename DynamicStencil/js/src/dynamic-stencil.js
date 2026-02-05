@@ -12,7 +12,7 @@ distributed by client IO. See the LICENSE file.
 (function(joint) {
 
     var PREVIEW_PADDING = 10;
-    var ADD_TO_STENCIL_ICON = './assets/add-to-stencil.svg';
+    var ADD_TO_STENCIL_ICON = '../assets/add-to-stencil.svg';
 
     var SubgraphShape = joint.shapes.standard.BorderedImage;
 

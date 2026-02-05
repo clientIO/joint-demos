@@ -4,5 +4,5 @@ This timeline demo not only takes you back in time and highlights key milestones
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

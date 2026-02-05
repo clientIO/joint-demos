@@ -4,5 +4,5 @@ Wondering how to process images in a node-based manner? Use our image processing
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

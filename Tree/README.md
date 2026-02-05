@@ -4,8 +4,4 @@ The Tree Graphs demo utilizes the JointJS+ TreeLayout plugin in order to create 
 
 ## Available Versions
 
-- [JS](js/)
-
-- [Css](css/)
-- [Images](images/)
-- [Src](src/)
+- [JavaScript](./js/)

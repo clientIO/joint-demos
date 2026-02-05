@@ -1,18 +1,41 @@
-# JointJS+ Image Processor Application
+# Image Processor (JavaScript)
 
-Process your images by combining and filtering them to get something new.
+Image Processor is a JointJS+ demo application that provides a node-based image filtering and transforming tool. The application allows the creation of complex processing workflows with different steps.
 
-This application provides node-based image filtering and transforming tool. The application allows the creating of a complex processing workflow with different steps. The built-in example provides a workflow for the TTRPG token creation.
 ## Running the application
 
-Demo requires `Node.js` and `npm`
+To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).
 
+### Private npm registry
+
+By default, this application uses JointJS+ from our private npm registry. This example assumes that you have already set up your npm to access JointJS+ package and put your authentication token in the `JOINTJS_NPM_TOKEN` environment variable.
+
+Learn more about our [private npm registry here.](https://docs.jointjs.com/learn/help-center/npm-registry)
+
+### JointJS+ package from local path
+
+If you don't have access to JointJS+ private npm registry but have it downloaded locally, you can install it from a local path by changing the `package.json` file. In that case, replace the line:
+
+```json
+    "@joint/plus": "^4.2.2",
 ```
+
+with
+
+```json
+    "@joint/plus": "file:path-to-the-archive/joint-plus.tgz",
+```
+
+### Install dependencies
+
+After setting up access to JointJS+ package, install the dependencies by running:
+
+```bash
 npm install
-npm start
 ```
 
-`npm start` runs the Webpack bundle. Resulted js files are being hosted by webpack-dev-server.
+And then start the application with:
 
-Due to Same-Origin policy implemented in the majority of browsers to prevent content from being accessed if the file exists on another domain, it is recommended to access the application through a **Web server**. The application might work only partially when viewed from a file-system location.
-
+```bash
+npm run start
+```

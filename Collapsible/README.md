@@ -4,7 +4,4 @@ The Collapse / Expand demo utilizes the JointJS+ TreeLayout while providing the 
 
 ## Available Versions
 
-- [JS](js/)
-
-- [Css](css/)
-- [Src](src/)
+- [JavaScript](./js/)

@@ -4,5 +4,6 @@ Need to create interactive wiring diagrams? Explore our Cables demo, built with 
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)
+

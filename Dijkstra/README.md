@@ -4,7 +4,4 @@ The Shortest path demo demonstrates how to find the shortest path efficiently in
 
 ## Available Versions
 
-- [JS](js/)
-
-- [Css](css/)
-- [Src](src/)
+- [JavaScript](./js/)

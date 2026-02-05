@@ -4,5 +4,5 @@ The Tree Stencil demo brings the power of the JointJS+ TreeLayout to the Stencil
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

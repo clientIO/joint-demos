@@ -4,5 +4,5 @@ The MindMap demo shows a diagram used to visually organize information into a hi
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

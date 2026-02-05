@@ -4,5 +4,5 @@ The Tokens demo showcases visualization of Token events between nodes, and their
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

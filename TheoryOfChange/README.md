@@ -4,5 +4,5 @@ Does your upcoming project require an in-depth analysis of potential outcomes an
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

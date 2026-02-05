@@ -4,5 +4,5 @@ The Database demo application serves as a valuable example of an advanced visual
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

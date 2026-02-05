@@ -4,5 +4,5 @@ The demo displays the popular Kanban board diagram type. It's written in JavaScr
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

@@ -4,5 +4,5 @@ The Organizational Chart application is a useful example of a JointJS+ demo app 
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

@@ -4,5 +4,5 @@ The Data mapping application is a helpful example of JointJS+ that highlights so
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

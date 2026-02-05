@@ -1,8 +1,8 @@
-# BPMN
+# BPMN Pools
 
-The BPMN demo app showcases a standardized method of modeling a business process from beginning to end. It's written in TypeScript but can be seamlessly integrated with React, Vue, Angular, Svelte, or LightningJS.
+Experience an enhanced implementation of BPMN Pools, Swimlanes, and Milestones that utilizes the drag & drop feature for an improved user experience. This demo demonstrates how to interact with swimlanes and phases, including how to insert new ones, reorder, and resize them, with automatic adjustments based on content. Additionally, explore other useful features like content awareness, which prevents swimlanes and milestones from being resized beyond their content boundaries. The demo also includes previews and highlights to clarify the outcomes of your actions, such as highlighting target lanes and phases for dropping items.
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

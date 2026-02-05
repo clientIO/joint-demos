@@ -4,7 +4,7 @@ The chatbot demo – written in Angular, React, Vue and Typescript – is a prac
 
 ## Available Versions
 
-- [Angular16](Angular16/)
-- [Reactreduxts](ReactReduxTs/)
-- [Reactts](ReactTs/)
-- [Vuets](VueTs/)
+- [Angular16](./Angular16/)
+- [ReactReduxTS](./ReactReduxTs/)
+- [ReactTS](./ReactTs/)
+- [VueTS](./VueTs/)

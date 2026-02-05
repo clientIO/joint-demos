@@ -4,5 +4,5 @@ This demo showcases a Fishbone diagram, also known as an Ishikawa or cause-and-e
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

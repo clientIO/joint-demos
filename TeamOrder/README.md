@@ -4,5 +4,5 @@ Do you need to form pairs from a list of team members? Take inspiration from thi
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

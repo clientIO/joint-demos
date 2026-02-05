@@ -4,5 +4,5 @@ The Rich Text Editor allows you to change font, size or color and use different 
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

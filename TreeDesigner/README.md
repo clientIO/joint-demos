@@ -4,5 +4,5 @@ The Tree Designer application is a graphical tool for creating and modifying tre
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

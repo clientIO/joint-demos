@@ -4,5 +4,5 @@ The Planogram demo is a useful example of a visual application built with JointJ
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

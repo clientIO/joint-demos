@@ -4,8 +4,4 @@ The Dynamic Stencil demo provides the user with a palette of JointJS elements wh
 
 ## Available Versions
 
-- [JS](js/)
-
-- [Assets](assets/)
-- [Css](css/)
-- [Src](src/)
+- [JavaScript](./js/)

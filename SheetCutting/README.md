@@ -4,5 +4,5 @@ The Sheet Cutting application is a powerful solution for generating and optimizi
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)

@@ -4,7 +4,4 @@ The Vector Editor demo is an application which allows the user to draw and edit 
 
 ## Available Versions
 
-- [JS](js/)
-
-- [Css](css/)
-- [Src](src/)
+- [JavaScript](./js/)

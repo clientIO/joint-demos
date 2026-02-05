@@ -4,5 +4,5 @@ Effective project management relies on clear visualization techniques. One such 
 
 ## Available Versions
 
-- [JS](js/)
-- [TypeScript](ts/)
+- [JavaScript](./js/)
+- [TypeScript](./ts/)
