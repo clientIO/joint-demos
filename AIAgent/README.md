@@ -4,5 +4,5 @@ Enable your users to design AI agents through an interactive, drag-and-drop inte
 
 ## Available Versions
 
-- [JavaScript](js/)
-- [TypeScript](ts/)
+- [JavaScript](.js/)
+- [TypeScript](.ts/)

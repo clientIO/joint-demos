@@ -12,14 +12,11 @@
   },
   "dependencies": {
     "@joint/layout-directed-graph": "~4.2.3",
-    "@joint/plus": "file:../../../build/package/joint-plus.tgz",
+    "@joint/plus": "^4.2.2",
     "showdown": "^2.1.0"
   },
   "devDependencies": {
-    "@babel/core": "7.10.4",
-    "@babel/preset-env": "7.10.4",
     "@types/showdown": "^2.0.6",
-    "babel-loader": "8.1.0",
     "concurrently": "4.1.0",
     "copy-webpack-plugin": "9.0.1",
     "core-js": "3.6.1",
