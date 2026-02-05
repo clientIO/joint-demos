@@ -1,24 +1,30 @@
 import { dia } from '@joint/plus';
 import Theme from '../theme';
+
 /**
  * Pulse highlighter view that creates a pulsing border effect
  * around the highlighted element.
  */
 export default class PulseEffect extends dia.HighlighterView {
+    
     pathAnimation = null;
+    
     preinitialize() {
         this.tagName = 'path';
         this.attributes = {
             'pointer-events': 'none'
         };
     }
+    
     /**
      * Sets the attributes of the path element for the pulse effect.
      */
     prepareAnimationPath() {
+        
         const node = this.cellView.model;
         const path = node.getOutlinePathData();
         const { strokeWidth = 1, } = this.options;
+        
         this.vel.attr({
             d: path,
             fill: 'none',
@@ -29,9 +35,13 @@ export default class PulseEffect extends dia.HighlighterView {
             strokeLinecap: 'round',
         });
     }
+    
     highlight() {
+        
         this.prepareAnimationPath();
+        
         const { duration = 2, repeatCount = Infinity, pulseGradientStops = Theme.FlowPulseGradientStops, } = this.options;
+        
         // Define a linear gradient for the pulsing effect
         // (if it already exists, its ID is reused)
         const gradientId = this.cellView.paper?.defineGradient({
@@ -46,9 +56,11 @@ export default class PulseEffect extends dia.HighlighterView {
                 gradientTransform: 'rotate(-67)'
             }
         });
+        
         // Apply the gradient to the animated path
         const animatedPath = this.el;
         animatedPath.setAttribute('stroke', `url(#${gradientId})`);
+        
         // Animate the stroke dashoffset to create a pulsing effect
         const timing = {
             duration: duration * 1000,
@@ -83,6 +95,7 @@ export default class PulseEffect extends dia.HighlighterView {
                 strokeDashoffset: '0',
             },
         ];
+        
         this.pathAnimation = animatedPath.animate(keyframes, timing);
     }
 }

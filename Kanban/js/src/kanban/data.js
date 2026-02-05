@@ -1,4 +1,5 @@
 import { TaskState } from './models';
+
 export const tasks = [{
         id: 'task-1',
         name: 'New EULA',
@@ -76,6 +77,7 @@ export const tasks = [{
 - Distribute license keys
 `.trim()
     }];
+
 export const dependencies = [{
         id: 'dep-1',
         source: 'task-2',
@@ -85,6 +87,7 @@ export const dependencies = [{
         source: 'task-6',
         target: 'task-5'
     }];
+
 export const columns = [{
         name: 'TODO',
         state: TaskState.ToDo,

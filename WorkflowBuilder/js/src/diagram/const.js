@@ -1,11 +1,14 @@
 import { Attribute as SystemAttribute } from '../system/diagram/const';
 export { LAYOUT_BATCH_NAME } from '../system/diagram/const';
+
 /**
  * Node attribute names
  */
 export const Attribute = {
+    
     // Re-export system attributes
     ...SystemAttribute,
+    
     /**
      * Can a shape be selected?
      */

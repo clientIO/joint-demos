@@ -2,6 +2,7 @@ import { util } from '@joint/plus';
 import { Attribute } from '../const';
 import Theme, { edgeLabelAttributes } from '../theme';
 import { SystemEdge } from '../../system/diagram/models';
+
 /** SVG markup for the edge */
 const edgeMarkup = util.svg /* xml */ `
     <path @selector="wrapper"
@@ -17,19 +18,25 @@ const edgeMarkup = util.svg /* xml */ `
         pointer-events="none"
     />
 `;
+
 /** SVG markup for the edge label */
 const edgeLabelMarkup = util.svg /* xml */ `
     <rect @selector="labelBody"/>
     <text @selector="labelText"/>
 `;
+
 const ICON = 'assets/icons/condition.svg';
+
 export default class Edge extends SystemEdge {
+    
     // The type remains the same (explicitly set it here for clarity).
     // We overriding the default engine Edge with our own Edge class.
     static type = SystemEdge.type;
+    
     preinitialize() {
         this.markup = edgeMarkup;
     }
+    
     defaults() {
         const attributes = {
             // App-specific attributes
@@ -76,13 +83,17 @@ export default class Edge extends SystemEdge {
                 }
             }
         };
+        
         return util.defaultsDeep(attributes, super.defaults());
     }
+    
     initialize(attributes, options) {
         super.initialize(attributes, options);
+        
         this.updateLinkLabel();
         this.on(`change:${Attribute.EdgeCondition}`, () => this.updateLinkLabel());
     }
+    
     /**
      * @returns The condition of the edge from the edge model.
      * @see {@link Attribute.EdgeCondition}
@@ -91,22 +102,27 @@ export default class Edge extends SystemEdge {
         const condition = this.get(Attribute.EdgeCondition);
         return condition != null ? String(condition) : null;
     }
+    
     /**
      * Updates the link label based on the condition.
      */
     updateLinkLabel() {
+        
         const condition = this.getCondition();
         const maxWidth = 200; // Maximum width for the label
+        
         if (condition == null) {
             // No condition, no label
             this.labels([]);
             return;
         }
+        
         const text = condition || '...';
         const wrappedText = util.breakText(text, { width: maxWidth }, edgeLabelAttributes, {
             ellipsis: true,
             maxLineCount: 1
         });
+        
         this.set({
             labels: [{
                     attrs: {
@@ -117,6 +133,7 @@ export default class Edge extends SystemEdge {
                 }],
         });
     }
+    
     /**
      * @returns Inspector config for the edge.
      * @see {@link InspectorConfig}

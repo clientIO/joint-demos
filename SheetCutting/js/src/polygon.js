@@ -1,5 +1,8 @@
 import { dia, util, g, V } from '@joint/plus';
+
 const POLYGON_SELECTOR = 'body';
+
+
 // For debugging purposes (see the shape defaults() too)
 // const polygonMarkup = util.svg`
 //     <rect @selector="bg" fill="#5B9279" />
@@ -9,19 +12,24 @@ const POLYGON_SELECTOR = 'body';
 const polygonMarkup = util.svg /* xml */ `
     <polygon @selector="${POLYGON_SELECTOR}"/>
 `;
+
 const fillPatternMarkup = util.svg /* xml */ `
     <rect width="12" height="12" fill="#FFF" stroke="none" />
     <path d="M 0 0 L 12 12 M 6 -6 L 18 6 M -6 6 L 6 18" />
 `;
+
 export class Polygon extends dia.Element {
+    
     preinitialize() {
         this.markup = polygonMarkup;
     }
+    
     initialize(attributes, options) {
         super.initialize(attributes, options);
         this.on('change:rotation', (_, rotation) => this.setAngle(rotation, { ignoreHistory: true }));
         this.setAngle(this.get('rotation'));
     }
+    
     defaults() {
         return {
             ...dia.Element.prototype.defaults,
@@ -58,6 +66,7 @@ export class Polygon extends dia.Element {
             }
         };
     }
+    
     setAngle(angle, setOptions = {}) {
         const newPolyline = this.getGeometry({ angle });
         const newBBox = newPolyline.bbox();
@@ -86,6 +95,7 @@ export class Polygon extends dia.Element {
             cy: newCy + dy
         }, setOptions);
     }
+    
     getGeometry({ angle = this.get('rotation') } = {}) {
         const { geometry, cx0, cy0 } = this.attributes;
         if (!geometry)
@@ -98,6 +108,7 @@ export class Polygon extends dia.Element {
         }
         return polygon;
     }
+    
     getGeometryAbsolute(options = {}) {
         const { angle = this.get('rotation'), position = this.position() } = options;
         const geometry = this.getGeometry({ angle: angle });
@@ -106,9 +117,11 @@ export class Polygon extends dia.Element {
         const ty = position.y + cy - cy0;
         return geometry.translate(tx, ty);
     }
+    
     getCenterOfRotation() {
         return new g.Point(this.get('cx'), this.get('cy'));
     }
+    
     addMarker() {
         this.attr(['body', 'sourceMarker'], {
             markup: util.svg /* xml */ `
@@ -119,6 +132,7 @@ export class Polygon extends dia.Element {
         }, { rewrite: true });
         return this;
     }
+    
     isWithinBBox(bbox, options = {}) {
         const { angle = this.get('rotation'), position } = options;
         const geometry = this.getGeometryAbsolute({ angle, position });
@@ -128,8 +142,11 @@ export class Polygon extends dia.Element {
             || elBBox.x + elBBox.width > bbox.x + bbox.width
             || elBBox.y + elBBox.height > bbox.y + bbox.height;
     }
+    
     calcArea() {
+        
         const vertices = this.getGeometry().points;
+        
         let total = 0;
         for (let i = 0, l = vertices.length; i < l; i++) {
             const addX = vertices[i].x;
@@ -139,9 +156,12 @@ export class Polygon extends dia.Element {
             total += (addX * addY * 0.5);
             total -= (subX * subY * 0.5);
         }
+        
         return Math.abs(total);
     }
+    
     static selector = POLYGON_SELECTOR;
+    
     static fromPathData(d) {
         const path = new g.Path(V.normalizePathData(d));
         const { x, y, width, height } = path.bbox();

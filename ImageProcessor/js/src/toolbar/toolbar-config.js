@@ -1,6 +1,9 @@
 import { ui } from '@joint/plus';
+
 export function getToolbarConfig() {
+    
     return {
+        
         groups: {
             'left': {
                 index: 1,
@@ -11,6 +14,7 @@ export function getToolbarConfig() {
                 align: ui.Toolbar.Align.Right
             },
         },
+        
         tools: [
             {
                 type: 'button',

@@ -3,14 +3,20 @@
  * @see https://docs.jointjs.com/api/dia/Paper#options
  */
 import { shapes, dia } from '@joint/plus';
+
 import Theme from '../diagram/theme';
+
 export const gridSize = 10;
+
 export const drawGrid = {
     name: 'dot',
     args: { thickness: 0.8 }
 };
+
 export const async = true;
+
 export const preventDefaultBlankAction = false;
+
 /**
  * A temporary link used only during interactive link creation.
  * (e.g., when dragging from a magnet or starting a connection from a menu)
@@ -32,25 +38,33 @@ export const defaultLink = () => new shapes.standard.Link({
         },
     }
 });
+
+
 export const connectionStrategy = (end, _endView, _endMagnet, _coords, _link, endType) => {
+    
     end.connectionPoint = {
         name: 'anchor'
     };
+    
     if (endType === 'target') {
         end.anchor = {
             name: 'left'
         };
     }
+    
     if (endType === 'source') {
         end.anchor = {
             name: 'right'
         };
     }
+    
     return end;
 };
+
 export const snapLinks = {
     radius: 60
 };
+
 // Disable the built-in highlighting effects
 export const highlighting = {
     [dia.CellView.Highlighting.CONNECTING]: false,

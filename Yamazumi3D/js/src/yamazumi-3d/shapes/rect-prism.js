@@ -1,7 +1,10 @@
 import { dia, util } from '@joint/plus';
+
 const TYPE = 'yamazumi.RectPrism';
+
 export class RectPrism extends dia.Element {
     static bottomMargin = 2;
+    
     constructor(attributes, options) {
         attributes.labelColor = attributes.labelColor || '#000000';
         const { topColor, sideColor, frontColor, depth, label, labelColor } = attributes;
@@ -25,6 +28,7 @@ export class RectPrism extends dia.Element {
             }
         }, attributes), options);
     }
+    
     preinitialize() {
         this.markup = util.svg /* xml */ `
             <path @selector="top"/>
@@ -33,6 +37,7 @@ export class RectPrism extends dia.Element {
             <text @selector="label"/>
         `;
     }
+    
     defaults() {
         return {
             ...super.defaults,
@@ -68,5 +73,7 @@ export class RectPrism extends dia.Element {
         };
     }
 }
+
 export class RectPrismView extends dia.ElementView {
 }
+

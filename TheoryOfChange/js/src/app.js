@@ -1,5 +1,6 @@
 import { dia, shapes, V, util, linkTools, elementTools, connectionStrategies, layout, ui } from '@joint/plus';
 import { theoryOfChange } from './data';
+
 const config = {
     headerHeight: 120,
     minHeight: 800,
@@ -32,7 +33,9 @@ const config = {
         gap: 10,
     }
 };
+
 const StackLayout = layout.StackLayout;
+
 const Button = shapes.standard.Rectangle.define('Button', {
     attrs: {
         root: {
@@ -54,9 +57,13 @@ const Button = shapes.standard.Rectangle.define('Button', {
         }
     }
 });
+
 const cellNamespace = { ...shapes, Button };
+
 export const init = () => {
+    
     const form = document.forms.namedItem('form');
+    
     const graph = new dia.Graph({}, { cellNamespace });
     const paper = new dia.Paper({
         el: document.getElementById('paper'),
@@ -149,6 +156,8 @@ export const init = () => {
             return true;
         }
     });
+    
+    
     const stackLayoutOptions = {
         direction: StackLayout.Directions.TopBottom,
         alignment: StackLayout.Alignments.End,
@@ -162,6 +171,7 @@ export const init = () => {
             element.position(x, y, { ...opt, deep: true });
         }
     };
+    
     const stackLayoutView = new ui.StackLayoutView({
         paper,
         validateMoving: ({ targetStack, sourceStack }) => {
@@ -192,6 +202,7 @@ export const init = () => {
             const dx = config.assumptions.width + 2 * config.level1.margin;
             const size = targetStack.bbox.width - dx;
             const x = -targetStack.bbox.width / 2 + dx;
+            
             const preview = V('path', {
                 stroke: '#C0692A',
                 strokeWidth: 5,
@@ -202,6 +213,7 @@ export const init = () => {
             return preview.node;
         }
     });
+    
     const assumptionBackground = V('rect').attr({
         stroke: '#F5D6C0',
         strokeWidth: 1,
@@ -210,6 +222,7 @@ export const init = () => {
         rx: 10,
         ry: 10
     });
+    
     const headerLabel = V('text').attr({
         fill: '#666',
         fontFamily: 'sans-serif',
@@ -218,28 +231,34 @@ export const init = () => {
         textAnchor: 'middle',
         pointerEvents: 'none',
     });
+    
     const assumptionBackgrounds = [
         assumptionBackground.clone(),
         assumptionBackground.clone(),
         assumptionBackground.clone()
     ];
+    
     const assumptionLabels = [
         headerLabel.clone().attr('fill', '#E68946').text('Assumptions'),
         headerLabel.clone().attr('fill', '#E68946').text('Assumptions'),
         headerLabel.clone().attr('fill', '#E68946').text('Assumptions')
     ];
+    
     const stackLabels = [
         headerLabel.clone().text('Solutions'),
         headerLabel.clone().text('Determinants'),
         headerLabel.clone().text('Problems')
     ];
+    
     assumptionBackgrounds.forEach((rect) => rect.appendTo(paper.getLayerView(dia.Paper.Layers.BACK).el));
     assumptionLabels.forEach((label) => label.appendTo(paper.getLayerView(dia.Paper.Layers.BACK).el));
     stackLabels.forEach((label) => label.appendTo(paper.getLayerView(dia.Paper.Layers.BACK).el));
+    
     const removeButtonMarkup = util.svg /* xml */ `
         <circle r="7" stroke="#FFFFFF" fill="#C0692A" cursor="pointer"/>
         <path d="M -3 -3 3 3 M -3 3 3 -3" fill="none" stroke="#FFFFFF" stroke-width="2" pointer-events="none"/>
     `;
+    
     paper.on('element:pointerclick', (elementView) => {
         const element = elementView.model;
         if (element.get('type') === 'Button') {
@@ -292,9 +311,11 @@ export const init = () => {
                             const siblingIdx = path.at(-1);
                             const [removedEl] = siblings.splice(siblingIdx, 1);
                             const removedIds = getAllElementDescendants(removedEl).map(el => el.id);
+                            
                             theoryOfChange.assumptionLinks = theoryOfChange.assumptionLinks.filter(link => {
                                 return !removedIds.includes(link.fromId) && !removedIds.includes(link.toId);
                             });
+                            
                             buildWithCurrentOptions();
                         }
                     }
@@ -303,9 +324,11 @@ export const init = () => {
         });
         elementView.addTools(toolsView);
     });
+    
     paper.on('blank:pointerclick', () => {
         paper.removeTools();
     });
+    
     paper.on('element:pointerdblclick', (elementView) => {
         const path = elementView.model.get('path');
         if (!path)
@@ -313,8 +336,10 @@ export const init = () => {
         const data = util.getByPath(theoryOfChange, path);
         if (!data)
             return;
+        
         const textarea = document.createElement('textarea');
         textarea.value = data.description;
+        
         const dialog = new ui.Dialog({
             id: 'edit-description-dialog',
             theme: 'default',
@@ -326,19 +351,23 @@ export const init = () => {
                 { action: 'save', content: 'Close' },
             ],
         });
+        
         dialog.on('action:save', () => {
             data.description = textarea.value;
             buildWithCurrentOptions();
             dialog.close();
         });
+        
         dialog.open();
         textarea.focus();
         textarea.select();
     });
+    
     const assumptionCounter = (() => {
         let count = theoryOfChange.assumptionLinks.length;
         return () => ++count;
     })();
+    
     paper.on('link:connect', (linkView) => {
         const link = linkView.model;
         theoryOfChange.assumptionLinks.push({
@@ -353,6 +382,7 @@ export const init = () => {
         });
         buildWithCurrentOptions();
     });
+    
     paper.on('link:pointerdown', (linkView) => {
         if (!linkView.model.get('preview'))
             return;
@@ -365,6 +395,7 @@ export const init = () => {
         linkView.getEndView('source').el.classList.remove('available');
         paper.el.classList.remove('unavailable');
     });
+    
     paper.on('link:pointerclick', (linkView) => {
         paper.removeTools();
         const removeButton = new linkTools.Remove({
@@ -381,7 +412,9 @@ export const init = () => {
             tools: [removeButton]
         }));
     });
+    
     buildWithCurrentOptions();
+    
     // Create the elements for the Theory of Change
     function buildElements(items, stackIndex, level1Key, level2Key, level3Key, options = {}) {
         const level1Elements = [];
@@ -636,6 +669,7 @@ export const init = () => {
         }
         return level1Elements.concat(level2Elements, level3Elements);
     }
+    
     // Lay out all the cells in columns, position the assumption rectangles and the stack labels
     function runLayout(graph) {
         const elements = graph.getElements().filter(el => !el.isEmbedded());
@@ -674,9 +708,11 @@ export const init = () => {
                 });
             }
         });
+        
         const result = StackLayout.layout(elements, stackLayoutOptions);
         stackLayoutView.model.stacks = result.stacks;
         stackLayoutView.model.bbox = result.bbox;
+        
         // Layout the assumption rectangles
         result.stacks.forEach(function (stack, index, _stacks) {
             if (index >= assumptionBackgrounds.length)
@@ -694,24 +730,33 @@ export const init = () => {
                 fontSize: 11
             });
         });
+        
         stackLabels.forEach((label, index) => {
             const stack = result.stacks[index];
             const { x, y } = stack.bbox;
+            
             const level1Width = config.level3.width + 2 * config.level3.margin + 2 * config.level2.margin;
+            
             label.attr({
                 x: x + config.assumptions.width + config.level1.margin * 2 + level1Width / 2,
                 y: y - config.headerHeight / 2
             });
         });
+        
         return result.bbox;
     }
+    
     // Create the cells for the Theory of Change
     function buildTheoryOfChange(data, buildElementOptions = {}) {
+        
         const graph = new dia.Graph({}, { cellNamespace });
+        
         const elements = [];
         elements.push(...buildElements(data.solutions, 0, 'solutions', 'components', 'products', buildElementOptions), ...buildElements(data.determinants, 1, 'determinants', 'specificDevelopmentObjectives', 'impactIndicators', buildElementOptions), ...buildElements(data.problems, 2, 'problems', 'generalDevelopmentObjective', 'impactIndicators', buildElementOptions));
         graph.addCells(elements);
+        
         const bbox = runLayout(graph);
+        
         const inputs = new shapes.standard.Rectangle({
             id: 'inputs',
             position: {
@@ -745,9 +790,13 @@ export const init = () => {
             },
             columnIndex: -1
         });
+        
         graph.addCell(inputs);
+        
         const links = theoryOfChange.assumptionLinks.reduce((acc, assumptionLink) => {
+            
             let router, connector, sourceAnchor, targetAnchor, sourceConnectionPoint, targetPriority;
+            
             const source = graph.getCell(assumptionLink.fromId);
             const target = graph.getCell(assumptionLink.toId);
             if (!source || !target) {
@@ -760,10 +809,12 @@ export const init = () => {
                 // Do not take into account links between columns that are not adjacent
                 return acc;
             }
+            
             const sourceParent = source.getParentCell();
             const targetParent = target.getParentCell();
             const sourceLevel = source.get('level');
             const targetLevel = target.get('level');
+            
             if (sourceParent && sourceParent === targetParent) {
                 // sibling to sibling
                 router = { name: 'normal' };
@@ -808,6 +859,7 @@ export const init = () => {
                 };
                 targetPriority = true;
             }
+            
             const link = new shapes.standard.Link({
                 id: assumptionLink.id,
                 source: { id: source.id, anchor: sourceAnchor, connectionPoint: sourceConnectionPoint },
@@ -853,17 +905,23 @@ export const init = () => {
                         }
                     }]
             });
+            
             acc.push(link);
             return acc;
         }, []);
+        
         // reset the cell ownership
         graph.resetCells([]);
+        
         return elements.concat([inputs]).concat(links);
     }
+    
     // Form controls
+    
     ['inputLevel', 'inputLevel1AddButton', 'inputLevel2AddButton', 'inputLevel3AddButton'].forEach(name => {
         form[name].addEventListener('change', () => buildWithCurrentOptions());
     });
+    
     function buildWithCurrentOptions() {
         graph.syncCells(buildTheoryOfChange(theoryOfChange, {
             maxLevel: parseInt(form['inputLevel'].value),
@@ -878,6 +936,7 @@ export const init = () => {
         });
     }
 };
+
 function getAllElementDescendants(element) {
     const descendants = [element];
     if (element.hasOwnProperty('components')) {
@@ -915,5 +974,6 @@ function getAllElementDescendants(element) {
             descendants.push(...getAllElementDescendants(generalDevelopmentObjective));
         });
     }
+    
     return descendants;
 }

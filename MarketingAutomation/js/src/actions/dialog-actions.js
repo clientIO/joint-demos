@@ -1,33 +1,41 @@
 import { ui } from '@joint/plus';
 import { State } from '../const';
+
 /**
  * Opens the given dialog and manages its state within the application.
  */
 export function openDialog(app, dialog) {
     const { state } = app;
+    
     state.set(State.DialogOpened, dialog);
     dialog.on('close', () => {
         state.delete(State.DialogOpened);
     });
+    
     dialog.open();
 }
+
 /**
  * Closes the currently opened dialog, if any.
  */
 export function closeDialog(app) {
     const { state } = app;
+    
     const dialog = state.get(State.DialogOpened);
     if (dialog instanceof ui.Dialog) {
         dialog.close();
     }
 }
+
 /**
  * Opens a mock dialog indicating that the feature is not implemented yet.
  */
 export function openMockDialog(app) {
     const { state } = app;
+    
     if (state.get(State.DialogOpened))
         return;
+    
     const dialog = new ui.Dialog({
         width: 500,
         title: 'Automation offline. UI only.',
@@ -42,6 +50,8 @@ export function openMockDialog(app) {
             }
         ]
     });
+    
     dialog.el.classList.add('mock-dialog');
     openDialog(app, dialog);
 }
+

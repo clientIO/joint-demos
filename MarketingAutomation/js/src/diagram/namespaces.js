@@ -2,6 +2,7 @@ import { shapes as defaultCellNamespace } from '@joint/plus';
 import { systemModelNamespace } from '../system/diagram/namespaces';
 import { Trigger, Branch, Action, Note, Edge, Delay, Button, ButtonLine, Placeholder } from './models';
 import { TriggerView, AnimatedElementView, AnimatedLinkView } from './views';
+
 /**
  * Models for the application shapes
  */
@@ -12,6 +13,7 @@ export const applicationModelNamespace = {
     [Delay.type]: Delay,
     [Note.type]: Note,
 };
+
 /**
  * Views for the application shapes
  */
@@ -22,6 +24,7 @@ export const applicationViewNamespace = {
     [`${Note.type}View`]: AnimatedElementView,
     [`${Trigger.type}View`]: TriggerView,
 };
+
 /**
  * Add any system shape model overrides here if needed in the future
  */
@@ -31,9 +34,11 @@ export const systemModelOverrides = {
     [Button.type]: Button,
     [Placeholder.type]: Placeholder,
 };
+
 export const systemViewNamespaceOverrides = {
     [`${Edge.type}View`]: AnimatedLinkView,
 };
+
 /**
  * Cell namespace to be used with JointJS graph and paper
  */

@@ -1,3 +1,4 @@
+
 // Toolbar
 export function updateToolbarButtons(app, ideas) {
     const { toolbar } = app;
@@ -26,5 +27,7 @@ export function updateToolbarButtons(app, ideas) {
             colorWidget.setValue('#FFFFFF', { silent: true });
             break;
         }
+        
     }
 }
+

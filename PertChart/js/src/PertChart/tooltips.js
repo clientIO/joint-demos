@@ -1,4 +1,5 @@
 import { ui } from '@joint/plus';
+
 export function initializeTooltips(rootEl) {
     const tooltip = new ui.Tooltip({
         rootTarget: rootEl,
@@ -7,5 +8,6 @@ export function initializeTooltips(rootEl) {
         padding: 10,
         animation: { delay: '200ms' }
     });
+    
     return { tooltip };
 }

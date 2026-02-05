@@ -22,6 +22,7 @@ import { Multiplication } from './math/multiplication';
 import { Subtraction } from './math/subtraction';
 import { Threshold } from './transform/threshold';
 import { FillContours } from './transform/fill-contours';
+
 export function createNodeByType(type) {
     switch (type) {
         case 'processor.Display':
@@ -74,8 +75,10 @@ export function createNodeByType(type) {
             return new FillContours();
         default:
             throw new Error('Unknown node');
+        
     }
 }
+
 export function createNodeShape(node) {
     const portsIn = node.get('inputSettings').map((input, i) => {
         return {
@@ -86,6 +89,7 @@ export function createNodeShape(node) {
             }
         };
     });
+    
     const portsOut = node.get('outputSettings').map((output, i) => {
         return {
             group: 'out',
@@ -95,7 +99,9 @@ export function createNodeShape(node) {
             }
         };
     });
+    
     node.addPorts([...portsIn, ...portsOut]);
+    
     const attributes = {
         clipPath: {
             id: 'clip' + node.id
@@ -112,6 +118,8 @@ export function createNodeShape(node) {
             class: `node-help ${node.get('group')}`
         }
     };
+    
     node.attr(attributes);
+    
     return node;
 }

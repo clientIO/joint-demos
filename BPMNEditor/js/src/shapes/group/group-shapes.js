@@ -4,9 +4,12 @@ import { groupAppearanceConfig, GroupShapeTypes } from './group-config';
 import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
+
 class Group extends shapes.bpmn2.Group {
+    
     isResizable = true;
     labelPath = 'label/text';
+    
     defaults() {
         return util.defaultsDeep({
             type: GroupShapeTypes.GROUP,
@@ -23,9 +26,11 @@ class Group extends shapes.bpmn2.Group {
             }
         }, super.defaults);
     }
+    
     copyFrom(element) {
         const { x, y, width, height } = element.getBBox();
         const label = element.attr(['label', 'text']) || '';
+        
         this.prop({
             position: { x, y },
             size: { width, height },
@@ -43,35 +48,44 @@ class Group extends shapes.bpmn2.Group {
             }
         });
     }
+    
     getShapeList() {
         return [];
     }
+    
     getAppearanceConfig() {
         return groupAppearanceConfig;
     }
+    
     getHaloHandles() {
         return [
             handles.ConnectAnnotation
         ];
     }
+    
     validateConnection(targetModel) {
         return targetModel?.get('type') === AnnotationShapeTypes.ANNOTATION;
     }
+    
     validateEmbedding(_parent) {
         return false;
     }
+    
     getLabelEditorStyles(paper) {
         const labelAttrs = this.attr(['label']) || {};
         const textWrap = labelAttrs.textWrap || { width: 0, height: 0 };
         const rx = this.attr(['body', 'rx']) || 0;
         const strokeWidth = this.attr(['body', 'strokeWidth']) || 0;
+        
         const { x, y, width } = this.getBBox().moveAndExpand({
             x: -strokeWidth / 2,
             y: -strokeWidth / 2,
             width: strokeWidth,
             height: strokeWidth
         });
+        
         const borderWidth = parseFloat(labelEditorWrapperStyles.borderWidth);
+        
         return {
             padding: `${textWrap.height / -2 - borderWidth}px ${textWrap.width / -2}px`,
             transform: V.matrixToTransformString(paper.matrix().translate(x, y)),
@@ -86,9 +100,11 @@ class Group extends shapes.bpmn2.Group {
             justifyContent: 'start'
         };
     }
+    
     getClosestBoundaryPoint(bbox, point) {
         return bbox.pointNearestToPoint(point);
     }
+    
     getMinimalSize() {
         return {
             width: 100,
@@ -96,6 +112,7 @@ class Group extends shapes.bpmn2.Group {
         };
     }
 }
+
 Object.assign(shapes, {
     group: {
         Group

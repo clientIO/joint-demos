@@ -1,9 +1,11 @@
 import { dia, util } from '@joint/plus';
+
 const UpdateFlags = {
     Render: '@render',
     Update: '@update',
     Transform: '@transform'
 };
+
 const NavigatorElementView = dia.ElementView.extend({
     body: null,
     markup: util.svg /* xml */ `<rect @selector="body" />`,
@@ -45,4 +47,5 @@ const NavigatorElementView = dia.ElementView.extend({
         body.setAttribute('fill', model.get('secondaryColor'));
     }
 });
+
 export default NavigatorElementView;

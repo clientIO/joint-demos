@@ -1,11 +1,13 @@
 import { util, ui } from '@joint/plus';
 import { MAX_LEVEL } from './theme';
 import { ConnectionDirection, Connections, ConnectionStyle, Shapes } from './enums';
+
 const inputLabel = {
     type: 'content-editable',
     label: 'Label',
     index: 1,
 };
+
 const inputType = {
     type: 'select',
     label: 'Type',
@@ -31,6 +33,7 @@ const inputType = {
         }],
     index: 2,
 };
+
 const inputId = {
     type: 'text',
     label: 'ID',
@@ -42,26 +45,32 @@ const inputId = {
     index: 3,
     defaultValue: () => util.guid()
 };
+
 const inputSize = {
     type: 'number',
     label: 'Minimal size',
     index: 4,
 };
+
 const inputBoundary = {
     type: 'toggle',
     label: 'Boundary',
     index: 6,
 };
+
 const inputBoundaryLabel = {
     type: 'content-editable',
     label: 'Boundary label',
     index: 7,
 };
+
 const inputHidden = {
     type: 'toggle',
     label: 'Hidden',
     index: 8,
 };
+
+
 const inputConnections = {
     type: 'select',
     label: 'type',
@@ -81,6 +90,7 @@ const inputConnections = {
             value: Connections.Branch
         }]
 };
+
 const inputConnectionDirection = {
     type: 'select',
     label: 'direction',
@@ -100,6 +110,7 @@ const inputConnectionDirection = {
             value: ConnectionDirection.Bidirectional
         }]
 };
+
 const inputConnectionStyle = {
     type: 'select',
     label: 'style',
@@ -116,6 +127,7 @@ const inputConnectionStyle = {
             value: ConnectionStyle.Dotted
         }]
 };
+
 const inputChildren = {
     type: 'list',
     label: 'Children',
@@ -138,6 +150,7 @@ const inputChildren = {
         }
     }
 };
+
 function createChildrenInputs(level, path = '') {
     let rootLevelInput = null;
     let levelInput = null;
@@ -163,6 +176,7 @@ function createChildrenInputs(level, path = '') {
     }
     return rootLevelInput;
 }
+
 const inputs = {
     data: {
         id: inputId,
@@ -192,6 +206,7 @@ const inputs = {
         children: createChildrenInputs(MAX_LEVEL, 'data/children')
     }
 };
+
 export const createInspector = (dataModel) => {
     const inspector = new ui.Inspector({
         cell: dataModel,

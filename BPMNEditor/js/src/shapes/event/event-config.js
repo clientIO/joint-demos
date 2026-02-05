@@ -1,4 +1,5 @@
 import { inspectorOptions } from '../shared-config';
+
 export const EventLabels = {
     // Start
     'event.Start': 'Start Event',
@@ -46,6 +47,7 @@ export const EventLabels = {
     'event.CompensationEnd': 'Compensation End Event',
     'event.CancelEnd': 'Cancel End Event'
 };
+
 export var EventShapeTypes;
 (function (EventShapeTypes) {
     // Start
@@ -94,6 +96,7 @@ export var EventShapeTypes;
     EventShapeTypes["COMPENSATION_END"] = "event.CompensationEnd";
     EventShapeTypes["CANCEL_END"] = "event.CancelEnd";
 })(EventShapeTypes || (EventShapeTypes = {}));
+
 export const eventIconClasses = {
     // Start
     START: 'jj-bpmn-icon-start-event-none',
@@ -141,6 +144,7 @@ export const eventIconClasses = {
     COMPENSATION_END: 'jj-bpmn-icon-end-event-compensation',
     CANCEL_END: 'jj-bpmn-icon-end-event-cancel'
 };
+
 export const eventAppearanceConfig = {
     groups: {
         style: {

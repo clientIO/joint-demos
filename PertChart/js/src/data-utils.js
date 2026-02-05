@@ -1,5 +1,6 @@
 import { TaskElement } from './PertChart/TaskElement';
 import { getItemIcon } from './PertChart/utils';
+
 export function extractTasks(rawTasks, data, options = {}) {
     let tasks = [];
     rawTasks.forEach(task => {
@@ -22,9 +23,11 @@ export function extractTasks(rawTasks, data, options = {}) {
     });
     return tasks;
 }
+
 export function addBadgesToTasks(tasks, today = new Date()) {
     tasks.forEach(task => addTaskBadges(task, today));
 }
+
 export function extractDependencyMap(rawDependencies) {
     const dependencies = {};
     rawDependencies.forEach(dependency => {
@@ -34,6 +37,7 @@ export function extractDependencyMap(rawDependencies) {
     });
     return dependencies;
 }
+
 export function extractResourceMap(rawResources) {
     const resources = {};
     rawResources.forEach(resource => {
@@ -42,6 +46,7 @@ export function extractResourceMap(rawResources) {
     });
     return resources;
 }
+
 export function extractAssignmentMap(rawAssignments) {
     const assignments = {};
     rawAssignments.forEach(assignment => {
@@ -51,6 +56,8 @@ export function extractAssignmentMap(rawAssignments) {
     });
     return assignments;
 }
+
+
 function addTaskBadges(task, today) {
     const badges = [];
     const { percentDone, startDate, duration } = task;
@@ -95,6 +102,7 @@ function addTaskBadges(task, today) {
     }
     task.badges = badges;
 }
+
 function getResourceIcon(resourceId) {
     return `assets/images/${resourceId}.png`;
 }

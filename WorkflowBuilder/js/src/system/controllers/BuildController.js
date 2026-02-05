@@ -4,13 +4,16 @@ import { buildDiagram } from '../diagram/builder';
  * BuildController manages transforming the diagram data into the JointJS graph.
  */
 export default class BuildController extends Controller {
+    
     startListening() {
         const { history } = this.context;
+        
         this.listenTo(history, {
             'stack:undo stack:redo stack:push': onHistoryChange,
         });
     }
 }
+
 /**
  * Every time the history changes, we need to rebuild the graph from the current data.
  * - a new command is pushed (a user action)
@@ -23,13 +26,16 @@ function onHistoryChange(ctx, buildOptions, batchCommand, setOptions = {}) {
     const [command] = (Array.isArray(batchCommand)) ? batchCommand : [batchCommand];
     generateGraphFromCurrentData(ctx, { ...buildOptions, ...command.options });
 }
+
 /**
  * Builds the JointJS graph from the current diagram data.
  */
 function generateGraphFromCurrentData(ctx, buildOptions) {
     const { graph, diagramData, paper } = ctx;
+    
     paper.freeze();
     buildDiagram(diagramData.toJSON(), graph, buildOptions).then(() => {
         paper.unfreeze();
     });
 }
+

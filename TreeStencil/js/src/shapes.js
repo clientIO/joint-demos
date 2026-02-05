@@ -1,6 +1,8 @@
 import { dia, shapes, g } from '@joint/plus';
+
 const WIDTH = 80;
 const HEIGHT = 20;
+
 export class StencilNode extends dia.Element {
     defaults() {
         return {
@@ -62,6 +64,7 @@ export class StencilNode extends dia.Element {
     }
     PLUS_SIGN = 'M 1 5 9 5 M 5 1 5 9';
     MINUS_SIGN = 'M 2 5 8 5';
+    
     markup = [{
             tagName: 'rect',
             selector: 'body',
@@ -111,9 +114,12 @@ export class StencilNode extends dia.Element {
         return this.get('path').join(separator);
     }
     match(keyword) {
+        
         // Set path value as label and annotate text
+        
         const name = this.get('name');
         const displayName = this.getPathString(' / ');
+        
         const annotations = [{
                 // Bold Node Name
                 start: 0,
@@ -122,6 +128,7 @@ export class StencilNode extends dia.Element {
                     'fill': '#999'
                 }
             }];
+        
         const matchIndex = displayName.toLowerCase().lastIndexOf(keyword.toLowerCase());
         if (matchIndex > -1) {
             annotations.push({
@@ -133,6 +140,7 @@ export class StencilNode extends dia.Element {
                 }
             });
         }
+        
         this.toggleButtonVisibility(false);
         this.prop({
             matched: true,
@@ -156,6 +164,7 @@ export class StencilNode extends dia.Element {
         });
     }
 }
+
 export class StencilLink extends dia.Link {
     defaults() {
         return {
@@ -219,6 +228,7 @@ export class StencilLink extends dia.Link {
         return !targetElement || targetElement.isHidden();
     }
 }
+
 Object.assign(shapes, {
     app: {
         StencilNode,

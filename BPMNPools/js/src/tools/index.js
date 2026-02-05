@@ -1,7 +1,9 @@
 import { linkTools, elementTools, dia, shapes, ui } from '@joint/plus';
 import { freeTransformAttributes } from '../theme';
 import { removeCell } from '../utils';
+
 // Element tools
+
 const removeButton = new elementTools.Remove({
     className: 'tool tool-bpmn-remove',
     x: -15,
@@ -11,10 +13,12 @@ const removeButton = new elementTools.Remove({
         removeCell(view.model);
     }
 });
+
 const connectButton = new elementTools.Connect({
     x: 'calc(w + 15)',
     y: 0
 });
+
 export function addElementTools(elementView) {
     const element = elementView.model;
     if (shapes.bpmn2.CompositePool.isPool(element) || shapes.bpmn2.Swimlane.isSwimlane(element) || shapes.bpmn2.Phase.isPhase(element)) {
@@ -35,11 +39,14 @@ export function addElementTools(elementView) {
         new ui.BPMNFreeTransform({ cellView: elementView, ...freeTransformAttributes });
     }
 }
+
 export function removeElementTools(paper) {
     ui.BPMNFreeTransform.clear(paper);
     paper.removeTools();
 }
+
 // Link tools
+
 const linkToolsView = new dia.ToolsView({
     name: 'hover',
     tools: [
@@ -49,9 +56,11 @@ const linkToolsView = new dia.ToolsView({
         })
     ]
 });
+
 export function addLinkTools(linkView) {
     linkView.addTools(linkToolsView);
 }
+
 export function removeLinkTools(linkView) {
     linkView.removeTools();
 }

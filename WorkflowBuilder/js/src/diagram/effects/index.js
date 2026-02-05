@@ -15,6 +15,7 @@ export const Effect = {
     ConnectionTarget: 'connection-target',
     ConnectionCandidate: 'connection-candidate',
 };
+
 /**
  * Add an effect (highlighter) to a diagram node or edge.
  */
@@ -35,6 +36,7 @@ export function addEffect(cellView, effect, options = {}) {
             break;
     }
 }
+
 /**
  * Remove an effect (highlighter) from the diagram.
  * @todo It can be extended to support removing effects from specific cells

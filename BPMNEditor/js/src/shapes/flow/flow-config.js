@@ -1,10 +1,12 @@
 import { defaultAttrs, inspectorOptions } from '../shared-config';
+
 export const FlowLabels = {
     'flow.Sequence': 'Sequence Flow',
     'flow.Default': 'Default Flow',
     'flow.Conditional': 'Conditional Flow',
     'flow.Message': 'Message Flow'
 };
+
 export var FlowShapeTypes;
 (function (FlowShapeTypes) {
     FlowShapeTypes["SEQUENCE"] = "flow.Sequence";
@@ -12,11 +14,13 @@ export var FlowShapeTypes;
     FlowShapeTypes["CONDITIONAL"] = "flow.Conditional";
     FlowShapeTypes["MESSAGE"] = "flow.Message";
 })(FlowShapeTypes || (FlowShapeTypes = {}));
+
 export const flowIconClasses = {
     SEQUENCE: 'jj-bpmn-icon-sequence-flow',
     DEFAULT: 'jj-bpmn-icon-default-flow',
     CONDITIONAL: 'jj-bpmn-icon-condition-flow'
 };
+
 export const flowAppearanceConfig = {
     groups: {
         style: {

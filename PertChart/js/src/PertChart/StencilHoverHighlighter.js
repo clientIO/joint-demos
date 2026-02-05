@@ -1,11 +1,15 @@
 import { dia } from '@joint/plus';
+
 // Define a custom highlighter for the stencil hover effect
 export const StencilHoverHighlighter = dia.HighlighterView.extend({
+    
     tagName: 'rect',
+    
     attributes: {
         rx: 15,
         ry: 15,
     },
+    
     options: {
         padding: 0,
         width: null,
@@ -13,6 +17,7 @@ export const StencilHoverHighlighter = dia.HighlighterView.extend({
         className: '',
         z: 0 // Render the highlighter behind the element
     },
+    
     // Method called to highlight a CellView
     highlight(cellView) {
         const { padding, width, height, className } = this.options;

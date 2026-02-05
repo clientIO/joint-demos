@@ -1,6 +1,9 @@
 import { dia, shapes } from '@joint/plus';
+
 export const PhasePreview = dia.HighlighterView.extend({
+    
     tagName: 'path',
+    
     attributes: {
         'fill': '#0075f2',
         'fill-opacity': 0.1,
@@ -8,12 +11,14 @@ export const PhasePreview = dia.HighlighterView.extend({
         'stroke-width': 2,
         'stroke-dasharray': '5 5'
     },
+    
     highlight(elementView, _node) {
         const { x = 0, y = 0 } = this.options;
         const phase = elementView.model;
         if (!shapes.bpmn2.Phase.isPhase(phase)) {
             throw new Error('PhasePreview can be added only to a Phase.');
         }
+        
         const pool = phase.getParentCell();
         const phaseBBox = phase.getBBox();
         const horizontal = pool.isHorizontal();

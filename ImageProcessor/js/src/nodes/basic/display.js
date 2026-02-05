@@ -2,20 +2,24 @@ import { Node, NodeView } from '../node';
 import { ui, util } from '@joint/plus';
 import * as cv from '@techstark/opencv-js';
 export class DisplayView extends NodeView {
+    
     initialize() {
         super.initialize();
+        
         if (this.model.get('imageMode') === 'large') {
             this.model.attr('image/width', 200);
             this.model.attr('image/height', 200);
             this.model.size(265, 235);
         }
     }
+    
     events() {
         return {
             ...super.events(),
             'dblclick image': (evt) => { this.onImageDblClick(evt); },
         };
     }
+    
     onImageDblClick(_evt) {
         if (this.model.get('imageMode') === 'small') {
             this.model.attr('image/width', 200);
@@ -33,14 +37,19 @@ export class DisplayView extends NodeView {
 }
 export class Display extends Node {
     canvas;
+    
     preinitialize() {
         super.preinitialize();
+        
         this.canvas = document.createElement('canvas');
+        
         const markup = util.svg /* xml */ `
             <image @selector="image" />
         `;
+        
         this.markup = this.markup.concat(markup);
     }
+    
     defaults() {
         const defaults = super.defaults();
         return util.defaultsDeep({
@@ -68,6 +77,7 @@ export class Display extends Node {
             }
         }, defaults);
     }
+    
     async action() {
         const { image } = this.properties;
         if (image) {
@@ -82,6 +92,7 @@ export class Display extends Node {
         }
         return [];
     }
+    
     getContextToolbarItems() {
         const nodeItems = super.getContextToolbarItems();
         return nodeItems.concat([{
@@ -92,9 +103,11 @@ export class Display extends Node {
                 }
             }]);
     }
+    
     setContextToolbarEvents(contextToolbar) {
         contextToolbar.on('action:exportImage', () => {
             contextToolbar.remove();
+            
             new ui.Lightbox({
                 image: this.attr('image/href'),
                 downloadable: true,
@@ -102,6 +115,7 @@ export class Display extends Node {
             }).open();
         });
     }
+    
     getFileAttributes() {
         return super.getFileAttributes().concat(['imageMode']);
     }

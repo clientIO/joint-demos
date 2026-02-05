@@ -1,6 +1,7 @@
 import { util } from '@joint/plus';
 import { SystemButtonLine } from '../../system/diagram/models';
 import Theme from '../theme';
+
 const buttonLineMarkup = util.svg /* xml */ `
     <path @selector="line"
         stroke-linejoin="round"
@@ -8,10 +9,13 @@ const buttonLineMarkup = util.svg /* xml */ `
         pointer-events="none"
     />
 `;
+
 export default class ButtonLine extends SystemButtonLine {
+    
     preinitialize() {
         this.markup = buttonLineMarkup;
     }
+    
     defaults() {
         const attributes = {
             // JointJS attributes
@@ -24,6 +28,7 @@ export default class ButtonLine extends SystemButtonLine {
                 }
             },
         };
+        
         return util.defaultsDeep(attributes, super.defaults());
     }
 }

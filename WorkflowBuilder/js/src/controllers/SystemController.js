@@ -1,12 +1,15 @@
 import { Attribute } from '../diagram/const';
 import { Controller, BuildController, UIController } from '../system/controllers';
 import { applicationModelNamespace } from '../diagram/namespaces';
+
 /**
  * SystemController manages essential diagram functionality.
  */
 export default class SystemController extends Controller {
+    
     buildController;
     uiController;
+    
     constructor(app) {
         super(app);
         // System build controller
@@ -16,16 +19,19 @@ export default class SystemController extends Controller {
         // System UI controller
         this.uiController = new UIController(app);
     }
+    
     startListening() {
         this.buildController.startListening();
         this.uiController.startListening();
     }
+    
     stopListening() {
         super.stopListening();
         this.buildController.stopListening();
         this.uiController.stopListening();
     }
 }
+
 /**
  * Create a shape instance (or shape JSON) based on the node type and properties.
  */
@@ -34,6 +40,7 @@ function buildNodeFromData(node, id) {
     if (!(node.type in applicationModelNamespace)) {
         throw new Error(`Unknown element type: ${node.type}`);
     }
+    
     // If you need to transform the node data before creating the shape,
     // you can do it here.
     // e.g., mapping data attributes to model attributes.

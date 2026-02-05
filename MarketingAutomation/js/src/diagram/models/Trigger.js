@@ -2,6 +2,7 @@ import { util } from '@joint/plus';
 import { Attribute } from '../const';
 import Theme, { nodeLabelAttributes, typeLabelAttributes, rectBodyAttributes, iconAttributes, iconBackgroundAttributes } from '../theme';
 import Node from './Node';
+
 const triggerMarkup = util.svg /* xml*/ `
     <rect @selector="body" class="node-body trigger-body"/>
     <rect @selector="iconBackground"/>
@@ -14,23 +15,34 @@ const triggerMarkup = util.svg /* xml*/ `
         <text class="add-criteria-button-text" @selector="addCriteriaButtonText" />
     </g>
 `;
+
 const TYPE = 'trigger';
+
 /** Computed minimum height of the trigger node (without any criteria) */
 const triggerMinHeight = Theme.NodeHeight + Theme.TriggerAddButtonHeight + Theme.NodeVerticalPadding;
+
 export default class Trigger extends Node {
+    
     static type = TYPE;
+    
     static growthLimit = 1;
+    
     minimapBackground = Theme.TriggerMinimapBackgroundColor;
+    
     criteriaDataDefinitions = {};
+    
     preinitialize() {
         this.markup = triggerMarkup;
     }
+    
     initialize(attributes, options) {
         super.initialize(attributes, options);
         this.on('change:criteria', this.updateHeight);
         this.updateHeight();
     }
+    
     defaults() {
+        
         const attributes = {
             // App-specific attributes
             [Attribute.Removable]: false,
@@ -105,8 +117,10 @@ export default class Trigger extends Node {
                 }
             }
         };
+        
         return util.defaultsDeep(attributes, super.defaults());
     }
+    
     /**
      * @returns The criteria of the trigger from the trigger model.
      * @see {@link Attribute.Criteria}
@@ -122,34 +136,45 @@ export default class Trigger extends Node {
         }
         return [];
     }
+    
     /**
      * @returns Dynamically built inspector config for the trigger.
      * Groups and inputs are dynamically built based on the trigger's criteria.
      * @see {@link InspectorConfig}
      */
     getInspectorConfig() {
+        
         const criteria = this.getCriteria();
         const groups = {};
         const inputs = {};
+        
         let index = 1;
+        
         criteria.forEach((criterion, i) => {
+            
             const dataDefinition = this.criteriaDataDefinitions[criterion.id];
             if (!dataDefinition)
                 return;
+            
             const dataKeys = Object.keys(dataDefinition);
             if (dataKeys.length === 0)
                 return;
+            
             // Note: using the criteria id as the group name, this means that there
             // can be only one criteria of the same type.
             const groupName = criterion.id;
+            
             groups[groupName] = {
                 label: criterion.name,
                 index: index++,
                 closed: i > 0
             };
+            
             const groupInputs = {};
+            
             dataKeys.forEach(fieldKey => {
                 const dataEntry = dataDefinition[fieldKey];
+                
                 groupInputs[`${Attribute.Criteria}/${i}/data/${fieldKey}`] = {
                     label: /* html */ `${dataEntry.name}:
                         <div class="field-hint-container">
@@ -161,8 +186,10 @@ export default class Trigger extends Node {
                     group: groupName
                 };
             });
+            
             Object.assign(inputs, groupInputs);
         });
+        
         return {
             ...super.getInspectorConfig(),
             headerText: `Trigger`,
@@ -173,6 +200,7 @@ export default class Trigger extends Node {
             inputs
         };
     }
+    
     /**
      * @param dataEntryType - Converts the data entry type to the corresponding input type expected by the inspector.
      * @returns The type of the input for the data entry.
@@ -191,6 +219,7 @@ export default class Trigger extends Node {
                 return 'text';
         }
     }
+    
     /**
      * Updates the criteria definition for the given criteria id.
      * @param criteriaId - The id of the criteria to update.
@@ -200,6 +229,7 @@ export default class Trigger extends Node {
     updateCriteriaDefinition(criteriaId, definition) {
         this.criteriaDataDefinitions[criteriaId] = definition.data || {};
     }
+    
     /**
      * Adds a new criteria to the trigger.
      * @param criteria - The criteria to add.
@@ -213,6 +243,7 @@ export default class Trigger extends Node {
         }
         this.set(Attribute.Criteria, [...current, criteria], options);
     }
+    
     /**
      * Removes a criteria from the trigger.
      * @param criteriaId - The id of the criteria to remove.
@@ -228,6 +259,7 @@ export default class Trigger extends Node {
             delete this.criteriaDataDefinitions[criteriaId];
         }
     }
+    
     /**
      * @returns The height of the criteria container of the trigger from the trigger model.
      * @see {@link Attribute.Criteria}
@@ -235,11 +267,14 @@ export default class Trigger extends Node {
     getCriteriaHeight() {
         const criteria = this.getCriteria();
         const criteriaCount = criteria.length;
+        
         if (criteriaCount <= 0) {
             return 0;
         }
+        
         return criteriaCount * Theme.TriggerCriteriaHeight + (criteriaCount - 1) * Theme.TriggerCriteriaGap;
     }
+    
     /**
      * @returns Computed height based on the minimum height, criteria height, and add button height and gap between subheader and criteria.
      * @see {@link triggerMinHeight}
@@ -249,8 +284,10 @@ export default class Trigger extends Node {
         if (this.getCriteria().length === 0) {
             return triggerMinHeight;
         }
+        
         return triggerMinHeight + this.getCriteriaHeight() + Theme.TriggerCriteriaGap;
     }
+    
     /**
      * Updates the size of the trigger based on the minimum height, criteria height, and add button height.
      * @see {@link triggerMinHeight}

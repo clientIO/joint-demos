@@ -1,6 +1,8 @@
 import { Controller } from '../classes/Controller';
 import { highlightIdeas, updateToolbarButtons } from '../actions';
+
 export default class SelectionController extends Controller {
+    
     startListening() {
         const { graph, selection, history } = this.context;
         this.stopListening();
@@ -15,7 +17,9 @@ export default class SelectionController extends Controller {
         });
     }
 }
+
 // Selection
+
 function onSelectionReset(app) {
     const { selection } = app;
     const ideas = selection.toArray();
@@ -24,12 +28,16 @@ function onSelectionReset(app) {
     // Toolbar
     updateToolbarButtons(app, ideas);
 }
+
 // Graph
+
 function onGraphReset(app) {
     const { graph, selection } = app;
     selection.reset([graph.getRoot()]);
 }
+
 // History
+
 function onHistoryChange(app) {
     const { graph, selection } = app;
     // Make sure the selected ideas are in the graph after a history change

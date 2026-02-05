@@ -1,6 +1,8 @@
 import { dia } from '@joint/plus';
 import { createNodeByType } from '../nodes/node-helper';
+
 class StencilElement extends dia.Element {
+    
     defaults() {
         return {
             ...super.defaults,
@@ -26,6 +28,7 @@ class StencilElement extends dia.Element {
             }
         };
     }
+    
     markup = [{
             tagName: 'image',
             selector: 'icon',
@@ -35,9 +38,12 @@ class StencilElement extends dia.Element {
             className: 'stencil-label'
         }];
 }
+
 function createStencilElement(type) {
     const node = createNodeByType(type);
+    
     const icon = `assets/stencil/icons/${type}.png`;
+    
     const element = new StencilElement({
         node: node,
         attrs: {
@@ -50,8 +56,10 @@ function createStencilElement(type) {
             }
         }
     });
+    
     return element;
 }
+
 export function getStencilGroups() {
     return {
         basic: { index: 1, label: 'Basic' },
@@ -61,6 +69,7 @@ export function getStencilGroups() {
         math: { index: 5, label: 'Math' },
     };
 }
+
 export function getStencilConfig() {
     return {
         basic: [

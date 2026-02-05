@@ -3,11 +3,16 @@ import { Table, Link } from './shapes';
 import { anchorNamespace } from './anchors';
 import { routerNamespace } from './routers';
 import { TableHighlighter } from './highlighters';
+
 export const init = () => {
+    
     const appEl = document.getElementById('app');
     const canvasEl = document.querySelector('.canvas');
+    
     setTheme('my-theme');
+    
     const graph = new dia.Graph({}, { cellNamespace: shapes });
+    
     const paper = new dia.Paper({
         model: graph,
         width: 1000,
@@ -39,6 +44,7 @@ export const init = () => {
             return tgtView.model.isElement() && srcMagnet !== tgtMagnet;
         }
     });
+    
     const scroller = new ui.PaperScroller({
         paper,
         cursor: 'grab',
@@ -55,8 +61,11 @@ export const init = () => {
             };
         }
     });
+    
     canvasEl.appendChild(scroller.el);
     scroller.render().center();
+    
+    
     const users = new Table()
         .setName('users')
         .setTabColor('#6495ED')
@@ -68,6 +77,8 @@ export const init = () => {
         { name: 'country_code', type: 'int' }
     ])
         .addTo(graph);
+    
+    
     const orders = new Table()
         .setName('orders')
         .setTabColor('#008B8B')
@@ -79,6 +90,8 @@ export const init = () => {
         { name: 'created_at', type: 'datetime' }
     ])
         .addTo(graph);
+    
+    
     const countries = new Table()
         .setName('countries')
         .setTabColor('#CD5C5C')
@@ -88,6 +101,8 @@ export const init = () => {
         { name: 'name', type: 'varchar' }
     ])
         .addTo(graph);
+    
+    
     const products = new Table()
         .setName('products')
         .setTabColor('#FFD700')
@@ -100,6 +115,7 @@ export const init = () => {
         { name: 'created_at', type: 'datetime' }
     ])
         .addTo(graph);
+    
     const links = [
         new Link({
             source: { id: users.id, port: 'id' },
@@ -114,17 +130,22 @@ export const init = () => {
             target: { id: products.id, port: 'id' }
         }),
     ];
+    
     links.forEach((link) => {
         link.addTo(graph);
     });
+    
     // Register events
     paper.on('link:mouseenter', (linkView) => {
         showLinkTools(linkView);
     });
+    
     paper.on('link:mouseleave', (linkView) => {
         linkView.removeTools();
     });
+    
     paper.on('blank:pointerdown', (evt) => scroller.startPanning(evt));
+    
     paper.on('blank:mousewheel', (evt, ox, oy, delta) => {
         evt.preventDefault();
         zoom(ox, oy, delta);
@@ -136,9 +157,11 @@ export const init = () => {
     function zoom(x, y, delta) {
         scroller.zoom(delta * 0.2, { min: 0.4, max: 3, grid: 0.2, ox: x, oy: y });
     }
+    
     paper.on('element:pointerclick', (elementView) => {
         editTable(elementView);
     });
+    
     paper.on('blank:pointerdblclick', (evt, x, y) => {
         const table = new Table();
         table.position(x, y);
@@ -149,7 +172,9 @@ export const init = () => {
         table.addTo(graph);
         editTable(table.findView(paper));
     });
+    
     paper.unfreeze();
+    
     // Actions
     function showLinkTools(linkView) {
         const tools = new dia.ToolsView({
@@ -184,13 +209,17 @@ export const init = () => {
         });
         linkView.addTools(tools);
     }
+    
     function editTable(tableView) {
+        
         const HIGHLIGHTER_ID = 'table-selected';
         const table = tableView.model;
         const tableName = table.getName();
         if (TableHighlighter.get(tableView, HIGHLIGHTER_ID))
             return;
+        
         TableHighlighter.add(tableView, 'root', HIGHLIGHTER_ID);
+        
         const inspector = new ui.Inspector({
             cell: table,
             theme: 'default',
@@ -238,8 +267,10 @@ export const init = () => {
                 }
             }
         });
+        
         inspector.render();
         inspector.el.style.position = 'relative';
+        
         const dialog = new ui.Dialog({
             theme: 'default',
             modal: false,
@@ -260,18 +291,22 @@ export const init = () => {
                 }
             ]
         });
+        
         dialog.open(appEl);
+        
         const dialogTitleBar = dialog.el.querySelector('.titlebar');
         const dialogTitleTab = document.createElement('div');
         dialogTitleTab.style.background = table.getTabColor();
         dialogTitleTab.setAttribute('class', 'titletab');
         dialogTitleBar.appendChild(dialogTitleTab);
+        
         inspector.on('change:attrs/tabColor/fill', () => {
             dialogTitleTab.style.background = table.getTabColor();
         });
         inspector.on('change:attrs/headerLabel/text', () => {
             dialogTitleBar.textContent = table.getName();
         });
+        
         dialog.on('action:close', () => {
             inspector.remove();
             TableHighlighter.remove(tableView, HIGHLIGHTER_ID);
@@ -280,9 +315,12 @@ export const init = () => {
             dialog.close();
             table.remove();
         });
+        
         if (!tableName) {
             const inputEl = inspector.el.querySelector('input[data-attribute="attrs/headerLabel/text"]');
             inputEl.focus();
         }
     }
+    
 };
+

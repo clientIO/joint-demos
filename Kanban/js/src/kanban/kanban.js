@@ -1,10 +1,14 @@
 import { util, dia, ui, layout, V, elementTools, linkTools, highlighters } from '@joint/plus';
 import { Header, Task as TaskShape, Dependency as DependencyShape, AddButton } from '../shapes';
+
 const HEADER_HEIGHT = 40;
 const MIN_BOARD_HEIGHT = 800;
+
 export class Kanban {
+    
     layoutView;
     showDependencyTool;
+    
     topLeft;
     columns;
     taskMargin;
@@ -15,6 +19,7 @@ export class Kanban {
     highlighter;
     textarea;
     selectedTask;
+    
     constructor(options) {
         this.topLeft = options.topLeft;
         this.columns = options.columns;
@@ -24,10 +29,12 @@ export class Kanban {
         this.taskHeight = options.taskHeight || 200;
         this.columnMargin = options.columnMargin || 30;
         this.showDependencyTool = options.showDependencyTool || false;
+        
         this.createHeader();
         this.createTasks(options.tasks);
         this.createDependencies(options.dependencies);
         this.createAddButtons();
+        
         const layoutOptions = {
             direction: layout.StackLayout.Directions.TopBottom,
             topLeft: {
@@ -42,6 +49,7 @@ export class Kanban {
                 el.set('position', position, { ignoreCommandManager: true });
             }
         };
+        
         const layoutView = this.layoutView = new ui.StackLayoutView({
             layoutOptions: layoutOptions,
             paper: this.paper,
@@ -55,20 +63,26 @@ export class Kanban {
                 return TaskShape.isTask(element);
             }
         });
+        
         this.resizeBoard();
         layoutView.model.on('update', () => this.resizeBoard());
         this.attachPaperEvents();
     }
+    
     attachPaperEvents() {
+        
         const { paper } = this;
+        
         paper.on('element:pointerup', (elementView) => {
             if (!TaskShape.isTask(elementView.model))
                 return;
             this.selectTask(elementView);
         });
+        
         paper.on('blank:pointerdown', () => {
             this.unselectTask();
         });
+        
         paper.on('link:mouseenter', (linkView) => {
             const toolsView = new dia.ToolsView({
                 tools: [
@@ -82,15 +96,18 @@ export class Kanban {
             });
             linkView.addTools(toolsView);
         });
+        
         paper.on('link:mouseleave', (linkView) => {
             linkView.removeTools();
         });
+        
         paper.on('element:pointerclick', (elementView) => {
             const element = elementView.model;
             if (!AddButton.isAddButton(element))
                 return;
             this.addTask(element.get('stackIndex'));
         });
+        
         paper.on('element:pointerdblclick', (taskView, evt) => {
             if (!TaskShape.isTask(taskView.model))
                 return;
@@ -99,6 +116,7 @@ export class Kanban {
             this.editTask(taskView, editHeader);
         });
     }
+    
     createHeader() {
         const graph = this.paper.model;
         this.columns.forEach((column, index) => {
@@ -113,6 +131,7 @@ export class Kanban {
             graph.addCell(this.createHeaderElement(column, position, size));
         });
     }
+    
     createHeaderElement(column, position, size) {
         return new Header({
             id: 'column-header-' + column.state,
@@ -128,6 +147,7 @@ export class Kanban {
             }
         });
     }
+    
     createTasks(tasks) {
         const graph = this.paper.model;
         tasks.forEach((task, index) => {
@@ -138,9 +158,11 @@ export class Kanban {
             graph.addCell(this.createTaskElement(task, size, index));
         });
     }
+    
     createTitle(name, description) {
         return `${name}\n\n${description}`;
     }
+    
     createTaskElement(task, size, index) {
         const { id, state, name, description } = task;
         return new TaskShape({
@@ -161,6 +183,7 @@ export class Kanban {
             stackElementIndex: index
         });
     }
+    
     createAddButtons() {
         const graph = this.paper.model;
         this.columns.forEach((column, index) => {
@@ -180,6 +203,7 @@ export class Kanban {
             graph.addCell(addButton);
         });
     }
+    
     createDependencies(dependencies) {
         const graph = this.paper.model;
         dependencies.forEach(dependency => {
@@ -191,19 +215,26 @@ export class Kanban {
             graph.addCell(dependencyShape);
         });
     }
+    
     getStackIndexFromState(state) {
         return this.columns.findIndex(column => column.state === state);
     }
+    
     resizeBoard() {
         const { paper, layoutView } = this;
         const size = paper.getComputedSize();
         paper.setDimensions(size.width, Math.max(layoutView.model.bbox.height + this.topLeft.y + HEADER_HEIGHT + 2 * this.taskMargin, MIN_BOARD_HEIGHT));
     }
+    
     // Public Methods
+    
     editTask(taskView, editHeader = false) {
+        
         const { paper } = this;
         const { model: task } = taskView;
+        
         this.unselectTask();
+        
         const bbox = task.getBBox();
         this.textarea = document.createElement('textarea');
         const textarea = this.textarea;
@@ -272,6 +303,7 @@ export class Kanban {
             }
         });
     }
+    
     addTask(stackIndex) {
         const stack = this.layoutView.model.stacks[stackIndex];
         const task = {
@@ -286,6 +318,8 @@ export class Kanban {
         const taskElement = this.createTaskElement(task, size);
         this.layoutView.model.insertElement(taskElement, stackIndex, stack.elements.length - 1);
     }
+    
+    
     selectTask(taskView) {
         this.unselectTask();
         this.selectedTask = taskView.model;
@@ -315,6 +349,7 @@ export class Kanban {
             className: 'highlighter-selection'
         });
     }
+    
     unselectTask() {
         if (this.highlighter) {
             this.highlighter.remove();
@@ -326,6 +361,7 @@ export class Kanban {
         this.paper.removeTools();
         delete this.selectedTask;
     }
+    
     get tasks() {
         const graph = this.paper.model;
         const tasks = [];
@@ -342,6 +378,7 @@ export class Kanban {
         });
         return tasks;
     }
+    
     get dependencies() {
         const graph = this.paper.model;
         return graph.getLinks().map(dependency => {

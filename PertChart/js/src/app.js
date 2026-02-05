@@ -1,6 +1,7 @@
 import PertChart from './PertChart';
 import data from './data';
 import { extractTasks, extractDependencyMap, extractResourceMap, extractAssignmentMap, addBadgesToTasks } from './data-utils';
+
 const dependencies = extractDependencyMap(data.dependencies.rows);
 const resources = extractResourceMap(data.resources.rows);
 const assignments = extractAssignmentMap(data.assignments.rows);
@@ -9,8 +10,10 @@ const tasks = extractTasks(data.tasks.rows, {
     resources,
     assignments
 });
+
 // To showcase the functionality, we use a fixed date here.
 addBadgesToTasks(tasks, new Date('2025-09-19'));
+
 export const init = () => {
     // Example usage:
     const pertChart = new PertChart({
@@ -45,17 +48,22 @@ export const init = () => {
             }
         },
     });
+    
     pertChart.update(tasks);
     // pertChart.zoomToFit();
     pertChart.showNavigator();
+    
     // tasks[0].name = 'New Task Name';
     // tasks[0].color = '#ffb6c1';
     // pertChart.update(tasks);
+    
     // Dispose the view.
     // pertChart.remove();
+    
     // Use JointJS API to interact with the chart.
     pertChart.scroller.positionContent('left', {
         padding: 70,
         useModelGeometry: true
     });
 };
+

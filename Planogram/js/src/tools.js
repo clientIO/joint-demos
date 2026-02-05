@@ -1,9 +1,13 @@
 import { dia, elementTools, ui } from '@joint/plus';
+
 export function addElementTools(cellView) {
+    
     const { paper } = cellView;
     const cell = cellView.model;
     const padding = cell.getFramePadding();
+    
     removeElementTools(paper);
+    
     const freeTransform = new ui.FreeTransform({
         cellView,
         resizeGrid: cell.getResizeGrid(),
@@ -11,6 +15,7 @@ export function addElementTools(cellView) {
         padding,
         theme: 'material'
     });
+    
     freeTransform.on({
         'resize:start': () => {
             cellView.addTools(new dia.ToolsView({ tools: [new SizeLabel()] }));
@@ -19,6 +24,7 @@ export function addElementTools(cellView) {
             cellView.addTools(toolsView);
         }
     });
+    
     const toolsView = new dia.ToolsView({
         tools: [
             new elementTools.Remove({
@@ -47,16 +53,21 @@ export function addElementTools(cellView) {
             })
         ]
     });
+    
     freeTransform.render();
     cellView.addTools(toolsView);
 }
+
 export function removeElementTools(paper) {
     paper.removeTools();
     ui.FreeTransform.clear(paper);
 }
+
 const SizeLabelWidth = 50;
 const SizeLabelHeight = 24;
+
 export const SizeLabel = dia.ToolView.extend({
+    
     children: [{
             tagName: 'rect',
             selector: 'background',
@@ -82,10 +93,12 @@ export const SizeLabel = dia.ToolView.extend({
                 'fill': '#333',
             }
         }],
+    
     onRender: function () {
         this.renderChildren();
         this.update();
     },
+    
     update: function () {
         const { el: groupEl, relatedView } = this;
         const product = relatedView.model;

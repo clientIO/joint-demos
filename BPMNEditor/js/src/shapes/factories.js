@@ -16,49 +16,69 @@ import { Annotation, AnnotationLink } from './annotation/annotation-shapes';
 import { MarkerNames } from './shapes-typing';
 import { PoolShapeTypes } from './pool/pool-config';
 import { HorizontalPool, HorizontalSwimlane, VerticalPool, VerticalSwimlane } from './pool/pool-shapes';
+
 class ExportableActivity extends exportableObjects.Activity {
+    
     isSubProcess() {
         return false;
     }
 }
+
 class ExportableSubProcess extends ExportableActivity {
+    
     eventTriggered;
+    
     constructor(cellView, type, markers, label, eventTriggered = false) {
         super(cellView, type, markers, label);
         this.eventTriggered = eventTriggered;
     }
+    
     isSubProcess() {
         return true;
     }
+    
     toTaskXMLElement() {
         const taskXMLElement = super.toTaskXMLElement();
+        
         if (this.eventTriggered) {
             taskXMLElement.setAttribute('triggeredByEvent', 'true');
         }
+        
         return taskXMLElement;
     }
+    
     toShapeXMLElement() {
         const shapeXMLElement = super.toShapeXMLElement();
         shapeXMLElement.setAttribute('isExpanded', 'false');
         return shapeXMLElement;
     }
 }
+
 class ExportableFlow extends exportableObjects.Flow {
+    
     constructor(cellView, label, type) {
         super(cellView, label, type);
     }
+    
     toFlowXMLElement() {
+        
         const flowXMLElement = super.toFlowXMLElement();
+        
         // Determine the BPMN model namespace (same as parent element)
         const modelNamespace = flowXMLElement.namespaceURI || 'http://www.omg.org/spec/BPMN/20100524/MODEL';
+        
         // Create the conditionExpression element in the BPMN namespace
         const conditionalElement = document.createElementNS(modelNamespace, 'bpmn:conditionExpression');
+        
         // Add xsi:type attribute using the proper XML Schema Instance namespace
         conditionalElement.setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'bpmn:tFormalExpression');
+        
         flowXMLElement.appendChild(conditionalElement);
+        
         return flowXMLElement;
     }
 }
+
 export const bpmnExportOptions = {
     exportableObjectFactories: {
         // Activity
@@ -280,36 +300,50 @@ export const bpmnExportOptions = {
         }
     }
 };
+
 function getEventType(xmlNode) {
     const eventDefinition = Array.from(xmlNode.childNodes).find((node) => node.nodeName.includes('EventDefinition'));
     return eventDefinition?.nodeName.replace('EventDefinition', '').split(':').pop();
 }
+
 function getActivityMarkers(xmlNode) {
+    
     const markers = [];
+    
     const multiInstanceLoopCharacteristics = xmlNode.querySelector('multiInstanceLoopCharacteristics');
+    
     if (multiInstanceLoopCharacteristics) {
         const isSequential = multiInstanceLoopCharacteristics.getAttribute('isSequential') === 'true';
         markers.push(isSequential ? MarkerNames.SEQUENTIAL : MarkerNames.PARALLEL);
     }
+    
     const loopCharacteristics = xmlNode.querySelector('standardLoopCharacteristics');
+    
     if (loopCharacteristics) {
         markers.push(MarkerNames.LOOP);
     }
+    
     if (xmlNode.getAttribute('isForCompensation') === 'true') {
         markers.push(MarkerNames.COMPENSATION);
     }
+    
     return markers;
 }
+
 function simplifyLinkWaypoints(xmlDoc, linkId) {
     const waypoints = Array.from(xmlDoc
         .querySelectorAll(`BPMNEdge[id$="${linkId}"] waypoint`))
         .map((waypoint) => ({ x: Number(waypoint.getAttribute('x')), y: Number(waypoint.getAttribute('y')) }));
+    
     const vertices = new g.Polyline(waypoints).simplify().points;
+    
     // Remove first and last waypoints - they are anchors
     vertices.shift();
     vertices.pop();
+    
     return vertices;
 }
+
 export const bpmnImportOptions = {
     bpmn2Shapes: {
         ...shapes.bpmn2,
@@ -401,9 +435,12 @@ export const bpmnImportOptions = {
             return appElement;
         },
         startEvent: (xmlNode, _xmlDoc, _shapeClass, defaultFactory) => {
+            
             const defaultElement = defaultFactory();
             const eventType = getEventType(xmlNode);
+            
             let appElement;
+            
             switch (eventType) {
                 case 'message':
                     appElement = new MessageStart({ id: defaultElement.id });
@@ -421,13 +458,18 @@ export const bpmnImportOptions = {
                     appElement = new Start({ id: defaultElement.id });
                     break;
             }
+            
             appElement.copyFrom(defaultElement);
+            
             return appElement;
         },
         intermediateThrowEvent: (xmlNode, _xmlDoc, _shapeClass, defaultFactory) => {
+            
             const defaultElement = defaultFactory();
             const eventType = getEventType(xmlNode);
+            
             let appElement;
+            
             switch (eventType) {
                 case 'message':
                     appElement = new MessageIntermediateThrowing({ id: defaultElement.id });
@@ -448,13 +490,18 @@ export const bpmnImportOptions = {
                     appElement = new IntermediateThrowing({ id: defaultElement.id });
                     break;
             }
+            
             appElement.copyFrom(defaultElement);
+            
             return appElement;
         },
         intermediateCatchEvent: (xmlNode, _xmlDoc, _shapeClass, defaultFactory) => {
+            
             const defaultElement = defaultFactory();
             const eventType = getEventType(xmlNode);
+            
             let appElement;
+            
             switch (eventType) {
                 case 'message':
                     appElement = new MessageIntermediateCatching({ id: defaultElement.id });
@@ -475,14 +522,19 @@ export const bpmnImportOptions = {
                     appElement = new IntermediateThrowing({ id: defaultElement.id });
                     break;
             }
+            
             appElement.copyFrom(defaultElement);
+            
             return appElement;
         },
         boundaryEvent: (xmlNode, _xmlDoc, _shapeClass, defaultFactory) => {
+            
             const defaultElement = defaultFactory();
             const eventType = getEventType(xmlNode);
             const isNonInterrupting = xmlNode.getAttribute('cancelActivity') === 'false';
+            
             let appElement;
+            
             switch (eventType) {
                 case 'message':
                     appElement = isNonInterrupting ?
@@ -522,13 +574,18 @@ export const bpmnImportOptions = {
                     appElement = new IntermediateBoundary({ id: defaultElement.id });
                     break;
             }
+            
             appElement.copyFrom(defaultElement);
+            
             return appElement;
         },
         endEvent: (xmlNode, _xmlDoc, _shapeClass, defaultFactory) => {
+            
             const defaultElement = defaultFactory();
             const eventType = getEventType(xmlNode);
+            
             let appElement;
+            
             switch (eventType) {
                 case 'message':
                     appElement = new MessageEnd({ id: defaultElement.id });
@@ -552,7 +609,9 @@ export const bpmnImportOptions = {
                     appElement = new End({ id: defaultElement.id });
                     break;
             }
+            
             appElement.copyFrom(defaultElement);
+            
             return appElement;
         },
         parallelGateway: (_xmlNode, _xmlDoc, _shapeClass, defaultFactory) => {
@@ -588,20 +647,26 @@ export const bpmnImportOptions = {
         sequenceFlow: (xmlNode, xmlDoc, _shapeClass, defaultFactory) => {
             const defaultLink = defaultFactory();
             const isConditional = xmlNode.firstElementChild?.tagName.includes('conditionExpression');
+            
             const appLink = isConditional ? new Conditional({ id: defaultLink.id }) : new Sequence({ id: defaultLink.id });
+            
             appLink.copyFrom(defaultLink);
+            
             if (appLink.vertices().length > 0) {
                 appLink.vertices(simplifyLinkWaypoints(xmlDoc, appLink.id));
             }
+            
             return appLink;
         },
         messageFlow: (_xmlNode, xmlDoc, _shapeClass, defaultFactory) => {
             const defaultLink = defaultFactory();
             const appLink = new Message({ id: defaultLink.id });
             appLink.copyFrom(defaultLink);
+            
             if (appLink.vertices().length > 0) {
                 appLink.vertices(simplifyLinkWaypoints(xmlDoc, appLink.id));
             }
+            
             return appLink;
         },
         dataObject: (xmlNode, _xmlDoc, _shapeClass, defaultFactory) => {

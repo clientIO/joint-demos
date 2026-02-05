@@ -1,4 +1,5 @@
 /* Bootstrap the application. */
+
 import { dia, ui, shapes as defaultShapes } from '@joint/plus';
 import { HorizontalPool, HorizontalPoolView, VerticalPool, VerticalPoolView, HorizontalSwimlane, HorizontalSwimlaneView, VerticalSwimlane, VerticalSwimlaneView, HorizontalPhase, HorizontalPhaseView, VerticalPhase, VerticalPhaseView, Event, Activity, Gateway } from './shapes';
 import { editElementLabel } from './actions/text';
@@ -8,6 +9,7 @@ import { addBPMNListeners } from './events';
 import { loadExample } from './example';
 import { setupXMLImport } from './actions/import';
 import { downloadXMLExport } from './actions/export';
+
 const shapes = {
     ...defaultShapes,
     custom: {
@@ -28,11 +30,15 @@ const shapes = {
         Gateway
     }
 };
+
 export const init = () => {
+    
     const graph = new dia.Graph({}, { cellNamespace: shapes });
     loadExample(graph);
+    
     // DEBUG
     // window.graph = graph;
+    
     const paper = new dia.Paper({
         model: graph,
         cellViewNamespace: shapes,
@@ -135,9 +141,11 @@ export const init = () => {
             },
         }
     });
+    
     const paperContainerEl = document.getElementById('paper-container');
     paperContainerEl.appendChild(paper.el);
     paper.unfreeze();
+    
     const stencil = new ui.Stencil({
         paper,
         usePaperGrid: true,
@@ -164,6 +172,7 @@ export const init = () => {
             dy: 0
         },
     });
+    
     document.getElementById('stencil-container').appendChild(stencil.el);
     stencil.render();
     stencil.load([
@@ -202,10 +211,15 @@ export const init = () => {
             size: { width: 60, height: 60 }
         }
     ]);
+    
     const keyboard = new ui.Keyboard();
+    
     // Events
+    
     addBPMNListeners({ paper, stencil });
+    
     // Selection
+    
     paper.on({
         'element:pointerclick': (elementView, _evt) => {
             select(elementView);
@@ -223,10 +237,13 @@ export const init = () => {
             removeLinkTools(linkView);
         },
     });
+    
     keyboard.on('delete backspace', () => {
         removeSelection(graph);
     });
+    
     // Text Editing
+    
     paper.on('element:pointerdblclick', (elementView, evt) => {
         const element = elementView.model;
         if (shapes.bpmn2.CompositePool.isPool(element) || shapes.bpmn2.Swimlane.isSwimlane(element) || shapes.bpmn2.Phase.isPhase(element)) {
@@ -237,8 +254,11 @@ export const init = () => {
         }
         editElementLabel(elementView);
     });
+    
     // Undo / Redo
+    
     const history = new dia.CommandManager({ graph });
+    
     const toolbar = new ui.Toolbar({
         autoToggle: true,
         references: {
@@ -260,17 +280,22 @@ export const init = () => {
                 text: 'Export',
             }]
     });
+    
     toolbar.render();
     document.getElementById('toolbar-container').appendChild(toolbar.el);
+    
     toolbar.on('clear:pointerclick', () => {
         graph.resetCells([]);
         history.reset();
     });
+    
     toolbar.on('export:pointerclick', () => {
         downloadXMLExport(paper);
     });
+    
     // Setup drag and drop for XML import
     setupXMLImport(graph, paperContainerEl);
+    
     return function destroy() {
         paper.remove();
         stencil.remove();

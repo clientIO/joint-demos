@@ -1,4 +1,5 @@
 import { dia, shapes, util, linkTools, elementTools, g } from '@joint/plus';
+
 export const COLOR_PLUG_TEXT = '#3E697A';
 export const COLOR_TERMINAL = '#8ACB88';
 export const COLOR_TERMINAL_TEXT = '#C9F0FF';
@@ -8,6 +9,7 @@ export const ICON_ROTATE = `
         <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
     </svg>
 `;
+
 export const RotateTool = elementTools.Control.extend({
     children: [
         {
@@ -47,12 +49,15 @@ export const RotateTool = elementTools.Control.extend({
         model.rotate(Math.round(angle));
     }
 });
+
 export class CompositeCable extends dia.Element {
+    
     preinitialize() {
         this.markup = util.svg /* xml */ `
             <rect @selector="body"/>
         `;
     }
+    
     defaults() {
         return util.defaultsDeep({
             type: 'CompositeCable',
@@ -66,27 +71,35 @@ export class CompositeCable extends dia.Element {
             }
         }, dia.Element.prototype.defaults);
     }
+    
     getCableLink() {
         return this.getEmbeddedCells().find(cell => cell.isLink());
     }
+    
     getSourceEnd() {
         const cable = this.getCableLink();
         return cable && cable.getSourceElement();
     }
+    
     getTargetEnd() {
         const cable = this.getCableLink();
         return cable && cable.getTargetElement();
     }
+    
     getSourceWires() {
         const sourceEnd = this.getSourceEnd();
         return sourceEnd && sourceEnd.getEmbeddedCells();
     }
+    
     getTargetWires() {
         const targetEnd = this.getTargetEnd();
         return targetEnd && targetEnd.getEmbeddedCells();
     }
+    
     addTools(paper) {
+        
         // Tools
+        
         [this.getCableLink()].forEach(link => {
             link.findView(paper).addTools(new dia.ToolsView({
                 tools: [
@@ -94,6 +107,7 @@ export class CompositeCable extends dia.Element {
                 ]
             }));
         });
+        
         [this.getSourceEnd(), this.getTargetEnd()].forEach(cell => {
             cell.findView(paper).addTools(new dia.ToolsView({
                 tools: [
@@ -104,6 +118,7 @@ export class CompositeCable extends dia.Element {
                 ]
             }));
         });
+        
         this.getSourceWires().forEach(link => {
             link.findView(paper).addTools(new dia.ToolsView({
                 tools: [
@@ -123,6 +138,7 @@ export class CompositeCable extends dia.Element {
                 ]
             }));
         });
+        
         this.getTargetWires().forEach(link => {
             link.findView(paper).addTools(new dia.ToolsView({
                 tools: [
@@ -142,8 +158,11 @@ export class CompositeCable extends dia.Element {
                 ]
             }));
         });
+        
     }
+    
     static create(graph, colors, x1, y1, x2, y2) {
+        
         const copperMarker = {
             type: 'rect',
             x: -6,
@@ -153,6 +172,7 @@ export class CompositeCable extends dia.Element {
             stroke: 'none',
             fill: '#B87333',
         };
+        
         const cableSource = new shapes.standard.Rectangle({
             position: { x: 0, y: 0 },
             size: { width: 18, height: 18 },
@@ -165,6 +185,7 @@ export class CompositeCable extends dia.Element {
                 },
             },
         });
+        
         const cableTarget = new shapes.standard.Rectangle({
             position: { x: 100, y: 0 },
             size: { width: 18, height: 18 },
@@ -177,6 +198,7 @@ export class CompositeCable extends dia.Element {
                 },
             },
         });
+        
         const cable = new shapes.standard.Link({
             z: -2,
             source: {
@@ -199,14 +221,19 @@ export class CompositeCable extends dia.Element {
                 },
             },
         });
+        
         const compositeCable = new CompositeCable({ z: -1 });
+        
         graph.addCells([
             compositeCable,
             cableSource, cableTarget,
             cable,
         ]);
+        
         compositeCable.embed([cable, cableSource, cableTarget]);
+        
         colors.forEach((color, index, { length: wireCount }) => {
+            
             // create a formula that position the wires in a zig-zag pattern
             // for odd number of wires, the first wire is in the middle
             // for even number of wires, the first wire is on the top or bottom
@@ -215,6 +242,7 @@ export class CompositeCable extends dia.Element {
             const dy = (wireCount % 2 === 0)
                 ? (index - Math.floor(wireCount / 2) + 0.5) * wireGap
                 : (index - Math.floor(wireCount / 2)) * wireGap;
+            
             const wireSource = new shapes.standard.Link({
                 source: {
                     id: cableSource.id,
@@ -231,6 +259,7 @@ export class CompositeCable extends dia.Element {
                     },
                 },
             });
+            
             const wireTarget = new shapes.standard.Link({
                 source: { x: 150, y: 20 + index * 30 },
                 target: {
@@ -248,33 +277,43 @@ export class CompositeCable extends dia.Element {
                     },
                 },
             });
+            
             graph.addCells([wireSource, wireTarget]);
             cableSource.embed(wireSource);
             cableTarget.embed(wireTarget);
         });
+        
         const { width: w1, height: h1 } = cableSource.size();
         const { width: w2, height: h2 } = cableTarget.size();
+        
         cableSource.rotate(30);
         cableTarget.rotate(30);
         cableSource.position(x1 - w1 / 2, y1 - h1 / 2, { deep: true });
         cableTarget.position(x2 - w2 / 2, y2 - h2 / 2, { deep: true });
+        
         compositeCable.fitEmbeds({ padding: 2 });
+        
         // Update the size of the composite cable when the source or target end changes position.
         [cableSource, cableTarget].forEach((end) => {
             compositeCable.listenTo(end, 'change:position', () => compositeCable.fitEmbeds({ padding: 2 }));
         });
+        
         return compositeCable;
     }
+    
     static isCompositeCable(cell) {
         return cell instanceof CompositeCable;
     }
 }
+
 export class ScrewTerminal extends dia.Element {
+    
     preinitialize() {
         this.markup = util.svg /* xml */ `
             <rect @selector="body"/>
         `;
     }
+    
     defaults() {
         return util.defaultsDeep({
             type: 'ScrewTerminal',
@@ -389,10 +428,13 @@ export class ScrewTerminal extends dia.Element {
                             `
                         },
                     },
+                    
+                    
                 }
             }
         }, dia.Element.prototype.defaults);
     }
+    
     connectionStrategy(end, coords) {
         const center = this.getBBox().center();
         const dx = (coords.x > center.x) ? 20 : 0;
@@ -400,7 +442,9 @@ export class ScrewTerminal extends dia.Element {
         end.connectionPoint = { name: 'anchor' };
         return end;
     }
+    
     static create(graph, length, x, y) {
+        
         const leftPorts = Array.from({ length }, (_, i) => {
             return {
                 group: 'left',
@@ -412,6 +456,7 @@ export class ScrewTerminal extends dia.Element {
                 }
             };
         });
+        
         const rightPorts = Array.from({ length }, (_, i) => {
             return {
                 group: 'right',
@@ -423,8 +468,10 @@ export class ScrewTerminal extends dia.Element {
                 }
             };
         });
+        
         const width = 50;
         const height = 25 * length + 10;
+        
         const st = new ScrewTerminal({
             size: { width, height },
             position: { x: x - width / 2, y: y - height / 2 },
@@ -438,11 +485,14 @@ export class ScrewTerminal extends dia.Element {
         graph.addCell(st);
         return st;
     }
+    
     static isScrewTerminal(cell) {
         return cell instanceof ScrewTerminal;
     }
 }
+
 export class Plug extends dia.Element {
+    
     preinitialize() {
         this.markup = util.svg /* xml */ `
             <path @selector="body"/>
@@ -454,6 +504,7 @@ export class Plug extends dia.Element {
             </g>
         `;
     }
+    
     defaults() {
         return util.defaultsDeep({
             type: 'Plug',
@@ -599,11 +650,13 @@ export class Plug extends dia.Element {
             }
         }, dia.Element.prototype.defaults);
     }
+    
     connectionStrategy(end) {
         end.anchor = { name: 'modelCenter', args: { dx: 5, dy: 20 } };
         end.connectionPoint = { name: 'anchor' };
         return end;
     }
+    
     static create(graph, x, y) {
         const plug = new Plug();
         const size = plug.size();
@@ -611,6 +664,7 @@ export class Plug extends dia.Element {
         graph.addCell(plug);
         return plug;
     }
+    
     static isPlug(cell) {
         return cell instanceof Plug;
     }

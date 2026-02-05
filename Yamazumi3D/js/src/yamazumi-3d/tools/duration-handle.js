@@ -1,9 +1,12 @@
 import { elementTools } from '@joint/plus';
+
 export class DurationHandle extends elementTools.Control {
     affectedElements = [];
+    
     constructor(options) {
         super(options);
     }
+    
     preinitialize() {
         this.children = [{
                 tagName: 'circle',
@@ -15,10 +18,12 @@ export class DurationHandle extends elementTools.Control {
                 }
             }];
     }
+    
     getPosition(view) {
         const { model } = view;
         return { x: model.size().width / 2, y: 0 };
     }
+    
     setPosition(view, coordinates) {
         const { model } = view;
         const duration = model.get('duration');
@@ -31,10 +36,12 @@ export class DurationHandle extends elementTools.Control {
         }
         model.set('duration', newDuration);
     }
+    
     onPointerDown(evt) {
         super.onPointerDown(evt);
         this.relatedView.model.graph.set('animationDisabled', true);
     }
+    
     onPointerUp(evt) {
         super.onPointerUp(evt);
         this.relatedView.model.graph.set('animationDisabled', false);

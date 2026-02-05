@@ -1,3 +1,4 @@
+
 export default {
     cmdBeforeAdd: (...args) => {
         const options = args[args.length - 1];

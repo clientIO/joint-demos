@@ -1,15 +1,19 @@
 import { util } from '@joint/plus';
 import { SystemButton } from '../../system/diagram/models';
 import Theme, { buttonBodyAttributes, buttonIconAttributes } from '../theme';
+
 /** SVG markup for the button */
 const buttonMarkup = util.svg /* xml */ `
     <circle @selector="body" class="add-button-body"/>
     <path @selector="icon" class="add-button-icon"/>
 `;
+
 export default class Button extends SystemButton {
+    
     preinitialize() {
         this.markup = buttonMarkup;
     }
+    
     defaults() {
         const attributes = {
             size: {
@@ -32,6 +36,7 @@ export default class Button extends SystemButton {
                 }
             }
         };
+        
         return util.defaultsDeep(attributes, super.defaults());
     }
 }

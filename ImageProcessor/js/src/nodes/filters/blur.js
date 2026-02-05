@@ -28,10 +28,13 @@ export class Blur extends Node {
                 }]
         }, defaults);
     }
+    
     async action() {
         const { image, radius } = this.properties;
+        
         if (!image)
             return [null];
+        
         try {
             const result = await App.cvService.do('blur', [image, radius]);
             return [result];

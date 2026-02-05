@@ -1,6 +1,8 @@
 import { dia, ui, util, mvc } from '@joint/plus';
 import { zoomSettings } from '../app';
+
 const baseUrl = 'assets/navigator';
+
 const IconButton = ui.widgets.button.extend({
     render: function () {
         const size = this.options.size || 20;
@@ -19,12 +21,15 @@ const IconButton = ui.widgets.button.extend({
         this.el.dataset.tooltip = tooltip;
     }
 });
+
 // Simplified navigator element view
+
 const UpdateFlags = {
     Render: '@render',
     Update: '@update',
     Transform: '@transform'
 };
+
 const NavigatorElementView = dia.ElementView.extend({
     body: null,
     markup: util.svg /* xml */ `<path @selector="body" opacity="0.4" />`,
@@ -61,6 +66,7 @@ const NavigatorElementView = dia.ElementView.extend({
         body.setAttribute('d', d);
     }
 });
+
 const NavigatorLinkView = dia.LinkView.extend({
     defaultTheme: null,
     initialize: function () {
@@ -70,11 +76,13 @@ const NavigatorLinkView = dia.LinkView.extend({
     render: () => { return; },
     update: () => { return; }
 });
+
 export class NavigatorService {
     element;
     scroller;
     toolbar;
     navigator;
+    
     constructor(element, scroller) {
         this.element = element;
         this.scroller = scroller;
@@ -114,17 +122,22 @@ export class NavigatorService {
                 iconButton: IconButton
             }
         });
+        
         this.toolbar.render();
         this.updateToolbarButtons();
         element.appendChild(this.toolbar.el);
+        
         this.toolbar.on('fit-to-screen:pointerclick', () => this.fitToScreen());
         this.toolbar.on('fullscreen:pointerclick', () => this.toggleFullscreen());
         this.toolbar.on('minimap:pointerclick', () => this.toggleMinimap());
+        
         document.addEventListener('fullscreenchange', () => this.updateToolbarButtons());
     }
+    
     fitToScreen() {
         this.scroller.zoomToFit({ useModelGeometry: true, padding: 20 });
     }
+    
     toggleFullscreen() {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen();
@@ -133,6 +146,7 @@ export class NavigatorService {
             document.exitFullscreen();
         }
     }
+    
     showMinimap() {
         this.navigator = new ui.Navigator({
             paperScroller: this.scroller,
@@ -155,12 +169,14 @@ export class NavigatorService {
         this.element.prepend(this.navigator.el);
         this.navigator.render();
     }
+    
     hideMiniMap() {
         if (!this.navigator)
             return;
         this.navigator.remove();
         this.navigator = null;
     }
+    
     toggleMinimap() {
         if (this.navigator) {
             this.hideMiniMap();
@@ -170,6 +186,7 @@ export class NavigatorService {
         }
         this.updateToolbarButtons();
     }
+    
     updateToolbarButtons() {
         // Minimap
         const minimapButton = this.toolbar.getWidgetByName('minimap');

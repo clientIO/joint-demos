@@ -3,20 +3,25 @@ import Node from './Node';
 import { Attribute } from '../const';
 import { inPortBodyAttributes, outPortBodyAttributes, outPortIconAttributes, portLabelAttributes } from '../theme';
 import { config } from '../../system/configs/system';
+
 const portLabelMarkup = util.svg /* xml*/ `
     <text @selector="label" class="label-text"/>
 `;
+
 const inPortMarkup = util.svg /* xml*/ `
     <circle @selector="portBody"/>
 `;
+
 const outPortMarkup = util.svg /* xml*/ `
     <circle @selector="portBody"/>
     <text @selector="icon"/>
 `;
+
 /**
  * Base class for diagram nodes with inbound and outbound ports.
  */
 export default class DiagramNode extends Node {
+    
     /**
      * Definition of inbound port group.
      * @see https://docs.jointjs.com/api/dia/Element/#ports
@@ -51,6 +56,7 @@ export default class DiagramNode extends Node {
         },
         markup: inPortMarkup
     };
+    
     /**
      * Definition of outbound port group.
      * @see https://docs.jointjs.com/api/dia/Element/#ports
@@ -82,6 +88,7 @@ export default class DiagramNode extends Node {
         },
         markup: outPortMarkup
     };
+    
     defaults() {
         return {
             ...super.defaults(),
@@ -101,16 +108,20 @@ export default class DiagramNode extends Node {
             }
         };
     }
+    
     /**
      * Initializes the diagram node.
      */
     initialize(attributes, options) {
         super.initialize(attributes, options);
+        
         this.updateLabel();
         this.updateInboundPorts();
         this.updateOutboundPorts();
+        
         this.on(`change:${Attribute.Label}`, () => this.updateLabel());
     }
+    
     /**
      * Updates the label of the diagram node. It assumes that all descendants have text SVG element with 'label' selector.
      */
@@ -119,14 +130,17 @@ export default class DiagramNode extends Node {
         // display the default label.
         this.attr(['label', 'text'], this.getLabel() || this.getDefaultLabel());
     }
+    
     /**
      * Updates the inbound ports of the diagram node.
      */
     updateInboundPorts() {
         const inboundPorts = this.getInboundPorts();
+        
         this.getGroupPorts(config.inboundPortGroupName).forEach(port => {
             this.removePort(port);
         });
+        
         this.addPorts(inboundPorts.map((port, index) => ({
             id: port.id || `inbound-port-${index}`,
             group: config.inboundPortGroupName,
@@ -137,14 +151,17 @@ export default class DiagramNode extends Node {
             }
         })));
     }
+    
     /**
      * Updates the outbound ports of the diagram node.
      */
     updateOutboundPorts() {
         const outboundPorts = this.getOutboundPorts();
+        
         this.getGroupPorts(config.outboundPortGroupName).forEach(port => {
             this.removePort(port);
         });
+        
         this.addPorts(outboundPorts.map((port, index) => ({
             id: port.id || `outbound-port-${index}`,
             group: config.outboundPortGroupName,
@@ -155,12 +172,15 @@ export default class DiagramNode extends Node {
             }
         })));
     }
+    
     getLabel() {
         return this.get(Attribute.Label) ?? null;
     }
+    
     getDefaultLabel() {
         return '';
     }
+    
     setLabel(label, options) {
         if (label == null) {
             this.unset(Attribute.Label, options);
@@ -169,12 +189,15 @@ export default class DiagramNode extends Node {
             this.set(Attribute.Label, label, options);
         }
     }
+    
     getInboundPorts() {
         return this.get(Attribute.InboundPorts) || [];
     }
+    
     getOutboundPorts() {
         return this.get(Attribute.OutboundPorts) || [];
     }
+    
     /**
      * Returns the inspector configuration for the diagram node. It has name input by default for all diagram nodes.
      */

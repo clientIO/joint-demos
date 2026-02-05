@@ -1,4 +1,5 @@
 import { shapes, util } from '@joint/plus';
+
 export class Link extends shapes.standard.Link {
     defaults() {
         return util.defaultsDeep({
@@ -21,6 +22,7 @@ export class Link extends shapes.standard.Link {
         }, super.defaults);
     }
 }
+
 export class Constant extends shapes.standard.BorderedRecord {
     defaults() {
         return util.defaultsDeep({
@@ -60,13 +62,17 @@ export class Constant extends shapes.standard.BorderedRecord {
                         label: '',
                         span: 2
                     }],
-                []
+                [
+                
+                ]
             ]
         }, super.defaults);
     }
+    
     setValue(value, opt) {
         return this.prop(['items', 1, 0, 'label'], '"' + value + '"', opt);
     }
+    
     getDefaultItem() {
         return {
             id: util.uuid(),
@@ -74,16 +80,19 @@ export class Constant extends shapes.standard.BorderedRecord {
             icon: 'assets/images/clipboard.svg'
         };
     }
+    
     getItemTools() {
         return [
             { action: 'edit', content: 'Edit Constant' }
         ];
     }
+    
     getTools() {
         return [
             { action: 'remove', content: warning('Remove Constant') }
         ];
     }
+    
     getInspectorConfig() {
         return {
             label: {
@@ -93,6 +102,7 @@ export class Constant extends shapes.standard.BorderedRecord {
         };
     }
 }
+
 export class Concat extends shapes.standard.HeaderedRecord {
     defaults() {
         return util.defaultsDeep({
@@ -166,6 +176,7 @@ export class Concat extends shapes.standard.HeaderedRecord {
             ]
         }, super.defaults);
     }
+    
     preinitialize() {
         this.markup = [{
                 tagName: 'rect',
@@ -181,9 +192,11 @@ export class Concat extends shapes.standard.HeaderedRecord {
                 selector: 'headerLabel'
             }];
     }
+    
     getNumberOfValues() {
         return this.prop(['items', 0]).length;
     }
+    
     getDefaultItem() {
         return {
             id: util.uuid(),
@@ -191,6 +204,7 @@ export class Concat extends shapes.standard.HeaderedRecord {
             icon: 'assets/images/link.svg'
         };
     }
+    
     getItemTools(itemId) {
         const groupIndex = this.getItemGroupIndex(itemId);
         if (groupIndex !== 0)
@@ -205,12 +219,14 @@ export class Concat extends shapes.standard.HeaderedRecord {
         tools.push();
         return tools;
     }
+    
     getTools() {
         return [
             { action: 'add-item', content: 'Add Value' },
             { action: 'remove', content: warning('Remove Concat') }
         ];
     }
+    
     getInspectorConfig(itemId) {
         const groupIndex = this.getItemGroupIndex(itemId);
         if (groupIndex !== 0)
@@ -223,6 +239,7 @@ export class Concat extends shapes.standard.HeaderedRecord {
         };
     }
 }
+
 export class GetDate extends shapes.standard.HeaderedRecord {
     defaults() {
         return util.defaultsDeep({
@@ -297,6 +314,7 @@ export class GetDate extends shapes.standard.HeaderedRecord {
             ]
         }, super.defaults);
     }
+    
     preinitialize() {
         this.markup = [{
                 tagName: 'rect',
@@ -312,6 +330,7 @@ export class GetDate extends shapes.standard.HeaderedRecord {
                 selector: 'headerLabel'
             }];
     }
+    
     getDefaultItem() {
         return {
             id: util.uuid(),
@@ -319,18 +338,22 @@ export class GetDate extends shapes.standard.HeaderedRecord {
             icon: 'assets/images/document.svg'
         };
     }
+    
     getItemTools() {
         return null;
     }
+    
     getTools() {
         return [
             { action: 'remove', content: warning('Remove GetDate') }
         ];
     }
+    
     getInspectorConfig() {
         return null;
     }
 }
+
 export class Record extends shapes.standard.HeaderedRecord {
     defaults() {
         return util.defaultsDeep({
@@ -409,6 +432,7 @@ export class Record extends shapes.standard.HeaderedRecord {
             }
         }, super.defaults);
     }
+    
     preinitialize() {
         this.markup = [{
                 tagName: 'rect',
@@ -427,9 +451,11 @@ export class Record extends shapes.standard.HeaderedRecord {
                 selector: 'footer'
             }];
     }
+    
     setName(name, opt) {
         return this.attr(['headerLabel', 'textWrap', 'text'], name, opt);
     }
+    
     getDefaultItem() {
         return {
             id: util.uuid(),
@@ -437,6 +463,7 @@ export class Record extends shapes.standard.HeaderedRecord {
             icon: 'assets/images/document.svg'
         };
     }
+    
     getItemTools() {
         return [
             { action: 'edit', content: 'Edit Item' },
@@ -447,12 +474,14 @@ export class Record extends shapes.standard.HeaderedRecord {
             { action: 'remove', content: warning('Remove Item') }
         ];
     }
+    
     getTools() {
         return [
             { action: 'add-item', content: 'Add Child' },
             { action: 'remove', content: warning('Remove Record') }
         ];
     }
+    
     getInspectorConfig() {
         return {
             label: {
@@ -483,13 +512,16 @@ export class Record extends shapes.standard.HeaderedRecord {
         };
     }
 }
+
 function warning(text) {
     return '<span style="color:#fe854f">' + text + '</span>';
 }
+
 const ConstantView = shapes.standard.RecordView;
 const ConcatView = shapes.standard.RecordView;
 const GetDateView = shapes.standard.RecordView;
 const RecordView = shapes.standard.RecordView;
+
 Object.assign(shapes, {
     mapping: {
         Link,

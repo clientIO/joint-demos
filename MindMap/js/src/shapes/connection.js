@@ -1,5 +1,7 @@
 import { dia } from '@joint/plus';
+
 export class Connection extends dia.Link {
+    
     defaults() {
         return {
             ...super.defaults,
@@ -14,6 +16,7 @@ export class Connection extends dia.Link {
             }
         };
     }
+    
     preinitialize() {
         this.markup = [{
                 tagName: 'path',
@@ -24,6 +27,7 @@ export class Connection extends dia.Link {
                 }
             }];
     }
+    
     setColor(color, opt) {
         this.attr(['line', 'stroke'], color, opt);
     }

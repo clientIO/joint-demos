@@ -1,16 +1,20 @@
 import { inspectorOptions } from '../shared-config';
+
 export const AnnotationLabels = {
     'annotation.Annotation': 'Annotation',
     'annotation.AnnotationLink': 'Annotation Link'
 };
+
 export var AnnotationShapeTypes;
 (function (AnnotationShapeTypes) {
     AnnotationShapeTypes["ANNOTATION"] = "annotation.Annotation";
     AnnotationShapeTypes["LINK"] = "annotation.AnnotationLink";
 })(AnnotationShapeTypes || (AnnotationShapeTypes = {}));
+
 export const annotationIconClasses = {
     ANNOTATION: 'jj-bpmn-icon-text-annotation'
 };
+
 export const annotationAppearanceConfig = {
     groups: {
         style: {
@@ -64,6 +68,7 @@ export const annotationAppearanceConfig = {
         }
     }
 };
+
 export const annotationLinkAppearanceConfig = {
     groups: {
         style: {

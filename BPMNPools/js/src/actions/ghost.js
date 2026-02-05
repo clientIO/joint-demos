@@ -1,4 +1,5 @@
 import { mvc } from '@joint/plus';
+
 export function showGhostOnNextInteraction(paper) {
     const listener = new mvc.Listener();
     listener.listenTo(paper, {
@@ -24,6 +25,7 @@ export function showGhostOnNextInteraction(paper) {
         }
     });
 }
+
 function createGhost(elementView) {
     const ghostEl = elementView.el.cloneNode(true);
     ghostEl.style.pointerEvents = 'none';

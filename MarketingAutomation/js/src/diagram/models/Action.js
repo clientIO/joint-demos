@@ -2,6 +2,7 @@ import { util } from '@joint/plus';
 import { Attribute } from '../const';
 import Theme, { nodeLabelAttributes, typeLabelAttributes, rectBodyAttributes, iconAttributes, iconBackgroundAttributes } from '../theme';
 import LabeledNode from './LabeledNode';
+
 const markup = util.svg /* xml*/ `
     <rect @selector="body" class="node-body trigger-body"/>
     <rect @selector="iconBackground"/>
@@ -9,14 +10,21 @@ const markup = util.svg /* xml*/ `
     <text @selector="typeLabel" class="node-label trigger-type-label"/>
     <text @selector="label" class="node-label trigger-label"/>
 `;
+
 const TYPE = 'action';
+
 export default class Action extends LabeledNode {
+    
     static type = TYPE;
+    
     static growthLimit = 1;
+    
     dataDefinition = {};
+    
     preinitialize() {
         this.markup = markup;
     }
+    
     defaults() {
         const attributes = {
             // App-specific attributes
@@ -60,14 +68,17 @@ export default class Action extends LabeledNode {
                 },
             }
         };
+        
         return util.defaultsDeep(attributes, super.defaults());
     }
+    
     /**
      * @returns True if the action has an action key, false otherwise.
      */
     isConfigured() {
         return this.getActionKey() != null;
     }
+    
     /**
      * @returns The action key from the action model.
      * @see {@link Attribute.ActionKey}
@@ -75,6 +86,7 @@ export default class Action extends LabeledNode {
     getActionKey() {
         return this.get(Attribute.ActionKey) || null;
     }
+    
     /**
      * Sets the action key for the action model.
      * @param actionKey - The action key to set.
@@ -84,12 +96,14 @@ export default class Action extends LabeledNode {
     setActionKey(actionKey, options) {
         this.set(Attribute.ActionKey, actionKey, options);
     }
+    
     /**
      * @returns The default label for the action.
      */
     getDefaultLabel() {
         return `${this.attr('typeLabel/text')}`;
     }
+    
     /**
      * Unsets the provider, which results in the action being reset to the default state.
      * Icon, label, and type label are set to the default values.
@@ -112,6 +126,7 @@ export default class Action extends LabeledNode {
             }
         });
     }
+    
     /**
      * Sets the provider for the action, which results in the action being updated to the new provider.
      * Icon, label, and type label are set to the new provider's values.
@@ -123,6 +138,7 @@ export default class Action extends LabeledNode {
     updateProvider(provider, action) {
         const { icon, iconBackground, minimapBackground } = provider;
         const { name = '', data = {} } = action;
+        
         this.attr({
             icon: {
                 href: `assets/icons/providers/${icon}`
@@ -138,9 +154,11 @@ export default class Action extends LabeledNode {
                 text: name,
             }
         });
+        
         this.dataDefinition = data;
         this.minimapBackground = minimapBackground ?? Theme.NodeMinimapBackgroundColor;
     }
+    
     /**
      * @param dataEntryType - Converts the data entry type to the corresponding input type expected by the inspector.
      * @returns The type of the input for the data entry.
@@ -159,12 +177,15 @@ export default class Action extends LabeledNode {
                 return 'text';
         }
     }
+    
     /**
      * @returns Dynamically built inspector config based on the current action's data definition (providers data).
      * @see {@link InspectorConfig}
      */
     getInspectorConfig() {
+        
         const dataKeys = Object.keys(this.dataDefinition);
+        
         if (!this.isConfigured() || dataKeys.length === 0) {
             // Nothing to edit yet
             return {
@@ -175,6 +196,7 @@ export default class Action extends LabeledNode {
                 groups: {}
             };
         }
+        
         const dataInputs = {};
         dataKeys.forEach((key) => {
             const dataEntry = this.dataDefinition[key];
@@ -189,6 +211,7 @@ export default class Action extends LabeledNode {
                 group: 'data'
             };
         });
+        
         const config = {
             headerText: `Action: ${this.getDefaultLabel()}`,
             headerIcon: this.attr('icon/href'),
@@ -204,6 +227,7 @@ export default class Action extends LabeledNode {
                 data: dataInputs
             }
         };
+        
         return util.defaultsDeep(config, super.getInspectorConfig());
     }
 }

@@ -1,4 +1,5 @@
 import { dia, shapes } from '@joint/plus';
+
 export class Node extends dia.Element {
     defaults() {
         return {
@@ -28,6 +29,7 @@ export class Node extends dia.Element {
             },
         };
     }
+    
     markup = [{
             tagName: 'rect',
             selector: 'rect'
@@ -36,6 +38,7 @@ export class Node extends dia.Element {
             selector: 'text',
         }];
 }
+
 export class Link extends shapes.standard.Link {
     defaults() {
         return {
@@ -59,6 +62,7 @@ export class Link extends shapes.standard.Link {
         };
     }
 }
+
 export const astShapes = {
     ast: {
         Node,

@@ -1,9 +1,13 @@
 import { dia } from '@joint/plus';
 import { DEFAULT_TEXT_ATTRIBUTES } from './config';
+
 const PADDING = 25;
 const CORNER = 20;
+
 export const RESIZE_FLAG = 'autoResized';
+
 export class TextNode extends dia.Element {
+    
     defaults() {
         return {
             ...super.defaults,
@@ -38,6 +42,7 @@ export class TextNode extends dia.Element {
             z: 2
         };
     }
+    
     preinitialize() {
         this.markup = [{
                 tagName: 'path',
@@ -47,6 +52,7 @@ export class TextNode extends dia.Element {
                 selector: 'label'
             }];
     }
+    
     adjustSize(paper) {
         const view = paper.findViewByModel(this);
         const labelNode = view.findNode('label');
@@ -55,8 +61,11 @@ export class TextNode extends dia.Element {
         const { width, height } = view.getNodeBoundingRect(labelNode).inflate(PADDING);
         this.resize(width, height, { [RESIZE_FLAG]: true, direction: 'bottom-right' });
     }
+    
     static ANNOTATION_PATH = ['attrs', 'label', 'annotations'];
+    
     static LABEL_PATH = ['attrs', 'label', 'text'];
+    
     static setupAutoSizeAdjustment(paper) {
         const { model } = paper;
         model.getElements().forEach((el) => el.adjustSize(paper));
@@ -68,6 +77,7 @@ export class TextNode extends dia.Element {
             }
         });
     }
+    
     static create(x, y, text, annotations, bodyAttrs) {
         return new TextNode({
             position: { x, y },
@@ -81,6 +91,7 @@ export class TextNode extends dia.Element {
         });
     }
 }
+
 export const textNodes = [
     TextNode.create(450, 50, [
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
@@ -90,6 +101,7 @@ export const textNodes = [
         'Orci varius natoque penatibus et magnis dis parturient montes,',
         'nascetur ridiculus mus.'
     ].join('\n'), [], { fill: '#fee68f', stroke: '#b18b01' }),
+    
     TextNode.create(50, 50, [
         'A full-featured text editor',
         '',
@@ -201,6 +213,7 @@ export const textNodes = [
             },
         },
     ]),
+    
     TextNode.create(550, 380, 'Rotated text\n\nEdit me...', [
         {
             start: -1,

@@ -1,5 +1,6 @@
-/* An example with pool, swimlanes and phases. */
+
 export const loadExample = (graph) => {
+    
     graph.fromJSON({
         'cells': [
             {

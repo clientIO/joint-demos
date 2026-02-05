@@ -8,6 +8,7 @@ import { Effect as SystemEffect } from '../../system/diagram/effects';
 import PulseEffect from './PulseEffect';
 import ActionWarningEffect from './ActionWarningEffect';
 import Theme from '../theme';
+
 /**
  * Enumeration of available model effects.
  */
@@ -17,6 +18,7 @@ export const Effect = {
     ActionWarning: 'action-warning',
     NodePulse: 'node-pulse',
 };
+
 /**
  * Add an effect (highlighter) to a diagram node or edge.
  */
@@ -65,6 +67,7 @@ export function addEffect(cellView, effect) {
             throw new Error(`Unsupported effect: ${effect}`);
     }
 }
+
 /**
  * Remove an effect (highlighter) from the diagram.
  * @todo It can be extended to support removing effects from specific cells
@@ -94,6 +97,7 @@ export function removeEffect(paper, effect) {
             throw new Error(`Unsupported effect: ${effect}`);
     }
 }
+
 /**
  * Get the selector for applying effects based on the cell type.
  */

@@ -1,14 +1,19 @@
 import { util } from '@joint/plus';
 import { RectPrism, RectPrismView } from './rect-prism';
+
 const TYPE = 'yamazumi.TaskElement';
+
 export class TaskElement extends RectPrism {
     constructor(attributes, options) {
         super(attributes, options);
+        
         this.setTaskHeight();
+        
         this.on('change:duration', () => {
             this.setTaskHeight();
         });
     }
+    
     defaults() {
         return util.defaultsDeep({
             type: TYPE,
@@ -19,19 +24,25 @@ export class TaskElement extends RectPrism {
             }
         }, super.defaults());
     }
+    
     setTaskHeight() {
         const height = this.get('duration') * this.get('durationHeight');
+        
         this.prop('size/height', height);
     }
 }
+
 export class TaskElementView extends RectPrismView {
     animation = {
         easing: 'ease-in',
         fill: 'forwards',
         duration: 200
     };
+    
     move;
+    
     updateTransformation() {
+        
         const { el, model } = this;
         const { x, y } = model.get('position');
         const transform = `translate(${x}px, ${y}px)`;

@@ -1,12 +1,16 @@
 import { util } from '@joint/plus';
 import { RectPrism, RectPrismView } from './rect-prism';
+
 const TYPE = 'yamazumi.BottomElement';
+
 export class BottomElement extends RectPrism {
     constructor(attributes, options) {
         attributes.label = '';
         super(attributes, options);
         const { operators, operationGap, taskWidth, depth } = attributes;
+        
         const width = (operators.length * taskWidth) + operationGap;
+        
         this.prop({
             size: {
                 width: width,
@@ -21,8 +25,10 @@ export class BottomElement extends RectPrism {
                 }
             }
         });
+        
         operators.forEach((operator, i) => {
             const x = i * taskWidth + i * operationGap + taskWidth / 2;
+            
             this.markup.push(...util.svg /* xml */ `
                 <text
                     @selector="label${i + 1}"
@@ -40,6 +46,7 @@ export class BottomElement extends RectPrism {
             `);
         });
     }
+    
     defaults() {
         return {
             ...super.defaults(),
@@ -48,5 +55,6 @@ export class BottomElement extends RectPrism {
         };
     }
 }
+
 export class BottomElementView extends RectPrismView {
 }

@@ -1,13 +1,17 @@
 import { dia, shapes, highlighters, elementTools, ui } from '@joint/plus';
 import { CompositeCable, ScrewTerminal, Plug, COLOR_TERMINAL, COLOR_TERMINAL_TEXT } from './shapes';
+
 export const init = () => {
+    
     const cellNamespace = {
         ...shapes,
         CompositeCable,
         Plug,
         ScrewTerminal
     };
+    
     const graph = new dia.Graph({}, { cellNamespace });
+    
     const paper = new dia.Paper({
         el: document.getElementById('paper'),
         width: '100%',
@@ -32,6 +36,7 @@ export const init = () => {
         },
         snapLinks: { radius: 10 },
         defaultConnectionPoint: { name: 'anchor' },
+        
         connectionStrategy: function (end, view, _magnet, coords, _link) {
             const element = view.model;
             if (ScrewTerminal.isScrewTerminal(element) || Plug.isPlug(element)) {
@@ -39,6 +44,7 @@ export const init = () => {
             }
             return end;
         },
+        
         validateConnection: function (cellViewS, magnetS, cellViewT, magnetT, end, _linkView) {
             if (magnetS === magnetT)
                 return false;
@@ -49,9 +55,12 @@ export const init = () => {
             if (end === 'source' && !cellViewS.model.get('connect'))
                 return false;
             return true;
+            
         },
     });
+    
     paper.scale(2);
+    
     const stencil = new ui.Stencil({
         paper,
         height: null,
@@ -64,9 +73,12 @@ export const init = () => {
             marginY: 10,
         }
     });
+    
     stencil.render();
     document.getElementById('stencil')?.appendChild(stencil.el);
+    
     // Populate stencil
+    
     const terminals = Array.from({ length: 4 }, (_, i) => {
         const length = i + 1;
         return new shapes.standard.Rectangle({
@@ -93,6 +105,7 @@ export const init = () => {
             }
         });
     });
+    
     const cables = [
         ['#CD5334', '#0081AF', '#F4B860'],
         ['#49416D', '#CFBFF7'],
@@ -126,6 +139,7 @@ export const init = () => {
             })
         });
     });
+    
     const plug = new shapes.standard.Path({
         size: { width: 75, height: 60 },
         dropShape: {
@@ -144,11 +158,13 @@ export const init = () => {
             }
         }
     });
+    
     stencil.load([
         ...cables,
         ...terminals,
         plug,
     ]);
+    
     const tooltip = new ui.Tooltip({
         rootTarget: document.body,
         target: '[data-tooltip]',
@@ -159,10 +175,13 @@ export const init = () => {
             delay: '200ms'
         }
     });
+    
     // Create actual shape on drop
+    
     stencil.on('element:dragstart', () => {
         tooltip.disable();
     });
+    
     stencil.on('element:dragend', (cloneView, _evt, dropArea, _isDropValid) => {
         tooltip.enable();
         stencil.cancelDrag({ dropAnimation: false });
@@ -182,13 +201,16 @@ export const init = () => {
                 break;
         }
     });
+    
     // Highlight ports
+    
     paper.on('link:connect', (_linkView, _evt, elementView, magnet) => {
         const portId = elementView.findAttribute('port', magnet);
         if (!portId)
             return;
         highlightPort(elementView, portId);
     });
+    
     paper.on('link:disconnect', (_linkView, _evt, elementView, magnet) => {
         const portId = elementView.findAttribute('port', magnet);
         if (!portId)
@@ -199,7 +221,9 @@ export const init = () => {
             return;
         unhighlightPort(elementView, portId);
     });
+    
     // Disconnect cables on double click
+    
     paper.on('element:magnet:pointerdblclick', (elementView, evt) => {
         const portId = elementView.findAttribute('port', evt.target);
         if (!portId)
@@ -208,7 +232,9 @@ export const init = () => {
         disconnectCables(graph, element, portId);
         unhighlightPort(elementView, portId);
     });
+    
     // Select element on click
+    
     paper.on('element:pointerclick', (elementView) => {
         removeSelection(paper);
         const element = elementView.model;
@@ -238,10 +264,13 @@ export const init = () => {
             ]
         }));
     });
+    
     paper.on('blank:pointerclick', () => {
         removeSelection(paper);
     });
+    
     // Helper functions
+    
     function removeSelection(paper) {
         paper.model.getElements().forEach(element => {
             if (element.getParentCell())
@@ -249,6 +278,7 @@ export const init = () => {
             element.findView(paper).removeTools();
         });
     }
+    
     function disconnectCables(graph, element, portId) {
         const links = findConnectedLinks(graph, element, portId);
         links.forEach((link, index) => {
@@ -281,6 +311,7 @@ export const init = () => {
             }
         });
     }
+    
     function findConnectedLinks(graph, element, portId) {
         const id = element.id;
         return graph.getConnectedLinks(element).filter(link => {
@@ -291,15 +322,19 @@ export const init = () => {
             return false;
         });
     }
+    
     function highlightPort(elementView, portId) {
         highlighters.addClass.add(elementView, { port: portId }, `hgl-connected-${portId}`, {
             className: 'connected',
         });
     }
+    
     function unhighlightPort(elementView, portId) {
         highlighters.addClass.remove(elementView, `hgl-connected-${portId}`);
     }
+    
     // Example
+    
     const terminal1 = ScrewTerminal.create(graph, 3, 150, 150);
     const cable1 = CompositeCable.create(graph, ['#CD5334', '#0081AF', '#F4B860'], 250, 150, 300, 100);
     const [wire1] = cable1.getSourceWires();

@@ -1,7 +1,9 @@
 import { CONNECTION_COLOR, IDEA_FILL_COLORS, IDEA_IMAGE_SIZES, IDEA_LINES, IDEA_SPACING } from '../theme';
+
 function _valueAtLevel(array, level) {
     return array[Math.min(level, array.length - 1)];
 }
+
 export function layoutTree(app) {
     const { graph, tree, scroller, paper } = app;
     // Visit all elements in breadth-first-fashion and set their

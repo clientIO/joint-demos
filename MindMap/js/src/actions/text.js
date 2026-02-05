@@ -1,7 +1,9 @@
 import { ui } from '@joint/plus';
 import { IDEA_LABEL_PLACEHOLDER, IDEA_URL_COLOR } from '../theme';
 import { prependHttp } from '../utils';
+
 const { TextEditor } = ui;
+
 // Text Editing
 export function startEditingIdeaLabel(app, idea, event) {
     const { paper, graph } = app;
@@ -21,7 +23,9 @@ export function startEditingIdeaLabel(app, idea, event) {
             }, shouldRenderSynchronously);
         }
     }
+    
     idea.set(PLACEHOLDER_PROPERTY, IDEA_LABEL_PLACEHOLDER, shouldRenderSynchronously);
+    
     function restoreIdeaLabel() {
         idea.set({
             [PLACEHOLDER_PROPERTY]: ' ',
@@ -29,6 +33,7 @@ export function startEditingIdeaLabel(app, idea, event) {
             [ANNOTATIONS_PROPERTY]: initialAnnotations
         });
     }
+    
     function saveIdeaLabel() {
         const newLabel = idea.get(LABEL_PROPERTY);
         const newAnnotations = idea.get(ANNOTATIONS_PROPERTY);
@@ -43,6 +48,7 @@ export function startEditingIdeaLabel(app, idea, event) {
         graph.stopBatch('save-idea-label');
         graph.triggerLayout();
     }
+    
     TextEditor.edit(ideaView.getLabelNode(), {
         theme: 'modern',
         cellView: ideaView,
@@ -90,6 +96,7 @@ export function startEditingIdeaLabel(app, idea, event) {
             saveIdeaLabel();
         }
     });
+    
     // Text Selection
     let selectionStart;
     let selectionEnd;
@@ -104,6 +111,7 @@ export function startEditingIdeaLabel(app, idea, event) {
     }
     TextEditor.select(selectionStart, selectionEnd);
 }
+
 export function openURL(app, url) {
     if (!url)
         return;

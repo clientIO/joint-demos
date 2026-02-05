@@ -1,12 +1,17 @@
 import { mvc, shapes } from '@joint/plus';
+
 import { onSwimlaneDragStart, onSwimlaneDrag, onSwimlaneDragEnd, onSwimlaneDrop } from './swimlanes';
 import { onPhaseDragStart, onPhaseDrag, onPhaseDragEnd, onPhaseDrop } from './phases';
 import { onElementDragStart, onElementDrag, onElementDragEnd, onElementDrop } from './elements';
 import { onPoolDragStart, onPoolDrag, onPoolDragEnd, onPoolDrop } from './pools';
 import { setStencilEvent } from '../utils';
+
 export class BPMNController extends mvc.Listener {
+    
     startListening() {
+        
         const [{ paper, stencil }] = this.callbackArguments;
+        
         this.listenTo(stencil, {
             'element:dragstart': (_app, cloneView, evt, x, y) => {
                 setStencilEvent(evt, true);
@@ -72,6 +77,7 @@ export class BPMNController extends mvc.Listener {
                 }
             }
         });
+        
         this.listenTo(paper, {
             'element:pointerdown': (_app, elementView, evt, x, y) => {
                 setStencilEvent(evt, false);

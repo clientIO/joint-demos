@@ -1,4 +1,5 @@
 import { inspectorOptions } from '../shared-config';
+
 export const DataLabels = {
     'data.DataStore': 'Data Store',
     'data.DataObject': 'Data Object',
@@ -6,6 +7,7 @@ export const DataLabels = {
     'data.DataOutput': 'Data Output',
     'data.DataAssociation': 'Data Association'
 };
+
 export var DataShapeTypes;
 (function (DataShapeTypes) {
     DataShapeTypes["DATA_STORE"] = "data.DataStore";
@@ -14,12 +16,14 @@ export var DataShapeTypes;
     DataShapeTypes["DATA_OUTPUT"] = "data.DataOutput";
     DataShapeTypes["DATA_ASSOCIATION"] = "data.DataAssociation";
 })(DataShapeTypes || (DataShapeTypes = {}));
+
 export const dataIconClasses = {
     DATA_STORE: 'jj-bpmn-icon-data-store',
     DATA_OBJECT: 'jj-bpmn-icon-data-object',
     DATA_INPUT: 'jj-bpmn-icon-data-input',
     DATA_OUTPUT: 'jj-bpmn-icon-data-output'
 };
+
 export const dataObjectAppearanceConfig = {
     groups: {
         style: {
@@ -79,6 +83,7 @@ export const dataObjectAppearanceConfig = {
         }
     }
 };
+
 export const dataStoreAppearanceConfig = {
     groups: {
         style: {
@@ -152,6 +157,7 @@ export const dataStoreAppearanceConfig = {
         }
     }
 };
+
 export const dataAssociationAppearanceConfig = {
     groups: {
         style: {

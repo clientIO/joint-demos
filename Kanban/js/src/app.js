@@ -2,9 +2,13 @@ import { dia, shapes, ui } from '@joint/plus';
 import { columns, tasks as defaultTasks, dependencies as defaultDependencies } from './kanban/data';
 import { Kanban } from './kanban/kanban';
 import { Task as TaskShape, Header as HeaderShape, Dependency as DependencyShape, AnimatedElementView } from './shapes';
+
 const STORAGE_KEY = 'joint.kanban.board';
+
 export const init = () => {
+    
     const graph = new dia.Graph({}, { cellNamespace: shapes });
+    
     const paper = new dia.Paper({
         el: document.getElementById('paper'),
         width: 1000,
@@ -90,6 +94,7 @@ export const init = () => {
             return new DependencyShape();
         }
     });
+    
     let tasks;
     let dependencies;
     let cmdBuffer;
@@ -107,6 +112,7 @@ export const init = () => {
             localStorage.removeItem(STORAGE_KEY);
         }
     }
+    
     const kanban = new Kanban({
         paper,
         topLeft: {
@@ -118,11 +124,13 @@ export const init = () => {
         dependencies: dependencies || defaultDependencies,
         showDependencyTool
     });
+    
     paper.unfreeze({
         cellVisibility: (cell) => {
             return kanban.showDependencyTool ? true : cell.isElement();
         }
     });
+    
     const cmd = new dia.CommandManager({
         graph,
         stackLimit: 20,
@@ -132,11 +140,14 @@ export const init = () => {
             return !options.ignoreCommandManager;
         }
     });
+    
     if (cmdBuffer) {
         cmd.fromJSON(cmdBuffer);
     }
+    
     cmd.on('stack:undo stack:redo', () => kanban.layoutView.model.update());
     cmd.on('stack', () => save());
+    
     const toolbar = new ui.Toolbar({
         el: document.getElementById('toolbar'),
         tools: [
@@ -152,6 +163,7 @@ export const init = () => {
         autoToggle: true,
         references: { commandManager: cmd }
     });
+    
     toolbar.on('dependencies:change', (enabled) => {
         kanban.showDependencyTool = enabled;
         kanban.unselectTask();
@@ -159,7 +171,9 @@ export const init = () => {
         paper.wakeUp();
         save();
     });
+    
     toolbar.render();
+    
     function save() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
             tasks: kanban.tasks,

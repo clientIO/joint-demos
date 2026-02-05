@@ -2,10 +2,13 @@ import { dia, shapes, highlighters, mvc, ui } from '@joint/plus';
 import { createInspector } from './inspector';
 import { generateTree } from './layout';
 import data from './data';
+
 export const init = () => {
     // Create Graph & Paper
     // --------------------
+    
     const graph = new dia.Graph({}, { cellNamespace: shapes });
+    
     const paper = new dia.Paper({
         el: document.getElementById('paper'),
         cellViewNamespace: shapes,
@@ -33,26 +36,35 @@ export const init = () => {
             return !cell.get('hidden');
         },
     });
+    
     // Data Model
+    
     const dataModel = new dia.Cell({
         // Each cell needs to have a type in order to be added to the graph
         type: 'data',
         data,
     });
+    
     // Inspector
     // Works with the data model (not the graph associated with the paper)
+    
     const inspector = createInspector(dataModel);
     inspector.render();
     document.getElementById('inspector').appendChild(inspector.el);
+    
     // Undo & redo
     // The command manager expects a graph, so we add the data model to a new graph
+    
     const historyGraph = new dia.Graph({}, { cellNamespace: shapes });
     historyGraph.addCell(dataModel);
+    
     const history = new dia.CommandManager({
         graph: historyGraph,
         stackLimit: 20
     });
+    
     // Toolbar
+    
     const toolbar = new ui.Toolbar({
         tools: [
             {
@@ -72,10 +84,14 @@ export const init = () => {
             commandManager: history
         }
     });
+    
     document.getElementById('toolbar').appendChild(toolbar.el);
     toolbar.render();
+    
     // Events
+    
     const controller = new mvc.Listener();
+    
     controller.listenTo(paper, {
         'element:pointerclick': (elementView) => {
             const element = elementView.model;
@@ -104,9 +120,11 @@ export const init = () => {
             highlighters.mask.remove(elementView, 'hover');
         }
     });
+    
     controller.listenTo(toolbar, {
         'new:pointerclick': () => clearData()
     });
+    
     inspector.el.addEventListener('focusin', (evt) => {
         const targetEl = evt.target;
         const listItemEl = targetEl.closest('.list-item');
@@ -126,15 +144,21 @@ export const init = () => {
         unhighlightFields(inspector);
         highlightField(inspector, listItemEl, element, { scroll: false });
     });
+    
     // Diagram updates
+    
     let diagramBBox = updateDiagram();
+    
     controller.listenTo(history, {
         'stack': () => {
             diagramBBox = updateDiagram();
         }
     });
+    
     window.onresize = () => zoomToFit(paper, diagramBBox);
+    
     // Functions
+    
     function highlightField(inspector, inspectorFieldEl, element, options = {}) {
         const { scroll = true, blur = false } = options;
         if (blur) {
@@ -148,6 +172,7 @@ export const init = () => {
             // Highlight the top-most element in the inspector
             inspector.el.classList.add('highlighted');
             scroll && inspector.el.scrollTo({ top: 0, behavior: 'smooth' });
+            
         }
         highlighters.mask.removeAll(paper, 'selection');
         highlighters.mask.add(element.findView(paper), element.get('selector') || 'body', 'selection', {
@@ -158,28 +183,39 @@ export const init = () => {
                 stroke: '#2A93CB'
             }
         });
+        
         element.set('highlighted', true);
     }
+    
     function unhighlightFields(inspector) {
         inspector.el.querySelectorAll('.highlighted').forEach(el => el.classList.remove('highlighted'));
         inspector.el.classList.remove('highlighted');
+        
         highlighters.mask.removeAll(paper, 'selection');
+        
         graph.getElements().forEach(element => element.set('highlighted', false));
     }
+    
+    
     function updateDiagram() {
         const data = dataModel.get('data');
         const graphBBox = generateTree(graph, data);
+        
         // An element could be replaced by a new one when the type changes.
         // We need to highlight the new element again.
         const selectedElement = graph.getElements().find(element => element.get('highlighted'));
         if (selectedElement) {
             highlightField(inspector, null, selectedElement, { scroll: false });
         }
+        
         // Check for hidden elements
         paper.wakeUp();
+        
         zoomToFit(paper, graphBBox);
+        
         return graphBBox;
     }
+    
     function clearData() {
         dataModel.set('data', {
             id: 'root',
@@ -191,6 +227,8 @@ export const init = () => {
         highlightField(inspector, null, root, { scroll: false });
     }
 };
+
+
 function zoomToFit(paper, contentArea) {
     // Fit the paper to the content with a padding of 20 pixels
     paper.transformToFitContent({

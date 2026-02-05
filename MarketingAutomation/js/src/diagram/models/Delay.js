@@ -2,6 +2,7 @@ import { util } from '@joint/plus';
 import Node from './Node';
 import Theme, { typeLabelAttributes, nodeLabelAttributes, iconAttributes, iconBackgroundAttributes, rectBodyAttributes } from '../theme';
 import { Attribute } from '../const';
+
 const delayMarkup = util.svg /* xml*/ `
     <rect @selector="body" class="node-body delay-body"/>
     <rect @selector="iconBackground"/>
@@ -9,20 +10,30 @@ const delayMarkup = util.svg /* xml*/ `
     <text @selector="typeLabel" class="node-label delay-type-label"/>
     <text @selector="label" class="node-label delay-label"/>
 `;
+
 const TYPE = 'delay';
+
 const ICON = 'assets/icons/delay.svg';
+
 export default class Delay extends Node {
+    
     static type = TYPE;
+    
     static growthLimit = 1;
+    
     minimapBackground = Theme.DelayMinimapBackgroundColor;
+    
     preinitialize() {
         this.markup = delayMarkup;
     }
+    
     initialize(attributes, options) {
         super.initialize(attributes, options);
+        
         this.updateDuration();
         this.on(`change:${Attribute.Duration}`, () => this.updateDuration());
     }
+    
     defaults() {
         const attributes = {
             // App-specific attributes
@@ -71,9 +82,11 @@ export default class Delay extends Node {
                 },
             }
         };
+        
         return util.defaultsDeep(attributes, super.defaults());
     }
     ;
+    
     /**
      * @returns The duration of the delay from the delay model.
      * @see {@link Attribute.Duration}
@@ -81,11 +94,13 @@ export default class Delay extends Node {
     getDuration() {
         return this.get(Attribute.Duration);
     }
+    
     updateDuration() {
         const duration = this.getDuration();
         const durationText = parseDuration(duration);
         this.attr('label/text', durationText);
     }
+    
     /**
      * @returns Inspector config for the delay.
      * @see {@link InspectorConfig}
@@ -137,25 +152,34 @@ export default class Delay extends Node {
         };
     }
 }
+
 // - Helper functions
+
 /**
  * Parses the duration of the delay into a string, which can be displayed as a label.
  * @param duration - The duration of the delay.
  * @returns The parsed duration string.
  */
 function parseDuration(duration) {
+    
     const isDurationEmpty = duration.days === 0 && duration.hours === 0 && duration.minutes === 0;
+    
     if (isDurationEmpty)
         return 'No delay set';
+    
     const result = ['Wait for:'];
+    
     if (duration.days > 0) {
         result.push(`${duration.days} day${duration.days > 1 ? 's' : ''}`);
     }
+    
     if (duration.hours > 0) {
         result.push(`${duration.hours} hour${duration.hours > 1 ? 's' : ''}`);
     }
+    
     if (duration.minutes > 0) {
         result.push(`${duration.minutes} minute${duration.minutes > 1 ? 's' : ''}`);
     }
+    
     return result.join(' ');
 }

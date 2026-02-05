@@ -3,14 +3,14 @@ var CopyPlugin = require('copy-webpack-plugin');
 var path = process.cwd() + '/dist';
 
 module.exports = {
-    entry: './index.ts',
+    entry: './index.js',
     mode: 'development',
     output: {
         path: path,
         filename: 'bundle.js'
     },
     resolve: {
-        extensions: ['.ts', '.js']
+        extensions: ['.js']
     },
     devtool: 'source-map',
     devServer: {
@@ -22,12 +22,8 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.ts$/,
-                use: [{ loader: 'ts-loader', options: { allowTsInNodeModules: true }}]
-            },
-            {
                 test: /\.css$/i,
-                use: ['style-loader', 'css-loader']
+                use: ['style-loader', 'css-loader'],
             },
             {
                 test: /\.s[ac]ss$/i,
@@ -36,6 +32,16 @@ module.exports = {
                     'css-loader',
                     'sass-loader'
                 ]
+            },
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env']
+                    }
+                }
             }
         ]
     },

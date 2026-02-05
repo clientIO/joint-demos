@@ -1,6 +1,7 @@
 const OPEN_SANS_URL = 'assets/fonts/OpenSans.ttf';
 const DM_SANS_URL = 'assets/fonts/DMSans.ttf';
 const ROBOTO_FLEX_URL = 'assets/fonts/RobotoFlex.ttf';
+
 function base64convert(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -11,13 +12,18 @@ function base64convert(file) {
         reader.readAsDataURL(file);
     });
 }
+
 export const fontsStyleSheet = async () => {
+    
     const openSans = await fetch(OPEN_SANS_URL);
     const openSansBase64 = await base64convert(await openSans.blob());
+    
     const dmSans = await fetch(DM_SANS_URL);
     const dmSansBase64 = await base64convert(await dmSans.blob());
+    
     const robotoFlex = await fetch(ROBOTO_FLEX_URL);
     const robotoFlexBase64 = await base64convert(await robotoFlex.blob());
+    
     // font-face declarations to be used when exporting
     return `
     @font-face {

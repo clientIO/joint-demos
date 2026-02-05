@@ -1,9 +1,11 @@
+
 export const FONT_FAMILIES = [
     'Helvetica',
     'Lobster,cursive',
     'Pacifico,cursive',
     'Josefin Sans,sans-serif'
 ];
+
 export const COLORS = [
     '#FFFFFF',
     '#000000',
@@ -19,6 +21,7 @@ export const COLORS = [
     '#C6C7E2',
     '#f6f6f6'
 ];
+
 export const FONT_SIZES = [
     '10px',
     '12px',
@@ -30,6 +33,7 @@ export const FONT_SIZES = [
     '48px',
     '72px'
 ];
+
 export const DEFAULT_TEXT_ATTRIBUTES = {
     'fill': COLORS[7],
     'font-size': parseInt(FONT_SIZES[1]),

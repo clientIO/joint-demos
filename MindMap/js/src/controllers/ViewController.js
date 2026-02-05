@@ -1,6 +1,8 @@
 import { Controller } from '../classes/Controller';
 import { selectParent, selectNextSibling, selectPrevSibling, selectSuccessorIdea, selectIdea, deselectIdeas, showHelpDialog, openURL, } from '../actions';
+
 export default class ViewController extends Controller {
+    
     startListening() {
         const { paper, keyboard, toolbar } = this.context;
         this.stopListening();
@@ -20,16 +22,20 @@ export default class ViewController extends Controller {
         });
     }
 }
+
 // Paper
+
 const onPaperBlankPointerDown = (app, evt) => {
     const { scroller } = app;
     scroller.startPanning(evt);
     deselectIdeas(app);
 };
+
 const onPaperElementPointerClick = (app, ideaView) => {
     const { model } = ideaView;
     selectIdea(app, model);
 };
+
 function onPaperElementURLPointerDown(app, ideaView, evt) {
     const { model } = ideaView;
     selectIdea(app, model);
@@ -38,7 +44,9 @@ function onPaperElementURLPointerDown(app, ideaView, evt) {
         return;
     openURL(app, evt.target.dataset.url);
 }
+
 // Keyboard
+
 function onKeyUp(app, evt) {
     const { selection } = app;
     if (selection.isEmpty())
@@ -47,6 +55,7 @@ function onKeyUp(app, evt) {
     selectPrevSibling(app, el) || selectParent(app, el);
     evt.preventDefault();
 }
+
 function onKeyDown(app, evt) {
     const { selection } = app;
     if (selection.isEmpty())
@@ -55,6 +64,7 @@ function onKeyDown(app, evt) {
     selectNextSibling(app, el) || selectParent(app, el);
     evt.preventDefault();
 }
+
 function onKeyRight(app, evt) {
     const { selection, graph } = app;
     if (selection.isEmpty())
@@ -75,7 +85,9 @@ function onKeyRight(app, evt) {
             break;
         }
     }
+    
 }
+
 function onKeyLeft(app, evt) {
     const { selection, graph } = app;
     if (selection.isEmpty())
@@ -97,7 +109,9 @@ function onKeyLeft(app, evt) {
         }
     }
 }
+
 // Toolbar
+
 function onToolbarHelp(app) {
     showHelpDialog(app);
 }

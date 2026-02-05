@@ -1,8 +1,11 @@
 import { ui } from '@joint/plus';
+
 export default class EditableTextWidget extends ui.Widget {
+    
     preinitialize() {
         this.tagName = 'div';
     }
+    
     events() {
         return {
             'blur': this.onBlur,
@@ -11,25 +14,34 @@ export default class EditableTextWidget extends ui.Widget {
             'input': this.onInput
         };
     }
+    
     render() {
         const opt = this.options;
+        
         this.el.setAttribute('contenteditable', 'plaintext-only');
+        
         if (opt.minWidth) {
             this.el.style.minWidth = `${opt.minWidth}px`;
         }
+        
         if (opt.maxWidth) {
             this.el.style.maxWidth = `${opt.maxWidth}px`;
         }
+        
         this.el.style.display = 'block';
         this.el.style.overflow = 'hidden';
         this.el.style.textOverflow = 'ellipsis';
         this.el.style.textWrap = 'nowrap';
+        
         this.setValue(opt.value || '');
+        
         return this;
     }
+    
     setValue(value) {
         this.el.textContent = value;
     }
+    
     onInput(evt) {
         const originalEvent = evt.originalEvent;
         if (originalEvent.inputType === 'insertLineBreak') {
@@ -39,17 +51,22 @@ export default class EditableTextWidget extends ui.Widget {
             return;
         }
     }
+    
     onChange(evt) {
         this.trigger('change', this.el.textContent, evt);
     }
+    
     onFocus() {
         this.el.style.textOverflow = 'unset';
     }
+    
     onBlur(evt) {
         this.el.style.textOverflow = 'ellipsis';
         this.el.scrollLeft = 0;
+        
         // Workaround for Webkit content editable focus bug
         // https://gist.github.com/shimondoodkin/1081133
+        
         const editableFix = document.createElement('input');
         editableFix.setAttribute('disabled', 'true');
         editableFix.setAttribute('tabindex', '-1');
@@ -59,10 +76,12 @@ export default class EditableTextWidget extends ui.Widget {
         editableFix.style.margin = '0';
         editableFix.style.padding = '0';
         this.el.appendChild(editableFix);
+        
         editableFix.focus();
         editableFix.setSelectionRange(0, 0);
         editableFix.blur();
         editableFix.remove();
+        
         evt.target.dispatchEvent(new CustomEvent('change', { bubbles: true }));
     }
 }

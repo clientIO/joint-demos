@@ -9,6 +9,7 @@ import { LAYOUT_BATCH_NAME } from './const';
  */
 export function runAfterLayout(graph, callback) {
     const listener = new mvc.Listener();
+    
     listener.listenTo(graph, 'batch:stop', ({ batchName }) => {
         if (batchName === LAYOUT_BATCH_NAME) {
             callback();

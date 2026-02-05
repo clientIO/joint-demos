@@ -1,14 +1,18 @@
 import { dia, util } from '@joint/plus';
+
 const markup = util.svg /* xml*/ `
     <rect @selector="body"/>
     <image @selector="icon"/>
     <text @selector="label"/>
     <text @selector="description"/>
 `;
+
 export default class ActionOption extends dia.Element {
+    
     preinitialize() {
         this.markup = markup;
     }
+    
     defaults() {
         const attributes = {
             type: 'ActionOption',
@@ -63,6 +67,7 @@ export default class ActionOption extends dia.Element {
                 }
             }
         };
+        
         return util.defaultsDeep(attributes, super.defaults);
     }
 }

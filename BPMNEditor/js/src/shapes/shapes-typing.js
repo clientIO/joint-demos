@@ -1,3 +1,4 @@
+
 export var MarkerNames;
 (function (MarkerNames) {
     MarkerNames["PARALLEL"] = "parallel";
@@ -8,6 +9,7 @@ export var MarkerNames;
     MarkerNames["LOOP"] = "loop";
     MarkerNames["COLLECTION"] = "collection";
 })(MarkerNames || (MarkerNames = {}));
+
 export var ShapeTypes;
 (function (ShapeTypes) {
     ShapeTypes["ACTIVITY"] = "activity";

@@ -2,13 +2,17 @@ import { dia, ui, shapes, highlighters } from '@joint/plus';
 import { DEFAULT_TEXT_ATTRIBUTES } from './config';
 import { RichTextToolbar } from './rich-text-toolbar';
 import { TextNode, textNodes } from './shapes';
+
 export const init = () => {
+    
     const canvasEl = document.getElementById('canvas');
     const toolbarEl = document.getElementById('toolbar');
     const shapeNamespace = { ...shapes, TextNode };
+    
     const graph = new dia.Graph({}, {
         cellNamespace: shapeNamespace
     });
+    
     const paper = new dia.Paper({
         model: graph,
         width: 1000,
@@ -21,6 +25,7 @@ export const init = () => {
         clickThreshold: 10,
         cellViewNamespace: shapeNamespace
     });
+    
     const scroller = new ui.PaperScroller({
         paper,
         autoResizePaper: true,
@@ -33,18 +38,22 @@ export const init = () => {
             padding: 50
         }
     });
+    
     canvasEl.appendChild(scroller.el);
     scroller.render().center();
+    
     const toolbar = new RichTextToolbar({
         el: toolbarEl,
         defaultAttributes: DEFAULT_TEXT_ATTRIBUTES,
         setAttributes: (attrs) => {
+            
             const model = getSelected();
             if (!model)
                 return;
             const text = model.prop(TextNode.LABEL_PATH);
             const annotations = model.prop(TextNode.ANNOTATION_PATH);
             const { ed } = ui.TextEditor;
+            
             // If some text is selected and the user changes an attribute via the toolbar,
             // apply this change on the selected text.
             // Otherwise, set the current annotation so that the very next insert
@@ -59,6 +68,7 @@ export const init = () => {
                 start = 0;
                 end = text.length;
             }
+            
             let newAnnotation;
             if (start !== end) {
                 newAnnotation = {
@@ -74,6 +84,7 @@ export const init = () => {
                     attrs
                 };
             }
+            
             if (newAnnotation) {
                 const newAnnotations = ui.TextEditor.normalizeAnnotations([...annotations, newAnnotation]);
                 model.prop(TextNode.ANNOTATION_PATH, newAnnotations, { rewrite: true, async: false });
@@ -88,8 +99,11 @@ export const init = () => {
             }
         }
     });
+    
     toolbar.disable();
+    
     ui.TextEditor.on('caret:change select:change', () => {
+        
         const ed = ui.TextEditor.ed;
         // Update the widgets in the toolbar based on the text annotation under the cursor
         // or in the current selection if there is one.
@@ -98,14 +112,22 @@ export const init = () => {
         if (start === end) {
             start = end = start - 1;
         }
+        
         const attrs = ui.TextEditor.getCombinedAnnotationAttrsBetweenIndexes([{ start: -Infinity, end: Infinity, attrs: DEFAULT_TEXT_ATTRIBUTES }, ...annotations], start, end);
+        
         toolbar.updateInputsDebounced(attrs);
     });
+    
     graph.addCells(textNodes, { async: false });
+    
     // Resize the elements based on the text inside them
+    
     TextNode.setupAutoSizeAdjustment(paper);
+    
     // Selection
+    
     const SELECTED = 'selected';
+    
     function unselectAll() {
         graph.getElements().filter(el => el.get(SELECTED)).forEach(el => {
             el.set({
@@ -115,6 +137,7 @@ export const init = () => {
         });
         toolbar.disable();
     }
+    
     function selectOne(el) {
         unselectAll();
         el.set({
@@ -123,12 +146,15 @@ export const init = () => {
         });
         toolbar.enable();
     }
+    
     function getSelected() {
         return graph.getElements().find(el => el.get(SELECTED)) ?? null;
     }
+    
     function isSelected(el) {
         return Boolean(el.get(SELECTED));
     }
+    
     graph.on('change:selected', (el) => {
         const highlighterId = 'selection-mask';
         const selected = isSelected(el);
@@ -149,23 +175,29 @@ export const init = () => {
             highlighters.stroke.remove(elView, highlighterId);
         }
     });
+    
     // Register events
+    
     paper.on('paper:pinch', (evt, ox, oy, scale) => {
         evt.preventDefault();
         scroller.zoom(scale - 1, { min: 0.2, max: 5, ox, oy });
     });
+    
     paper.on('paper:pan', (evt, tx, ty) => {
         evt.preventDefault();
         scroller.el.scrollLeft += tx;
         scroller.el.scrollTop += ty;
     });
+    
     paper.on('blank:pointerdown', (evt) => {
         unselectAll();
         scroller.startPanning(evt);
     });
+    
     paper.on('scale', () => {
         ui.TextEditor.ed?.updateCaret();
     });
+    
     paper.on('element:pointerclick', (elementView, evt) => {
         const { model } = elementView;
         if (ui.TextEditor.ed)
@@ -211,6 +243,7 @@ export const init = () => {
                     pointerEvt.preventDefault();
                     return;
                 }
+                
                 // If the user clicks outside the text editor, we'll close the editor.
                 pointerEvt.stopPropagation();
                 ui.TextEditor.close();
@@ -231,6 +264,7 @@ export const init = () => {
                 }
             },
         });
+        
         const { ed } = ui.TextEditor;
         const charNumFromEvent = ed.getCharNumFromEvent(evt);
         if (detail === 1) {

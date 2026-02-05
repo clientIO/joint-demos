@@ -1,6 +1,9 @@
 import { shapes, util } from '@joint/plus';
+
 const color = '#F93943';
+
 export class Dependency extends shapes.standard.Link {
+    
     defaults() {
         return util.defaultsDeep({
             z: 3,

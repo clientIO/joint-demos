@@ -7,15 +7,19 @@ import { ActivityShapeTypes } from '../activity/activity-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { getPoolParent } from '../../utils';
 import { EventShapeTypes } from '../event/event-config';
+
 function getRotatedEditorStyles(element, paper) {
     const headerTextAttrs = element.attr('headerText') || {};
+    
     const bbox = element.getBBox();
     const { width, height } = bbox;
     const headerSize = element.getHeaderSize();
+    
     let x = bbox.x;
     let y = bbox.y;
     let rotateDeg = 0;
     let editorWidth = width;
+    
     if (element.isHorizontal()) {
         const { x: bottomLeftX, y: bottomLeftY } = bbox.bottomLeft();
         x = bottomLeftX;
@@ -23,6 +27,7 @@ function getRotatedEditorStyles(element, paper) {
         rotateDeg = -90;
         editorWidth = height;
     }
+    
     return {
         padding: '4px 8px',
         transform: `${V.matrixToTransformString(paper.matrix().translate(x, y))} rotate(${rotateDeg}deg)`,
@@ -35,9 +40,12 @@ function getRotatedEditorStyles(element, paper) {
         minHeight: `${headerSize}px`,
     };
 }
+
 export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool {
+    
     isResizable = true;
     labelPath = 'headerText/text';
+    
     defaults() {
         return util.defaultsDeep({
             shapeType: ShapeTypes.POOL,
@@ -61,29 +69,37 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool {
             ...poolAttributes,
         }, super.defaults);
     }
+    
     // Not used
     copyFrom(_element) {
         return this;
     }
+    
     getShapeList() {
         return [];
     }
+    
     getAppearanceConfig() {
         return poolAppearanceConfig;
     }
+    
     getHaloHandles() {
         return [
             handles.ConnectAnnotation,
             handles.Link
         ];
     }
+    
     validateConnection(targetModel) {
+        
         // Don't allow connection to itself
         if (this === targetModel)
             return false;
+        
         // Don't allow connection to the parent pool
         if (this === getPoolParent(targetModel))
             return false;
+        
         const availableShapes = [
             PoolShapeTypes.HORIZONTAL_POOL,
             PoolShapeTypes.VERTICAL_POOL,
@@ -95,24 +111,31 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool {
             EventShapeTypes.MESSAGE_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING,
             ...Object.values(ActivityShapeTypes).filter((shape) => shape !== ActivityShapeTypes.SUB_PROCESS)
         ];
+        
         return availableShapes.includes(targetModel?.get('type'));
     }
+    
     validateEmbedding(_parent, _inGraph) {
         return false;
     }
+    
     getLabelEditorStyles(paper) {
         return getRotatedEditorStyles(this, paper);
     }
+    
     getClosestBoundaryPoint(bbox, point) {
         return bbox.pointNearestToPoint(point);
     }
+    
     afterSwimlanesEmbedded() {
         this.setStackingOrder();
     }
 }
+
 export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool {
     isResizable = true;
     labelPath = 'headerText/text';
+    
     defaults() {
         return util.defaultsDeep({
             shapeType: ShapeTypes.POOL,
@@ -136,29 +159,37 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool {
             ...poolAttributes,
         }, super.defaults);
     }
+    
     // Not used
     copyFrom(_element) {
         return this;
     }
+    
     getShapeList() {
         return [];
     }
+    
     getAppearanceConfig() {
         return poolAppearanceConfig;
     }
+    
     getHaloHandles() {
         return [
             handles.ConnectAnnotation,
             handles.Link
         ];
     }
+    
     validateConnection(targetModel) {
+        
         // Don't allow connection to itself
         if (this === targetModel)
             return false;
+        
         // Don't allow connection to the parent pool
         if (this === getPoolParent(targetModel))
             return false;
+        
         const availableShapes = [
             PoolShapeTypes.HORIZONTAL_POOL,
             PoolShapeTypes.VERTICAL_POOL,
@@ -170,25 +201,32 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool {
             EventShapeTypes.MESSAGE_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING,
             ...Object.values(ActivityShapeTypes).filter((shape) => shape !== ActivityShapeTypes.SUB_PROCESS)
         ];
+        
         return availableShapes.includes(targetModel?.get('type'));
     }
+    
     validateEmbedding(_parent, _inGraph) {
         return false;
     }
+    
     getLabelEditorStyles(paper) {
         return getRotatedEditorStyles(this, paper);
     }
+    
     getClosestBoundaryPoint(bbox, point) {
         return bbox.pointNearestToPoint(point);
     }
+    
     afterSwimlanesEmbedded() {
         this.setStackingOrder();
     }
 }
 export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane {
+    
     isResizable = true;
     labelPath = 'headerText/text';
     omitDefaultHaloHandles = true;
+    
     defaults() {
         return util.defaultsDeep({
             shapeType: ShapeTypes.SWIMLANE,
@@ -211,45 +249,60 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane {
             ...swimlaneAttributes
         }, super.defaults);
     }
+    
     // Not used
     copyFrom(_element) {
         return this;
     }
+    
     getShapeList() {
         return [];
     }
+    
     getAppearanceConfig() {
         return swimlaneAppearanceConfig;
     }
+    
     getHaloHandles() {
+        
         const pool = this.getParentCell();
+        
         if (!pool || pool.getSwimlanes().length === 1)
             return [];
+        
         return [
             handles.RemoveHorizontalSwimlane
         ];
     }
+    
     validateConnection(_targetModel) {
         return false;
     }
+    
     validateEmbedding(_parent, _inGraph) {
         return false;
     }
+    
     validateUnembedding() {
         return true;
     }
+    
     getLabelEditorStyles(paper) {
         return getRotatedEditorStyles(this, paper);
     }
+    
     // Not used
     getClosestBoundaryPoint(bbox, point) {
         return bbox.pointNearestToPoint(point);
     }
 }
+
 export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane {
+    
     isResizable = true;
     labelPath = 'headerText/text';
     omitDefaultHaloHandles = true;
+    
     defaults() {
         return util.defaultsDeep({
             shapeType: ShapeTypes.SWIMLANE,
@@ -272,41 +325,54 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane {
             ...swimlaneAttributes
         }, super.defaults);
     }
+    
     // Not used
     copyFrom(_element) {
         return this;
     }
+    
     getShapeList() {
         return [];
     }
+    
     getAppearanceConfig() {
         return swimlaneAppearanceConfig;
     }
+    
     getHaloHandles() {
+        
         const pool = this.getParentCell();
+        
         if (!pool || pool.getSwimlanes().length === 1)
             return [];
+        
         return [
             handles.RemoveVerticalSwimlane
         ];
     }
+    
     validateConnection(_targetModel) {
         return false;
     }
+    
     validateEmbedding(_parent, _inGraph) {
         return false;
     }
+    
     validateUnembedding() {
         return true;
     }
+    
     getLabelEditorStyles(paper) {
         return getRotatedEditorStyles(this, paper);
     }
+    
     // Not used
     getClosestBoundaryPoint(bbox, point) {
         return bbox.pointNearestToPoint(point);
     }
 }
+
 Object.assign(shapes, {
     pool: {
         HorizontalPool,

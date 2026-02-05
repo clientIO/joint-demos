@@ -3,13 +3,19 @@ import { ShelfElement, ProductElement, getAllProducts, getAllShelves, ProductCat
 import { addElementTools, removeElementTools } from './tools';
 import { validateChangePosition, validateChangeSize, isSizeValid, isPositionValid } from './validators';
 import exampleGraph from '../assets/example.json';
+
 const { grid } = storeItemsConfig;
+
 let selectedCellView = null;
+
 export const init = () => {
+    
     const canvasElement = document.getElementById('canvas');
     const stencilElement = document.getElementById('products-stencil');
     const shelvesStencilElement = document.getElementById('shelves-stencil');
+    
     const graph = new dia.Graph({}, { cellNamespace: shapes });
+    
     const paper = new dia.Paper({
         width: 25 * grid,
         height: 20 * grid,
@@ -64,6 +70,7 @@ export const init = () => {
             };
         }
     });
+    
     const scroller = new ui.PaperScroller({
         paper,
         autoResizePaper: true,
@@ -74,15 +81,20 @@ export const init = () => {
         borderless: true,
         padding: 300
     });
+    
     canvasElement.appendChild(scroller.render().el);
+    
     const commandManager = new dia.CommandManager({
         graph
     });
+    
     const validator = new dia.Validator({
         commandManager,
         cancelInvalid: true
     });
+    
     const createStencilGroups = () => {
+        
         const { products } = storeItemsConfig;
         const groups = {};
         const getLayoutOptions = (columnsCount) => {
@@ -92,6 +104,7 @@ export const init = () => {
                 rowHeight: 'compact'
             };
         };
+        
         Object.keys(products).forEach((categoryName, idx) => {
             const maxWidth = products[categoryName].reduce((acc, product) => Math.max(acc, product.width), 0);
             groups[categoryName] = {
@@ -101,8 +114,10 @@ export const init = () => {
                 label: ProductCategories[categoryName].toLowerCase()
             };
         });
+        
         return groups;
     };
+    
     const getStencilPaperOptions = () => {
         return {
             model: new dia.Graph({}, { cellNamespace: shapes }),
@@ -110,6 +125,7 @@ export const init = () => {
             cellViewNamespace: shapes
         };
     };
+    
     const productsStencil = new ui.Stencil({
         paper: scroller,
         width: 240,
@@ -131,9 +147,11 @@ export const init = () => {
             return product.match(group, keyword);
         }
     });
+    
     stencilElement.appendChild(productsStencil.el);
     productsStencil.render();
     productsStencil.load(getAllProducts());
+    
     const shelvesStencil = new ui.Stencil({
         paper: scroller,
         width: 340,
@@ -145,20 +163,27 @@ export const init = () => {
         layout: false,
         paperOptions: () => getStencilPaperOptions()
     });
+    
     shelvesStencilElement.appendChild(shelvesStencil.el);
     shelvesStencil.render();
     shelvesStencil.load(getAllShelves());
+    
     graph.fromJSON(exampleGraph);
     scroller.centerContent({ useModelGeometry: true });
+    
     // Register Events
+    
     validator.validate('change:position', validateChangePosition(graph));
+    
     validator.validate('change:size', validateChangeSize(graph));
+    
     validator.on('invalid', (err) => {
         const cellView = err.cell.findView(paper);
         if (cellView) {
             cellView.vel.removeClass('invalid');
         }
     });
+    
     graph.on({
         'batch:stop': (batch) => {
             const { cell, batchName } = batch;
@@ -168,6 +193,7 @@ export const init = () => {
             cellView.vel.toggleClass('invalid', !isSizeValid(graph, cell));
         }
     });
+    
     paper.on({
         'blank:pointerdown': (evt) => {
             unsetElement(paper);
@@ -199,6 +225,7 @@ export const init = () => {
             }
         }
     });
+    
     const stencilEventMap = (stencil) => {
         return {
             'element:dragstart': function () {
@@ -224,13 +251,16 @@ export const init = () => {
             }
         };
     };
+    
     productsStencil.on(stencilEventMap(productsStencil));
     shelvesStencil.on(stencilEventMap(shelvesStencil));
 };
+
 const setElement = (cellView) => {
     selectedCellView = cellView;
     addElementTools(cellView);
 };
+
 const unsetElement = (paper) => {
     selectedCellView = null;
     removeElementTools(paper);

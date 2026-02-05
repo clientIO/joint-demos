@@ -40,6 +40,8 @@ export class Node extends dia.Element {
         return this.attr('label/text', text || '');
     }
 }
+
+
 export class Link extends dia.Link {
     defaults() {
         return {
@@ -129,6 +131,7 @@ export class Token extends dia.Element {
         return this.attr('label/text', text || '');
     }
 }
+
 Object.assign(shapes, {
     app: {
         Node,

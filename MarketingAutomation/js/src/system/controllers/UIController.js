@@ -7,12 +7,15 @@ import { Effect, triggerEffect, triggerEffectRemoval } from '../diagram/effects'
 // Actions
 import { showOrderPreviewOnNextInteraction } from '../actions/order-preview';
 import { trackPositionOnNextInteraction } from '../actions/track-position';
+
 /**
  * UIController manages user interactions and UI-related events for the diagram.
  */
 export default class UIController extends Controller {
+    
     startListening() {
         const { paper } = this.context;
+        
         this.listenTo(paper, {
             'link:connect': onLinkConnect,
             'cell:highlight': onCellHighlight,
@@ -23,6 +26,7 @@ export default class UIController extends Controller {
         });
     }
 }
+
 function onElementPointerdown(ctx, elementView, evt) {
     const element = elementView.model;
     if (SystemButton.isButton(element)) {
@@ -38,39 +42,50 @@ function onElementPointerdown(ctx, elementView, evt) {
     showOrderPreviewOnNextInteraction(ctx);
     elementView.preventDefaultInteraction(evt);
 }
+
 function onLinkConnect(ctx, linkView) {
     const { diagramData } = ctx;
     const link = linkView.model;
+    
     diagramData.addEdge(link.source().id, link.target().id, {
         disableOptimalOrderHeuristic: false
     });
 }
+
 function onElementPointerClick(ctx, elementView, evt, x, y) {
     const { paper } = ctx;
     const element = elementView.model;
+    
     if (SystemPlaceholder.isPlaceholder(element)) {
         paper.trigger('placeholder:pointerclick', elementView, evt, x, y);
         return;
     }
+    
     if (SystemButton.isButton(element)) {
         paper.trigger('button:pointerclick', elementView, evt, x, y);
         return;
     }
+    
     paper.trigger('node:pointerclick', elementView, evt, x, y);
 }
+
 function onElementPointerDblClick(ctx, elementView, evt, x, y) {
     const { paper } = ctx;
     const element = elementView.model;
+    
     if (SystemPlaceholder.isPlaceholder(element)) {
         paper.trigger('placeholder:pointerdblclick', elementView, evt, x, y);
         return;
     }
+    
     if (SystemButton.isButton(element)) {
         paper.trigger('button:pointerdblclick', elementView, evt, x, y);
         return;
     }
+    
     paper.trigger('node:pointerdblclick', elementView, evt, x, y);
 }
+
 function onCellHighlight(ctx, cellView, _node, { type }) {
     const { paper } = ctx;
     switch (type) {
@@ -84,6 +99,7 @@ function onCellHighlight(ctx, cellView, _node, { type }) {
             break;
     }
 }
+
 function onCellUnhighlight(ctx, _cellView, _node, { type }) {
     const { paper } = ctx;
     switch (type) {

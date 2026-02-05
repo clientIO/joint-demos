@@ -1,10 +1,14 @@
+
 import { dia, V } from '@joint/plus';
 import { TASK_ROW_MARGIN, PROGRESS_ROW_HEIGHT, ASSIGNEE_TEXT_COLOR, ASSIGNEE_FONT_FAMILY, ASSIGNEE_FONT_SIZE, ASSIGNEE_GAP, ASSIGNEE_ICON_WIDTH, ASSIGNEE_PADDING, TASK_TEXT_COLOR, } from './theme';
 import { getItemIcon } from './utils';
+
 export default class AssigneeTags extends dia.HighlighterView {
+    
     preinitialize() {
         this.UPDATE_ATTRIBUTES = ['assignees', 'color'];
     }
+    
     highlight(elementView) {
         this.vel.empty();
         const element = elementView.model;
@@ -57,6 +61,7 @@ export default class AssigneeTags extends dia.HighlighterView {
             ]).appendTo(this.el);
         });
     }
+    
     static addToTask(taskView) {
         AssigneeTags.add(taskView, 'root', 'assignees');
     }

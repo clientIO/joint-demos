@@ -4,15 +4,18 @@ import { gatewayIconClasses, GatewayShapeTypes } from '../shapes/gateway/gateway
 import { activityIconClasses, ActivityShapeTypes } from '../shapes/activity/activity-config';
 import { annotationIconClasses, AnnotationShapeTypes } from '../shapes/annotation/annotation-config';
 import { flowIconClasses } from '../shapes/flow/flow-config';
+
 export const GroupNames = {
     ActionTools: 'action-tools',
     BPMNTools: 'bpmn-tools',
     HorizontalSwimlaneTools: 'horizontal-swimlane-tools',
     VerticalSwimlaneTools: 'vertical-swimlane-tools'
 };
+
 const ICON_SIZE = 20;
 const OFFSET = 10;
 const GAP = 4;
+
 export const groups = {
     [GroupNames.ActionTools]: {
         left: `calc(-${ICON_SIZE}px - ${OFFSET}px)`,
@@ -43,6 +46,7 @@ export const groups = {
         gap: `${GAP}px`,
     }
 };
+
 const removeSwimlaneEvents = {
     'pointerup': function (_evt, _x, _y) {
         const element = this.options.cellView.model;
@@ -50,6 +54,7 @@ const removeSwimlaneEvents = {
         pool.removeSwimlane(element);
     }
 };
+
 export const handles = {
     ConnectEndEvent: {
         ...ui.Halo.getDefaultHandle('fork'),

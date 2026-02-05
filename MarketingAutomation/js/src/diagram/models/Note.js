@@ -3,19 +3,27 @@ import Showdown from 'showdown';
 import Node from './Node';
 import { Attribute } from '../const';
 import Theme from '../theme';
+
 const noteMarkup = util.svg /* xml*/ `
     <rect @selector="body" class="note-body"/>
     <foreignObject @selector="content" class="note-text"/>
 `;
+
 const TYPE = 'note';
+
 /** A sticky note element for adding annotations to the diagram. */
 export default class Note extends Node {
+    
     static type = TYPE;
+    
     static growthLimit = 0;
+    
     minimapBackground = Theme.NoteMinimapBackgroundColor;
+    
     preinitialize() {
         this.markup = noteMarkup;
     }
+    
     defaults() {
         return {
             ...super.defaults(),
@@ -58,6 +66,7 @@ export default class Note extends Node {
             }
         };
     }
+    
     /**
      * @returns The markdown content of the note from the note model.
      * @see {@link Attribute.Markdown}
@@ -65,6 +74,7 @@ export default class Note extends Node {
     getMarkdown() {
         return this.get(Attribute.Markdown) || '';
     }
+    
     /**
      * Sets the markdown content for the note.
      * @param markdown - The markdown content to set.
@@ -74,11 +84,14 @@ export default class Note extends Node {
     setMarkdown(markdown, options) {
         this.set(Attribute.Markdown, markdown, options);
     }
+    
     initialize(attributes, options) {
         super.initialize(attributes, options);
+        
         this.updateContent();
         this.on(`change:${Attribute.Markdown}`, () => this.updateContent());
     }
+    
     /**
      * Updates the content of the note based on the markdown attribute.
      * Converts the markdown content to HTML using Showdown package.
@@ -90,6 +103,7 @@ export default class Note extends Node {
         const html = converter.makeHtml(this.getMarkdown());
         this.attr('content/html', html);
     }
+    
     /**
      * @returns Inspector config for the note.
      * @see {@link InspectorConfig}
@@ -102,6 +116,7 @@ export default class Note extends Node {
             headerHint: 'Add notes for context and collaboration',
         };
     }
+    
     getOutlinePathData(options) {
         return super.getOutlinePathData({ radius: 8, ...options });
     }

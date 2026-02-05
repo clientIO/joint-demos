@@ -1,4 +1,5 @@
 import { dia, V } from '@joint/plus';
+
 export const ShadowEffect = dia.HighlighterView.extend({
     tagName: 'g',
     className: 'shadow-effect',

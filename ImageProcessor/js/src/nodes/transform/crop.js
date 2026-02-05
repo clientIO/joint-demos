@@ -3,11 +3,14 @@ import { Node, calculateHeight } from '../node';
 import * as cv from '@techstark/opencv-js';
 import { App } from '../../app';
 export class Crop extends Node {
+    
     constructor(attributes, options) {
         super(attributes, options);
+        
         this.on('change', (el, options) => {
             if (!options.inspector && !options.commandManager)
                 return;
+            
             if (options.propertyPath === 'properties/width' ||
                 options.propertyPath === 'properties/height' ||
                 options.propertyPath === 'properties/x' ||
@@ -16,6 +19,7 @@ export class Crop extends Node {
             }
         });
     }
+    
     defaults() {
         const defaults = super.defaults();
         return util.defaultsDeep({
@@ -63,19 +67,24 @@ export class Crop extends Node {
                 }]
         }, defaults);
     }
+    
     async action() {
         const { image, width, height, x, y } = this.properties;
+        
         if (!image)
             return [null];
+        
         try {
             const roi = new cv.Rect(x, y, width, height);
             const result = image.roi(roi);
+            
             return [result];
         }
         catch {
             return [null];
         }
     }
+    
     getInspectorConfig() {
         const nodeConfig = super.getInspectorConfig();
         return util.defaultsDeep({
@@ -111,6 +120,7 @@ export class Crop extends Node {
             }
         }, nodeConfig);
     }
+    
     getFileAttributes() {
         return super.getFileAttributes().concat(['properties/width', 'properties/height', 'properties/x', 'properties/y']);
     }

@@ -5,10 +5,10 @@ const resolvedPath = path.resolve(__dirname, 'dist');
 
 module.exports = {
     resolve: {
-        extensions: ['.ts', '.js']
+        extensions: ['.js']
     },
     devtool: 'inline-source-map',
-    entry: './index.ts',
+    entry: './index.js',
     output: {
         filename: 'bundle.js',
         path: resolvedPath

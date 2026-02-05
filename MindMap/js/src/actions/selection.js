@@ -1,6 +1,8 @@
 import { V, highlighters } from '@joint/plus';
 import { SELECTION_FRAME_COLOR } from '../theme';
+
 // Selecting
+
 export function selectParent(app, idea) {
     const { graph } = app;
     const parent = graph.getParent(idea);
@@ -9,6 +11,7 @@ export function selectParent(app, idea) {
     selectIdea(app, parent);
     return true;
 }
+
 export function selectNextSibling(app, idea) {
     const { graph } = app;
     const sibling = graph.getClosestNextSibling(idea);
@@ -17,6 +20,7 @@ export function selectNextSibling(app, idea) {
     selectIdea(app, sibling);
     return true;
 }
+
 export function selectPrevSibling(app, idea) {
     const { graph } = app;
     const sibling = graph.getClosestPrevSibling(idea);
@@ -25,10 +29,12 @@ export function selectPrevSibling(app, idea) {
     selectIdea(app, sibling);
     return true;
 }
+
 export function selectSuccessorIdea(app, idea, direction) {
     const { graph } = app;
     selectIdea(app, graph.getSuccessor(idea, direction) || graph.getRoot());
 }
+
 export function selectIdea(app, idea) {
     const { scroller, selection } = app;
     selection.reset([idea]);
@@ -36,12 +42,16 @@ export function selectIdea(app, idea) {
         return;
     scroller.scrollToElement(idea, { animation: true });
 }
+
 export function deselectIdeas(app) {
     const { selection } = app;
     selection.reset([]);
 }
+
 // Highlighting
+
 let _highlighters = [];
+
 export function highlightIdeas(app, ideas) {
     const { paper } = app;
     unhighlightIdeas(app);
@@ -58,12 +68,16 @@ export function highlightIdeas(app, ideas) {
         });
     });
 }
+
 export function unhighlightIdeas(_app) {
     _highlighters.forEach(highlighter => highlighter.remove());
     _highlighters = [];
 }
+
 // Focusing
+
 let _dimmer;
+
 export function focusIdea(app, idea) {
     blurIdea(app);
     const { paper } = app;
@@ -77,6 +91,7 @@ export function focusIdea(app, idea) {
     idea.toFront({ async: false });
     vel.before(_dimmer);
 }
+
 export function blurIdea(_app) {
     if (!_dimmer)
         return;

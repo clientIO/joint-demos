@@ -1,3 +1,4 @@
+
 const anchor = (elementView, _node, _ref, _opt, end, linkView) => {
     const { model: idea } = elementView;
     const isLine = idea.get('line');
@@ -29,4 +30,5 @@ const anchor = (elementView, _node, _ref, _opt, end, linkView) => {
         }
     }
 };
+
 export default anchor;

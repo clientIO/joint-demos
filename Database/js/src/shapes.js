@@ -1,4 +1,5 @@
 import { dia, shapes, util } from '@joint/plus';
+
 export class Table extends shapes.standard.HeaderedRecord {
     defaults() {
         return util.defaultsDeep({
@@ -73,6 +74,7 @@ export class Table extends shapes.standard.HeaderedRecord {
             }
         }, super.defaults);
     }
+    
     preinitialize() {
         this.markup = [{
                 tagName: 'rect',
@@ -88,49 +90,62 @@ export class Table extends shapes.standard.HeaderedRecord {
                 selector: 'headerLabel'
             }];
     }
+    
     initialize(...args) {
         super.initialize(...args);
         this.on('change', () => this.onColumnsChange());
         this._setColumns(this.get('columns'));
     }
+    
     onColumnsChange() {
         if (this.hasChanged('columns')) {
             this._setColumns(this.get('columns'));
         }
     }
+    
     setName(name, opt) {
         return this.attr(['headerLabel', 'text'], name, opt);
     }
+    
     getName() {
         return this.attr(['headerLabel', 'text']);
     }
+    
     setTabColor(color) {
         return this.attr(['tabColor', 'fill'], color);
     }
+    
     getTabColor() {
         return this.attr(['tabColor', 'fill']);
     }
+    
     setColumns(data) {
         this.set('columns', data);
         return this;
     }
+    
     toJSON() {
         const json = super.toJSON();
         // keeping only the `columns` attribute
         delete json.items;
         return json;
     }
+    
     _setColumns(data = []) {
         const names = [];
         const values = [];
+        
         data.forEach((item, i) => {
+            
             if (!item.name)
                 return;
+            
             names.push({
                 id: item.name,
                 label: item.name,
                 span: 2
             });
+            
             const value = {
                 id: `${item.type}_${i}`,
                 label: item.type
@@ -143,11 +158,14 @@ export class Table extends shapes.standard.HeaderedRecord {
             }
             values.push(value);
         });
+        
         this.set('items', [names, values]);
         this.removeInvalidLinks();
+        
         return this;
     }
 }
+
 export class Link extends dia.Link {
     defaults() {
         return {
@@ -182,7 +200,9 @@ export class Link extends dia.Link {
             }
         }];
 }
+
 const TableView = shapes.standard.RecordView;
+
 Object.assign(shapes, {
     app: {
         Table,
@@ -190,3 +210,5 @@ Object.assign(shapes, {
         Link
     }
 });
+
+

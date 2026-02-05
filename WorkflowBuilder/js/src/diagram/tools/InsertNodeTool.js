@@ -1,6 +1,8 @@
 import { linkTools } from '@joint/plus';
 import { insertToolBodyAttributes, insertToolIconAttributes } from '../theme';
+
 export default class InsertNodeTool extends linkTools.Button {
+    
     preinitialize(options) {
         this.name = 'insert-node-tool';
         this.attributes = {
@@ -18,6 +20,7 @@ export default class InsertNodeTool extends linkTools.Button {
             ...options,
         };
     }
+    
     initialize() {
         super.initialize();
         this.el.classList.add('fade-in');

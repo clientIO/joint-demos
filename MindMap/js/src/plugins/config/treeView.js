@@ -1,3 +1,4 @@
+
 export default {
     theme: 'modern',
     // Disable multiple roots.

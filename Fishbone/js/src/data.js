@@ -1,3 +1,4 @@
+
 export const poorProductQualityData = {
     name: 'Poor Product\nQuality',
     direction: null,
@@ -151,6 +152,7 @@ export const poorProductQualityData = {
                 }]
         }]
 };
+
 // Fishbone nodes (problem => tail => a x cause => b x sub-cause => c x root cause)
 export function generateFishboneNodes(a, b, c, d, e = 0, f = 0) {
     return {

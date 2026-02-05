@@ -1,6 +1,8 @@
 import { ui } from '@joint/plus';
+
 /** Default URL for navigator icons */
 const defaultIconUrl = '.';
+
 /**
  * A button widget that displays an icon and a tooltip.
  * */
@@ -15,13 +17,16 @@ class IconButton extends ui.widgets.button {
         this.setTooltip(this.options.tooltip);
         return this;
     }
+    
     setIcon(icon = '') {
         this.el.querySelector('img').src = icon;
     }
+    
     setTooltip(tooltip = '') {
         this.el.dataset.tooltip = tooltip;
     }
 }
+
 /**
  * Navigator feature that provides a minimap and toolbar for diagram navigation.
  */
@@ -32,35 +37,44 @@ export default class Navigator {
     scroller;
     options;
     abortController;
+    
     transitionCanceled = false;
+    
     constructor(options) {
         const { paperScroller } = options;
         this.options = options;
         this.scroller = paperScroller;
+        
         // Create wrapper element
         const el = document.createElement('div');
         el.classList.add('navigator');
         options.containerEl.appendChild(el);
         this.el = el;
+        
         this.toolbar = this.renderToolbar();
         this.minimap = this.renderMinimap();
+        
         // Initial state
         this.updateToolbarButtons();
         this.showMinimap();
+        
         // Listen to fullscreen changes to update the toolbar button
         this.abortController = new AbortController();
         document.addEventListener('fullscreenchange', () => this.updateToolbarButtons(), {
             signal: this.abortController.signal
         });
     }
+    
     renderToolbar() {
         const { zoom, paperScroller, iconUrl = defaultIconUrl } = this.options;
+        
         const zoomOptions = {
             min: 0.1,
             max: 3,
             step: 10,
             ...zoom
         };
+        
         const toolbar = new ui.Toolbar({
             autoToggle: true,
             references: {
@@ -97,15 +111,20 @@ export default class Navigator {
                 iconButton: IconButton
             }
         });
+        
         toolbar.render();
         this.el.appendChild(toolbar.el);
+        
         toolbar.on('fit-to-screen:pointerclick', () => this.fitToScreen());
         toolbar.on('fullscreen:pointerclick', () => this.toggleFullscreen());
         toolbar.on('minimap:pointerclick', () => this.toggleMinimap());
+        
         return toolbar;
     }
+    
     renderMinimap() {
         const { paperScroller, containerEl } = this.options;
+        
         const minimap = new ui.Navigator({
             paperScroller,
             width: 340,
@@ -133,6 +152,7 @@ export default class Navigator {
                 }
             }
         });
+        
         minimap.el.addEventListener('transitionend', () => {
             if (this.transitionCanceled)
                 return;
@@ -144,21 +164,29 @@ export default class Navigator {
                 minimap.freeze();
             }
         });
+        
         minimap.el.addEventListener('transitioncancel', () => {
             this.transitionCanceled = true;
         });
+        
         minimap.render();
         containerEl.prepend(minimap.el);
+        
         return minimap;
     }
+    
+    
     isMinimapVisible() {
         return !this.minimap?.el.classList.contains('hidden');
     }
+    
     fitToScreen() {
         this.scroller.zoomToFit({ useModelGeometry: true, padding: 20 });
     }
+    
     toggleFullscreen() {
         const fullScreenEl = this.toolbar.getWidgetByName('fullscreen').el;
+        
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen();
             fullScreenEl.classList.add('active');
@@ -168,13 +196,16 @@ export default class Navigator {
             fullScreenEl.classList.remove('active');
         }
     }
+    
     showMinimap() {
         this.minimap.el.classList.remove('hidden');
         this.transitionCanceled = false;
     }
+    
     hideMinimap() {
         this.minimap.el.classList.add('hidden');
     }
+    
     toggleMinimap(visible) {
         let isVisible;
         if (typeof visible === 'boolean') {
@@ -191,8 +222,10 @@ export default class Navigator {
         }
         this.updateToolbarButtons();
     }
+    
     updateToolbarButtons() {
         const { iconUrl = defaultIconUrl } = this.options;
+        
         // Minimap
         const minimapButton = this.toolbar.getWidgetByName('minimap');
         if (this.isMinimapVisible()) {
@@ -214,6 +247,7 @@ export default class Navigator {
             fullscreenButton.setTooltip('Toggle full screen');
         }
     }
+    
     remove() {
         this.toolbar.remove();
         this.minimap.remove();

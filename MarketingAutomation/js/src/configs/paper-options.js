@@ -4,16 +4,22 @@
  */
 import { shapes } from '@joint/plus';
 import Theme from '../diagram/theme';
+
 export const gridSize = 16;
+
 export const drawGrid = {
     name: 'dot',
     args: { thickness: 0.8 }
 };
+
 export const async = true;
+
 export const preventDefaultBlankAction = false;
+
 export const background = {
     color: Theme.BackgroundColor
 };
+
 /**
  * A temporary link used only during interactive link creation.
  * (e.g., when dragging from a magnet or starting a connection from a menu)

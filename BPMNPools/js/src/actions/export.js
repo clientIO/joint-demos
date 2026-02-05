@@ -1,10 +1,13 @@
 import { util } from '@joint/plus';
 import { toBPMN, exportableObjects, createExtensionElement } from '@joint/format-bpmn-export';
+
 class HorizontalPoolExportableObject extends exportableObjects.HorizontalPool {
+    
     defineExtensionElements() {
         const pool = this.cell;
         const phaseElements = [];
         const phases = pool.getPhases();
+        
         phases.forEach((phase) => {
             const phaseElement = createExtensionElement('phase');
             phaseElement.setAttribute('id', phase.id.toString());
@@ -15,16 +18,21 @@ class HorizontalPoolExportableObject extends exportableObjects.HorizontalPool {
             phaseElement.setAttribute('height', size.height.toString());
             phaseElement.setAttribute('x', position.x.toString());
             phaseElement.setAttribute('y', position.y.toString());
+            
             phaseElements.push(phaseElement);
         });
+        
         return phaseElements;
     }
 }
+
 class VerticalPoolExportableObject extends exportableObjects.VerticalPool {
+    
     defineExtensionElements() {
         const pool = this.cell;
         const phaseElements = [];
         const phases = pool.getPhases();
+        
         phases.forEach((phase) => {
             const phaseElement = createExtensionElement('phase');
             phaseElement.setAttribute('id', phase.id.toString());
@@ -35,11 +43,14 @@ class VerticalPoolExportableObject extends exportableObjects.VerticalPool {
             phaseElement.setAttribute('height', size.height.toString());
             phaseElement.setAttribute('x', position.x.toString());
             phaseElement.setAttribute('y', position.y.toString());
+            
             phaseElements.push(phaseElement);
         });
+        
         return phaseElements;
     }
 }
+
 export function exportXML(paper) {
     const exportResult = toBPMN(paper, {
         exportableObjectFactories: {
@@ -52,6 +63,7 @@ export function exportXML(paper) {
     });
     return exportResult.xml;
 }
+
 export function downloadXMLExport(paper, name = 'diagram.bpmn') {
     const xmlString = new XMLSerializer().serializeToString(exportXML(paper));
     const uri = `data:text/xml,${encodeURIComponent(xmlString)}`;

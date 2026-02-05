@@ -2,6 +2,7 @@ import { util } from '@joint/plus';
 import { Attribute } from '../const';
 import Theme, { iconAttributes, nodeLabelAttributes, nodeTypeLabelAttributes } from '../theme';
 import DiagramNode from './DiagramNode';
+
 const markup = util.svg /* xml*/ `
     <circle @selector="outline" class="node-outline"/>
     <rect @selector="body" class="node-body"/>
@@ -10,15 +11,23 @@ const markup = util.svg /* xml*/ `
     <text @selector="typeLabel" class="node-label"/>
     <text @selector="label" class="node-label"/>
 `;
+
 const TYPE = 'action';
+
 export default class Action extends DiagramNode {
+    
     static type = TYPE;
+    
     static growthLimit = 1;
+    
     dataDefinition = {};
+    
     configuration = null;
+    
     preinitialize() {
         this.markup = markup;
     }
+    
     defaults() {
         const attributes = {
             // App-specific attributes
@@ -97,23 +106,28 @@ export default class Action extends DiagramNode {
                 }
             }
         };
+        
         return util.defaultsDeep(attributes, super.defaults());
     }
+    
     getDefaultOutlineAttributes() {
         return {
             r: 45
         };
     }
+    
     getHoverOutlineAttributes() {
         return {
             r: 49
         };
     }
+    
     getSelectedOutlineAttributes() {
         return {
             r: 70
         };
     }
+    
     getLabelsRelativeRects() {
         const labelsData = super.getLabelsRelativeRects();
         labelsData.push({
@@ -130,20 +144,26 @@ export default class Action extends DiagramNode {
         });
         return labelsData;
     }
+    
     getDefaultLabel() {
         return `${this.attr('typeLabel/text')}`;
     }
+    
     isConfigured() {
         return this.getConfigurationKey() != null;
     }
+    
     getConfigurationKey() {
         return this.get(Attribute.ActionKey) || null;
     }
+    
     setConfigurationKey(actionKey, options) {
         this.set(Attribute.ActionKey, actionKey, options);
     }
+    
     unsetConfiguration() {
         this.configuration = null;
+        
         this.attr({
             root: {
                 dataConfigured: 'false'
@@ -163,10 +183,13 @@ export default class Action extends DiagramNode {
             }
         });
     }
+    
     updateConfiguration(configuration) {
         this.configuration = configuration;
+        
         const { icon, name: appName } = configuration.provider;
         const { name: actionName = '', data = {} } = configuration.action;
+        
         this.attr({
             root: {
                 dataConfigured: 'true'
@@ -185,8 +208,10 @@ export default class Action extends DiagramNode {
                 x: 'calc(w/2)',
             }
         });
+        
         this.dataDefinition = data;
     }
+    
     getInputType(dataEntryType) {
         switch (dataEntryType) {
             case 'string':
@@ -201,8 +226,11 @@ export default class Action extends DiagramNode {
                 return 'text';
         }
     }
+    
     getInspectorConfig() {
+        
         const dataKeys = Object.keys(this.dataDefinition);
+        
         if (!this.isConfigured() || dataKeys.length === 0) {
             // Nothing to edit yet
             return {
@@ -213,6 +241,7 @@ export default class Action extends DiagramNode {
                 groups: {}
             };
         }
+        
         const dataInputs = {};
         dataKeys.forEach((key) => {
             const dataEntry = this.dataDefinition[key];
@@ -227,6 +256,7 @@ export default class Action extends DiagramNode {
                 group: 'data'
             };
         });
+        
         const config = {
             headerText: `${this.configuration?.action.name}`,
             headerIcon: this.attr('icon/href'),
@@ -241,6 +271,7 @@ export default class Action extends DiagramNode {
                 data: dataInputs
             }
         };
+        
         return util.defaultsDeep(config, super.getInspectorConfig());
     }
 }

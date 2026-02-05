@@ -7,12 +7,17 @@ import { defaultAttrs, labelEditorWrapperStyles, markerClasses } from '../shared
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
+
 const LABEL_Y_OFFSET = 14;
+
 // DataObject
+
 class Data extends shapes.bpmn2.DataObject {
+    
     isResizable = false;
     labelPath = 'label/text';
     labelSelector = 'labelGroup';
+    
     defaults() {
         return util.defaultsDeep({
             shapeType: ShapeTypes.DATA_OBJECT,
@@ -34,6 +39,7 @@ class Data extends shapes.bpmn2.DataObject {
             }
         }, super.defaults);
     }
+    
     preinitialize(...args) {
         super.preinitialize(...args);
         // Add `labelBody` to markup
@@ -47,34 +53,42 @@ class Data extends shapes.bpmn2.DataObject {
             </g>
         `;
     }
+    
     initialize(...args) {
         super.initialize(...args);
         this.on('change:markers', () => this.onMarkersChange());
     }
+    
     onMarkersChange() {
         const collection = Boolean(this.get('markers')[0]);
         this.attr(['collectionIcon', 'collection'], collection);
     }
+    
     getMarkers() {
         return [
             { index: 0, name: MarkerNames.COLLECTION, cssClass: markerClasses.COLLECTION }
         ];
     }
+    
     setMarkers(markers) {
         this.set('markers', markers);
     }
+    
     getShapeList() {
         return [];
     }
+    
     getAppearanceConfig() {
         return dataObjectAppearanceConfig;
     }
+    
     getHaloHandles() {
         return [
             handles.ConnectAnnotation,
             handles.Link
         ];
     }
+    
     copyFrom(element) {
         const { x, y, width, height } = element.getBBox();
         const label = element.attr(['label', 'text']) || '';
@@ -98,31 +112,42 @@ class Data extends shapes.bpmn2.DataObject {
             }
         });
     }
+    
     validateConnection(targetModel) {
         // Include throwing events and end events
         const validEventTypes = Object.values(EventShapeTypes).filter((type) => {
             const lowerType = type.toLowerCase();
             return lowerType.includes('throwing') || lowerType.includes('end');
         });
+        
         const availableShapes = [
             ...Object.values(ActivityShapeTypes).filter((type) => type !== ActivityShapeTypes.EVENT_SUB_PROCESS),
             ...validEventTypes,
             AnnotationShapeTypes.ANNOTATION
         ];
+        
         return availableShapes.includes(targetModel?.get('type'));
     }
+    
     validateEmbedding(parent) {
         return parent.get('shapeType') === ShapeTypes.SWIMLANE;
     }
+    
     getLabelEditorStyles(paper) {
         const labelAttrs = this.attr(['label']) || {};
+        
         const padding = 4;
+        
         const bbox = this.getBBox();
+        
         const { x: bottomMiddleX, y: bottomMiddleY } = bbox.bottomMiddle();
+        
         const borderWidth = parseFloat(labelEditorWrapperStyles.borderWidth);
+        
         const labelEditorWidth = 2 * bbox.width + 2 * padding;
         const x = bottomMiddleX - labelEditorWidth / 2;
         const y = bottomMiddleY + LABEL_Y_OFFSET - padding - borderWidth;
+        
         return {
             padding: `${padding}px`,
             transform: V.matrixToTransformString(paper.matrix().translate(x, y)),
@@ -134,13 +159,17 @@ class Data extends shapes.bpmn2.DataObject {
             color: labelAttrs.fill
         };
     }
+    
     getClosestBoundaryPoint(bbox, point) {
         return bbox.pointNearestToPoint(point);
     }
 }
+
 export class DataObject extends Data {
+    
     static label = DataLabels['data.DataObject'];
     static icon = dataIconClasses.DATA_OBJECT;
+    
     defaults() {
         return util.defaultsDeep({
             type: DataShapeTypes.DATA_OBJECT,
@@ -151,6 +180,7 @@ export class DataObject extends Data {
             }
         }, super.defaults());
     }
+    
     getShapeList() {
         return [
             DataShapeTypes.DATA_INPUT,
@@ -158,9 +188,12 @@ export class DataObject extends Data {
         ];
     }
 }
+
 export class DataInput extends Data {
+    
     static label = DataLabels['data.DataInput'];
     static icon = dataIconClasses.DATA_INPUT;
+    
     defaults() {
         return util.defaultsDeep({
             type: DataShapeTypes.DATA_INPUT,
@@ -174,6 +207,7 @@ export class DataInput extends Data {
             }
         }, super.defaults());
     }
+    
     getShapeList() {
         return [
             DataShapeTypes.DATA_OBJECT,
@@ -181,9 +215,12 @@ export class DataInput extends Data {
         ];
     }
 }
+
 export class DataOutput extends Data {
+    
     static label = DataLabels['data.DataOutput'];
     static icon = dataIconClasses.DATA_OUTPUT;
+    
     defaults() {
         return util.defaultsDeep({
             type: DataShapeTypes.DATA_OUTPUT,
@@ -197,6 +234,7 @@ export class DataOutput extends Data {
             }
         }, super.defaults());
     }
+    
     getShapeList() {
         return [
             DataShapeTypes.DATA_OBJECT,
@@ -204,13 +242,18 @@ export class DataOutput extends Data {
         ];
     }
 }
+
 // Store
+
 export class DataStore extends shapes.bpmn2.DataStore {
+    
     isResizable = false;
     labelPath = 'label/text';
     labelSelector = 'labelGroup';
+    
     static label = DataLabels['data.DataStore'];
     static icon = dataIconClasses.DATA_STORE;
+    
     defaults() {
         return util.defaultsDeep({
             type: DataShapeTypes.DATA_STORE,
@@ -228,6 +271,7 @@ export class DataStore extends shapes.bpmn2.DataStore {
             }
         }, super.defaults);
     }
+    
     preinitialize(...args) {
         super.preinitialize(...args);
         // Add `labelBody` to markup
@@ -240,44 +284,59 @@ export class DataStore extends shapes.bpmn2.DataStore {
             </g>
         `;
     }
+    
     getShapeList() {
         return [];
     }
+    
     getAppearanceConfig() {
         return dataStoreAppearanceConfig;
     }
+    
     getHaloHandles() {
         return [
             handles.ConnectAnnotation,
             handles.Link
         ];
     }
+    
     copyFrom() { }
+    
     validateConnection(targetModel) {
         // Include throwing events and end events
         const validEventTypes = Object.values(EventShapeTypes).filter((type) => {
             const lowerType = type.toLowerCase();
             return lowerType.includes('throwing') || lowerType.includes('end');
         });
+        
         const availableShapes = [
             ...Object.values(ActivityShapeTypes).filter((type) => type !== ActivityShapeTypes.EVENT_SUB_PROCESS),
             ...validEventTypes,
             AnnotationShapeTypes.ANNOTATION
         ];
+        
         return availableShapes.includes(targetModel?.get('type'));
     }
+    
     validateEmbedding(parent) {
         return parent.get('shapeType') === ShapeTypes.SWIMLANE;
     }
+    
     getLabelEditorStyles(paper) {
         const labelAttrs = this.attr(['label']) || {};
+        
         const padding = 4;
+        
         const bbox = this.getBBox();
+        
         const { x: bottomMiddleX, y: bottomMiddleY } = bbox.bottomMiddle();
+        
         const borderWidth = parseFloat(labelEditorWrapperStyles.borderWidth);
+        
         const labelEditorWidth = 2 * bbox.width + 2 * padding;
         const x = bottomMiddleX - labelEditorWidth / 2;
         const y = bottomMiddleY + LABEL_Y_OFFSET - padding - borderWidth;
+        
         return {
             padding: `${padding}px`,
             transform: V.matrixToTransformString(paper.matrix().translate(x, y)),
@@ -289,27 +348,35 @@ export class DataStore extends shapes.bpmn2.DataStore {
             color: labelAttrs.fill
         };
     }
+    
     getClosestBoundaryPoint(bbox, point) {
         return bbox.pointNearestToPoint(point);
     }
 }
+
 // Association
+
 export class DataAssociation extends shapes.bpmn2.DataAssociation {
+    
     static label = DataLabels['data.DataAssociation'];
+    
     defaults() {
         return util.defaultsDeep({
             type: DataShapeTypes.DATA_ASSOCIATION,
             shapeType: ShapeTypes.DATA_ASSOCIATION
         }, super.defaults);
     }
+    
     copyFrom(link) {
         this.source(link.source());
         this.target(link.target());
         this.vertices(link.vertices());
     }
+    
     getShapeList() {
         return [];
     }
+    
     getLinkTools() {
         return [
             constructLinkTools.Vertices(),
@@ -318,13 +385,16 @@ export class DataAssociation extends shapes.bpmn2.DataAssociation {
             ...constructLinkTools.DoubleRemove()
         ];
     }
+    
     getAppearanceConfig() {
         return dataAssociationAppearanceConfig;
     }
+    
     validateConnection(_) {
         return false;
     }
 }
+
 Object.assign(shapes, {
     data: {
         DataStore,

@@ -6,6 +6,7 @@ import { ResizeTool, InsertNodeTool, MenuTool } from '../diagram/tools';
 import { openEdgeMenu, openNodeMenu } from './menu-actions';
 // Utils
 import { addTools, getToolCenter } from '../diagram/tools/utils';
+
 /**
  * Adds hover tools to the given link view.
  */
@@ -15,15 +16,19 @@ export function addEdgeHoverTools(app, edgeView) {
             openEdgeMenu(app, view.model, getToolCenter(tool));
         }
     });
+    
     addTools(edgeView, [insertNodeTool]);
 }
+
 /**
  * Adds hover tools to the given node view.
  */
 export function addNodeHoverTools(app, nodeView) {
     const { diagramData } = app;
+    
     const node = nodeView.model;
     const tools = [];
+    
     // Add contextual menu tool if configured
     const contextMenuOptions = node.get(Attribute.ContextMenu);
     if (contextMenuOptions) {
@@ -34,6 +39,7 @@ export function addNodeHoverTools(app, nodeView) {
             },
         }));
     }
+    
     if (node instanceof Note) {
         tools.push(new ResizeTool({
             onResizeEnd: (size) => {
@@ -41,11 +47,14 @@ export function addNodeHoverTools(app, nodeView) {
             }
         }));
     }
+    
     addTools(nodeView, tools);
 }
+
 /**
  * Removes all tools from the given cell view.
  */
 export function removeCellTools(_app, cellView) {
+    
     cellView.removeTools();
 }

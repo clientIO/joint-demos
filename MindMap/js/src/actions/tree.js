@@ -2,6 +2,7 @@ import { graphUtils } from '@joint/plus';
 import { makeElement, makeLink } from '../shapes';
 import { layoutTree } from './layout';
 import { IDEA_LABEL_DEFAULT } from '../theme';
+
 export function importTreeNode(app, data) {
     const { graph, scroller } = app;
     const cells = graphUtils.constructTree(data, { makeElement, makeLink });
@@ -11,6 +12,7 @@ export function importTreeNode(app, data) {
     layoutTree(app);
     scroller.centerContent({ useModelGeometry: true });
 }
+
 export function addNextSiblingIdea(app, idea) {
     const { graph } = app;
     const parent = graph.getParent(idea);
@@ -29,6 +31,7 @@ export function addNextSiblingIdea(app, idea) {
     graph.triggerLayout();
     return sibling;
 }
+
 export function addPrevSiblingIdea(app, idea) {
     const { graph } = app;
     const parent = graph.getParent(idea);
@@ -47,6 +50,7 @@ export function addPrevSiblingIdea(app, idea) {
     graph.triggerLayout();
     return sibling;
 }
+
 export function addLastChildIdea(app, idea) {
     const { graph } = app;
     const direction = (idea.level === 0)
@@ -61,6 +65,7 @@ export function addLastChildIdea(app, idea) {
     graph.triggerLayout();
     return child;
 }
+
 export function removeIdeaBranch(app, idea) {
     const { graph } = app;
     // Never delete the main idea

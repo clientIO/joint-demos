@@ -1,5 +1,6 @@
 import { elementTools, util } from '@joint/plus';
 import Theme from '../theme';
+
 /** SVG markup for the menu tool button */
 const menuButtonMarkup = util.svg /* xml */ `
     <rect
@@ -20,7 +21,9 @@ const menuButtonMarkup = util.svg /* xml */ `
         href="assets/icons/menu.svg#icon"
     />
 `;
+
 export default class MenuTool extends elementTools.Button {
+    
     preinitialize() {
         this.options.useModelGeometry = true;
         this.attributes = {
@@ -28,6 +31,7 @@ export default class MenuTool extends elementTools.Button {
         };
         this.children = menuButtonMarkup;
     }
+    
     initialize() {
         super.initialize();
         this.el.classList.add('fade-in');

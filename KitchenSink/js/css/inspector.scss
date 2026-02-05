@@ -104,26 +104,7 @@ $inspector-vertical-padding: 8px;
             }
 
             input[type="file"] {
-                height: 200%;
-
-                &::file-selector-button {
-                    line-height: 17.7px;
-                    height: auto;
-                    box-sizing: content-box;
-                    border-radius: var(--jj-border-radius-small);
-                    padding: 8px;
-                    font-family: 'Open Sans', sans-serif;
-                    font-size: 14px;
-                    color: var(--jj-text-primary);
-                    background-color: var(--jj-bg-primary);
-                    border: 1px solid var(--jj-border-secondary);
-                    transition: background-color 0.2s ease-in-out;
-                    cursor: pointer;
-
-                    &:hover {
-                        background-color: var(--jj-accent-hover);
-                    }
-                }
+                padding-bottom: 1px;
             }
         }
     }

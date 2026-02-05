@@ -2,6 +2,7 @@ import { util } from '@joint/plus';
 import DiagramNode from './DiagramNode';
 import Theme, { iconAttributes, nodeLabelAttributes, nodeTypeLabelAttributes } from '../theme';
 import { Attribute } from '../const';
+
 const markup = util.svg /* xml*/ `
     <rect @selector="outline" class="node-outline"/>
     <rect @selector="body" class="node-body"/>
@@ -10,14 +11,21 @@ const markup = util.svg /* xml*/ `
     <text @selector="typeLabel" class="node-label"/>
     <text @selector="label" class="node-label"/>
 `;
+
 const TYPE = 'control';
+
 export default class Control extends DiagramNode {
+    
     static type = TYPE;
+    
     static minHeight = 100;
+    
     dataDefinition = {};
+    
     preinitialize() {
         this.markup = markup;
     }
+    
     defaults() {
         const attributes = {
             // App-specific attributes
@@ -99,8 +107,10 @@ export default class Control extends DiagramNode {
                 }
             }
         };
+        
         return util.defaultsDeep(attributes, super.defaults());
     }
+    
     getDefaultOutlineAttributes() {
         return {
             x: -5,
@@ -111,6 +121,7 @@ export default class Control extends DiagramNode {
             ry: 35,
         };
     }
+    
     getHoverOutlineAttributes() {
         return {
             x: -9,
@@ -121,6 +132,7 @@ export default class Control extends DiagramNode {
             ry: 39,
         };
     }
+    
     getSelectedOutlineAttributes() {
         return {
             x: -30,
@@ -131,11 +143,14 @@ export default class Control extends DiagramNode {
             ry: 60,
         };
     }
+    
     updateBody() {
         const maxPortsCount = Math.max(this.getInboundPorts().length, this.getOutboundPorts().length);
         const height = Math.max(Control.minHeight, maxPortsCount * 40 + 20);
+        
         this.resize(this.size().width, height);
     }
+    
     getLabelsRelativeRects() {
         const labelsData = super.getLabelsRelativeRects();
         const height = this.size().height;
@@ -153,23 +168,29 @@ export default class Control extends DiagramNode {
         });
         return labelsData;
     }
+    
     isConfigured() {
         return this.getConfigurationKey() != null;
     }
+    
     getConfigurationKey() {
         return this.get(Attribute.ControlKey) || null;
     }
+    
     setConfigurationKey(controlKey, options) {
         this.set(Attribute.ControlKey, controlKey, options);
     }
+    
     getDefaultLabel() {
         return `${this.attr('typeLabel/text')}`;
     }
+    
     unsetConfiguration() {
         this.set(Attribute.OutboundPorts, []);
         this.set(Attribute.InboundPorts, [{
                 id: 'input',
             }]);
+        
         this.attr({
             root: {
                 dataConfigured: 'false'
@@ -189,8 +210,10 @@ export default class Control extends DiagramNode {
             }
         });
     }
+    
     updateConfiguration(configuration) {
         const { name = '', data = {}, icon, outboundPorts, inboundPorts } = configuration.control;
+        
         this.set(Attribute.OutboundPorts, outboundPorts || []);
         this.set(Attribute.InboundPorts, inboundPorts || [{
                 id: 'input',
@@ -198,6 +221,7 @@ export default class Control extends DiagramNode {
         this.updateInboundPorts();
         this.updateOutboundPorts();
         this.updateBody();
+        
         this.attr({
             root: {
                 dataConfigured: 'true'
@@ -216,8 +240,10 @@ export default class Control extends DiagramNode {
                 x: 'calc(w/2)',
             }
         });
+        
         this.dataDefinition = data;
     }
+    
     getInputType(dataEntryType) {
         switch (dataEntryType) {
             case 'string':
@@ -232,8 +258,10 @@ export default class Control extends DiagramNode {
                 return 'text';
         }
     }
+    
     getInspectorConfig() {
         const dataKeys = Object.keys(this.dataDefinition);
+        
         if (!this.isConfigured()) {
             // Nothing to edit yet
             return {
@@ -244,6 +272,7 @@ export default class Control extends DiagramNode {
                 groups: {}
             };
         }
+        
         const dataInputs = {};
         if (this.isConfigured() && dataKeys.length) {
             dataKeys.forEach((key) => {
@@ -260,6 +289,7 @@ export default class Control extends DiagramNode {
                 };
             });
         }
+        
         const config = {
             headerText: `${this.getDefaultLabel()}`,
             headerIcon: this.attr('icon/href'),
@@ -274,6 +304,7 @@ export default class Control extends DiagramNode {
                 data: dataInputs
             }
         };
+        
         return util.defaultsDeep(config, super.getInspectorConfig());
     }
 }

@@ -1,7 +1,10 @@
+
 import { shapes, util } from '@joint/plus';
 import { DEPENDENCY_COLOR } from './theme';
+
 // A link representing a dependency between two tasks.
 export class DependencyLink extends shapes.standard.Link {
+    
     defaults() {
         return {
             ...super.defaults,

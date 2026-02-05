@@ -5,11 +5,17 @@ import { SourceArrowhead, TargetArrowhead, Button } from './link-tools';
 import { routerNamespace } from './routers';
 import { anchorNamespace } from './anchors';
 import { loadExample } from './example';
+
 export const init = () => {
+    
     setTheme('material');
+    
     const toolbarHeight = 50;
+    
     const canvas = document.getElementById('canvas');
+    
     const graph = new dia.Graph({}, { cellNamespace: shapes });
+    
     const paper = new dia.Paper({
         model: graph,
         width: 1000,
@@ -83,6 +89,7 @@ export const init = () => {
             return (svModel.getItemSide(sourceItemId) !== 'left');
         }
     });
+    
     const scroller = new ui.PaperScroller({
         paper,
         cursor: 'grab',
@@ -92,8 +99,10 @@ export const init = () => {
         inertia: { friction: 0.8 },
         borderless: true
     });
+    
     canvas.appendChild(scroller.el);
     scroller.render().center();
+    
     // Undo / Redo
     const commandManager = new dia.CommandManager({
         graph: graph,
@@ -103,6 +112,7 @@ export const init = () => {
             return true;
         }
     });
+    
     const toolbar = new ui.Toolbar({
         autoToggle: true,
         tools: [
@@ -116,6 +126,7 @@ export const init = () => {
             paperScroller: scroller
         }
     });
+    
     toolbar.on('svg:pointerclick', () => {
         format.toSVG(paper, (svg) => {
             new ui.Lightbox({
@@ -129,9 +140,11 @@ export const init = () => {
             useComputedStyles: false
         });
     });
+    
     toolbar.render();
     toolbar.el.style.height = toolbarHeight + 'px';
     canvas.appendChild(toolbar.el);
+    
     // Scrollbars
     graph.on('add', (cell) => {
         if (cell.get('type') === 'mapping.Record') {
@@ -140,6 +153,7 @@ export const init = () => {
             }));
         }
     });
+    
     // Decorators
     graph.on('add change:decorators', (cell) => {
         const decorators = cell.get('decorators');
@@ -154,33 +168,46 @@ export const init = () => {
             Decorator.create(view, itemId, { text });
         });
     });
+    
     commandManager.stopListening();
+    
     loadExample(graph);
+    
     commandManager.listen();
+    
     // Register events
+    
     paper.on('blank:pointerdown', (evt) => scroller.startPanning(evt));
+    
     paper.on('blank:mousewheel', (evt, ox, oy, delta) => {
         evt.preventDefault();
         zoom(ox, oy, delta);
     });
+    
     paper.on('link:mousewheel', (_, evt, ox, oy, delta) => {
         evt.preventDefault();
         zoom(ox, oy, delta);
     });
+    
     function zoom(x, y, delta) {
         scroller.zoom(delta * 0.2, { min: 0.4, max: 3, grid: 0.2, ox: x, oy: y });
     }
+    
     paper.on('link:mouseenter', (linkView) => {
         showLinkTools(linkView);
     });
+    
     paper.on('link:mouseleave', (linkView) => {
         linkView.removeTools();
     });
+    
+    
     paper.on('element:magnet:pointerdblclick', (elementView, evt, magnet) => {
         evt.stopPropagation();
         const model = elementView.model;
         itemEditAction(model, elementView.findAttribute('item-id', magnet));
     });
+    
     paper.on('element:contextmenu', (elementView, evt) => {
         const model = elementView.model;
         const tools = model.getTools();
@@ -189,6 +216,7 @@ export const init = () => {
             elementActionPicker(elementView.el, elementView, tools);
         }
     });
+    
     paper.on('element:magnet:contextmenu', (elementView, evt, magnet) => {
         const model = elementView.model;
         const itemId = elementView.findAttribute('item-id', magnet);
@@ -198,9 +226,11 @@ export const init = () => {
             itemActionPicker(magnet, elementView, elementView.findAttribute('item-id', magnet), tools);
         }
     });
+    
     paper.on('element:pointerclick', (elementView) => {
         showElementTools(elementView);
     });
+    
     paper.on('element:pointermove', function (view, evt, x, y) {
         const data = evt.data;
         let ghost = data.ghost;
@@ -215,6 +245,7 @@ export const init = () => {
         }
         ghost.attr('transform', 'translate(' + [x - data.dx, y - data.dy] + ')');
     });
+    
     paper.on('element:pointerup', (view, evt, x, y) => {
         const data = evt.data;
         if (data.ghost) {
@@ -222,6 +253,7 @@ export const init = () => {
             view.model.position(x - data.dx, y - data.dy);
         }
     });
+    
     paper.on('element:mousewheel', (recordView, evt, x, y, delta) => {
         evt.preventDefault();
         const record = recordView.model;
@@ -229,12 +261,16 @@ export const init = () => {
             record.setScrollTop(record.getScrollTop() + delta * 10);
         }
     });
+    
     paper.on('element:decorator:pointerdown', (recordView, evt, itemId) => {
         const record = recordView.model;
         itemDecoratorEditAction(record, itemId);
     });
+    
     paper.unfreeze();
+    
     // Actions
+    
     function showElementTools(elementView) {
         const element = elementView.model;
         const padding = util.normalizeSides(element.get('padding'));
@@ -252,6 +288,7 @@ export const init = () => {
         });
         transform.render();
     }
+    
     function showLinkTools(linkView) {
         const tools = new dia.ToolsView({
             tools: [
@@ -267,7 +304,9 @@ export const init = () => {
         });
         linkView.addTools(tools);
     }
+    
     function itemActionPicker(target, elementView, itemId, tools) {
+        
         const element = elementView.model;
         const ctxToolbar = new ui.ContextToolbar({
             target: target,
@@ -275,6 +314,7 @@ export const init = () => {
             vertical: true,
             tools: tools
         });
+        
         ctxToolbar.render();
         ctxToolbar.on({
             'action:remove': function () {
@@ -308,7 +348,9 @@ export const init = () => {
             }
         });
     }
+    
     function elementActionPicker(target, elementView, tools) {
+        
         const element = elementView.model;
         const ctxToolbar = new ui.ContextToolbar({
             target: target.firstChild,
@@ -316,6 +358,7 @@ export const init = () => {
             vertical: true,
             tools: tools
         });
+        
         ctxToolbar.render();
         ctxToolbar.on({
             'action:remove': function () {
@@ -328,27 +371,34 @@ export const init = () => {
             }
         });
     }
+    
     function itemDecoratorEditAction(element, itemId) {
         const config = { [itemId]: { type: 'content-editable', label: 'Decorator' } };
         const path = ['decorators'];
         itemAction(element, config, path);
     }
+    
     function itemEditAction(element, itemId) {
         const config = element.getInspectorConfig(itemId);
         const path = element.getItemPathArray(itemId);
         itemAction(element, config, path);
     }
+    
     function itemAction(element, config, itemPath) {
+        
         if (!config || !itemPath)
             return;
+        
         const inspector = new ui.Inspector({
             cell: element,
             live: false,
             inputs: util.setByPath({}, itemPath, config)
         });
+        
         inspector.render();
         inspector.el.style.position = 'relative';
         inspector.el.style.overflow = 'hidden';
+        
         const dialog = new ui.Dialog({
             width: 300,
             title: 'Edit Item',
@@ -362,6 +412,7 @@ export const init = () => {
                     action: 'change'
                 }]
         });
+        
         dialog.open();
         dialog.on({
             'action:cancel': function () {
@@ -374,6 +425,7 @@ export const init = () => {
                 dialog.close();
             }
         });
+        
         const input = inspector.el.querySelector('[contenteditable]');
         if (input) {
             const selection = window.getSelection();
@@ -383,7 +435,9 @@ export const init = () => {
             selection.addRange(range);
         }
     }
+    
     function linkAction(link) {
+        
         const dialog = new ui.Dialog({
             title: 'Confirmation',
             width: 300,
@@ -393,6 +447,7 @@ export const init = () => {
                 { action: 'remove', content: '<span style="color:#fe854f">Remove</span>' }
             ]
         });
+        
         dialog.open();
         dialog.on({
             'action:remove': function () {

@@ -1,9 +1,12 @@
 import { dia, util } from '@joint/plus';
+
 export class DurationNumberInput extends dia.HighlighterView {
+    
     preinitialize() {
         this.UPDATE_ATTRIBUTES = ['active', 'duration'];
         this.tagName = 'g';
     }
+    
     events() {
         return {
             'change input': (evt) => { this.onChange(evt); },
@@ -12,12 +15,15 @@ export class DurationNumberInput extends dia.HighlighterView {
             'blur input': (evt) => { this.onBlur(evt); }
         };
     }
+    
     highlight(view) {
         let active = view.model.get('active');
+        
         const duration = view.model.get('duration');
         const topColor = view.model.get('topColor');
         const sideColor = view.model.get('sideColor');
         const textColor = view.model.get('labelColor');
+        
         const circlePosition = {
             x: view.model.size().width - 15,
             y: view.model.size().height - 15
@@ -54,8 +60,10 @@ export class DurationNumberInput extends dia.HighlighterView {
                 </text>
             `;
         }
+        
         this.renderChildren(markup);
     }
+    
     onChange(evt) {
         let value = Number(evt.target.value);
         const duration = this.cellView.model.get('duration');
@@ -66,16 +74,20 @@ export class DurationNumberInput extends dia.HighlighterView {
             value = this.options.maxDuration - currentDuration;
         }
         this.cellView.model.set('duration', value);
+        
     }
+    
     onFocus(_evt) {
         this.cellView.model.set('focused', true);
     }
+    
     onBlur(_evt) {
         this.cellView.model.set('focused', false);
         if (!this.cellView.model.get('hovered')) {
             this.cellView.model.set('active', false);
         }
     }
+    
     onClick(evt) {
         this.cellView.preventDefaultInteraction(evt);
     }

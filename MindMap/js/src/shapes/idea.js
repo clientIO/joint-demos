@@ -1,5 +1,6 @@
 import { dia, V, util } from '@joint/plus';
 const { Element, ElementView } = dia;
+
 function measureText(svgDocument, text, attrs, annotations) {
     const vText = V('text').attr(attrs).text(text, annotations);
     vText.appendTo(svgDocument);
@@ -7,6 +8,7 @@ function measureText(svgDocument, text, attrs, annotations) {
     vText.remove();
     return bbox;
 }
+
 const LABEL_PROPERTY = 'label';
 const ANNOTATIONS_PROPERTY = 'annotations';
 const IMAGE_PROPERTY = 'image';
@@ -16,10 +18,13 @@ const PLACEHOLDER_PROPERTY = 'placeholder';
 const OUTLINE_COLOR_PROPERTY = 'outlineColor';
 const FILL_COLOR_PROPERTY = 'fillColor';
 const LINE_PROPERTY = 'line';
+
 export class Idea extends Element {
+    
     cache;
     labelAttributes;
     imageAttributes;
+    
     LABEL_PROPERTY = LABEL_PROPERTY;
     ANNOTATIONS_PROPERTY = ANNOTATIONS_PROPERTY;
     IMAGE_PROPERTY = IMAGE_PROPERTY;
@@ -29,7 +34,9 @@ export class Idea extends Element {
     FILL_COLOR_PROPERTY = FILL_COLOR_PROPERTY;
     LINE_COLOR_PROPERTY = LINE_PROPERTY;
     IMAGE_SIZE_PROPERTY = IMAGE_SIZE_PROPERTY;
+    
     static sandbox;
+    
     defaults() {
         return {
             ...super.defaults,
@@ -45,6 +52,7 @@ export class Idea extends Element {
             [IMAGE_SIZE_PROPERTY]: 50
         };
     }
+    
     preinitialize() {
         this.labelAttributes = {
             'font-size': 14,
@@ -57,11 +65,13 @@ export class Idea extends Element {
         };
         this.cache = {};
     }
+    
     initialize(attributes, options) {
         super.initialize(attributes, options);
         this.on('change', this.onAttributeChange);
         this.setSizeFromContent();
     }
+    
     /* Attributes that affect the size of the model. */
     onAttributeChange() {
         const { changed, cache } = this;
@@ -78,11 +88,13 @@ export class Idea extends Element {
             this.setSizeFromContent();
         }
     }
+    
     setSizeFromContent() {
         delete this.cache.layout;
         const { width, height } = this.layout();
         this.resize(width, height);
     }
+    
     layout() {
         const { cache } = this;
         let { layout } = cache;
@@ -95,6 +107,7 @@ export class Idea extends Element {
             return layout;
         }
     }
+    
     calcLayout() {
         const { attributes, labelAttributes, cache } = this;
         const spacing = attributes[SPACING_PROPERTY];
@@ -168,17 +181,23 @@ export class Idea extends Element {
             $label,
         };
     }
+    
     // Image API
+    
     hasImage() {
         return Boolean(this.get(IMAGE_PROPERTY));
     }
+    
     removeImage(opt) {
         this.set(IMAGE_PROPERTY, null, opt);
     }
+    
     addImage(imageUrl, opt) {
         this.set(IMAGE_PROPERTY, imageUrl, opt);
     }
+    
     // Annotation API
+    
     replaceAnnotationURL(index, url, urlText, opt) {
         const { label, annotations } = this;
         const annotation = annotations[index];
@@ -207,29 +226,38 @@ export class Idea extends Element {
         }, opt);
         this.stopBatch('replace-annotation-url');
     }
+    
     // Getters
+    
     get level() {
         return this.get('level');
     }
+    
     get siblingRank() {
         return this.get('siblingRank');
     }
+    
     get direction() {
         return this.get('direction');
     }
+    
     get label() {
         return this.get(LABEL_PROPERTY);
     }
+    
     get annotations() {
         return this.get(ANNOTATIONS_PROPERTY);
     }
 }
+
 const FLAG_COLOR = '@color';
 export class IdeaView extends ElementView {
+    
     model;
     vBody;
     vLabel;
     vImage;
+    
     presentationAttributes() {
         return ElementView.addPresentationAttributes({
             // attributes that change the position and size of the DOM elements
@@ -245,6 +273,7 @@ export class IdeaView extends ElementView {
             [FILL_COLOR_PROPERTY]: [FLAG_COLOR],
         });
     }
+    
     confirmUpdate(flag, opt) {
         let flags = super.confirmUpdate(flag, opt);
         if (this.hasFlag(flags, FLAG_COLOR)) {
@@ -255,6 +284,7 @@ export class IdeaView extends ElementView {
         // It must return 0
         return flags;
     }
+    
     /* Runs only once while initializing */
     render() {
         const { vel, model } = this;
@@ -276,6 +306,7 @@ export class IdeaView extends ElementView {
         this.translate();
         return this;
     }
+    
     update() {
         const $layout = this.model.layout();
         this.updateBody($layout);
@@ -283,6 +314,7 @@ export class IdeaView extends ElementView {
         this.updateLabel($layout.$label);
         this.cleanNodesCache();
     }
+    
     updateColors() {
         const { model, vBody } = this;
         vBody.attr({
@@ -290,6 +322,7 @@ export class IdeaView extends ElementView {
             stroke: model.get(OUTLINE_COLOR_PROPERTY),
         });
     }
+    
     updateBody($body) {
         const { model, vBody } = this;
         const { width, height } = $body;
@@ -306,6 +339,7 @@ export class IdeaView extends ElementView {
         };
         vBody.attr(bodyAttributes);
     }
+    
     updateImage($image) {
         const { model, vImage, vel } = this;
         const image = model.get(IMAGE_PROPERTY);
@@ -328,6 +362,7 @@ export class IdeaView extends ElementView {
             vImage.remove();
         }
     }
+    
     updateLabel($label) {
         const { model, vLabel } = this;
         vLabel.attr({
@@ -339,6 +374,7 @@ export class IdeaView extends ElementView {
             annotations: model.get(ANNOTATIONS_PROPERTY)
         });
     }
+    
     getLabelNode() {
         return this.vLabel.node;
     }

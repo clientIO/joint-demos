@@ -1,11 +1,14 @@
 import { inspectorOptions } from '../shared-config';
+
 export const GroupLabels = {
     'group.Group': 'Group'
 };
+
 export var GroupShapeTypes;
 (function (GroupShapeTypes) {
     GroupShapeTypes["GROUP"] = "group.Group";
 })(GroupShapeTypes || (GroupShapeTypes = {}));
+
 export const groupAppearanceConfig = {
     groups: {
         style: {

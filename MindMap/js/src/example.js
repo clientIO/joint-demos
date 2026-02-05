@@ -1,4 +1,5 @@
 import { IDEA_USER_COLORS } from './theme';
+
 const example = {
     label: 'Business Plan\nwww.example.com\n\n2022',
     annotations: [
@@ -73,4 +74,5 @@ const example = {
         }
     ],
 };
+
 export default example;

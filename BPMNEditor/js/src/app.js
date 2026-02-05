@@ -9,8 +9,11 @@ import LinkToolsService from './services/link-tools-service';
 import FreeTransformService from './services/free-transform-service';
 import * as carWashProcess from './data/car-wash-process.json';
 import { ZOOM_SETTINGS } from './configs/navigator-config';
+
 export const init = () => {
+    
     setTheme('bpmn');
+    
     const secondaryServices = {
         toolbarService: new ToolbarService(document.querySelector('.app-toolbar')),
         stencilService: new StencilService(document.querySelector('.stencil-container')),
@@ -24,6 +27,7 @@ export const init = () => {
         linkToolsService: new LinkToolsService(),
         freeTransformService: new FreeTransformService()
     };
+    
     const mainService = new MainService(document.querySelector('.paper-container'), secondaryServices);
     mainService.start();
     mainService.graph.fromJSON(carWashProcess);

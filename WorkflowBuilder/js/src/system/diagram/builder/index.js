@@ -6,11 +6,14 @@ import { extractNodesIds } from '../data/utils';
 import { SystemEdge } from '../models';
 import { Attribute } from '../const';
 import { runAfterLayout } from '../../../diagram/utils';
+
 export * from './types';
+
 const ZIndex = {
     Edge: 0,
     Node: 1,
 };
+
 export async function buildDiagram(data, graph, options = {}) {
     const { 
     // By default the data node is used as-is to create the model.
@@ -18,14 +21,19 @@ export async function buildDiagram(data, graph, options = {}) {
     updateGraph(graph, data, buildNode);
     await layoutGraph(graph, disableOptimalOrderHeuristic);
 }
+
 function updateGraph(graph, json, buildNode) {
+    
     const nodes = [];
     const edges = [];
+    
     const nodeIds = extractNodesIds(json);
+    
     nodeIds.forEach(sourceId => {
         // node should always exist in the JSON
         const nodeJSON = json[sourceId];
         const nodeType = nodeJSON.type;
+        
         const node = buildNode(nodeJSON, sourceId.toString());
         // Ensure the node has the ID attribute set
         setNodeAttribute(node, 'id', sourceId);
@@ -44,8 +52,10 @@ function updateGraph(graph, json, buildNode) {
                 node.z = defaults.z ?? ZIndex.Node;
             }
         }
+        
         nodes.push(node);
     });
+    
     nodeIds.forEach(sourceId => {
         const nodeJSON = json[sourceId];
         const targets = nodeJSON.to || [];
@@ -53,6 +63,7 @@ function updateGraph(graph, json, buildNode) {
             const targetId = target.id;
             if (!targetId)
                 return;
+            
             const edgeJSON = {
                 ...target,
                 z: ZIndex.Edge,
@@ -68,27 +79,35 @@ function updateGraph(graph, json, buildNode) {
                     port: target.targetPortId
                 }
             };
+            
             edges.push(edgeJSON);
         });
     });
+    
     graph.syncCells([
         ...nodes,
         ...edges,
     ], { remove: true });
 }
+
 /**
  * Asynchronously layouts the graph using the ELK layout engine.
  */
 async function layoutGraph(graph, disableOptimalOrderHeuristic) {
+    
     const { fixedNodes, ...cells } = extractGraphCells(graph);
+    
     const setFixedPositions = () => {
         fixedNodes.forEach(node => setCustomPosition(graph, node));
     };
+    
     // Set fixed node positions to ensure they
     // have the correct position set synchronously
     setFixedPositions();
+    
     // Set the fixed positions after the layout is completed,
     // and reference nodes have been positioned.
     runAfterLayout(graph, setFixedPositions);
+    
     await layoutCells(graph, cells, { disableOptimalOrderHeuristic });
 }

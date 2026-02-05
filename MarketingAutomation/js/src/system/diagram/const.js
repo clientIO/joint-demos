@@ -14,4 +14,5 @@ export const Attribute = {
      * The index of the link among all outgoing links from the source node.
      */
     SourceIndex: 'sourceIndex'
+    
 };

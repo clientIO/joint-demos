@@ -1,17 +1,22 @@
 import { dia } from '@joint/plus';
 import { Attribute } from '../const';
+
 const TYPE = 'Edge';
+
 /**
  * Abstract base class for system edges in the diagram.
  */
 export default class SystemEdge extends dia.Link {
+    
     static type = TYPE;
+    
     defaults() {
         return {
             ...super.defaults,
             type: TYPE,
         }; // Ensure type is included
     }
+    
     /**
      * Get the data path for this link in the diagram data structure.
      */
@@ -23,6 +28,7 @@ export default class SystemEdge extends dia.Link {
         }
         return `${sourceId}/to/${sourceIndex}`;
     }
+    
     /**
      * Type guard to check if the cell is a SystemEdge.
      */
@@ -30,3 +36,4 @@ export default class SystemEdge extends dia.Link {
         return cell.get('type') === TYPE;
     }
 }
+

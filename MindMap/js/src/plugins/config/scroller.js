@@ -1,3 +1,4 @@
+
 export default {
     cursor: 'grab',
     padding: 100,

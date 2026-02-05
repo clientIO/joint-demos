@@ -4,7 +4,9 @@ import { flowAppearanceConfig, flowIconClasses, FlowLabels, FlowShapeTypes } fro
 import { defaultAttrs } from '../shared-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
+
 class Flow extends shapes.bpmn2.Flow {
+    
     defaultLabel = {
         attrs: {
             body: defaultAttrs.labelBody,
@@ -21,15 +23,18 @@ class Flow extends shapes.bpmn2.Flow {
             }
         ]
     };
+    
     defaults() {
         return util.defaultsDeep({
             shapeType: ShapeTypes.FLOW
         }, super.defaults);
     }
+    
     constructor(...args) {
         super(...args);
         this.router('rightAngle', { useVertices: true });
     }
+    
     copyFrom(link) {
         this.attr(['line', 'stroke'], link.attr(['line', 'stroke']));
         this.labels(link.labels());
@@ -37,14 +42,17 @@ class Flow extends shapes.bpmn2.Flow {
         this.target(link.target());
         this.vertices(link.vertices());
     }
+    
     getShapeList() {
         const shapes = [
             FlowShapeTypes.SEQUENCE,
             FlowShapeTypes.DEFAULT,
             FlowShapeTypes.CONDITIONAL
         ];
+        
         return shapes.filter((shape) => shape !== this.get('type'));
     }
+    
     getLinkTools() {
         return [
             constructLinkTools.Vertices(),
@@ -53,27 +61,37 @@ class Flow extends shapes.bpmn2.Flow {
             ...constructLinkTools.DoubleRemove()
         ];
     }
+    
     validateConnection(targetModel) {
         return targetModel?.get('type') === AnnotationShapeTypes.ANNOTATION;
     }
+    
     getAppearanceConfig() {
         return flowAppearanceConfig;
     }
+    
     getLabelEditorStyles(paper) {
         const labelPadding = {
             vertical: 5,
             horizontal: 3
         };
+        
         const textWrap = defaultAttrs.linkLabel.textWrap;
+        
         // Compensate for current paper zoom level so the editor width stays visually consistent.
         const { a: scaleX = 1 } = paper.matrix(); // `a` corresponds to horizontal scale factor
         const scale = Math.abs(scaleX) || 1;
+        
         const width = (textWrap.width + labelPadding.vertical * 2) / scale;
+        
         const clientWidth = paper.localToClientRect(0, 0, width, 0).width;
+        
         const view = this.findView(paper);
         const { x: cx, y: cy } = view.getPointAtRatio(0.5);
+        
         const currentLabel = this.labels()[0]?.attrs || {};
         const labelAttrs = util.defaultsDeep({}, currentLabel, this.defaultLabel.attrs);
+        
         return {
             padding: `${labelPadding.vertical}px ${labelPadding.horizontal}px`,
             transform: `${V.matrixToTransformString(paper.matrix().translate(cx, cy))} translate(-50%, -50%)`,
@@ -87,9 +105,12 @@ class Flow extends shapes.bpmn2.Flow {
         };
     }
 }
+
 export class Sequence extends Flow {
+    
     static label = FlowLabels['flow.Sequence'];
     static icon = flowIconClasses.SEQUENCE;
+    
     defaults() {
         return util.defaultsDeep({
             type: FlowShapeTypes.SEQUENCE,
@@ -101,9 +122,12 @@ export class Sequence extends Flow {
         }, super.defaults());
     }
 }
+
 export class Default extends Flow {
+    
     static label = FlowLabels['flow.Default'];
     static icon = flowIconClasses.DEFAULT;
+    
     defaults() {
         return util.defaultsDeep({
             type: FlowShapeTypes.DEFAULT,
@@ -115,9 +139,12 @@ export class Default extends Flow {
         }, super.defaults());
     }
 }
+
 export class Conditional extends Flow {
+    
     static label = FlowLabels['flow.Conditional'];
     static icon = flowIconClasses.CONDITIONAL;
+    
     defaults() {
         return util.defaultsDeep({
             type: FlowShapeTypes.CONDITIONAL,
@@ -129,8 +156,11 @@ export class Conditional extends Flow {
         }, super.defaults());
     }
 }
+
 export class Message extends Flow {
+    
     static label = FlowLabels['flow.Message'];
+    
     defaults() {
         return util.defaultsDeep({
             type: FlowShapeTypes.MESSAGE,
@@ -141,10 +171,12 @@ export class Message extends Flow {
             }
         }, super.defaults());
     }
+    
     getShapeList() {
         return [];
     }
 }
+
 Object.assign(shapes, {
     flow: {
         Sequence,

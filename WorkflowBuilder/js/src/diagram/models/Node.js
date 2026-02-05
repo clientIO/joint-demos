@@ -1,10 +1,13 @@
 import { Attribute } from '../const';
 import { SystemNode } from '../../system/diagram/models';
+
 export default class Node extends SystemNode {
+    
     /**
      * The maximum number of child nodes that can be added to this node.
      */
     static growthLimit = Infinity;
+    
     defaults() {
         return {
             ...super.defaults(),
@@ -15,6 +18,7 @@ export default class Node extends SystemNode {
             z: 1,
         };
     }
+    
     getInspectorConfig() {
         return {
             groups: {},

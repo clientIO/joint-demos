@@ -5,10 +5,14 @@ import { prepareLinkReplacement, validateAndReplaceConnections } from '../utils'
 import { shapes, ui } from '@joint/plus';
 import { onSwimlaneDrag, onSwimlaneDragEnd, onSwimlaneDragStart } from '../events/swimlanes';
 import { onElementDrag, onElementDragEnd, onElementDragStart } from '../events/elements';
+
 export default class EditController extends Controller {
+    
     labelEditor = null;
+    
     startListening() {
         const { paper, selection } = this.context;
+        
         this.listenTo(paper, {
             'element:pointerdblclick': (context, elementView) => {
                 this.labelEditor = onElementPointerDblClick(context, elementView);
@@ -29,6 +33,7 @@ export default class EditController extends Controller {
             'element:pointerdown': (context, elementView, evt, x, y) => {
                 const { paper, keyboard } = context;
                 const { model } = elementView;
+                
                 if (shapes.bpmn2.Swimlane.isSwimlane(model)) {
                     if (keyboard.isActive('shift', evt)) {
                         // Enable selecting inside the pool with `shift`
@@ -49,9 +54,11 @@ export default class EditController extends Controller {
             'element:pointermove': (context, elementView, evt, x, y) => {
                 const { paper } = context;
                 const { model } = elementView;
+                
                 if (shapes.bpmn2.Swimlane.isSwimlane(model)) {
                     if (elementView.eventData(evt)?.preventDrop)
                         return;
+                    
                     onSwimlaneDrag(paper, elementView, evt, x, y);
                 }
                 else {
@@ -61,9 +68,11 @@ export default class EditController extends Controller {
             'element:pointerup': (context, elementView, evt, x, y) => {
                 const { paper } = context;
                 const { model } = elementView;
+                
                 if (shapes.bpmn2.Swimlane.isSwimlane(model)) {
                     if (elementView.eventData(evt)?.preventDrop)
                         return;
+                    
                     onSwimlaneDragEnd(paper, elementView, evt, x, y);
                 }
                 else {
@@ -72,26 +81,34 @@ export default class EditController extends Controller {
             },
             'link:connect': onLinkConnect
         });
+        
         this.listenTo(eventBus, {
             [EventBusEvents.GRAPH_REPLACE_CELL]: onReplaceShape
         });
+        
         this.listenTo(selection.collection, {
             'reset add remove': onSelectionChange
         });
     }
+    
     removeLabelEditor() {
         if (!this.labelEditor)
             return;
+        
         // Trigger blur event to save the text and remove the editor
         this.labelEditor.firstChild.blur();
         this.labelEditor = null;
     }
 }
+
 // Paper event handlers
+
 function onElementPointerDblClick(context, elementView) {
     return prepareLabelEditor(context, elementView);
 }
+
 function onLinkContextMenu(context, linkView, evt) {
+    
     const contextToolbar = new ui.ContextToolbar({
         vertical: true,
         target: {
@@ -109,47 +126,64 @@ function onLinkContextMenu(context, linkView, evt) {
     contextToolbar.render();
     return contextToolbar;
 }
+
 function onLinkConnect(context, linkView) {
     const { graph, selection } = context;
     const batchName = 'link-replace';
+    
     graph.startBatch(batchName);
+    
     const replacementLink = prepareLinkReplacement(linkView.model);
     graph.syncCells([replacementLink], { async: false });
+    
     graph.stopBatch(batchName);
     selection.collection.reset([replacementLink]);
 }
+
 // Event bus event handlers
+
 function onReplaceShape(context, oldShape, newShape) {
     const { graph, selection } = context;
     const { collection } = selection;
     const batchName = 'replace-shape';
+    
     graph.startBatch(batchName);
+    
     newShape.copyFrom(oldShape);
     graph.syncCells([newShape]);
+    
     if (oldShape.isElement()) {
         // Validate and replace connections when we are changing the element type
         // since the new element might have different connection rules
         validateAndReplaceConnections(newShape, graph);
     }
+    
     graph.stopBatch(batchName);
     collection.reset([newShape]);
 }
+
 // Selection event handlers
+
 function onSelectionChange(context) {
     const { selection, paper, haloService, inspectorService, freeTransformService } = context;
     const { collection } = selection;
+    
     haloService.close();
     freeTransformService.close(paper);
     inspectorService.close();
+    
     if (collection.length === 1) {
         const primaryCell = collection.first();
         const primaryCellView = paper.findViewByModel(primaryCell);
         selectPrimaryCell(context, primaryCellView);
     }
 }
+
 // Helpers
+
 function selectPrimaryCell(context, cellView, showTools = true) {
     const { haloService, linkToolsService } = context;
+    
     haloService.close();
     linkToolsService.remove();
     const cell = cellView.model;
@@ -160,47 +194,65 @@ function selectPrimaryCell(context, cellView, showTools = true) {
         selectPrimaryLink(context, cellView, showTools);
     }
 }
+
 function selectPrimaryElement(context, elementView) {
     const { haloService, inspectorService, freeTransformService } = context;
+    
     const element = elementView.model;
+    
     haloService.create(elementView);
     inspectorService.create(element);
+    
     if (!element.isResizable)
         return;
+    
     freeTransformService.create(elementView);
 }
+
 function selectPrimaryLink(context, linkView, showTools = true) {
     const { inspectorService, linkToolsService } = context;
+    
     if (showTools) {
         linkToolsService.create(linkView);
     }
     inspectorService.create(linkView.model);
 }
+
 function prepareLabelEditor(context, cellView) {
+    
     const { paper, selection } = context;
     const cell = cellView.model;
+    
     if (!cell.getLabelEditorStyles)
         return null;
+    
     const editableWrapper = document.createElement('div');
     editableWrapper.classList.add('label-editor-wrapper');
+    
     const wrapperStyles = { ...labelEditorWrapperStyles, ...cell.getLabelEditorStyles(paper) };
+    
     // Apply global wrapper styles and styles from the shape
     for (const [key, value] of Object.entries(wrapperStyles)) {
         editableWrapper.style[key] = value;
     }
+    
     const contentEditableDiv = document.createElement('div');
     contentEditableDiv.contentEditable = 'true';
     contentEditableDiv.classList.add('label-editor');
+    
     editableWrapper.appendChild(contentEditableDiv);
+    
     // Clear the selection and select the cell to keep the inspector open
     selection.collection.reset([]);
     selectPrimaryCell(context, cellView, false);
+    
     if (cell.isLink()) {
         editLinkLabel(editableWrapper, contentEditableDiv, cell, paper);
     }
     else {
         editElementLabel(editableWrapper, contentEditableDiv, cell, paper);
     }
+    
     // Select all text in the editable area
     const range = document.createRange();
     const sel = window.getSelection();
@@ -208,22 +260,29 @@ function prepareLabelEditor(context, cellView) {
     range.selectNodeContents(contentEditableDiv);
     sel?.removeAllRanges();
     sel?.addRange(range);
+    
     // Prevent default scroll behavior and manage centering
     contentEditableDiv.addEventListener('input', () => {
         // Reset the height to recalculate the scrollHeight
         contentEditableDiv.style.height = 'auto';
+        
         // Calculate new height
         const newHeight = contentEditableDiv.clientHeight;
+        
         // Ensure editable area also expands as needed
         contentEditableDiv.style.height = `${newHeight}px`;
     });
+    
     // Enable text selection
     contentEditableDiv.addEventListener('mousedown', (evt) => {
         evt.stopPropagation();
     });
+    
     // Enable saving on Enter (without shift), cancel on Escape
     contentEditableDiv.addEventListener('keydown', (evt) => {
+        
         const isEnter = evt.key === 'Enter';
+        
         if (evt.key === 'Escape' || (isEnter && !evt.shiftKey)) {
             if (isEnter) {
                 evt.preventDefault();
@@ -232,22 +291,31 @@ function prepareLabelEditor(context, cellView) {
             selection.collection.reset([cell]);
         }
     });
+    
     return editableWrapper;
 }
+
 function editLinkLabel(editorWrapper, editable, link, paper) {
+    
     const label = link.label(0)?.attrs?.label?.text;
     editable.innerText = label ?? '';
+    
     // Hide the labels, so the label editor is visible instead
     const labelsNode = paper.findViewByModel(link)?.el.querySelector('.labels');
     if (labelsNode) {
         labelsNode.style.display = 'none';
     }
+    
     paper.el.appendChild(editorWrapper);
     editable.focus();
+    
     editable.addEventListener('blur', () => {
+        
         // Remove line breaks
         const parsedText = editable.innerText.trim().replace(/<br>/, '');
+        
         if (parsedText !== '') {
+            
             link.label(0, {
                 attrs: {
                     label: {
@@ -255,29 +323,40 @@ function editLinkLabel(editorWrapper, editable, link, paper) {
                     }
                 }
             });
+            
         }
         else {
             link.removeLabel(0);
         }
+        
         // Show the labels
         if (labelsNode) {
             labelsNode.style.display = 'block';
         }
+        
         editorWrapper.remove();
     });
 }
+
 function editElementLabel(editorWrapper, editable, element, paper) {
+    
     const labelPath = element.labelPath;
+    
     // Store the original label
     const originalLabel = element.attr(labelPath) || '';
     editable.innerText = originalLabel;
+    
     const labelElementView = paper.findViewByModel(element);
     labelElementView.setLabelNodeDisplay(false);
+    
     paper.el.appendChild(editorWrapper);
     editable.focus();
+    
     editable.addEventListener('blur', () => {
+        
         element.attr(labelPath, editable.innerText.trim());
         labelElementView.setLabelNodeDisplay(true);
+        
         editorWrapper.remove();
     });
 }

@@ -1,6 +1,7 @@
 import { util } from '@joint/plus';
 import { Milestone, Category, Event } from './shapes';
 import { makeLink } from './utils';
+
 const artificialIntelligenceTimelineData = {
     milestones: [
         {
@@ -638,115 +639,165 @@ const artificialIntelligenceTimelineData = {
         }
     ]
 };
+
 // Data class
+
 class Timeline {
     milestones;
+    
     constructor(timelineData) {
         this.milestones = timelineData.milestones;
     }
+    
     getBusElements() {
         return this.milestones.map(milestone => milestone.id);
     }
+    
     unshiftBusElement() {
         const prevYear = Number(this.milestones[0].id) - 1;
+        
         this.milestones.unshift({
             id: prevYear.toString(),
             children: []
         });
+        
         // Return new id
         return prevYear.toString();
     }
+    
     addBusElementAfter(year) {
         const nextYear = Number(year) + 1;
+        
         this.milestones.splice(this.milestones.findIndex((milestone) => milestone.id === year) + 1, 0, {
             id: nextYear.toString(),
             children: []
         });
+        
         // Return new id
         return nextYear.toString();
     }
+    
     addChildToPath(path, child, index) {
         const identifier = path.pop();
         child.children = child.children || [];
+        
         if (path.length === 0) {
             this.milestones.find(milestone => milestone.id === identifier).children.splice(index, 0, child);
             return;
         }
+        
         const milestoneId = path.shift();
         let parent = this.milestones.find(milestone => milestone.id === milestoneId);
+        
         while (path.length > 0) {
             const id = path.shift();
             parent = parent.children.find(element => element.id === id);
         }
+        
         parent = parent.children.find(element => element.id === identifier);
+        
         parent.children.splice(index, 0, child);
     }
+    
     getByPath(path) {
+        
         if (path.length === 0)
             return null;
+        
         const identifier = path.pop();
+        
         if (path.length === 0) {
             return this.milestones.find(milestone => milestone.id === identifier);
         }
+        
         const milestoneId = path.shift();
+        
         let node = this.milestones.find(milestone => milestone.id === milestoneId);
+        
         while (path.length > 0) {
             const id = path.shift();
             node = node.children.find(element => element.id === id);
         }
+        
         return node.children.find(element => element.id === identifier);
     }
+    
     setValueByPath(path, value) {
         const identifier = path.pop();
+        
         if (path.length === 0)
             return;
+        
         const milestoneId = path.shift();
+        
         let node = this.milestones.find(milestone => milestone.id === milestoneId);
+        
         while (path.length > 0) {
             const id = path.shift();
             node = node.children.find(element => element.id === id);
         }
+        
         node = node.children.find(element => element.id === identifier);
         Object.assign(node, value);
     }
+    
     removeByPath(path) {
+        
         const identifier = path.pop();
+        
         if (path.length === 0) {
             this.milestones = this.milestones.filter(milestone => milestone.id !== identifier);
             return;
         }
+        
         const milestoneId = path.shift();
+        
         let parent = this.milestones.find(milestone => milestone.id === milestoneId);
+        
         while (path.length > 0) {
             const id = path.shift();
             parent = parent.children.find(element => element.id === id);
         }
+        
         parent.children = parent.children.filter(element => element.id !== identifier);
     }
+    
     moveChildByPath(oldPath, newPath, index) {
         const child = this.getByPath(util.clone(oldPath));
+        
         if (!child)
             return;
+        
         this.removeByPath(oldPath);
         this.addChildToPath(newPath, child, index);
     }
+    
     toGraphShapes(nodesToTraverse = this.milestones, parentId = null, depth = 0) {
+        
         const cells = [];
+        
         nodesToTraverse.forEach((currentNode) => {
+            
             const { id, children } = currentNode;
             const node = this.resolveShapeTypeFromDepth(currentNode, depth);
+            
             cells.push(node);
+            
             if (parentId) {
                 cells.push(makeLink(parentId, id));
             }
+            
             if (children) {
                 cells.push(...this.toGraphShapes(children, id, depth + 1));
             }
         });
+        
         return cells;
     }
+    
     resolveShapeTypeFromDepth(node, depth) {
         const { id, label, date, direction } = node;
+        
         switch (depth) {
             case 0:
                 return Milestone.create(id);
@@ -757,4 +808,5 @@ class Timeline {
         }
     }
 }
+
 export const artificialIntelligenceTimeline = new Timeline(artificialIntelligenceTimelineData);

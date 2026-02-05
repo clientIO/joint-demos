@@ -1,11 +1,15 @@
 import Node from './Node';
 import { Attribute } from '../const';
+
 export default class LabeledNode extends Node {
+    
     initialize(attributes, options) {
         super.initialize(attributes, options);
+        
         this.updateLabel();
         this.on(`change:${Attribute.Label}`, () => this.updateLabel());
     }
+    
     /**
      * Updates the label of the node based on the label attribute, otherwise the default label is displayed.
      * @see {@link Attribute.Label}
@@ -16,6 +20,7 @@ export default class LabeledNode extends Node {
         // display the default label.
         this.attr(['label', 'text'], this.getLabel() || this.getDefaultLabel());
     }
+    
     /**
      * @returns The label of the node from the node model.
      * @see {@link Attribute.Label}
@@ -23,12 +28,14 @@ export default class LabeledNode extends Node {
     getLabel() {
         return this.get(Attribute.Label) ?? null;
     }
+    
     /**
      * @returns The default label for the node.
      */
     getDefaultLabel() {
         return '';
     }
+    
     /**
      * Sets the label for the node.
      * @param label - The label to set.
@@ -43,6 +50,7 @@ export default class LabeledNode extends Node {
             this.set(Attribute.Label, label, options);
         }
     }
+    
     /**
      * @returns Inspector config for the node.
      * @see {@link InspectorConfig}

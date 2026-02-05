@@ -1,5 +1,7 @@
 import { routers, g } from '@joint/plus';
+
 const DEFAULT_PADDING = 10;
+
 function getOutsidePoint(bbox, angle, anchor, padding) {
     const ref = anchor.clone();
     const center = bbox.center();
@@ -15,6 +17,7 @@ function getOutsidePoint(bbox, angle, anchor, padding) {
         point.rotate(center, -angle);
     return point.round();
 }
+
 const mapping = function (vertices, opt, linkView) {
     const link = linkView.model;
     const route = [];
@@ -32,7 +35,9 @@ const mapping = function (vertices, opt, linkView) {
     }
     return route;
 };
+
 export const routerNamespace = { ...routers };
+
 Object.assign(routerNamespace, {
     mapping
 });

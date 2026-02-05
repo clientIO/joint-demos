@@ -1,4 +1,5 @@
 import { linkTools } from '@joint/plus';
+
 export const SourceArrowhead = linkTools.SourceArrowhead.extend({
     tagName: 'circle',
     attributes: {
@@ -12,6 +13,7 @@ export const SourceArrowhead = linkTools.SourceArrowhead.extend({
         'fill-opacity': 0.2
     }
 });
+
 export const TargetArrowhead = linkTools.TargetArrowhead.extend({
     tagName: 'circle',
     attributes: {
@@ -25,6 +27,7 @@ export const TargetArrowhead = linkTools.TargetArrowhead.extend({
         'fill-opacity': 0.2
     }
 });
+
 export const Button = linkTools.Button.extend({
     children: [{
             tagName: 'circle',

@@ -1,7 +1,9 @@
+
 const FONT_FAMILY = 'Open Sans';
 const FONT_SIZE = 12;
 const FONT_WEIGHT = 'normal';
 const TEXT_FILL = '#333333';
+
 export const defaultAttrs = {
     labelBody: {
         ref: 'label',
@@ -36,6 +38,7 @@ export const defaultAttrs = {
         textVerticalAnchor: 'middle'
     }
 };
+
 export const inspectorOptions = {
     fontFamily: [
         { value: 'Open Sans', content: '<span style="font-family: Open Sans">Open Sans</span>' },
@@ -54,6 +57,7 @@ export const inspectorOptions = {
         { value: 'bold', content: '<span style="font-weight: Bolder">Bold</span>' }
     ]
 };
+
 export const markerClasses = {
     PARALLEL: 'jj-bpmn-icon-marker-parallel',
     SEQUENTIAL: 'jj-bpmn-icon-marker-sequential',
@@ -62,6 +66,7 @@ export const markerClasses = {
     LOOP: 'jj-bpmn-icon-marker-loop',
     COLLECTION: 'jj-bpmn-icon-marker-parallel'
 };
+
 export const labelEditorWrapperStyles = {
     borderWidth: '2px',
 };

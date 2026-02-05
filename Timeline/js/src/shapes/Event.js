@@ -1,12 +1,16 @@
 import { dia, util } from '@joint/core';
 import { TOP_COLOR, BOTTOM_COLOR, TOP_TEXT_COLOR, BOTTOM_TEXT_COLOR } from '../config';
+
 const PADDING = 24;
+
 const DATE_PADDING = 6;
 const DATE_MARKER_RADIUS = 6;
 const DATE_WIDTH = 112;
 const DATE_HEIGHT = 24;
+
 const TOP_MARKER_COLOR = '#3C5B8559';
 const BOTTOM_MARKER_COLOR = '#0D7E544D';
+
 export class Event extends dia.Element {
     defaults() {
         return util.defaultsDeep({
@@ -76,8 +80,10 @@ export class Event extends dia.Element {
             }
         }, super.defaults);
     }
+    
     preinitialize(attributes, options) {
         super.preinitialize(attributes, options);
+        
         this.markup = util.svg /* xml */ `
             <rect @selector="body" />
             <text @selector="bodyText" />
@@ -86,16 +92,22 @@ export class Event extends dia.Element {
             <text @selector="dateText" />
         `;
     }
+    
     initialize() {
+        
         super.initialize(...arguments);
+        
         this.on('change:direction', () => this.updateDatePosition());
     }
+    
     updateDatePosition() {
+        
         const direction = this.get('direction');
         const isTop = direction === 'T';
         const dateColor = isTop ? TOP_COLOR : BOTTOM_COLOR;
         const dateMarkerColor = isTop ? TOP_MARKER_COLOR : BOTTOM_MARKER_COLOR;
         const dateTextColor = isTop ? TOP_TEXT_COLOR : BOTTOM_TEXT_COLOR;
+        
         this.attr({
             dateBody: {
                 fill: dateColor
@@ -108,16 +120,20 @@ export class Event extends dia.Element {
             }
         });
     }
+    
     isConnectionValid(_type) {
         return false;
     }
+    
     getEditableFields() {
         return [
             { property: 'label', inputType: 'textarea', attrPath: 'bodyText/text' },
             { property: 'date', inputType: 'text', attrPath: 'dateText/text' }
         ];
     }
+    
     static create(id, date, label, direction) {
+        
         return new Event({
             id,
             direction,

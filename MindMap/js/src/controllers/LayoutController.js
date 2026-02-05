@@ -1,6 +1,8 @@
 import { Controller } from '../classes/Controller';
 import { layoutTree } from '../actions';
+
 export default class LayoutController extends Controller {
+    
     startListening() {
         const { graph, history } = this.context;
         this.stopListening();
@@ -12,10 +14,13 @@ export default class LayoutController extends Controller {
         });
     }
 }
+
 // Tree
+
 function onLayoutRequest(app) {
     layoutTree(app);
 }
+
 function onHistoryChange(app) {
     layoutTree(app);
 }

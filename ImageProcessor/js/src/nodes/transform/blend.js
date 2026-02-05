@@ -2,17 +2,22 @@ import { util } from '@joint/plus';
 import { Node, calculateHeight } from '../node';
 import * as cv from '@techstark/opencv-js';
 import { App } from '../../app';
+
 export class Blend extends Node {
+    
     constructor(attributes, options) {
         super(attributes, options);
+        
         this.on('change', (el, options) => {
             if (!options.inspector)
                 return;
+            
             if (options.propertyPath === 'properties/ratio') {
                 App.processor.process(this.id);
             }
         });
     }
+    
     defaults() {
         const defaults = super.defaults();
         return util.defaultsDeep({
@@ -41,21 +46,27 @@ export class Blend extends Node {
                 }]
         }, defaults);
     }
+    
     async action() {
         const { image1, image2, ratio } = this.properties;
+        
         if (!(image1 && image2))
             return [null];
+        
         try {
             const resizedImage2 = new cv.Mat();
             cv.resize(image2, resizedImage2, image1.size(), 1, 1, cv.INTER_AREA);
+            
             const result = new cv.Mat();
             cv.addWeighted(image1, 1 - ratio, resizedImage2, ratio, 0, result);
             return [result];
+            
         }
         catch {
             return [null];
         }
     }
+    
     getInspectorConfig() {
         const nodeConfig = super.getInspectorConfig();
         return util.defaultsDeep({
@@ -80,6 +91,7 @@ export class Blend extends Node {
             }
         }, nodeConfig);
     }
+    
     getFileAttributes() {
         return super.getFileAttributes().concat(['properties/ratio']);
     }

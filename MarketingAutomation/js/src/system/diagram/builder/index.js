@@ -6,7 +6,9 @@ import { setCustomPosition } from '../custom-positions';
 import { extractNodesIds } from '../data/utils';
 import { SystemButton, SystemButtonLine, SystemEdge, SystemPlaceholder } from '../models';
 import { runAfterLayout } from '../../../diagram/utils';
+
 export * from './types';
+
 const ZIndex = {
     Edge: 0,
     ButtonLine: 0,
@@ -14,6 +16,7 @@ const ZIndex = {
     Placeholder: 1,
     Node: 1,
 };
+
 /**
  * Builds the diagram.
  * @param data - The system diagram JSON data.
@@ -32,6 +35,7 @@ export function buildDiagram(data, graph, options = {}) {
     setInitialPositionsForAnimation(graph, data, addedNodeIds, addedButtonIds, replacedNodePositions);
     layoutGraph(graph, disableOptimalOrderHeuristic);
 }
+
 /**
  * Updates the graph with the new data.
  * @param graph - The graph instance.
@@ -41,21 +45,27 @@ export function buildDiagram(data, graph, options = {}) {
  * @returns The added node IDs, added button IDs, and replaced node positions.
  */
 function updateGraph(graph, json, buildNode, growthLimit) {
+    
     const nodes = [];
     const edges = [];
+    
     const growthLimits = new Map();
     const nodeIds = extractNodesIds(json);
     const addedNodeIds = new Set();
     const addedButtonIds = new Set();
     const replacedNodePositions = new Map();
+    
     nodeIds.forEach(sourceId => {
         const nodeJSON = json[sourceId] ?? { /* placeholder */};
         const nodeType = nodeJSON.type;
+        
         let node;
         const existingNode = graph.getCell(sourceId);
+        
         if (!existingNode) {
             addedNodeIds.add(sourceId);
         }
+        
         if (!nodeType) {
             // The node type is not defined in the data, so we create a placeholder
             const defaults = util.result(graph.layerCollection.cellNamespace[SystemPlaceholder.type].prototype, 'defaults', {});
@@ -91,19 +101,24 @@ function updateGraph(graph, json, buildNode, growthLimit) {
             // Evaluate the growth limit for the node and store it
             growthLimits.set(sourceId, growthLimit(nodeJSON));
         }
+        
         nodes.push(node);
     });
+    
     nodeIds.forEach(sourceId => {
+        
         const nodeJSON = json[sourceId];
         if (!nodeJSON) {
             // Placeholder has no links
             return;
         }
+        
         const targets = nodeJSON.to || [];
         targets.forEach((target, sourceIndex) => {
             const targetId = target.id;
             if (!targetId)
                 return;
+            
             const edgeJSON = {
                 ...target,
                 z: ZIndex.Edge,
@@ -113,9 +128,11 @@ function updateGraph(graph, json, buildNode, growthLimit) {
                 source: { id: sourceId },
                 target: { id: targetId }
             };
+            
             edges.push(edgeJSON);
         });
     });
+    
     const buttons = makeButtons(nodeIds, json, growthLimits);
     // Track which buttons will be new
     buttons.forEach(button => {
@@ -123,13 +140,16 @@ function updateGraph(graph, json, buildNode, growthLimit) {
             addedButtonIds.add(button.id);
         }
     });
+    
     graph.syncCells([
         ...nodes,
         ...edges,
         ...buttons
     ], { remove: true });
+    
     return { addedNodeIds, addedButtonIds, replacedNodePositions };
 }
+
 /**
  * Sets initial positions for newly added/replaced nodes and buttons before ELK layout runs.
  * This enables smooth animations from current positions to layout-calculated positions.
@@ -143,6 +163,7 @@ function updateGraph(graph, json, buildNode, growthLimit) {
  */
 function setInitialPositionsForAnimation(graph, json, addedNodeIds, addedButtonIds, replacedNodePositions) {
     const nodeIds = extractNodesIds(json);
+    
     // Build parent-child relationship map
     const parentMap = new Map();
     nodeIds.forEach(sourceId => {
@@ -155,10 +176,12 @@ function setInitialPositionsForAnimation(graph, json, addedNodeIds, addedButtonI
             });
         }
     });
+    
     /**
      * Map of node IDs to their positions, used to retrieve parent positions for new nodes.
      */
     const positionsMap = new Map();
+    
     // Capture existing node positions
     nodeIds.forEach(sourceId => {
         const nodeModel = graph.getCell(sourceId);
@@ -166,23 +189,28 @@ function setInitialPositionsForAnimation(graph, json, addedNodeIds, addedButtonI
             positionsMap.set(sourceId, nodeModel.position());
         }
     });
+    
     // Set positions for newly added nodes based on their parent
     addedNodeIds.forEach(nodeId => {
         const nodeModel = graph.getCell(nodeId);
         if (!nodeModel)
             return;
+        
         const initialPosition = retrieveParentPositionRecursively(nodeId, parentMap, positionsMap);
         nodeModel.position(initialPosition.x, initialPosition.y, { silent: true });
         positionsMap.set(nodeId, initialPosition);
     });
+    
     // Preserve replaced nodes' exact positions
     replacedNodePositions.forEach((position, nodeId) => {
         const nodeModel = graph.getCell(nodeId);
         if (!nodeModel)
             return;
+        
         nodeModel.position(position.x, position.y, { silent: true });
         positionsMap.set(nodeId, position);
     });
+    
     // Third pass: set positions for newly added buttons based on their parent node
     addedButtonIds.forEach(buttonId => {
         const button = graph.getCell(buttonId);
@@ -190,35 +218,45 @@ function setInitialPositionsForAnimation(graph, json, addedNodeIds, addedButtonI
             const connectedLink = graph.getConnectedLinks(button, { inbound: true })[0];
             if (!connectedLink)
                 return;
+            
             const nodeId = connectedLink.source().id;
             if (!nodeId)
                 return;
+            
             const nodePosition = positionsMap.get(nodeId);
             if (!nodePosition)
                 return;
+            
             button.position(nodePosition.x, nodePosition.y, { silent: true });
         }
     });
 }
+
 async function layoutGraph(graph, disableOptimalOrderHeuristic) {
     const { fixedNodes, ...cells } = extractGraphCells(graph);
+    
     const setFixedPositions = () => {
         fixedNodes.forEach(node => setCustomPosition(graph, node));
     };
+    
     // Set the fixed positions immediately to avoid any animation
     // from (0,0) to the target position.
     setFixedPositions();
+    
     // Set the fixed positions after the layout is completed,
     // and reference nodes have been positioned.
     runAfterLayout(graph, setFixedPositions);
+    
     // Async layout the cells
     return layoutCells(graph, cells, {
         disableOptimalOrderHeuristic,
     });
 }
+
 function constructButtonId(nodeId) {
     return `${nodeId}-button`;
 }
+
 /**
  * Retrieves the position of a node's parent recursively.
  * @param nodeId - The ID of the node.
@@ -228,18 +266,24 @@ function constructButtonId(nodeId) {
  */
 function retrieveParentPositionRecursively(nodeId, parentMap, positions) {
     const parentId = parentMap.get(nodeId);
+    
     // If there is no parent, return the origin position
     if (!parentId)
         return { x: 0, y: 0 };
+    
     const parentPosition = positions.get(parentId);
     // The parent has no defined position therefore it's not yet part of the graph, go up the hierarchy
     if (!parentPosition)
         return retrieveParentPositionRecursively(parentId, parentMap, positions);
+    
     // The parent has defined position therefore it's already part of the graph, return it
     return parentPosition;
 }
+
 function makeButtons(nodeIds, data, growthLimits) {
+    
     const cells = [];
+    
     nodeIds.forEach(nodeId => {
         const nodeJSON = data[nodeId];
         if (!nodeJSON || !nodeJSON.type)
@@ -250,16 +294,20 @@ function makeButtons(nodeIds, data, growthLimits) {
             cells.push(...makeButton(nodeId));
         }
     });
+    
     return cells;
 }
+
 function makeButton(nodeId) {
     const buttonId = constructButtonId(nodeId);
     const buttonLineId = `${buttonId}-line`;
+    
     const buttonInit = {
         id: buttonId,
         type: SystemButton.type,
         z: ZIndex.Button,
     };
+    
     return [
         buttonInit,
         {

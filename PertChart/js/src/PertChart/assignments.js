@@ -1,10 +1,12 @@
 import { shapes, ui, util, highlighters, mvc } from '@joint/plus';
 import { StencilHoverHighlighter } from './StencilHoverHighlighter';
 import { getItemIcon } from './utils';
+
 export function initializeAssignments(scroller, options) {
     const { resources, onChange: changeAssignment = () => { } } = options.assignments;
     const paper = scroller.options.paper;
     const graph = paper.model;
+    
     const stencil = new ui.Stencil({
         width: 30,
         height: null,
@@ -22,6 +24,7 @@ export function initializeAssignments(scroller, options) {
             useModelGeometry: true,
         },
     });
+    
     stencil.el.style.position = 'absolute';
     stencil.el.style.top = options.toolbar !== false ? '138px' : '10px';
     stencil.el.style.left = '10px';
@@ -29,8 +32,11 @@ export function initializeAssignments(scroller, options) {
     stencil.el.style.right = 'auto';
     stencil.el.style.width = '40px';
     stencil.el.style.height = 'fit-content';
+    
     stencil.render();
+    
     loadResources(stencil, resources);
+    
     const listener = new mvc.Listener({
         scroller,
         paper,
@@ -47,8 +53,10 @@ export function initializeAssignments(scroller, options) {
     listener.listenTo(paper, {
         'element:assignee:pointerdown': onElementAssigneePointerDown
     });
+    
     return { stencil, listener };
 }
+
 // Handle the start of dragging a resource from the stencil
 function onDragStart(ctx, taskView, evt, dropTarget) {
     // render a div over the paper to allow cursor change based on drop target
@@ -64,6 +72,7 @@ function onDragStart(ctx, taskView, evt, dropTarget) {
     // Run the initial check for a valid drop target
     onDrag(ctx, taskView, evt, dropTarget);
 }
+
 // Handle dragging a resource from the stencil over the paper
 function onDrag(ctx, taskView, evt, dropTarget) {
     const { scroller, paper, graph } = ctx;
@@ -86,6 +95,7 @@ function onDrag(ctx, taskView, evt, dropTarget) {
     }
     scroller.scrollWhileDragging(evt, x, y);
 }
+
 // Handle the end of dragging a resource from the stencil
 function onDragEnd(ctx, taskView, evt) {
     const { scroller, stencil, paper, resources, changeAssignment } = ctx;
@@ -96,10 +106,12 @@ function onDragEnd(ctx, taskView, evt) {
     highlighters.addClass.removeAll(paper, 'assignee-drop-target');
     // Which resource is being assigned?
     const resource = resources[taskView.model.get('resourceId')];
+    
     if (!resource)
         return; // Safeguard
     if (sourceTask === targetTask)
         return; // No change
+    
     const changeData = [];
     // Remove the resource from the source task unless Alt key is pressed.
     if (!evt.altKey && sourceTask) {
@@ -113,6 +125,7 @@ function onDragEnd(ctx, taskView, evt) {
         changeAssignment(changeData);
     }
 }
+
 // Handle click on an assignee icon in a task
 function onElementAssigneePointerDown(ctx, taskView, evt) {
     const { stencil } = ctx;
@@ -129,12 +142,14 @@ function onElementAssigneePointerDown(ctx, taskView, evt) {
     // Start dragging the resource from the task
     stencil.startDragging(createResourceElement(resource), evt);
 }
+
 // Load resources into the stencil
 function loadResources(stencil, resources) {
     const stencilElements = util.sortBy(Object.keys(resources).map(resourceId => {
         const resource = resources[resourceId];
         return createResourceElement(resource);
     }), (el) => el.get('name').toLowerCase());
+    
     stencil.load(stencilElements);
     const stencilPaper = stencil.getPaper();
     stencil.getGraph().getElements().forEach((el) => {
@@ -145,6 +160,7 @@ function loadResources(stencil, resources) {
         });
     });
 }
+
 // Create a resource element for the stencil
 function createResourceElement(resource) {
     return new shapes.standard.Image({

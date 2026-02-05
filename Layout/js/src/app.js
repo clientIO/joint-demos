@@ -1,9 +1,13 @@
 import { dia, ui, util, shapes, layout } from '@joint/plus';
 import { DirectedGraph } from '@joint/layout-directed-graph';
 import './shapes';
+
 export const init = () => {
+    
     const canvas = document.getElementById('canvas');
+    
     const graph = new dia.Graph();
+    
     const paper = new dia.Paper({
         model: graph,
         width: 1,
@@ -15,6 +19,7 @@ export const init = () => {
         sorting: dia.Paper.sorting.APPROX,
         background: { color: '#F3F7F6' }
     });
+    
     const scroller = new ui.PaperScroller({
         paper,
         cursor: 'grab',
@@ -25,15 +30,19 @@ export const init = () => {
             padding: 1000
         }
     });
+    
     canvas.appendChild(scroller.el);
     scroller.render().center();
     scroller.lock();
+    
     createCells(structure, graph);
     layoutCells(graph);
     rescale(scroller);
     paper.unfreeze();
+    
     // register events
     window.addEventListener('resize', util.debounce(() => rescale(scroller)), false);
+    
     paper.on('element:pointermove', (view, evt, x, y) => {
         const model = view.model;
         if (!model.isEmbedded()) {
@@ -53,6 +62,7 @@ export const init = () => {
         ghost.attr('opacity', findContainerFromPoint(paper.model, x, y) ? 0.9 : 0.2);
         ghost.attr('transform', `translate(${[x - data.dx, y - data.dy]})`);
     });
+    
     paper.on('element:pointerup', (view, evt, x, y) => {
         const data = evt.data;
         if (!data.ghost) {
@@ -77,9 +87,11 @@ export const init = () => {
         rescale(scroller);
     });
 };
+
 const rescale = (scroller) => {
     scroller.zoomToFit({ padding: 50, useModelGeometry: true });
 };
+
 const structure = {
     label: 'a1',
     parentFill: '#202E66',
@@ -112,11 +124,14 @@ const structure = {
                 }]
         }]
 };
+
 const findContainerFromPoint = (graph, x, y) => {
     const modelsFromPoint = graph.findModelsFromPoint({ x: x, y: y });
     return modelsFromPoint.filter(shapes.app.Container.isContainer)[0];
 };
+
 const createCells = (struct, graph) => {
+    
     const label = struct.label;
     const children = struct.children || [];
     const embeds = struct.embeds || [];
@@ -132,6 +147,7 @@ const createCells = (struct, graph) => {
         childFill: struct.childFill
     });
     root.addTo(graph);
+    
     if (embeds.length > 0) {
         embeds.forEach((text) => {
             const embed = new shapes.app.Child({
@@ -148,10 +164,12 @@ const createCells = (struct, graph) => {
             embed.addTo(graph);
             root.embed(embed);
         });
+        
     }
     else {
         root.resize(60, 60);
     }
+    
     if (children.length > 0) {
         children.forEach((childStruct) => {
             const child = createCells(childStruct, graph);
@@ -161,8 +179,10 @@ const createCells = (struct, graph) => {
             link.addTo(graph);
         });
     }
+    
     return root;
 };
+
 const gridPathData = (metrics, offset, padding) => {
     const bbox = metrics.bbox;
     const x = bbox.x + offset.left;
@@ -194,13 +214,18 @@ const gridPathData = (metrics, offset, padding) => {
     });
     return data.join(' ');
 };
+
 const layoutCells = (graph) => {
+    
     const directedGraphCells = graph.getLinks();
+    
     graph.getElements().forEach((container) => {
+        
         if (!shapes.app.Container.isContainer(container)) {
             return;
         }
         directedGraphCells.push(container);
+        
         const embeds = container.getEmbeddedCells();
         const embedsCount = embeds.length;
         if (embedsCount === 0) {
@@ -208,6 +233,7 @@ const layoutCells = (graph) => {
             container.resize(50, 50);
             return;
         }
+        
         const padding = { horizontal: 10, bottom: 10, top: 40 };
         const metrics = layout.GridLayout.layout(embeds, {
             columns: Math.ceil(embedsCount / 2),
@@ -217,6 +243,7 @@ const layoutCells = (graph) => {
         container.fitEmbeds({ padding });
         container.attr(['grid', 'd'], gridPathData(metrics, util.normalizeSides(padding), 5));
     });
+    
     DirectedGraph.layout(directedGraphCells, {
         setPosition: (el, center) => {
             const size = el.size();

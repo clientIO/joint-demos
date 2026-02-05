@@ -1,6 +1,9 @@
 import { dia } from '@joint/plus';
+
 export class AnimatedElementView extends dia.ElementView {
+    
     move;
+    
     updateTransformation() {
         const { el, model } = this;
         const { x, y } = model.get('position');

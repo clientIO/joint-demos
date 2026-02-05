@@ -3,16 +3,20 @@ import { Node, calculateHeight } from '../node';
 import * as cv from '@techstark/opencv-js';
 import { App } from '../../app';
 export class Tint extends Node {
+    
     constructor(attributes, options) {
         super(attributes, options);
+        
         this.on('change', (el, options) => {
             if (!options.inspector && !options.commandManager)
                 return;
+            
             if (options.propertyPath === 'properties/intensity') {
                 App.processor.process(this.id);
             }
         });
     }
+    
     defaults() {
         const defaults = super.defaults();
         return util.defaultsDeep({
@@ -46,10 +50,13 @@ export class Tint extends Node {
                 }]
         }, defaults);
     }
+    
     async action() {
         const { image, color, intensity } = this.properties;
+        
         if (!image)
             return [null];
+        
         try {
             const imageChannels = new cv.MatVector;
             cv.split(image, imageChannels);
@@ -59,14 +66,17 @@ export class Tint extends Node {
             const tintedImageChannels = new cv.MatVector;
             cv.split(tintedImage, tintedImageChannels);
             tintedImageChannels.set(3, imageChannels.get(3));
+            
             const result = new cv.Mat();
             cv.merge(tintedImageChannels, result);
+            
             return [result];
         }
         catch {
             return [null];
         }
     }
+    
     getInspectorConfig() {
         const nodeConfig = super.getInspectorConfig();
         return util.defaultsDeep({
@@ -91,6 +101,7 @@ export class Tint extends Node {
             }
         }, nodeConfig);
     }
+    
     getFileAttributes() {
         return super.getFileAttributes().concat(['properties/intensity']);
     }

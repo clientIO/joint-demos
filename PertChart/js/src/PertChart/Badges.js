@@ -1,5 +1,6 @@
 import { V, highlighters } from '@joint/plus';
 import { BADGE_GAP, BADGE_ICON_SIZE, BADGE_ICON_MARGIN, TASK_PADDING, FILTER_SHADOW_ID, TASK_OUTLINE_COLOR, } from './theme';
+
 export default class Badges extends highlighters.list {
     createListItem({ icon, description }, { width, height }, currentItemNode) {
         let itemNode = currentItemNode;
@@ -33,6 +34,7 @@ export default class Badges extends highlighters.list {
         itemNode.querySelector('image').setAttribute('href', icon);
         return itemNode;
     }
+    
     static addToTask(taskView) {
         const badgeSize = BADGE_ICON_SIZE + 2 * BADGE_ICON_MARGIN;
         Badges.add(taskView, 'root', 'badges', {

@@ -1,5 +1,6 @@
 import { g } from '@joint/core';
 import { Attribute } from './const';
+
 /**
  * Calculate the custom position of an element relative to a reference element.
  * If the reference element is not found, returns absolute position.
@@ -20,6 +21,7 @@ export function getCustomPosition(graph, elementPoint, refId) {
     position.y = elementPoint.y - refPoint.y;
     return position;
 }
+
 /**
  * Set the position of an element based on its custom position attribute.
  */
@@ -38,5 +40,6 @@ export function setCustomPosition(graph, element) {
     if (!refPoint) {
         refPoint = new g.Point(0, 0);
     }
+    
     element.position(refPoint.x + x, refPoint.y + y);
 }

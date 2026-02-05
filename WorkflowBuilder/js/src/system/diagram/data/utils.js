@@ -1,6 +1,8 @@
 import { util } from '@joint/plus';
 import { config } from '../../configs/system';
+
 // Data modification
+
 export function removeEdge(json, parentData, childData) {
     const parent = json[parentData.id];
     if (!parent || !parent.to)
@@ -8,10 +10,12 @@ export function removeEdge(json, parentData, childData) {
     const index = parent.to.findIndex((target) => target.id === childData.id
         && target.sourcePortId === parentData.portId
         && target.targetPortId === childData.portId);
+    
     if (index > -1) {
         parent.to.splice(index, 1);
     }
 }
+
 export function changeEdge(json, parentData, childData, edge) {
     const parent = json[parentData.id];
     if (!parent || !parent.to)
@@ -19,11 +23,13 @@ export function changeEdge(json, parentData, childData, edge) {
     const index = parent.to.findIndex((target) => target.id === childData.id
         && target.sourcePortId === parentData.portId
         && target.targetPortId === childData.portId);
+    
     if (index > -1) {
         const currentEdge = parent.to[index];
         parent.to[index] = { ...currentEdge, ...edge };
     }
 }
+
 export function insertNode(data, json, parentData, childData) {
     const nodeId = createNode(data, json);
     changeEdge(json, parentData, childData, {
@@ -39,6 +45,7 @@ export function insertNode(data, json, parentData, childData) {
     });
     return nodeId;
 }
+
 export function addEdge(json, parentData, childData) {
     const parent = json[parentData.id];
     if (!parent)
@@ -52,6 +59,7 @@ export function addEdge(json, parentData, childData) {
         targetPortId: childData.portId,
     });
 }
+
 export function appendNode(data, json, parentData) {
     const childId = util.uuid();
     createNode(data, json, childId);
@@ -61,6 +69,7 @@ export function appendNode(data, json, parentData) {
     });
     return childId;
 }
+
 export function createNode(data, json, id = util.uuid()) {
     if (!json[id]) {
         const node = { to: [], ...data };
@@ -71,6 +80,7 @@ export function createNode(data, json, id = util.uuid()) {
     }
     return id;
 }
+
 export function changeNode(json, id, data) {
     const node = json[id];
     if (!node)
@@ -80,6 +90,7 @@ export function changeNode(json, id, data) {
         node[key] = data[key];
     });
 }
+
 export function removeEdgesFromNode(json, id) {
     Object.keys(json).forEach((nodeId) => {
         const node = json[nodeId];
@@ -95,16 +106,19 @@ export function removeEdgesFromNode(json, id) {
         node.to = [];
     }
 }
+
 export function removeNode(json, id) {
     removeEdgesFromNode(json, id);
     delete json[id];
 }
+
 export function getNodeEdges(json, id) {
     const node = json[id];
     if (!node || !node.to)
         return [];
     return node.to.map(target => `${id}-${target.id}`);
 }
+
 export function sortChildren(json, id, graph, coordinate = 'x') {
     const node = json[id];
     if (!node || !node.to)
@@ -114,11 +128,13 @@ export function sortChildren(json, id, graph, coordinate = 'x') {
         return targetEl.getBBox().center()[coordinate];
     });
 }
+
 export function sortNodes(json, graph, coordinate = 'x') {
     Object.keys(json).forEach((id) => {
         sortChildren(json, id, graph, coordinate);
     });
 }
+
 /**
  * Finds all node IDs in the diagram JSON,
  * including those only referenced as targets (placeholders).

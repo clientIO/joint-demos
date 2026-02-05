@@ -2,18 +2,23 @@ import { util } from '@joint/plus';
 import { Node, calculateHeight } from '../node';
 import * as cv from '@techstark/opencv-js';
 import { App } from '../../app';
+
 export class Threshold extends Node {
+    
     constructor(attributes, options) {
         super(attributes, options);
+        
         this.on('change', (el, options) => {
             if (!options.inspector && !options.commandManager)
                 return;
+            
             if (options.propertyPath === 'properties/threshold' ||
                 options.propertyPath === 'properties/value') {
                 App.processor.process(this.id);
             }
         });
     }
+    
     defaults() {
         const defaults = super.defaults();
         return util.defaultsDeep({
@@ -49,19 +54,24 @@ export class Threshold extends Node {
                 }]
         }, defaults);
     }
+    
     async action() {
         const { image, threshold, value } = this.properties;
+        
         if (!image)
             return [null];
+        
         try {
             const result = new cv.Mat();
             cv.threshold(image, result, threshold, value, cv.THRESH_BINARY);
+            
             return [result];
         }
         catch {
             return [null];
         }
     }
+    
     getInspectorConfig() {
         const nodeConfig = super.getInspectorConfig();
         return util.defaultsDeep({
@@ -87,6 +97,7 @@ export class Threshold extends Node {
             }
         }, nodeConfig);
     }
+    
     getFileAttributes() {
         return super.getFileAttributes().concat(['properties/threshold', 'properties/value']);
     }

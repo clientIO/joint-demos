@@ -7,13 +7,16 @@ import { removeModel, addDefaultNoteNode, appendDefaultActionNode, appendDefault
 import { openRegistryDialog } from './registry-actions';
 import { selectModel } from './selection-actions';
 import { openNoteEditor } from './notes-actions';
+
 import { State } from '../const';
 import { startPortConnectionInteraction } from './connect-nodes';
+
 /**
  * Open the paper context menu when user right-clicks on empty space
  */
 export function openPaperMenu(app, evt) {
     const { paper } = app;
+    
     const contextMenu = new ui.ContextToolbar({
         root: paper.el,
         tools: [
@@ -24,12 +27,14 @@ export function openPaperMenu(app, evt) {
         anchor: 'top-left',
         target: { x: evt.clientX, y: evt.clientY }
     });
+    
     contextMenu.on('action:add-note', () => {
         contextMenu.remove();
         // Add a note at the pointer position and start editing it immediately
         const addedNode = addDefaultNoteNode(app, paper.clientToLocalPoint(evt.clientX, evt.clientY));
         openNoteEditor(app, addedNode);
     });
+    
     contextMenu.on('action:add-trigger', () => {
         contextMenu.remove();
         // Create a trigger node and open the trigger picker
@@ -37,19 +42,25 @@ export function openPaperMenu(app, evt) {
         selectModel(app, addedNode, { scrollIntoView: true });
         openRegistryDialog(app, addedNode);
     });
+    
     contextMenu.render();
 }
+
 /**
  * Open the node menu when user clicks on a node's menu button
  */
 export function openNodeMenu(app, node, position) {
     const { paper } = app;
+    
     const tools = [];
+    
     if (node.get(Attribute.Removable)) {
         tools.push({ action: 'delete', content: 'Delete' });
     }
+    
     if (node.get(Attribute.Configurable)) {
         const configurableNode = node;
+        
         switch (node.get('type')) {
             case Trigger.type:
                 tools.push({
@@ -71,6 +82,7 @@ export function openNodeMenu(app, node, position) {
                 break;
         }
     }
+    
     const nodeMenu = new ui.ContextToolbar({
         root: paper.el,
         tools: tools,
@@ -78,29 +90,38 @@ export function openNodeMenu(app, node, position) {
         anchor: 'top-left',
         target: position
     });
+    
     nodeMenu.on('action:delete', () => {
         nodeMenu.remove();
+        
         removeModel(app, node);
     });
+    
     nodeMenu.on('action:change', () => {
         nodeMenu.remove();
         // Open the shape picker to change the node's trigger/action
         openRegistryDialog(app, node);
     });
+    
     nodeMenu.render();
 }
+
 /**
  * Open the add node menu when user clicks on a button
  */
 export function openPortMenu(app, node, options) {
     const { paper, state } = app;
+    
     const menuPortMargin = 5;
+    
     const position = paper.localToClientPoint(node.getPortBBox(options.portId || '').rightMiddle().translate(menuPortMargin, 0));
+    
     const tools = [
         { action: 'add-action', content: 'Perform an action' },
         { action: 'add-control', content: 'Add control node' },
         { action: 'connect', content: 'Connect to node' },
     ];
+    
     const buttonMenu = new ui.ContextToolbar({
         root: paper.el,
         tools,
@@ -108,6 +129,7 @@ export function openPortMenu(app, node, options) {
         target: position,
         anchor: 'left',
     });
+    
     buttonMenu.on('action:add-action', () => {
         buttonMenu.remove();
         // Create an action node and open the shape picker
@@ -117,6 +139,7 @@ export function openPortMenu(app, node, options) {
         selectModel(app, addedNode, { scrollIntoView: true });
         openRegistryDialog(app, addedNode);
     });
+    
     buttonMenu.on('action:add-control', () => {
         buttonMenu.remove();
         // Create a condition node and open the shape picker
@@ -126,6 +149,7 @@ export function openPortMenu(app, node, options) {
         selectModel(app, addedNode, { scrollIntoView: true });
         openRegistryDialog(app, addedNode);
     });
+    
     buttonMenu.on('action:connect', (evt) => {
         buttonMenu.remove();
         // Prevent the context menu if the user cancels the interaction
@@ -138,18 +162,24 @@ export function openPortMenu(app, node, options) {
             portId: options.portId
         });
     });
+    
+    
     buttonMenu.render();
 }
+
 /**
  * Open the insert node menu when user clicks on a edge's button
  */
 export function openEdgeMenu(app, edge, position) {
     const { paper } = app;
+    
     const edgeMenuMargin = 15;
+    
     const tools = [
         { action: 'add-action', content: 'Perform an action' },
         { action: 'add-control', content: 'Add control node' }
     ];
+    
     const edgeMenu = new ui.ContextToolbar({
         root: paper.el,
         tools,
@@ -157,6 +187,7 @@ export function openEdgeMenu(app, edge, position) {
         target: new g.Point(position).translate(edgeMenuMargin, 0),
         anchor: 'left',
     });
+    
     edgeMenu.on('action:add-action', () => {
         edgeMenu.remove();
         // Create an action node, select it, and immediately open the shape picker
@@ -164,6 +195,7 @@ export function openEdgeMenu(app, edge, position) {
         selectModel(app, insertedNode, { scrollIntoView: true });
         openRegistryDialog(app, insertedNode);
     });
+    
     edgeMenu.on('action:add-control', () => {
         edgeMenu.remove();
         // Create a condition node and select it
@@ -171,5 +203,6 @@ export function openEdgeMenu(app, edge, position) {
         selectModel(app, insertedNode, { scrollIntoView: true });
         openRegistryDialog(app, insertedNode);
     });
+    
     edgeMenu.render();
 }

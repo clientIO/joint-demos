@@ -1,20 +1,26 @@
 import { dia, ui, util } from '@joint/plus';
 import { App } from '../app';
+
 export class NodeView extends dia.ElementView {
     model;
+    
     events() {
         return {
             'click .node-help-hitbox': (evt) => { this.onHelpButtonClick(evt); },
         };
     }
+    
     initialize() {
         super.initialize();
     }
+    
     onHelpButtonClick(_evt) {
         this.openHelp(this.model.get('type'), this.el);
     }
+    
     async openHelp(type, target) {
         const helpHtml = await (await fetch(`assets/help/${type}.html`)).text();
+        
         const popup = new ui.Popup({
             content: helpHtml,
             target: target,
@@ -25,23 +31,28 @@ export class NodeView extends dia.ElementView {
         popup.render();
     }
 }
+
 export const nodeMarkupSettings = {
     headerHeight: 24,
     portOffset: 30,
     baseWidth: 150
 };
+
 export function calculateHeight(portNumber) {
     return nodeMarkupSettings.headerHeight +
         portNumber * nodeMarkupSettings.portOffset;
 }
 export class Node extends dia.Element {
     inputProperties = {};
+    
     constructor(attributes, options) {
         super(attributes, options);
+        
         this.on('change:name', () => {
             this.attr('nodeLabel/text', this.get('name'));
         });
     }
+    
     preinitialize() {
         this.markup = util.svg /* xml */ `
             <rect @selector="nodeBody" class="node-body" cursor="move"/>
@@ -54,7 +65,9 @@ export class Node extends dia.Element {
             <text @selector="nodeLabel" class="node-label"/>
         `;
     }
+    
     defaults() {
+        
         const portsIn = {
             position: (ports) => {
                 return ports.map((port, i) => {
@@ -89,6 +102,7 @@ export class Node extends dia.Element {
                     className: 'node-port-body'
                 }]
         };
+        
         const portsOut = {
             position: (ports, bbox) => {
                 return ports.map((port, i) => {
@@ -123,6 +137,7 @@ export class Node extends dia.Element {
                     className: 'node-port-body'
                 }]
         };
+        
         return {
             ...super.defaults,
             type: 'processor.Node',
@@ -179,19 +194,24 @@ export class Node extends dia.Element {
             }
         };
     }
+    
     setProperty(name, value) {
         this.prop(`properties/${name}`, value);
     }
+    
     get properties() {
         const inputSettings = this.get('inputSettings');
         const properties = this.get('properties');
+        
         inputSettings.forEach((input) => {
             if (properties[input.property] == null) {
                 properties[input.property] = input.defaultValue;
             }
         });
+        
         return properties;
     }
+    
     get outputs() {
         const outputs = this.get('outputs');
         const outputSettings = this.get('outputSettings');
@@ -205,6 +225,7 @@ export class Node extends dia.Element {
             return null;
         });
     }
+    
     getInspectorConfig() {
         return {
             groups: {
@@ -222,25 +243,33 @@ export class Node extends dia.Element {
             }
         };
     }
+    
     onInputConnectionAdd(input, value) {
         this.inputProperties[input.property] = this.get(input.property);
         this.prop(`properties/${input.property}`, value);
+        
         App.inspectorService.disable(input.property, this);
     }
+    
     onInputConnectionRemove(input) {
         delete this.inputProperties[input.property];
         this.prop(`properties/${input.property}`, null);
+        
         App.inspectorService.enable(input.property, this);
     }
+    
     getContextToolbarItems() {
         return [];
     }
+    
     setContextToolbarEvents(_contextToolbar) {
         return;
     }
+    
     getFileAttributes() {
         return ['name', 'position'];
     }
+    
     hexToRGB(hex) {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
@@ -249,9 +278,11 @@ export class Node extends dia.Element {
             b: parseInt(result[3], 16)
         } : null;
     }
+    
     getCurrentData() {
         return [];
     }
+    
     updateCurrentData() {
         const currentData = this.getCurrentData();
         if (App.processor) {

@@ -1,22 +1,18 @@
 var CopyPlugin = require('copy-webpack-plugin');
 
 var path = process.cwd() + '/dist';
-const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
-    entry: './index.ts',
-    mode: isProd ? 'production' : 'development',
+    entry: './index.js',
+    mode: 'development',
     output: {
         path: path,
         filename: 'bundle.js'
     },
     resolve: {
-        extensions: ['.ts', '.js'],
-        alias: {
-            'web-worker': false
-        }
+        extensions: ['.js']
     },
-    devtool: isProd ? false : 'source-map',
+    devtool: 'source-map',
     devServer: {
         static: path,
         hot: true,
@@ -26,12 +22,8 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.ts$/,
-                use: [{ loader: 'ts-loader', options: { allowTsInNodeModules: true }}]
-            },
-            {
                 test: /\.css$/i,
-                use: ['style-loader', 'css-loader']
+                use: ['style-loader', 'css-loader'],
             },
             {
                 test: /\.s[ac]ss$/i,
@@ -42,6 +34,16 @@ module.exports = {
                     },
                     'sass-loader'
                 ]
+            },
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env']
+                    }
+                }
             }
         ]
     },

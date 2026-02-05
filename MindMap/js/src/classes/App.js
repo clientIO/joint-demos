@@ -4,11 +4,14 @@ import ViewController from '../controllers/ViewController';
 import SelectionController from '../controllers/SelectionController';
 import LayoutController from '../controllers/LayoutController';
 import { Idea } from '../shapes/idea';
+
 export class App {
     el;
+    
     constructor(el) {
         this.el = el;
     }
+    
     graph;
     paper;
     scroller;
@@ -19,6 +22,7 @@ export class App {
     controllers;
     history;
     toolbar;
+    
     start() {
         Object.assign(this, plugins(this.el));
         Idea.sandbox = this.paper.svg;
@@ -29,6 +33,7 @@ export class App {
             new EditController(this),
         ];
     }
+    
     stop() {
         const { paper, scroller, keyboard, treeView, controllers, toolbar } = this;
         controllers.forEach(controller => controller.stopListening());
@@ -38,9 +43,11 @@ export class App {
         toolbar.remove();
         keyboard.disable();
     }
+    
     startControllers() {
         this.controllers.forEach(controller => controller.startListening());
     }
+    
     stopControllers() {
         this.controllers.forEach(controller => controller.stopListening());
     }

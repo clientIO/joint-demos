@@ -1,4 +1,5 @@
 import { inspectorOptions } from '../shared-config';
+
 export const GatewayLabels = {
     'gateway.Exclusive': 'Exclusive Gateway',
     'gateway.Inclusive': 'Inclusive Gateway',
@@ -6,6 +7,7 @@ export const GatewayLabels = {
     'gateway.Parallel': 'Parallel Gateway',
     'gateway.Complex': 'Complex Gateway'
 };
+
 export var GatewayShapeTypes;
 (function (GatewayShapeTypes) {
     GatewayShapeTypes["EXCLUSIVE"] = "gateway.Exclusive";
@@ -14,6 +16,7 @@ export var GatewayShapeTypes;
     GatewayShapeTypes["PARALLEL"] = "gateway.Parallel";
     GatewayShapeTypes["COMPLEX"] = "gateway.Complex";
 })(GatewayShapeTypes || (GatewayShapeTypes = {}));
+
 export const gatewayIconClasses = {
     EMPTY: 'jj-bpmn-icon-gateway-none',
     EXCLUSIVE: 'jj-bpmn-icon-gateway-xor',
@@ -22,6 +25,7 @@ export const gatewayIconClasses = {
     PARALLEL: 'jj-bpmn-icon-gateway-parallel',
     COMPLEX: 'jj-bpmn-icon-gateway-complex'
 };
+
 export const gatewayAppearanceConfig = {
     groups: {
         style: {

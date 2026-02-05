@@ -1,6 +1,7 @@
 import { shapes } from '@joint/plus';
 import { EL_WIDTH, EL_HEIGHT, LABEL_MARGIN, STROKE_WIDTH, LINE_HEIGHT } from './theme';
 import { Shapes, Connections, ConnectionDirection, ConnectionStyle } from './enums';
+
 const LABEL_ATTRIBUTES = {
     fontSize: 13,
     fontFamily: 'sans-serif',
@@ -8,16 +9,19 @@ const LABEL_ATTRIBUTES = {
     textAnchor: 'middle',
     lineHeight: LINE_HEIGHT,
 };
+
 const LABEL_ATTRIBUTES_MIDDLE = {
     ...LABEL_ATTRIBUTES,
     y: 'calc(h / 2)',
     textVerticalAnchor: 'middle',
 };
+
 const LABEL_ATTRIBUTES_BOTTOM = {
     ...LABEL_ATTRIBUTES,
     y: `calc(h + ${LABEL_MARGIN})`,
     textVerticalAnchor: 'top'
 };
+
 const LABEL_STROKE = CSS.supports('paint-order', 'stroke') ? {
     stroke: '#fff',
     paintOrder: 'stroke',
@@ -25,6 +29,7 @@ const LABEL_STROKE = CSS.supports('paint-order', 'stroke') ? {
 } : {
 // Fallback for browsers that do not support `paint-order`
 };
+
 export function makeElement(node, parent, index) {
     const { id, label = '', type = Shapes.Device, size = null, hidden = false, boundary = null, boundaryLabel = '', connectionDirection = ConnectionDirection.None, connectionStyle = ConnectionStyle.Solid, connections = Connections.Parallel } = node;
     let element;
@@ -50,6 +55,7 @@ export function makeElement(node, parent, index) {
             element = makeDeviceElement(id, label);
             break;
     }
+    
     const attributes = {
         prevSiblingGap: 0,
         nextSiblingGap: 0,
@@ -87,6 +93,7 @@ export function makeElement(node, parent, index) {
     element.prop(attributes);
     return element;
 }
+
 export function makeRouterElement(id, label) {
     return new shapes.standard.Cylinder({
         id,
@@ -114,6 +121,7 @@ export function makeRouterElement(id, label) {
         }
     });
 }
+
 export function makeDeviceElement(id, label) {
     return new shapes.standard.Rectangle({
         id,
@@ -142,6 +150,7 @@ export function makeDeviceElement(id, label) {
         }
     });
 }
+
 export function makeVirtualElement(id, label) {
     return new shapes.standard.Rectangle({
         id,
@@ -171,6 +180,7 @@ export function makeVirtualElement(id, label) {
         }
     });
 }
+
 export function makeCloudElement(id, label) {
     return new shapes.standard.Path({
         id: id,
@@ -194,6 +204,7 @@ export function makeCloudElement(id, label) {
         }
     });
 }
+
 const computerImage = /* xml */ `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="#2274A5">
     <path
@@ -201,6 +212,7 @@ const computerImage = /* xml */ `
     />
 </svg>
 `;
+
 export function makeComputerElement(id, label) {
     return new shapes.standard.BorderedImage({
         id,
@@ -237,6 +249,7 @@ export function makeComputerElement(id, label) {
         }
     });
 }
+
 export function makeLineElement(id, label) {
     return new shapes.standard.Rectangle({
         id,
@@ -260,6 +273,7 @@ export function makeLineElement(id, label) {
         }
     });
 }
+
 export function makeLink(parentElement, childElement, { direction = 'none', style = 'solid' }) {
     // Set the sourceMarker and targetMarker based on the direction
     let sourceMarker = null;
@@ -312,6 +326,8 @@ export function makeLink(parentElement, childElement, { direction = 'none', styl
         }
     });
 }
+
+
 export function makeBoundaryElement(id, label) {
     return new shapes.standard.Rectangle({
         id,
@@ -340,11 +356,13 @@ export function makeBoundaryElement(id, label) {
         }
     });
 }
+
 export function getLabelHeight(label) {
     if (!label)
         return 0;
     return label.split('\n').length * LINE_HEIGHT;
 }
+
 export function getElementBBox(element) {
     const bbox = element.getBBox();
     const label = element.attr('label');

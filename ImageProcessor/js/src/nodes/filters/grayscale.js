@@ -2,17 +2,22 @@ import { util } from '@joint/plus';
 import * as cv from '@techstark/opencv-js';
 import { Node, calculateHeight } from '../node';
 import { App } from '../../app';
+
 export class Grayscale extends Node {
+    
     constructor(attributes, options) {
         super(attributes, options);
+        
         this.on('change', (el, options) => {
             if (!options.inspector && !options.commandManager)
                 return;
+            
             if (options.propertyPath === 'properties/keepAlpha') {
                 App.processor.process(this.id);
             }
         });
     }
+    
     defaults() {
         const defaults = super.defaults();
         return util.defaultsDeep({
@@ -41,10 +46,13 @@ export class Grayscale extends Node {
                 }]
         }, defaults);
     }
+    
     async action() {
         const { image, keepAlpha } = this.properties;
+        
         if (!image)
             return [null];
+        
         try {
             const result = new cv.Mat();
             const channels = new cv.MatVector;
@@ -66,6 +74,7 @@ export class Grayscale extends Node {
             return [null];
         }
     }
+    
     getInspectorConfig() {
         const nodeConfig = super.getInspectorConfig();
         return util.defaultsDeep({
@@ -86,6 +95,7 @@ export class Grayscale extends Node {
             }
         }, nodeConfig);
     }
+    
     getFileAttributes() {
         return super.getFileAttributes().concat(['properties/keepAlpha']);
     }

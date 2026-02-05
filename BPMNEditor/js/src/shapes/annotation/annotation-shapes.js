@@ -5,9 +5,12 @@ import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { handles } from '../../configs/halo-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
 import { getPoolParent } from '../../utils';
+
 export class Annotation extends shapes.bpmn2.Annotation {
+    
     isResizable = true;
     labelPath = 'label/text';
+    
     defaults() {
         return util.defaultsDeep({
             type: AnnotationShapeTypes.ANNOTATION,
@@ -27,9 +30,11 @@ export class Annotation extends shapes.bpmn2.Annotation {
             }
         }, super.defaults);
     }
+    
     copyFrom(element) {
         const { x, y, width, height } = element.getBBox();
         const label = element.attr(['label', 'text']) || '';
+        
         this.prop({
             position: { x, y },
             size: { width, height },
@@ -47,17 +52,21 @@ export class Annotation extends shapes.bpmn2.Annotation {
             }
         });
     }
+    
     getShapeList() {
         return [];
     }
+    
     getAppearanceConfig() {
         return annotationAppearanceConfig;
     }
+    
     getHaloHandles() {
         return [
             handles.Link
         ];
     }
+    
     validateConnection(targetModel) {
         if (getPoolParent(this) === targetModel)
             return false;
@@ -67,20 +76,28 @@ export class Annotation extends shapes.bpmn2.Annotation {
             ShapeTypes.SWIMLANE
         ].includes(targetType);
     }
+    
     validateEmbedding(parent) {
         return parent.get('shapeType') === ShapeTypes.SWIMLANE;
     }
+    
     getLabelEditorStyles(paper) {
         const labelAttrs = this.attr(['label']) || {};
         const textWrap = labelAttrs.textWrap || { width: 0, height: 0 };
         const strokeWidth = (this.attr(['border', 'strokeWidth']) || 0);
+        
         const bbox = this.getBBox();
+        
         const borderWidth = parseFloat(labelEditorWrapperStyles.borderWidth);
+        
         const horizontalPadding = textWrap.width / -2 - borderWidth;
         const verticalPadding = textWrap.height / -2 - borderWidth;
+        
         const height = bbox.height - strokeWidth;
         const width = bbox.width - strokeWidth;
+        
         const { x, y } = bbox.center();
+        
         return {
             padding: `${verticalPadding}px ${horizontalPadding}px`,
             transform: `${V.matrixToTransformString(paper.matrix().translate(x, y))} translate(-50%, -50%)`,
@@ -94,9 +111,11 @@ export class Annotation extends shapes.bpmn2.Annotation {
             textAlign: 'start'
         };
     }
+    
     getClosestBoundaryPoint(bbox, point) {
         return bbox.pointNearestToPoint(point);
     }
+    
     getMinimalSize() {
         return {
             width: 80,
@@ -104,22 +123,27 @@ export class Annotation extends shapes.bpmn2.Annotation {
         };
     }
 }
+
 export class AnnotationLink extends shapes.bpmn2.AnnotationLink {
+    
     defaults() {
         return util.defaultsDeep({
             shapeType: ShapeTypes.ANNOTATION,
             type: AnnotationShapeTypes.LINK
         }, super.defaults);
     }
+    
     copyFrom(link) {
         this.attr(['line', 'stroke'], link.attr(['line', 'stroke']));
         this.source(link.source());
         this.target(link.target());
         this.vertices(link.vertices());
     }
+    
     getShapeList() {
         return [];
     }
+    
     getLinkTools() {
         return [
             constructLinkTools.Vertices(),
@@ -128,13 +152,16 @@ export class AnnotationLink extends shapes.bpmn2.AnnotationLink {
             ...constructLinkTools.DoubleRemove()
         ];
     }
+    
     validateConnection(_) {
         return false;
     }
+    
     getAppearanceConfig() {
         return annotationLinkAppearanceConfig;
     }
 }
+
 Object.assign(shapes, {
     annotation: {
         Annotation,

@@ -8,25 +8,32 @@ import scrollerConfig from './config/scroller';
 import treeConfig from './config/tree';
 import treeViewConfig from './config/treeView';
 import historyConfig from './config/history';
+
 export function plugins(el) {
+    
     const graph = new TreeGraph({}, {
         cellNamespace: shapes
     });
+    
     const paper = new dia.Paper({
         ...paperConfig,
         model: graph,
         cellViewNamespace: shapes,
     });
+    
     const scroller = new ui.PaperScroller({
         ...scrollerConfig,
         paper,
     });
+    
     el.appendChild(scroller.el);
     scroller.render();
+    
     const tree = new layout.TreeLayout({
         ...treeConfig,
         graph,
     });
+    
     const treeView = new ui.TreeLayoutView({
         ...treeViewConfig,
         model: tree,
@@ -36,12 +43,16 @@ export function plugins(el) {
         }
     });
     treeView.disable();
+    
     const keyboard = new ui.Keyboard();
+    
     const selection = new IdeaCollection();
+    
     const history = new dia.CommandManager({
         ...historyConfig,
         graph,
     });
+    
     const toolbar = new ui.Toolbar({
         ...toolbarConfig,
         references: {
@@ -49,8 +60,10 @@ export function plugins(el) {
             commandManager: history
         }
     });
+    
     el.appendChild(toolbar.el);
     toolbar.render();
+    
     return {
         graph,
         paper,

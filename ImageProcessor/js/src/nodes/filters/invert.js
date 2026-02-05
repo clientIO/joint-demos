@@ -2,6 +2,7 @@ import { util } from '@joint/plus';
 import { Node, calculateHeight } from '../node';
 import * as cv from '@techstark/opencv-js';
 export class Invert extends Node {
+    
     defaults() {
         const defaults = super.defaults();
         return util.defaultsDeep({
@@ -23,10 +24,13 @@ export class Invert extends Node {
                 }]
         }, defaults);
     }
+    
     async action() {
         const { image } = this.properties;
+        
         if (!image)
             return [null];
+        
         try {
             const result = new cv.Mat();
             const channels = new cv.MatVector;

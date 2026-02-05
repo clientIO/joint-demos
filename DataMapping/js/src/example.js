@@ -1,5 +1,7 @@
 import { Link, Constant, Concat, GetDate, Record } from './shapes';
+
 export const loadExample = function (graph) {
+    
     const order = new Record({
         items: [[{
                     id: 'file',
@@ -71,6 +73,7 @@ export const loadExample = function (graph) {
         .setName('order')
         .position(780, 200)
         .addTo(graph);
+    
     const nanonull = new Record({
         decorators: {
             user_email: 'fx1()',
@@ -167,27 +170,34 @@ export const loadExample = function (graph) {
         .setName('nanonull')
         .position(50, 130)
         .addTo(graph);
+    
     const constant1 = new Constant()
         .setValue('Order')
         .position(240, 10)
         .addTo(graph);
+    
     const constant2 = new Constant()
         .setValue('.dat')
         .position(240, 40)
         .addTo(graph);
+    
     const constant3 = new Constant()
         .setValue(' ')
         .position(240, 70)
         .addTo(graph);
+    
     const concat1 = new Concat()
         .position(450, 0)
         .addTo(graph);
+    
     const concat2 = new Concat()
         .position(450, 120)
         .addTo(graph);
+    
     const getDate1 = new GetDate()
         .position(450, 310)
         .addTo(graph);
+    
     const links = [
         // concat1
         new Link({
@@ -261,6 +271,7 @@ export const loadExample = function (graph) {
             source: { id: nanonull.id, port: 'address_is_shipping' },
             target: { id: order.id, port: 'address_shipping' }
         }),
+        
         new Link({
             source: { id: nanonull.id, port: 'address_city' },
             target: { id: order.id, port: 'address_city' }
@@ -274,6 +285,7 @@ export const loadExample = function (graph) {
             target: { id: order.id, port: 'address_number' }
         }),
     ];
+    
     links.forEach(function (link) {
         link.addTo(graph);
     });

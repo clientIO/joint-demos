@@ -1,13 +1,18 @@
 import { dia, ui, shapes, layout } from '@joint/plus';
 import { Link, Member } from './shapes';
+
 export const init = () => {
+    
     const cellNamespace = {
         ...shapes,
         Link,
         Member
     };
+    
     const canvas = document.getElementById('canvas');
+    
     const graph = new dia.Graph({}, { cellNamespace: cellNamespace });
+    
     const paper = new dia.Paper({
         model: graph,
         width: 1000,
@@ -30,6 +35,7 @@ export const init = () => {
         },
         defaultLink: () => new Link()
     });
+    
     const scroller = new ui.PaperScroller({
         paper,
         autoResizePaper: true,
@@ -42,6 +48,7 @@ export const init = () => {
             useModelGeometry: true
         }
     });
+    
     const members = [
         createMember('Founder & Chairman', 'Pierre Omidyar', 'assets/images/1.png'),
         createMember('President & CEO', 'Margaret C. Whitman', 'assets/images/2.png'),
@@ -50,6 +57,7 @@ export const init = () => {
         createMember('Senior Vice President Human Resources', 'Olivia S. Skoll', 'assets/images/5.png'),
         createMember('Senior Vice President Controller', 'Sophia P. Westly', 'assets/images/6.png')
     ];
+    
     const connections = [
         createLink(members[0], members[1]),
         createLink(members[1], members[2]),
@@ -57,14 +65,17 @@ export const init = () => {
         createLink(members[1], members[4]),
         createLink(members[1], members[5])
     ];
+    
     graph.addCells([...members, ...connections]);
     canvas.appendChild(scroller.el);
+    
     const treeLayout = new layout.TreeLayout({
         graph: graph,
         direction: 'R',
         parentGap: 75,
         siblingGap: 41
     });
+    
     new ui.TreeLayoutView({
         paper,
         model: treeLayout,
@@ -84,20 +95,28 @@ export const init = () => {
             }
         }
     });
+    
     treeLayout.layout();
+    
     scroller.render().centerContent({ useModelGeometry: true });
+    
     paper.unfreeze();
+    
     paper.on('element:pointermove', (elementView) => {
         paper.el.classList.add('hide-buttons');
         paper.el.classList.remove('show-buttons');
         elementView.model.attr(['body', 'strokeWidth'], 2);
+        
     });
+    
     paper.on('element:pointerup', (elementView) => {
         paper.el.classList.remove('hide-buttons');
         paper.el.classList.add('show-buttons');
         elementView.model.attr(['body', 'strokeWidth'], 1);
     });
+    
     paper.on('blank:pointerdown', (evt) => scroller.startPanning(evt));
+    
     paper.on('element:member:add', (elementView, evt) => {
         evt.stopPropagation();
         // Adding a new member
@@ -106,9 +125,11 @@ export const init = () => {
         graph.addCells([newMember, newConnection]);
         treeLayout.layout();
     });
+    
     paper.on('element:remove', (elementView, evt) => {
         evt.stopPropagation();
         const preventReconnection = evt.ctrlKey || evt.metaKey;
+        
         graph.startBatch('remove-member');
         if (preventReconnection) {
             elementView.model.remove();
@@ -119,6 +140,7 @@ export const init = () => {
         }
         graph.stopBatch('remove-member');
     });
+    
     paper.on('element:edit', (elementView, evt) => {
         evt.stopPropagation();
         // A member edit
@@ -146,6 +168,7 @@ export const init = () => {
                 }
             }
         });
+        
         const dialog = new ui.Dialog({
             type: 'inspector-dialog',
             width: 350,
@@ -161,6 +184,7 @@ export const init = () => {
                     action: 'apply'
                 }]
         });
+        
         dialog.on({
             'action:cancel': () => {
                 inspector.remove();
@@ -174,6 +198,7 @@ export const init = () => {
         });
         dialog.open();
     });
+    
     // Tree Layout Rank Selection
     const currentDirection = treeLayout.get('direction');
     const options = [
@@ -182,10 +207,12 @@ export const init = () => {
         { value: 'T', content: 'Bottom-Top' },
         { value: 'B', content: 'Top-Bottom' }
     ].map(option => Object.assign({}, option, { selected: option.value === currentDirection }));
+    
     const directionPicker = new ui.SelectBox({
         width: 150,
         options
     });
+    
     directionPicker.on('option:select', (option) => {
         graph.getCells().forEach(cell => cell.unset('direction'));
         treeLayout.set('direction', option.value);
@@ -197,10 +224,12 @@ export const init = () => {
             scroller.scrollToContent({ useModelGeometry: true });
         });
     });
+    
     const direction = document.getElementById('orgchart-direction');
     direction.appendChild(directionPicker.render().el);
     document.getElementById('orgchart-direction-container').style.visibility = 'visible';
 };
+
 const createMember = (rank, name, image) => {
     return new Member({
         attrs: {
@@ -216,12 +245,14 @@ const createMember = (rank, name, image) => {
         }
     });
 };
+
 const createLink = (source, target) => {
     return new Link({
         source: { id: source.id },
         target: { id: target.id },
     });
 };
+
 const avatarOptions = (elementView) => {
     const options = [];
     const ASSETS_LENGTH = 10;
@@ -236,3 +267,4 @@ const avatarOptions = (elementView) => {
     }
     return options;
 };
+

@@ -1,7 +1,9 @@
 import { dia, ui, util } from '@joint/plus';
 import { ZOOM_SETTINGS } from '../configs/navigator-config';
 import NavigatorController from '../controllers/navigator-controller';
+
 const baseUrl = 'assets/navigator';
+
 const IconButton = ui.widgets.button.extend({
     render: function () {
         const size = this.options.size || 20;
@@ -20,12 +22,15 @@ const IconButton = ui.widgets.button.extend({
         this.el.dataset.tooltip = tooltip;
     }
 });
+
 // Simplified navigator element view
+
 const UpdateFlags = {
     Render: '@render',
     Update: '@update',
     Transform: '@transform'
 };
+
 const NavigatorElementView = dia.ElementView.extend({
     body: null,
     markup: util.svg /* xml */ `<rect @selector="body" />`,
@@ -61,15 +66,19 @@ const NavigatorElementView = dia.ElementView.extend({
         body.setAttribute('height', height.toString());
     }
 });
+
 export default class NavigatorService {
     element;
+    
     toolbar;
     navigator;
     paperScroller;
     navigatorController;
+    
     constructor(element) {
         this.element = element;
     }
+    
     create(paperScroller) {
         this.paperScroller = paperScroller;
         this.toolbar = new ui.Toolbar({
@@ -111,12 +120,15 @@ export default class NavigatorService {
                 iconButton: IconButton
             }
         });
+        
         this.navigatorController = new NavigatorController({
             navigatorService: this
         });
+        
         this.toolbar.render();
         this.updateToolbarButtons();
         this.element.appendChild(this.toolbar.el);
+        
         this.navigator = new ui.Navigator({
             paperScroller: this.paperScroller,
             width: 318,
@@ -139,20 +151,26 @@ export default class NavigatorService {
                 }
             }
         });
+        
         this.element.prepend(this.navigator.el);
         this.navigator.render();
         this.toolbar.getWidgetByName('minimap').el.classList.add('active');
+        
         this.navigatorController.startListening();
     }
+    
     isMinimapVisible() {
         return !this.navigator?.el.classList.contains('hidden');
     }
+    
     showMinimap() {
         this.navigator?.el.classList.remove('hidden');
     }
+    
     hideMiniMap() {
         this.navigator?.el.classList.add('hidden');
     }
+    
     updateToolbarButtons() {
         // Minimap
         const minimapButton = this.toolbar?.getWidgetByName('minimap');

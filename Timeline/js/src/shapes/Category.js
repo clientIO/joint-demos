@@ -1,10 +1,13 @@
 import { shapes, util } from '@joint/core';
 import { TOP_COLOR, BOTTOM_COLOR, TOP_TEXT_COLOR, BOTTOM_TEXT_COLOR } from '../config';
 import { measureTextSize } from '../utils';
+
 const HORIZONTAL_PADDING = 20;
 const MIN_WIDTH = 80;
 const MAX_WIDTH = 240;
+
 export class Category extends shapes.standard.Rectangle {
+    
     defaults() {
         return util.defaultsDeep({
             type: 'timeline.Category',
@@ -33,12 +36,15 @@ export class Category extends shapes.standard.Rectangle {
             }
         }, super.defaults);
     }
+    
     preinitialize(attributes, options) {
         super.preinitialize(attributes, options);
+        
         this.on('change:direction', (el, direction) => {
             const isTop = direction === 'T';
             const bodyColor = isTop ? TOP_COLOR : BOTTOM_COLOR;
             const labelColor = isTop ? TOP_TEXT_COLOR : BOTTOM_TEXT_COLOR;
+            
             el.attr({
                 root: {
                     'data-direction': direction
@@ -52,22 +58,30 @@ export class Category extends shapes.standard.Rectangle {
             });
         });
     }
+    
     isConnectionValid(type) {
         return type === 'timeline.Event';
     }
+    
     getEditableFields() {
         return [{ property: 'label', inputType: 'text', attrPath: 'label/text' }];
     }
+    
     updateSize() {
         const text = this.attr('label/text') || '';
         const { fontSize, fontFamily } = this.attr('label');
         const padding = HORIZONTAL_PADDING;
+        
         const { width } = measureTextSize(text, fontSize, fontFamily);
         const newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, width + (padding * 2)));
+        
         this.resize(newWidth, 48);
     }
+    
     static create(id, label, direction) {
+        
         const fill = direction === 'T' ? TOP_COLOR : BOTTOM_COLOR;
+        
         const category = new Category({
             id: id,
             direction,
@@ -83,7 +97,9 @@ export class Category extends shapes.standard.Rectangle {
                 }
             }
         });
+        
         category.updateSize();
+        
         return category;
     }
 }

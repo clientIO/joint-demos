@@ -1,17 +1,22 @@
 import { dia, shapes } from '@joint/plus';
+
 export const SwimlanePreview = dia.HighlighterView.extend({
+    
     tagName: 'path',
+    
     attributes: {
         'fill': 'none',
         'stroke': '#0075f2',
         'stroke-width': 3,
     },
+    
     highlight(elementView, _node) {
         const { index = 0 } = this.options;
         const pool = elementView.model;
         if (!shapes.bpmn2.CompositePool.isPool(pool)) {
             throw new Error('SwimlanePreview can be added only to a CompositePool.');
         }
+        
         const swimlanes = pool.getSwimlanes();
         const swimlane = swimlanes[index];
         const poolBBox = pool.getBBox();

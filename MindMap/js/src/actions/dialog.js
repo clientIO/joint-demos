@@ -1,7 +1,10 @@
 import { mvc, ui } from '@joint/plus';
 import { getFocusableTextFieldElements } from '../utils';
+
 const THEME = 'mind-map';
+
 let _dialog = null;
+
 export function openDialog(app, options) {
     const { keyboard } = app;
     closeDialog(app);
@@ -17,6 +20,7 @@ export function openDialog(app, options) {
     _dialog.on('action:close', () => closeDialog(app));
     return _dialog;
 }
+
 export function closeDialog(app) {
     if (!_dialog)
         return;
@@ -24,8 +28,11 @@ export function closeDialog(app) {
     _dialog = null;
     app.startControllers();
 }
+
 export function showHelpDialog(app) {
+    
     const title = 'Mind Map Help';
+    
     const content = /*html*/ `
     <h2>Keyboard shortcuts</h2>
     <table>
@@ -91,8 +98,10 @@ export function showHelpDialog(app) {
         </tbody>
     </table>
     `;
+    
     openDialog(app, { title, content });
 }
+
 export function showURLDialog(app, ideaView, annotationUrl) {
     const { model: idea } = ideaView;
     const { label, annotations } = idea;

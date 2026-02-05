@@ -14,6 +14,7 @@ export function openImagePicker(callback) {
     };
     input.click();
 }
+
 /**
  * Prepend https:// to humanized URLs
  */
@@ -24,6 +25,7 @@ export function prependHttp(url, { https = true } = {}) {
     }
     return url.replace(/^(?!(?:\w+?:)?\/\/)/, https ? 'https://' : 'http://');
 }
+
 /**
  * Gets keyboard-focusable text field elements within a specified element
  */

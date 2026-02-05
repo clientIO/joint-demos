@@ -5,22 +5,28 @@ import { Action, Trigger } from '../diagram/models';
 import { createRegistryKey, resolveActionProvider, resolveTriggerCriteriaProvider } from '../registry';
 import { TriggerOption, ActionOption } from '../registry/models';
 import { openDialog } from './dialog-actions';
+
 /**
  * Open the action/trigger provider registry dialog to select or change the trigger/action/skill
  * associated with the given node.
  */
 export function openProviderRegistryDialog(app, node) {
+    
     let groups;
     let cells;
     let title;
     let updateShape;
+    
     // Determine shape type and prepare stencil options accordingly
     if (node instanceof Trigger) {
+        
         title = 'Select a trigger criteria';
         ({ cells, groups } = createTriggersOptions(app, {
             // Disable the trigger criteria assigned to this trigger node
             disabled: node.getCriteria().map(criteria => criteria.id)
         }));
+        
+        
         updateShape = (option) => {
             const criteriaKey = option.get('criteriaKey');
             const criteria = {
@@ -28,24 +34,32 @@ export function openProviderRegistryDialog(app, node) {
                 name: option.attr('label/text'),
                 icon: option.attr('icon/href'),
             };
+            
             node.addCriteria(criteria, { ui: true });
         };
+        
     }
     else if (node instanceof Action) {
+        
         title = 'Select an action';
         ({ cells, groups } = createActionsOptions(app, {
             // Disable the action assigned to this action node
             disabled: node.isConfigured() ? [node.getActionKey()] : []
         }));
+        
         updateShape = (option) => {
             const actionKey = option.get('actionKey');
+            
             node.setActionKey(actionKey, { ui: true });
         };
+        
     }
     else {
         throw new Error(`Dialog for shape type "${node.get('type')}" is not supported yet.`);
     }
+    
     const stencil = createStencil(app, groups);
+    
     // Close the dialog when an option is selected
     // and update the shape accordingly
     stencil.on('group:element:pointerclick', (_, elementView) => {
@@ -53,22 +67,27 @@ export function openProviderRegistryDialog(app, node) {
         dialog.close();
         stencil.remove();
     });
+    
     const dialog = new ui.Dialog({
         width: 700,
         title,
         content: stencil.el,
         draggable: true,
     });
+    
     openDialog(app, dialog);
+    
     stencil.load(cells);
     stencil.el.querySelector('.search').focus();
 }
+
 /**
  * Refresh the action provider and action definition for the given action node
  * based on its current action key.
  */
 export function refreshActionNodeProvider(app, node) {
     const { config } = app;
+    
     const definition = resolveActionProvider(config.actions, node.getActionKey());
     if (definition) {
         const [provider, action] = definition;
@@ -78,6 +97,7 @@ export function refreshActionNodeProvider(app, node) {
         node.unsetProvider();
     }
 }
+
 /**
  * Refresh the trigger definition for the given trigger node
  * based on its current criteria.
@@ -85,6 +105,7 @@ export function refreshActionNodeProvider(app, node) {
 export function refreshTriggerCriteriaDefinitions(app, node) {
     const { config } = app;
     const criteriaList = node.getCriteria();
+    
     for (const criteria of criteriaList) {
         const definition = resolveTriggerCriteriaProvider(config.triggers, criteria.id);
         if (definition) {
@@ -93,7 +114,9 @@ export function refreshTriggerCriteriaDefinitions(app, node) {
         }
     }
 }
+
 // Helper functions
+
 /**
  * Create stencil options for all available actions in the app configuration.
  */
@@ -102,6 +125,7 @@ function createTriggersOptions(app, options = { disabled: [] }) {
     const registry = config.triggers;
     const cells = {};
     const groups = {};
+    
     for (const providerId in registry) {
         const provider = registry[providerId];
         cells[providerId] = [];
@@ -134,11 +158,13 @@ function createTriggersOptions(app, options = { disabled: [] }) {
                     }
                 }
             });
+            
             cells[providerId].push(triggerOption);
         });
     }
     return { cells, groups };
 }
+
 /**
  * Create stencil options for all available actions grouped by their providers.
  */
@@ -147,6 +173,7 @@ function createActionsOptions(app, options = { disabled: [] }) {
     const registry = config.actions;
     const cells = {};
     const groups = {};
+    
     for (const providerId in registry) {
         const provider = registry[providerId];
         cells[providerId] = [];
@@ -179,11 +206,14 @@ function createActionsOptions(app, options = { disabled: [] }) {
                     }
                 }
             });
+            
             cells[providerId].push(actionOption);
         });
     }
+    
     return { cells, groups };
 }
+
 /**
  * Create a stencil instance with the given groups.
  */
@@ -209,8 +239,10 @@ function createStencil(app, groups) {
             columnGap: 10,
         }
     });
+    
     stencil.render();
     stencil.el.style.height = '500px';
     stencil.el.style.position = 'relative';
+    
     return stencil;
 }

@@ -1,16 +1,20 @@
 import { util } from '@joint/plus';
 import { SystemPlaceholder } from '../../system/diagram/models';
 import Theme, { buttonBodyAttributes, buttonIconAttributes } from '../theme';
+
 /** SVG markup for the placeholder */
 const placeholderMarkup = util.svg /* xml*/ `
     <rect @selector="body" class="placeholder-body"/>
     <circle @selector="buttonBody" class="add-button-body"/>
     <path @selector="buttonIcon" class="add-button-icon"/>
 `;
+
 export default class Placeholder extends SystemPlaceholder {
+    
     preinitialize() {
         this.markup = placeholderMarkup;
     }
+    
     defaults() {
         const attributes = {
             size: {
@@ -43,6 +47,7 @@ export default class Placeholder extends SystemPlaceholder {
                 }
             }
         };
+        
         return util.defaultsDeep(attributes, super.defaults);
     }
 }

@@ -1,20 +1,20 @@
-const CopyPlugin = require('copy-webpack-plugin');
-const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+var CopyPlugin = require('copy-webpack-plugin');
+var NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 var path = process.cwd() + '/dist';
 
 module.exports = {
-    entry: './index.ts',
+    entry: './index.js',
     mode: 'development',
     output: {
         path: path,
         filename: 'bundle.js'
     },
     resolve: {
-        extensions: ['.ts', '.js'],
+        extensions: ['.js'],
         fallback: {
             'fs' : false
-        },
+        }
     },
     devtool: 'source-map',
     devServer: {
@@ -26,12 +26,8 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.ts$/,
-                use: [{ loader: 'ts-loader', options: { allowTsInNodeModules: true }}]
-            },
-            {
                 test: /\.css$/i,
-                use: ['style-loader', 'css-loader']
+                use: ['style-loader', 'css-loader'],
             },
             {
                 test: /\.s[ac]ss$/i,
@@ -42,6 +38,16 @@ module.exports = {
                     },
                     'sass-loader'
                 ]
+            },
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env']
+                    }
+                }
             }
         ]
     },

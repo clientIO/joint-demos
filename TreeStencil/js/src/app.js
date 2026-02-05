@@ -1,8 +1,12 @@
 import { dia, shapes, setTheme } from '@joint/plus';
 import { createStencil } from './stencil';
+
 export const init = () => {
+    
     setTheme('my-theme');
+    
     const graph = new dia.Graph({}, { cellNamespace: shapes });
+    
     const paper = new dia.Paper({
         el: document.getElementById('paper'),
         model: graph,
@@ -16,6 +20,7 @@ export const init = () => {
         background: { color: '#F3F7F6' },
         cellViewNamespace: shapes
     });
+    
     const stencil = createStencil(paper, 280, stencilNodes, (node) => {
         return new shapes.standard.Rectangle({
             size: {
@@ -38,11 +43,15 @@ export const init = () => {
             }
         });
     });
+    
     document.getElementById('stencil').appendChild(stencil.el);
+    
     stencil.el.dataset.textNoMatchesFound = 'No tags found';
     stencil.el.querySelector('.search').placeholder = 'Search for an HTML tag';
+    
     stencil.unfreeze();
 };
+
 const stencilNodes = {
     name: 'HTML',
     dir: true,

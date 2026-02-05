@@ -4,10 +4,12 @@
  */
 import { ui } from '@joint/plus';
 import EditableTextWidget from '../features/EditableTextWidget';
+
 export const widgetNamespace = {
     editableText: EditableTextWidget,
     ...ui.widgets
 };
+
 export const tools = [
     {
         type: 'undo',
@@ -73,4 +75,5 @@ export const tools = [
         group: 'right',
     },
 ];
+
 export const autoToggle = true;

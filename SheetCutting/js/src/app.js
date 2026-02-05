@@ -2,9 +2,12 @@ import { dia, util, ui, format } from '@joint/plus';
 import { Polygon } from './polygon';
 import { highlightOverlaps, unhighlightOverlaps, highlightOverflow, unhighlightOverflow } from './overlaps';
 import { selectElement, unselectElement } from './selection';
+
 const cellNamespace = { Polygon };
 const graph = new dia.Graph({}, { cellNamespace });
+
 const A4 = { width: 210, height: 297 };
+
 export const init = () => {
     const paper = new dia.Paper({
         cellViewNamespace: cellNamespace,
@@ -18,9 +21,13 @@ export const init = () => {
             color: '#fff'
         }
     });
+    
     document.getElementById('paper').appendChild(paper.el);
+    
     // Snaplines
+    
     const paperBBox = paper.getArea();
+    
     const snaplines = new ui.Snaplines({
         paper,
         additionalSnapPoints: (elementView) => {
@@ -34,6 +41,7 @@ export const init = () => {
             ];
         }
     });
+    
     const stencil = new ui.Stencil({
         paper,
         dropAnimation: true,
@@ -53,9 +61,13 @@ export const init = () => {
             return elClone;
         }
     });
+    
     stencil.render();
+    
     stencil.getPaper().scale(0.5);
+    
     document.getElementById('stencil').appendChild(stencil.el);
+    
     stencil.on('element:drag', (cloneView, evt, targetArea, validDropTarget) => {
         const position = targetArea.round().topLeft();
         const clone = cloneView.model;
@@ -69,36 +81,46 @@ export const init = () => {
             evt.data.overflown = false;
         }
     });
+    
     stencil.on('element:dragend', (_cloneView, evt, _targetArea, validDropTarget) => {
         unhighlightOverlaps(paper);
         if (validDropTarget && evt.data.overflown) {
             stencil.cancelDrag({ dropAnimation: true });
         }
     });
+    
     // Validations
     // -----------
+    
     paper.on('element:pointerup', () => {
         unhighlightOverlaps(paper);
     });
+    
     graph.on('batch:stop', (opt) => {
         if (opt.batchName === 'control-move') {
             // The use finished rotating the element
             unhighlightOverlaps(paper);
         }
     });
+    
     const highlightOverlapsDebounced = util.debounce(highlightOverlaps, 10);
+    
     graph.on('change:angle change:position', (element) => {
         highlightOverlapsDebounced(element.findView(paper), paper);
     });
+    
     // History
+    
     const history = new dia.CommandManager({
         graph,
         cmdBeforeAdd: (_cmdName, _cell, _collection, options = {}) => {
             return !options.ignoreHistory;
         }
     });
+    
     // Toolbar
     // -------
+    
     const toolbar = new ui.Toolbar({
         tools: [{
                 type: 'undo',
@@ -125,12 +147,15 @@ export const init = () => {
             commandManager: history
         }
     });
+    
     document.getElementById('toolbar').appendChild(toolbar.el);
     toolbar.render();
+    
     toolbar.on('print:pointerclick', () => {
         unselectElement(paper);
         format.print(paper, { area: paper.getArea() });
     });
+    
     toolbar.on('snaplines:change', (checked) => {
         if (checked) {
             snaplines.enable();
@@ -139,22 +164,29 @@ export const init = () => {
             snaplines.disable();
         }
     });
+    
     // Selection
     // ---------
+    
     paper.on('element:pointerdown', (elementView) => {
         selectElement(elementView);
     });
+    
     paper.on('blank:pointerdown', () => {
         unselectElement(paper);
     });
+    
     stencil.on('element:dragstart', () => {
         unselectElement(paper);
     });
+    
     stencil.on('element:drop', (cellView) => {
         selectElement(cellView);
     });
+    
     // Cloning elements
     // ----------------
+    
     paper.on('element:pointerdown', (elementView, evt) => {
         if (!evt.ctrlKey && !evt.metaKey)
             return;
@@ -164,8 +196,10 @@ export const init = () => {
         const clone = elementView.model.clone();
         graph.addCell(clone);
     });
+    
     // Example
     // -------
+    
     const stencilPaths = [
         // Tall rectangle
         'M 0,0 50,0 50,300 0,300 Z',
@@ -210,10 +244,14 @@ export const init = () => {
         'M 0,50 A 50,50 0 1,0 100,50 L 50,50 Z',
     ];
     stencil.load(stencilPaths.map(d => Polygon.fromPathData(d)));
+    
     // Leftovers
     // ---------
+    
     graph.on('add remove', () => updateLeftovers());
+    
     const leftoversEl = document.getElementById('leftovers');
+    
     function updateLeftovers() {
         const area = graph.getElements().reduce((acc, el) => acc + el.calcArea(), 0);
         const { width, height } = paper.getArea();
@@ -221,9 +259,12 @@ export const init = () => {
         const leftover = 100 * (1 - area / paperArea);
         leftoversEl.textContent = `Leftovers: ${leftover.toFixed(2)}%`;
     }
+    
     updateLeftovers();
+    
     // Examples
     // --------
+    
     graph.startBatch('example');
     for (let i = 0; i < 5; i++) {
         const w = 50;
@@ -234,5 +275,6 @@ export const init = () => {
         graph.addCell(Polygon.fromPathData(stencilPaths[0]).position(2 * i * w, 2 * h).addMarker());
     }
     graph.stopBatch('example');
+    
     selectElement(graph.getElements().at(-2).findView(paper));
 };

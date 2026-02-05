@@ -3,13 +3,17 @@ import { stencilShapes } from '../configs/stencil-config';
 import { getShapeConstructorByType } from '../utils';
 import StencilController from '../controllers/stencil-controller';
 import { StencilHoverHighlighter } from '../configs/stencil-config';
+
 export default class StencilService {
     stencilElement;
+    
     stencil;
     stencilController;
+    
     constructor(stencilElement) {
         this.stencilElement = stencilElement;
     }
+    
     create(paperScroller, selection, snaplines) {
         const stencil = this.stencil = new ui.Stencil({
             cellCursor: 'pointer',
@@ -29,11 +33,15 @@ export default class StencilService {
             dragStartClone: (cell) => {
                 const type = cell.get('dropType');
                 const shape = getShapeConstructorByType(type);
+                
                 return new shape();
             }
         });
+        
         stencil.render();
+        
         stencil.load(stencilShapes);
+        
         stencil
             .getGraph()
             .getElements()
@@ -43,6 +51,7 @@ export default class StencilService {
                 padding: 4
             });
         });
+        
         this.stencilController = new StencilController({ stencil, paper: paperScroller.options.paper, selection });
         this.stencilController.startListening();
     }

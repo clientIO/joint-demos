@@ -1,6 +1,9 @@
 import { dia } from '@joint/plus';
+
 export const Decorator = dia.HighlighterView.extend({
+    
     tagName: 'text',
+    
     attributes: {
         'fill': '#5755a1',
         'font-style': 'italic',
@@ -8,18 +11,22 @@ export const Decorator = dia.HighlighterView.extend({
         'text-anchor': 'end',
         'font-size': 12
     },
+    
     events: {
         'click': 'onClick'
     },
+    
     onClick(evt) {
         const { cellView, node } = this;
         const itemId = cellView.findAttribute('item-id', node);
         cellView.paper.trigger('element:decorator:pointerdown', cellView, evt, itemId);
     },
+    
     options: {
         margin: 0,
         text: 'fn()'
     },
+    
     highlight(cellView, node) {
         const { vel, options } = this;
         const model = cellView.model;
@@ -40,7 +47,9 @@ export const Decorator = dia.HighlighterView.extend({
         vel.text(text, { textVerticalAnchor: 'middle' });
         vel.removeAttr('display');
     }
+    
 }, {
+    
     create(view, itemId, opt = {}) {
         const { text, margin = 5 } = opt;
         const id = `decorator_${itemId}`;

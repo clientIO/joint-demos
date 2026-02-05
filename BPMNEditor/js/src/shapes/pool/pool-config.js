@@ -1,4 +1,5 @@
 import { inspectorOptions } from '../shared-config';
+
 export var PoolShapeTypes;
 (function (PoolShapeTypes) {
     PoolShapeTypes["HORIZONTAL_POOL"] = "pool.HorizontalPool";
@@ -6,34 +7,42 @@ export var PoolShapeTypes;
     PoolShapeTypes["HORIZONTAL_SWIMLANE"] = "pool.HorizontalSwimlane";
     PoolShapeTypes["VERTICAL_SWIMLANE"] = "pool.VerticalSwimlane";
 })(PoolShapeTypes || (PoolShapeTypes = {}));
+
 export const LANE_CONTENT_MARGIN = 20;
 const MIN_LANE_SIZE = 60;
 export const DEFAULT_LANE_HEIGHT = 100;
 export const SWIMLANE_HEADER_SIZE = 30;
+
 export const DEFAULT_HORIZONTAL_POOL_SIZE = {
     width: 600,
     height: 250,
 };
+
 export const DEFAULT_VERTICAL_POOL_SIZE = {
     width: 250,
     height: 600,
 };
+
 export const HORIZONTAL_POOL_PADDING = {
     left: 30
 };
+
 export const VERTICAL_POOL_PADDING = {
     top: 30
 };
+
 export const poolAttributes = {
     headerTextMargin: 5,
     contentMargin: LANE_CONTENT_MARGIN,
     minimumLaneSize: MIN_LANE_SIZE
 };
+
 export const swimlaneAttributes = {
     headerSize: SWIMLANE_HEADER_SIZE,
     headerTextMargin: 5,
     contentMargin: LANE_CONTENT_MARGIN,
 };
+
 export const poolAppearanceConfig = {
     groups: {
         header: {
@@ -104,6 +113,7 @@ export const poolAppearanceConfig = {
         }
     }
 };
+
 export const swimlaneAppearanceConfig = {
     groups: {
         body: {

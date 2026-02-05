@@ -1,4 +1,5 @@
 import { dia } from '@joint/plus';
+
 export class Header extends dia.Element {
     defaults() {
         return {
@@ -27,6 +28,7 @@ export class Header extends dia.Element {
             z: -2
         };
     }
+    
     markup = [{
             tagName: 'text',
             selector: 'label'
@@ -34,6 +36,7 @@ export class Header extends dia.Element {
             tagName: 'rect',
             selector: 'marker'
         }];
+    
     static isHeader(cell) {
         return cell.get('type') === 'kanban.Header';
     }

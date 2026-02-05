@@ -3,6 +3,7 @@ import { DurationNumberInput } from './highlighters/duration-number-input';
 import { DurationHandle } from './tools/duration-handle';
 import { TaskElement, TaskElementView } from './shapes/task-element';
 import { BottomElement } from './shapes/bottom-element';
+
 export class Yamazumi3D {
     durationHeight;
     topLeft;
@@ -14,11 +15,13 @@ export class Yamazumi3D {
     taskDepth;
     operationGap;
     legendOffset;
+    
     taktColor;
     paper;
     topY;
     invalidDurationElement;
     layoutView;
+    
     constructor(options) {
         this.topLeft = options.topLeft;
         this.operators = options.operators;
@@ -29,11 +32,14 @@ export class Yamazumi3D {
         this.taskWidth = options.taskWidth || 200;
         this.taskDepth = options.taskDepth || 20;
         this.taktColor = '#ED2637';
+        
         this.operationGap = 10;
         this.durationHeight = (this.height - this.taskDepth) / this.maxDuration;
         this.topY = this.topLeft.y + this.height - this.maxDuration * (this.durationHeight) - this.taskDepth;
         this.legendOffset = 15;
+        
         this.createOperators();
+        
         const layoutOptions = {
             direction: layout.StackLayout.Directions.BottomTop,
             bottomLeft: {
@@ -52,6 +58,7 @@ export class Yamazumi3D {
                 });
             }
         };
+        
         this.layoutView = new ui.StackLayoutView({
             layoutOptions: layoutOptions,
             paper: this.paper,
@@ -81,11 +88,13 @@ export class Yamazumi3D {
                         </g>
                     </g>`).appendTo(layerNode);
                 }
+                
                 const preview = V('path', {
                     'class': 'jj-yamazumi-preview-line',
                     'stroke': color,
                     'd': `M ${-size / 2} 0 h ${size} l ${this.taskDepth} ${-this.taskDepth}`
                 });
+                
                 return preview.node;
             },
             validateMoving: (data) => {
@@ -98,6 +107,7 @@ export class Yamazumi3D {
                 return true;
             }
         });
+        
         this.layoutView.dragend = (element, x, y) => {
             ui.StackLayoutView.prototype.dragend.call(this.layoutView, element, x, y);
             if (this.invalidDurationElement) {
@@ -105,6 +115,7 @@ export class Yamazumi3D {
                 delete this.invalidDurationElement;
             }
         };
+        
         this.layoutView.model.on('update', () => {
             this.layoutView.model.stacks.forEach((st, i) => {
                 st.elements.forEach((el, j) => {
@@ -112,17 +123,23 @@ export class Yamazumi3D {
                 });
             });
         });
+        
         // Update leyout when size of the taskElement is changed
         this.paper.model.on('change:size', () => this.layoutView.model.update());
+        
         this.drawTakt();
         this.drawYAxis();
+        
         this.paper.on('element:mouseenter', (view) => {
             if (!(view.model instanceof TaskElement))
                 return;
+            
             this.paper.removeTools();
+            
             view.model.set('active', true);
             const color = view.model.get('topColor');
             const textColor = view.model.get('labelColor');
+            
             const toolsView = new dia.ToolsView({
                 tools: [
                     new elementTools.Boundary({
@@ -165,15 +182,18 @@ export class Yamazumi3D {
             });
             view.addTools(toolsView);
         });
+        
         this.paper.on('element:mouseleave', (view) => {
             if (!(view.model instanceof TaskElement))
                 return;
+            
             if (!view.model.get('focused')) {
                 view.model.set('active', false);
             }
             view.model.set('hovered', false);
             view.removeTools();
         });
+        
         this.paper.model.getCells().forEach(el => {
             if (el instanceof TaskElement) {
                 DurationNumberInput.add(el.findView(this.paper), 'front', 'duration-number-input', {
@@ -184,8 +204,10 @@ export class Yamazumi3D {
             }
         });
     }
+    
     createOperators() {
         const graph = this.paper.model;
+        
         const bottomElement = new BottomElement({
             frontColor: '#C1CFDA',
             sideColor: '#BBBBBB',
@@ -199,7 +221,9 @@ export class Yamazumi3D {
             operationGap: this.operationGap,
             taskWidth: this.taskWidth
         });
+        
         graph.addCell(bottomElement);
+        
         this.operators.forEach((operator, operatorIndex) => {
             const { tasks } = operator;
             tasks.forEach((task, taskIndex) => {
@@ -214,6 +238,7 @@ export class Yamazumi3D {
             });
         });
     }
+    
     drawYAxis() {
         const y = this.topLeft.y + this.height;
         const x = this.topLeft.x - this.legendOffset;
@@ -245,6 +270,7 @@ export class Yamazumi3D {
         axis.appendTo(layerNode);
         return axis;
     }
+    
     drawTakt() {
         const y = this.topLeft.y + this.taskDepth;
         const x = this.topLeft.x - this.legendOffset;

@@ -1,33 +1,21 @@
 {
   "name": "joint-kitchen-sink",
   "version": "4.2.2",
-  "description": "The Kitchen Sink Application for JointJS+ - Typescript version",
+  "description": "The Kitchen Sink Application for JointJS+",
   "main": "index.html",
-  "author": "client IO",
-  "license": "http://jointjs.com/license",
-  "private": true,
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "start": "concurrently \"npm run build\" \"webpack serve --config webpack.config.js\""
+    "start": "concurrently --kill-others \"npx sass --watch joint-light-theme/styles.scss:css/joint-light-theme.css\" \"npx sass --watch css/styles.scss:css/styles.css\" \"node node_modules/live-server/live-server.js --cors\""
   },
+  "author": "client IO",
+  "license": "http://jointjs.com/license/rappid",
+  "private": true,
   "dependencies": {
     "@joint/layout-directed-graph": "~4.2.3",
     "@joint/plus": "file:../../../build/package/joint-plus.tgz"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
-    "copy-webpack-plugin": "^13.0.0",
-    "css-loader": "^7.1.2",
-    "eslint": "^9.25.1",
-    "file-loader": "6.2.0",
-    "sass": "1.69.5",
-    "sass-loader": "13.3.2",
-    "style-loader": "^4.0.0",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.8.3",
-    "typescript-eslint-parser": "22.0.0",
-    "webpack": "^5.99.5",
-    "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.1"
+    "concurrently": "^8.2.2",
+    "live-server": "1.1.0",
+    "sass": "^1.75.0"
   }
 }

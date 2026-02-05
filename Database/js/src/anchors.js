@@ -1,5 +1,7 @@
 import { g, anchors } from '@joint/plus';
+
 export const anchorNamespace = { ...anchors };
+
 const customAnchor = function (view, magnet, ref) {
     let anchor;
     const { model } = view;
@@ -15,6 +17,8 @@ const customAnchor = function (view, magnet, ref) {
     anchor = (refPoint.x <= (bbox.x + bbox.width)) ? bbox.leftMiddle() : bbox.rightMiddle();
     return anchor.rotate(center, -angle);
 };
+
 Object.assign(anchorNamespace, {
     customAnchor
 });
+

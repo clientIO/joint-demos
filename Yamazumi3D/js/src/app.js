@@ -4,6 +4,7 @@ import { Yamazumi3D } from './yamazumi-3d/yamazumi-3d';
 import { RectPrism, RectPrismView } from './yamazumi-3d/shapes/rect-prism';
 import { TaskElement, TaskElementView } from './yamazumi-3d/shapes/task-element';
 import { BottomElement, BottomElementView } from './yamazumi-3d/shapes/bottom-element';
+
 const yamazumiShapes = {
     yamazumi: {
         RectPrism,
@@ -14,8 +15,11 @@ const yamazumiShapes = {
         TaskElementView
     }
 };
+
 export const init = () => {
+    
     const graph = new dia.Graph({}, { cellNamespace: yamazumiShapes });
+    
     const paper = new dia.Paper({
         el: document.getElementById('paper'),
         width: 1000,
@@ -30,16 +34,19 @@ export const init = () => {
         cellViewNamespace: yamazumiShapes,
         interactive: false,
     });
+    
     paper.on('cell:pointerdown', (view, evt) => {
         if (!view.isDefaultInteractionPrevented(evt)) {
             const el = document.activeElement;
             el.blur();
         }
     });
+    
     paper.on('cell:pointermove', (view) => {
         view.el.classList.add('dragging');
         paper.hideTools();
     });
+    
     paper.on('cell:pointerup', (view) => {
         view.el.classList.remove('dragging');
         paper.showTools();
@@ -48,6 +55,7 @@ export const init = () => {
         const el = document.activeElement;
         el.blur();
     });
+    
     const yamazumi = new Yamazumi3D({
         paper,
         topLeft: {
@@ -58,7 +66,9 @@ export const init = () => {
         height: 530,
         operators: operators,
     });
+    
     const acceptCommandsList = ['change:stackIndex', 'change:stackElementIndex', 'change:duration', 'remove'];
+    
     const cmd = new dia.CommandManager({
         graph,
         cmdBeforeAdd: (cmdName) => {
@@ -68,14 +78,17 @@ export const init = () => {
             return false;
         }
     });
+    
     cmd.on('stack:undo stack:redo', () => {
         yamazumi.layoutView.model.update();
     });
+    
     const toolbar = new ui.Toolbar({
         el: document.getElementById('toolbar'),
         tools: ['undo', 'redo'],
         autoToggle: true,
         references: { commandManager: cmd }
     });
+    
     toolbar.render();
 };

@@ -8,8 +8,10 @@ import { BPMNLinkView } from '../shapes/placeholder/placeholder-shapes';
 import { LabelElementView } from '../shapes/shape-view';
 import { canElementExistOutsidePool, getBoundaryPoint } from '../utils';
 import { MAIN_COLOR } from '../configs/theme';
+
 export default class MainService {
     secondaryServices;
+    
     graph;
     paper;
     paperScroller;
@@ -19,15 +21,20 @@ export default class MainService {
     selection;
     clipboard;
     snaplines;
+    
     viewController;
     editController;
     keyboardController;
+    
     cleanupFileImport = null;
+    
     constructor(paperElement, secondaryServices) {
         this.secondaryServices = secondaryServices;
+        
         this.graph = new dia.Graph({}, {
             cellNamespace: shapes
         });
+        
         this.paper = new dia.Paper({
             model: this.graph,
             cellViewNamespace: shapes,
@@ -48,11 +55,14 @@ export default class MainService {
                 const { model } = view;
                 // Prevent swimlane move to pool/show ghost
                 const isSwimlane = shapes.bpmn2.Swimlane.isSwimlane(model);
+                
                 let stopDelegation = true;
+                
                 if (isSwimlane) {
                     const pool = model.getParentCell();
                     stopDelegation = pool.getSwimlanes().length > 1;
                 }
+                
                 return {
                     stopDelegation,
                     labelMove: false
@@ -63,6 +73,7 @@ export default class MainService {
                 // Enable easier snapping for boundary elements by bbox
                 const useBBox = !parentView || (parentView && !shapes.bpmn2.Swimlane.isSwimlane(parentView.model));
                 const searchBy = useBBox ? 'bbox' : 'center';
+                
                 return this.graph.findElementsUnderElement(elementView.model, { searchBy });
             },
             highlighting: {
@@ -81,14 +92,18 @@ export default class MainService {
             },
             defaultAnchor: (endView, endMagnet, anchorReference, _args) => {
                 let reference = anchorReference;
+                
                 if (reference instanceof SVGElement) {
                     const refBBox = reference.getBoundingClientRect();
                     const cx = refBBox.x + refBBox.width / 2;
                     const cy = refBBox.y + refBBox.height / 2;
+                    
                     reference = this.paper.clientToLocalPoint({ x: cx, y: cy });
                 }
+                
                 const bbox = endView.model.getBBox();
                 const closestSide = bbox.sideNearestToPoint(reference);
+                
                 switch (closestSide) {
                     case 'top':
                         return bbox.topMiddle();
@@ -101,9 +116,12 @@ export default class MainService {
                 }
             },
             connectionStrategy: function (end, view, _, coords) {
+                
                 const { model } = view;
+                
                 if (model.isElement()) {
                     const { x, y } = getBoundaryPoint(view.model, coords);
+                    
                     end.anchor = {
                         name: 'topLeft',
                         args: {
@@ -120,6 +138,7 @@ export default class MainService {
                         }
                     };
                 }
+                
                 return end;
             },
             elementView: LabelElementView,
@@ -127,6 +146,7 @@ export default class MainService {
             validateConnection: (sourceView, _, targetView) => {
                 const source = sourceView.model;
                 const target = targetView.model;
+                
                 return source.validateConnection(target);
             },
             allowLink: (cellView) => {
@@ -135,17 +155,22 @@ export default class MainService {
             },
             validateEmbedding: (childView, parentView) => {
                 const child = childView.model;
+                
                 return child.validateEmbedding(parentView.model, childView?.paper?.model === this.graph);
             },
             validateUnembedding: (childView) => {
                 const isPoolPresent = this.graph.getElements().some(element => element.get('shapeType') === ShapeTypes.POOL);
+                
                 const child = childView.model;
+                
                 // If there is a pool present, only allow unembedding of elements that are valid outside of pools
                 if (isPoolPresent && !canElementExistOutsidePool(child) && !shapes.bpmn2.Swimlane.isSwimlane(child))
                     return false;
+                
                 return !(child.validateUnembedding) || child.validateUnembedding();
             }
         });
+        
         this.paperScroller = new ui.PaperScroller({
             paper: this.paper,
             autoResizePaper: true,
@@ -157,12 +182,14 @@ export default class MainService {
                 padding: 50
             }
         });
+        
         this.commandManager = new dia.CommandManager({
             graph: this.graph,
             cmdBeforeAdd: (_cmdName, _cell, _value, { ignoreHistory } = { ignoreHistory: false }) => {
                 return !ignoreHistory;
             }
         });
+        
         this.tooltip = new ui.Tooltip({
             rootTarget: document.body,
             target: '[data-tooltip]',
@@ -172,8 +199,11 @@ export default class MainService {
                 delay: '250ms'
             }
         });
+        
         this.keyboard = new ui.Keyboard();
+        
         this.clipboard = new ui.Clipboard();
+        
         this.selection = new ui.Selection({
             boxContent: null,
             paper: this.paperScroller,
@@ -221,13 +251,16 @@ export default class MainService {
                             strokeWidth: 2,
                         }
                     };
+                    
                     if (shapes.bpmn2.Swimlane.isSwimlane(cell)) {
                         defaultOptions.layer = dia.Paper.Layers.FRONT;
                     }
+                    
                     return defaultOptions;
                 }
             })
         });
+        
         this.snaplines = new ui.Snaplines({
             paper: this.paper,
             canSnap: (elementView) => {
@@ -238,6 +271,7 @@ export default class MainService {
                     && !(model instanceof shapes.event.IntermediateBoundary);
             }
         });
+        
         this.viewController = new ViewController({
             paper: this.paper,
             paperScroller: this.paperScroller,
@@ -245,6 +279,7 @@ export default class MainService {
             keyboard: this.keyboard,
             inspectorService: this.secondaryServices.inspectorService
         });
+        
         this.editController = new EditController({
             graph: this.graph,
             paper: this.paper,
@@ -255,6 +290,7 @@ export default class MainService {
             freeTransformService: this.secondaryServices.freeTransformService,
             keyboard: this.keyboard
         });
+        
         this.keyboardController = new KeyboardController({
             graph: this.graph,
             paper: this.paper,
@@ -264,15 +300,20 @@ export default class MainService {
             commandManager: this.commandManager,
             clipboard: this.clipboard
         });
+        
         paperElement.appendChild(this.paperScroller.render().el);
+        
         this.createServices();
     }
+    
     createServices() {
         const { toolbarService, stencilService, navigatorService } = this.secondaryServices;
+        
         toolbarService.create(this.paper, this.paperScroller, this.commandManager);
         stencilService.create(this.paperScroller, this.selection, this.snaplines);
         navigatorService.create(this.paperScroller);
     }
+    
     start() {
         this.paper.unfreeze();
         this.viewController.startListening();
@@ -281,11 +322,13 @@ export default class MainService {
         // Setup drag and drop file import
         this.cleanupFileImport = setupFileImport(this.paperScroller, this.commandManager);
     }
+    
     stop() {
         this.paper.freeze();
         this.viewController.stopListening();
         this.editController.stopListening();
         this.keyboardController.stopListening();
+        
         // Clean up the file import event listeners
         if (this.cleanupFileImport) {
             this.cleanupFileImport();

@@ -2,14 +2,13 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 
 const dist = path.resolve(__dirname, 'dist');
-const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
     resolve: {
         extensions: ['.ts', '.js']
     },
-    devtool: isProd ? false : 'source-map',
-    entry: './index.ts',
+    devtool: 'source-map',
+    entry: './index.js',
     output: {
         filename: 'bundle.js',
         path: dist
@@ -20,7 +19,7 @@ module.exports = {
         port: process.env.PORT || 8080,
         host: process.env.HOST || 'localhost'
     },
-    mode: isProd ? 'production' : 'development',
+    mode: 'development',
     module: {
         rules: [
             { test: /\.ts$/, loader: 'ts-loader' },
@@ -29,7 +28,7 @@ module.exports = {
                 sideEffects: true,
                 use: [
                     'style-loader',
-                    { loader: 'css-loader', options: { url: false }}
+                    'css-loader'
                 ]
             }
         ]

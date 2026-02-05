@@ -5,13 +5,18 @@ import { ActivityShapeTypes } from '../shapes/activity/activity-config';
 import { DataShapeTypes } from '../shapes/data/data-config';
 import { GroupShapeTypes } from '../shapes/group/group-config';
 import { PoolShapeTypes } from '../shapes/pool/pool-config';
+
 export var StencilShapeTypes;
 (function (StencilShapeTypes) {
     StencilShapeTypes["STENCIL_SHAPE"] = "stencil.Shape";
 })(StencilShapeTypes || (StencilShapeTypes = {}));
+
 const SHAPE_SIZE = 32;
+
 // Note: StencilShape can not be deserialized since it is not defined in `joint.shapes` namespace.
+
 class StencilShape extends dia.Element {
+    
     defaults() {
         return {
             ...super.defaults,
@@ -31,10 +36,12 @@ class StencilShape extends dia.Element {
             }
         };
     }
+    
     markup = [{
             tagName: 'text',
             selector: 'icon'
         }];
+    
     static create(type) {
         const config = stencilShapesConfig[type];
         if (!config)
@@ -50,6 +57,8 @@ class StencilShape extends dia.Element {
         });
     }
 }
+
+
 const stencilShapesConfig = {
     [EventShapeTypes.START]: {
         icon: '\ue036'
@@ -85,14 +94,18 @@ const stencilShapesConfig = {
         icon: '\ue123',
     }
 };
+
 export const stencilShapes = Object.keys(stencilShapesConfig).map((type) => StencilShape.create(type));
+
 // Define a custom highlighter for the stencil hover effect
 export const StencilHoverHighlighter = dia.HighlighterView.extend({
     tagName: 'rect',
+    
     attributes: {
         'rx': 4,
         'ry': 4,
     },
+    
     options: {
         padding: 0,
         width: null,
@@ -100,6 +113,7 @@ export const StencilHoverHighlighter = dia.HighlighterView.extend({
         className: '',
         z: 0 // Render the highlighter behind the element
     },
+    
     // Method called to highlight a CellView
     highlight(cellView, _node) {
         const { padding, width, height, className } = this.options;
@@ -118,6 +132,7 @@ export const StencilHoverHighlighter = dia.HighlighterView.extend({
         // Increase the size of the highlighter
         bbox.inflate(padding);
         this.vel.attr(bbox.toJSON());
+        
         this.vel.node.classList.add(className);
     },
 });

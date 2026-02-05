@@ -5,24 +5,30 @@ import { Node } from '../diagram/models';
 import { addEffect, Effect, removeEffect } from '../diagram/effects';
 import { State } from '../const';
 import Theme from '../diagram/theme';
+
 /** Interval in milliseconds between testing each node in the workflow */
 const TEST_INTERVAL = 2000;
+
 let stopCurrentWorkflow = null;
+
 /**
  * Animate testing of the current workflow by highlighting nodes and links in DFS order.
  * For demonstration purposes only.
  */
 export function testCurrentWorkflow(app) {
     const { paper, graph, history, state } = app;
+    
     if (state.get(State.FlowRunning)) {
         // The workflow is already running, stop it.
         stopCurrentWorkflow?.();
         return;
     }
+    
     const start = graph.getCell(START_NODE_ID);
     if (!start) {
         throw new Error('The workflow does not have a start trigger node.');
     }
+    
     // Collect all nodes in DFS order starting from the start node
     // Note: The current node collection order is not guaranteed to be in left-to-right order.
     // That is suboptimal, but sufficient for the purpose of this demo.
@@ -33,6 +39,7 @@ export function testCurrentWorkflow(app) {
         }
         return true;
     });
+    
     // Style for animated links during testing
     const scope = `#${paper.svg.id}`;
     const stylesEl = V.createSVGStyle(/* css */ `
@@ -53,12 +60,15 @@ export function testCurrentWorkflow(app) {
             }
         }
     `);
+    
     // Stop testing whenever the data changes
     const listener = new mvc.Listener();
     listener.listenTo(history, 'stack', () => stopTesting());
+    
     let intervalId;
     startTesting();
     stopCurrentWorkflow = stopTesting;
+    
     function startTesting() {
         // Animate the links
         paper.svg.prepend(stylesEl);
@@ -67,6 +77,7 @@ export function testCurrentWorkflow(app) {
         // Update the test button state
         setTestButtonState(app, true);
     }
+    
     function testNodes() {
         const node = dfsOrder.shift();
         if (node) {
@@ -78,6 +89,7 @@ export function testCurrentWorkflow(app) {
             return;
         }
     }
+    
     function testNode(node) {
         // Simulate testing logic here
         removeEffect(paper, Effect.NodePulse);
@@ -85,6 +97,7 @@ export function testCurrentWorkflow(app) {
         // Let the app know that the flow is running
         state.set(State.FlowRunning, true);
     }
+    
     function stopTesting() {
         listener.stopListening();
         clearTimeout(intervalId);
@@ -98,12 +111,14 @@ export function testCurrentWorkflow(app) {
         stopCurrentWorkflow = null;
     }
 }
+
 /**
  * Set the test button state to running or not running.
  */
 function setTestButtonState(app, running) {
     const { toolbar } = app;
     const testButtonEl = toolbar.getWidgetByName('test').el;
+    
     if (running) {
         testButtonEl.textContent = '⏸ Testing';
         const dotsEl = document.createElement('div');
@@ -114,10 +129,12 @@ function setTestButtonState(app, running) {
         testButtonEl.textContent = '▶ Test flow';
     }
 }
+
 /**
  * Not implemented yet.
  * It means to publish the workflow to a production environment.
  */
 export function publishCurrentWorkflow(app) {
+    
     openMockDialog(app);
 }

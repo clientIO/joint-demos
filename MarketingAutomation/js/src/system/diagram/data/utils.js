@@ -1,5 +1,7 @@
 import { util } from '@joint/plus';
+
 // Data modification
+
 export function removeEdge(json, parentId, childId) {
     const parent = json[parentId];
     if (!parent || !parent.to)
@@ -9,6 +11,7 @@ export function removeEdge(json, parentId, childId) {
         parent.to.splice(index, 1);
     }
 }
+
 export function changeEdge(json, parentId, childId, edge) {
     const parent = json[parentId];
     if (!parent || !parent.to)
@@ -19,12 +22,14 @@ export function changeEdge(json, parentId, childId, edge) {
         parent.to[index] = { ...currentEdge, ...edge };
     }
 }
+
 export function insertNode(data, json, parentId, childId) {
     const nodeId = createNode(data, json);
     changeEdge(json, parentId, childId, { id: nodeId });
     addEdge(json, nodeId, childId);
     return nodeId;
 }
+
 export function addEdge(json, parentId, childId) {
     const parent = json[parentId];
     if (!parent)
@@ -34,12 +39,14 @@ export function addEdge(json, parentId, childId) {
     }
     parent.to.push({ id: childId });
 }
+
 export function appendNode(data, json, parentId) {
     const childId = util.uuid();
     createNode(data, json, childId);
     addEdge(json, parentId, childId);
     return childId;
 }
+
 export function createNode(data, json, id = util.uuid()) {
     if (!json[id]) {
         const node = { to: [], ...data };
@@ -50,6 +57,7 @@ export function createNode(data, json, id = util.uuid()) {
     }
     return id;
 }
+
 export function changeNode(json, id, data) {
     const node = json[id];
     if (!node)
@@ -59,6 +67,7 @@ export function changeNode(json, id, data) {
         node[key] = data[key];
     });
 }
+
 export function removeEdgesFromNode(json, id) {
     Object.keys(json).forEach((nodeId) => {
         const node = json[nodeId];
@@ -74,16 +83,19 @@ export function removeEdgesFromNode(json, id) {
         node.to = [];
     }
 }
+
 export function removeNode(json, id) {
     removeEdgesFromNode(json, id);
     delete json[id];
 }
+
 export function getNodeEdges(json, id) {
     const node = json[id];
     if (!node || !node.to)
         return [];
     return node.to.map(target => `${id}-${target.id}`);
 }
+
 export function sortChildren(json, id, graph, iteratee) {
     const node = json[id];
     if (!node || !node.to)
@@ -93,11 +105,13 @@ export function sortChildren(json, id, graph, iteratee) {
         return iteratee(targetEl);
     });
 }
+
 export function sortNodes(json, graph, coordinate = 'x') {
     Object.keys(json).forEach((id) => {
         sortChildren(json, id, graph, (targetEl) => targetEl.getBBox().center()[coordinate]);
     });
 }
+
 /**
  * Finds all node IDs in the diagram JSON,
  * including those only referenced as targets (placeholders).

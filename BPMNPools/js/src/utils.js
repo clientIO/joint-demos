@@ -1,5 +1,7 @@
 /* Small utility functions. */
+
 import { shapes } from '@joint/plus';
+
 // Find element view of a specific type under the event's client coordinates.
 export function findViewFromEvent(paper, evt, types) {
     const { clientX, clientY } = evt;
@@ -16,6 +18,7 @@ export function findViewFromEvent(paper, evt, types) {
     const el = els[index];
     return paper.findView(el);
 }
+
 // Remove a cell from the graph.
 export function removeCell(cell) {
     const pool = cell.getParentCell(); // `null` for CompositePools and elements
@@ -26,12 +29,15 @@ export function removeCell(cell) {
     else
         cell.remove();
 }
+
 export function isStencilEvent(evt) {
     return !!evt.data?.isStencilEvent;
 }
+
 export function setStencilEvent(evt, isStencilEvent) {
     if (!evt.data) {
         evt.data = {};
     }
     evt.data.isStencilEvent = isStencilEvent;
 }
+

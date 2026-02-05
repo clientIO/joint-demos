@@ -1,5 +1,6 @@
 import { dia, util } from '@joint/plus';
 import { Attribute } from '../const';
+
 /**
  * Update flags for the simplified node view.
  * Map attribute changes to these flags to optimize rendering.
@@ -9,13 +10,17 @@ const UpdateFlags = {
     Update: '@update',
     Transform: '@transform'
 };
+
 /* Simplified element view to be used with the navigator */
 export default class SimplifiedNodeView extends dia.ElementView {
+    
     markup = util.svg /* xml */ `
         <path @selector="body" stroke-width="6" opacity="0.4" />
     `;
+    
     /* SVG path element representing the node body */
     body = null;
+    
     initFlag() {
         return [
             UpdateFlags.Render,
@@ -23,6 +28,7 @@ export default class SimplifiedNodeView extends dia.ElementView {
             UpdateFlags.Transform
         ];
     }
+    
     /**
      * Map attribute changes to update flags.
      */
@@ -34,6 +40,7 @@ export default class SimplifiedNodeView extends dia.ElementView {
             [Attribute.ActionKey]: [UpdateFlags.Update],
         };
     }
+    
     /**
      * The method is called within an animation frame
      * and processes the accumulated flags.
@@ -49,12 +56,14 @@ export default class SimplifiedNodeView extends dia.ElementView {
         }
         return 0;
     }
+    
     render() {
         const doc = util.parseDOMJSON(this.markup);
         this.body = doc.selectors.body;
         this.el.appendChild(doc.fragment);
         return this;
     }
+    
     update() {
         const { model, body } = this;
         body?.setAttribute('d', model.getOutlinePathData());

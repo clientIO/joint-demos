@@ -1,6 +1,8 @@
 import { util } from '@joint/plus';
 import { Node, calculateHeight } from '../node';
+
 export class Properties extends Node {
+    
     defaults() {
         const defaults = super.defaults();
         return util.defaultsDeep({
@@ -24,6 +26,7 @@ export class Properties extends Node {
                 }]
         }, defaults);
     }
+    
     async action() {
         const { image } = this.properties;
         if (image) {
@@ -41,8 +44,10 @@ export class Properties extends Node {
             this.set('width', null);
             this.set('height', null);
         }
+        
         return [null, null];
     }
+    
     getInspectorConfig() {
         const nodeConfig = super.getInspectorConfig();
         return util.defaultsDeep({

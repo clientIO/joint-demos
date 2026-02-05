@@ -1,5 +1,7 @@
 import { shapes, util } from '@joint/core';
+
 export class Milestone extends shapes.standard.Rectangle {
+    
     defaults() {
         return util.defaultsDeep({
             type: 'timeline.Milestone',
@@ -22,12 +24,15 @@ export class Milestone extends shapes.standard.Rectangle {
             }
         }, super.defaults);
     }
+    
     isConnectionValid(type) {
         return type === 'timeline.Category';
     }
+    
     getEditableFields() {
         return [];
     }
+    
     static create(id) {
         return new Milestone({
             id: id,

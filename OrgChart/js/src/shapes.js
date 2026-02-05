@@ -1,4 +1,5 @@
 import { dia } from '@joint/plus';
+
 const memberButtonBody = {
     width: 20,
     height: 20,
@@ -7,6 +8,7 @@ const memberButtonBody = {
     x: -10,
     y: -10,
 };
+
 export const Member = dia.Element.define('Member', {
     size: { width: 333, height: 98 },
     attrs: {
@@ -109,6 +111,7 @@ export const Member = dia.Element.define('Member', {
         },
     }
 }, {
+    
     markup: [{
             tagName: 'rect',
             selector: 'body',
@@ -149,6 +152,7 @@ export const Member = dia.Element.define('Member', {
             selector: 'memberEditIcon'
         }]
 });
+
 export const Link = dia.Link.define('Link', {
     attrs: {
         root: {

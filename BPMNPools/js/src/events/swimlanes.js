@@ -3,21 +3,27 @@ import { isStencilEvent, findViewFromEvent } from '../utils';
 import { showGhostOnNextInteraction } from '../actions/ghost';
 import { deselect } from '../actions/selection';
 import { VerticalSwimlane, HorizontalSwimlane } from '../shapes';
+
 export function onSwimlaneDragStart(paper, elementView, evt, _x, _y) {
     deselect(paper);
+    
     if (!isStencilEvent(evt)) {
         // Do not move the swimlane, show the ghost instead.
         elementView.preventDefaultInteraction(evt);
         showGhostOnNextInteraction(paper);
     }
+    
     // Highlight the source swimlane which remains highlighted in the pool
     // until the drag ends.
     addEffect(elementView, EffectType.SourceSwimlane);
 }
+
 export function onSwimlaneDrag(paper, elementView, evt, x, y) {
     removeEffect(paper, EffectType.TargetPool);
     removeEffect(paper, EffectType.PreviewSwimlane);
+    
     const ghostEl = evt.data.ghost;
+    
     const addInvalidEffect = () => {
         if (ghostEl) {
             ghostEl.classList.add('hgl-invalid-drop');
@@ -26,6 +32,7 @@ export function onSwimlaneDrag(paper, elementView, evt, x, y) {
             addEffect(elementView, EffectType.InvalidDrop);
         }
     };
+    
     const removeInvalidEffect = () => {
         if (ghostEl) {
             ghostEl.classList.remove('hgl-invalid-drop');
@@ -34,12 +41,14 @@ export function onSwimlaneDrag(paper, elementView, evt, x, y) {
             removeEffect(elementView.paper, EffectType.InvalidDrop);
         }
     };
+    
     const poolView = findViewFromEvent(paper, evt, ['custom.HorizontalPool', 'custom.VerticalPool']);
     if (!poolView) {
         evt.data.poolView = null;
         addInvalidEffect();
         return;
     }
+    
     const lane = elementView.model;
     const pool = poolView.model;
     if (!isStencilEvent(evt) && !lane.isCompatibleWithPool(pool)) {
@@ -49,8 +58,10 @@ export function onSwimlaneDrag(paper, elementView, evt, x, y) {
         addInvalidEffect();
         return;
     }
+    
     evt.data.poolView = poolView;
     removeInvalidEffect();
+    
     const swimlanes = pool.getSwimlanes();
     if (swimlanes.length === 0) {
         addEffect(poolView, EffectType.TargetPool);
@@ -63,22 +74,27 @@ export function onSwimlaneDrag(paper, elementView, evt, x, y) {
         }
     }
 }
+
 export function onSwimlaneDragEnd(paper, elementView, evt, x, y) {
     removeEffect(paper, EffectType.TargetPool);
     removeEffect(paper, EffectType.SourceSwimlane);
     removeEffect(paper, EffectType.PreviewSwimlane);
     // The invalid drop effect can be applied to the stencil paper
     removeEffect(elementView.paper, EffectType.InvalidDrop);
+    
     if (isStencilEvent(evt))
         return;
+    
     // The swimlane comes from the same paper and the drag has ended.
     // See if the swimlane has been dropped on a pool.
     checkSwimlaneDrop(elementView.model, evt.data.poolView?.model, x, y);
 }
+
 export function onSwimlaneDrop(_paper, elementView, evt, x, y) {
     // The swimlane is dropped from the stencil. It's already added into the target paper.
     checkSwimlaneDrop(elementView.model, evt.data.poolView?.model, x, y);
 }
+
 function checkSwimlaneDrop(swimlane, pool, x, y) {
     if (!pool) {
         // The swimlane is not dropped into a pool.
@@ -88,6 +104,7 @@ function checkSwimlaneDrop(swimlane, pool, x, y) {
         }
         return;
     }
+    
     let compatibleSwimlane = swimlane;
     if (!swimlane.isCompatibleWithPool(pool)) {
         // Swimlane orientation is incompatible with pool orientation.

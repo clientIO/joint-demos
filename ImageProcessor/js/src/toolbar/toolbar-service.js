@@ -8,11 +8,13 @@ export class ToolbarService {
     graph;
     toolbar;
     fileTools;
+    
     constructor(element, cmd, graph) {
         this.element = element;
         this.cmd = cmd;
         this.graph = graph;
         const { tools, groups } = getToolbarConfig();
+        
         this.toolbar = new ui.Toolbar({
             groups: groups,
             el: element,
@@ -20,6 +22,7 @@ export class ToolbarService {
             autoToggle: true,
             references: { commandManager: cmd }
         });
+        
         this.fileTools = [
             {
                 action: 'new',
@@ -34,6 +37,7 @@ export class ToolbarService {
                 content: 'Save file'
             }
         ];
+        
         this.toolbar.on('file:pointerclick', (_evt) => {
             const contextToolbar = new ui.ContextToolbar({
                 target: this.toolbar.getWidgetByName('file').el,
@@ -44,24 +48,32 @@ export class ToolbarService {
                 anchor: 'top-left',
                 tools: this.fileTools
             });
+            
             contextToolbar.on('action:load', () => {
                 contextToolbar.remove();
+                
                 const fileInput = document.createElement('input');
                 fileInput.setAttribute('type', 'file');
                 fileInput.setAttribute('accept', '.imp');
+                
                 fileInput.click();
+                
                 fileInput.onchange = () => {
                     const file = fileInput.files[0];
                     const reader = new FileReader();
+                    
                     reader.onload = (evt) => {
                         let str = evt.target.result;
                         App.processor.reset();
                         resetGraphFromFile(graph, JSON.parse(str));
+                        
                         this.cmd.reset();
                     };
+                    
                     reader.readAsText(file);
                 };
             });
+            
             contextToolbar.on('action:save', () => {
                 contextToolbar.remove();
                 const str = JSON.stringify(getFileFromGraph(graph));
@@ -74,14 +86,17 @@ export class ToolbarService {
                 el.click();
                 document.body.removeChild(el);
             });
+            
             contextToolbar.on('action:new', () => {
                 contextToolbar.remove();
                 graph.resetCells([]);
                 App.processor.reset();
                 this.cmd.reset();
             });
+            
             contextToolbar.render();
         });
+        
         this.toolbar.render();
     }
 }

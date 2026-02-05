@@ -1,5 +1,7 @@
 import { elementTools, util, g } from '@joint/plus';
+
 export class RotateTool extends elementTools.Control {
+    
     preinitialize() {
         const { buttonColor = '#333', iconColor = '#fff', outlineColor = '#fff' } = this.options;
         this.children = util.svg /* xml */ `
@@ -22,15 +24,18 @@ export class RotateTool extends elementTools.Control {
             </g>
         `;
     }
+    
     update() {
         super.update();
         this.updateText();
     }
+    
     updateText() {
         const { childNodes, relatedView } = this;
         childNodes.degrees.textContent = `${relatedView.model.get('rotation')}°`;
         childNodes.position.textContent = relatedView.model.position().round(2).toString();
     }
+    
     getPosition(view) {
         const { gap = 0 } = this.options;
         const model = view.model;
@@ -40,14 +45,17 @@ export class RotateTool extends elementTools.Control {
         position.rotate(center, -rotation);
         return position;
     }
+    
     setPosition(view, coordinates, evt) {
         const model = view.model;
         const center = model.getCenterOfRotation();
         let newAngle = Math.round(center.angleBetween(coordinates, center.clone().translate(1, 0)));
+        
         // Change the angle by 5 degrees and snap to 0, 45, 90, 135, 180, 225, 270, 315
         // unless the shift key is pressed.
         const snapAngle = evt.shiftKey ? 1 : 5;
         newAngle = Math.round(newAngle / snapAngle) * snapAngle;
+        
         if (model.isWithinBBox(view.paper.getArea(), { angle: newAngle })) {
             // Do not rotate if the element would be out of the paper
             // Note: we could also find the nearest angle that would fit the element
@@ -56,6 +64,7 @@ export class RotateTool extends elementTools.Control {
         }
         model.set('rotation', g.normalizeAngle(newAngle));
     }
+    
     resetPosition(view) {
         const model = view.model;
         model.set('rotation', 0);

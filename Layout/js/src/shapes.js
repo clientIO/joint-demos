@@ -1,4 +1,5 @@
 import { dia, shapes } from '@joint/plus';
+
 const Container = dia.Element.define('app.Container', {
     attrs: {
         body: {
@@ -41,6 +42,7 @@ const Container = dia.Element.define('app.Container', {
         return el.get('type') === 'app.Container';
     }
 });
+
 const Child = dia.Element.define('app.Child', {
     z: 2,
     attrs: {
@@ -72,6 +74,7 @@ const Child = dia.Element.define('app.Child', {
             selector: 'label'
         }]
 });
+
 const Link = dia.Link.define('Link', {
     z: -1,
     attrs: {
@@ -91,6 +94,7 @@ const Link = dia.Link.define('Link', {
             selector: 'line'
         }]
 });
+
 Object.assign(shapes, {
     app: {
         Container,

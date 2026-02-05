@@ -2,6 +2,7 @@ import { util } from '@joint/plus';
 import { Attribute } from '../const';
 import Theme, { iconAttributes, nodeLabelAttributes, nodeTypeLabelAttributes } from '../theme';
 import DiagramNode from './DiagramNode';
+
 const markup = util.svg /* xml*/ `
     <rect @selector="outline" class="node-outline"/>
     <rect @selector="body" class="node-body"/>
@@ -11,14 +12,20 @@ const markup = util.svg /* xml*/ `
     <text @selector="label" class="node-label"/>
     <image @selector="marker" class="node-icon"/>
 `;
+
 const TYPE = 'trigger';
+
 export default class Trigger extends DiagramNode {
     static type = TYPE;
+    
     static growthLimit = 1;
+    
     configuration = null;
+    
     preinitialize() {
         this.markup = markup;
     }
+    
     defaults() {
         const attributes = {
             // Layout-specific attributes
@@ -113,8 +120,10 @@ export default class Trigger extends DiagramNode {
                 },
             }
         };
+        
         return util.defaultsDeep(attributes, super.defaults());
     }
+    
     getDefaultOutlineAttributes() {
         return {
             x: -5,
@@ -123,6 +132,7 @@ export default class Trigger extends DiagramNode {
             height: 'calc(h+10)',
         };
     }
+    
     getHoverOutlineAttributes() {
         return {
             x: -9,
@@ -131,6 +141,7 @@ export default class Trigger extends DiagramNode {
             height: 'calc(h+18)',
         };
     }
+    
     getSelectedOutlineAttributes() {
         return {
             x: -30,
@@ -139,6 +150,7 @@ export default class Trigger extends DiagramNode {
             height: 'calc(h+60)',
         };
     }
+    
     getLabelsRelativeRects() {
         const labelsData = super.getLabelsRelativeRects();
         labelsData.push({
@@ -155,20 +167,26 @@ export default class Trigger extends DiagramNode {
         });
         return labelsData;
     }
+    
     isConfigured() {
         return this.getConfigurationKey() != null;
     }
+    
     getConfigurationKey() {
         return this.get(Attribute.TriggerKey) || null;
     }
+    
     setConfigurationKey(triggerKey, options) {
         this.set(Attribute.TriggerKey, triggerKey, options);
     }
+    
     getDefaultLabel() {
         return `${this.attr('typeLabel/text')}`;
     }
+    
     unsetConfiguration() {
         this.configuration = null;
+        
         this.attr({
             root: {
                 dataConfigured: 'false'
@@ -188,10 +206,13 @@ export default class Trigger extends DiagramNode {
             }
         });
     }
+    
     updateConfiguration(configuration) {
         this.configuration = configuration;
+        
         const { icon, name: appName } = configuration.provider;
         const { name: triggerName = '' } = configuration.trigger;
+        
         this.attr({
             root: {
                 dataConfigured: 'true'
@@ -211,7 +232,9 @@ export default class Trigger extends DiagramNode {
             }
         });
     }
+    
     getInspectorConfig() {
+        
         if (!this.isConfigured()) {
             // Nothing to edit yet
             return {
@@ -222,6 +245,7 @@ export default class Trigger extends DiagramNode {
                 groups: {}
             };
         }
+        
         return {
             ...super.getInspectorConfig(),
             headerText: `${this.configuration?.trigger.name}`,

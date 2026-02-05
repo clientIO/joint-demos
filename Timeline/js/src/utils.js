@@ -2,24 +2,31 @@ import { dia, elementTools, linkTools, shapes, util } from '@joint/plus';
 import { BUS_COLOR, BUS_MARGIN, BUS_TREE_MARGIN, MIN_BUS_ELEMENT_SPAN, BUS_Y, TOP_LINK_COLOR, BOTTOM_LINK_COLOR } from './config';
 import { artificialIntelligenceTimeline } from './data';
 import { Milestone } from './shapes';
+
 const BUTTON_FILL = '#FFFFFF';
 const BUTTON_STROKE_COLOR = '#C9CAE0';
 const ADD_SIGN_COLOR = '#A3B3D3';
 const BUTTON_WIDTH = 30;
+
 // Helpers
+
 function routeOneDirection(tree, sourceElement, links, direction) {
+    
     const linkCount = links.length;
     if (linkCount === 0)
         return;
+    
     // The `directionFactor` is used to determine the direction
     // of the vertical offset of the links.
     const isBottomDirection = direction === 'B';
     const directionFactor = isBottomDirection ? -1 : 1;
+    
     const sourceBBox = sourceElement.getBBox();
     const sourceCenter = isBottomDirection ? sourceBBox.bottomMiddle() : sourceBBox.topMiddle();
     const sortedLinks = util.sortBy(links, (link) => link.getTargetElement().position().x);
     const leftLinks = [];
     const rightLinks = [];
+    
     sortedLinks.forEach((link) => {
         const target = link.getTargetElement();
         // If the target is exactly on the middle of the source, we put it in the left group
@@ -30,28 +37,36 @@ function routeOneDirection(tree, sourceElement, links, direction) {
             rightLinks.push(link);
         }
     });
+    
     const leftLinkCount = leftLinks.length;
     const rightLinkCount = rightLinks.length;
+    
     // An ideal gap between individual links
     const idealGap = 10;
     // The minimal gap around the bundle of links.
     // A space between edge of the element and the first/last link.
     const minBundleGap = 10;
     const bundleParentGap = 10;
+    
     // The actual gap between links.
     const gap = Math.min(idealGap, Math.floor((tree.get('parentGap') - bundleParentGap * 2) / Math.max(leftLinkCount, rightLinkCount)), // vertical check
     (sourceBBox.width - minBundleGap * 2) / (linkCount - 1) // horizontal check
     );
+    
     // The x coordinate of the first left link. Every link to the right side is in the rightLinks array.
     const firstLeftLinkX = sourceBBox.width / 2 + sourceBBox.x + gap * (leftLinkCount - rightLinkCount - 1) / 2;
+    
     const [firstLeftLink] = leftLinks;
     let isFirstLinkStraight = (firstLeftLink)
         ? sourceCenter.x === firstLeftLink.getTargetElement().getBBox().center().x
         : false;
+    
     leftLinks.forEach((link, index) => {
+        
         const targetBBox = link.getTargetElement().getBBox();
         const targetCenter = isBottomDirection ? targetBBox.topMiddle() : targetBBox.bottomMiddle();
         const midY = targetCenter.y + (isBottomDirection ? -bundleParentGap : bundleParentGap);
+        
         // Note: the left links are sorted in reverse order.
         // i.e. the first left link is on the right side of the bundle.
         const dx = -index * gap;
@@ -67,10 +82,13 @@ function routeOneDirection(tree, sourceElement, links, direction) {
             }
         ]);
     });
+    
     rightLinks.forEach((link, index) => {
+        
         const targetBBox = link.getTargetElement().getBBox();
         const targetCenter = isBottomDirection ? targetBBox.topMiddle() : targetBBox.bottomMiddle();
         const midY = targetCenter.y + (isBottomDirection ? -bundleParentGap : bundleParentGap);
+        
         // Note: there is the first left link on the 0*gap position.
         const dx = (index + 1) * gap;
         const dy = directionFactor * (index) * gap;
@@ -86,6 +104,7 @@ function routeOneDirection(tree, sourceElement, links, direction) {
         ]);
     });
 }
+
 function getTree(graph, element) {
     const elements = [element];
     graph.search(element, (cell) => {
@@ -98,13 +117,17 @@ function getTree(graph, element) {
     }, { outbound: true });
     return elements;
 }
+
 function getConnectedBusLinks(graph, element, outbound) {
     return graph
         .getConnectedLinks(element, { [outbound ? 'outbound' : 'inbound']: true })
         .filter((link) => link.get('busLink'));
 }
+
 function addBusElementAfter(graph, element) {
+    
     let newId = null;
+    
     if (!element) {
         newId = artificialIntelligenceTimeline.unshiftBusElement();
     }
@@ -115,10 +138,13 @@ function addBusElementAfter(graph, element) {
     graph.addCell(nextMilestone);
     return nextMilestone;
 }
+
 export function removeElement(tree, element, removeBranch = true) {
     const graph = tree.get('graph');
     const isBusElement = element.get('busElement');
+    
     const path = getPath(graph, element);
+    
     if (isBusElement || removeBranch) {
         const elements = getTree(graph, element);
         graph.removeCells(elements);
@@ -126,15 +152,19 @@ export function removeElement(tree, element, removeBranch = true) {
     else {
         tree.removeElement(element, { layout: false });
     }
+    
     artificialIntelligenceTimeline.removeByPath(path);
 }
+
 export function getPath(graph, element) {
     const path = [element.id];
+    
     const ancestor = graph.getConnectedLinks(element, { inbound: true }).filter((link) => !link.get('busLink'))[0];
     if (!ancestor)
         return path;
     return [...getPath(graph, ancestor.getSourceElement()), ...path];
 }
+
 export function makeLink(parentElementLabel = util.uniqueId(), childElementLabel = util.uniqueId()) {
     return new shapes.standard.Link({
         source: { id: parentElementLabel },
@@ -149,13 +179,16 @@ export function makeLink(parentElementLabel = util.uniqueId(), childElementLabel
         }
     });
 }
+
 function updateBus(graph) {
     const busElements = artificialIntelligenceTimeline.getBusElements();
     busElements.forEach((id, index) => {
         const source = graph.getCell(id);
+        
         source.position(100 + index * 300, 200);
         source.set('busElement', true);
         source.set('layout', 'B-T');
+        
         if (index === busElements.length - 1)
             return;
         let outboundLinks = graph.getConnectedLinks(source, { outbound: true });
@@ -174,10 +207,12 @@ function updateBus(graph) {
             const target = link.getTargetCell();
             return target.get('busElement') && target.id === busElements[index + 1];
         });
+        
         // Only create a new link if we don't already have one
         if (!hasLinkToNextBus) {
             const target = graph.getCell(busElements[index + 1]);
             const link = makeLink(source.id, target.id);
+            
             link.attr('line', {
                 strokeWidth: 2,
                 strokeDasharray: '3,6',
@@ -185,24 +220,31 @@ function updateBus(graph) {
                 stroke: BUS_COLOR,
                 strokeLinecap: 'round'
             });
+            
             link.set('busLink', true);
             graph.addCell(link);
         }
     });
 }
+
 export function addBusElementTools(tree, paperScroller, selection) {
     const paper = paperScroller.options.paper;
     const graph = paper.model;
+    
     const minDistance = 120;
+    
     graph.getElements().forEach((element) => {
         if (element.get('type') !== 'timeline.Milestone')
             return;
         const elementView = element.findView(paper);
         elementView.removeTools();
         const tools = [];
+        
         if (getConnectedBusLinks(graph, element, false).length === 0) {
+            
             const { x } = tree.getLayoutBBox();
             const relX = Math.min(x - element.position().x + BUTTON_WIDTH / 2, -minDistance);
+            
             const addPrevButton = new elementTools.Button({
                 className: 'add-milestone-button',
                 attributes: {
@@ -224,8 +266,10 @@ export function addBusElementTools(tree, paperScroller, selection) {
             tools.push(addPrevButton);
         }
         if (getConnectedBusLinks(graph, element, true).length === 0) {
+            
             const { x, width } = tree.getLayoutBBox();
             const relX = Math.max((x + width) - element.position().x - BUTTON_WIDTH / 2, minDistance + element.size().width);
+            
             const addNextButton = new elementTools.Button({
                 className: 'add-milestone-button',
                 attributes: {
@@ -253,20 +297,25 @@ export function addBusElementTools(tree, paperScroller, selection) {
         elementView.addTools(toolsView);
     });
 }
+
 export function layoutDiagram(tree, paperScroller, selection) {
     const paper = paperScroller.options.paper;
     updateBus(paper.model);
     layoutWithParallelRouting(paper.model, tree);
     addBusLinkTools(tree, paperScroller, selection);
     addBusElementTools(tree, paperScroller, selection);
+    
     const visibleArea = paperScroller.getVisibleArea();
+    
     const eventHeight = 228;
     const busHeight = 38;
     const parentGap = 40;
     const categoryHeight = 48;
     const inset = 114;
     const totalHeight = 2 * eventHeight + 2 * categoryHeight + busHeight + 4 * parentGap;
+    
     paperScroller.adjustPaper();
+    
     const scale = (paperScroller.el.clientHeight - inset) / (totalHeight + inset);
     paperScroller.zoomToRect({
         x: visibleArea.x,
@@ -279,18 +328,23 @@ export function layoutDiagram(tree, paperScroller, selection) {
         maxScale: scale
     });
 }
+
 export function addBusLinkTools(tree, paperScroller, selection) {
     const paper = paperScroller.options.paper;
     const graph = paper.model;
+    
     graph.getLinks().forEach((link) => {
         if (!link.get('busLink'))
             return;
         const source = link.getSourceElement();
         const target = link.getTargetElement();
+        
         const yearA = Number(source.id);
         const yearB = Number(target.id);
+        
         if (yearB - yearA === 1)
             return;
+        
         const linkView = link.findView(paper);
         if (linkView.hasTools())
             return;
@@ -317,8 +371,10 @@ export function addBusLinkTools(tree, paperScroller, selection) {
         linkView.addTools(toolsView);
     });
 }
+
 export function layoutWithParallelRouting(graph, treeLayout) {
     treeLayout.layout();
+    
     let x = BUS_MARGIN;
     artificialIntelligenceTimeline.getBusElements().forEach((id) => {
         const element = graph.getCell(id);
@@ -330,7 +386,9 @@ export function layoutWithParallelRouting(graph, treeLayout) {
         // offset for next tree root
         x += treeSpan + BUS_TREE_MARGIN;
     });
+    
     graph.getElements().forEach((el) => {
+        
         const links = graph.getConnectedLinks(el, { outbound: true });
         const topLinks = [];
         const bottomLinks = [];
@@ -347,12 +405,16 @@ export function layoutWithParallelRouting(graph, treeLayout) {
                 topLinks.push(link);
             }
         });
+        
         routeOneDirection(treeLayout, el, topLinks, 'T');
         routeOneDirection(treeLayout, el, bottomLinks, 'B');
+        
     });
 }
+
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
+
 export function measureTextSize(text, fontSize, fontFamily) {
     if (!context)
         return { width: 0, height: 0 };

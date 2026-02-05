@@ -1,3 +1,4 @@
+
 export function changeIdeaColor(app, idea, color) {
     const { graph, selection, history } = app;
     const { undoStack } = history;
@@ -13,6 +14,7 @@ export function changeIdeaColor(app, idea, color) {
             history.cancel();
         }
     }
+    
     idea.set('userColor', color, { addToHistory: true });
     graph.triggerLayout();
     // reset the toolbar color

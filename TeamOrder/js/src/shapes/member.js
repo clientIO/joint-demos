@@ -1,6 +1,8 @@
 import { dia } from '@joint/plus';
 import { LABEL_OFFSET } from '../app';
+
 const BORDER_RADIUS = 5;
+
 export class Member extends dia.Element {
     defaults() {
         return {
@@ -43,6 +45,7 @@ export class Member extends dia.Element {
             },
         };
     }
+    
     markup = [
         {
             tagName: 'rect',

@@ -1,7 +1,10 @@
 import { dia, util } from '@joint/core';
+
 const DATE_BODY_WIDTH = 15;
 const MARKER_RADIUS = 4.5;
+
 export class StencilPlaceholder extends dia.Element {
+    
     defaults() {
         return util.defaultsDeep({
             type: 'timeline.StencilPlaceholder',
@@ -24,8 +27,10 @@ export class StencilPlaceholder extends dia.Element {
             }
         }, super.defaults);
     }
+    
     preinitialize(attributes, options) {
         super.preinitialize(attributes, options);
+        
         this.markup = util.svg /* xml */ `
             <rect @selector="body" />
             <text @selector="text" />
@@ -33,9 +38,13 @@ export class StencilPlaceholder extends dia.Element {
             <circle @selector="dateMarker" />
         `;
     }
+    
     static create(type) {
+        
         let attrs = {};
+        
         const isCategory = type === 'Category';
+        
         if (isCategory) {
             attrs = {
                 body: {
@@ -91,7 +100,9 @@ export class StencilPlaceholder extends dia.Element {
                 }
             };
         }
+        
         const width = isCategory ? 88 : 84;
+        
         const placeholder = new StencilPlaceholder({
             id: `placeholder-${type.toLowerCase()}`,
             dropType: `timeline.${type}`,

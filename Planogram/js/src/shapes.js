@@ -1,5 +1,7 @@
 import { util, dia, shapes, V } from '@joint/plus';
+
 const grid = 30;
+
 export var ShelfTypes;
 (function (ShelfTypes) {
     ShelfTypes["top"] = "TOP";
@@ -7,6 +9,7 @@ export var ShelfTypes;
     ShelfTypes["bottom"] = "BOTTOM";
     ShelfTypes["full"] = "FULL";
 })(ShelfTypes || (ShelfTypes = {}));
+
 export var ProductCategories;
 (function (ProductCategories) {
     ProductCategories["chips"] = "CHIPS";
@@ -21,6 +24,7 @@ export var ProductCategories;
     ProductCategories["pop"] = "POP";
     ProductCategories["ice_tea"] = "ICE TEA";
 })(ProductCategories || (ProductCategories = {}));
+
 export const storeItemsConfig = {
     grid,
     shelves: [
@@ -89,6 +93,8 @@ export const storeItemsConfig = {
         ]
     }
 };
+
+
 export const getAllProducts = () => {
     const products = {};
     Object.keys(storeItemsConfig.products).forEach((category) => {
@@ -101,6 +107,7 @@ export const getAllProducts = () => {
     });
     return products;
 };
+
 export const getAllShelves = () => {
     return Object.values(storeItemsConfig.shelves).map(shelf => {
         switch (shelf.shelfType) {
@@ -124,6 +131,7 @@ export const getAllShelves = () => {
         }
     });
 };
+
 const calcSize = (size) => {
     const { grid: itemsGrid } = storeItemsConfig;
     return {
@@ -131,9 +139,12 @@ const calcSize = (size) => {
         height: size.height * itemsGrid
     };
 };
+
 const bg = '#DBDFEE';
 const fg = '#CACCD4';
+
 export class ShelfElement extends dia.Element {
+    
     markup = [{
             tagName: 'g',
             selector: 'top',
@@ -151,6 +162,7 @@ export class ShelfElement extends dia.Element {
             tagName: 'rect',
             selector: 'middle'
         }];
+    
     defaults() {
         return {
             ...super.defaults,
@@ -202,10 +214,12 @@ export class ShelfElement extends dia.Element {
             }
         };
     }
+    
     getCurrentSizeLabel() {
         const size = this.get('size');
         return `${size.width / grid} x ${size.height / grid}`;
     }
+    
     getFramePadding() {
         switch (this.get('shelfType')) {
             case ShelfTypes.full: {
@@ -222,9 +236,11 @@ export class ShelfElement extends dia.Element {
             }
         }
     }
+    
     getResizeGrid() {
         return undefined;
     }
+    
     static attributes = {
         'fill-pattern': {
             set: function (image) {
@@ -262,6 +278,7 @@ export class ShelfElement extends dia.Element {
             }
         }
     };
+    
     static create(shelf) {
         const { shelfType } = shelf;
         return new this({
@@ -270,11 +287,14 @@ export class ShelfElement extends dia.Element {
         });
     }
 }
+
 export class ProductElement extends dia.Element {
+    
     markup = [{
             tagName: 'rect',
             selector: 'body'
         }];
+    
     defaults() {
         return {
             ...super.defaults,
@@ -289,6 +309,7 @@ export class ProductElement extends dia.Element {
             }
         };
     }
+    
     match(group, keyword) {
         if (this.get('productType').includes(keyword.toLowerCase()))
             return true;
@@ -296,14 +317,17 @@ export class ProductElement extends dia.Element {
             return true;
         return false;
     }
+    
     getCurrentSizeLabel() {
         const size = this.get('size');
         const productSize = this.get('productSize');
         return `${size.width / grid / productSize.width} x ${size.height / grid / productSize.height}`;
     }
+    
     getFramePadding() {
         return util.normalizeSides(0);
     }
+    
     getResizeGrid() {
         const { width, height } = this.get('productSize');
         return {
@@ -311,6 +335,7 @@ export class ProductElement extends dia.Element {
             height: height * grid
         };
     }
+    
     static attributes = {
         'product-image': {
             set: function (image) {
@@ -350,6 +375,7 @@ export class ProductElement extends dia.Element {
             }
         }
     };
+    
     static create(product) {
         const { name, width, height, image } = product;
         return new this({
@@ -364,6 +390,7 @@ export class ProductElement extends dia.Element {
         });
     }
 }
+
 Object.assign(shapes, {
     app: {
         Shelf: ShelfElement,

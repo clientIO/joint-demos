@@ -1,4 +1,5 @@
 import { dia } from '@joint/plus';
+
 /**
  * Animated view base class for all application shapes that should animate when positioned
  */

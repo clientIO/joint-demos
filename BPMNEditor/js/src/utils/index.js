@@ -1,23 +1,31 @@
 import { shapes, util, g } from '@joint/plus';
+
 export function getShapeConstructorByType(type) {
     return util.getByPath(shapes, type, '.');
 }
+
 export function constructMarkerContent(marker) {
+    
     // Create a span with the bpmn class
     const markerIcon = document.createElement('span');
     markerIcon.classList.add(marker.cssClass);
+    
     // Create a span with the marker name
     const content = document.createElement('span');
     content.innerText = marker.name;
+    
     return [markerIcon, content];
 }
+
 export function getBoundaryPoint(element, coords, snapRadius = 20) {
     const point = new g.Point(coords);
     const bbox = element.getBBox();
     const angle = element.angle();
     // Relative to the element's position
     const relPoint = point.clone().rotate(bbox.center(), angle).difference(bbox.topLeft());
+    
     const relBBox = new g.Rect(0, 0, bbox.width, bbox.height);
+    
     if (!relBBox.containsPoint(relPoint)) {
         const relCenter = relBBox.center();
         const relTop = relBBox.topMiddle();
@@ -29,22 +37,28 @@ export function getBoundaryPoint(element, coords, snapRadius = 20) {
             return (relCenter.x > relPoint.x) ? relLeft : relBBox.rightMiddle();
         }
     }
+    
     return element.getClosestBoundaryPoint(relBBox, relPoint);
 }
+
 export function isStencilEvent(evt) {
     return !!evt.data?.isStencilEvent;
 }
+
 export function isForkEvent(evt) {
     return !!evt.data?.fork;
 }
+
 export function setStencilEvent(evt, isStencilEvent) {
     if (!evt.data) {
         evt.data = {};
     }
     evt.data.isStencilEvent = isStencilEvent;
 }
+
 export function getMidSideAnchor(element, point) {
     const closestSide = element.getBBox().sideNearestToPoint(point);
+    
     let anchorPoint;
     switch (closestSide) {
         case 'top':
@@ -60,7 +74,9 @@ export function getMidSideAnchor(element, point) {
             anchorPoint = element.getBBox().leftMiddle();
             break;
     }
+    
     const position = element.position();
+    
     return {
         name: 'topLeft',
         args: {
@@ -69,6 +85,7 @@ export function getMidSideAnchor(element, point) {
         }
     };
 }
+
 export * from './elements';
 export * from './links';
 export * from './import';

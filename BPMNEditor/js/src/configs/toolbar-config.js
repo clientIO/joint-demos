@@ -1,12 +1,15 @@
 import { ui } from '@joint/plus';
+
 export const openFileDropdownToolNames = {
     LOAD_JSON: 'load-json',
     LOAD_XML: 'load-xml'
 };
+
 export const openFileDropdownTools = [
     { action: openFileDropdownToolNames.LOAD_JSON, content: 'Load JSON' },
     { action: openFileDropdownToolNames.LOAD_XML, content: 'Load XML' }
 ];
+
 export const toolbarToolNames = {
     OPEN_FILE_DROPDOWN: 'open-file-dropdown',
     UNDO: 'undo',
@@ -16,6 +19,7 @@ export const toolbarToolNames = {
     SAVE_JSON: 'save-json',
     SAVE_XML: 'save-xml'
 };
+
 export default {
     tools: [
         {

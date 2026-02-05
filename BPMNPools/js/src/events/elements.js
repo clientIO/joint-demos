@@ -1,5 +1,6 @@
 import { addEffect, removeEffect, EffectType } from '../effects';
 import { isStencilEvent, findViewFromEvent } from '../utils';
+
 export function onElementDragStart(_paper, elementView, evt, _x, _y) {
     if (isStencilEvent(evt)) {
         // Add a shadow effect to the element when the drag starts
@@ -9,8 +10,11 @@ export function onElementDragStart(_paper, elementView, evt, _x, _y) {
         addEffect(elementView, EffectType.Shadow);
     }
 }
+
 export function onElementDrag(paper, elementView, evt, x, y) {
+    
     // All elements except pools, swimlanes and phases can be embedded into swimlanes and phases.
+    
     const data = evt.data;
     if (!data.hasElementMoved && !isStencilEvent(evt)) {
         // If the element is not from the stencil, we add the shadow effect
@@ -39,9 +43,11 @@ export function onElementDrag(paper, elementView, evt, x, y) {
             }
         }
     }
+    
     removeEffect(paper, EffectType.TargetPhase);
     data.phase = null;
 }
+
 export function onElementDragEnd(paper, elementView, evt, _x, _y) {
     removeEffect(paper, EffectType.TargetPhase);
     removeEffect(paper, EffectType.Shadow);
@@ -49,9 +55,11 @@ export function onElementDragEnd(paper, elementView, evt, _x, _y) {
         checkElementOverlaps(elementView.model);
     }
 }
+
 export function onElementDrop(_paper, elementView, _evt, _x, _y) {
     checkElementOverlaps(elementView.model);
 }
+
 function checkElementOverlaps(element) {
     const lane = element.getParentCell();
     if (!lane)

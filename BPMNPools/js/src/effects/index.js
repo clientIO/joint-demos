@@ -2,6 +2,7 @@ import { dia, highlighters } from '@joint/plus';
 import { ShadowEffect } from './ShadowEffect';
 import { SwimlanePreview } from './SwimlanePreview';
 import { PhasePreview } from './PhasePreview';
+
 export const EffectType = {
     Shadow: 'shadow',
     SelectionFrame: 'selection-frame',
@@ -13,6 +14,7 @@ export const EffectType = {
     PreviewPhase: 'preview-phase',
     InvalidDrop: 'invalid-drop',
 };
+
 export function addEffect(cellView, effectType, options) {
     const cell = cellView.model;
     switch (effectType) {
@@ -82,6 +84,7 @@ export function addEffect(cellView, effectType, options) {
         }
     }
 }
+
 export function removeEffect(paper, effectType) {
     switch (effectType) {
         case EffectType.Shadow: {

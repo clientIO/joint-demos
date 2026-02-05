@@ -3,6 +3,7 @@ import { getStencilConfig, getStencilGroups } from './stencil-config';
 import { createNodeByType, createNodeShape } from '../nodes/node-helper';
 export class StencilService {
     stencil;
+    
     constructor(element, paperScroller, namespace) {
         this.stencil = new ui.Stencil({
             paper: paperScroller,
@@ -38,8 +39,10 @@ export class StencilService {
                 return createNodeShape(node);
             }
         });
+        
         element.appendChild(this.stencil.el);
         this.stencil.render();
+        
         this.stencil.load(getStencilConfig());
     }
 }

@@ -10,4 +10,5 @@ export const State = {
      * State key indicating whether a dialog is opened.
      */
     DialogOpened: 'dialog-opened',
+    
 };

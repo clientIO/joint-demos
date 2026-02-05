@@ -2,6 +2,7 @@
  * The name of the layout batch.
  */
 export const LAYOUT_BATCH_NAME = 'layout';
+
 /**
  * Attributes used in system shapes and node data.
  */

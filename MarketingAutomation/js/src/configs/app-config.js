@@ -6,6 +6,7 @@ export const Zoom = {
     Max: 2,
     Step: 10
 };
+
 /**
  * Default diagram name used in case the diagram name is not provided.
  */

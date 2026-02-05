@@ -2,6 +2,7 @@ import { connectors, shapes } from '@joint/plus';
 import { App } from '../app';
 import { createNodeByType, createNodeShape } from '../nodes/node-helper';
 import { Connection } from '../connection/connection';
+
 export function resetGraphFromFile(graph, file) {
     graph.resetCells([]);
     const nodeMap = {};
@@ -18,6 +19,7 @@ export function resetGraphFromFile(graph, file) {
     file.connections.forEach(connection => {
         const connectionSource = { nodeId: connection.sourceId, outputIndex: connection.outputIndex };
         const connectionTarget = { nodeId: connection.targetId, inputIndex: connection.inputIndex };
+        
         const link = new shapes.standard.Link({
             z: 0,
             connectionSource,
@@ -49,6 +51,7 @@ export function resetGraphFromFile(graph, file) {
         graph.addCell(link, { file: true });
     });
 }
+
 export function getFileFromGraph(graph) {
     const processor = App.processor;
     const nodes = graph.getElements().map((node) => {
@@ -75,17 +78,21 @@ export function getFileFromGraph(graph) {
         connections: connections
     };
 }
+
 export async function loadExample(graph, example) {
     const file = await fetch(`examples/${example}/workflow.imp`);
     const impFile = JSON.parse(await file.text());
     resetGraphFromFile(graph, impFile);
+    
     const imagesFile = await fetch(`examples/${example}/images.json`);
     const images = JSON.parse(await imagesFile.text());
+    
     const uploads = graph.getCells().filter(c => c.get('type') === 'processor.Upload');
     uploads.forEach(u => {
         u.prop('properties/url', `examples/${example}/images/${images[u.get('name')]}`);
         App.processor.process(u.id);
     });
+    
     const inputs = graph.getCells().filter(c => c.get('type').includes('Input'));
     inputs.forEach(i => {
         i.updateCurrentData();

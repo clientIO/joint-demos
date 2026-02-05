@@ -2,6 +2,7 @@ import { dia, highlighters } from '@joint/plus';
 import { ShadowEffect } from './shadow-effect';
 import { SwimlanePreview } from './swimlane-preview';
 import { ERROR_COLOR, MAIN_COLOR } from '../configs/theme';
+
 export const EffectType = {
     Shadow: 'shadow',
     SourceSwimlane: 'source-swimlane',
@@ -12,6 +13,7 @@ export const EffectType = {
     TargetSwimlaneEmbed: 'target-swimlane-embed',
     MarkUnavailable: 'mark-unavailable',
 };
+
 export function addEffect(cellView, effectType, options) {
     const cell = cellView.model;
     switch (effectType) {
@@ -66,6 +68,7 @@ export function addEffect(cellView, effectType, options) {
         }
         case EffectType.MarkUnavailable: {
             const selector = cell.attr(['root', 'highlighterSelector']);
+            
             if (options?.applyAll) {
                 highlighters.mask.add(cellView, selector, `${EffectType.MarkUnavailable}-mask`, {
                     padding: 0,
@@ -75,6 +78,7 @@ export function addEffect(cellView, effectType, options) {
                     }
                 });
             }
+            
             highlighters.addClass.add(cellView, 'root', EffectType.MarkUnavailable, {
                 className: 'highlighter-invalid'
             });
@@ -82,6 +86,7 @@ export function addEffect(cellView, effectType, options) {
         }
     }
 }
+
 export function removeEffect(paper, effectType) {
     switch (effectType) {
         case EffectType.Shadow: {

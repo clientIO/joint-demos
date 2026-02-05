@@ -3,16 +3,20 @@ import { Node, calculateHeight } from '../node';
 import * as cv from '@techstark/opencv-js';
 import { App } from '../../app';
 export class Mirror extends Node {
+    
     constructor(attributes, options) {
         super(attributes, options);
+        
         this.on('change', (el, options) => {
             if (!options.inspector && !options.commandManager)
                 return;
+            
             if (options.propertyPath === 'properties/direction') {
                 App.processor.process(this.id);
             }
         });
     }
+    
     defaults() {
         const defaults = super.defaults();
         return util.defaultsDeep({
@@ -37,12 +41,16 @@ export class Mirror extends Node {
                 }]
         }, defaults);
     }
+    
     async action() {
         const { image, direction } = this.properties;
+        
         if (!image)
             return [null];
+        
         try {
             const result = new cv.Mat();
+            
             switch (direction) {
                 case 'horizontal':
                     cv.flip(image, result, 1);
@@ -62,6 +70,7 @@ export class Mirror extends Node {
             return [null];
         }
     }
+    
     getInspectorConfig() {
         const nodeConfig = super.getInspectorConfig();
         return util.defaultsDeep({
@@ -90,6 +99,7 @@ export class Mirror extends Node {
             }
         }, nodeConfig);
     }
+    
     getFileAttributes() {
         return super.getFileAttributes().concat(['properties/direction']);
     }

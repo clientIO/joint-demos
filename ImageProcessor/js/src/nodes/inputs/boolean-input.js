@@ -1,28 +1,36 @@
 import { Node, NodeView } from '../node';
 import { util } from '@joint/plus';
+
 export class BooleanInputView extends NodeView {
+    
     events() {
         return {
             ...super.events(),
             'change input': (evt) => { this.onInputChange(evt); }
         };
     }
+    
     onInputChange(evt) {
         this.model.attr('input/props/checked', evt.target.checked, { input: true });
     }
 }
+
 export class BooleanInput extends Node {
+    
     initialize(attributes, options) {
         super.initialize(attributes, options);
+        
         if (this.attr('input/props/checked') != null) {
             this.updateCurrentData();
         }
+        
         this.on('change:attrs', (_input, _attrs, options) => {
             if (options.propertyPath === 'attrs/input/props/checked') {
                 this.updateCurrentData();
             }
         });
     }
+    
     preinitialize() {
         super.preinitialize();
         const markup = util.svg /* xml */ `
@@ -33,8 +41,10 @@ export class BooleanInput extends Node {
                 </div>
             </foreignObject>
         `;
+        
         this.markup = this.markup.concat(markup);
     }
+    
     defaults() {
         const defaults = super.defaults();
         return util.defaultsDeep({
@@ -62,12 +72,15 @@ export class BooleanInput extends Node {
             }
         }, defaults);
     }
+    
     async action() {
         return [];
     }
+    
     getCurrentData() {
         return [this.attr('input/props/checked')];
     }
+    
     getFileAttributes() {
         return super.getFileAttributes().concat(['attrs/input/props/checked']);
     }

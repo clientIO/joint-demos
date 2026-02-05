@@ -1,4 +1,5 @@
 import { dia } from '@joint/plus';
+
 export class Task extends dia.Element {
     defaults() {
         return {
@@ -57,6 +58,7 @@ export class Task extends dia.Element {
             z: 2
         };
     }
+    
     markup = [{
             tagName: 'rect',
             selector: 'body'
@@ -70,6 +72,7 @@ export class Task extends dia.Element {
             tagName: 'text',
             selector: 'bodyText'
         }];
+    
     static isTask(cell) {
         return cell.get('type') === 'kanban.Task';
     }

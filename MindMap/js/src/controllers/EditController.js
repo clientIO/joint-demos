@@ -2,7 +2,9 @@ import { ui } from '@joint/plus';
 import { Controller } from '../classes/Controller';
 import { openImagePicker } from '../utils';
 import { startEditingIdeaLabel, removeIdeaImage, addIdeaImage, addNextSiblingIdea, addPrevSiblingIdea, addLastChildIdea, removeIdeaBranch, changeIdeaColor, selectIdea, focusIdea, blurIdea, showURLDialog, } from '../actions';
+
 export default class EditController extends Controller {
+    
     startListening() {
         const { paper, keyboard, toolbar } = this.context;
         this.stopListening();
@@ -30,7 +32,9 @@ export default class EditController extends Controller {
         });
     }
 }
+
 // Paper
+
 const onPaperElementPointerdown = (app, ideaView) => {
     const { treeView, graph } = app;
     const { model } = ideaView;
@@ -38,6 +42,7 @@ const onPaperElementPointerdown = (app, ideaView) => {
         return;
     treeView.startDragging([model]);
 };
+
 function onPaperElementURLPointerDown(app, ideaView, evt) {
     evt.stopPropagation();
     evt.preventDefault();
@@ -45,6 +50,7 @@ function onPaperElementURLPointerDown(app, ideaView, evt) {
         return;
     showURLDialog(app, ideaView, evt.target.dataset.url);
 }
+
 const onPaperElementPointerDblClick = (app, elementView, evt) => {
     const { model } = elementView;
     const section = elementView.findAttribute('data-section', evt.target);
@@ -60,7 +66,9 @@ const onPaperElementPointerDblClick = (app, elementView, evt) => {
         }
     }
 };
+
 // Keyboard
+
 function onKeyEnter(app) {
     const { selection } = app;
     if (selection.isEmpty())
@@ -69,6 +77,7 @@ function onKeyEnter(app) {
     const newIdea = addNextSiblingIdea(app, idea) || addLastChildIdea(app, idea);
     selectIdea(app, newIdea);
 }
+
 function onKeyShiftEnter(app) {
     const { selection } = app;
     if (selection.isEmpty())
@@ -79,6 +88,7 @@ function onKeyShiftEnter(app) {
         return;
     selectIdea(app, newIdea);
 }
+
 function onKeyCtrlEnter(app) {
     const { selection } = app;
     if (selection.isEmpty())
@@ -87,6 +97,7 @@ function onKeyCtrlEnter(app) {
     const newIdea = addLastChildIdea(app, idea);
     selectIdea(app, newIdea);
 }
+
 function onKeyDelete(app) {
     const { graph, selection } = app;
     if (selection.isEmpty())
@@ -98,6 +109,7 @@ function onKeyDelete(app) {
     removeIdeaBranch(app, idea);
     selectIdea(app, parentIdea);
 }
+
 function onKeyPrintable(app, evt) {
     const { selection } = app;
     if (evt.ctrlKey)
@@ -107,25 +119,32 @@ function onKeyPrintable(app, evt) {
     evt.preventDefault();
     startEditingIdeaLabel(app, selection.first(), evt);
 }
+
 function onCtrlZ(app) {
     const { history } = app;
     history.undo();
 }
+
 function onCtrlShiftZ(app) {
     const { history } = app;
     history.redo();
 }
+
 // TextEditor
+
 const onTextEditorOpen = (app) => {
     const { selection } = app;
     if (selection.isEmpty())
         return;
     focusIdea(app, selection.first());
 };
+
 const onTextEditorClose = (app) => {
     blurIdea(app);
 };
+
 // Toolbar
+
 function onToolbarIdeaImage(app) {
     const { selection } = app;
     const idea = selection.first();
@@ -136,6 +155,7 @@ function onToolbarIdeaImage(app) {
         openImagePicker(imageUrl => addIdeaImage(app, idea, imageUrl));
     }
 }
+
 function onToolbarIdeaColor(app, color) {
     const { selection } = app;
     const idea = selection.first();

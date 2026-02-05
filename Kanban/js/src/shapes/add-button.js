@@ -1,5 +1,7 @@
 import { shapes, util } from '@joint/plus';
+
 export class AddButton extends shapes.standard.Rectangle {
+    
     defaults() {
         return util.defaultsDeep({
             type: 'kanban.AddButton',
@@ -20,6 +22,7 @@ export class AddButton extends shapes.standard.Rectangle {
             z: -2
         }, super.defaults);
     }
+    
     static isAddButton(cell) {
         return cell.get('type') === 'kanban.AddButton';
     }

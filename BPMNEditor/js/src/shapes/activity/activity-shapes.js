@@ -9,9 +9,12 @@ import { PoolShapeTypes } from '../pool/pool-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
 import { isPoolShared, getPoolParent } from '../../utils';
+
 export class Activity extends shapes.bpmn2.Activity {
+    
     isResizable = false;
     labelPath = 'label/text';
+    
     defaults() {
         return util.defaultsDeep({
             shapeType: ShapeTypes.ACTIVITY,
@@ -34,14 +37,17 @@ export class Activity extends shapes.bpmn2.Activity {
             }
         }, super.defaults);
     }
+    
     initialize(...args) {
         super.initialize(...args);
         this.on('change:markers', () => this.onMarkersChange());
     }
+    
     onMarkersChange() {
         const markers = this.get('markers');
         this.attr(['markers', 'iconTypes'], markers, { rewrite: true });
     }
+    
     getShapeList() {
         const shapes = [
             ActivityShapeTypes.TASK,
@@ -56,11 +62,14 @@ export class Activity extends shapes.bpmn2.Activity {
             ActivityShapeTypes.SUB_PROCESS,
             ActivityShapeTypes.EVENT_SUB_PROCESS
         ];
+        
         return shapes.filter((shape) => shape !== this.get('type'));
     }
+    
     getAppearanceConfig() {
         return activityAppearanceConfig;
     }
+    
     getHaloHandles() {
         return [
             handles.ConnectEndEvent,
@@ -71,9 +80,11 @@ export class Activity extends shapes.bpmn2.Activity {
             handles.Link
         ];
     }
+    
     copyFrom(element) {
         const { x, y, width, height } = element.getBBox();
         const label = element.attr(['label', 'text']) || '';
+        
         this.prop({
             position: { x, y },
             size: { width, height },
@@ -93,12 +104,16 @@ export class Activity extends shapes.bpmn2.Activity {
                 }
             }
         });
+        
         this.setMarkers(element.prop('markers') ?? []);
     }
+    
     validateConnection(targetModel) {
+        
         // Prevent connecting to the same pool
         if (getPoolParent(this) === targetModel)
             return false;
+        
         const availableShapes = [
             ...Object.values(ActivityShapeTypes).filter((type) => type !== ActivityShapeTypes.EVENT_SUB_PROCESS),
             DataShapeTypes.DATA_STORE,
@@ -109,7 +124,9 @@ export class Activity extends shapes.bpmn2.Activity {
             PoolShapeTypes.HORIZONTAL_POOL,
             PoolShapeTypes.VERTICAL_POOL
         ];
+        
         const targetParent = targetModel?.parent();
+        
         // Activity and target share the same pool or the target does not have a parent at the moment (forked)
         if (isPoolShared(this, targetModel) || !targetParent) {
             // Exclude start events, boundary events and link intermediate catching events
@@ -117,14 +134,17 @@ export class Activity extends shapes.bpmn2.Activity {
                 const lowerType = type.toLowerCase();
                 return !lowerType.includes('start') && !lowerType.includes('boundary') && type !== EventShapeTypes.LINK_INTERMEDIATE_CATCHING;
             });
+            
             availableShapes.push(...Object.values(GatewayShapeTypes), ...validEventTypes);
         }
         else {
             // Activity and target do not share the same pool
             availableShapes.push(EventShapeTypes.START, EventShapeTypes.MESSAGE_START, EventShapeTypes.MESSAGE_INTERMEDIATE_CATCHING);
         }
+        
         return availableShapes.includes(targetModel?.get('type'));
     }
+    
     validateMarkers(markers, prevMarkers) {
         let idxToRemove = -1;
         if (prevMarkers.includes(MarkerNames.LOOP)) {
@@ -140,11 +160,14 @@ export class Activity extends shapes.bpmn2.Activity {
             idxToRemove = markers.indexOf(MarkerNames.SEQUENTIAL);
         }
         idxToRemove > -1 && markers.splice(idxToRemove, 1);
+        
         if (markers.includes(MarkerNames.AD_HOC) || markers.includes(MarkerNames.SUB_PROCESS)) {
             markers = markers.filter((marker) => marker !== MarkerNames.AD_HOC && marker !== MarkerNames.SUB_PROCESS);
         }
+        
         return markers;
     }
+    
     sortMarkers(markers) {
         return markers.sort((markerA, markerB) => {
             const markersConfig = this.getMarkers();
@@ -153,11 +176,13 @@ export class Activity extends shapes.bpmn2.Activity {
             if (markerAIdx && markerBIdx) {
                 const { index: markerAIndex = 0 } = markerAIdx;
                 const { index: markerBIndex = 0 } = markerBIdx;
+                
                 return markerAIndex > markerBIndex ? 1 : -1;
             }
             return 0;
         });
     }
+    
     getMarkers() {
         return [
             { name: MarkerNames.PARALLEL, index: 0, cssClass: markerClasses.PARALLEL },
@@ -166,14 +191,17 @@ export class Activity extends shapes.bpmn2.Activity {
             { name: MarkerNames.LOOP, index: 3, cssClass: markerClasses.LOOP },
         ];
     }
+    
     setMarkers(markers) {
         const validatedMarkers = this.validateMarkers(markers, this.get('markers'));
         const sortedMarkers = this.sortMarkers(validatedMarkers);
         this.set('markers', sortedMarkers);
     }
+    
     validateEmbedding(parent) {
         return parent.get('shapeType') === ShapeTypes.SWIMLANE;
     }
+    
     getLabelEditorStyles(paper) {
         const labelAttrs = this.attr(['label']) || {};
         const textWrap = labelAttrs.textWrap || { width: 0 };
@@ -181,8 +209,10 @@ export class Activity extends shapes.bpmn2.Activity {
         const rx = this.attr(['background', 'rx']) || 0;
         const ry = this.attr(['background', 'ry']) || 0;
         const strokeWidth = this.attr(['border', 'strokeWidth']) || 0;
+        
         const { width, height } = this.getBBox();
         const { x, y } = this.getBBox().center();
+        
         return {
             padding: `4px ${textWrap.width / -2}px`,
             transform: `${V.matrixToTransformString(paper.matrix().translate(x, y))} translate(-50%, -50%)`,
@@ -197,22 +227,29 @@ export class Activity extends shapes.bpmn2.Activity {
             borderRadius: `${rx}px / ${ry}px`
         };
     }
+    
     getClosestBoundaryPoint(bbox, point) {
         return bbox.pointNearestToPoint(point);
     }
 }
+
 export class Task extends Activity {
+    
     static label = ActivityLabels['activity.Task'];
     static icon = activityIconClasses.TASK;
+    
     defaults() {
         return util.defaultsDeep({
             type: ActivityShapeTypes.TASK
         }, super.defaults());
     }
 }
+
 export class Send extends Activity {
+    
     static label = ActivityLabels['activity.Send'];
     static icon = activityIconClasses.SEND;
+    
     defaults() {
         return util.defaultsDeep({
             type: ActivityShapeTypes.SEND,
@@ -222,9 +259,12 @@ export class Send extends Activity {
         }, super.defaults());
     }
 }
+
 export class BusinessRule extends Activity {
+    
     static label = ActivityLabels['activity.BusinessRule'];
     static icon = activityIconClasses.BUSINESS_RULE;
+    
     defaults() {
         return util.defaultsDeep({
             type: ActivityShapeTypes.BUSINESS_RULE,
@@ -234,9 +274,12 @@ export class BusinessRule extends Activity {
         }, super.defaults());
     }
 }
+
 export class Receive extends Activity {
+    
     static label = ActivityLabels['activity.Receive'];
     static icon = activityIconClasses.RECEIVE;
+    
     defaults() {
         return util.defaultsDeep({
             type: ActivityShapeTypes.RECEIVE,
@@ -246,9 +289,12 @@ export class Receive extends Activity {
         }, super.defaults());
     }
 }
+
 export class Service extends Activity {
+    
     static label = ActivityLabels['activity.Service'];
     static icon = activityIconClasses.SERVICE;
+    
     defaults() {
         return util.defaultsDeep({
             type: ActivityShapeTypes.SERVICE,
@@ -258,9 +304,12 @@ export class Service extends Activity {
         }, super.defaults());
     }
 }
+
 export class User extends Activity {
+    
     static label = ActivityLabels['activity.User'];
     static icon = activityIconClasses.USER;
+    
     defaults() {
         return util.defaultsDeep({
             type: ActivityShapeTypes.USER,
@@ -270,9 +319,12 @@ export class User extends Activity {
         }, super.defaults());
     }
 }
+
 export class Manual extends Activity {
+    
     static label = ActivityLabels['activity.Manual'];
     static icon = activityIconClasses.MANUAL;
+    
     defaults() {
         return util.defaultsDeep({
             type: ActivityShapeTypes.MANUAL,
@@ -282,9 +334,12 @@ export class Manual extends Activity {
         }, super.defaults());
     }
 }
+
 export class Script extends Activity {
+    
     static label = ActivityLabels['activity.Script'];
     static icon = activityIconClasses.SCRIPT;
+    
     defaults() {
         return util.defaultsDeep({
             type: ActivityShapeTypes.SCRIPT,
@@ -294,9 +349,12 @@ export class Script extends Activity {
         }, super.defaults());
     }
 }
+
 export class CallActivity extends Activity {
+    
     static label = ActivityLabels['activity.CallActivity'];
     static icon = activityIconClasses.CALL_ACTIVITY;
+    
     defaults() {
         return util.defaultsDeep({
             type: ActivityShapeTypes.CALL_ACTIVITY,
@@ -307,6 +365,7 @@ export class CallActivity extends Activity {
             markers: [MarkerNames.SUB_PROCESS]
         }, super.defaults());
     }
+    
     validateMarkers(markers, prevMarkers) {
         let idxToRemove = -1;
         if (prevMarkers.includes(MarkerNames.LOOP)) {
@@ -337,6 +396,7 @@ export class CallActivity extends Activity {
         }
         return [...markers, MarkerNames.SUB_PROCESS];
     }
+    
     getMarkers() {
         return [
             { name: MarkerNames.AD_HOC, index: 0, cssClass: markerClasses.AD_HOC },
@@ -347,9 +407,12 @@ export class CallActivity extends Activity {
         ];
     }
 }
+
 export class SubProcess extends Activity {
+    
     static label = ActivityLabels['activity.SubProcess'];
     static icon = activityIconClasses.SUB_PROCESS;
+    
     defaults() {
         return util.defaultsDeep({
             type: ActivityShapeTypes.SUB_PROCESS,
@@ -359,6 +422,7 @@ export class SubProcess extends Activity {
             markers: [MarkerNames.SUB_PROCESS]
         }, super.defaults());
     }
+    
     validateMarkers(markers, prevMarkers) {
         let idxToRemove = -1;
         if (prevMarkers.includes(MarkerNames.LOOP)) {
@@ -388,6 +452,7 @@ export class SubProcess extends Activity {
         }
         return [...markers, MarkerNames.SUB_PROCESS];
     }
+    
     getMarkers() {
         return [
             { name: MarkerNames.AD_HOC, index: 0, cssClass: markerClasses.AD_HOC },
@@ -398,9 +463,12 @@ export class SubProcess extends Activity {
         ];
     }
 }
+
 export class EventSubProcess extends Activity {
+    
     static label = ActivityLabels['activity.EventSubProcess'];
     static icon = activityIconClasses.EVENT_SUB_PROCESS;
+    
     defaults() {
         return util.defaultsDeep({
             type: ActivityShapeTypes.EVENT_SUB_PROCESS,
@@ -411,6 +479,7 @@ export class EventSubProcess extends Activity {
             markers: [MarkerNames.SUB_PROCESS]
         }, super.defaults());
     }
+    
     validateMarkers(markers, prevMarkers) {
         let idxToRemove = -1;
         if (prevMarkers.includes(MarkerNames.LOOP)) {
@@ -441,6 +510,7 @@ export class EventSubProcess extends Activity {
         }
         return [...markers, MarkerNames.SUB_PROCESS];
     }
+    
     getMarkers() {
         return [
             { name: MarkerNames.AD_HOC, index: 0, cssClass: markerClasses.AD_HOC },
@@ -450,10 +520,12 @@ export class EventSubProcess extends Activity {
             { name: MarkerNames.LOOP, index: 4, cssClass: markerClasses.LOOP }
         ];
     }
+    
     validateConnection(_) {
         return false;
     }
 }
+
 Object.assign(shapes, {
     activity: {
         Task,

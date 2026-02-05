@@ -4,14 +4,19 @@ import { artificialIntelligenceTimeline } from './data';
 import { getPath, makeLink, removeElement, layoutDiagram } from './utils';
 import { Category, Event } from './shapes';
 import { setupNavigator } from './navigator';
+
 export const init = () => {
+    
     // Populate Graph
     // --------------
+    
     const graph = new dia.Graph({}, { cellNamespace: shapes });
     const cells = artificialIntelligenceTimeline.toGraphShapes();
     graph.resetCells(cells);
+    
     // Create Paper and Stencil
     // ------------------------
+    
     const paper = new dia.Paper({
         cellViewNamespace: shapes,
         model: graph,
@@ -27,6 +32,7 @@ export const init = () => {
             return makeLink();
         },
     });
+    
     const paperScroller = new ui.PaperScroller({
         paper,
         padding: 0,
@@ -48,7 +54,9 @@ export const init = () => {
         autoResizePaper: true,
         cursor: 'grab'
     });
+    
     document.getElementById('paper-container').appendChild(paperScroller.render().el);
+    
     const stencil = new ui.Stencil({
         el: document.getElementById('stencil'),
         paper: paperScroller,
@@ -78,6 +86,7 @@ export const init = () => {
             marginY: 8
         }
     });
+    
     stencil.on({
         'element:dragstart': (cloneView, evt) => {
             const element = cloneView.model.clone();
@@ -105,9 +114,12 @@ export const init = () => {
             const { x, y } = cloneArea.center();
             const canDrop = validDropTarget && treeView.canDrop();
             const element = elements[0];
+            
             treeView.dragend(elements, x, y);
+            
             cloneView.el.style.display = 'block'; // enable drop animation
             stencil.cancelDrag({ dropAnimation: !canDrop });
+            
             if (canDrop) {
                 const layoutArea = tree.getLayoutArea(element);
                 const siblingIndex = layoutArea.siblingRank;
@@ -120,16 +132,21 @@ export const init = () => {
             }
         }
     });
+    
     stencil.render();
     stencil.load(stencilShapes);
+    
     // Create Tree Layout and View
     // ---------------------------
+    
     // Custom TreeLayoutView to override updateParentPreview
     const TreeLayoutView = ui.TreeLayoutView.extend({
         updateParentPreview: function (position, size, parent) {
+            
             // Use the parent's border radius
             const rx = parent.attr('body/rx') || 0;
             const ry = parent.attr('body/ry') || 0;
+            
             this.svgPreviewParent.attr({
                 x: position.x,
                 y: position.y,
@@ -141,6 +158,7 @@ export const init = () => {
             });
         }
     });
+    
     const tree = new layout.TreeLayout({
         graph,
         gap: 20,
@@ -156,7 +174,9 @@ export const init = () => {
             }
             return artificialIntelligenceTimeline.getBusElements().map((id) => graph.getCell(id));
         }
+        
     });
+    
     const treeView = new TreeLayoutView({
         paper: paper,
         model: tree,
@@ -196,6 +216,7 @@ export const init = () => {
         },
         layoutFunction: (tlView) => layoutDiagram(tlView.model, paperScroller, selection)
     });
+    
     const selection = new ui.Selection({
         paper,
         frames: new ui.HighlighterSelectionFrameList({
@@ -209,33 +230,46 @@ export const init = () => {
             }
         })
     });
+    
     layoutDiagram(tree, paperScroller, selection);
     paper.unfreeze();
+    
     graph.on('change:attrs', (element, attrs, { propertyPath }) => {
         if (!(element instanceof Category) || propertyPath !== 'attrs/label/text')
             return;
         element.updateSize();
         layoutDiagram(tree, paperScroller, selection);
     });
+    
     paper.on('element:pointerdown', (elementView) => {
         selection.collection.reset([elementView.model]);
     });
+    
     paper.on('edit', (elementView, evt) => {
+        
         // Only allow double click to edit
         if (evt.originalEvent.detail !== 2)
             return;
+        
         evt.stopImmediatePropagation();
+        
         const element = elementView.model;
+        
         const editableFields = element.getEditableFields();
+        
         if (editableFields.length === 0)
             return;
+        
         const data = artificialIntelligenceTimeline.getByPath(getPath(graph, element));
+        
         const content = document.createElement('div');
+        
         editableFields.forEach((field) => {
             const label = document.createElement('label');
             label.textContent = field.property;
             label.htmlFor = `edit-${field.property}`;
             content.appendChild(label);
+            
             const input = document.createElement(field.inputType === 'textarea' ? 'textarea' : 'input');
             input.id = `edit-${field.property}`;
             input.value = data[field.property];
@@ -243,6 +277,7 @@ export const init = () => {
             input.dataset.attrPath = field.attrPath;
             content.appendChild(input);
         });
+        
         const dialog = new ui.Dialog({
             id: 'edit-description-dialog',
             theme: 'default',
@@ -254,6 +289,7 @@ export const init = () => {
                 { action: 'save', content: 'Save' },
             ],
         });
+        
         dialog.on('action:save', () => {
             const inputs = content.querySelectorAll('input, textarea');
             inputs.forEach((input) => {
@@ -265,13 +301,16 @@ export const init = () => {
             selection.collection.reset([]);
             dialog.close();
         });
+        
         dialog.open();
         content.firstChild.focus();
     });
+    
     paper.on('blank:pointerdown', (evt) => {
         paperScroller.startPanning(evt);
         selection.collection.reset([]);
     });
+    
     const keyboard = new ui.Keyboard();
     keyboard.on('delete backspace shift+delete shift+backspace', (evt) => {
         const selected = selection.collection.toArray();
@@ -280,15 +319,19 @@ export const init = () => {
         // Do not allow deleting the last bus element
         else if (selected.some((element) => element.get('busElement')) && artificialIntelligenceTimeline.getBusElements().length === 1)
             return;
+        
         selected.forEach((element) => {
             if (!element.graph)
                 return;
             removeElement(tree, element, !evt.shiftKey);
         });
+        
         layoutDiagram(tree, paperScroller, selection);
     });
+    
     keyboard.on('escape', () => {
         selection.collection.reset([]);
     });
+    
     setupNavigator(graph, paperScroller, tree);
 };

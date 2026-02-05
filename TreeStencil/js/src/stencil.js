@@ -1,6 +1,8 @@
 import { dia, ui, layout } from '@joint/plus';
 import { StencilNode, StencilLink } from './shapes';
+
 export function createStencil(paper, width, list, onNodeDrop) {
+    
     const stencil = new ui.Stencil({
         paper,
         width,
@@ -48,12 +50,15 @@ export function createStencil(paper, width, list, onNodeDrop) {
         // Replace the stencil shape with an actual shape while dragging
         dragStartClone: (node) => onNodeDrop(node)
     });
+    
     stencil.render();
+    
     const stencilPaper = stencil.getPaper();
     const stencilGraph = stencil.getGraph();
     const stencilCells = buildCellsFromList(list);
     stencilGraph.resetCells(stencilCells);
     const [stencilRoot] = stencilGraph.getSources();
+    
     const stencilTree = new layout.TreeLayout({
         graph: stencilGraph,
         direction: 'BR',
@@ -75,6 +80,7 @@ export function createStencil(paper, width, list, onNodeDrop) {
             node.toggleButtonSign(!node.isCollapsed());
         }
     });
+    
     function layoutTree() {
         // Reset tree layout start position
         stencilRoot.position(30, 10);
@@ -89,12 +95,14 @@ export function createStencil(paper, width, list, onNodeDrop) {
         });
         stencilPaper.wakeUp();
     }
+    
     function resetTree() {
         stencilGraph.set('grid', false);
         // Set name value as label and reset text annotations
         stencilGraph.getElements().forEach((node) => node.unmatch());
         layoutTree();
     }
+    
     function layoutGrid(matchedGraph) {
         // Display grid layout when graph is filtered
         layout.GridLayout.layout(matchedGraph, {
@@ -107,6 +115,7 @@ export function createStencil(paper, width, list, onNodeDrop) {
             marginY: 10
         });
     }
+    
     function resetGrid(matchedGraph, keyword) {
         stencilGraph.set('grid', true);
         stencilGraph.getElements().forEach((node) => {
@@ -117,14 +126,18 @@ export function createStencil(paper, width, list, onNodeDrop) {
                 node.unmatch();
             }
         });
+        
         layoutGrid(matchedGraph);
     }
+    
     function toggleBranch(root) {
         const shouldHide = !root.isCollapsed();
         root.set({ collapsed: shouldHide });
         layoutTree();
     }
+    
     // Events
+    
     stencil.on('filter', (matchedGraph, _group, keyword) => {
         if (keyword === '') {
             resetTree();
@@ -133,37 +146,51 @@ export function createStencil(paper, width, list, onNodeDrop) {
             resetGrid(matchedGraph, keyword);
         }
     });
+    
     stencilPaper.on('element:pointerdown', (view) => {
         const node = view.model;
         if (node.isDirectory()) {
             toggleBranch(node);
         }
     });
+    
     resetTree();
+    
     return stencil;
 }
+
 const DIRECTORY_ICON = 'assets/directory.svg';
 const FILE_ICON = 'assets/file.svg';
+
 function buildCellsFromList(list) {
+    
     const elements = [];
     const links = [];
+    
     const iterate = (obj, pathArray = []) => {
+        
         const { name = '', icon = null, children = [], dir = false, collapsed = false } = obj;
         // Path displayed during search
         const path = pathArray.concat(name);
         const node = new StencilNode({ path, name, dir, collapsed });
+        
         const defaultIcon = dir ? DIRECTORY_ICON : FILE_ICON;
         node.setIcon(icon || defaultIcon);
         node.attr(['root', 'dataDirectory'], dir);
+        
         elements.push(node);
+        
         children.forEach(child => {
             const childNode = iterate(child, path);
             const link = new StencilLink();
             link.connect(node.id, childNode.id);
             links.push(link);
         });
+        
         return node;
     };
+    
     iterate(list);
+    
     return [...elements, ...links];
 }

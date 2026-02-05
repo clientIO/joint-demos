@@ -1,6 +1,9 @@
 import { shapes } from '@joint/plus';
+
 const color = '#F93943';
+
 export class Link extends shapes.standard.Link {
+    
     defaults() {
         return {
             ...super.defaults,
@@ -19,6 +22,7 @@ export class Link extends shapes.standard.Link {
             },
         };
     }
+    
     markup = [
         {
             tagName: 'path',

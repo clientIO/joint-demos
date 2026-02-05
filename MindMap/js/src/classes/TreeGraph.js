@@ -1,17 +1,22 @@
 import { dia, util } from '@joint/plus';
+
 export default class TreeGraph extends dia.Graph {
+    
     getRoot() {
         const [root = null] = this.getSources();
         return root;
     }
+    
     getParentLink(el) {
         const [link = null] = this.getConnectedLinks(el, { inbound: true });
         return link;
     }
+    
     getParent(el) {
         const [parent = null] = this.getNeighbors(el, { inbound: true });
         return parent;
     }
+    
     getChildren(el, direction) {
         const bySiblingRank = (siblingEl) => siblingEl.get('siblingRank');
         const children = util.sortBy(this.getNeighbors(el, { outbound: true }), bySiblingRank);
@@ -20,11 +25,13 @@ export default class TreeGraph extends dia.Graph {
         }
         return children;
     }
+    
     getBalancedChildDirection(el) {
         const rightChildren = this.getChildren(el, 'R');
         const leftChildren = this.getChildren(el, 'L');
         return (leftChildren.length > rightChildren.length) ? 'R' : 'L';
     }
+    
     getDirection(el) {
         let current = el;
         let direction;
@@ -36,6 +43,7 @@ export default class TreeGraph extends dia.Graph {
         } while (!direction);
         return direction;
     }
+    
     getNextSibling(el) {
         const parent = this.getParent(el);
         if (!parent)
@@ -47,6 +55,7 @@ export default class TreeGraph extends dia.Graph {
             return null;
         return sibling;
     }
+    
     getPrevSibling(el) {
         const parent = this.getParent(el);
         if (!parent)
@@ -58,6 +67,7 @@ export default class TreeGraph extends dia.Graph {
             return null;
         return sibling;
     }
+    
     getSuccessor(el, direction) {
         const [child] = this.getChildren(el, direction);
         if (child)
@@ -75,6 +85,7 @@ export default class TreeGraph extends dia.Graph {
         } while (parent);
         return null;
     }
+    
     getClosestNextSibling(el) {
         let current = el;
         let i = 0;
@@ -93,6 +104,7 @@ export default class TreeGraph extends dia.Graph {
         }
         return current;
     }
+    
     getClosestPrevSibling(el) {
         let current = el;
         let i = 0;
@@ -111,12 +123,14 @@ export default class TreeGraph extends dia.Graph {
         }
         return current;
     }
+    
     removeBranch(el, opt) {
         this.startBatch('remove-branch');
         const elements = [el, ...this.getSuccessors(el)];
         elements.forEach(element => element.remove(opt));
         this.stopBatch('remove-branch');
     }
+    
     triggerLayout() {
         this.trigger('layout:request');
     }

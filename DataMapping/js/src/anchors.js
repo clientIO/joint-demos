@@ -1,4 +1,5 @@
 import { g, anchors } from '@joint/plus';
+
 const mapping = function (view, magnet, ref) {
     let anchor;
     const model = view.model;
@@ -23,7 +24,9 @@ const mapping = function (view, magnet, ref) {
     }
     return anchor.rotate(center, -angle);
 };
+
 export const anchorNamespace = { ...anchors };
+
 Object.assign(anchorNamespace, {
     mapping
 });

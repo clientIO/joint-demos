@@ -3,17 +3,24 @@ import Showdown from 'showdown';
 import Node from './Node';
 import { Attribute } from '../const';
 import Theme from '../theme';
+
 const markup = util.svg /* xml*/ `
     <rect @selector="body" class="note-body"/>
     <foreignObject @selector="content" class="note-text"/>
 `;
+
 const TYPE = 'note';
+
 export default class Note extends Node {
+    
     static type = TYPE;
+    
     static growthLimit = 0;
+    
     preinitialize() {
         this.markup = markup;
     }
+    
     defaults() {
         const attributes = {
             // App-specific attributes
@@ -56,24 +63,32 @@ export default class Note extends Node {
                 }
             }
         };
+        
+        
         return util.defaultsDeep(attributes, super.defaults());
     }
+    
     getMarkdown() {
         return this.get(Attribute.Markdown) || '';
     }
+    
     setMarkdown(markdown, options) {
         this.set(Attribute.Markdown, markdown, options);
     }
+    
     initialize(attributes, options) {
         super.initialize(attributes, options);
+        
         this.updateContent();
         this.on(`change:${Attribute.Markdown}`, () => this.updateContent());
     }
+    
     updateContent() {
         const converter = new Showdown.Converter();
         const html = converter.makeHtml(this.getMarkdown());
         this.attr('content/html', html);
     }
+    
     getInspectorConfig() {
         return {
             ...super.getInspectorConfig(),

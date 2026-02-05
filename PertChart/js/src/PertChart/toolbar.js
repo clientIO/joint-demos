@@ -1,4 +1,5 @@
 import { mvc, ui } from '@joint/plus';
+
 const IconButton = ui.widgets.button.extend({
     render: function () {
         this.el.style.display = 'inline-block';
@@ -23,6 +24,7 @@ const IconButton = ui.widgets.button.extend({
         }
     }
 });
+
 export function initializeToolbar(scroller, zoomSettings) {
     const theme = 'custom';
     const toolbar = new ui.Toolbar({
@@ -55,10 +57,12 @@ export function initializeToolbar(scroller, zoomSettings) {
             iconButton: IconButton
         }
     });
+    
     toolbar.render();
     toolbar.el.style.position = 'absolute';
     toolbar.el.style.top = '10px';
     toolbar.el.style.left = '10px';
+    
     const listener = new mvc.Listener();
     listener.listenTo(toolbar, {
         'zoom-to-fit:pointerclick': () => {

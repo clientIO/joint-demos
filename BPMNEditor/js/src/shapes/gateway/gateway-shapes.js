@@ -7,11 +7,15 @@ import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
 import { isPoolShared } from '../../utils';
+
 const LABEL_Y_OFFSET = 14;
+
 class Gateway extends shapes.bpmn2.Gateway {
+    
     isResizable = false;
     labelPath = 'label/text';
     labelSelector = 'labelGroup';
+    
     defaults() {
         return util.defaultsDeep({
             shapeType: ShapeTypes.GATEWAY,
@@ -35,6 +39,7 @@ class Gateway extends shapes.bpmn2.Gateway {
             }
         }, super.defaults);
     }
+    
     preinitialize(...args) {
         super.preinitialize(...args);
         // Add `labelBody` to markup
@@ -47,9 +52,11 @@ class Gateway extends shapes.bpmn2.Gateway {
             </g>
         `;
     }
+    
     copyFrom(element) {
         const { x, y, width, height } = element.getBBox();
         const label = element.attr(['label', 'text']) || '';
+        
         this.prop({
             position: { x, y },
             size: { width, height },
@@ -68,6 +75,7 @@ class Gateway extends shapes.bpmn2.Gateway {
             }
         });
     }
+    
     getShapeList() {
         const shapes = [
             GatewayShapeTypes.EXCLUSIVE,
@@ -76,11 +84,14 @@ class Gateway extends shapes.bpmn2.Gateway {
             GatewayShapeTypes.COMPLEX,
             GatewayShapeTypes.EVENT_BASED
         ];
+        
         return shapes.filter((shape) => shape !== this.get('type'));
     }
+    
     getAppearanceConfig() {
         return gatewayAppearanceConfig;
     }
+    
     getHaloHandles() {
         return [
             handles.ConnectEndEvent,
@@ -91,37 +102,50 @@ class Gateway extends shapes.bpmn2.Gateway {
             handles.Link
         ];
     }
+    
     validateConnection(targetModel) {
         const targetParent = targetModel?.parent();
+        
         // Don't allow connections between elements in different pools except annotation
         if (!isPoolShared(this, targetModel) && targetParent) {
             return targetModel?.get('type') === AnnotationShapeTypes.ANNOTATION;
         }
+        
         // Exclude start events, boundary events and link intermediate catching events
         const validEventTypes = Object.values(EventShapeTypes).filter((type) => {
             const lowerType = type.toLowerCase();
             return !lowerType.includes('start') && !lowerType.includes('boundary') && type !== EventShapeTypes.LINK_INTERMEDIATE_CATCHING;
         });
+        
         const availableShapes = [
             ...Object.values(ActivityShapeTypes).filter((type) => type !== ActivityShapeTypes.EVENT_SUB_PROCESS),
             ...Object.values(GatewayShapeTypes),
             ...validEventTypes,
             AnnotationShapeTypes.ANNOTATION
         ];
+        
         return availableShapes.includes(targetModel?.get('type'));
     }
+    
     validateEmbedding(parent) {
         return parent.get('shapeType') === ShapeTypes.SWIMLANE;
     }
+    
     getLabelEditorStyles(paper) {
         const labelAttrs = this.attr(['label']) || {};
+        
         const padding = 4;
+        
         const bbox = this.getBBox();
+        
         const { x: bottomMiddleX, y: bottomMiddleY } = bbox.bottomMiddle();
+        
         const borderWidth = parseFloat(labelEditorWrapperStyles.borderWidth);
+        
         const labelEditorWidth = 2 * bbox.width + 2 * padding;
         const x = bottomMiddleX - labelEditorWidth / 2;
         const y = bottomMiddleY + LABEL_Y_OFFSET - padding - borderWidth;
+        
         return {
             padding: `${padding}px`,
             transform: V.matrixToTransformString(paper.matrix().translate(x, y)),
@@ -133,8 +157,10 @@ class Gateway extends shapes.bpmn2.Gateway {
             color: labelAttrs.fill
         };
     }
+    
     getClosestBoundaryPoint(bbox, point) {
         const side = bbox.sideNearestToPoint(point);
+        
         switch (side) {
             case 'top':
                 return bbox.topMiddle();
@@ -147,9 +173,12 @@ class Gateway extends shapes.bpmn2.Gateway {
         }
     }
 }
+
 export class Exclusive extends Gateway {
+    
     static label = GatewayLabels['gateway.Exclusive'];
     static icon = gatewayIconClasses.EXCLUSIVE;
+    
     defaults() {
         return util.defaultsDeep({
             type: GatewayShapeTypes.EXCLUSIVE,
@@ -159,9 +188,12 @@ export class Exclusive extends Gateway {
         }, super.defaults());
     }
 }
+
 export class Inclusive extends Gateway {
+    
     static label = GatewayLabels['gateway.Inclusive'];
     static icon = gatewayIconClasses.INCLUSIVE;
+    
     defaults() {
         return util.defaultsDeep({
             type: GatewayShapeTypes.INCLUSIVE,
@@ -171,9 +203,12 @@ export class Inclusive extends Gateway {
         }, super.defaults());
     }
 }
+
 export class EventBased extends Gateway {
+    
     static label = GatewayLabels['gateway.EventBased'];
     static icon = gatewayIconClasses.EVENT_BASED;
+    
     defaults() {
         return util.defaultsDeep({
             type: GatewayShapeTypes.EVENT_BASED,
@@ -183,9 +218,12 @@ export class EventBased extends Gateway {
         }, super.defaults());
     }
 }
+
 export class Parallel extends Gateway {
+    
     static label = GatewayLabels['gateway.Parallel'];
     static icon = gatewayIconClasses.PARALLEL;
+    
     defaults() {
         return util.defaultsDeep({
             type: GatewayShapeTypes.PARALLEL,
@@ -195,9 +233,12 @@ export class Parallel extends Gateway {
         }, super.defaults());
     }
 }
+
 export class Complex extends Gateway {
+    
     static label = GatewayLabels['gateway.Complex'];
     static icon = gatewayIconClasses.COMPLEX;
+    
     defaults() {
         return util.defaultsDeep({
             type: GatewayShapeTypes.COMPLEX,
@@ -207,6 +248,7 @@ export class Complex extends Gateway {
         }, super.defaults());
     }
 }
+
 Object.assign(shapes, {
     gateway: {
         Exclusive,
