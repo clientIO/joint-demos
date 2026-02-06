@@ -8,16 +8,19 @@ distributed with this file, You can obtain one at
 https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
+import '@joint/plus/joint-plus.css';
+import '../css/index.css';
+import * as joint from '@joint/plus';
+import { VisioArchive } from '@joint/format-visio';
 
 document.body.classList.add('loading');
 
-joint.format.Visio.VisioArchive.fromURL('network.vsdx').then(function(archive) {
+VisioArchive.fromURL('/network.vsdx').then(function(archive) {
+    const page = archive.document.getPages()[0];
 
-    var page = archive.document.getPages()[0];
+    const graph = new joint.dia.Graph();
 
-    var graph = new joint.dia.Graph();
-
-    var paper = new joint.dia.Paper({
+    const paper = new joint.dia.Paper({
         el: document.getElementById('paper'),
         model: graph,
         interactive: false,
@@ -29,7 +32,7 @@ joint.format.Visio.VisioArchive.fromURL('network.vsdx').then(function(archive) {
     });
 
     page.getContent().then(function(content) {
-        var cells = content.toGraphCells();
+        const cells = content.toGraphCells();
         graph.resetCells(cells);
         paper.unfreeze();
         document.body.classList.remove('loading');

@@ -1,14 +1,18 @@
 // Import JointJS+
 import '@joint/plus/joint-plus.css';
+import '../css/vector-editor.css';
+import '../css/toolbar.css';
+import '../css/header.css';
 import * as joint from '@joint/plus';
 
 // Make joint available globally for the existing scripts
 window.joint = joint;
+window.V = joint.V;
 
 // Load existing scripts in order
 const scripts = [
-    './vector-editor.js',
-    './index.js'
+    './src/vector-editor.js',
+    './src/index.js'
 ];
 
 // Load scripts sequentially

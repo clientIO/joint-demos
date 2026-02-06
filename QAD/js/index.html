@@ -1,60 +1,63 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
-    <meta name="description" content="The JointJS+ QAD application serves as a template to help bring your idea to life in no time.">
 
-    <title>JointJS+ QAD Application</title>
-    
-    <link href="css/header.css" rel="stylesheet"/>
-    <link href="css/toolbar.css" rel="stylesheet"/>
-    <link href="css/statusbar.css" rel="stylesheet"/>
-    <link href="css/paper.css" rel="stylesheet"/>
-    <link href="css/preview.css" rel="stylesheet"/>
-    <link href="css/tooltip.css" rel="stylesheet"/>
-    <link href="css/snippet.css" rel="stylesheet"/>
-    <link href="css/dialog.css" rel="stylesheet"/>
-    <link href="css/index.css" rel="stylesheet"/>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+  <meta name="description"
+    content="The JointJS+ QAD application serves as a template to help bring your idea to life in no time.">
 
-    <script>
-      SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function (toElement) {
-          return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
-      };
-    </script>
+  <title>JointJS+ QAD Application</title>
 
-  </head>
-  <body>
+  <link href="css/header.css" rel="stylesheet" />
+  <link href="css/toolbar.css" rel="stylesheet" />
+  <link href="css/statusbar.css" rel="stylesheet" />
+  <link href="css/paper.css" rel="stylesheet" />
+  <link href="css/preview.css" rel="stylesheet" />
+  <link href="css/tooltip.css" rel="stylesheet" />
+  <link href="css/snippet.css" rel="stylesheet" />
+  <link href="css/dialog.css" rel="stylesheet" />
+  <link href="css/index.css" rel="stylesheet" />
 
-    <header id="header">
-      <h1>QAD</h1>
-      <p>Dialog Generator (click a shape and then <q>Preview Dialog</q>)</p>
-    </header>
+  <script>
+    SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function (toElement) {
+      return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
+    };
+  </script>
 
-    <section id="app">
+</head>
 
-      <div id="toolbar">
-        <button class="btn add-question">Add Question</button>
-        <button class="btn add-answer">Add Answer</button>
-        <button class="btn preview-dialog">Preview Dialog</button>
-        <button class="btn code-snippet">Code Snippet</button>
-        <button class="btn clear">Clear Canvas</button>
-        <button class="btn load-example">Load Example</button>
-      </div>
+<body>
 
-      <div id="paper"></div>
+  <header id="header">
+    <h1>QAD</h1>
+    <p>Dialog Generator (click a shape and then <q>Preview Dialog</q>)</p>
+  </header>
 
-      <div id="statusbar">
-        <span class="message">Welcome to the QAD Tool!</span>
-      </div>
+  <section id="app">
 
-      <div id="preview" class="preview">
-      </div>
+    <div id="toolbar">
+      <button class="btn add-question">Add Question</button>
+      <button class="btn add-answer">Add Answer</button>
+      <button class="btn preview-dialog">Preview Dialog</button>
+      <button class="btn code-snippet">Code Snippet</button>
+      <button class="btn clear">Clear Canvas</button>
+      <button class="btn load-example">Load Example</button>
+    </div>
 
-    </section>
+    <div id="paper"></div>
 
-    <script>joint.setTheme('modern');</script>
-  
-        <script type="module" src="/src/main.js"></script>
-    </body>
+    <div id="statusbar">
+      <span class="message">Welcome to the QAD Tool!</span>
+    </div>
+
+    <div id="preview" class="preview">
+    </div>
+
+  </section>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
 </html>

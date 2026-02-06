@@ -7,8 +7,8 @@ window.joint = joint;
 
 // Load existing scripts in order
 const scripts = [
-    './joint.shapes.app.js',
-    './angle.js'
+    './src/joint.shapes.app.js',
+    './src/angle.js'
 ];
 
 // Load scripts sequentially

@@ -1,5 +1,6 @@
 // Import JointJS+
 import '@joint/plus/joint-plus.css';
+import '../css/tree.css';
 import * as joint from '@joint/plus';
 
 // Make joint available globally for the existing scripts
@@ -7,7 +8,7 @@ window.joint = joint;
 
 // Load existing scripts in order
 const scripts = [
-    './tree.js'
+    './src/tree.js'
 ];
 
 // Load scripts sequentially

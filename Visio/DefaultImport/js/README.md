@@ -1,6 +1,6 @@
-# Visio BPMN Export (JavaScript)
+# Visio Default Import (JavaScript)
 
-Export JointJS+ BPMN diagram to VSDX file.
+The Visio Default Import demo imports a Microsoft Visio VSDX file and converts it to a JointJS diagram as is.
 
 ## Running the application
 
@@ -12,7 +12,7 @@ By default, this application uses JointJS+ from our private npm registry. This e
 
 Learn more about our [private npm registry here.](https://docs.jointjs.com/learn/help-center/npm-registry)
 
-### JointJS+ package from local path
+### JointJS+ packages from local path
 
 If you don't have access to JointJS+ private npm registry but have it downloaded locally, you can install it from a local path by changing the `package.json` file. In that case, replace the line:
 

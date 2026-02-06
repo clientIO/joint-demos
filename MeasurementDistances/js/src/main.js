@@ -7,8 +7,8 @@ window.joint = joint;
 
 // Load existing scripts in order
 const scripts = [
-    './joint.shapes.app.js',
-    './distance.js'
+    './src/joint.shapes.app.js',
+    './src/distance.js'
 ];
 
 // Load scripts sequentially

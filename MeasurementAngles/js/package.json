@@ -1,7 +1,7 @@
 {
-  "name": "joint-vectoreditor",
+  "name": "joint-measurement",
   "version": "4.2.2",
-  "description": "JointJS+ VectorEditor Application",
+  "description": "JointJS+ Measurement Application",
   "type": "module",
   "private": true,
   "scripts": {

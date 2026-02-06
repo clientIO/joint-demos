@@ -4,15 +4,18 @@ import * as joint from '@joint/plus';
 
 // Make joint available globally for the existing scripts
 window.joint = joint;
+window.V = joint.V;
+
+joint.setTheme('modern');
 
 // Load existing scripts in order
 const scripts = [
-    './joint.shapes.qad.js',
-    './selection.js',
-    './factory.js',
-    './snippet.js',
-    './app.js',
-    './index.js'
+    './src/joint.shapes.qad.js',
+    './src/selection.js',
+    './src/factory.js',
+    './src/snippet.js',
+    './src/app.js',
+    './src/index.js'
 ];
 
 // Load scripts sequentially

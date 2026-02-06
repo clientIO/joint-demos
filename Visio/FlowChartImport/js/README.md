@@ -18,12 +18,14 @@ If you don't have access to JointJS+ private npm registry but have it downloaded
 
 ```json
     "@joint/plus": "^4.2.2",
+    "@joint/format-visio": "^4.2.2"
 ```
 
 with
 
 ```json
     "@joint/plus": "file:path-to-the-archive/joint-plus.tgz",
+    "@joint/format-visio": "file:path-to-the-archive/joint-format-visio.tgz"
 ```
 
 ### Install dependencies

@@ -1,8 +1,8 @@
 {
-  "name": "joint-vectoreditor",
+  "name": "joint-visio-default-import",
   "version": "4.2.2",
-  "description": "JointJS+ VectorEditor Application",
-  "type": "module",
+  "description": "JointJS+ Visio Default Import",
+  "main": "index.html",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@joint/plus": "^4.2.2"
+    "@joint/plus": "^4.2.2",
+    "@joint/format-visio": "^4.2.2"
   },
   "devDependencies": {
     "vite": "^7.3.1"
