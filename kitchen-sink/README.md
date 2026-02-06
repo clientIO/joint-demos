@@ -4,9 +4,9 @@ This demo, as the name suggests, presents all the main features of JointJS+ and 
 
 ## Available Versions
 
-- [Angular16](./Angular16/)
-- [JavaScript](./Js/)
-- [React](./React/)
-- [TypeScript](./Ts/)
-- [VueJS](./VueJs/)
-- [VueTS](./VueTs/)
+- [Angular16](./angular-16/)
+- [JavaScript](./js/)
+- [React](./react/)
+- [TypeScript](./ts/)
+- [VueJS](./vue-js/)
+- [VueTS](./vue-ts/)
