@@ -2,7 +2,7 @@
 
 Do you want to annotate diagram elements with various callouts (rectangle or oval balloon, thought, brace) but not sure how to implement them? Check out this demo.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/callouts">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/callouts/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

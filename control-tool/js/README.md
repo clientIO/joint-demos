@@ -2,7 +2,7 @@
 
 This demo shows the JointJS control tool that lets you change the element shape in a drag and drop fashion.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/control-tool">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/control-tool/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

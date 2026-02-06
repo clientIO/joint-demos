@@ -2,7 +2,7 @@
 
 Wondering how to use external SVG images as or within JointJS shapes? This demo shows three different ways to approach this.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/external-svg-images">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/external-svg-images/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

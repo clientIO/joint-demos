@@ -2,7 +2,7 @@
 
 Need a link to snap to itself? Utilising the snapLinksSelf option on the JointJS paper forces a link end to snap to itself under specified conditions.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/snap-links-to-themselves">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/snap-links-to-themselves/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

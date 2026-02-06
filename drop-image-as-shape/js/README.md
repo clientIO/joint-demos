@@ -2,7 +2,7 @@
 
 Do you want users to be able to drag and drop an image from their operating system directly into a diagram and turn it into an interactive element? This demo shows how it could be done.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/drop-image-as-shape">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/drop-image-as-shape/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

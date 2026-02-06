@@ -2,7 +2,7 @@
 
 Want to easily resize an element? Play around with the demo below and see how it can be done in JointJS.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/resize-control-tool">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/resize-control-tool/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

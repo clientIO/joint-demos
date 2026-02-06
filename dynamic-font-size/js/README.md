@@ -2,7 +2,7 @@
 
 Do you need font-size to be dynamic, and adjust according to another factor such as element height? The following demo shows you how to achieve that. Taking advantage of the calc() function, users can easily adjust font-size of an element according to its height.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/dynamic-font-size">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/dynamic-font-size/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

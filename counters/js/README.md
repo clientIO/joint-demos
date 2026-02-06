@@ -2,7 +2,7 @@
 
 This demo shows an example of content-driven elements with real-time updates.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/counters">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/counters/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

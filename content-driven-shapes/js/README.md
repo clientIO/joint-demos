@@ -2,7 +2,7 @@
 
 Wondering how to dynamically resize elements based on their content? Take a look at this demo that shows exactly that.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/content-driven-shapes">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/content-driven-shapes/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

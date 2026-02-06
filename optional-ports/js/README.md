@@ -2,7 +2,7 @@
 
 Do you want to easily activate or deactivate ports from a list of available ports? Check out the demo below that shows how to do that using JointJS.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/optional-ports">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/optional-ports/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

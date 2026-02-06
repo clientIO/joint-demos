@@ -2,7 +2,7 @@
 
 Do you want the elements in the diagram to form a rectangle? Do you want the position of the elements to be automatically calculated based on the number of elements? Let’s take a look at the demo below.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/rectangular-layout">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/rectangular-layout/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

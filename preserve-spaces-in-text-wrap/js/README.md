@@ -2,7 +2,7 @@
 
 Do you need to preserve spacing between words when using the textWrap attribute? Adding the preserveSpaces attribute can help you maintain the specific spacing required when working with text subelements.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/preserve-spaces-in-text-wrap">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/preserve-spaces-in-text-wrap/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

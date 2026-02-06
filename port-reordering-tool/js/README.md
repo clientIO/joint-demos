@@ -2,7 +2,7 @@
 
 Need to support user interactions that are not part of JointJS? For example, allowing users to drag and drop ports and change their order? This can be accomplished using the custom element tool, as we have done in this demo.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/port-reordering-tool">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/port-reordering-tool/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

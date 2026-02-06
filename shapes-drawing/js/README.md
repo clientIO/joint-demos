@@ -2,7 +2,7 @@
 
 Do you want to enable your customers to draw shapes into diagrams, such as a rectangle, ellipse or any other shape using the free drawing function? Check out this demo that's all about drawing.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/shapes-drawing">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/shapes-drawing/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

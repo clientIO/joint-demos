@@ -2,7 +2,7 @@
 
 This demo shows how take advantage of link to link connections, perpendicular link anchors and custom link end markers to create a beautiful timeline diagram.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/nodejs-milestones-timeline">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/nodejs-milestones-timeline/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

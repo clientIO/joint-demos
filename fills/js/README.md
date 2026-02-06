@@ -2,7 +2,7 @@
 
 Do you want to use different visual patterns to fill the elements of the diagram? Check out this JointJS demo that shows several elements with different visual fills.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/fills">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/fills/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"

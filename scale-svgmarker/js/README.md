@@ -2,7 +2,7 @@
 
 If you need to keep the size of your link and SVG marker in sync, this is the demo for you. Use the thickness of a link as the basis for its SVG marker sizing to achieve symmetrical scaling.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/scale-svgmarker">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/scale-svgmarker/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
