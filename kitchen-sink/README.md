@@ -4,7 +4,7 @@ This demo, as the name suggests, presents all the main features of JointJS+ and 
 
 ## Available Versions
 
-- [Angular16](./angular-16/)
+- [Angular](./angular/)
 - [JavaScript](./js/)
 - [React](./react/)
 - [TypeScript](./ts/)
