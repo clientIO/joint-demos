@@ -1,0 +1,57 @@
+@import '@joint/plus/joint-plus.css';
+
+#stencil-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    bottom: 0;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 100px;
+    bottom: 0;
+
+    .selection-wrapper[data-selection-length="1"] {
+        display: block;
+
+        ~.selection-box {
+            display: none;
+        }
+    }
+}
+
+#toolbar-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-family: sans-serif;
+    padding: 4px;
+    border: 1px solid #d3d3d3;
+    background: #eee;
+
+    .joint-toolbar {
+        margin: 4px 0 0 0;
+        padding: 4px;
+
+        [data-type="label"] {
+            width: 100px;
+            text-align: center;
+            display: inline-block;
+        }
+    }
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+/* Hide Unknown Value Icon */
+.select-box-option:first-child {
+    display: none;
+}

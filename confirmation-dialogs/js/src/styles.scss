@@ -1,0 +1,48 @@
+@import '@joint/plus/joint-plus.css';
+
+#stencil-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    bottom: 0;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 100px;
+    bottom: 0;
+
+    .placeholder {
+        fill: none;
+        stroke: #31d0c6;
+        stroke-width: 4;
+        stroke-dasharray: 4;
+        animation: dash 0.2s infinite linear;
+    }
+
+    @keyframes dash {
+        to {
+            stroke-dashoffset: 4;
+        }
+    }
+}
+
+#toolbar-container {
+    position: absolute;
+    top: 20px;
+    left: 120px;
+
+    .joint-toolbar {
+        margin: 0;
+        padding: 4px;
+    }
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}

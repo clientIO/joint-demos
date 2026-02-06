@@ -1,0 +1,75 @@
+@import '@joint/plus/joint-plus.css';
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+#stencil-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    bottom: 0;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 100px;
+    bottom: 0;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+/* Toolbar */
+
+#toolbar-container {
+    position: absolute;
+    top: 10px;
+    left: 110px;
+    font-family: sans-serif;
+    color: #131e29;
+    border: 2px solid #87a7c0;
+}
+
+#toolbar-container .joint-toolbar {
+    background-color: #cad8e3;
+    padding: 5px;
+}
+
+#toolbar-container button {
+    text-transform: capitalize;
+}
+
+/* Paper */
+
+.dragging [joint-selector="wrapper"] {
+    stroke-width: 40;
+    stroke-linecap: butt;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.preview-text {
+    stroke-dasharray: 15, 2, 5, 2, 10, 2;
+    animation: blinker 1s linear infinite;
+}
+
+.preview-line {
+    transition: 30ms d;
+}
+
+.preview-element {
+    transition: 30ms transform;
+}

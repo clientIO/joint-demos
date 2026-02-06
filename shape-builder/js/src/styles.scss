@@ -1,0 +1,171 @@
+@import '@joint/plus/joint-plus.css';
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+#sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 180px;
+    text-align: center;
+    background: #f5f7f6;
+    border-right: 1px solid #d4d4d4;
+    box-sizing: border-box;
+
+    .joint-stencil {
+        border: none;
+        background: none;
+    }
+}
+
+#paper-container {
+    position: absolute;
+    inset: 0 232px 0 180px;
+}
+
+#paper {
+    background: #f9f9f9;
+}
+
+#stencil {
+    position: absolute;
+    width: 150px;
+    left: 15px;
+    top: 65px;
+    bottom: 0;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+#add-shape {
+    background: #020202;
+    color: #fff;
+    margin-top: 20px;
+    padding: 8px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+        background: #292929;
+    }
+}
+
+#inspector {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 200px;
+    bottom: 0;
+    overflow: scroll;
+    border-left: 1px solid #d4d4d4;
+    padding: 8px 16px;
+    background-color: #f5f7f6;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+#inspector,
+#dialog {
+    .joint-inspector {
+        background: #f5f7f6;
+        color: #151e28;
+        border: none;
+
+        [data-attribute="outPorts"] .list-item:hover,
+        [data-attribute="ports/items"] .list-item:hover {
+            border: 1px solid #ed2637;
+            background: #fcf3f1;
+        }
+
+        .btn-list-add,
+        .btn-list-del {
+            background: #e1e4e3;
+        }
+
+        .select-button-group-button {
+            /* display: block; */
+            text-align: center;
+            font-size: 12px;
+            color: #131e29;
+            margin: 2px;
+            padding: 2px;
+            line-height: 10px;
+            border-radius: 4px;
+            border: 1px solid #0075f2;
+            background: #ffffff;
+        }
+
+        .select-button-group-button.selected {
+            color: #ffffff;
+            background: #0075f2;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select,
+        input {
+            background: white !important;
+        }
+    }
+}
+
+#dialog {
+    .body>* {
+        border: 1px solid #d4d4d4;
+        border-left: none;
+        box-sizing: border-box;
+    }
+
+    .body>*:first-child {
+        border-left: 1px solid #d4d4d4;
+    }
+
+    .controls button:first-child {
+        color: #fff;
+        background: #020202;
+        border: none;
+
+        &:hover {
+            background: #292929;
+        }
+    }
+
+    .fg {
+        top: 20px;
+        border: none !important;
+    }
+
+    .body {
+        display: flex;
+        justify-content: center;
+        height: 600px;
+    }
+
+    .joint-inspector {
+        width: 250px;
+        position: static;
+    }
+
+    .joint-paper {
+        flex-shrink: 0;
+    }
+
+    .fg .titlebar {
+        color: #fff;
+        background: #020402;
+    }
+}

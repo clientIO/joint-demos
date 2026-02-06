@@ -1,0 +1,73 @@
+@import '@joint/plus/joint-plus.css';
+
+html,
+body {
+    overflow: hidden;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    .joint-type-systemproperty [magnet="conditional"] {
+        cursor: crosshair;
+    }
+
+    .joint-port {
+        cursor: grab;
+    }
+
+    .joint-port .selected {
+        cursor: crosshair;
+    }
+
+    .joint-link .selected {
+        stroke: #1eafc2;
+    }
+
+    .highlighted-parent rect {
+        fill: #ffda85;
+    }
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+#toolbar-container {
+    position: absolute;
+    left: 400px;
+    top: 30px;
+
+    .joint-toolbar {
+        border: none;
+        background: none;
+    }
+
+    .btn:hover {
+        border: 1px solid #233543;
+        background: white;
+    }
+
+    .btn.btn-stencil {
+        border: 1px solid #233543;
+        cursor: grab;
+    }
+}
+
+.stencil-paper-drag {
+    opacity: 0.9;
+
+    .invalid-drop-target {
+        fill: #a1bace;
+    }
+
+    .invalid-drop-target~text {
+        stroke: none;
+    }
+}

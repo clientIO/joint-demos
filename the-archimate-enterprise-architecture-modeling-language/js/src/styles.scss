@@ -1,0 +1,67 @@
+@import '@joint/plus/joint-plus.css';
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+}
+
+#toolbar-container {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    z-index: 100;
+
+    .joint-toolbar {
+        padding: 5px;
+
+        button::after {
+            margin-left: 4px;
+            text-transform: capitalize;
+        }
+    }
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+.jj-shape-icon,
+.jj-shape-outline {
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.3));
+}
+
+.joint-link .tmp-link {
+    stroke-dasharray: 5, 4;
+    stroke-dashoffset: 10;
+    animation: dash 0.5s infinite linear;
+}
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.tool:disabled {
+    pointer-events: none;
+}
+
+.tool[data-action="delete"] {
+    color: #ed2637;
+}
+
+.joint-marker-vertex {
+    fill: #008dd5;
+    stroke: #f3f7f6;
+}

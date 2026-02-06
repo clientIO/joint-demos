@@ -1,0 +1,35 @@
+@import '@joint/plus/joint-plus.css';
+
+#stencil-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 140px;
+    bottom: 0;
+}
+
+#images-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 160px;
+    bottom: 0;
+}
+
+#paper-container {
+    position: absolute;
+    right: 160px;
+    top: 0;
+    left: 140px;
+    bottom: 0;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 140px;
+}
+
+.invalid-drop rect {
+    stroke: red;
+}

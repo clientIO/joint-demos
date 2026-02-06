@@ -1,0 +1,57 @@
+@import '@joint/plus/joint-plus.css';
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+@font-face {
+    font-family: "FontAwesome";
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url("../assets/fonts/fa-regular-400.woff2") format("woff2"),
+        url("../assets/fonts/fa-regular-400.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "FontAwesome";
+    font-style: normal;
+    font-weight: 900;
+    font-display: block;
+    src: url("../assets/fonts/fa-solid-900.woff2") format("woff2"),
+        url("../assets/fonts/fa-solid-900.ttf") format("truetype");
+}
+
+.fa-list-item:hover {
+    fill: #f6f740;
+    font-weight: 900;
+}
+
+.fa-button:hover text {
+    fill: white;
+}
+
+.fa-button:hover circle {
+    fill: black;
+}
+
+.fa-small-button:hover text {
+    font-weight: 900;
+    fill: #ed2637;
+}
+
+.fa-small-button:hover circle {
+    fill: #dde6ed;
+    stroke: #ed2637;
+    stroke-width: 2;
+}

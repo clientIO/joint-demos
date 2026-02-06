@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="This demo shows how to write a simple JSON visualizer using JointJS+.">
+    <title>JointJS+: JSON Visualizer</title>
+</head>
+
+<body id="app">
+    <div id="json-container">
+        <textarea id="json-input" autocorrect="false" spellcheck="false">
+      {
+        "squadName": "Super hero squad",
+        "homeTown": "Metro City",
+        "formed": 2016,
+        "secretBase": "Super tower",
+        "active": true,
+        "members": [
+          {
+            "name": "Molecule Man",
+            "age": 29,
+            "secretIdentity": "Dan Jukes",
+            "powers": [
+              "Radiation resistance",
+              "Turning tiny",
+              "Radiation blast"
+            ]
+          },
+          {
+            "name": "Madame Uppercut",
+            "age": 39,
+            "secretIdentity": "Jane Wilson",
+            "powers": [
+              "Million tonne punch",
+              "Damage resistance",
+              "Superhuman reflexes"
+            ]
+          },
+          {
+            "name": "Eternal Flame",
+            "age": 1000000,
+            "secretIdentity": "Unknown",
+            "powers": [
+              "Immortality",
+              "Heat Immunity",
+              "Inferno",
+              "Teleportation",
+              "Interdimensional travel"
+            ]
+          }
+        ]
+      }
+        </textarea>
+    </div>
+    <div id="paper-container"></div>
+    <a target="_blank" href="https://www.jointjs.com">
+        <img id="logo" src="./assets/jointjs-logo-black.svg" width="200" height="50"></img>
+    </a>
+    <!-- Application files: -->
+    <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

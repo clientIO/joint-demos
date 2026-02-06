@@ -1,0 +1,32 @@
+@import '@joint/plus/joint-plus.css';
+
+body {
+    overflow: hidden;
+}
+
+#toolbar-container {
+    position: absolute;
+    font-family: sans-serif;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 0px;
+    bottom: 0;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+.joint-element {
+    cursor: pointer;
+}
+
+.joint-context-toolbar button {
+    text-align: left;
+}

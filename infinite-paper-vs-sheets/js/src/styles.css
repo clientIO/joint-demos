@@ -1,0 +1,54 @@
+@import '@joint/plus/joint-plus.css';
+
+body {
+    font-family: sans-serif;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+#stencil-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    bottom: 0;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 100px;
+    bottom: 0;
+}
+
+#paper-container.bordered .joint-paper-background {
+    border: 1px solid #b3b3b3;
+    box-shadow: 4px 4px 12px #bbb;
+}
+
+#toolbar-container {
+    position: absolute;
+    top: 15px;
+    left: 115px;
+    font-family: sans-serif;
+    color: #131e29;
+    border: 2px solid #87a7c0;
+    z-index: 100;
+}
+
+#toolbar-container .joint-toolbar {
+    background-color: #cad8e3;
+    padding: 5px;
+    font-size: 15px;
+}
+
+#toolbar-container .joint-widget[data-type="checkbox"] span,
+#toolbar-container .joint-widget[data-type="label"] {
+    margin-left: 5px;
+    margin-right: 5px;
+}

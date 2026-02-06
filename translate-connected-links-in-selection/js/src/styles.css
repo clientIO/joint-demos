@@ -1,0 +1,27 @@
+@import '@joint/plus/joint-plus.css';
+
+* {
+    font-family: sans-serif;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+}
+
+#toolbar-container {
+    position: absolute;
+}
+
+#toolbar-container .joint-toolbar {
+    padding: 4px
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}

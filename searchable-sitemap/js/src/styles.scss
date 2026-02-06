@@ -1,0 +1,70 @@
+@import '@joint/plus/joint-plus.css';
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: #dde6ed;
+}
+
+#toolbar-container {
+    .joint-toolbar {
+        position: absolute;
+        padding: 5px;
+        margin: 10px;
+        border: 1px solid #0075f2;
+        font-family: sans-serif;
+    }
+
+    button {
+        padding: 0 10px;
+        border-radius: 5px;
+        border: 1px solid #cad8e3;
+        text-transform: capitalize;
+    }
+
+    .input-wrapper>input {
+        padding: 6px;
+    }
+
+    input[type="text"] {
+        border-radius: 5px;
+        border: 1px solid #cad8e3;
+    }
+
+    div>* {
+        margin-right: 5px;
+    }
+}
+
+[joint-selector="header"]:hover~[joint-selector="headerLabel"] {
+    text-decoration: underline;
+}
+
+[joint-selector="image"]:hover {
+    opacity: 0.8;
+}
+
+.expand-button:hover [joint-selector="button"] {
+    fill: #f15562;
+}
+
+.expand-button:hover [joint-selector="icon"] {
+    stroke: white;
+}
+
+#logo {
+    position: absolute;
+    top: 20px;
+    right: 0;
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Learn how to create UML class using standard.Record shape & configure Inspector plugin for split tabs and more.">
+    <title>JointJS+: UML Class Shape Inspector</title>
+</head>
+
+<body id="app">
+    <div id="demo">
+        <div id="paper"></div>
+        <div id="inspector" style="position:relative;width:50%;height:100%;">
+            <div class="inspector-buttons">
+                <button class="inspector-tab-button" data-inspector="inspector-general">General</button>
+                <button class="inspector-tab-button" data-inspector="inspector-attributes">Attributes</button>
+                <button class="inspector-tab-button" data-inspector="inspector-operations">Operations</button>
+            </div>
+            <div id="inspector-general" class="inspector-tab"></div>
+            <div id="inspector-attributes" class="inspector-tab"></div>
+            <div id="inspector-operations" class="inspector-tab"></div>
+        </div>
+    </div>
+    <a target="_blank" href="https://www.jointjs.com">
+        <img id="logo" src="./assets/jointjs-logo-black.svg" width="200" height="50"></img>
+    </a>
+    <!-- Application files: -->
+    <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

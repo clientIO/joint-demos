@@ -1,0 +1,129 @@
+:root {
+    --accent-color: #0075f2;
+    --text-color: #131e29;
+    --liquid-color: #f6f740;
+}
+
+/* Switch */
+
+.jj-switch {
+    font-family: sans-serif;
+    font-size: 14px;
+    width: 100%;
+    height: 100%;
+    background: white;
+    border: 1px solid #cad8e3;
+    position: static;
+    padding: 3px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    color: var(--text-color);
+}
+
+.jj-switch-label {
+    width: 100%;
+    text-align: center;
+    margin: 0 0 2px 0;
+}
+
+.jj-switch-on {
+    background: var(--accent-color);
+    color: #dde6ed;
+    border-radius: 4px 0 0 4px;
+    border: 1px solid var(--accent-color);
+    width: 50%;
+    height: 22px;
+}
+
+.jj-switch-off {
+    background: #131e29;
+    color: #dde6ed;
+    border-radius: 0 4px 4px 0;
+    border: 1px solid #131e29;
+    width: 50%;
+    height: 22px;
+}
+
+.jj-switch-on:disabled,
+.jj-switch-off:disabled {
+    background: #f2f5f8;
+    color: #cad8e3;
+    border: 1px solid #cad8e3;
+}
+
+/* Checkbox */
+
+.jj-checkbox {
+    width: 100%;
+    height: 100%;
+    background: white;
+    border: 1px solid #cad8e3;
+    position: static;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+
+.jj-checkbox-input {
+    accent-color: var(--accent-color);
+}
+
+/* Slider */
+
+.jj-slider {
+    font-family: sans-serif;
+    font-size: 14px;
+    width: 100%;
+    height: 100%;
+    background: white;
+    border: 1px solid #cad8e3;
+    position: static;
+    box-sizing: border-box;
+    border-radius: 4px;
+    padding: 3px;
+    color: var(--text-color);
+}
+
+.jj-slider-input {
+    accent-color: var(--accent-color);
+}
+
+.jj-slider-label {
+    width: 100%;
+    text-align: center;
+    white-space: pre;
+}
+
+.jj-slider-output {
+    width: 100%;
+    text-align: center;
+    white-space: pre;
+    display: block;
+    font-size: 11px;
+    color: #40668c;
+}
+
+/* Application */
+
+#paper-container {
+    position: absolute;
+    inset: 0 0 0 0;
+}
+
+#logo {
+    position: absolute;
+    top: 20px;
+    right: 0;
+}
+
+#toolbar-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-family: sans-serif;
+    color: var(--text-color);
+    accent-color: var(--accent-color);
+}
+
+#toolbar-container [data-name="title"] {
+    font-weight: 900;
+}

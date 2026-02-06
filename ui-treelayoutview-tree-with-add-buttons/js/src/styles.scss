@@ -1,0 +1,15 @@
+@import '@joint/plus/joint-plus.css';
+
+#paper-container {
+    margin: 10px;
+
+    .joint-paper {
+        border: 1px solid lightgray;
+    }
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}

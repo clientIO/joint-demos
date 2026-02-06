@@ -1,0 +1,36 @@
+@import '@joint/plus/joint-plus.css';
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+}
+
+.highlighted {
+    stroke-opacity: 1;
+}
+
+/*  Tooltip  */
+.joint-paper {
+    &.dragging .joint-tooltip {
+        display: none !important;
+    }
+
+    .joint-tooltip {
+        background-color: #444444;
+        color: #ffffff;
+        font-size: 13px;
+        line-height: 15px;
+        font-family: sans-serif;
+
+        &.top {
+
+            .tooltip-arrow,
+            .tooltip-arrow-mask {
+                border-bottom-color: #444444;
+            }
+        }
+    }
+}

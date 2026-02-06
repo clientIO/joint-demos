@@ -1,0 +1,61 @@
+@import '@joint/plus/joint-plus.css';
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#paper {
+    position: absolute;
+    inset: 0;
+}
+
+:root {
+    --selection-color: #0075f2;
+    --group-stroke-color: #131e29;
+    --compound-stroke-color: #ed2637;
+    --group-fill-color: #fff;
+    --compound-fill-color: #fff;
+    --shape-font-color: #131e29;
+}
+
+.joint-dialog {
+    --compound-stroke-color: none;
+
+    .joint-element {
+        cursor: pointer;
+    }
+}
+
+.joint-select-box-options {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#toolbar {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-family: sans-serif;
+    -webkit-user-select: none;
+    user-select: none;
+
+    .select-button-group-button {
+        background: white;
+        padding: 5px 10px;
+        border: 1px solid lightgray;
+    }
+
+    .select-button-group-button.selected {
+        border: 1px solid #0075f2;
+        color: #0075f2;
+    }
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}

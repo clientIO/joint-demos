@@ -1,0 +1,93 @@
+@import '@joint/plus/joint-plus.css';
+
+body {
+    font-family: sans-serif;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+#stencil-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 150px;
+    bottom: 0;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 150px;
+    bottom: 0;
+    overflow: hidden;
+}
+
+.joint-dialog.joint-theme-default .titlebar {
+    background-color: #ed2637;
+}
+
+.clipboard-content-wrapper {
+    padding: 5px;
+    z-index: 1;
+    background-color: #dde6e9;
+    border: 2px solid #ed2637;
+    position: absolute;
+    top: 10px;
+    right: 30px;
+    width: 550px;
+}
+
+.clipboard-content-wrapper table,
+td,
+th {
+    border: 1px solid;
+}
+
+.clipboard-content-wrapper th {
+    font-weight: inherit;
+    background: #CDD8E2;
+    padding: 5px
+}
+
+.clipboard-content-wrapper td {
+    background: #eee;
+}
+
+.clipboard-content-wrapper table {
+    margin-top: 5px;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 550px;
+}
+
+.clipboard-content-header {
+    display: flex;
+    font-weight: bold;
+    justify-content: space-between;
+}
+
+.clipboard-content-header-type {
+    width: 150px;
+}
+
+.clipboard-content-type {
+    text-wrap: nowrap;
+    text-align: center;
+    padding: 5px;
+}
+
+.clipboard-content-content {
+    overflow: auto;
+    max-height: 500px;
+    padding: 5px;
+}
+
+.clipboard-content-content img {
+    width: 100%;
+}

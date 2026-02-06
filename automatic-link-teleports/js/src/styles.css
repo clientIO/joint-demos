@@ -1,0 +1,16 @@
+@import '@joint/plus/joint-plus.css';
+
+#paper-container {
+    position: absolute;
+    inset: 0;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+.teleport-button:hover {
+    fill: #5ad888;
+}

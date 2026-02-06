@@ -1,0 +1,94 @@
+@import '@joint/plus/joint-plus.css';
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+/*  Tooltip  */
+.joint-paper {
+    &.dragging .joint-tooltip {
+        display: none !important;
+    }
+
+    .joint-tooltip {
+        background-color: var(--tooltip-color);
+        border: 1px solid var(--tooltip-outline-color);
+        color: #ffffff;
+        font-size: 13px;
+        line-height: 15px;
+        font-family: sans-serif;
+
+        &.left {
+
+            .tooltip-arrow,
+            .tooltip-arrow-mask {
+                border-right-color: var(--tooltip-color);
+            }
+        }
+
+        &.right {
+
+            .tooltip-arrow,
+            .tooltip-arrow-mask {
+                border-left-color: var(--tooltip-color);
+            }
+        }
+
+        &.top {
+
+            .tooltip-arrow,
+            .tooltip-arrow-mask {
+                border-bottom-color: var(--tooltip-color);
+            }
+        }
+
+        &.bottom {
+
+            .tooltip-arrow,
+            .tooltip-arrow-mask {
+                border-top-color: var(--tooltip-color);
+            }
+        }
+
+        &.tooltip-empty {
+            display: none !important;
+        }
+
+        i {
+            color: yellow;
+            font-style: normal;
+        }
+    }
+}
+
+.connection-tooltip-content {
+    display: flex;
+    flex-flow: row;
+    flex-direction: row;
+    align-items: center;
+    text-align: center;
+
+    img {
+        margin: 0 5px;
+    }
+
+    * {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    >div>* {
+        max-width: 100px;
+        margin: 5px 0;
+    }
+}

@@ -1,0 +1,90 @@
+@import '@joint/plus/joint-plus.css';
+
+:root {
+    --accent-color: #ed2637;
+    --text-color: #131e29;
+    --highlight-color: #f6f740;
+    --light-color: #dde6ed;
+}
+
+#paper-container {
+    position: absolute;
+    inset: 0 0 0 0;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+/* Toolbar */
+
+#toolbar-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-family: sans-serif;
+    accent-color: var(--accent-color);
+    color: var(--text-color);
+    border: 2px solid #87a7c0;
+    z-index: 1;
+    margin-right: 10px;
+}
+
+#toolbar-container [data-name="title"] {
+    font-weight: 900;
+}
+
+#toolbar-container .joint-toolbar {
+    background-color: var(--light-color);
+}
+
+.select-box-option,
+.select-box-selection {
+    background-color: var(--light-color);
+}
+
+#toolbar-container label {
+    margin: 5px;
+}
+
+#toolbar-container input[type="range"] {
+    width: 100px;
+}
+
+.jj-player-options {
+    font-family: sans-serif;
+}
+
+/* Highlighted player */
+
+.player-highlighted .jj-match-result,
+.player-highlighted .jj-match-body {
+    stroke: var(--highlight-color);
+}
+
+.player-highlighted [data-invert-score="1"] {
+    fill: #131e29;
+}
+
+.player-highlighted .jj-match-winner {
+    fill: var(--highlight-color);
+}
+
+.player-highlighted .jj-match-loser {
+    stroke: var(--highlight-color);
+}
+
+.player-highlighted .jj-line {
+    stroke: var(--highlight-color);
+    marker-end: none;
+    marker-start: none;
+    stroke-linecap: square;
+    stroke-dasharray: 5, 5;
+}
+
+.player1-highlighted .jj-match-player1,
+.player2-highlighted .jj-match-player2 {
+    fill: var(--highlight-color);
+}

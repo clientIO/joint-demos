@@ -1,0 +1,7 @@
+# JointJS+: View/Edit Mode
+
+Do you need to switch a diagram from read-only to fully editable mode, e.g. based on user permissions? Here is a demo of how to structure your application to make switching between view and edit mode easier.
+
+## Available Versions
+
+- [JavaScript](./js/)

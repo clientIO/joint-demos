@@ -1,0 +1,83 @@
+@import '@joint/plus/joint-plus.css';
+
+body {
+    overflow: hidden;
+}
+
+.invalid-drop rect {
+    stroke: #942721;
+    stroke-width: 4;
+}
+
+.joint-tool circle {
+    fill: #4a7bcb;
+}
+
+table {
+    border-collapse: collapse;
+    font-family: sans-serif;
+    font-size: 14px;
+}
+
+td,
+th {
+    border: 1px solid #999;
+    padding: 0.5rem;
+    text-align: left;
+    height: 40px;
+}
+
+tbody tr:nth-child(odd) {
+    background: #fff;
+}
+
+caption {
+    font-weight: bold;
+    padding: 10px;
+}
+
+#canvas {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fbfbfb;
+    position: absolute;
+}
+
+#minimap {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    border: 1px solid #56637b;
+}
+
+#role-stencil {
+    left: 10px;
+    top: 10px;
+    width: 225px;
+    height: 600px;
+    position: absolute;
+    border: 1px solid #56637b;
+}
+
+#user-stencil {
+    right: 20px;
+    top: 10px;
+    left: auto;
+    width: 215px;
+    height: 600px;
+    position: absolute;
+    border: 1px solid #56637b;
+}
+
+.joint-stencil .content {
+    overflow-y: scroll;
+    user-select: none;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    left: 10px;
+}

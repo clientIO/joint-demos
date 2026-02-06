@@ -1,0 +1,24 @@
+# JointJS: Serpentine Layout (JavaScript)
+
+This demo is an example of a serpentine layout, a custom layout where the elements are arranged in a zigzag pattern, where the rows are filled alternately from left to right and right to left, and where the rows fit the given width.
+
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/serpentine-layout">
+  <img
+    alt="Open in StackBlitz"
+    src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
+  />
+</a>
+
+## Running the application
+
+Install the dependencies by running:
+
+```bash
+npm install
+```
+
+And then start the application with:
+
+```bash
+npm run dev
+```

@@ -1,0 +1,62 @@
+@import '@joint/plus/joint-plus.css';
+
+body {
+    overflow: hidden;
+}
+
+#paper {
+    position: absolute;
+    inset: 0 0 0 0;
+}
+
+.joint-popup.close-up-popup {
+    --arrow-width: 11px;
+    --arrow-color: #0075f2;
+    --arrow-mask-color: #dde6ed;
+    border: 3px solid #0075f2;
+    background: #dde6ed;
+    box-shadow: 5px 5px 5px 0 rgba(0, 0, 0, 0.2);
+}
+
+.close-up-line {
+    stroke: #0075f2;
+}
+
+.value-text {
+    display: none;
+}
+
+.show-average-values .value-text {
+    display: block;
+}
+
+.timing-context-toolbar {
+    box-shadow: 5px 5px 5px 0 rgba(0, 0, 0, 0.2);
+
+    .tools {
+        border: 1px solid #0075f2 !important;
+
+        .tool {
+            text-align: left;
+            font-size: 10px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1a2938;
+            border: 0.5px solid #0075f2 !important;
+
+            i {
+                font-size: 8px;
+                color: #6a7c8a;
+            }
+
+            &:hover {
+                background-color: #f2f5f8;
+            }
+        }
+    }
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}

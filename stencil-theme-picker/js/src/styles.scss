@@ -1,0 +1,140 @@
+@import '@joint/plus/joint-plus.css';
+
+#stencil-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 240px;
+    bottom: 0;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 240px;
+    bottom: 0;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+:root {
+    --jj-separator-color: #cad8e3;
+    --jj-text-color: #1a2938;
+}
+
+.joint-tool[data-tool-name="connect"] circle,
+.joint-tool[data-tool-name="remove"] circle {
+    fill: #0075f2;
+    stroke: #dde6ed;
+}
+
+.joint-tool[data-tool-name="boundary"] {
+    stroke: #5cabff;
+    stroke-dasharray: none;
+    stroke-width: 2;
+}
+
+.select-box-option-content,
+.select-box-option {
+    display: flex;
+    font-family: sans-serif;
+}
+
+.style-label {
+    margin: auto 5px;
+    color: var(--jj-text-color);
+}
+
+#stencil-container {
+
+    .joint-color-palette,
+    .joint-color-palette .select-box-selection,
+    .joint-color-palette .select-box-option-content {
+        border: none;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+    }
+
+    .joint-color-palette .select-box-option-content {
+        border: 1px solid #1d2937;
+    }
+
+    .joint-select-box .style-label {
+        display: none;
+    }
+
+    .joint-select-box:not(.joint-color-palette) .select-box-selection {
+        padding-right: 5px;
+        padding-left: 5px;
+        border: none;
+        font-size: 12px;
+    }
+
+    .joint-select-box:not(.joint-color-palette) .select-box-selection::after {
+        display: none;
+    }
+
+    .group {
+        border-bottom: 1px solid var(--jj-separator-color);
+        padding-bottom: 15px;
+        color: var(--jj-text-color);
+    }
+
+    .group-label {
+        font-family: sans-serif;
+        padding: 0 5px 0 25px;
+        font-weight: normal;
+        height: 40px;
+    }
+
+    .group-label::before {
+        background-image: url("../assets/icons/down.svg");
+        background-size: contain;
+        position: absolute;
+        left: 0;
+        top: 0;
+        display: block;
+        width: 20px;
+        height: 40px;
+        background-color: transparent;
+        background-position: center;
+        background-repeat: no-repeat;
+        border: none;
+        content: " ";
+        margin: 0;
+        padding: 0;
+        transform: rotate(180deg);
+        transition: 0.2s transform;
+    }
+
+    .group.closed .group-label::before {
+        transform: rotate(0deg);
+    }
+
+    .group .pickers {
+        transition: 0.2s opacity;
+    }
+
+    .group.closed .pickers {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .group:first-child {
+        border-top: 1px solid var(--jj-separator-color);
+    }
+
+    .joint-stencil {
+        border: 1px solid var(--jj-separator-color);
+    }
+
+    input::placeholder {
+        color: #87a7c0;
+    }
+}

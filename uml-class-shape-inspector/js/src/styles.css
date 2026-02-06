@@ -1,0 +1,60 @@
+@import '@joint/plus/joint-plus.css';
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+#demo {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: space-around;
+    align-items: stretch;
+    height: 100%;
+}
+
+#inspector {
+    background: #333;
+    position: relative;
+    width: 50%;
+    height: 100%;
+}
+
+.inspector-tab {
+    position: relative;
+    height: calc(100% - 30px);
+}
+
+.inspector-tab-button {
+    background: #414548;
+    color: #fff;
+    height: 30px;
+    border: none;
+}
+
+.inspector-tab-button.active {
+    background: #5e6366;
+}
+
+.group[data-name="name"] .group-label,
+.field[data-field="attributes"]>label,
+.field[data-field="operations"]>label {
+    display: none;
+}
+
+.joint-inspector {
+    padding: 5px 0 0 0;
+}
+
+#logo {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 30px;
+    width: 100px;
+    background: white;
+}

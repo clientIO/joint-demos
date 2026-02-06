@@ -1,0 +1,65 @@
+@import '@joint/plus/joint-plus.css';
+
+#stencil-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    bottom: 0;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 100px;
+    bottom: 0;
+}
+
+#toolbar-container {
+    position: absolute;
+    top: 20px;
+    left: 120px;
+
+    .joint-toolbar {
+        margin: 0;
+        padding: 4px;
+    }
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+@keyframes shake {
+
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(4px, 0, 0);
+    }
+}
+
+.demo-text,
+.undo-available {
+    animation: 1s shake;
+    animation-iteration-count: 3;
+    animation-delay: 1s;
+}

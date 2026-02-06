@@ -1,0 +1,86 @@
+@import '@joint/plus/joint-plus.css';
+
+#paper-container {
+    position: absolute;
+    right: 200px;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background-color: #dde6ed;
+    overflow: hidden;
+
+    .available-magnet {
+        fill: #0075f2;
+    }
+
+    [magnet="out"],
+    [magnet="any"] {
+        cursor: pointer;
+    }
+
+    [magnet="in"] {
+        cursor: default;
+    }
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+}
+
+#inspector-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 200px;
+    bottom: 0;
+    overflow: scroll;
+    border-left: 1px solid #d4d4d4;
+    padding: 8px 16px;
+    background-color: #f5f7f6;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+
+    .joint-inspector {
+        background: #f5f7f6;
+        color: #151e28;
+        border: none;
+    }
+
+    [data-attribute="outPorts"] .list-item:hover,
+    [data-attribute="ports/items"] .list-item:hover {
+        border: 1px solid #ed2637;
+        background: #fcf3f1;
+    }
+
+    .btn-list-add,
+    .btn-list-del {
+        background: #e1e4e3;
+    }
+
+    .select-button-group-button {
+        display: block;
+        text-align: left;
+        font-size: 12px;
+        color: #131e29;
+        margin: 2px;
+        padding: 2px 4px;
+        border-radius: 4px;
+        border: 1px solid #0075f2;
+        background: #ffffff;
+    }
+
+    .select-button-group-button.selected {
+        color: #ffffff;
+        background: #0075f2;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    input {
+        background: white !important;
+    }
+}

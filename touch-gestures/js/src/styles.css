@@ -1,0 +1,25 @@
+@import '@joint/plus/joint-plus.css';
+
+body {
+    font-family: sans-serif;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+}
+
+#paper-container .joint-paper-background {
+    border: 1px solid #b3b3b3;
+    box-shadow: 4px 4px 12px #bbb;
+}
+
+#logo {
+    pointer-events: none;
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}

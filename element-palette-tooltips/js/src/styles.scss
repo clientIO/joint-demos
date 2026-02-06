@@ -1,0 +1,86 @@
+@import '@joint/plus/joint-plus.css';
+
+body,
+html {
+    margin: 0;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+#app {
+    .stencil-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 150px;
+        bottom: 0;
+        z-index: 100;
+
+        .joint-stencil {
+            box-shadow: 0 0 5px 5px #cbd4da;
+            border-right: 1px solid #b5c0c9;
+        }
+
+        .joint-cell * {
+            cursor: grab;
+        }
+    }
+
+    .paper-container {
+        position: absolute;
+        right: 0;
+        top: 0;
+        left: 150px;
+        bottom: 0;
+    }
+
+    .tooltip-container {
+        position: absolute;
+        right: 0;
+        top: 10px;
+        left: 150px;
+        bottom: 10px;
+
+        .joint-tooltip {
+            box-shadow: 4px 4px 12px #cbd4da;
+            border: 1px solid #b5c0c9;
+            background: white;
+            text-align: center;
+            width: 300px !important;
+            font-family: sans-serif;
+
+            .tooltip-content {
+                .joint-paper {
+                    margin: 10px auto;
+
+                    [joint-selector="body"],
+                    [joint-selector="line"] {
+                        filter: drop-shadow(1px 4px 4px rgba(0, 0, 0, 0.2));
+                    }
+                }
+
+                h2 {
+                    border-top: 1px solid #b5c0c9;
+                    padding-top: 10px;
+                }
+            }
+
+            &.left {
+                .tooltip-arrow {
+                    border-right-color: #b5c0c9;
+                    left: -16px;
+                }
+
+                .tooltip-arrow-mask {
+                    left: -12px;
+                    border-right-color: white;
+                    background: transparent;
+                }
+            }
+        }
+    }
+}

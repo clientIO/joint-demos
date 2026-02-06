@@ -1,0 +1,48 @@
+@import '@joint/plus/joint-plus.css';
+
+#stencil-container {
+    position: absolute;
+    left: 0;
+    top: 30px;
+    width: 120px;
+    bottom: 0;
+
+    .content {
+        overflow-y: scroll;
+    }
+}
+
+#add-image-button {
+    width: 120px;
+    height: 30px;
+    line-height: 30px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #222;
+    color: #fff;
+    border: 2px solid lightgray;
+    box-sizing: border-box;
+    text-align: center;
+    display: block;
+    font-size: 12px;
+    font-family: sans-serif;
+
+    &:hover {
+        background-color: #333;
+    }
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 120px;
+    bottom: 0;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}

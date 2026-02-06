@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Explore integration with the Clipboard API for copying and pasting diagram data between different applications.">
+    <title>JointJS+: Clipboard API Integration</title>
+</head>
+
+<body id="app">
+    <div class="clipboard-content-wrapper">
+        <div class="clipboard-content-header">
+            <span>Clipboard content</span>
+            <button id="refresh">Refresh</button>
+        </div>
+        <table id="clipboard-content-table"></table>
+    </div>
+    <div id="stencil-container"></div>
+    <div id="paper-container"></div>
+    <p id="selection"></p>
+    <a target="_blank" href="https://www.jointjs.com">
+        <img id="logo" src="./assets/jointjs-logo-red.svg" width="200" height="50"></img>
+    </a>
+    <!-- Application files: -->
+    <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

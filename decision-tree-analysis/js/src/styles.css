@@ -1,0 +1,36 @@
+@import '@joint/plus/joint-plus.css';
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    background: #131e29;
+}
+
+#logo {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+}
+
+#results {
+    top: 10px;
+    left: 10px;
+    position: fixed;
+    color: #dde6ed;
+    font-family: sans-serif;
+    background: #131e29;
+}
+
+.app .joint-tooltip {
+    color: #131e29;
+    font-size: 13px;
+    line-height: 15px;
+    font-family: sans-serif;
+}

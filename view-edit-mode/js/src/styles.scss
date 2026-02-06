@@ -1,0 +1,105 @@
+@import '@joint/plus/joint-plus.css';
+
+#app {
+    .stencil-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100px;
+        bottom: 0;
+        border: 1px solid gray;
+        box-sizing: border-box;
+    }
+
+    .paper-container {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+
+        .joint-tool[data-tool-name="connect"] {
+            circle {
+                fill: #feb663;
+            }
+
+            path {
+                fill: #18191b;
+            }
+        }
+
+        .joint-tool[data-tool-name="button"] {
+            circle {
+                fill: #feb663;
+            }
+
+            path {
+                stroke: #18191b;
+            }
+        }
+    }
+
+    .toolbar-container {
+        position: absolute;
+        right: 20px;
+        top: 10px;
+        width: 55px;
+        border: 1px solid gray;
+
+        .joint-toolbar-group {
+            flex-direction: column;
+        }
+
+        button {
+            width: 40px !important;
+            margin: 0 !important;
+        }
+    }
+
+    .logo {
+        position: absolute;
+        bottom: 30px;
+        right: 0;
+    }
+
+    &:not(.editable) {
+        .paper-container {
+            left: 0px;
+        }
+
+        .joint-paper {
+            border: 1px solid #18191b;
+        }
+
+        .stencil-container {
+            display: none;
+        }
+    }
+
+    &.editable {
+        .paper-container {
+            left: 100px;
+        }
+
+        .paper-scroller-background {
+            background: #3d3a38;
+        }
+    }
+
+    table {
+        font-family: sans-serif;
+        border-collapse: collapse;
+        width: 400px;
+    }
+
+    td,
+    th {
+        border: 1px solid #0f1110;
+        padding: 0.5rem;
+        text-align: left;
+        background-color: #eaedf0;
+    }
+
+    tr:nth-child(even) td {
+        background-color: #cdd2be;
+    }
+}

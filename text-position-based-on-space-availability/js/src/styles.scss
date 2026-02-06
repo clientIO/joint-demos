@@ -1,0 +1,61 @@
+@import '@joint/plus/joint-plus.css';
+
+#stencil-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    bottom: 0;
+}
+
+#paper-container {
+    position: absolute;
+    right: 250px;
+    top: 0;
+    left: 100px;
+    bottom: 0;
+
+    .selection-wrapper[data-selection-length="1"] {
+        display: block;
+
+        ~.selection-box {
+            display: none;
+        }
+    }
+}
+
+#inspector-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 250px;
+    bottom: 0;
+    border-left: 1px solid #d3d3d3;
+
+    .joint-inspector {
+        background: #fcfcfc;
+        position: relative;
+    }
+}
+
+#toolbar-container {
+    position: absolute;
+    top: 20px;
+    right: 270px;
+
+    .joint-toolbar {
+        margin: 0;
+        padding: 4px;
+    }
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+/* Hide Unknown Value Icon */
+.select-box-option:first-child {
+    display: none;
+}

@@ -1,0 +1,81 @@
+@import '@joint/plus/joint-plus.css';
+
+#stencil-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 240px;
+    bottom: 0;
+}
+
+#paper-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 240px;
+    bottom: 0;
+}
+
+#logo {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+}
+
+:root {
+    --jj-hgl-color: #0075f2;
+    --jj-separator-color: #cad8e3;
+    --jj-text-color: #1a2938;
+}
+
+.jj-hgl-favorite .jj-placeholder-body {
+    stroke: var(--jj-hgl-color);
+}
+
+.jj-hgl-favorite .jj-placeholder-label {
+    fill: var(--jj-hgl-color);
+}
+
+.joint-tool[data-tool-name="connect"] circle,
+.joint-tool[data-tool-name="remove"] circle {
+    fill: #0075f2;
+    stroke: #dde6ed;
+}
+
+.joint-tool[data-tool-name="boundary"] {
+    stroke: #5cabff;
+    stroke-dasharray: none;
+    stroke-width: 2;
+}
+
+#stencil-container {
+    .group-label {
+        font-size: 14px;
+        text-transform: none;
+        font-family: sans-serif;
+        padding: 10px 0 5px;
+        font-weight: normal;
+    }
+
+    .group {
+        border-bottom: 1px solid var(--jj-separator-color);
+        padding-bottom: 15px;
+        color: var(--jj-text-color);
+    }
+
+    .group.group-hgl-favorite {
+        color: var(--jj-hgl-color);
+    }
+
+    .group:first-child {
+        border-top: 1px solid var(--jj-separator-color);
+    }
+
+    .joint-stencil {
+        border: 1px solid var(--jj-separator-color);
+    }
+
+    input::placeholder {
+        color: #87a7c0;
+    }
+}
