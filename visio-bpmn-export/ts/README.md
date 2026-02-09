@@ -1,4 +1,4 @@
-# JointJS+: Visio BPMN Export (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Visio BPMN Export (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Export JointJS+ BPMN diagram to VSDX file.
 
@@ -7,7 +7,7 @@ Export JointJS+ BPMN diagram to VSDX file.
 You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npx @joint/cli download visio/bpmn-export/js
+npx @joint/cli download visio/bpmn-export/ts
 ```
 
 Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.

@@ -1,4 +1,4 @@
-# JointJS+: Visio Default Import (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Visio Default Import (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 The Visio Default Import demo imports a Microsoft Visio VSDX file and converts it to a JointJS diagram as is.
 

@@ -1,4 +1,4 @@
-# JointJS+: Visio Flow Chart Import (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Visio Flow Chart Import (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Convert Microsoft Visio Cross-Functional FlowChart VSDX file to a JointJS diagram.
 
@@ -7,7 +7,7 @@ Convert Microsoft Visio Cross-Functional FlowChart VSDX file to a JointJS diagra
 You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npx @joint/cli download visio/flow-chart-import/js
+npx @joint/cli download visio/flow-chart-import/ts
 ```
 
 Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.
@@ -32,4 +32,3 @@ And then start the application with:
 ```bash
 npm run start
 ```
-
