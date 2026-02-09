@@ -12,22 +12,6 @@ By default, this application uses JointJS+ from our private npm registry. This e
 
 Learn more about our [private npm registry here.](https://docs.jointjs.com/learn/help-center/npm-registry)
 
-### JointJS+ package from local path
-
-If you don't have access to JointJS+ private npm registry but have it downloaded locally, you can install it from a local path by changing the `package.json` file. In that case, replace the line:
-
-```json
-    "@joint/plus": "^4.2.2",
-    "@joint/format-visio": "^4.2.2"
-```
-
-with
-
-```json
-    "@joint/plus": "file:path-to-the-archive/joint-plus.tgz",
-    "@joint/format-visio": "file:path-to-the-archive/joint-format-visio.tgz"
-```
-
 ### Install dependencies
 
 After setting up access to JointJS+ package, install the dependencies by running:
