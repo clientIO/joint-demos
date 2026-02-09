@@ -4,17 +4,13 @@ Tree Stencil is a JointJS+ demo application that interactively visualizes hierar
 
 ## How to download this demo
 
-You can download this demo using our `@joint/cli` tool:
+You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npm install -g @joint/cli
+npx @joint/cli download tree-stencil/ts
 ```
 
-Once installed, you can use this command to download the demo:
-
-```bash
-joint download tree-stencil/ts
-```
+Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.
 
 ## Running the application
 

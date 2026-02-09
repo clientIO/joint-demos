@@ -4,17 +4,13 @@ Sheet Cutting is a JointJS+ demo application for generating and optimizing cutti
 
 ## How to download this demo
 
-You can download this demo using our `@joint/cli` tool:
+You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npm install -g @joint/cli
+npx @joint/cli download sheet-cutting/js
 ```
 
-Once installed, you can use this command to download the demo:
-
-```bash
-joint download sheet-cutting/js
-```
+Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.
 
 ## Running the application
 

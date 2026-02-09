@@ -4,17 +4,13 @@ Do you want to allow users to define an organizational structure and populate it
 
 ## How to download this demo
 
-You can download this demo using our `@joint/cli` tool:
+You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npm install -g @joint/cli
+npx @joint/cli download corporate-organizational-chart/js
 ```
 
-Once installed, you can use this command to download the demo:
-
-```bash
-joint download corporate-organizational-chart/js
-```
+Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.
 
 ## Running the application
 

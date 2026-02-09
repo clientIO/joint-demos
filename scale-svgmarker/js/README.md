@@ -11,17 +11,13 @@ If you need to keep the size of your link and SVG marker in sync, this is the de
 
 ## How to download this demo
 
-You can download this demo using our `@joint/cli` tool:
+You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npm install -g @joint/cli
+npx @joint/cli download scale-svgmarker/js
 ```
 
-Once installed, you can use this command to download the demo:
-
-```bash
-joint download scale-svgmarker/js
-```
+Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.
 
 ## Running the application
 

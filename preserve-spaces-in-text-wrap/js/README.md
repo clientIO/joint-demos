@@ -11,17 +11,13 @@ Do you need to preserve spacing between words when using the textWrap attribute?
 
 ## How to download this demo
 
-You can download this demo using our `@joint/cli` tool:
+You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npm install -g @joint/cli
+npx @joint/cli download preserve-spaces-in-text-wrap/js
 ```
 
-Once installed, you can use this command to download the demo:
-
-```bash
-joint download preserve-spaces-in-text-wrap/js
-```
+Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.
 
 ## Running the application
 
