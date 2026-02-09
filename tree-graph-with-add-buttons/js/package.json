@@ -1,5 +1,5 @@
 {
-    "name": "@joint/demo-highlighterview-update-attribute-js",
+    "name": "@joint/tree-graph-with-add-buttons-js",
     "private": true,
     "version": "0.0.0",
     "type": "module",
@@ -12,6 +12,6 @@
         "vite": "^7.3.1"
     },
     "dependencies": {
-        "@joint/core": "^4.2.3"
+        "@joint/plus": "^4.2.2"
     }
 }
