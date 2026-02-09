@@ -1,4 +1,4 @@
-# Visio BPMN Export (TypeScript)
+# Visio BPMN Export (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Export JointJS+ BPMN diagram to VSDX file.
 

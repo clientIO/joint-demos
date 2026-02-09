@@ -1,4 +1,4 @@
-# AI Agent Builder (TypeScript)
+# AI Agent Builder (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 AI Agent is a JointJS+ demo application that lets you visually design an autonomous agent’s behavior by wiring together triggers, conditions, and actions.
 

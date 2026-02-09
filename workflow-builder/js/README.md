@@ -1,4 +1,4 @@
-# Workflow Builder (JavaScript)
+# Workflow Builder (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Workflow Builder is a JointJS+ demo application that lets you visually design an automation workflow suitable for various domains.
 

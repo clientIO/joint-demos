@@ -1,4 +1,4 @@
-# Chatbot (React Redux Typescript)
+# Chatbot (React Redux Typescript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

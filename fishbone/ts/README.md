@@ -1,4 +1,4 @@
-# Fishbone (TypeScript)
+# Fishbone (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Fishbone is a JointJS+ demo application that showcases a Fishbone diagram, also known as an Ishikawa or cause-and-effect diagram. It's a useful tool for visually identifying and organizing the potential root causes of a problem.
 

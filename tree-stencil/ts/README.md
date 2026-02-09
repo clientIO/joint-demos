@@ -1,4 +1,4 @@
-# Tree Stencil (TypeScript)
+# Tree Stencil (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Tree Stencil is a JointJS+ demo application that interactively visualizes hierarchical data in a collapsible tree stencil that can be expanded and minimized up to any level.
 

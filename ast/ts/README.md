@@ -1,4 +1,4 @@
-# AST Visualizer (TypeScript)
+# AST Visualizer (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Display abstract syntax tree using JointJS graph.
 

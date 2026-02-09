@@ -1,4 +1,4 @@
-# JointJS+: ui.Popup (JavaScript)
+# JointJS+: ui.Popup (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Curious about how to control the appearance of popups? See how you can change their position, size, anchor, padding and more.
 

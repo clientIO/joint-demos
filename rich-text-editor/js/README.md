@@ -1,4 +1,4 @@
-# Rich Text Editor (JavaScript)
+# Rich Text Editor (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Rich Text Editor is a JointJS+ demo application that allows you to add or edit the content of your shapes with a rich-text toolbar containing a set of text formatting tools.
 

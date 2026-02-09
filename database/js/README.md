@@ -1,4 +1,4 @@
-# Database (JavaScript)
+# Database (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Database is a JointJS+ demo application that allows you to design and visualize information systems.
 

@@ -1,4 +1,4 @@
-# Tree Designer (JavaScript)
+# Tree Designer (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Tree Designer is a JointJS+ demo application that allows you to create tree diagrams using a form-based interface to design and customize tree nodes and edges.
 

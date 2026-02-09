@@ -1,4 +1,4 @@
-# Organizational Chart (TypeScript)
+# Organizational Chart (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Organizational Chart is a JointJS+ demo application that enables you to easily visualize your organizational structure.
 

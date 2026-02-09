@@ -1,4 +1,4 @@
-# Planogram (JavaScript)
+# Planogram (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Planogram is a JointJS+ demo application that creates visual representations of a store's products or services on display. It's a tool for visual merchandising that helps retailers better organize their brick-and-mortar stores.
 
