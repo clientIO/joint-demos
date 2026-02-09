@@ -4,7 +4,7 @@
   "description": "JointJS+ Visio BPMN Export",
   "main": "index.html",
   "author": "client IO",
-  "license": "http://jointjs.com/license/rappid",
+  "license": "http://jointjs.com/license",
   "private": true,
   "scripts": {
     "analyze": "webpack --profile --json > stats.json && webpack-bundle-analyzer stats.json",

@@ -1,6 +1,7 @@
 {
   "name": "joint-chatbot-vue-ts",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

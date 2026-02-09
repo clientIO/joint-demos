@@ -1,6 +1,7 @@
 {
   "name": "joint-tree",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "description": "JointJS+ Tree Application",
   "type": "module",
   "private": true,

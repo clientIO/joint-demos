@@ -1,6 +1,7 @@
 {
   "name": "joint-measurement",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "description": "JointJS+ Measurement Application",
   "type": "module",
   "private": true,

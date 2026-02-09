@@ -1,6 +1,7 @@
 {
   "name": "joint-kitchen-sink-angular16",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

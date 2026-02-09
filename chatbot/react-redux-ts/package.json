@@ -1,6 +1,7 @@
 {
   "name": "joint-chatbot-react-redux-ts",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "private": true,
   "scripts": {
     "start": "react-scripts start",

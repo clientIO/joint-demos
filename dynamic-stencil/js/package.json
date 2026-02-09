@@ -1,6 +1,7 @@
 {
   "name": "joint-dynamicstencil",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "description": "JointJS+ DynamicStencil Application",
   "type": "module",
   "private": true,

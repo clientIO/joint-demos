@@ -1,6 +1,7 @@
 {
   "name": "joint-dijkstra",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "description": "JointJS+ Shortest Path Finder Application",
   "type": "module",
   "private": true,

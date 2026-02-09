@@ -1,6 +1,7 @@
 {
   "name": "joint-qad",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "description": "JointJS+ QAD Application",
   "type": "module",
   "private": true,

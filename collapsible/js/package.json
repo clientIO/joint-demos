@@ -1,6 +1,7 @@
 {
   "name": "joint-collapsible",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "description": "JointJS+ Collapsible Application",
   "type": "module",
   "private": true,

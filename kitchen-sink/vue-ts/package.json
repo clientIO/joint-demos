@@ -1,6 +1,7 @@
 {
   "name": "joint-kitchen-sink-vue-ts-class-style-components",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

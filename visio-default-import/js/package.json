@@ -1,6 +1,7 @@
 {
   "name": "joint-visio-default-import",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "description": "JointJS+ Visio Default Import",
   "main": "index.html",
   "private": true,

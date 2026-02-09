@@ -2,6 +2,7 @@
     "name": "@joint/demo-optional-ports-js",
     "private": true,
     "version": "0.0.0",
+    "license": "http://jointjs.com/license",
     "type": "module",
     "scripts": {
         "dev": "vite",

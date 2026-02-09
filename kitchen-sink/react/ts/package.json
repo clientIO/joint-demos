@@ -2,6 +2,7 @@
     "name": "joint-kitchen-sink-react-ts",
     "private": true,
     "version": "4.2.2",
+    "license": "http://jointjs.com/license",
     "type": "module",
     "scripts": {
         "dev": "vite",

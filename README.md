@@ -67,6 +67,8 @@ always-auth=true
 
 They use an environment variable `JOINTJS_NPM_TOKEN` to securely store your access token. You need to set this environment variable with your JointJS+ token before installing dependencies.
 
+### How to obtain access token
+
 If you are a trial user, you received your access token during the trial sign-up process.
 If you are a customer, log in to the customer portal at https://my.jointjs.com to obtain your access token.
 

@@ -1,6 +1,7 @@
 {
   "name": "joint-constellation",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "description": "JointJS+ Constellation Application",
   "type": "module",
   "private": true,

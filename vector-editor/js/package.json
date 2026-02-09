@@ -1,6 +1,7 @@
 {
   "name": "joint-vectoreditor",
   "version": "4.2.2",
+  "license": "http://jointjs.com/license",
   "description": "JointJS+ VectorEditor Application",
   "type": "module",
   "private": true,
