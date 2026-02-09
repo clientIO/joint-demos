@@ -9,6 +9,20 @@ Do you need the size of element ports to be driven by the text they contain? Do 
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download absolute-port-layout-dynamic-port-sizes/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

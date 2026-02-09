@@ -2,6 +2,20 @@
 
 Do you want to allow users to define an organizational structure and populate it with people in a drag & drop fashion? Check out this demo leveraging the flexibility of JointJS+ by combining tree and grid layouts and customizing the stencil.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download corporate-organizational-chart/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

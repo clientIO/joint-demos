@@ -2,6 +2,20 @@
 
 A Unified Modeling Language (UML) Class diagram describes a system by visualizing the different types of objects within a system. JointJS, a JavaScript/Typescript diagramming library, can help users easily build this type of static diagram that describes the structure of a system. Using familiar SVG attributes, or custom JointJS properties, you will be able to visualize classes, their attributes, operations and relationships of a given system.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download uml-class-diagrams/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

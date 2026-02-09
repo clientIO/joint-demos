@@ -2,6 +2,20 @@
 
 Planogram is a JointJS+ demo application that creates visual representations of a store's products or services on display. It's a tool for visual merchandising that helps retailers better organize their brick-and-mortar stores.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download planogram/ts
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

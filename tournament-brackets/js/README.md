@@ -2,6 +2,20 @@
 
 If you watched the latest Champions Chess Tournament, you know that the tournament followed a double elimination system, giving participants an equal chance to prove their skills and possibly recover from a single loss. This 2-bracket system is optimal for a visual representation in a form of a JointJS diagram, which is illustrated in the demo below.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download tournament-brackets/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

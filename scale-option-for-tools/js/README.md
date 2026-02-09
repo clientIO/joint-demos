@@ -9,6 +9,20 @@ Need to scale element or link tools up or down in an easy manner? Using the scal
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download scale-option-for-tools/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

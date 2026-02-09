@@ -9,6 +9,20 @@ Do you want the elements in the diagram to form a rectangle? Do you want the pos
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download rectangular-layout/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

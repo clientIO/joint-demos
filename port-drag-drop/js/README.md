@@ -2,6 +2,20 @@
 
 Do you want to list ports in your stencil and let the user drag and drop them into the elements? Do you want the user to be able to edit the position of the ports in the element later? Or remove a port with a double click? Check out this demo.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download port-drag-drop/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

@@ -2,6 +2,20 @@
 
 Do you need to fetch data and transform it into a palette of elements? Looking for a way to intercept the default stencil behavior and replace it with your own? E.g. to drop a stencil element as a model property instead of a new graph element. If so, this demo is for you.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download drop-stencil-element-as-shape-icon/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

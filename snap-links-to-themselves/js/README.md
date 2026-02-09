@@ -9,6 +9,20 @@ Need a link to snap to itself? Utilising the snapLinksSelf option on the JointJS
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download snap-links-to-themselves/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

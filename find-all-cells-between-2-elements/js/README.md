@@ -9,6 +9,20 @@ How to highlight all cells between 2 given elements? Check out this demo to see 
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download find-all-cells-between-2-elements/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

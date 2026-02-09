@@ -9,6 +9,20 @@ Want to create links from an existing link and connect it to another element in 
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download link-connect-tool/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

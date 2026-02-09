@@ -2,6 +2,20 @@
 
 Explore our integration with the Clipboard API, which serves as a bridge between JointJS+ and the system clipboard. With this powerful API, demonstrated in the demo below, you can copy and paste diagram data between different native and web applications. Note that you can copy diagram content in two different formats: a "web application/join" type that can be used in another application that supports JointJS data, and a "text/plain" type, which is a textual representation of diagram data that can be pasted into any OS environment (such as your notepad application). In addition, you can copy and paste generic text and images from the OS clipboard - such objects will be inserted into the diagram as corresponding elements.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download clipboard-api-integration/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

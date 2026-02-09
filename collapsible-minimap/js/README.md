@@ -2,6 +2,20 @@
 
 The minimap is a valuable feature that enhances the user's orientation within the diagram. As useful as it is, it doesn't need to be visible all the time. Hiding it when the minimap is not in use allows more space for the paper itself or for other important settings. In this demo, you will learn how to implement a collapsible minimap, reducing potential UI clutter and improving the overall user experience.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download collapsible-minimap/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

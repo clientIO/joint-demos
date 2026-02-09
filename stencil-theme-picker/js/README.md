@@ -2,6 +2,20 @@
 
 Your customers may not have the design skills to create visually appealing diagrams, although they can design the look and feel of their diagrams by choosing the color of elements or links. To make their lives easier and their diagrams prettier, you can offer them a range of predefined element themes that are aesthetically pleasing right from the start. See how this cool feature works in our interactive demo below.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download stencil-theme-picker/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

@@ -9,6 +9,20 @@ Do you need font-size to be dynamic, and adjust according to another factor such
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download dynamic-font-size/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

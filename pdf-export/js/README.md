@@ -2,6 +2,20 @@
 
 How to export a diagram along with other information to PDF? This demo does so with the help of the great jsPDF library and the export to canvas feature of JointJS.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download pdf-export/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

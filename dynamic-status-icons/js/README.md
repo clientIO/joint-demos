@@ -9,6 +9,20 @@ Need to indicate a particular status dynamically? When working with highlighters
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download dynamic-status-icons/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

@@ -2,6 +2,20 @@
 
 Want to keep the Element Palette compact, clean, and with as little information as possible, while still providing users with additional details when needed? Explore the demo below that demonstrates the use of the tooltip plugin in the Element Palette (also known as Stencil). When implemented, this plugin allows users to see detailed information about any element precisely when they need it.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download element-palette-tooltips/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

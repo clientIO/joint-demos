@@ -2,6 +2,20 @@
 
 Dynamic Stencil is a JointJS+ demo application that provides the user with a palette of JointJS elements which can be dragged onto the paper. The user is able to manipulate selections, and dynamically add the selections to the palette for future use.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download dynamic-stencil/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

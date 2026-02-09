@@ -9,6 +9,20 @@ This demo shows a serpentine layout used on a real application: OpenAI (ChatGPT)
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download chatgpt-timeline/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

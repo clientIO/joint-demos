@@ -3,6 +3,20 @@
 Do you need to show a confirmation dialog after a certain user action? In the following demo, a few common scenarios are covered.
 Observe the confirmation dialog after adding a shape from a Stencil element palette, or removing an element via element tools.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download confirmation-dialogs/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

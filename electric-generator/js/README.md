@@ -9,6 +9,20 @@ Do you want to animate elements in a diagram? You can use the transition feature
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download electric-generator/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

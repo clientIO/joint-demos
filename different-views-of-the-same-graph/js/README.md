@@ -9,6 +9,20 @@ Do you need to show different views of the same data model? Display only a subse
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download different-views-of-the-same-graph/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

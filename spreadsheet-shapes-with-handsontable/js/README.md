@@ -9,6 +9,20 @@ In the demo below, we reveal how we've integrated the Handsontable third-party s
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download spreadsheet-shapes-with-handsontable/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

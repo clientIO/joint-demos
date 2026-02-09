@@ -2,6 +2,20 @@
 
 When translating selected elements, should the connected links also be translated? The ui.Selection translateConnectedLinks option allows you to determine this, and provides you more granular control over which links should be translated, if any.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download translate-connected-links-in-selection/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

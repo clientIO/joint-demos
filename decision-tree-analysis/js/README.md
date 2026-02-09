@@ -2,6 +2,20 @@
 
 Imagine you are playing a zero-sum game tournament (e.g. chess, checkers). Do you want to know what strategy you should choose to maximize your chances of winning? Should you play aggressively and possibly lose, or defensively and not win? Check out today's demo, which shows how to use the layout.TreeLayout plugin to build a decision tree analysis diagram.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download decision-tree-analysis/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

@@ -9,6 +9,20 @@ If you need to keep the size of your link and SVG marker in sync, this is the de
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download scale-svgmarker/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

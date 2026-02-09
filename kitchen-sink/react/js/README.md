@@ -6,6 +6,20 @@ development.
 
 The application logic is written using [React](https://https://reactjs.org/) and built with [Vite](https://vite.dev/guide/).
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download kitchen-sink/react/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

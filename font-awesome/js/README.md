@@ -2,6 +2,20 @@
 
 This interactive demo shows how to use Font Awesome (or any other icon library) together with JointJS, how to add icons to elements, ports, links, or tools, and how to export a diagram that uses an external font to a standalone SVG or PNG image.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download font-awesome/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

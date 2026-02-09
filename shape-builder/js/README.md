@@ -2,6 +2,20 @@
 
 Some applications necessitate the capability for users to create diagram shapes via a user interface. Users need to have the flexibility to define various attributes of the shape, such as its color, name, and the type of data it can contain, which may include numbers, text, and other kinds of data. In the demo below, we present a method that enables users to initially set up shape metadata using forms offered by the ui.inspector plugin. This shape is then incorporated into the stencil as a template for later use. Users can later modify the specific data of the shape, once again utilizing the Inspector.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download shape-builder/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

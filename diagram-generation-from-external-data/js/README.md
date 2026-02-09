@@ -2,6 +2,20 @@
 
 Learn how to create impressive diagrams from REST API data, demonstrated on NHL match data! See how to use curved links with tree layouts and how to seamlessly add images to existing shapes. Explore the demo to see a visual representation of external data in action using JointJS+.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download diagram-generation-from-external-data/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

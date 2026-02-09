@@ -2,6 +2,20 @@
 
 Do the elements of your diagram represent real-world objects - objects that can exist one at a time and cannot be easily duplicated? This demo shows how to manage a pool of objects that are either available in a stencil or already used on the canvas.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download finite-object-pool/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

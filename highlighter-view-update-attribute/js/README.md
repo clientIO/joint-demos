@@ -9,6 +9,20 @@ Need to update the appearance of a highlighter based on some input value? In the
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download highlighter-view-update-attribute/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

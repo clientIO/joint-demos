@@ -9,6 +9,20 @@ How would you create a hexagonal grid diagram? We used the Honeycomb library to 
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download hexagonal-grid/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

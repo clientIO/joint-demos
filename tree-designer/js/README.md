@@ -2,6 +2,20 @@
 
 Tree Designer is a JointJS+ demo application that allows you to create tree diagrams using a form-based interface to design and customize tree nodes and edges.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download tree-designer/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

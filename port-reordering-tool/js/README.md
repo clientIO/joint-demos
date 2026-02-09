@@ -9,6 +9,20 @@ Need to support user interactions that are not part of JointJS? For example, all
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download port-reordering-tool/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

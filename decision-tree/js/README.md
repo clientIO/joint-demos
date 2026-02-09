@@ -2,6 +2,20 @@
 
 An AI-driven experiment based on reinforcement learning can be visualized as a decision tree. Due to the complexity of these graphs, specialized display techniques may be necessary. Strategies such as reducing labels, color-coding links based on outcomes, consolidating branch results, and providing detailed information on request enhance the clarity of the visualization. Below is an example of a decision tree with random data. This interactive demo has been developed using our powerful JavaScript/TypeScript diagramming library. Seamlessly integratable with popular frameworks such as React, Angular, Vue, Svelte, or LightningJS, our library empowers developers to create rich and interactive diagramming applications with ease.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download decision-tree/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

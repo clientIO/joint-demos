@@ -2,6 +2,20 @@
 
 A BPMN editor application built with JointJS+ showing pools, swimlanes, activities, events, gateways, data objects, annotations, and BPMN-aware editing UX (stencil, inspector, snaplines, minimap, import/export).
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download bpmn-editor/ts
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

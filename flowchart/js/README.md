@@ -2,6 +2,20 @@
 
 This flowchart created using our JavaScript/Typescript flowchart library shows a simple checkout process. Use it as a boilerplate for your application and let your users design the sequence of movements or actions. This demo application can be easily integrated into TypeScript, React, Angular, Vue, Svelte, and LightningJS. In addition, you can learn how to style the diagram in CSS and switch between light and dark modes.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download flowchart/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

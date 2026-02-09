@@ -9,6 +9,20 @@ Wondering how to dynamically resize elements based on their content? Take a look
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download content-driven-shapes/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

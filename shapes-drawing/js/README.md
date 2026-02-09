@@ -9,6 +9,20 @@ Do you want to enable your customers to draw shapes into diagrams, such as a rec
   />
 </a>
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download shapes-drawing/js
+```
+
 ## Running the application
 
 Install the dependencies by running:

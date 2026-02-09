@@ -2,6 +2,20 @@
 
 When working with a large number of objects, it is useful to activate a local view and drill down into the surroundings of a specific element. In this demo, we show you multiple element relationships and local views: Neighbors, Successors, Predecessors, Siblings and Path from Element, all displayed as a floating popup that can be freely placed anywhere on the paper. In addition, the demo shows how to incorporate subscript and superscript into HTML.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download element-neighborhood-dialog-window/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

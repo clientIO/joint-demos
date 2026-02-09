@@ -2,6 +2,20 @@
 
 How to use the built-in standard.Record shape to create a UML class? How to configure the Inspector plugin to be split into tabs and be able to change attributes and methods of a UML class at a granular level (visibility, name, parameters, return types)? Check out this demo.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download uml-class-shape-inspector/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

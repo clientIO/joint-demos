@@ -2,6 +2,20 @@
 
 Have you ever wondered how to create a new connection when the user drags one element over another, or over a link that connects two elements with enough space between them? Or how to automatically place a new element next to the destination element and let the user choose the direction in which to place it? Check out this demo to see how you can achieve both scenarios, using SVG previews to help the user understand the impact of each drop action.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download connecting-nodes-by-dragging-and-dropping/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).

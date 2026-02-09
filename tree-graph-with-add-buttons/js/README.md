@@ -2,6 +2,20 @@
 
 How to create a tree graph with buttons for adding new members to each branch? What if the buttons are just JointJS elements? How would you configure the TreeLayoutView to prevent the user from dropping nodes after the add buttons? Take a look at the demo below.
 
+## How to download this demo
+
+You can download this demo using our `@joint/cli` tool:
+
+```bash
+npm install -g @joint/cli
+```
+
+Once installed, you can use this command to download the demo:
+
+```bash
+joint download tree-graph-with-add-buttons/js
+```
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).
