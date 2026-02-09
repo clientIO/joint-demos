@@ -1,4 +1,4 @@
-# MindMap (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: MindMap (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 MindMap is a JointJS+ demo application that shows a diagram used to visually organize information into a hierarchy and display the relationships between them.
 

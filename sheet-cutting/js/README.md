@@ -1,4 +1,4 @@
-# Sheet Cutting (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Sheet Cutting (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Sheet Cutting is a JointJS+ demo application for generating and optimizing cutting plans for material sheets. It efficiently detects overlapping elements and provides clear notifications to the user.
 

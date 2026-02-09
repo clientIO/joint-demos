@@ -1,4 +1,4 @@
-# Timeline (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Timeline (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Timeline is a JointJS+ demo application that shows an interactive timeline diagram featuring a tree layout, drag-and-drop stencil, automatic relayout, selection tools, and a navigator minimap.
 

@@ -1,4 +1,4 @@
-# Question Answer Diagram (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Question Answer Diagram (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Question Answer Diagram is a JointJS+ demo application that demonstrates how to create a question and answer diagram. Users can create a dialog, then preview the result in an interactive manner.
 

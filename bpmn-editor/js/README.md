@@ -1,4 +1,4 @@
-# BPMN Editor (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: BPMN Editor (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 A BPMN editor application built with JointJS+ showing pools, swimlanes, activities, events, gateways, data objects, annotations, and BPMN-aware editing UX (stencil, inspector, snaplines, minimap, import/export).
 

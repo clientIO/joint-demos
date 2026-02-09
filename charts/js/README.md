@@ -1,4 +1,4 @@
-# Charts (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Charts (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Charts is a JointJS+ demo application that showcases how to create Line, Bar, Area, Combo charts, Pie & Donut charts, and Knobs in JointJS applications.
 
