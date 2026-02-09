@@ -6,9 +6,10 @@ Piping and Instrumentation Diagrams (P&IDs) are integral components of Superviso
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).
 
-### Private npm registry
+This example uses `.npmrc` file to set up access to the JointJS+ private npm registry.  By default it uses `JOINTJS_NPM_TOKEN` environment variable to get authentication token.
 
-By default, this application uses JointJS+ from our private npm registry. This example assumes that you have already set up your npm to access JointJS+ package and put your authentication token in the `JOINTJS_NPM_TOKEN` environment variable.
+If you are a trial user, you received your access token during the trial sign-up process.
+If you are a customer, log in to the customer portal at https://my.jointjs.com to obtain your access token.
 
 Learn more about our [private npm registry here.](https://docs.jointjs.com/learn/help-center/npm-registry)
 

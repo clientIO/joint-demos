@@ -6,7 +6,8 @@ This demo, as the name suggests, presents all the main features of JointJS+ and 
 
 - [Angular](./angular/)
 - [JavaScript](./js/)
-- [React](./react/)
+- [ReactJS](./react/js/)
+- [ReactTS](./react/ts/)
 - [TypeScript](./ts/)
 - [VueJS](./vue-js/)
 - [VueTS](./vue-ts/)
