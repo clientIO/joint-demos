@@ -1,4 +1,4 @@
-# JointJS+: Marketing Automation (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Marketing Automation (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Marketing Automation is a JointJS+ demo application that lets you visually design a marketing automation workflow by wiring together triggers, branches, actions and delays.
 

@@ -1,4 +1,4 @@
-# JointJS+: Font Awesome (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Font Awesome (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 This interactive demo shows how to use Font Awesome (or any other icon library) together with JointJS, how to add icons to elements, ports, links, or tools, and how to export a diagram that uses an external font to a standalone SVG or PNG image.
 

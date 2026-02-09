@@ -1,4 +1,4 @@
-# JointJS+: Kitchen Sink App (Angular) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Kitchen Sink App (Angular) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 This application showcases the JointJS+ plugins in action and shows how the plugins
 can be combined together. You can use this demo app as a reference for your own application

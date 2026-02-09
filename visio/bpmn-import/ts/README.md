@@ -1,4 +1,4 @@
-# JointJS+: Visio BPMN Import (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Visio BPMN Import (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Convert Microsoft Visio BPMN VSDX file to a JointJS diagram.
 

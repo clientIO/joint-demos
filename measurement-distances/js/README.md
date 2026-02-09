@@ -1,4 +1,4 @@
-# JointJS+: Angles (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Angles (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Angles is a JointJS+ demo application that allows you to dynamically calculate the angle that is formed when two straight lines meet at a shared endpoint.
 

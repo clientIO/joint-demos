@@ -1,4 +1,4 @@
-# JointJS+: Dijkstra's Shortest Path (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Dijkstra's Shortest Path (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Dijkstra's Shortest Path is a JointJS+ demo application that demonstrates how to find the shortest path efficiently in both directed and undirected graphs.
 

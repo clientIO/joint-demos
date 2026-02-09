@@ -1,4 +1,4 @@
-# JointJS+: Image Processor (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Image Processor (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Image Processor is a JointJS+ demo application that provides a node-based image filtering and transforming tool. The application allows the creation of complex processing workflows with different steps.
 

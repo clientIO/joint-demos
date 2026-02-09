@@ -1,4 +1,4 @@
-# JointJS+: Tree Graphs (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Tree Graphs (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Tree Graphs is a JointJS+ demo application that utilizes the JointJS+ TreeLayout plugin to create a tidy node and link diagram.
 

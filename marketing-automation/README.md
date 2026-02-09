@@ -1,4 +1,4 @@
-# JointJS+: Marketing Automation <a href="https://www.jointjs.com/jointjs-plus"><img src="../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Marketing Automation <a href="https://www.jointjs.com/jointjs-plus"><img src="../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 The Marketing Automation demo app lets you visually design marketing automation workflows by wiring together triggers, branches, actions, and delays. It's a practical example of how JointJS+ can be used to create visual workflow builders for business automation.
 

@@ -1,4 +1,4 @@
-# JointJS+: Theory of Change (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Theory of Change (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Theory of Change is a JointJS+ demo application that visually maps the steps, conditions, and relationships needed to achieve a desired outcome.
 

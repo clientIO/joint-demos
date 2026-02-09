@@ -1,4 +1,4 @@
-# JointJS+: Team Order (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Team Order (TypeScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Team Order is a JointJS+ demo application that helps you form pairs from a list of team members using a drag and drop editor with JointJS+ StackLayout.
 

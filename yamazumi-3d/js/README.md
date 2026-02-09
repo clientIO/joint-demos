@@ -1,4 +1,4 @@
-# JointJS+: Yamazumi 3D (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../_assets/jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: Yamazumi 3D (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 Yamazumi 3D is a JointJS+ demo application for optimizing your processes with a Yamazumi chart drag and drop app (a stacked bar chart used in lean manufacturing and process analysis).
 
