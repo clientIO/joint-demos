@@ -4,5 +4,5 @@ A Yamazumi chart is a stacked bar chart used primarily in lean manufacturing and
 
 ## Available Versions
 
-- [JJavaScriptS](./js/)
+- [JavaScript](./js/)
 - [TypeScript](./ts/)

@@ -2,7 +2,7 @@
 
 Welcome to the JointJS demos repository! This collection contains over 170+ production-ready demos and boilerplates showcasing the powerful features and capabilities of JointJS. Whether you're building flowcharts, org charts, BPMN diagrams, network diagrams, or any other type of interactive diagram, you'll find a demo here to help you get started.
 
-You can find preview of all the demos on our website at [https://www.jointjs.com/demos](https://www.jointjs.com/demos).
+You can find a preview of all the demos on our website at [https://www.jointjs.com/demos](https://www.jointjs.com/demos).
 
 ## 🚀 Quick Start
 
