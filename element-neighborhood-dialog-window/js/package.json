@@ -1,19 +1,20 @@
 {
-    "name": "@joint/demo-element-neighborhood-dialog-window-js",
-    "private": true,
-    "version": "0.0.0",
-    "license": "http://jointjs.com/license",
-    "type": "module",
-    "scripts": {
-        "dev": "vite",
-        "build": "tsc && vite build",
-        "preview": "vite preview"
-    },
-    "devDependencies": {
-        "vite": "^7.3.1"
-    },
-    "dependencies": {
-        "@joint/layout-directed-graph": "^4.2.3",
-        "@joint/plus": "^4.2.2"
-    }
+  "name": "@joint/demo-element-neighborhood-dialog-window-js",
+  "private": true,
+  "version": "0.0.0",
+  "license": "http://jointjs.com/license",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "sass-embedded": "^1.80.7",
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "@joint/layout-directed-graph": "^4.2.3",
+    "@joint/plus": "^4.2.2"
+  }
 }

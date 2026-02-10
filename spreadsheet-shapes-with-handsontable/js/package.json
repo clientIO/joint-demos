@@ -1,19 +1,20 @@
 {
-    "name": "@joint/demo-spreadsheet-shapes-with-handsontable-js",
-    "private": true,
-    "version": "0.0.0",
-    "license": "http://jointjs.com/license",
-    "type": "module",
-    "scripts": {
-        "dev": "vite",
-        "build": "tsc && vite build",
-        "preview": "vite preview"
-    },
-    "devDependencies": {
-        "vite": "^7.3.1"
-    },
-    "dependencies": {
-        "@joint/core": "^4.2.3",
-        "handsontable": "^16.2.0"
-    }
+  "name": "@joint/demo-spreadsheet-shapes-with-handsontable-js",
+  "private": true,
+  "version": "0.0.0",
+  "license": "http://jointjs.com/license",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "sass-embedded": "^1.80.7",
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "@joint/core": "^4.2.3",
+    "handsontable": "^16.2.0"
+  }
 }
