@@ -2,31 +2,19 @@ import { ui, mvc, util } from '@joint/plus';
 import { COLORS, FONT_FAMILIES, FONT_SIZES } from './config';
 
 export class RichTextToolbar extends mvc.View {
-    
-    options;
-    
-    textColorInput;
-    textStyleInput;
-    fontSizeInput;
-    fontFamilyInput;
-    clearFormattingInput;
-    
-    fontWeightUndefined;
-    fontStyleUndefined;
-    textDecorationUndefined;
-    
+
     constructor(options) {
         super(options);
     }
-    
+
     preinitialize() {
         this.className = 'rich-text-toolbar';
         this.defaultTheme = null;
     }
-    
+
     init() {
         const { openPolicy = 'coverBelow' } = this.options;
-        
+
         // Text Color
         const textColorInput = new ui.ColorPalette({
             target: this.el,
@@ -42,7 +30,7 @@ export class RichTextToolbar extends mvc.View {
         });
         this.el.appendChild(textColorInput.el);
         this.textColorInput = textColorInput;
-        
+
         // Text Style
         const textStyleInput = new ui.SelectButtonGroup({
             multi: true,
@@ -61,7 +49,7 @@ export class RichTextToolbar extends mvc.View {
         });
         this.el.appendChild(textStyleInput.el);
         this.textStyleInput = textStyleInput;
-        
+
         // Font Size
         const fontSizeInput = new ui.SelectBox({
             openPolicy,
@@ -78,7 +66,7 @@ export class RichTextToolbar extends mvc.View {
         });
         this.el.appendChild(fontSizeInput.el);
         this.fontSizeInput = fontSizeInput;
-        
+
         // Font Family
         const fontFamilyInput = new ui.SelectBox({
             openPolicy,
@@ -101,7 +89,7 @@ export class RichTextToolbar extends mvc.View {
         });
         this.el.appendChild(fontFamilyInput.el);
         this.fontFamilyInput = fontFamilyInput;
-        
+
         // Clear Formatting
         const clearFormattingButton = document.createElement('button');
         clearFormattingButton.className = 'clear-formatting-button';
@@ -112,7 +100,7 @@ export class RichTextToolbar extends mvc.View {
         this.el.appendChild(clearFormattingButton);
         this.clearFormattingInput = clearFormattingButton;
     }
-    
+
     enable() {
         this.textColorInput.enable();
         this.textStyleInput.enable();
@@ -120,7 +108,7 @@ export class RichTextToolbar extends mvc.View {
         this.fontFamilyInput.enable();
         this.clearFormattingInput.disabled = false;
     }
-    
+
     disable() {
         this.textColorInput.disable();
         this.textStyleInput.disable();
@@ -128,35 +116,35 @@ export class RichTextToolbar extends mvc.View {
         this.fontFamilyInput.disable();
         this.clearFormattingInput.disabled = true;
     }
-    
+
     onRemove() {
         this.textColorInput.remove();
         this.textStyleInput.remove();
         this.fontSizeInput.remove();
         this.fontFamilyInput.remove();
     }
-    
+
     resetAnnotation() {
-        
+
         const { options } = this;
         const { defaultAttributes = {}, setAttributes = () => { } } = options;
         const attrs = Object.assign({}, defaultAttributes);
         setAttributes(attrs);
         this.updateInputs(attrs);
     }
-    
+
     setCurrentAnnotation() {
-        
+
         const { options, textColorInput, textStyleInput, fontSizeInput, fontFamilyInput } = this;
         const { defaultAttributes = {}, setAttributes = () => { } } = options;
-        
+
         const textStyle = textStyleInput.getSelectionValue();
         const textColor = textColorInput.getSelectionValue();
         const fontSize = fontSizeInput.getSelectionValue();
         const fontFamily = fontFamilyInput.getSelectionValue();
-        
+
         const attrs = Object.assign({}, defaultAttributes);
-        
+
         if (fontSize === undefined) {
             delete attrs['font-size'];
         }
@@ -193,56 +181,56 @@ export class RichTextToolbar extends mvc.View {
         else if (this.textDecorationUndefined) {
             delete attrs['text-decoration'];
         }
-        
+
         this.fontWeightUndefined = false;
         this.fontStyleUndefined = false;
         this.textDecorationUndefined = false;
-        
+
         setAttributes(attrs);
     }
-    
+
     updateInputs(attrs) {
-        
+
         const { textColorInput, textStyleInput, fontSizeInput, fontFamilyInput } = this;
         const silently = { silent: true };
-        
+
         if (attrs['fill']) {
             textColorInput.selectByValue(attrs['fill'], silently);
         }
         else {
             textColorInput.select(-1, silently);
         }
-        
+
         if (attrs['font-size']) {
             fontSizeInput.selectByValue(attrs['font-size'] + 'px', silently);
         }
         else {
             fontSizeInput.select(-1, silently);
         }
-        
+
         if (attrs['font-family']) {
             fontFamilyInput.selectByValue(attrs['font-family'], silently);
         }
         else {
             fontFamilyInput.select(-1, silently);
         }
-        
+
         textStyleInput.deselect();
-        
+
         if (attrs['font-weight'] === undefined) {
             this.fontWeightUndefined = true;
         }
         else if (attrs['font-weight'] === 'bold') {
             textStyleInput.selectByValue('bold', silently);
         }
-        
+
         if (attrs['text-decoration'] === undefined) {
             this.textDecorationUndefined = true;
         }
         else if (attrs['text-decoration'] === 'underline') {
             textStyleInput.selectByValue('underline', silently);
         }
-        
+
         if (attrs['font-style'] === undefined) {
             this.fontStyleUndefined = true;
         }
@@ -250,7 +238,7 @@ export class RichTextToolbar extends mvc.View {
             textStyleInput.selectByValue('italic', silently);
         }
     }
-    
+
     updateInputsDebounced = util.debounce((attrs) => {
         this.updateInputs(attrs);
     }, 50);

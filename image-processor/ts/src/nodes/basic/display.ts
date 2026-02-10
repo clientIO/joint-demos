@@ -39,10 +39,13 @@ export class DisplayView extends NodeView {
 export class Display extends Node {
     canvas: HTMLCanvasElement;
 
+    constructor(attributes?: NodeAttributes, options?: dia.Graph.Options) {
+        super(attributes, options);
+        this.canvas = document.createElement('canvas');
+    }
+
     preinitialize() {
         super.preinitialize();
-
-        this.canvas = document.createElement('canvas');
 
         const markup: dia.MarkupJSON = util.svg/* xml */`
             <image @selector="image" />

@@ -44,9 +44,9 @@ const LINE_PROPERTY = 'line';
 
 export class Idea extends Element {
 
-    cache: IdeaCache;
-    labelAttributes: diaAttributes.SVGTextAttributes;
-    imageAttributes: diaAttributes.SVGImageAttributes;
+    declare cache: IdeaCache;
+    declare labelAttributes: diaAttributes.SVGTextAttributes;
+    declare imageAttributes: diaAttributes.SVGImageAttributes;
 
     LABEL_PROPERTY = LABEL_PROPERTY;
     ANNOTATIONS_PROPERTY = ANNOTATIONS_PROPERTY;
@@ -280,7 +280,7 @@ export class Idea extends Element {
 const FLAG_COLOR = '@color';
 export class IdeaView extends ElementView {
 
-    model: Idea;
+    declare model: Idea;
     vBody: V;
     vLabel: V;
     vImage: V;

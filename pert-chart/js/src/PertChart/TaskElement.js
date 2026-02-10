@@ -5,7 +5,7 @@ import { shapes, util } from '@joint/plus';
 const { Record, RecordView } = shapes.standard;
 
 export class TaskElement extends Record {
-    
+
     preinitialize() {
         this.markup = util.svg /* xml */ `
             <path @selector="body" />
@@ -18,7 +18,7 @@ export class TaskElement extends Record {
             <text @selector="progress" @group-selector="labels"/>
         `;
     }
-    
+
     defaults() {
         return {
             ...super.defaults,
@@ -109,9 +109,7 @@ export class TaskElement extends Record {
             }, super.defaults.attrs)
         };
     }
-    
-    _layout;
-    
+
     initialize(...args) {
         super.initialize(...args);
         this.on('change', (el, opt) => {
@@ -121,14 +119,14 @@ export class TaskElement extends Record {
         });
         this.resetLayout();
     }
-    
+
     getLayout() {
         if (!this._layout) {
             this.runLayout();
         }
         return this._layout;
     }
-    
+
     resetLayout(opt = {}) {
         const layout = this.runLayout();
         this._layout = layout;
@@ -150,12 +148,12 @@ export class TaskElement extends Record {
             }
         }, opt);
     }
-    
+
     runLayout() {
         const assignees = this.getAssignees();
         const x0 = TASK_PADDING; // x position for the assignees
         const y0 = 0; // y position for the assignees
-        
+
         if (assignees.length === 0) {
             return {
                 assignees: [],
@@ -203,21 +201,21 @@ export class TaskElement extends Record {
             x += size.width + ASSIGNEE_GAP;
             return assigneeLayout;
         });
-        
+
         const assigneesWidth = assigneeLayouts.reduce((acc, assignee) => Math.max(acc, assignee.rightX), 0) - x0;
         const assigneesHeight = assigneeLayouts.reduce((acc, assignee) => Math.max(acc, assignee.bottomY), y0) - y0;
-        
+
         return {
             assignees: assigneeLayouts,
             width: assigneesWidth + TASK_PADDING * 2,
             height: assigneesHeight + ASSIGNEE_GAP * 2
         };
     }
-    
+
     getAssignees() {
         return this.get('assignees') || [];
     }
-    
+
     addAssignee(assignee) {
         const assignees = this.getAssignees();
         if (assignees.find(a => a.id === assignee.id)) {
@@ -225,7 +223,7 @@ export class TaskElement extends Record {
         }
         this.set('assignees', [...assignees, assignee]);
     }
-    
+
     removeAssignee(assigneeId) {
         const assignees = this.getAssignees();
         const index = assignees.findIndex(a => a.id === assigneeId);
@@ -233,28 +231,28 @@ export class TaskElement extends Record {
             this.set('assignees', assignees.slice(0, index).concat(assignees.slice(index + 1)));
         }
     }
-    
+
     hasAssignee(assigneeId) {
         const assignees = this.getAssignees();
         return assignees.some(a => a.id === assigneeId);
     }
-    
+
     static formatDate(date) {
         return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     }
-    
+
     static getEndDate(startDate, duration) {
         const endDate = new Date(startDate);
         endDate.setDate(endDate.getDate() + duration);
         return endDate;
     }
-    
+
     static fromData(data) {
         const { id, name = '', assignees, percentDone = 0, startDate, duration, badges, color: userColor, } = data;
-        
+
         const ratioDone = percentDone / 100;
         const endDate = startDate ? TaskElement.getEndDate(new Date(startDate), duration).toISOString() : null;
-        
+
         let color, secondaryColor;
         if (userColor) {
             secondaryColor = userColor;
@@ -265,7 +263,7 @@ export class TaskElement extends Record {
             color = TASK_COLORS[state].primary;
             secondaryColor = TASK_COLORS[state].secondary || color;
         }
-        
+
         return new TaskElement({
             id: `${id}`,
             assignees,

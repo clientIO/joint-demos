@@ -36,7 +36,7 @@ export default class PertChart extends mvc.View<undefined, HTMLElement> {
     resourcesStencil: ui.Stencil | null;
     tooltip: ui.Tooltip;
     options: PertChartOptions;
-    zoomSettings: ZoomSettings;
+    declare zoomSettings: ZoomSettings;
 
     constructor(options: PertChartOptions) {
         super(options);

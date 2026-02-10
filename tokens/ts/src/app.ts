@@ -124,6 +124,8 @@ export const init = () => {
     canvas.appendChild(scroller.el);
     scroller.render().center();
 
+    let tokenLinks: Array<Link>;
+
     createLayout(graph, data);
     setTokens();
     paper.unfreeze({
@@ -162,8 +164,6 @@ export const init = () => {
         });
         return { cells: elements.concat(links), tokens: links };
     }
-
-    let tokenLinks: Array<Link>;
 
     function createLayout(graph: dia.Graph, data: IData) {
         const dataset = buildGraph(data);

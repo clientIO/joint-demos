@@ -17,7 +17,7 @@ export interface NodeOutput {
 }
 
 export class NodeView extends dia.ElementView {
-    model: Node;
+    declare model: Node;
 
     events(): mvc.EventsHash {
         return {

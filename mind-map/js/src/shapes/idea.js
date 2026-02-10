@@ -21,10 +21,6 @@ const LINE_PROPERTY = 'line';
 
 export class Idea extends Element {
 
-    cache;
-    labelAttributes;
-    imageAttributes;
-
     LABEL_PROPERTY = LABEL_PROPERTY;
     ANNOTATIONS_PROPERTY = ANNOTATIONS_PROPERTY;
     IMAGE_PROPERTY = IMAGE_PROPERTY;
