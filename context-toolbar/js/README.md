@@ -7,7 +7,7 @@ Need to change the scale or position of a context menu? See how you can adjust i
 You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npx @joint/cli download context-toolbar-codepen/js
+npx @joint/cli download context-toolbar/js
 ```
 
 Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.
