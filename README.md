@@ -16,6 +16,9 @@ The easiest way to download and run individual demos is using the official `@joi
 # Install the CLI globally
 npm install -g @joint/cli
 
+# List all available demos
+joint list
+
 # Download a specific demo
 joint download <demo-name>
 
@@ -32,7 +35,7 @@ npm install
 ```
 
 > [!IMPORTANT]
-> For JointJS+ demos you must have a valid JointJS+ token configured in your `.npmrc` file to access the private npm registry and install dependencies. See the [Obtaining Your JointJS+ Token](#-obtaining-your-jointjs-token) section below for instructions on how to get and configure your token.
+> For JointJS+ demos, you must have a valid JointJS+ token configured in your `.npmrc` file to access the private npm registry and install dependencies. See the [Obtaining Your JointJS+ Token](#-obtaining-your-jointjs-token) section below for instructions on how to get and configure your token.
 
 Then start the demo according to the instructions in the demo's README file (usually `npm run dev` or `npm run start`).
 
@@ -94,6 +97,6 @@ $env:JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
 - **Documentation**: [https://docs.jointjs.com/](https://docs.jointjs.com/)
 - **API Reference**: [https://docs.jointjs.com/api/](https://docs.jointjs.com/api/alg/)
-- **JointJS Repository**: [https://www.npmjs.com/package/@joint/plus](https://www.npmjs.com/package/@joint/plus)
-- **JointJS Core**: [https://github.com/clientIO/joint](https://github.com/clientIO/joint)
+- **JointJS Core**: [https://www.npmjs.com/package/@joint/plus](https://www.npmjs.com/package/@joint/plus)
+- **JointJS Repository**: [https://github.com/clientIO/joint](https://github.com/clientIO/joint)
 - **Website**: [https://www.jointjs.com](https://www.jointjs.com)
