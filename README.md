@@ -1,6 +1,8 @@
 # JointJS Demos & Boilerplates
 
-Welcome to the JointJS demos repository! This collection contains over 170+ production-ready demos and boilerplates showcasing the powerful features and capabilities of JointJS. Whether you're building flowcharts, org charts, BPMN diagrams, network diagrams, or any other type of interactive diagram, you'll find a demo here to help you get started.
+![Unique Demos](https://img.shields.io/github/directory-file-count/clientio/joint-demos?type=dir&label=Unique%20Demos)
+
+Welcome to the JointJS demos repository! This collection contains community examples as well as JointJS+ commercial applications showcasing the powerful features and capabilities of JointJS. Whether you're building flowcharts, org charts, BPMN diagrams, network diagrams, or any other type of interactive diagram, you'll find a demo here to help you get started.
 
 You can find a preview of all the demos on our website at [https://www.jointjs.com/demos](https://www.jointjs.com/demos).
 
@@ -21,6 +23,8 @@ joint download <demo-name>
 joint download kanban/js
 ```
 
+For more information, visit the [@joint/cli npm package](https://www.npmjs.com/package/@joint/cli).
+
 After the download is complete, navigate to the demo directory and install dependencies:
 
 ```bash
@@ -28,11 +32,9 @@ npm install
 ```
 
 > [!IMPORTANT]
-> You must have a valid JointJS+ token configured in your `.npmrc` file to access the private npm registry and install dependencies. See the [Obtaining Your JointJS+ Token](#-obtaining-your-jointjs-token) section below for instructions on how to get and configure your token.
+> For JointJS+ demos you must have a valid JointJS+ token configured in your `.npmrc` file to access the private npm registry and install dependencies. See the [Obtaining Your JointJS+ Token](#-obtaining-your-jointjs-token) section below for instructions on how to get and configure your token.
 
 Then start the demo according to the instructions in the demo's README file (usually `npm run dev` or `npm run start`).
-
-For more information, visit the [@joint/cli npm package](https://www.npmjs.com/package/@joint/cli).
 
 ### Manual Installation
 
@@ -65,21 +67,33 @@ always-auth=true
 //npm.jointjs.com/:_authToken=${JOINTJS_NPM_TOKEN}`
 ```
 
-They use an environment variable `JOINTJS_NPM_TOKEN` to securely store your access token. You need to set this environment variable with your JointJS+ token before installing dependencies.
-
 ### How to obtain access token
 
 If you are a trial user, you received your access token during the trial sign-up process.
 If you are a customer, log in to the customer portal at https://my.jointjs.com to obtain your access token.
 
-> [!NOTE]
-> Access to the npm registry is available while your subscription to JointJS updates is active. Once the subscription expires, registry access will be disabled, but you can continue using JointJS from the ZIP archive you can [download from the customer portal](./downloading-jointjs-plus).
-
 Learn more about our [private npm registry here.](https://docs.jointjs.com/learn/help-center/npm-registry)
+
+### Set the token as an environment variable
+
+We are using an environment variable `JOINTJS_NPM_TOKEN` to securely access your token. You need to set this environment variable with your JointJS+ token before installing dependencies.
+
+You can define the `JOINTJS_NPM_TOKEN` environment variable in your terminal or CI environment in the following way:
+
+**macOS / Linux**:
+```sh
+export JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+```
+
+**Windows (PowerShell)**:
+```sh
+$env:JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+```
 
 ## 🤝 Resources
 
 - **Documentation**: [https://docs.jointjs.com/](https://docs.jointjs.com/)
 - **API Reference**: [https://docs.jointjs.com/api/](https://docs.jointjs.com/api/alg/)
-- **JointJS Repository**: [https://github.com/clientIO/joint](https://github.com/clientIO/joint)
+- **JointJS Repository**: [https://www.npmjs.com/package/@joint/plus](https://www.npmjs.com/package/@joint/plus)
+- **JointJS Core**: [https://github.com/clientIO/joint](https://github.com/clientIO/joint)
 - **Website**: [https://www.jointjs.com](https://www.jointjs.com)
