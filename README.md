@@ -97,6 +97,6 @@ $env:JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
 - **Documentation**: [https://docs.jointjs.com/](https://docs.jointjs.com/)
 - **API Reference**: [https://docs.jointjs.com/api/](https://docs.jointjs.com/api/alg/)
-- **JointJS Core**: [https://www.npmjs.com/package/@joint/plus](https://www.npmjs.com/package/@joint/plus)
+- **JointJS Core**: [https://www.npmjs.com/package/@joint/core](https://www.npmjs.com/package/@joint/core)
 - **JointJS Repository**: [https://github.com/clientIO/joint](https://github.com/clientIO/joint)
 - **Website**: [https://www.jointjs.com](https://www.jointjs.com)
