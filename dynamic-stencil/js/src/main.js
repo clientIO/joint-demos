@@ -1,6 +1,6 @@
 import { dia, elementTools, format, layout, shapes, ui } from '@joint/plus';
 import './styles.css';
-import addToStencilIcon from '../assets/add-to-stencil.svg';
+import addToStencilIcon from '../assets/add-to-stencil.svg?no-inline';
 
 const PREVIEW_PADDING = 10;
 

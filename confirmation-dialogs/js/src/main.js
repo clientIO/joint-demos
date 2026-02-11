@@ -2,7 +2,7 @@ import { dia, ui, shapes, linkTools, elementTools, V } from '@joint/plus';
 import './styles.scss';
 
 // Asset imports
-import trashSvg from '../assets/icons/trash.svg';
+import trashSvg from '../assets/icons/trash.svg?no-inline';
 
 const graph = new dia.Graph({}, { cellNamespace: shapes });
 const paper = new dia.Paper({

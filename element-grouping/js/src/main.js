@@ -2,8 +2,8 @@ import { dia, ui, shapes } from '@joint/plus';
 import './styles.css';
 
 // Asset imports
-import groupSvg from '../assets/icons/group.svg';
-import ungroupSvg from '../assets/icons/ungroup.svg';
+import groupSvg from '../assets/icons/group.svg?no-inline';
+import ungroupSvg from '../assets/icons/ungroup.svg?no-inline';
 
 const graph = new dia.Graph({}, { cellNamespace: shapes });
 const paper = new dia.Paper({

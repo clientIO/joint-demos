@@ -2,7 +2,7 @@ import { dia, ui, shapes, V } from '@joint/plus';
 import './styles.scss';
 
 // Asset imports
-import alignmentSvg from '../assets/icons/alignment.svg';
+import alignmentSvg from '../assets/icons/alignment.svg?no-inline';
 
 const graph = new dia.Graph({}, { cellNamespace: shapes });
 const paper = new dia.Paper({
