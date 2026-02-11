@@ -14,6 +14,20 @@ npx @joint/cli download bpmn-camunda-integration/js
 
 Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.
 
+## Screenshots
+
+JointJS domain specific BPMN modeler:
+
+![JointJS BPMN Modeler](/screenshots/modeler.png)
+
+Result of the Sample process, generated financial report:
+
+![Result of the sample process](/screenshots/report.png)
+
+Camunda Operate UI showing the sample process instance:
+
+![Camunda Operate UI](/screenshots/operate.png)
+
 ## Running the application
 
 To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).
