@@ -1,4 +1,4 @@
-# JointJS+: BPMN Camunda Integration (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
+# JointJS+: BPMN Camunda Integration (JavaScript) <a href="https://www.jointjs.com/jointjs-plus"><img src="../../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
 This PoC demonstrates how a **JointJS-based BPMN modeler UI** can be integrated with the **Camunda 8 (Zeebe) engine** to design, deploy, and execute real BPMN workflows.
 
@@ -18,15 +18,15 @@ Alternatively, you can get the [copy of the repository](https://github.com/clien
 
 JointJS domain specific BPMN modeler:
 
-![JointJS BPMN Modeler](/screenshots/modeler.png)
+![JointJS BPMN Modeler](./screenshots/modeler.png)
 
 Result of the Sample process, generated financial report:
 
-![Result of the sample process](/screenshots/report.png)
+![Result of the sample process](./screenshots/report.png)
 
 Camunda Operate UI showing the sample process instance:
 
-![Camunda Operate UI](/screenshots/operate.png)
+![Camunda Operate UI](./screenshots/operate.png)
 
 ## Running the application
 
