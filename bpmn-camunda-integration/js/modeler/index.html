@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The JointJS+ BPMN Editor">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <title>JointJS+ BPMN Editor</title>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <link rel="preload" href="assets/fonts/OpenSans.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="preload" href="assets/fonts/DMSans.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="preload" href="assets/fonts/RobotoFlex.ttf" as="font" type="font/ttf" crossorigin>
+</head>
+
+<body>
+
+    <div id="app">
+        <div class="app-toolbar"></div>
+        <div class="app-body">
+            <div class="stencil-container"></div>
+            <div class="paper-container">
+                <div class="navigator-container"></div>
+                <div class="file-import-overlay">
+                    <div class="file-import-overlay-content">
+                        <svg class="drop-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-import-icon lucide-import"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M8 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4"/></svg>
+                        <h2 class="headline">Drop your BPMN diagram</h2>
+                        <p class="subline">Supported: <code>.bpmn</code>, <code>.xml</code>, <code>.json</code></p>
+                    </div>
+                </div>
+            </div>
+            <div class="inspector-container">
+                <div class="inspector-controls">
+                    <button class="inspector-content-button">Configuration</button>
+                </div>
+                <div class="inspector"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application files:  -->
+    <script src="bundle.js"></script>
+
+</body>
+
+</html>

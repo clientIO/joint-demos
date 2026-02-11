@@ -1,0 +1,475 @@
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" exporter="JointJS+"
+    targetNamespace="http://www.jointjs.com/bpmn2" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0">
+    <bpmn:process id="corporateedgarreport" isExecutable="true" name="corporate-edgar-report">
+        <bpmn:startEvent id="id__6a6d75da-889f-4bf7-9b09-66122b5cf762" name="Start Event">
+            <bpmn:outgoing>id__2792c583-b592-482e-a393-e44e6e4c8c0e</bpmn:outgoing>
+        </bpmn:startEvent>
+        <bpmn:serviceTask id="id__d54f3455-518f-41ca-a6b0-48402bc1913c" name="HTTP Request"
+            zeebe:modelerTemplate="io.camunda.connectors.HttpJson.v2"
+            zeebe:modelerTemplateVersion="12">
+            <bpmn:extensionElements>
+                <zeebe:taskDefinition xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+                    type="io.camunda:http-json:1" retries="3" />
+                <zeebe:ioMapping xmlns:zeebe="http://camunda.org/schema/zeebe/1.0">
+                    <zeebe:input source="=&quot;noAuth&quot;" target="authentication.type" />
+                    <zeebe:input source="=&quot;GET&quot;" target="method" />
+                    <zeebe:input
+                        source="=&quot;https://data.sec.gov/api/xbrl/companyfacts/CIK0001579878.json&quot;"
+                        target="url" />
+                    <zeebe:input
+                        source="={&#10;&quot;User-Agent&quot;: &quot;JointJS PoC org@client.io&quot;&#10;}"
+                        target="headers" />
+                    <zeebe:input source="=false" target="storeResponse" />
+                    <zeebe:input source="=20" target="connectionTimeoutInSeconds" />
+                    <zeebe:input source="=20" target="readTimeoutInSeconds" />
+                    <zeebe:input source="=0" target="writeTimeoutInSeconds" />
+                    <zeebe:input source="=false" target="ignoreNullValues" />
+                </zeebe:ioMapping>
+                <zeebe:taskHeaders xmlns:zeebe="http://camunda.org/schema/zeebe/1.0">
+                    <zeebe:header key="elementTemplateVersion" value="12" />
+                    <zeebe:header key="elementTemplateId" value="io.camunda.connectors.HttpJson.v2" />
+                    <zeebe:header key="resultVariable" value="edgar" />
+                    <zeebe:header key="resultExpression" value="" />
+                    <zeebe:header key="errorExpression"
+                        value="if is defined(error) then&#10;  bpmnError(&#10;    &quot;EDGAR_HTTP_ERROR&quot;,&#10;    &quot;EDGAR request failed&quot;,&#10;    {&#10;      edgarErrorStatus: number(error.code),&#10;      edgarErrorMessage: error.message&#10;    }&#10;  )&#10;else&#10;  null" />
+                    <zeebe:header key="retryBackoff" value="PT0S" />
+                </zeebe:taskHeaders>
+            </bpmn:extensionElements>
+            <bpmn:incoming>id__2792c583-b592-482e-a393-e44e6e4c8c0e</bpmn:incoming>
+            <bpmn:outgoing>id__bd220018-a05c-4ae4-a36e-b1bbed7a7f9b</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:endEvent id="id__d56a80c6-6744-4c4e-a523-5e25adc11439" name="End Event">
+            <bpmn:incoming>id__d62b68cb-49d9-458e-bdea-62755973da0b</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:serviceTask id="id__86e4e85b-14b8-455d-a76f-7aeab7f091af" name="HTTP Request"
+            zeebe:modelerTemplate="io.camunda.connectors.HttpJson.v2"
+            zeebe:modelerTemplateVersion="12">
+            <bpmn:extensionElements>
+                <zeebe:taskDefinition xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+                    type="io.camunda:http-json:1" retries="3" />
+                <zeebe:ioMapping xmlns:zeebe="http://camunda.org/schema/zeebe/1.0">
+                    <zeebe:input source="=&quot;noAuth&quot;" target="authentication.type" />
+                    <zeebe:input source="=&quot;POST&quot;" target="method" />
+                    <zeebe:input source="=&quot;https://ntfy.sh/jointjs-bpmn-camunda&quot;"
+                        target="url" />
+                    <zeebe:input
+                        source="={&#10;&quot;msg&quot;: &quot;Failed to call EDGAR.&quot;,&#10;&quot;status&quot;: edgarErrorStatus,&#10;&quot;error&quot;: edgarErrorMessage&#10;}"
+                        target="body" />
+                    <zeebe:input source="=false" target="storeResponse" />
+                    <zeebe:input source="=20" target="connectionTimeoutInSeconds" />
+                    <zeebe:input source="=20" target="readTimeoutInSeconds" />
+                    <zeebe:input source="=0" target="writeTimeoutInSeconds" />
+                    <zeebe:input source="=false" target="ignoreNullValues" />
+                </zeebe:ioMapping>
+                <zeebe:taskHeaders xmlns:zeebe="http://camunda.org/schema/zeebe/1.0">
+                    <zeebe:header key="elementTemplateVersion" value="12" />
+                    <zeebe:header key="elementTemplateId" value="io.camunda.connectors.HttpJson.v2" />
+                    <zeebe:header key="resultVariable" value="" />
+                    <zeebe:header key="resultExpression" value="" />
+                    <zeebe:header key="errorExpression" value="" />
+                    <zeebe:header key="retryBackoff" value="PT0S" />
+                </zeebe:taskHeaders>
+            </bpmn:extensionElements>
+            <bpmn:incoming>id__6534cab0-0731-4907-a07f-4b7bcec45daa</bpmn:incoming>
+            <bpmn:outgoing>id__345b228e-815f-4ede-ba75-c474578d7178</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:endEvent id="id__853df74d-6d2e-4a92-913d-63d07bb9cfd2" name="End Event">
+            <bpmn:incoming>id__345b228e-815f-4ede-ba75-c474578d7178</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:boundaryEvent id="id__995f433d-5cfb-4ef7-b2c9-f634aa58b735" name="Error Event"
+            attachedToRef="id__d54f3455-518f-41ca-a6b0-48402bc1913c">
+            <bpmn:extensionElements>
+                <zeebe:ioMapping xmlns:zeebe="http://camunda.org/schema/zeebe/1.0">
+                    <zeebe:output source="=edgarErrorStatus" target="edgarErrorStatus" />
+                    <zeebe:output source="=edgarErrorMessage" target="edgarErrorMessage" />
+                </zeebe:ioMapping>
+            </bpmn:extensionElements>
+            <bpmn:outgoing>id__6534cab0-0731-4907-a07f-4b7bcec45daa</bpmn:outgoing>
+            <bpmn:errorEventDefinition id="error__995f433d-5cfb-4ef7-b2c9-f634aa58b735" />
+        </bpmn:boundaryEvent>
+        <bpmn:serviceTask id="id__41797568-5a01-4463-8104-f39bfc7d3996" name="HTTP Request"
+            zeebe:modelerTemplate="io.camunda.connectors.HttpJson.v2"
+            zeebe:modelerTemplateVersion="12">
+            <bpmn:extensionElements>
+                <zeebe:taskDefinition xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+                    type="io.camunda:http-json:1" retries="3" />
+                <zeebe:ioMapping xmlns:zeebe="http://camunda.org/schema/zeebe/1.0">
+                    <zeebe:input source="=&quot;noAuth&quot;" target="authentication.type" />
+                    <zeebe:input source="=&quot;POST&quot;" target="method" />
+                    <zeebe:input source="=&quot;https://api.openai.com/v1/responses&quot;"
+                        target="url" />
+                    <zeebe:input
+                        source="={&#10;&quot;Authorization&quot;: &quot;Bearer YOUR_OPENAI_API_KEY&quot;&#10;}"
+                        target="headers" />
+                    <zeebe:input
+                        source="={&#10;&quot;model&quot;: &quot;gpt-5.2&quot;,&#10;&quot;input&quot;: &quot;Create an HTML report from the EDGAR JSON below. Extract only the most interesting data. Make sure the report is standalone and does not require any manual updates. It should work as-is when opened in the browser.\n\n&quot; + string(edgar)&#10;}"
+                        target="body" />
+                    <zeebe:input source="=false" target="storeResponse" />
+                    <zeebe:input source="=240" target="connectionTimeoutInSeconds" />
+                    <zeebe:input source="=240" target="readTimeoutInSeconds" />
+                    <zeebe:input source="=0" target="writeTimeoutInSeconds" />
+                    <zeebe:input source="=false" target="ignoreNullValues" />
+                </zeebe:ioMapping>
+                <zeebe:taskHeaders xmlns:zeebe="http://camunda.org/schema/zeebe/1.0">
+                    <zeebe:header key="elementTemplateVersion" value="12" />
+                    <zeebe:header key="elementTemplateId" value="io.camunda.connectors.HttpJson.v2" />
+                    <zeebe:header key="resultVariable" value="" />
+                    <zeebe:header key="resultExpression"
+                        value="{&#10;  reportHtml: response.body.output[1].content[1].text,&#10;inputTokens: response.body.usage.input_tokens,&#10;outputTokens: response.body.usage.output_tokens&#10;}" />
+                    <zeebe:header key="errorExpression" value="" />
+                    <zeebe:header key="retryBackoff" value="PT0S" />
+                </zeebe:taskHeaders>
+            </bpmn:extensionElements>
+            <bpmn:incoming>id__bd220018-a05c-4ae4-a36e-b1bbed7a7f9b</bpmn:incoming>
+            <bpmn:outgoing>id__094dcc96-f31f-46ad-b836-7f9a95014bbb</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:parallelGateway id="id__eaf50df8-1750-4b75-84c5-b284fd578147" name="">
+            <bpmn:incoming>id__094dcc96-f31f-46ad-b836-7f9a95014bbb</bpmn:incoming>
+            <bpmn:outgoing>id__0d2eee74-cb2b-4b8e-a361-64c16785a917</bpmn:outgoing>
+            <bpmn:outgoing>id__2197dbed-c6ab-42af-ba51-6bb6bb7e4d39</bpmn:outgoing>
+        </bpmn:parallelGateway>
+        <bpmn:serviceTask id="id__ba05a202-08e9-41f9-9adb-765c60aa9642" name="HTTP Request"
+            zeebe:modelerTemplate="io.camunda.connectors.HttpJson.v2"
+            zeebe:modelerTemplateVersion="12">
+            <bpmn:extensionElements>
+                <zeebe:taskDefinition xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+                    type="io.camunda:http-json:1" retries="3" />
+                <zeebe:ioMapping xmlns:zeebe="http://camunda.org/schema/zeebe/1.0">
+                    <zeebe:input source="=&quot;noAuth&quot;" target="authentication.type" />
+                    <zeebe:input source="=&quot;POST&quot;" target="method" />
+                    <zeebe:input source="=&quot;https://ntfy.sh/jointjs-bpmn-camunda&quot;"
+                        target="url" />
+                    <zeebe:input
+                        source="={&#10;&quot;msg&quot;: &quot;LLM call successful.&quot;,&#10;&quot;inputTokens&quot;: inputTokens,&#10;&quot;outputTokens&quot;: outputTokens&#10;}"
+                        target="body" />
+                    <zeebe:input source="=false" target="storeResponse" />
+                    <zeebe:input source="=20" target="connectionTimeoutInSeconds" />
+                    <zeebe:input source="=20" target="readTimeoutInSeconds" />
+                    <zeebe:input source="=0" target="writeTimeoutInSeconds" />
+                    <zeebe:input source="=false" target="ignoreNullValues" />
+                </zeebe:ioMapping>
+                <zeebe:taskHeaders xmlns:zeebe="http://camunda.org/schema/zeebe/1.0">
+                    <zeebe:header key="elementTemplateVersion" value="12" />
+                    <zeebe:header key="elementTemplateId" value="io.camunda.connectors.HttpJson.v2" />
+                    <zeebe:header key="resultVariable" value="" />
+                    <zeebe:header key="resultExpression" value="" />
+                    <zeebe:header key="errorExpression" value="" />
+                    <zeebe:header key="retryBackoff" value="PT0S" />
+                </zeebe:taskHeaders>
+            </bpmn:extensionElements>
+            <bpmn:incoming>id__0d2eee74-cb2b-4b8e-a361-64c16785a917</bpmn:incoming>
+            <bpmn:outgoing>id__eebcf887-a15b-4fb1-bfa4-2242b4a9da43</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:parallelGateway id="id__251aece6-4ac7-40e1-aa09-58c4a8e6ef7b" name="">
+            <bpmn:incoming>id__281f76fb-86c1-4f73-ba47-de44bdccb233</bpmn:incoming>
+            <bpmn:incoming>id__eebcf887-a15b-4fb1-bfa4-2242b4a9da43</bpmn:incoming>
+            <bpmn:outgoing>id__d62b68cb-49d9-458e-bdea-62755973da0b</bpmn:outgoing>
+        </bpmn:parallelGateway>
+        <bpmn:serviceTask id="id__70bc5830-894f-4033-b11c-c49f66b3b1c0" name="write.file">
+            <bpmn:extensionElements>
+                <zeebe:taskDefinition xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+                    type="write.file" />
+                <zeebe:ioMapping xmlns:zeebe="http://camunda.org/schema/zeebe/1.0">
+                    <zeebe:input source="=reportHtml" target="content" />
+                    <zeebe:input source="=&quot;figma-report.html&quot;" target="filename" />
+                </zeebe:ioMapping>
+            </bpmn:extensionElements>
+            <bpmn:incoming>id__2197dbed-c6ab-42af-ba51-6bb6bb7e4d39</bpmn:incoming>
+            <bpmn:outgoing>id__281f76fb-86c1-4f73-ba47-de44bdccb233</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:sequenceFlow id="id__2792c583-b592-482e-a393-e44e6e4c8c0e"
+            sourceRef="id__6a6d75da-889f-4bf7-9b09-66122b5cf762"
+            targetRef="id__d54f3455-518f-41ca-a6b0-48402bc1913c" />
+        <bpmn:sequenceFlow id="id__bd220018-a05c-4ae4-a36e-b1bbed7a7f9b"
+            sourceRef="id__d54f3455-518f-41ca-a6b0-48402bc1913c"
+            targetRef="id__41797568-5a01-4463-8104-f39bfc7d3996" />
+        <bpmn:sequenceFlow id="id__094dcc96-f31f-46ad-b836-7f9a95014bbb"
+            sourceRef="id__41797568-5a01-4463-8104-f39bfc7d3996"
+            targetRef="id__eaf50df8-1750-4b75-84c5-b284fd578147" />
+        <bpmn:sequenceFlow id="id__0d2eee74-cb2b-4b8e-a361-64c16785a917"
+            sourceRef="id__eaf50df8-1750-4b75-84c5-b284fd578147"
+            targetRef="id__ba05a202-08e9-41f9-9adb-765c60aa9642" />
+        <bpmn:sequenceFlow id="id__2197dbed-c6ab-42af-ba51-6bb6bb7e4d39"
+            sourceRef="id__eaf50df8-1750-4b75-84c5-b284fd578147"
+            targetRef="id__70bc5830-894f-4033-b11c-c49f66b3b1c0" />
+        <bpmn:sequenceFlow id="id__281f76fb-86c1-4f73-ba47-de44bdccb233"
+            sourceRef="id__70bc5830-894f-4033-b11c-c49f66b3b1c0"
+            targetRef="id__251aece6-4ac7-40e1-aa09-58c4a8e6ef7b" />
+        <bpmn:sequenceFlow id="id__eebcf887-a15b-4fb1-bfa4-2242b4a9da43"
+            sourceRef="id__ba05a202-08e9-41f9-9adb-765c60aa9642"
+            targetRef="id__251aece6-4ac7-40e1-aa09-58c4a8e6ef7b" />
+        <bpmn:sequenceFlow id="id__d62b68cb-49d9-458e-bdea-62755973da0b"
+            sourceRef="id__251aece6-4ac7-40e1-aa09-58c4a8e6ef7b"
+            targetRef="id__d56a80c6-6744-4c4e-a523-5e25adc11439" />
+        <bpmn:sequenceFlow id="id__6534cab0-0731-4907-a07f-4b7bcec45daa"
+            sourceRef="id__995f433d-5cfb-4ef7-b2c9-f634aa58b735"
+            targetRef="id__86e4e85b-14b8-455d-a76f-7aeab7f091af" />
+        <bpmn:sequenceFlow id="id__345b228e-815f-4ede-ba75-c474578d7178"
+            sourceRef="id__86e4e85b-14b8-455d-a76f-7aeab7f091af"
+            targetRef="id__853df74d-6d2e-4a92-913d-63d07bb9cfd2" />
+        <bpmn:textAnnotation id="id__80c33166-6539-4a69-8df1-87c1c682d953">
+            <bpmn:text>Get Edgar Company Facts</bpmn:text>
+        </bpmn:textAnnotation>
+        <bpmn:textAnnotation id="id__4b7bdb47-fef4-45a7-b513-31cb9aeec2e9">
+            <bpmn:text>Ask LLM to construct HTML report.</bpmn:text>
+        </bpmn:textAnnotation>
+        <bpmn:textAnnotation id="id__b514b8fc-c02c-4c04-98b2-1bf21b130a78">
+            <bpmn:text>Write report as HTML file to the filesystem.</bpmn:text>
+        </bpmn:textAnnotation>
+        <bpmn:textAnnotation id="id__bc8044b1-d73f-4db9-93b0-5e69e05459e9">
+            <bpmn:text>Send notification with LLM token usage.</bpmn:text>
+        </bpmn:textAnnotation>
+        <bpmn:textAnnotation id="id__3258965f-4c81-459a-8650-aa4bfc3ccc5d">
+            <bpmn:text>Send error notification.</bpmn:text>
+        </bpmn:textAnnotation>
+        <bpmn:association id="id__a676aed4-538c-431d-8303-f3e19df061bf"
+            targetRef="id__80c33166-6539-4a69-8df1-87c1c682d953"
+            sourceRef="id__d54f3455-518f-41ca-a6b0-48402bc1913c" />
+        <bpmn:association id="id__f1df2c0f-6b48-4ccb-8c4b-43a901a155c3"
+            targetRef="id__4b7bdb47-fef4-45a7-b513-31cb9aeec2e9"
+            sourceRef="id__41797568-5a01-4463-8104-f39bfc7d3996" />
+        <bpmn:association id="id__f59c8e10-90f9-4123-9d74-6ff9f0ab5e90"
+            targetRef="id__b514b8fc-c02c-4c04-98b2-1bf21b130a78"
+            sourceRef="id__70bc5830-894f-4033-b11c-c49f66b3b1c0" />
+        <bpmn:association id="id__2e55c850-9caa-4b56-8903-58daac27aa02"
+            targetRef="id__bc8044b1-d73f-4db9-93b0-5e69e05459e9"
+            sourceRef="id__ba05a202-08e9-41f9-9adb-765c60aa9642" />
+        <bpmn:association id="id__bcc7332c-54c5-4c6d-87a4-81e1f1f67b74"
+            targetRef="id__3258965f-4c81-459a-8650-aa4bfc3ccc5d"
+            sourceRef="id__86e4e85b-14b8-455d-a76f-7aeab7f091af" />
+    </bpmn:process>
+    <bpmndi:BPMNDiagram xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+        id="BPMNDiagram_model_1">
+        <bpmndi:BPMNPlane id="BPMNPlane_model_1" bpmnElement="model_1">
+            <bpmndi:BPMNShape id="BPMNShape-id__6a6d75da-889f-4bf7-9b09-66122b5cf762"
+                bpmnElement="id__6a6d75da-889f-4bf7-9b09-66122b5cf762">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="410" y="400"
+                    width="40" height="40" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="399.5625"
+                        y="450.6000061035156" width="60.875" height="17" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__d54f3455-518f-41ca-a6b0-48402bc1913c"
+                bpmnElement="id__d54f3455-518f-41ca-a6b0-48402bc1913c">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="600" y="370"
+                    width="120" height="100" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="621.0078125"
+                        y="410.6000061035156" width="77.984375" height="17" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__d56a80c6-6744-4c4e-a523-5e25adc11439"
+                bpmnElement="id__d56a80c6-6744-4c4e-a523-5e25adc11439">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="1610" y="400"
+                    width="40" height="40" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="1602.234375"
+                        y="450.6000061035156" width="55.53125" height="17" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__86e4e85b-14b8-455d-a76f-7aeab7f091af"
+                bpmnElement="id__86e4e85b-14b8-455d-a76f-7aeab7f091af">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="660" y="610"
+                    width="120" height="100" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="681.0078125"
+                        y="650.5999755859375" width="77.984375" height="17" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__853df74d-6d2e-4a92-913d-63d07bb9cfd2"
+                bpmnElement="id__853df74d-6d2e-4a92-913d-63d07bb9cfd2">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="870" y="640"
+                    width="40" height="40" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="862.234375"
+                        y="690.5999755859375" width="55.53125" height="17" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__80c33166-6539-4a69-8df1-87c1c682d953"
+                bpmnElement="id__80c33166-6539-4a69-8df1-87c1c682d953">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="610" y="220"
+                    width="180" height="50" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__4b7bdb47-fef4-45a7-b513-31cb9aeec2e9"
+                bpmnElement="id__4b7bdb47-fef4-45a7-b513-31cb9aeec2e9">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="930" y="225"
+                    width="220" height="45" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__b514b8fc-c02c-4c04-98b2-1bf21b130a78"
+                bpmnElement="id__b514b8fc-c02c-4c04-98b2-1bf21b130a78">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="1230" y="90"
+                    width="200" height="70" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__bc8044b1-d73f-4db9-93b0-5e69e05459e9"
+                bpmnElement="id__bc8044b1-d73f-4db9-93b0-5e69e05459e9">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="1290" y="690"
+                    width="180" height="50" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__3258965f-4c81-459a-8650-aa4bfc3ccc5d"
+                bpmnElement="id__3258965f-4c81-459a-8650-aa4bfc3ccc5d">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="730" y="790"
+                    width="160" height="50" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__2792c583-b592-482e-a393-e44e6e4c8c0e"
+                bpmnElement="id__2792c583-b592-482e-a393-e44e6e4c8c0e">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="450" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="525" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="525" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="600" y="420" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__bd220018-a05c-4ae4-a36e-b1bbed7a7f9b"
+                bpmnElement="id__bd220018-a05c-4ae4-a36e-b1bbed7a7f9b">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="720" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="810" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="810" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="900" y="420" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__094dcc96-f31f-46ad-b836-7f9a95014bbb"
+                bpmnElement="id__094dcc96-f31f-46ad-b836-7f9a95014bbb">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1020" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1065" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1065" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1110" y="420" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__0d2eee74-cb2b-4b8e-a361-64c16785a917"
+                bpmnElement="id__0d2eee74-cb2b-4b8e-a361-64c16785a917">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1160" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1190" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1200" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1200" y="530" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1220" y="530" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1240" y="530" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__2197dbed-c6ab-42af-ba51-6bb6bb7e4d39"
+                bpmnElement="id__2197dbed-c6ab-42af-ba51-6bb6bb7e4d39">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1160" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1190" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1200" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1200" y="320" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1220" y="320" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1240" y="320" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__281f76fb-86c1-4f73-ba47-de44bdccb233"
+                bpmnElement="id__281f76fb-86c1-4f73-ba47-de44bdccb233">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1360" y="300" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1393.75" y="300" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1407.5" y="300" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1407.5" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1431.25" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1455" y="420" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__eebcf887-a15b-4fb1-bfa4-2242b4a9da43"
+                bpmnElement="id__eebcf887-a15b-4fb1-bfa4-2242b4a9da43">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1360" y="530" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1393.75" y="530" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1407.5" y="530" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1407.5" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1431.25" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1455" y="420" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__d62b68cb-49d9-458e-bdea-62755973da0b"
+                bpmnElement="id__d62b68cb-49d9-458e-bdea-62755973da0b">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1505" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1557.5" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1557.5" y="420" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1610" y="420" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__6534cab0-0731-4907-a07f-4b7bcec45daa"
+                bpmnElement="id__6534cab0-0731-4907-a07f-4b7bcec45daa">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="666" y="490" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="666" y="530" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="666" y="550" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="720" y="550" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="720" y="580" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="720" y="610" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__345b228e-815f-4ede-ba75-c474578d7178"
+                bpmnElement="id__345b228e-815f-4ede-ba75-c474578d7178">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="780" y="660" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="825" y="660" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="825" y="660" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="870" y="660" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__a676aed4-538c-431d-8303-f3e19df061bf"
+                bpmnElement="id__a676aed4-538c-431d-8303-f3e19df061bf">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="660" y="370" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="700" y="270" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__f1df2c0f-6b48-4ccb-8c4b-43a901a155c3"
+                bpmnElement="id__f1df2c0f-6b48-4ccb-8c4b-43a901a155c3">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="960" y="370" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1040" y="270" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__f59c8e10-90f9-4123-9d74-6ff9f0ab5e90"
+                bpmnElement="id__f59c8e10-90f9-4123-9d74-6ff9f0ab5e90">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1300" y="250" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1330" y="160" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__2e55c850-9caa-4b56-8903-58daac27aa02"
+                bpmnElement="id__2e55c850-9caa-4b56-8903-58daac27aa02">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1300" y="580" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1380" y="690" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge-id__bcc7332c-54c5-4c6d-87a4-81e1f1f67b74"
+                bpmnElement="id__bcc7332c-54c5-4c6d-87a4-81e1f1f67b74">
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="720" y="710" />
+                <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="810" y="790" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNShape id="BPMNShape-id__995f433d-5cfb-4ef7-b2c9-f634aa58b735"
+                bpmnElement="id__995f433d-5cfb-4ef7-b2c9-f634aa58b735">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="646" y="450"
+                    width="40" height="40" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="634.6171875"
+                        y="500.6000061035156" width="62.765625" height="16.999969482421875" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__41797568-5a01-4463-8104-f39bfc7d3996"
+                bpmnElement="id__41797568-5a01-4463-8104-f39bfc7d3996">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="900" y="370"
+                    width="120" height="100" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="921.0078125"
+                        y="410.6000061035156" width="77.984375" height="17" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__eaf50df8-1750-4b75-84c5-b284fd578147"
+                bpmnElement="id__eaf50df8-1750-4b75-84c5-b284fd578147">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="1110" y="395"
+                    width="50" height="50" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="1110" y="395"
+                        width="0" height="0" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__ba05a202-08e9-41f9-9adb-765c60aa9642"
+                bpmnElement="id__ba05a202-08e9-41f9-9adb-765c60aa9642">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="1240" y="480"
+                    width="120" height="100" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="1261.0078125"
+                        y="520.5999755859375" width="77.984375" height="17" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__251aece6-4ac7-40e1-aa09-58c4a8e6ef7b"
+                bpmnElement="id__251aece6-4ac7-40e1-aa09-58c4a8e6ef7b">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="1455" y="395"
+                    width="50" height="50" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="1455" y="395"
+                        width="0" height="0" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape-id__70bc5830-894f-4033-b11c-c49f66b3b1c0"
+                bpmnElement="id__70bc5830-894f-4033-b11c-c49f66b3b1c0">
+                <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="1240" y="250"
+                    width="120" height="100" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" x="1275.8828125"
+                        y="290.6000061035156" width="48.234375" height="17" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</bpmn:definitions>

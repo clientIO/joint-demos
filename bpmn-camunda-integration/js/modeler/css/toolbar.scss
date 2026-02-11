@@ -1,0 +1,250 @@
+// ============================================================
+// Toolbar — button styles
+// ============================================================
+
+// The :not() chain from widgets.scss that we need to beat:
+//   .joint-widget:hover:not([data-type="separator"]):not(label):not([data-type="zoomSlider"]):not(:disabled)
+// By placing our hover inside .joint-toolbar .joint-widget[data-name="…"]
+// we already have the ancestor class, but the :not() pseudo-classes add
+// significant specificity. We duplicate the chain in our hover selector
+// so every variant wins cleanly without !important.
+$hover-specificity-boost: ':not([data-type="separator"]):not(label):not([data-type="zoomSlider"]):not(:disabled)';
+
+// Shared mixin for every text button in the toolbar
+@mixin toolbar-btn-base {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: var(--jj-border-radius-medium);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s ease,
+                border-color   0.15s ease,
+                box-shadow     0.15s ease,
+                color          0.15s ease;
+
+    &:focus-visible {
+        outline: 2px solid var(--jj-selector);
+        outline-offset: 1px;
+    }
+}
+
+// --- Variants -----------------------------------------------------------
+
+@mixin btn-default {
+    @include toolbar-btn-base;
+    background-color: var(--jj-btn-default-bg);
+    border: 1px solid var(--jj-btn-default-border);
+    color: var(--jj-btn-default-text);
+
+    &:hover#{$hover-specificity-boost} {
+        background-color: var(--jj-btn-default-hover-bg);
+        border-color: var(--jj-btn-default-hover-border);
+    }
+
+    &:active {
+        background-color: var(--jj-btn-default-active-bg);
+    }
+}
+
+@mixin btn-primary {
+    @include toolbar-btn-base;
+    background-color: var(--jj-btn-primary-bg);
+    border: 1px solid var(--jj-btn-primary-border);
+    color: var(--jj-btn-primary-text);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+
+    &:hover#{$hover-specificity-boost} {
+        background-color: var(--jj-btn-primary-hover-bg);
+        border-color: var(--jj-btn-primary-border);
+        color: var(--jj-btn-primary-text);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active {
+        background-color: var(--jj-btn-primary-active-bg);
+        box-shadow: none;
+    }
+}
+
+@mixin btn-danger {
+    @include toolbar-btn-base;
+    background-color: var(--jj-btn-danger-bg);
+    border: 1px solid var(--jj-btn-danger-border);
+    color: var(--jj-btn-danger-text);
+
+    &:hover#{$hover-specificity-boost} {
+        background-color: var(--jj-btn-danger-hover-bg);
+        border-color: var(--jj-btn-danger-hover-border);
+    }
+
+    &:active {
+        background-color: var(--jj-btn-danger-active-bg);
+    }
+}
+
+@mixin btn-ghost {
+    @include toolbar-btn-base;
+    background-color: var(--jj-btn-ghost-bg);
+    border: 1px solid var(--jj-btn-ghost-border);
+    color: var(--jj-btn-ghost-text);
+    padding: 0 8px;
+
+    &:hover#{$hover-specificity-boost} {
+        background-color: var(--jj-btn-ghost-hover-bg);
+        color: var(--jj-btn-ghost-hover-text);
+        border-color: transparent;
+    }
+
+    &:active {
+        background-color: var(--jj-btn-ghost-active-bg);
+    }
+}
+
+// ============================================================
+// Layout
+// ============================================================
+
+.joint-toolbar {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    height: 54px;
+    padding: 0 16px;
+    background-color: var(--jj-bg-primary);
+    border-bottom: 1px solid var(--jj-border-primary);
+
+    .joint-toolbar-group[data-group="right"],
+    .joint-toolbar-group[data-group="left"] {
+        gap: 6px;
+    }
+
+    // ========================================================
+    // Widgets
+    // ========================================================
+    .joint-widget {
+
+        // ---- Icon-only buttons (undo / redo / print) -------
+        &[data-name="clear-all"],
+        &[data-name="print"] {
+            @include btn-ghost;
+            width: 32px;
+            padding: 0;
+        }
+
+        &[data-name="print"]::before {
+            content: url(../assets/toolbar/icon-print.svg);
+            display: flex;
+            max-height: 18px;
+        }
+
+        // ---- File dropdown (open / save) -------------------
+        &[data-name="open-file-dropdown"] {
+            @include btn-default;
+
+            &::before {
+                content: url(../assets/toolbar/icon-file.svg);
+                display: flex;
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        // ---- Process name input ----------------------------
+        &[data-name="process-name"] {
+            input {
+                box-sizing: border-box;
+                width: 160px;
+                height: 32px;
+                padding: 0 10px;
+                border-radius: var(--jj-border-radius-medium);
+                border: 1px solid var(--jj-btn-default-border);
+                background-color: var(--jj-bg-primary);
+                color: var(--jj-text-primary);
+                font-family: 'Open Sans', sans-serif;
+                font-size: 13px;
+                font-weight: 500;
+                transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+                &:hover {
+                    border-color: var(--jj-btn-default-hover-border);
+                }
+
+                &:focus {
+                    outline: none;
+                    border-color: var(--jj-selector);
+                    box-shadow: 0 0 0 3px rgba(85, 64, 225, 0.12);
+                }
+
+                &::placeholder {
+                    color: var(--jj-text-tertiary);
+                    font-weight: 400;
+                }
+            }
+        }
+
+        // ---- "Process:" label ------------------------------
+        &[data-type="label"] {
+            margin-right: 4px;
+            color: var(--jj-text-tertiary);
+            font-family: 'Open Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        // ---- Dropdown buttons (Load / Start) ---------------
+        &[data-name$="dropdown"] {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            &::after {
+                content: url(../assets/toolbar/icon-dropdown.svg);
+                display: flex;
+                opacity: 0.55;
+                transition: opacity 0.15s ease;
+            }
+
+            &:hover::after {
+                opacity: 0.8;
+            }
+        }
+
+        // ---- Deploy Process (primary / accent) -------------
+        &[data-name="deploy-process"] {
+            @include btn-primary;
+        }
+
+        // ---- Load Process / Start Process ------------------
+        &[data-name="load-process-dropdown"],
+        &[data-name="start-process-dropdown"] {
+            @include btn-default;
+        }
+
+        // ---- Clear Diagram (danger) ------------------------
+        &[data-name="clear-diagram"] {
+            @include btn-danger;
+        }
+
+        // ---- View XML (ghost / subtle) ---------------------
+        &[data-name="view-xml"] {
+            @include btn-default;
+        }
+
+        // ---- Save buttons ----------------------------------
+        &[data-name^="save"] {
+            @include btn-default;
+            min-width: 48px;
+            padding: 0 10px;
+        }
+    }
+}

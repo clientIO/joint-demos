@@ -1,0 +1,321 @@
+@mixin range-widget {
+    color: var(--jj-bg-slider-thumb);
+    --thumb-height: 0.875em;
+    --track-height: 0.125em;
+    --track-color: var(--jj-bg-slider-track);
+    --brightness-hover: 130%;
+    --brightness-down: 80%;
+    --clip-edges: 0.125em;
+
+    /* === range commons === */
+
+    & {
+        position: relative;
+        background: none;
+        overflow: hidden;
+        padding: 6px 0;
+    }
+
+    &:active {
+        cursor: grabbing;
+    }
+
+    &:disabled {
+        filter: grayscale(1);
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    /* === WebKit specific styles === */
+
+    &,
+    &::-webkit-slider-runnable-track,
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        transition: all ease 100ms;
+        height: var(--thumb-height);
+    }
+
+    &::-webkit-slider-runnable-track,
+    &::-webkit-slider-thumb {
+        position: relative;
+    }
+
+    &::-webkit-slider-thumb {
+        --thumb-radius: calc((var(--thumb-height) * 0.5) - 1px);
+        --clip-top: calc((var(--thumb-height) - var(--track-height)) * 0.5 - 0.5px);
+        --clip-bottom: calc(var(--thumb-height) - var(--clip-top));
+        --clip-further: calc(100% + 1px);
+        --box-fill: calc(-100vmax - var(--thumb-width, var(--thumb-height))) 0 0 100vmax currentColor;
+
+        width: var(--thumb-width, var(--thumb-height));
+        background: linear-gradient(currentColor 0 0) scroll no-repeat left center / 50% calc(var(--track-height) + 1px);
+        background-color: var(--jj-bg-slider-thumb);
+        box-shadow: var(--box-fill);
+        border-radius: var(--thumb-width, var(--thumb-height));
+
+        filter: brightness(100%);
+        clip-path: polygon(100% -1px,
+                var(--clip-edges) -1px,
+                0 var(--clip-top),
+                -100vmax var(--clip-top),
+                -100vmax var(--clip-bottom),
+                0 var(--clip-bottom),
+                var(--clip-edges) 100%,
+                var(--clip-further) var(--clip-further));
+    }
+
+    &:hover::-webkit-slider-thumb {
+        filter: brightness(var(--brightness-hover));
+        cursor: grab;
+    }
+
+    &:active::-webkit-slider-thumb {
+        filter: brightness(var(--brightness-down));
+        cursor: grabbing;
+    }
+
+    &::-webkit-slider-runnable-track {
+        // background: linear-gradient(var(--track-color) 0 0) scroll no-repeat center / 100% calc(var(--track-height) + 1px);
+        background: linear-gradient(var(--track-color) 0 0) scroll no-repeat center / 100% calc(var(--track-height) + 1px);
+    }
+
+    &:disabled::-webkit-slider-thumb {
+        cursor: not-allowed;
+    }
+
+    /* === Firefox specific styles === */
+
+    &,
+    &::-moz-range-track,
+    &::-moz-range-thumb {
+        appearance: none;
+        transition: all ease 100ms;
+        height: var(--thumb-height);
+    }
+
+    &::-moz-range-track,
+    &::-moz-range-thumb,
+    &::-moz-range-progress {
+        background: #fff0;
+    }
+
+    &::-moz-range-thumb {
+        background: currentColor;
+        border: 0;
+        width: var(--thumb-width, var(--thumb-height));
+        border-radius: var(--thumb-width, var(--thumb-height));
+        cursor: grab;
+    }
+
+    &:active::-moz-range-thumb {
+        cursor: grabbing;
+    }
+
+    &::-moz-range-track {
+        width: 100%;
+        background: var(--track-color);
+    }
+
+    &::-moz-range-progress {
+        appearance: none;
+        background: currentColor;
+        transition-delay: 30ms;
+    }
+
+    &::-moz-range-track,
+    &::-moz-range-progress {
+        height: calc(var(--track-height) + 1px);
+        border-radius: var(--track-height);
+    }
+
+    &::-moz-range-thumb,
+    &::-moz-range-progress {
+        filter: brightness(100%);
+    }
+
+    &:hover::-moz-range-thumb,
+    &:hover::-moz-range-progress {
+        filter: brightness(var(--brightness-hover));
+    }
+
+    &:active::-moz-range-thumb,
+    &:active::-moz-range-progress {
+        filter: brightness(var(--brightness-down));
+    }
+
+    &:disabled::-moz-range-thumb {
+        cursor: not-allowed;
+    }
+}
+
+
+@mixin select-button-group {
+
+    .select-button-group-field {
+        padding: 0;
+    }
+
+    .joint-select-button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .select-button-group-button {
+            $gap: 8px;
+            $transition-duration: 0.15s;
+            $transition-timing-function: ease-in-out;
+
+            display: flex;
+            align-items: center;
+            gap: $gap;
+            border-radius: var(--jj-border-radius-small);
+            border: 1px solid transparent;
+            transition-property: border-color, background-color;
+            transition-duration: $transition-duration;
+            transition-timing-function: $transition-timing-function;
+            font-family: 'Open Sans', sans-serif;
+            text-transform: capitalize;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 16.3px;
+
+            span[class^="jj-bpmn-icon-"] {
+                transition: transform $transition-duration $transition-timing-function;
+            }
+
+            &:hover {
+                background-color: var(--jj-bg-hover);
+                border-color: var(--jj-border-hover);
+
+                span[class^="jj-bpmn-icon-"] {
+                    transform: scale(1.06);
+                }
+            }
+
+            &.selected {
+                background-color: var(--jj-accent-primary);
+            }
+
+            span[class^="jj-bpmn-icon-"] {
+                font-size: 28px;
+            }
+
+            img, span[class^="jj-bpmn-icon-"] {
+                width: 32px;
+                height: 32px;
+            }
+
+            span {
+                /* Safari */
+                -webkit-user-select: none;
+                /* IE 10 and IE 11 */
+                -ms-user-select: none;
+                /* Standard syntax */
+                user-select: none;
+            }
+        }
+    }
+}
+
+@mixin color {
+
+    $display: inline-flex;
+
+    // Show the field even if the group is closed
+    .group.closed {
+        .color-field {
+            display: $display;
+        }
+    }
+
+    .color-field {
+        box-sizing: border-box;
+        display: $display;
+        align-items: center;
+        gap: 8px;
+        width: 50%;
+
+        label {
+            margin: 0;
+            order: 2;
+        }
+
+        input[type="color"] {
+            order: 1;
+            appearance: none;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            background: none;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            padding: 0;
+            border: 1px solid var(--jj-border-inspector-field);
+            border-radius: var(--jj-border-radius-small);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .object-property .color-field {
+        width: 100%;
+    }
+}
+
+@mixin dropdown-icon {
+    --icon-width: 10px;
+    --icon-height: 6px;
+
+    width: var(--icon-width);
+    height: var(--icon-height);
+    background-image: url(../assets/inspector/icon-arrow-down.svg);
+    background-size: var(--icon-width) var(--icon-height);
+}
+
+@mixin select {
+    .select-box-field {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--jj-bg-tertiary);
+        text-transform: capitalize;
+
+        .joint-select-box {
+            border: 1px solid var(--jj-border-inspector-field);
+            border-radius: var(--jj-border-radius-small);
+            box-sizing: border-box;
+            height: 38px;
+
+            .select-box-selection {
+                box-sizing: border-box;
+                height: 100%;
+                padding: 8px auto;
+            }
+        }
+
+        .select-box-selection {
+            &::after {
+                @include dropdown-icon;
+            }
+        }
+    }
+}
+
+@mixin label {
+    color: var(--jj-text-inspector-label);
+    text-transform: uppercase;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 15px;
+    padding: 8px 0;
+    margin: 0;
+    margin-left: 4px;
+
+    &:empty {
+        display: none;
+    }
+}

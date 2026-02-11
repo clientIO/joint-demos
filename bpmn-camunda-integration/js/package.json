@@ -1,0 +1,19 @@
+{
+  "name": "joint-bpmn-camunda-demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@camunda8/zeebe": "^8.4.0",
+    "express": "^5.2.1",
+    "multer": "^2.0.2"
+  }
+}

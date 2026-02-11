@@ -1,0 +1,225 @@
+// ============================================================
+// Notification & confirmation dialogs
+// ============================================================
+
+.joint-dialog.notification-dialog.joint-theme-modern {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 10000 !important;
+
+    // ---- Backdrop ----
+    .bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(23, 28, 36, 0.45);
+        z-index: 10000;
+    }
+
+    // ---- Foreground card ----
+    .fg {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        margin: 0 !important;
+        background-color: #fff;
+        border-radius: var(--jj-border-radius-large, 8px);
+        box-sizing: border-box;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 10001;
+        min-width: 360px;
+        max-width: 500px;
+
+        .titlebar {
+            position: static;
+            padding: 18px 24px;
+            padding-right: 44px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--jj-text-primary, #374151);
+            border-bottom: 1px solid var(--jj-border-tertiary, #E5E7EB);
+            cursor: default;
+            user-select: none;
+        }
+
+        .body {
+            padding: 24px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 0 24px 20px;
+        }
+    }
+
+    // ---- Close button ----
+    .btn-close {
+        position: absolute !important;
+        width: 28px;
+        height: 28px;
+        right: 14px;
+        top: 14px;
+        font-size: 18px;
+        line-height: 28px;
+        color: var(--jj-text-tertiary, #6B7280);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        border-radius: var(--jj-border-radius-small, 4px);
+        transition: background-color 0.15s ease, color 0.15s ease;
+        z-index: 10002;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            background-color: var(--jj-bg-secondary, #F3F4F6);
+            color: var(--jj-text-primary, #374151);
+        }
+    }
+
+    // ---- Body content ----
+    .notification-dialog-body {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .notification-dialog-icon {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1;
+
+        &--success {
+            background-color: #ECFDF5;
+            color: #059669;
+        }
+
+        &--error {
+            background-color: #FEF2F2;
+            color: #DC2626;
+        }
+
+        &--info {
+            background-color: #EFF6FF;
+            color: #2563EB;
+        }
+
+        &--warning {
+            background-color: #FFFBEB;
+            color: #D97706;
+        }
+    }
+
+    .notification-dialog-message {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.6;
+        color: var(--jj-text-secondary, #4B5563);
+        word-break: break-word;
+        padding-top: 8px;
+
+        b {
+            font-weight: 600;
+            color: var(--jj-text-primary, #374151);
+        }
+    }
+
+    // ---- Action buttons ----
+    .controls button {
+        box-sizing: border-box;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 34px;
+        padding: 0 18px;
+        border-radius: var(--jj-border-radius-medium, 6px);
+        font-family: 'Open Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1;
+        cursor: pointer;
+        transition: background-color 0.15s ease,
+                    border-color   0.15s ease,
+                    box-shadow     0.15s ease;
+
+        &:focus-visible {
+            outline: 2px solid var(--jj-selector, #5540E1);
+            outline-offset: 1px;
+        }
+    }
+
+    // ---- Variant-specific title-bar accent ----
+    &.notification-dialog--success .fg .titlebar {
+        border-bottom-color: #A7F3D0;
+    }
+
+    &.notification-dialog--error .fg .titlebar {
+        border-bottom-color: #FECACA;
+    }
+
+    &.notification-dialog--info .fg .titlebar {
+        border-bottom-color: #BFDBFE;
+    }
+
+    &.notification-dialog--warning .fg .titlebar {
+        border-bottom-color: #FDE68A;
+    }
+
+    // ---- OK button (single-action dialogs) ----
+    // Colour depends on variant
+    &.notification-dialog--success .controls button,
+    &.notification-dialog--info .controls button {
+        background-color: var(--jj-btn-primary-bg, #5540E1);
+        border: 1px solid var(--jj-btn-primary-border, #4433B8);
+        color: #fff;
+
+        &:hover {
+            background-color: var(--jj-btn-primary-hover-bg, #4433B8);
+        }
+    }
+
+    &.notification-dialog--error .controls button,
+    &.notification-dialog--warning .controls button:last-child {
+        background-color: #DC2626;
+        border: 1px solid #B91C1C;
+        color: #fff;
+
+        &:hover {
+            background-color: #B91C1C;
+        }
+    }
+
+    // ---- Cancel button (confirmation dialogs) ----
+    &.notification-dialog--warning .controls button:first-child {
+        background-color: var(--jj-btn-default-bg, #F9FAFB);
+        border: 1px solid var(--jj-btn-default-border, #D1D5DB);
+        color: var(--jj-btn-default-text, #374151);
+
+        &:hover {
+            background-color: var(--jj-btn-default-hover-bg, #F3F4F6);
+            border-color: var(--jj-btn-default-hover-border, #9CA3AF);
+        }
+    }
+}

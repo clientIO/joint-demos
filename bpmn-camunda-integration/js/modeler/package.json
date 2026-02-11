@@ -1,0 +1,40 @@
+{
+  "name": "joint-bpmn-camunda-demo-modeler",
+  "version": "4.2.1",
+  "description": "JointJS+ BPMN Camunda Integration Demo",
+  "main": "index.html",
+  "author": "client IO",
+  "license": "https://www.jointjs.com/license",
+    "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "start": "concurrently \"npm run build\" \"webpack serve --config webpack.config.js\""
+  },
+  "dependencies": {
+    "@joint/format-bpmn-export": "4.2.2",
+    "@joint/format-bpmn-import": "4.2.2",
+    "@joint/plus": "4.2.2",
+    "monaco-editor": "^0.45.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.10.4",
+    "@babel/preset-env": "7.10.4",
+    "babel-loader": "8.1.0",
+    "concurrently": "4.1.0",
+    "copy-webpack-plugin": "9.0.1",
+    "core-js": "3.6.1",
+    "css-loader": "3.5.3",
+    "file-loader": "6.0.0",
+    "json": "9.0.6",
+    "monaco-editor-webpack-plugin": "^7.1.0",
+    "regenerator-runtime": "0.13.5",
+    "sass": "1.26.8",
+    "sass-loader": "8.0.2",
+    "shelljs": "0.8.4",
+    "style-loader": "1.2.1",
+    "ts-loader": "9.4.2",
+    "typescript": "4.9.5",
+    "webpack": "5.88.2",
+    "webpack-cli": "5.1.4",
+    "webpack-dev-server": "4.15.1"
+  }
+}

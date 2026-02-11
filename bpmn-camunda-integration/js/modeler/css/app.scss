@@ -1,0 +1,206 @@
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    .paper-scroller-background > .joint-paper {
+        border: 1px solid #E2E2E2;
+    }
+
+    .file-import-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 1000;
+        opacity: 0;
+        background: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(2px);
+        transition: opacity .15s ease;
+        pointer-events: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .file-import-overlay-content {
+            font-family: 'Open Sans', sans-serif;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            pointer-events: none;
+            padding: 48px 64px;
+            max-width: 340px;
+            text-align: center;
+            background: var(--jj-bg-secondary);
+            border: 2px dashed var(--jj-selector);
+            border-radius: var(--jj-border-radius-medium);
+            transition: transform .15s ease;
+            transform: scale(.92);
+        }
+
+        &.active {
+            opacity: 1;
+        }
+
+        &.active .file-import-overlay-content {
+            transform: scale(1);
+        }
+
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(6px); }
+        }
+
+        .headline {
+            margin: 12px 0 4px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--jj-text-primary);
+        }
+
+        .subline {
+            margin: 0;
+            font-size: .85rem;
+            color: var(--jj-text-secondary);
+        }
+
+        .drop-icon {
+            color: var(--jj-selector);
+            width: 36px;
+            height: 36px;
+            stroke: currentColor;
+            animation: bob 1s infinite ease-in-out;
+        }
+    }
+}
+
+.app-toolbar {
+    min-height: 54px;
+    // flex: 1;
+}
+
+.app-body {
+    display: flex;
+    flex: 1 auto;
+    overflow: hidden;
+    position: relative;
+
+    .stencil-container {
+        position: absolute;
+        z-index: 1;
+        width: 48px;
+        height: 345px;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 1px;
+        border-radius: var(--jj-border-radius-small);
+        border: 1px solid var(--jj-border-secondary);
+        background-color: var(--jj-bg-primary);
+    }
+
+    .paper-container {
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+
+        .joint-paper-scroller[data-cursor="crosshair"] .joint-cell {
+            cursor: crosshair;
+        }
+    }
+}
+
+.joint-element.available-cell *:not(text):not(tspan) {
+    stroke: var(--jj-selector);
+}
+
+.joint-element.available-cell tspan {
+    fill: var(--jj-selector);
+}
+
+.joint-link.available-cell > path[joint-selector="line"] {
+    stroke: var(--jj-selector);
+}
+
+// Label Editor
+
+.label-editor-wrapper {
+
+    position: absolute;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-color: var(--jj-selector);
+    border-style: solid;
+    background-color: white;
+    line-height: 1;
+    text-align: center;
+
+    .label-editor {
+        text-align: inherit;
+        width: 100%;
+        min-width: 1px;
+        outline: none;
+        resize: none;
+        line-height: inherit;
+        overflow-wrap: anywhere;
+        overflow-y: wrap;
+        cursor: text;
+    }
+}
+
+$stencil-background-transition: all 0.15s ease-in-out;
+
+.stencil-background-highlight {
+    fill: transparent;
+    stroke: transparent;
+    transition: $stencil-background-transition;
+
+    & + * {
+        transform-origin: 50% 14.5px;
+        transition: $stencil-background-transition;
+    }
+}
+
+[data-type="stencil.Shape"]:hover > .stencil-background-highlight {
+    fill: var(--jj-accent-primary);
+    stroke: var(--jj-selector);
+
+    & + [joint-selector="icon"] {
+        transform: scale(1.06);
+    }
+}
+
+// Effects
+.highlighter-swimlane-target [joint-selector="body"] {
+    fill: var(--jj-accent-primary);
+    transition: fill 0.4s;
+}
+
+.highlighter-swimlane-source [joint-selector="body"] {
+    fill: var(--jj-accent-primary);
+}
+
+.highlighter-error [joint-selector="body"] {
+    stroke: var(--jj-error);
+}
+
+.highlighter-error text {
+    fill: var(--jj-error);
+}
+
+.highlighter-invalid {
+    opacity: 0.5;
+}
+
+// Explicitly reduce Swimlane stroke opacity to avoid the double stroke effect for opaque Pools + Swimlanes
+[data-type$="Swimlane"].highlighter-invalid > [joint-selector="body"] {
+    stroke-opacity: 0.5;
+}

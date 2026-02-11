@@ -1,0 +1,89 @@
+.joint-dialog.joint-lightbox.joint-theme-bpmn {
+
+    &.modal.rendered {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .bg {
+        background-color: rgba(23, 28, 36, 0.41);
+    }
+
+    .fg {
+        position: relative;
+        top: unset;
+        height: auto !important;
+        background-color: var(--jj-bg-lightbox);
+        padding: 24px 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        border-radius: var(--jj-border-radius-large);
+        box-sizing: border-box;
+        filter: drop-shadow(0px 4px 8.1px rgba(0, 0, 0, 0.12));
+        min-height: 150px;
+
+        .titlebar {
+            position: static;
+            top: unset;
+            padding: 0;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 16px;
+            font-weight: normal;
+            color: var(--jj-text-lightbox-title);
+        }
+
+        .body {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            img {
+                border: 0.5px solid var(--jj-border-lightbox-image);
+                border-radius: var(--jj-border-radius-small);
+                // Image height = lightbox.options.windowArea - vertical padding and gap
+                max-height: calc(80vh - 24px * 4);
+            }
+        }
+    }
+
+    .controls {
+        position: static;
+        display: flex;
+        justify-content: flex-end;
+
+        button {
+            margin: 0;
+            box-sizing: border-box;
+            width: 84px;
+            height: 32px;
+            cursor: pointer;
+            border: 1px solid var(--jj-border-lightbox-download-button);
+            color: var(--jj-text-lightbox-download-button);
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 600;
+            line-height: initial;
+            background: transparent;
+            border-radius: var(--jj-border-radius-small);
+            transition-duration: 0.2s;
+            transition-timing-function: ease-in-out;
+            transition-property: background-color, border-color;
+
+            &:hover {
+                border-color: var(--jj-border-hover);
+                background-color: var(--jj-bg-hover);
+            }
+        }
+    }
+
+    button.btn-close {
+        width: 20px;
+        height: 20px;
+        right: 20px;
+        top: 20px;
+        font-size: 20px;
+        color: var(--jj-text-lightbox-close-button);
+    }
+}
