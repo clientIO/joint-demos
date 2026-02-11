@@ -1,15 +1,6 @@
-/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+import { dia, util, V } from '@joint/plus';
 
-Copyright (c) 2025 client IO
-
-This Source Code Form is subject to the terms of the JointJS+
-License, v. 2.0. If a copy of the JointJS+ License was not
-distributed with this file, You can obtain one at
-https://www.jointjs.com/license or from the JointJS+ archive as was
-distributed by client IO. See the LICENSE file.
-*/
-
-joint.dia.Element.define('qad.Answer', {
+export const Answer = dia.Element.define('qad.Answer', {
     padding: 50,
     attrs: {
         root: {
@@ -44,7 +35,7 @@ joint.dia.Element.define('qad.Answer', {
 
     initialize: function() {
 
-        joint.dia.Element.prototype.initialize.apply(this, arguments);
+        dia.Element.prototype.initialize.apply(this, arguments);
 
         this.autoresize();
         this.on('change:answer', this.autoresize, this);
@@ -52,9 +43,9 @@ joint.dia.Element.define('qad.Answer', {
 
     autoresize: function() {
 
-        var answer = this.get('answer');
-        var padding = this.get('padding');
-        var size = joint.util.measureText(answer, { fontSize: this.attr(['label', 'fontSize']) });
+        const answer = this.get('answer');
+        const padding = this.get('padding');
+        const size = util.measureText(answer, { fontSize: this.attr(['label', 'fontSize']) });
 
         this.prop({
             attrs: { label: { text: answer }},
@@ -64,7 +55,7 @@ joint.dia.Element.define('qad.Answer', {
 
 });
 
-joint.dia.Element.define('qad.Question', {
+export const Question = dia.Element.define('qad.Question', {
 
     optionHeight: 30,
     questionHeight: 45,
@@ -192,7 +183,7 @@ joint.dia.Element.define('qad.Question', {
 
     initialize: function() {
 
-        joint.dia.Element.prototype.initialize.apply(this, arguments);
+        dia.Element.prototype.initialize.apply(this, arguments);
         this.on('change:options', this.onChangeOptions, this);
         this.on('change:question', function() {
             this.attr('.question-text/text', this.get('question') || '');
@@ -214,13 +205,13 @@ joint.dia.Element.define('qad.Question', {
 
     onChangeOptions: function() {
 
-        var options = this.get('options') || [];
-        var optionHeight = this.get('optionHeight');
+        const options = this.get('options') || [];
+        const optionHeight = this.get('optionHeight');
 
         // First clean up the previously set attrs for the old options object.
         // We mark every new attribute object with the `dynamic` flag set to `true`.
         // This is how we recognize previously set attributes.
-        var attrs = this.get('attrs');
+        const attrs = this.get('attrs');
         Object.keys(attrs).forEach((selector) => {
 
             if (attrs[selector].dynamic) {
@@ -231,21 +222,20 @@ joint.dia.Element.define('qad.Question', {
         });
 
         // Collect new attrs for the new options.
-        var offsetY = 0;
-        var attrsUpdate = {};
-        var questionHeight = this.get('questionHeight');
+        let offsetY = 0;
+        const attrsUpdate = {};
+        const questionHeight = this.get('questionHeight');
 
         options.forEach((option) => {
 
-            var selector = '.option-' + option.id;
-
+            const selector = '.option-' + option.id;
             attrsUpdate[selector] = { transform: 'translate(0, ' + offsetY + ')', dynamic: true };
             attrsUpdate[selector + ' .option-rect'] = { height: optionHeight, dynamic: true };
             attrsUpdate[selector + ' .option-text'] = { text: option.text, dynamic: true, transform: `translate(0, ${optionHeight / 2})` };
 
             offsetY += optionHeight;
 
-            var portY = offsetY - optionHeight / 2 + questionHeight;
+            const portY = offsetY - optionHeight / 2 + questionHeight;
             if (!this.getPort(option.id)) {
                 this.addPort({ group: 'out', id: option.id, args: { y: portY }});
             } else {
@@ -259,10 +249,10 @@ joint.dia.Element.define('qad.Question', {
 
     autoresize: function() {
 
-        var options = this.get('options') || [];
-        var gap = this.get('paddingBottom') || 20;
-        var height = options.length * this.get('optionHeight') + this.get('questionHeight') + gap;
-        var width = joint.util.measureText(this.get('question'), {
+        const options = this.get('options') || [];
+        const gap = this.get('paddingBottom') || 20;
+        const height = options.length * this.get('optionHeight') + this.get('questionHeight') + gap;
+        const width = util.measureText(this.get('question'), {
             fontSize: this.attr('.question-text/fontSize')
         }).width;
         this.resize(Math.max(this.get('minWidth') || 150, width), height);
@@ -270,20 +260,20 @@ joint.dia.Element.define('qad.Question', {
 
     addOption: function(option) {
 
-        var options = JSON.parse(JSON.stringify(this.get('options')));
+        const options = JSON.parse(JSON.stringify(this.get('options')));
         options.push(option);
         this.set('options', options);
     },
 
     removeOption: function(id) {
 
-        var options = JSON.parse(JSON.stringify(this.get('options')));
+        const options = JSON.parse(JSON.stringify(this.get('options')));
         this.removePort(id);
         this.set('options', options.filter(function(option) { return option.id !== id; }));
     }
 });
 
-joint.shapes.qad.QuestionView = joint.dia.ElementView.extend({
+export const QuestionView = dia.ElementView.extend({
 
     questionIdCounter: 0,
 
@@ -292,18 +282,18 @@ joint.shapes.qad.QuestionView = joint.dia.ElementView.extend({
         'click .btn-remove-option': 'onRemoveOption'
     },
 
-    presentationAttributes: joint.dia.ElementView.addPresentationAttributes({
+    presentationAttributes: dia.ElementView.addPresentationAttributes({
         options: ['OPTIONS']
     }),
 
     confirmUpdate: function(flags) {
-        joint.dia.ElementView.prototype.confirmUpdate.apply(this, arguments);
+        dia.ElementView.prototype.confirmUpdate.apply(this, arguments);
         if (this.hasFlag(flags, 'OPTIONS')) this.renderOptions();
     },
 
     renderMarkup: function() {
 
-        joint.dia.ElementView.prototype.renderMarkup.apply(this, arguments);
+        dia.ElementView.prototype.renderMarkup.apply(this, arguments);
 
         // A holder for all the options.
         this.optionsEl = this.el.querySelector('.options');
@@ -348,32 +338,32 @@ joint.shapes.qad.QuestionView = joint.dia.ElementView.extend({
 
 // Utils
 
-joint.util.measureText = function(text, attrs) {
+util.measureText = function(text, attrs) {
 
-    var fontSize = parseInt(attrs.fontSize, 10) || 10;
+    const fontSize = parseInt(attrs.fontSize, 10) || 10;
 
-    var svgDocument = V('svg').node;
-    var textElement = V('<text><tspan></tspan></text>').node;
-    var textSpan = textElement.firstChild;
-    var textNode = document.createTextNode('');
+    const svgDocument = V('svg').node;
+    const textElement = V('<text><tspan></tspan></text>').node;
+    const textSpan = textElement.firstChild;
+    const textNode = document.createTextNode('');
 
     textSpan.appendChild(textNode);
     svgDocument.appendChild(textElement);
     document.body.appendChild(svgDocument);
 
-    var lines = text.split('\n');
-    var width = 0;
+    const lines = text.split('\n');
+    let width = 0;
 
     // Find the longest line width.
     lines.forEach(function(line) {
 
         textNode.data = line;
-        var lineWidth = textSpan.getComputedTextLength();
+        const lineWidth = textSpan.getComputedTextLength();
 
         width = Math.max(width, lineWidth);
     });
 
-    var height = lines.length * (fontSize * 1.2);
+    const height = lines.length * (fontSize * 1.2);
 
     V(svgDocument).remove();
 

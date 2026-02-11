@@ -1,15 +1,7 @@
-/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
 
-Copyright (c) 2025 client IO
+import { dia, shapes } from '@joint/plus';
 
-This Source Code Form is subject to the terms of the JointJS+
-License, v. 2.0. If a copy of the JointJS+ License was not
-distributed with this file, You can obtain one at
-https://www.jointjs.com/license or from the JointJS+ archive as was
-distributed by client IO. See the LICENSE file.
-*/
-
-joint.dia.Element.define('collapsible.Model', {
+const Model = dia.Element.define('model', {
     size: {
         width: 100,
         height: 27
@@ -36,7 +28,7 @@ joint.dia.Element.define('collapsible.Model', {
             textAnchor: 'middle',
             x: 'calc(0.5 * w)',
             y: 'calc(0.5 * h)',
-            fontFamily: 'source_sans_prosemibold',
+            fontFamily: 'sourcesanspro_semibold',
             fontSize: 14
         },
         buttonGroup: {
@@ -112,7 +104,7 @@ joint.dia.Element.define('collapsible.Model', {
 
 });
 
-joint.shapes.standard.Link.define('collapsible.Link', {
+const Link = shapes.standard.Link.define('link', {
     attrs: {
         root: {
             pointerEvents: 'none'
@@ -133,3 +125,5 @@ joint.shapes.standard.Link.define('collapsible.Link', {
         return !targetElement || targetElement.isHidden();
     }
 });
+
+export { Model, Link };

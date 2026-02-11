@@ -1,15 +1,10 @@
-/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+import { highlighters } from '@joint/plus';
+import { Controller } from '../controller.js';
 
-Copyright (c) 2025 client IO
+export const invalidPathHighlightId = 'invalid-path-member';
+export const invalidPathClassName = 'invalid-path';
 
-This Source Code Form is subject to the terms of the JointJS+
-License, v. 2.0. If a copy of the JointJS+ License was not
-distributed with this file, You can obtain one at
-https://www.jointjs.com/license or from the JointJS+ archive as was
-distributed by client IO. See the LICENSE file.
-*/
-
-class ViewController extends Controller {
+export class ViewController extends Controller {
     startListening() {
         const { paper } = this.context;
 
@@ -31,8 +26,8 @@ function selectEnd({ showPath, setEndView, getStartView, getEndView }, elementVi
 
     if (elementView === pathStartView) return;
     if (pathStartView && pathEndView) {
-        joint.highlighters.addClass.remove(pathStartView, invalidPathHighlightId);
-        joint.highlighters.addClass.remove(pathEndView, invalidPathHighlightId);
+        highlighters.addClass.remove(pathStartView, invalidPathHighlightId);
+        highlighters.addClass.remove(pathEndView, invalidPathHighlightId);
     }
     setEndView(elementView);
     showPath();
@@ -43,7 +38,7 @@ function hidePathOnMouseLeave({ hidePath, getStartView, getEndView, setEndView }
     const pathEndView = getEndView();
 
     hidePath();
-    if (pathStartView) joint.highlighters.addClass.remove(pathStartView, invalidPathHighlightId);
-    if (pathEndView) joint.highlighters.addClass.remove(pathEndView, invalidPathHighlightId);
+    if (pathStartView) highlighters.addClass.remove(pathStartView, invalidPathHighlightId);
+    if (pathEndView) highlighters.addClass.remove(pathEndView, invalidPathHighlightId);
     setEndView(null);
 }

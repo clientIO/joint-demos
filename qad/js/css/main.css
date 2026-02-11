@@ -1,0 +1,15 @@
+@import '@joint/plus/joint-plus.css';
+@import './header.css';
+@import './toolbar.css';
+@import './statusbar.css';
+@import './paper.css';
+@import './preview.css';
+@import './tooltip.css';
+@import './snippet.css';
+@import './dialog.css';
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}

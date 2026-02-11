@@ -1,28 +1,20 @@
-/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+import { dia, ui, V, mvc, shapes, linkTools } from '@joint/plus';
+import { Question, QuestionView, Answer } from './shapes';
+import { createQuestion, createAnswer, createLink, createDialogJSON } from './factory';
+import { Selection, SelectionView } from './selection';
+import { renderDialog } from './snippet';
+import '../css/main.css';
 
-Copyright (c) 2025 client IO
+const namespace = {
+    ...shapes,
+    qad: {
+        Question,
+        QuestionView,
+        Answer,
+    }
+}
 
-This Source Code Form is subject to the terms of the JointJS+
-License, v. 2.0. If a copy of the JointJS+ License was not
-distributed with this file, You can obtain one at
-https://www.jointjs.com/license or from the JointJS+ archive as was
-distributed by client IO. See the LICENSE file.
-*/
-
-// @import jquery.js
-// @import lodash.js
-// @import geometry.js
-// @import vectorizer.js
-// @import joint.clean.js
-// @import joint.shapes.qad.js
-// @import selection.js
-// @import factory.js
-// @import snippet.js
-
-var app = app || {};
-var qad = window.qad || {};
-
-app.AppView = joint.mvc.View.extend({
+export const AppView = mvc.View.extend({
 
     el: '#app',
 
@@ -37,7 +29,7 @@ app.AppView = joint.mvc.View.extend({
         'click #toolbar .clear': 'clear'
     },
 
-    init: function() {
+    init: function () {
 
         this.initializePaper();
         this.initializeSelection();
@@ -49,21 +41,21 @@ app.AppView = joint.mvc.View.extend({
         this.loadExample();
     },
 
-    initializeTooltips: function() {
+    initializeTooltips: function () {
 
-        new joint.ui.Tooltip({
+        new ui.Tooltip({
             rootTarget: '#paper',
             target: '.joint-element',
-            content: function(target) {
+            content: function (target) {
 
-                var cell = this.paper.findView(target).model;
+                const cell = this.paper.findView(target).model;
 
-                var text = '- Double-click to edit text inline.';
+                let text = '- Double-click to edit text inline.';
                 if (cell.get('type') === 'qad.Question') {
                     text += '<br/><br/>- Connect a port with another Question or an Answer.';
                 }
 
-                return  text;
+                return text;
 
             }.bind(this),
             direction: 'right',
@@ -72,11 +64,11 @@ app.AppView = joint.mvc.View.extend({
         });
     },
 
-    initializeInlineTextEditor: function() {
+    initializeInlineTextEditor: function () {
 
-        var cellViewUnderEdit;
+        let cellViewUnderEdit;
 
-        var closeEditor = () => {
+        const closeEditor = () => {
 
             if (this.textEditor) {
                 this.textEditor.remove();
@@ -86,21 +78,21 @@ app.AppView = joint.mvc.View.extend({
             }
         };
 
-        this.paper.on('cell:pointerdblclick', function(cellView, evt) {
+        this.paper.on('cell:pointerdblclick', function (cellView, evt) {
 
             // Clean up the old text editor if there was one.
             closeEditor();
 
-            var vTarget = V(evt.target);
-            var text;
-            var cell = cellView.model;
-            var options = cell.get('options') || [];
+            const vTarget = V(evt.target);
+            let text;
+            const cell = cellView.model;
+            const options = cell.get('options') || [];
 
             switch (cell.get('type')) {
 
                 case 'qad.Question':
 
-                    text = joint.ui.TextEditor.getTextElement(evt.target);
+                    text = ui.TextEditor.getTextElement(evt.target);
                     if (!text) {
                         break;
                     }
@@ -123,19 +115,19 @@ app.AppView = joint.mvc.View.extend({
                     break;
 
                 case 'qad.Answer':
-                    text = joint.ui.TextEditor.getTextElement(evt.target);
+                    text = ui.TextEditor.getTextElement(evt.target);
                     cellView.textEditPath = 'answer';
                     break;
             }
 
             if (text) {
 
-                this.textEditor = new joint.ui.TextEditor({ text: text });
+                this.textEditor = new ui.TextEditor({ text: text });
                 this.textEditor.render(this.paper.el);
 
-                this.textEditor.on('text:change', function(newText) {
+                this.textEditor.on('text:change', function (newText) {
 
-                    var cellUnderEdit = cellViewUnderEdit.model;
+                    const cellUnderEdit = cellViewUnderEdit.model;
                     // TODO: prop() changes options and so options are re-rendered
                     // (they are rendered dynamically).
                     // This means that the `text` SVG element passed to the ui.TextEditor
@@ -159,18 +151,18 @@ app.AppView = joint.mvc.View.extend({
         }, this);
 
         document.body.addEventListener('click', (evt) => {
-            var text = joint.ui.TextEditor.getTextElement(evt.target);
+            const text = ui.TextEditor.getTextElement(evt.target);
             if (this.textEditor && !text) {
                 closeEditor();
             }
         });
     },
 
-    initializeHalo: function() {
+    initializeHalo: function () {
 
-        this.paper.on('element:pointerup', function(elementView, evt) {
+        this.paper.on('element:pointerup', function (elementView, evt) {
 
-            var halo = new joint.ui.Halo({
+            const halo = new ui.Halo({
                 cellView: elementView,
                 useModelGeometry: true,
                 type: 'toolbar'
@@ -185,14 +177,14 @@ app.AppView = joint.mvc.View.extend({
         }, this);
     },
 
-    initializeSelection: function() {
+    initializeSelection: function () {
 
-        var paper = this.paper;
-        var graph = this.graph;
-        var selection = this.selection = new app.Selection;
+        const paper = this.paper;
+        const graph = this.graph;
+        const selection = this.selection = new Selection();
 
-        selection.on('add reset', function() {
-            var cell = this.selection.first();
+        selection.on('add reset', function () {
+            const cell = this.selection.first();
             if (cell) {
                 this.status('Selection: ' + cell.get('type'));
             } else {
@@ -201,26 +193,26 @@ app.AppView = joint.mvc.View.extend({
         }, this);
 
         paper.on({
-            'element:pointerup': function(elementView) {
+            'element:pointerup': function (elementView) {
                 this.selection.reset([elementView.model]);
             },
-            'blank:pointerdown': function() {
+            'blank:pointerdown': function () {
                 this.selection.reset([]);
             }
         }, this);
 
-        graph.on('remove', function() {
+        graph.on('remove', function () {
             this.selection.reset([]);
         }, this);
 
-        new app.SelectionView({
+        new SelectionView({
             model: selection,
             paper: paper
         });
 
         document.body.addEventListener('keydown', (evt) => {
 
-            var code = evt.which || evt.keyCode;
+            const code = evt.which || evt.keyCode;
             // Do not remove the element with backspace if we're in inline text editing.
             if ((code === 8 || code === 46) && !this.textEditor && !this.selection.isEmpty()) {
                 this.selection.first().remove();
@@ -233,16 +225,16 @@ app.AppView = joint.mvc.View.extend({
         }, false);
     },
 
-    initializeLinkHover: function() {
+    initializeLinkHover: function () {
 
         this.paper.on('link:mouseenter', (linkView) => {
-            const toolsView = new joint.dia.ToolsView({
+            const toolsView = new dia.ToolsView({
                 tools: [
-                    new joint.linkTools.Remove({
+                    new linkTools.Remove({
                         distance: 30
                     }),
-                    new joint.linkTools.SourceArrowhead(),
-                    new joint.linkTools.TargetArrowhead(),
+                    new linkTools.SourceArrowhead(),
+                    new linkTools.TargetArrowhead(),
                 ]
             });
             linkView.addTools(toolsView);
@@ -253,15 +245,14 @@ app.AppView = joint.mvc.View.extend({
         });
     },
 
-    initializePaper: function() {
+    initializePaper: function () {
 
+        this.graph = new dia.Graph({}, { cellNamespace: namespace });
 
-        this.graph = new joint.dia.Graph({}, { cellNamespace: joint.shapes });
-
-        this.paper = new joint.dia.Paper({
+        this.paper = new dia.Paper({
             el: document.getElementById('paper'),
             model: this.graph,
-            cellViewNamespace: joint.shapes,
+            cellViewNamespace: namespace,
             width: 800,
             height: 600,
             gridSize: 10,
@@ -270,10 +261,10 @@ app.AppView = joint.mvc.View.extend({
             },
             linkPinning: false,
             multiLinks: false,
-            defaultLink: app.Factory.createLink(),
-            defaultRouter: { name: 'manhattan', args: { padding: 20 }},
+            defaultLink: createLink(),
+            defaultRouter: { name: 'manhattan', args: { padding: 20 } },
             defaultConnector: { name: 'rounded' },
-            validateConnection: function(cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
+            validateConnection: function (cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
                 // Prevent linking from input ports.
                 if (magnetS && magnetS.getAttribute('port-group') === 'in') return false;
                 // Prevent linking from output ports to input ports within one element.
@@ -281,7 +272,7 @@ app.AppView = joint.mvc.View.extend({
                 // Prevent linking to input ports.
                 return (magnetT && magnetT.getAttribute('port-group') === 'in') || (cellViewS.model.get('type') === 'qad.Question' && cellViewT.model.get('type') === 'qad.Answer');
             },
-            validateMagnet: function(cellView, magnet) {
+            validateMagnet: function (cellView, magnet) {
                 // Note that this is the default behaviour. Just showing it here for reference.
                 return magnet.getAttribute('magnet') !== 'passive';
             }
@@ -289,53 +280,53 @@ app.AppView = joint.mvc.View.extend({
     },
 
     // Show a message in the statusbar.
-    status: function(m) {
+    status: function (m) {
         this.el.querySelector('#statusbar .message').textContent = m;
     },
 
-    addQuestion: function() {
+    addQuestion: function () {
 
-        app.Factory.createQuestion('Question').addTo(this.graph);
+        createQuestion('Question').addTo(this.graph);
         this.status('Question added.');
     },
 
-    addAnswer: function() {
+    addAnswer: function () {
 
-        app.Factory.createAnswer('Answer').addTo(this.graph);
+        createAnswer('Answer').addTo(this.graph);
         this.status('Answer added.');
     },
 
-    previewDialog: function() {
+    previewDialog: function () {
 
         const previewEl = document.getElementById('preview');
 
-        var cell = this.selection.first();
-        var dialogJSON = app.Factory.createDialogJSON(this.graph, cell);
-        var backgroundEl = document.createElement('div');
+        const cell = this.selection.first();
+        const dialogJSON = createDialogJSON(this.graph, cell);
+        const backgroundEl = document.createElement('div');
         backgroundEl.classList.add('background');
-        backgroundEl.addEventListener('click', function() {
+        backgroundEl.addEventListener('click', function () {
             previewEl.replaceChildren();
         });
 
         previewEl.replaceChildren();
         previewEl.appendChild(backgroundEl);
-        previewEl.appendChild(qad.renderDialog(dialogJSON));
+        previewEl.appendChild(renderDialog(dialogJSON));
         previewEl.style.display = 'block';
     },
 
-    clear: function() {
+    clear: function () {
 
         this.graph.clear();
     },
 
-    showCodeSnippet: function() {
+    showCodeSnippet: function () {
 
-        var cell = this.selection.first();
-        var dialogJSON = app.Factory.createDialogJSON(this.graph, cell);
+        const cell = this.selection.first();
+        const dialogJSON = createDialogJSON(this.graph, cell);
 
-        var id = `qad-dialog-${this.qadDialogCounter++}`;
+        const id = `qad-dialog-${this.qadDialogCounter++}`;
 
-        var snippet = '';
+        let snippet = '';
         snippet += '<div id="' + id + '"></div>';
         snippet += '<link rel="stylesheet" type="text/css" href="http://qad.client.io/css/snippet.css"></script>';
         snippet += '<script type="text/javascript" src="http://qad.client.io/src/snippet.js"></script>';
@@ -343,9 +334,9 @@ app.AppView = joint.mvc.View.extend({
         snippet += 'document.getElementById("' + id + '").appendChild(qad.renderDialog(' + JSON.stringify(dialogJSON) + '))';
         snippet += '</script>';
 
-        var content = '<textarea>' + snippet + '</textarea>';
+        const content = '<textarea>' + snippet + '</textarea>';
 
-        var dialog = new joint.ui.Dialog({
+        const dialog = new ui.Dialog({
             width: '50%',
             height: 200,
             draggable: true,
@@ -356,7 +347,7 @@ app.AppView = joint.mvc.View.extend({
         dialog.open();
     },
 
-    loadExample: function() {
+    loadExample: function () {
 
         this.selection.reset([]);
         this.graph.fromJSON({
@@ -385,7 +376,7 @@ app.AppView = joint.mvc.View.extend({
                                     },
                                 },
                                 label: {
-                                    position: { name: 'left', args: { x: 5 }},
+                                    position: { name: 'left', args: { x: 5 } },
                                 },
                             },
                             out: {
@@ -403,11 +394,11 @@ app.AppView = joint.mvc.View.extend({
                         items: [
                             {
                                 group: 'in',
-                                attrs: { text: { text: 'in' }},
+                                attrs: { text: { text: 'in' } },
                                 id: '0827c5d5-e3e4-47db-b2a7-665e47e5ffbc',
                             },
-                            { group: 'out', id: 'yes', args: { y: 60 }},
-                            { group: 'out', id: 'no', args: { y: 90 }},
+                            { group: 'out', id: 'yes', args: { y: 60 } },
+                            { group: 'out', id: 'no', args: { y: 90 } },
                         ],
                     },
                     position: { x: 45, y: 38 },
@@ -476,7 +467,7 @@ app.AppView = joint.mvc.View.extend({
                                     },
                                 },
                                 label: {
-                                    position: { name: 'left', args: { x: 5 }},
+                                    position: { name: 'left', args: { x: 5 } },
                                 },
                             },
                             out: {
@@ -494,11 +485,11 @@ app.AppView = joint.mvc.View.extend({
                         items: [
                             {
                                 group: 'in',
-                                attrs: { text: { text: 'in' }},
+                                attrs: { text: { text: 'in' } },
                                 id: '3da4004a-938e-4b8d-aac7-94f93eded50a',
                             },
-                            { group: 'out', id: 'yes', args: { y: 60 }},
-                            { group: 'out', id: 'no', args: { y: 90 }},
+                            { group: 'out', id: 'yes', args: { y: 60 } },
+                            { group: 'out', id: 'no', args: { y: 90 } },
                         ],
                     },
                     position: { x: 55, y: 245 },
@@ -569,7 +560,7 @@ app.AppView = joint.mvc.View.extend({
                                     },
                                 },
                                 label: {
-                                    position: { name: 'left', args: { x: 5 }},
+                                    position: { name: 'left', args: { x: 5 } },
                                 },
                             },
                             out: {
@@ -587,11 +578,11 @@ app.AppView = joint.mvc.View.extend({
                         items: [
                             {
                                 group: 'in',
-                                attrs: { text: { text: 'in' }},
+                                attrs: { text: { text: 'in' } },
                                 id: '17d84052-8cce-4357-89dc-92514c3a5cfe',
                             },
-                            { group: 'out', id: 'yes', args: { y: 60 }},
-                            { group: 'out', id: 'no', args: { y: 90 }},
+                            { group: 'out', id: 'yes', args: { y: 60 } },
+                            { group: 'out', id: 'no', args: { y: 90 } },
                         ],
                     },
                     position: { x: 238, y: 429 },
@@ -645,7 +636,7 @@ app.AppView = joint.mvc.View.extend({
                     answer: 'Don\'t mess about with it.',
                     id: '6d15cdcb-9981-4620-b023-b30d8f4f19d9',
                     z: 4,
-                    attrs: { label: { text: 'Don\'t mess about with it.' }},
+                    attrs: { label: { text: 'Don\'t mess about with it.' } },
                 },
                 {
                     type: 'qad.Answer',
@@ -656,7 +647,7 @@ app.AppView = joint.mvc.View.extend({
                     answer: 'Run away!',
                     id: 'ef4e38b0-592b-415d-937f-75c74b969ad2',
                     z: 5,
-                    attrs: { label: { text: 'Run away!' }},
+                    attrs: { label: { text: 'Run away!' } },
                 },
                 {
                     type: 'qad.Answer',
@@ -667,7 +658,7 @@ app.AppView = joint.mvc.View.extend({
                     answer: 'Poor boy.',
                     id: '61b31adc-2640-4790-a46a-bcc736dba3b6',
                     z: 6,
-                    attrs: { label: { text: 'Poor boy.' }},
+                    attrs: { label: { text: 'Poor boy.' } },
                 },
                 {
                     type: 'qad.Answer',
@@ -678,7 +669,7 @@ app.AppView = joint.mvc.View.extend({
                     answer: 'Put it in a bin.',
                     id: 'dc726ad6-0dbc-4185-986d-82204a4bc77a',
                     z: 7,
-                    attrs: { label: { text: 'Put it in a bin.' }},
+                    attrs: { label: { text: 'Put it in a bin.' } },
                 },
                 {
                     type: 'standard.Link',

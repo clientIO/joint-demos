@@ -1,28 +1,29 @@
-/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
-
-Copyright (c) 2025 client IO
-
-This Source Code Form is subject to the terms of the JointJS+
-License, v. 2.0. If a copy of the JointJS+ License was not
-distributed with this file, You can obtain one at
-https://www.jointjs.com/license or from the JointJS+ archive as was
-distributed by client IO. See the LICENSE file.
-*/
+@import '@joint/plus/joint-plus.css';
 
 @font-face {
-    font-family: 'source_sans_proregular';
-    src: url('sourcesanspro-regular-webfont.woff2') format('woff2'),
-         url('sourcesanspro-regular-webfont.woff') format('woff');
+    font-family: 'sourcesanspro_regular';
+    src: url('../assets/fonts/sourcesanspro-regular-webfont.woff2') format('woff2'),
+        url('../assets/fonts/sourcesanspro-regular-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
-
 }
-html, body {
+
+@font-face {
+    font-family: 'sourcesanspro_semibold';
+    src: url('../assets/fonts/sourcesanspro-semibold-webfont.woff2') format('woff2'),
+        url('../assets/fonts/sourcesanspro-semibold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html,
+body {
     margin: 0;
     padding: 0;
     background-color: #FAFAFA;
-    font-family: 'source_sans_proregular', sans-serif;
+    font-family: 'sourcesanspro_regular', sans-serif;
 }
+
 #canvas {
     border: 1px solid #e0e0e0;
     margin: 10px auto 0;
@@ -30,6 +31,7 @@ html, body {
     height: 800px;
     background: #F3F7F6;
 }
+
 #info {
     width: 1000px;
     left: calc(50% - 490px);
@@ -38,29 +40,36 @@ html, body {
     font-size: 14px;
     pointer-events: none;
 }
+
 #info b {
-    font-family: 'source_sans_prosemibold', sans-serif;
+    font-family: 'sourcesanspro_semibold', sans-serif;
 }
+
 #tools {
     margin: 10px auto 0;
     width: 510px;
     left: calc(50% - 490px);
     top: 30px;
 }
+
 #tools .joint-toolbar {
     background: transparent;
 }
+
 #tools output {
     margin-left: 10px;
 }
+
 #tools input {
     width: 300px;
 }
+
 #tools button {
     border-radius: 30px;
     padding: 0 1em;
-    font-family: 'source_sans_proregular', sans-serif;
+    font-family: 'sourcesanspro_regular', sans-serif;
 }
+
 #tools .joint-widget {
     margin-right: 20px;
     background: transparent;

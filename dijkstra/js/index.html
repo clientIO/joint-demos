@@ -1,47 +1,49 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="The JointJS+ Shortest Path Finder application serves as a template to help bring your idea to life in no time.">
 
-        <title>JointJS+ Shortest Path Finder Application</title>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="The JointJS+ Shortest Path Finder application serves as a template to help bring your idea to life in no time.">
 
-        <link rel="stylesheet" type="text/css" href="css/dijkstra.css" />
+    <title>JointJS+ Shortest Path Finder Application</title>
 
-    </head>
-    <body>
+</head>
 
-        <script>
-            SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function (toElement) {
-                return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
-            };
-        </script>
+<body>
 
-        <div id="popup">
-            <p>Double-click a blank paper area to create new nodes.</p>
-            <p>Hover links to display remove tool or drag to change vertices.</p>
-            <p>Hover element edges to display connect tool.</p>
-            <p>Drag elements to reposition them.</p>
+    <script>
+        SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function (toElement) {
+            return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
+        };
+    </script>
+
+    <div id="popup">
+        <p>Double-click a blank paper area to create new nodes.</p>
+        <p>Hover links to display remove tool or drag to change vertices.</p>
+        <p>Hover element edges to display connect tool.</p>
+        <p>Drag elements to reposition them.</p>
+    </div>
+
+    <div class="example shorter-path-finder">
+        <div class="options">
+            <input class="checkbox" id="directed-graph-toggle" type="checkbox" />
+            <label for="directed-graph-toggle" class="checkbox-label">
+                <span>Directed graph</span>
+            </label>
+            <input class="checkbox" id="edit-mode-toggle" type="checkbox" />
+            <label for="edit-mode-toggle" class="checkbox-label">
+                <span>Edit mode</span>
+            </label>
         </div>
+        <span id="path"></span>
+        <div id="paper" class="paper"></div>
+        <p class="info">Click a node and hover over another one to see the shortest path between them.</p>
 
-        <div class="example shorter-path-finder">
-            <div class="options">
-                <input class="checkbox" id="directed-graph-toggle" type="checkbox"/>
-                <label for="directed-graph-toggle" class="checkbox-label">
-                    <span>Directed graph</span>
-                </label>
-                <input class="checkbox" id="edit-mode-toggle" type="checkbox"/>
-                <label for="edit-mode-toggle" class="checkbox-label">
-                    <span>Edit mode</span>
-                </label>
-            </div>
-            <span id="path"></span>
-            <div id="paper" class="paper"></div>
-            <p class="info">Click a node and hover over another one to see the shortest path between them.</p>
+    </div><!--end example-->
 
-        </div><!--end example-->
+    <script type="module" src="/src/main.js"></script>
+</body>
 
-        <script type="module" src="/src/main.js"></script>
-    </body>
 </html>

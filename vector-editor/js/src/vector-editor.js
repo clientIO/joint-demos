@@ -1,68 +1,12 @@
-/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+import { dia, shapes, format, mvc, ui, util } from '@joint/plus';
+import { Path } from './shapes';
 
-Copyright (c) 2025 client IO
+const namespace = {
+    ...shapes,
+    Path
+};
 
-This Source Code Form is subject to the terms of the JointJS+
-License, v. 2.0. If a copy of the JointJS+ License was not
-distributed with this file, You can obtain one at
-https://www.jointjs.com/license or from the JointJS+ archive as was
-distributed by client IO. See the LICENSE file.
-*/
-
-var app = app || {};
-
-app.Path = joint.dia.Element.define('Path', {
-    attrs: {
-        path: {
-            strokeMiterlimit: 4,
-            strokeLinejoin: 'miter',
-            strokeLinecap: 'butt',
-            strokeOpacity: 1,
-            strokeDasharray: 'none',
-            fillOpacity: 1,
-            fillRule: 'nonzero',
-            cursor: 'move'
-        }
-    }
-}, {
-
-    useCSSSelectors: true,
-    markup: 'path',
-
-    updateBBox: function(bbox, opt) {
-
-        this.position(bbox.x, bbox.y, opt);
-        this.resize(bbox.width || 1, bbox.height || 1, opt);
-    },
-
-    updatePathData: function(paper) {
-
-        var view = this.findView(paper);
-        var path = view.vel.findOne('path');
-        var untransformedBBox = path.getBBox({ target: view.el });
-        var transformedBBox = path.getBBox({ target: paper.layers });
-        var position = transformedBBox.center().difference(untransformedBBox.center().difference(untransformedBBox.topLeft()));
-        this.attr('path/refD', path.attr('d'), {
-            nextBBox: new g.Rect(position.x, position.y, untransformedBBox.width, untransformedBBox.height),
-            prevBBox: this.getBBox()
-        });
-    }
-}, {
-
-    createFromNode: function(pathNode, paper) {
-
-        var bbox = V.transformRect(pathNode.getBBox(), paper.matrix().inverse());
-        var p = new this({
-            position: { x: bbox.x, y: bbox.y },
-            size: { width: bbox.width, height: bbox.height },
-            attrs: { path: { refD: pathNode.getAttribute('d') }}
-        });
-
-        return p;
-    }
-});
-
-app.AppView = joint.mvc.View.extend({
+export const AppView = mvc.View.extend({
 
     el: '#app',
 
@@ -103,18 +47,18 @@ app.AppView = joint.mvc.View.extend({
 
     initPlugins: function() {
 
-        var options = this.options;
+        const options = this.options;
 
-        var graph = this.graph = new joint.dia.Graph;
+        const graph = this.graph = new dia.Graph({}, { cellNamespace: namespace });
 
-        var paper = this.paper = new joint.dia.Paper({
+        const paper = this.paper = new dia.Paper({
             el: this.el.querySelector('#paper'),
             width: options.paperWidth,
             height: options.paperHeight,
             model: graph
         });
 
-        var paperScroller = this.paperScroller = new joint.ui.PaperScroller({
+        const paperScroller = this.paperScroller = new ui.PaperScroller({
             paper: paper,
             padding: options.paperScrollerPadding,
             autoResizePaper: options.paperScrollerAutoResize,
@@ -129,13 +73,13 @@ app.AppView = joint.mvc.View.extend({
         paperScroller.el.style.height = `${options.paperScrollerHeight}px`;
         this.el.querySelector('#paper-scroller').appendChild(paperScroller.el);
 
-        this.snaplines = new joint.ui.Snaplines({ paper: paper });
-        this.cm = new joint.dia.CommandManager({
+        this.snaplines = new ui.Snaplines({ paper: paper });
+        this.cm = new dia.CommandManager({
             graph: graph,
             applyOptionsList: ['propertyPath', 'nextBBox'],
             revertOptionsList: ['propertyPath', 'prevBBox']
         });
-        this.keyboard = new joint.ui.Keyboard();
+        this.keyboard = new ui.Keyboard();
     },
 
     initControllers: function() {
@@ -277,9 +221,9 @@ app.AppView = joint.mvc.View.extend({
 
         this.clear();
 
-        var paths = this.options.initialPaths;
-        var numPaths = (paths) ? paths.length : 0;
-        for (var i = 0; i < numPaths; i++) {
+        const paths = this.options.initialPaths;
+        const numPaths = (paths) ? paths.length : 0;
+        for (let i = 0; i < numPaths; i++) {
             paths[i].clone().addTo(this.graph);
         }
 
@@ -302,20 +246,20 @@ app.AppView = joint.mvc.View.extend({
 
     download: function() {
 
-        var paper = this.paper;
-        var graph = this.graph;
+        const paper = this.paper;
+        const graph = this.graph;
 
         if (graph.getElements().length > 0) {
             // only download if there are elements in the graph
 
             this.removeOverlays(); // overlay elements should not be downloaded
 
-            var downloadArea = graph.getBBox().inflate(20);
+            const downloadArea = graph.getBBox().inflate(20);
 
-            joint.format.toSVG(paper, function(svg) {
-                var data = 'data:image/svg+xml,' + encodeURIComponent(svg);
-                var fileName = 'VectorEditor download.svg';
-                joint.util.downloadDataUri(data, fileName);
+            format.toSVG(paper, function(svg) {
+                const data = 'data:image/svg+xml,' + encodeURIComponent(svg);
+                const fileName = 'VectorEditor download.svg';
+                util.downloadDataUri(data, fileName);
             }.bind(this), {
                 area: downloadArea,
                 preserveDimensions: true,
@@ -355,11 +299,11 @@ app.AppView = joint.mvc.View.extend({
 
         if (!this.pathDrawer) { // if path drawer doesn't exist
 
-            var paper = this.paper;
-            var options = this.options;
+            const paper = this.paper;
+            const options = this.options;
 
             // make a new path drawer
-            var pathDrawer = this.pathDrawer = new joint.ui.PathDrawer({
+            const pathDrawer = this.pathDrawer = new ui.PathDrawer({
                 target: paper.svg,
                 pathAttributes: {
                     'fill': options.pathFill,
@@ -371,8 +315,8 @@ app.AppView = joint.mvc.View.extend({
 
             pathDrawer.on({
                 'path:finish': function(pathNode) {
-                    var path = this.closeDrawer(pathNode);
-                    var pathView = path.findView(this.paper);
+                    const path = this.closeDrawer(pathNode);
+                    const pathView = path.findView(this.paper);
                     this.removeDrawer();
                     this.addEditor(pathView);
                     this.addInspector(pathView);
@@ -392,8 +336,8 @@ app.AppView = joint.mvc.View.extend({
 
     closeDrawer: function(pathNode) {
 
-        var options = this.options;
-        var p = app.Path.createFromNode(pathNode, this.paper).attr({
+        const options = this.options;
+        const p = Path.createFromNode(pathNode, this.paper).attr({
             path: {
                 fill: options.pathFill,
                 stroke: options.pathStroke,
@@ -414,7 +358,7 @@ app.AppView = joint.mvc.View.extend({
     addFreeTransform: function(cellView) {
 
         if (!this.freeTransform) {
-            var freeTransform = this.freeTransform = new joint.ui.FreeTransform({
+            const freeTransform = this.freeTransform = new ui.FreeTransform({
                 cell: cellView.model,
                 paper: this.paper,
                 graph: this.graph,
@@ -437,7 +381,7 @@ app.AppView = joint.mvc.View.extend({
 
         if (!this.pathEditor) {
 
-            var pathEditor = this.pathEditor = new joint.ui.PathEditor({
+            const pathEditor = this.pathEditor = new ui.PathEditor({
                 pathElement: cellView.el.querySelector('path')
             });
 
@@ -484,8 +428,8 @@ app.AppView = joint.mvc.View.extend({
 
     addInspector: function(cellView) {
 
-        var options = this.options;
-        var palette = [...new Set([
+        const options = this.options;
+        const palette = [...new Set([
             '#f6f6f6',
             '#dcd7d7',
             '#8f8f8f',
@@ -505,7 +449,7 @@ app.AppView = joint.mvc.View.extend({
             options.pathStroke
         ])];
 
-        this.inspector = joint.ui.Inspector.create('#inspector', {
+        this.inspector = ui.Inspector.create('#inspector', {
             cellView: cellView,
             theme: 'default',
             stateKey: function(model) {
@@ -620,6 +564,6 @@ app.AppView = joint.mvc.View.extend({
 
     removeInspector: function() {
 
-        joint.ui.Inspector.close();
+        ui.Inspector.close();
     }
 });

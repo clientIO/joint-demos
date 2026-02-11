@@ -1,22 +1,13 @@
-/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
-
-Copyright (c) 2025 client IO
-
-This Source Code Form is subject to the terms of the JointJS+
-License, v. 2.0. If a copy of the JointJS+ License was not
-distributed with this file, You can obtain one at
-https://www.jointjs.com/license or from the JointJS+ archive as was
-distributed by client IO. See the LICENSE file.
-*/
-
 #toolbar {
     padding-top: 8px;
     padding-bottom: 25px;
     text-align: center;
     background: linear-gradient(to bottom, #f6f6f6 0%, #f6f6f6 7%, #e0e0e0 100%);
-    box-shadow: 0 2px 5px rgba(106, 108, 138, .49); /*#6a6c8a*/
+    box-shadow: 0 2px 5px rgba(106, 108, 138, .49);
+    /*#6a6c8a*/
     border-top: 1px solid #DCDDEE;
 }
+
 #toolbar .btn {
     border: 1px solid #6A6C8B;
     color: #6A6C8B;
@@ -31,6 +22,7 @@ distributed by client IO. See the LICENSE file.
     cursor: pointer;
     outline: none;
 }
+
 #toolbar .btn:hover {
     background-color: #6A6C8B;
     color: white;

@@ -1,25 +1,16 @@
-/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+let currentDialog = null;
+let currentEl = null;
+let currentNode = null;
 
-Copyright (c) 2025 client IO
+export function renderDialog(dialog, node) {
 
-This Source Code Form is subject to the terms of the JointJS+
-License, v. 2.0. If a copy of the JointJS+ License was not
-distributed with this file, You can obtain one at
-https://www.jointjs.com/license or from the JointJS+ archive as was
-distributed by client IO. See the LICENSE file.
-*/
-
-var qad = window.qad || {};
-
-qad.renderDialog = function(dialog, node) {
-
-    this.dialog = dialog;
+    currentDialog = dialog;
 
     if (!node) {
 
-        for (var dNode of dialog.nodes) {
+        for (let dNode of currentDialog.nodes) {
 
-            if (dNode.id === dialog.root) {
+            if (dNode.id === currentDialog.root) {
 
                 node = dNode;
                 break;
@@ -32,89 +23,85 @@ qad.renderDialog = function(dialog, node) {
         throw new Error('It is not clear where to go next.');
     }
 
-    if (!this.el) {
-        this.el = this.createElement('div', 'qad-dialog');
+    if (!currentEl) {
+        currentEl = createElement('div', 'qad-dialog');
     }
 
     // Empty previously rendered dialog.
-    this.el.textContent = '';
+    currentEl.textContent = '';
 
     switch (node.type) {
 
         case 'qad.Question':
-            this.renderQuestion(node);
+            renderQuestion(node);
             break;
         case 'qad.Answer':
-            this.renderAnswer(node);
+            renderAnswer(node);
             break;
     }
 
-    this.currentNode = node;
+    currentNode = node;
 
-    return this.el;
+    return currentEl;
 };
 
-qad.createElement = function(tagName, className) {
+export function createElement(tagName, className) {
 
-    var el = document.createElement(tagName);
+    const el = document.createElement(tagName);
     el.setAttribute('class', className);
     return el;
 };
 
-qad.renderOption = function(option) {
+export function renderOption(option) {
 
-    var elOption = this.createElement('button', 'qad-option qad-button');
+    const elOption = createElement('button', 'qad-option qad-button');
     elOption.textContent = option.text;
     elOption.setAttribute('data-option-id', option.id);
 
-    var self = this;
     elOption.addEventListener('click', function(evt) {
-
-        self.onOptionClick(evt);
-
+        onOptionClick(evt);
     }, false);
 
     return elOption;
 };
 
-qad.renderQuestion = function(node) {
+export function renderQuestion(node) {
 
-    var elContent = this.createElement('div', 'qad-content');
-    var elOptions = this.createElement('div', 'qad-options');
+    const elContent = createElement('div', 'qad-content');
+    const elOptions = createElement('div', 'qad-options');
 
-    for (var nodeOption of node.options) {
+    for (const nodeOption of node.options) {
 
-        elOptions.appendChild(this.renderOption(nodeOption));
+        elOptions.appendChild(renderOption(nodeOption));
     }
 
-    var elQuestion = this.createElement('h3', 'qad-question-header');
+    const elQuestion = createElement('h3', 'qad-question-header');
     elQuestion.innerHTML = node.question;
 
     elContent.appendChild(elQuestion);
     elContent.appendChild(elOptions);
 
-    this.el.appendChild(elContent);
+    currentEl.appendChild(elContent);
 };
 
-qad.renderAnswer = function(node) {
+export function renderAnswer(node) {
 
-    var elContent = this.createElement('div', 'qad-content');
-    var elAnswer = this.createElement('h3', 'qad-answer-header');
+    const elContent = createElement('div', 'qad-content');
+    const elAnswer = createElement('h3', 'qad-answer-header');
     elAnswer.innerHTML = node.answer;
 
     elContent.appendChild(elAnswer);
-    this.el.appendChild(elContent);
+    currentEl.appendChild(elContent);
 };
 
-qad.onOptionClick = function(evt) {
+export function onOptionClick(evt) {
 
-    var elOption = evt.target;
-    var optionId = elOption.getAttribute('data-option-id');
+    const elOption = evt.target;
+    const optionId = elOption.getAttribute('data-option-id');
 
-    var outboundLink;
-    for (var dLink of this.dialog.links) {
-
-        if (dLink.source.id === this.currentNode.id && dLink.source.port === optionId) {
+    let outboundLink;
+    for (let dLink of currentDialog.links) {
+        if (dLink.source.id === currentNode.id && dLink.source.port === optionId) {
 
             outboundLink = dLink;
             break;
@@ -123,8 +110,8 @@ qad.onOptionClick = function(evt) {
 
     if (outboundLink) {
 
-        var nextNode;
-        for (var dNode of this.dialog.nodes) {
+        let nextNode;
+        for (let dNode of currentDialog.nodes) {
 
             if (dNode.id === outboundLink.target.id) {
 
@@ -135,7 +122,7 @@ qad.onOptionClick = function(evt) {
 
         if (nextNode) {
 
-            this.renderDialog(this.dialog, nextNode);
+            renderDialog(currentDialog, nextNode);
         }
     }
 };

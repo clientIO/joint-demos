@@ -1,19 +1,8 @@
-/*! JointJS+ v4.2.2 (2026-01-22) - HTML5 Diagramming Framework
+import { mvc, V } from '@joint/plus';
 
-Copyright (c) 2025 client IO
+export const Selection = mvc.Collection.extend();
 
-This Source Code Form is subject to the terms of the JointJS+
-License, v. 2.0. If a copy of the JointJS+ License was not
-distributed with this file, You can obtain one at
-https://www.jointjs.com/license or from the JointJS+ archive as was
-distributed by client IO. See the LICENSE file.
-*/
-
-var app = app || {};
-
-app.Selection = joint.mvc.Collection.extend();
-
-app.SelectionView = joint.mvc.View.extend({
+export const SelectionView = mvc.View.extend({
 
     PADDING: 3,
 
@@ -24,17 +13,17 @@ app.SelectionView = joint.mvc.View.extend({
         'pointer-events': 'none'
     }),
 
-    init: function() {
+    init: function () {
         this.listenTo(this.model, 'add reset change', this.render);
     },
 
-    render: function() {
+    render: function () {
 
         if (this.boxes) {
             this.boxes.forEach(box => box.remove());
         }
 
-        this.boxes = this.model.map(function(element) {
+        this.boxes = this.model.map(function (element) {
             return this.BOX_TEMPLATE
                 .clone()
                 .attr(element.getBBox().inflate(this.PADDING))
@@ -44,7 +33,7 @@ app.SelectionView = joint.mvc.View.extend({
         return this;
     },
 
-    onRemove: function() {
+    onRemove: function () {
         if (this.boxes) {
             this.boxes.forEach(box => box.remove());
         }

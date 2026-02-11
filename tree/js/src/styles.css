@@ -1,0 +1,19 @@
+@import '@joint/plus/joint-plus.css';
+
+html,
+body,
+#tree-app,
+.joint-paper-scroller.joint-theme-material {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.joint-halo.joint-theme-material .box {
+    width: 160px;
+    text-align: left;
+    font-size: 0.9em;
+    color: #3c4260;
+    background-color: rgba(255, 255, 255, 0.7);
+}
