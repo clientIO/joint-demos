@@ -155,8 +155,8 @@ const start = async function() {
                         fill: '#131e29',
                         fontFamily: 'sans-serif',
                         text: `Goal: ${goal.scorer.player}`,
-                        refX: 10,
-                        textAnchor: 'start'
+                        textAnchor: 'start',
+                        x: 10,
                     }
                 }
             });
@@ -191,8 +191,8 @@ const start = async function() {
                             fill: '#cad8e3'
                         },
                         label: {
-                            refX: 10,
                             textAnchor: 'start',
+                            x: 10,
                             fill: '#131e29',
                             fontFamily: 'sans-serif',
                             fontSize: 14,

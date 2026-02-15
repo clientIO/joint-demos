@@ -456,15 +456,16 @@ const _inputRenderer = function(gridTypes, onChange) {
             const input = document.createElement('input');
             input.type = 'color';
             input.value = inputDef.value;
+            const label = document.createElement('label');
+            label.textContent = inputDef.name;
+            container.appendChild(label);
+            container.appendChild(input);
+
             addInputChangeListener(input, function() {
                 inputDef.onChange(this.value, currentOpt);
                 onChange(currentOpt);
             });
             input.dispatchEvent(new Event('change'));
-            const label = document.createElement('label');
-            label.textContent = inputDef.name;
-            container.appendChild(label);
-            container.appendChild(input);
         },
         'number': function(inputDef, container) {
             const input = document.createElement('input');
@@ -473,13 +474,6 @@ const _inputRenderer = function(gridTypes, onChange) {
             input.step = inputDef.step;
             input.min = inputDef.min;
             input.max = inputDef.max;
-            addInputChangeListener(input, function() {
-                const value = parseFloat(this.value).toFixed(2);
-                this.parentElement.querySelector('output').textContent = value;
-                inputDef.onChange(value, currentOpt);
-                onChange(currentOpt);
-            });
-            input.dispatchEvent(new Event('change'));
             const label = document.createElement('label');
             label.textContent = inputDef.name;
             container.appendChild(label);
@@ -487,6 +481,14 @@ const _inputRenderer = function(gridTypes, onChange) {
             const output = document.createElement('output');
             output.textContent = input.value;
             container.appendChild(output);
+
+            addInputChangeListener(input, function() {
+                const value = parseFloat(input.value).toFixed(2);
+                input.parentElement.querySelector('output').textContent = value;
+                inputDef.onChange(value, currentOpt);
+                onChange(currentOpt);
+            });
+            input.dispatchEvent(new Event('change'));
         }
     };
 

@@ -5,6 +5,7 @@ import './styles.scss';
 import webflowSvg from '../assets/icons/webflow.svg';
 import slackSvg from '../assets/icons/slack.svg';
 import gmailSvg from '../assets/icons/gmail.svg';
+import clearbitPng from '../assets/icons/clearbit.png';
 
 const PortGroup = {
     IN: 'in',
@@ -236,7 +237,7 @@ const webflow1 = createElement(
     .position(100, 140);
 
 const clearbit1 = createElement(
-    'https://logo.clearbit.com/clearbit.com',
+    clearbitPng,
     'Retrieve number of employees'
 )
     .set('service', 'Clearbit')

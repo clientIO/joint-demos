@@ -1,6 +1,8 @@
 import { dia, shapes, util, g } from '@joint/core';
 import './styles.css';
 
+import backgroundImage from '../assets/background.png';
+
 const KingWhite = dia.Element.define('chess.KingWhite', {
     size: { width: 42, height: 38 },
     attrs: {
@@ -509,7 +511,7 @@ const Chessboard = Board.extend({
 
 const board = new Chessboard({
     background: {
-        image: '/background.png',
+        image: backgroundImage,
         repeat: 'repeat'
     },
     el: document.getElementById('board'),

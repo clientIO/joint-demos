@@ -138,7 +138,7 @@ body {
             }
 
             label::before {
-                content: url('/assets/inspector/icon-child-label.svg');
+                content: url('../assets/inspector/icon-child-label.svg');
                 width: 10px;
                 height: 18px;
                 margin-right: 16px;
@@ -259,13 +259,13 @@ body {
         }
 
         &[data-type="undo"]::after {
-            content: url('/assets/toolbar/icon-undo.svg');
+            content: url('../assets/toolbar/icon-undo.svg');
             width: var(--undo-redo-icon-size);
             height: var(--undo-redo-icon-size);
         }
 
         &[data-type="redo"]::after {
-            content: url('/assets/toolbar/icon-redo.svg');
+            content: url('../assets/toolbar/icon-redo.svg');
             width: var(--undo-redo-icon-size);
             height: var(--undo-redo-icon-size);
         }

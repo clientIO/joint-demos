@@ -13,9 +13,11 @@ import '../css/index.css';
 import * as joint from '@joint/plus';
 import { VisioArchive } from '@joint/format-visio';
 
+import networkExample from '../assets/network.vsdx?url';
+
 document.body.classList.add('loading');
 
-VisioArchive.fromURL('/network.vsdx').then(function(archive) {
+VisioArchive.fromURL(networkExample).then(function(archive) {
     const page = archive.document.getPages()[0];
 
     const graph = new joint.dia.Graph();
