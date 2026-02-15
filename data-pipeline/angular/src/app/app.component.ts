@@ -129,13 +129,26 @@ export class AppComponent implements AfterViewInit, OnDestroy {
                 sourceMagnet: SVGElement | null,
                 targetView: dia.CellView,
                 targetMagnet: SVGElement | null,
-                end: 'source' | 'target'
+                end: 'source' | 'target',
+                linkView: dia.LinkView
             ) => {
                 const source = sourceView.model;
                 const target = targetView.model;
                 if (source.isLink() || target.isLink()) return false;
                 if (targetMagnet === sourceMagnet) return false;
                 if (end === 'target' ? targetMagnet : sourceMagnet) {
+                    const sourcePort = sourceMagnet?.getAttribute('port');
+                    const targetPort = targetMagnet?.getAttribute('port');
+                    if (sourcePort && targetPort) {
+                        const duplicate = this.graph.getLinks().some((link) => {
+                            if (link === linkView.model) return false;
+                            const s = link.source();
+                            const t = link.target();
+                            return s.id === source.id && s.port === sourcePort
+                                && t.id === target.id && t.port === targetPort;
+                        });
+                        if (duplicate) return false;
+                    }
                     return true;
                 }
                 if (source === target) return false;
