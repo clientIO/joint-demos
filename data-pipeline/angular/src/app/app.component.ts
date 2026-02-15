@@ -110,12 +110,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             model: this.graph,
             cellViewNamespace: cellNamespace,
             gridSize: GRID_SIZE,
-            drawGrid: {
-                name: 'dot',
-                args: {
-                    color: '#CCCCCC',
-                },
-            },
             interactive: { linkMove: false },
             linkPinning: false,
             frozen: true,
@@ -234,6 +228,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             paperScroller: this.scroller,
             width: 200,
             height: 150,
+            useContentBBox: { useModelGeometry: true },
             paperOptions: {
                 elementView: NavigatorElementView,
                 defaultAnchor: {

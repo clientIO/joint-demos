@@ -306,24 +306,37 @@ export class AvoidRouter {
         const portCenterY = pos.y + portPosition.y;
         const side = new g.Rect(0, 0, width, height).sideNearestToPoint(portPosition);
         const offset = 20;
+        let v1, v2;
         switch (side) {
             case 'left': {
                 const x = routeEndpoint.x - offset;
-                return [{ x, y: routeEndpoint.y }, { x, y: portCenterY }];
+                v1 = { x, y: routeEndpoint.y };
+                v2 = { x, y: portCenterY };
+                break;
             }
             case 'right': {
                 const x = routeEndpoint.x + offset;
-                return [{ x, y: routeEndpoint.y }, { x, y: portCenterY }];
+                v1 = { x, y: routeEndpoint.y };
+                v2 = { x, y: portCenterY };
+                break;
             }
             case 'top': {
                 const y = routeEndpoint.y - offset;
-                return [{ x: routeEndpoint.x, y }, { x: portCenterX, y }];
+                v1 = { x: routeEndpoint.x, y };
+                v2 = { x: portCenterX, y };
+                break;
             }
             case 'bottom': {
                 const y = routeEndpoint.y + offset;
-                return [{ x: routeEndpoint.x, y }, { x: portCenterX, y }];
+                v1 = { x: routeEndpoint.x, y };
+                v2 = { x: portCenterX, y };
+                break;
             }
         }
+        // Skip vertices that would overlap (e.g. when the route
+        // endpoint is already aligned with the port center).
+        if (v1.x === v2.x && v1.y === v2.y) return [];
+        return [v1, v2];
     }
 
     getLinkAnchorDelta(element, portId, point) {
@@ -398,9 +411,7 @@ export class AvoidRouter {
             // L-shaped vertices to route orthogonally from the libavoid
             // route to the port center. All links sharing a port converge.
             if (sourcePortId) {
-                const [v1, v2] = this.getPortConvergenceVertices(sourceElement, sourcePortId, sourcePoint);
-                vertices.unshift(v1);
-                vertices.unshift(v2);
+                vertices.unshift(...this.getPortConvergenceVertices(sourceElement, sourcePortId, sourcePoint));
             } else {
                 linkAttributes.source.anchor.args = {
                     dx: sourceAnchorDelta.x,
@@ -408,9 +419,7 @@ export class AvoidRouter {
                 };
             }
             if (targetPortId) {
-                const [v1, v2] = this.getPortConvergenceVertices(targetElement, targetPortId, targetPoint);
-                vertices.push(v1);
-                vertices.push(v2);
+                vertices.push(...this.getPortConvergenceVertices(targetElement, targetPortId, targetPoint));
             } else {
                 linkAttributes.target.anchor.args = {
                     dx: targetAnchorDelta.x,

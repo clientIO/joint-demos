@@ -12,8 +12,8 @@ export const GRID_SIZE = 10;
 /** Radius of the port circle in pixels. */
 export const PORT_RADIUS = 7;
 
-const LABEL_FONT_SIZE = 13;
-const LABEL_MARGIN = 5;
+const LABEL_FONT_SIZE = 15;
+const LABEL_MARGIN = 8;
 
 /** Vertical distance between consecutive port centers (N * GRID_SIZE). */
 const PORT_SPACING = 3 * GRID_SIZE;
@@ -22,7 +22,7 @@ const PORT_SPACING = 3 * GRID_SIZE;
  * Y-offset of the first port center from the element's top edge (N * GRID_SIZE).
  * Leaves room for the label above.
  */
-const PORT_START_Y = 3 * GRID_SIZE;
+const PORT_START_Y = 4 * GRID_SIZE;
 
 const portCircleAttrs = {
     cursor: 'crosshair',
