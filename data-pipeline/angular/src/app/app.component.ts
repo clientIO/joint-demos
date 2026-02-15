@@ -5,7 +5,7 @@ import {
     AfterViewInit,
     OnDestroy,
 } from '@angular/core';
-import { dia, shapes, ui, format, util } from '@joint/plus';
+import { dia, shapes, ui, format, util, highlighters } from '@joint/plus';
 import { Node } from './models/node';
 import { Edge } from './models/edge';
 // @ts-ignore
@@ -16,6 +16,8 @@ const cellNamespace = {
     Node,
     Edge,
 };
+
+const SELECTION_ID = 'selection';
 
 const NavigatorElementView = dia.ElementView.extend({
     body: null,
@@ -102,6 +104,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             linkPinning: false,
             frozen: true,
             async: true,
+            clickThreshold: 10,
             background: { color: '#F3F7F6' },
             snapLinks: { radius: 30 },
             defaultConnector: {
@@ -110,6 +113,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
                     cornerType: 'cubic',
                     cornerRadius: 4,
                 },
+            },
+            defaultConnectionPoint: {
+                name: 'anchor',
             },
             highlighting: {
                 default: {
@@ -173,7 +179,20 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         this.scroller.render();
 
         this.paper.on('blank:pointerdown', (evt: dia.Event) => {
+            this.deselectAll();
             this.scroller.startPanning(evt);
+        });
+
+        this.paper.on('element:pointerclick', (elementView: dia.ElementView) => {
+            this.select(elementView);
+        });
+
+        this.paper.on('link:pointerclick', (linkView: dia.LinkView) => {
+            this.select(linkView);
+        });
+
+        this.paper.on('link:connect', (linkView: dia.LinkView) => {
+            this.select(linkView);
         });
 
         this.paper.on('paper:pinch', (evt: dia.Event, ox: number, oy: number, scale: number) => {
@@ -244,6 +263,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             const blob = new Blob([jsonString], { type: 'application/json' });
             util.downloadBlob(blob, 'diagram.json');
         });
+    }
+
+    private select(cellView: dia.CellView): void {
+        this.deselectAll();
+        highlighters.addClass.add(cellView, 'root', SELECTION_ID, {
+            className: 'selected',
+        });
+    }
+
+    private deselectAll(): void {
+        highlighters.addClass.removeAll(this.paper, SELECTION_ID);
     }
 
     private createSampleDiagram(): void {

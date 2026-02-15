@@ -15,6 +15,21 @@ body {
   cursor: move;
 }
 
+/* Selection highlighting */
+.joint-element.selected [joint-selector="body"] {
+  stroke: #4D64DD;
+  stroke-width: 3;
+}
+
+.joint-link.selected [joint-selector="line"] {
+  stroke: #4D64DD;
+  stroke-width: 3;
+}
+
+.joint-link.selected [joint-selector="wrapper"] {
+  stroke-width: 16;
+}
+
 /* Toolbar styling */
 .joint-toolbar {
   width: 100%;

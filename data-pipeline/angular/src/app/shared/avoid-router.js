@@ -292,6 +292,40 @@ export class AvoidRouter {
         delete this.shapeRefs[element.id];
     }
 
+    // Returns two vertices that create an orthogonal L-shaped path
+    // from the libavoid route endpoint to the port center.
+    // The first vertex is offset outward from the endpoint,
+    // the second shares the same offset coordinate but at the port center's y/x.
+    // This ensures all links to/from the same port converge at the port center.
+    getPortConvergenceVertices(element, portId, routeEndpoint) {
+        const port = element.getPort(portId);
+        const portPosition = element.getPortsPositions(port.group)[portId];
+        const { width, height } = element.size();
+        const pos = element.position();
+        const portCenterX = pos.x + portPosition.x;
+        const portCenterY = pos.y + portPosition.y;
+        const side = new g.Rect(0, 0, width, height).sideNearestToPoint(portPosition);
+        const offset = 20;
+        switch (side) {
+            case 'left': {
+                const x = routeEndpoint.x - offset;
+                return [{ x, y: routeEndpoint.y }, { x, y: portCenterY }];
+            }
+            case 'right': {
+                const x = routeEndpoint.x + offset;
+                return [{ x, y: routeEndpoint.y }, { x, y: portCenterY }];
+            }
+            case 'top': {
+                const y = routeEndpoint.y - offset;
+                return [{ x: routeEndpoint.x, y }, { x: portCenterX, y }];
+            }
+            case 'bottom': {
+                const y = routeEndpoint.y + offset;
+                return [{ x: routeEndpoint.x, y }, { x: portCenterX, y }];
+            }
+        }
+    }
+
     getLinkAnchorDelta(element, portId, point) {
         let anchorPosition;
         const bbox = element.getBBox();
@@ -358,15 +392,33 @@ export class AvoidRouter {
         ) {
             // We have a valid route.
             // We update the link with the route.
-            linkAttributes.source.anchor.args = {
-                dx: sourceAnchorDelta.x,
-                dy: sourceAnchorDelta.y,
-            };
-            linkAttributes.target.anchor.args = {
-                dx: targetAnchorDelta.x,
-                dy: targetAnchorDelta.y,
-            };
-            linkAttributes.vertices = this.getVerticesFromAvoidRoute(route);
+            const vertices = this.getVerticesFromAvoidRoute(route);
+
+            // For port connections, anchor at port center and add two
+            // L-shaped vertices to route orthogonally from the libavoid
+            // route to the port center. All links sharing a port converge.
+            if (sourcePortId) {
+                const [v1, v2] = this.getPortConvergenceVertices(sourceElement, sourcePortId, sourcePoint);
+                vertices.unshift(v1);
+                vertices.unshift(v2);
+            } else {
+                linkAttributes.source.anchor.args = {
+                    dx: sourceAnchorDelta.x,
+                    dy: sourceAnchorDelta.y,
+                };
+            }
+            if (targetPortId) {
+                const [v1, v2] = this.getPortConvergenceVertices(targetElement, targetPortId, targetPoint);
+                vertices.push(v1);
+                vertices.push(v2);
+            } else {
+                linkAttributes.target.anchor.args = {
+                    dx: targetAnchorDelta.x,
+                    dy: targetAnchorDelta.y,
+                };
+            }
+
+            linkAttributes.vertices = vertices;
             linkAttributes.router = null;
         } else {
             // Fallback route (we use the `rightAngle` router for the fallback route)
