@@ -6,6 +6,7 @@ import {
     OnDestroy,
 } from '@angular/core';
 import { dia, shapes, ui, format, util, highlighters } from '@joint/plus';
+import { DirectedGraph } from '@joint/layout-directed-graph';
 import { Node, GRID_SIZE } from './models/node';
 import { Edge } from './models/edge';
 
@@ -102,6 +103,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             graph: this.graph,
             revertOptionsList: ['fromWorker'],
             cmdBeforeAdd: (_cmdName, _cell, _value, opt = {}) => {
+                // Prevent adding undo steps for changes coming from the router worker
+                // or temporary routing changes
                 return !opt.fromWorker && !opt.skipHistory;
             }
         });
@@ -268,6 +271,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
                 { type: 'separator' },
                 { type: 'zoom-slider', min: 20, max: 500 },
                 { type: 'separator' },
+                { type: 'button', name: 'layout', text: 'Auto Layout' },
+                { type: 'separator' },
                 { type: 'button', name: 'png', text: 'Export PNG' },
                 { type: 'button', name: 'svg', text: 'Export SVG' },
                 { type: 'button', name: 'json', text: 'Export JSON' },
@@ -294,6 +299,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             const jsonString = JSON.stringify(this.graph.toJSON());
             const blob = new Blob([jsonString], { type: 'application/json' });
             util.downloadBlob(blob, 'diagram.json');
+        });
+
+        this.toolbar.on('layout:pointerclick', () => {
+            DirectedGraph.layout(this.graph, {
+                rankDir: 'LR',
+                rankSep: 120,
+                nodeSep: 30,
+                setVertices: false
+            });
+            this.scroller.centerContent({ useModelGeometry: true });
         });
     }
 

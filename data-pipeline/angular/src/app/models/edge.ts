@@ -12,6 +12,9 @@ export class Edge extends shapes.standard.Link {
                     targetMarker: { d: 'M 5 2.5 0 0 5 -2.5 Z' },
                 },
             },
+            router: {
+                name: 'rightAngle',
+            }
         }, super.defaults);
     }
 }

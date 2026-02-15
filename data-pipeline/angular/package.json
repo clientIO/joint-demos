@@ -13,6 +13,7 @@
     "@angular/compiler": "^19.2.0",
     "@angular/core": "^19.2.0",
     "@angular/platform-browser": "^19.2.0",
+    "@joint/layout-directed-graph": "4.2.3",
     "@joint/plus": "4.2.2",
     "libavoid-js": "0.4.5",
     "rxjs": "~7.8.0",
