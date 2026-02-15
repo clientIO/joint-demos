@@ -526,7 +526,7 @@ export class AvoidRouter {
         }
     }
 
-    onGraphReset(previousModels) {
+    onGraphReset(previousModels = []) {
         previousModels.forEach((cell) => {
             if (cell.isElement()) {
                 this.deleteShape(cell);

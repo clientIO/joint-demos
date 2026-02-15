@@ -1,40 +1,48 @@
-import { shapes, util, layout } from '@joint/plus';
+import { shapes, util } from '@joint/plus';
+import { portLayoutNamespace } from '../shared/port-layouts';
 
+/**
+ * The base grid step used across the diagram. All layout dimensions
+ * (port offsets, port spacing, element sizes) are multiples of this value.
+ * This guarantees that port centers always land on grid intersections
+ * when elements snap to the grid.
+ */
+export const GRID_SIZE = 10;
+
+/** Radius of the port circle in pixels. */
 export const PORT_RADIUS = 7;
 
 const LABEL_FONT_SIZE = 13;
 const LABEL_MARGIN = 5;
-const PORT_SPACING = PORT_RADIUS * 2 + 10;
-const PORT_START_Y = LABEL_FONT_SIZE + LABEL_MARGIN * 2 + PORT_SPACING / 2;
 
-// Custom port position layout that places ports at fixed offsets
-// starting from a given y position, instead of distributing them
-// evenly along the side.
-(layout.Port as any).fixedLine = (
-    portsArgs: any[],
-    elBBox: { width: number },
-    opt: { x?: number | 'w'; y?: number; dy?: number }
-) => {
-    const x = opt.x === 'w' ? elBBox.width : (opt.x ?? 0);
-    const y = opt.y ?? 0;
-    const dy = opt.dy ?? PORT_SPACING;
-    return portsArgs.map((_: any, index: number) => ({
-        x,
-        y: y + index * dy,
-        angle: 0,
-    }));
-};
+/** Vertical distance between consecutive port centers (N * GRID_SIZE). */
+const PORT_SPACING = 3 * GRID_SIZE;
+
+/**
+ * Y-offset of the first port center from the element's top edge (N * GRID_SIZE).
+ * Leaves room for the label above.
+ */
+const PORT_START_Y = 3 * GRID_SIZE;
 
 const portCircleAttrs = {
     cursor: 'crosshair',
     fill: '#4D64DD',
     stroke: '#F4F7F6',
-    r: PORT_RADIUS,
+    r: 'calc(s / 2)',
 };
 
 export class Node extends shapes.standard.Rectangle {
     static PORT_RADIUS = PORT_RADIUS;
 
+    constructor(attributes?: any, options?: any) {
+        super(attributes, { ...options, portLayoutNamespace });
+    }
+
+    /**
+     * Calculates the element height based on the number of ports.
+     * The result is always a multiple of {@link GRID_SIZE}:
+     * `PORT_START_Y + max(leftPorts, rightPorts) * PORT_SPACING`.
+     */
     static getHeight(leftPorts: number, rightPorts: number): number {
         const maxPorts = Math.max(leftPorts, rightPorts, 1);
         return PORT_START_Y + maxPorts * PORT_SPACING;
@@ -69,8 +77,12 @@ export class Node extends shapes.standard.Rectangle {
             ports: {
                 groups: {
                     left: {
+                        size: {
+                            width: PORT_RADIUS * 2,
+                            height: PORT_RADIUS * 2,
+                        },
                         position: {
-                            name: 'fixedLine',
+                            name: 'vertical',
                             args: {
                                 x: 0,
                                 y: PORT_START_Y,
@@ -100,8 +112,12 @@ export class Node extends shapes.standard.Rectangle {
                         },
                     },
                     right: {
+                        size: {
+                            width: PORT_RADIUS * 2,
+                            height: PORT_RADIUS * 2,
+                        },
                         position: {
-                            name: 'fixedLine',
+                            name: 'vertical',
                             args: {
                                 x: 'w',
                                 y: PORT_START_Y,

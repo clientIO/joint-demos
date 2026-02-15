@@ -30,6 +30,12 @@ body {
   stroke-width: 16;
 }
 
+/* Awaiting worker update */
+.joint-link.awaiting-update [joint-selector="line"] {
+  opacity: 0.3;
+  stroke-dasharray: 5, 5;
+}
+
 /* Toolbar styling */
 .joint-toolbar {
   width: 100%;
