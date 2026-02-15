@@ -1,8 +1,8 @@
-# JointJS + Angular: Libavoid Routing
+# JointJS + Angular: Data Pipeline
 
-This example demonstrates how to use the [libavoid](https://github.com/nicknisi/libavoid-js) WASM library with JointJS and Angular for automatic orthogonal link routing around obstacles.
+This example demonstrates a data pipeline diagram built with JointJS and Angular, featuring automatic orthogonal link routing using the [libavoid](https://github.com/nicknisi/libavoid-js) WASM library.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/libavoid-routing/angular">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/data-pipeline/angular">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
@@ -11,9 +11,12 @@ This example demonstrates how to use the [libavoid](https://github.com/nicknisi/
 
 ## Features
 
+- **Data Pipeline Visualization**: Nodes represent pipeline stages (Database, Transform, Aggregate, Dashboard, etc.) with typed input/output ports
 - **Automatic Routing**: Links are routed orthogonally around nodes using the libavoid WASM library
-- **Port-based Connections**: Nodes have left (input) and right (output) port groups with labeled ports
 - **Live Re-routing**: Dragging nodes triggers automatic re-routing of all connected links
+- **PaperScroller**: Pan and zoom the diagram with trackpad or mouse
+- **Navigator**: Minimap with simplified element views for quick orientation
+- **Toolbar**: Zoom slider and export buttons (PNG, SVG, JSON)
 - **Fallback Router**: Uses JointJS `rightAngle` router when libavoid cannot find a valid route
 
 ## Running the Example
@@ -31,7 +34,7 @@ Navigate to `http://localhost:4200/` in your browser.
 ## Requirements
 
 - Angular 19+
-- JointJS @joint/core or @joint/plus
+- JointJS @joint/plus
 
 ## Project Structure
 
@@ -41,8 +44,8 @@ src/
 ├── styles.css                        # Global styles
 ├── index.html                        # HTML entry point
 └── app/
-    ├── app.component.ts              # Main component with JointJS + AvoidRouter setup
-    ├── app.component.html            # Paper container template
+    ├── app.component.ts              # Main component with JointJS setup
+    ├── app.component.html            # Layout template
     ├── app.component.css             # Layout styles
     ├── models/
     │   ├── node.ts                   # Node shape with left/right port groups

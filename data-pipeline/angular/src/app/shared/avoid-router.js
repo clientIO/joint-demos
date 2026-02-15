@@ -1,5 +1,5 @@
 import { AvoidLib } from 'libavoid-js';
-import { g, util, mvc } from '@joint/core';
+import { g, util, mvc } from '@joint/plus';
 
 const defaultPin = 1;
 

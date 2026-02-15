@@ -1,11 +1,29 @@
-import { shapes, util } from '@joint/core';
+import { shapes, util, layout } from '@joint/plus';
 
 export const PORT_RADIUS = 7;
 
 const LABEL_FONT_SIZE = 13;
 const LABEL_MARGIN = 5;
-const PORT_START_Y = LABEL_FONT_SIZE + LABEL_MARGIN * 2;
 const PORT_SPACING = PORT_RADIUS * 2 + 10;
+const PORT_START_Y = LABEL_FONT_SIZE + LABEL_MARGIN * 2 + PORT_SPACING / 2;
+
+// Custom port position layout that places ports at fixed offsets
+// starting from a given y position, instead of distributing them
+// evenly along the side.
+(layout.Port as any).fixedLine = (
+    portsArgs: any[],
+    elBBox: { width: number },
+    opt: { x?: number | 'w'; y?: number; dy?: number }
+) => {
+    const x = opt.x === 'w' ? elBBox.width : (opt.x ?? 0);
+    const y = opt.y ?? 0;
+    const dy = opt.dy ?? PORT_SPACING;
+    return portsArgs.map((_: any, index: number) => ({
+        x,
+        y: y + index * dy,
+        angle: 0,
+    }));
+};
 
 const portCircleAttrs = {
     cursor: 'crosshair',
@@ -52,10 +70,11 @@ export class Node extends shapes.standard.Rectangle {
                 groups: {
                     left: {
                         position: {
-                            name: 'line',
+                            name: 'fixedLine',
                             args: {
-                                start: { x: 0, y: PORT_START_Y },
-                                end: { x: 0, y: 'calc(h)' },
+                                x: 0,
+                                y: PORT_START_Y,
+                                dy: PORT_SPACING,
                             },
                         },
                         attrs: {
@@ -82,10 +101,11 @@ export class Node extends shapes.standard.Rectangle {
                     },
                     right: {
                         position: {
-                            name: 'line',
+                            name: 'fixedLine',
                             args: {
-                                start: { x: 'calc(w)', y: PORT_START_Y },
-                                end: { x: 'calc(w)', y: 'calc(h)' },
+                                x: 'w',
+                                y: PORT_START_Y,
+                                dy: PORT_SPACING,
                             },
                         },
                         attrs: {

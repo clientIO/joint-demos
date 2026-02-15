@@ -1,0 +1,29 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eaf0f5;
+    background: white;
+}
+
+.content {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+}
+
+.paper-container {
+    width: 100%;
+    height: 100%;
+}
+
+.navigator-container {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+}

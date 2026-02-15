@@ -1,4 +1,4 @@
-import { shapes, util } from '@joint/core';
+import { shapes, util } from '@joint/plus';
 
 export class Edge extends shapes.standard.Link {
     override defaults() {

@@ -5,7 +5,7 @@ import {
     AfterViewInit,
     OnDestroy,
 } from '@angular/core';
-import { dia, shapes } from '@joint/core';
+import { dia, shapes, ui, format, util } from '@joint/plus';
 import { Node } from './models/node';
 import { Edge } from './models/edge';
 // @ts-ignore
@@ -17,6 +17,50 @@ const cellNamespace = {
     Edge,
 };
 
+const NavigatorElementView = dia.ElementView.extend({
+    body: null,
+    markup: util.svg/* xml */`
+        <rect @selector="body" />
+    `,
+    initFlag: [dia.ElementView.Flags.RENDER],
+    presentationAttributes: {
+        position: [dia.ElementView.Flags.TRANSLATE],
+        size: [dia.ElementView.Flags.RESIZE],
+    },
+    render() {
+        const doc = this.parseDOMJSON(this.markup);
+        this.body = doc.selectors.body;
+        this.el.appendChild(doc.fragment);
+        return this;
+    },
+    confirmUpdate(flags: number) {
+        if (this.hasFlag(flags, dia.ElementView.Flags.RENDER)) {
+            this.render();
+            const { width, height } = this.model.size();
+            this.body.setAttribute('fill', '#f0f4ff');
+            this.body.setAttribute('stroke', '#4665E5');
+            this.body.setAttribute('stroke-width', '1');
+            this.body.setAttribute('rx', '4');
+            this.body.setAttribute('ry', '4');
+            this.body.setAttribute('width', width);
+            this.body.setAttribute('height', height);
+            this.translate();
+        }
+        if (this.hasFlag(flags, dia.ElementView.Flags.RESIZE)) {
+            const { width, height } = this.model.size();
+            this.body.setAttribute('width', width);
+            this.body.setAttribute('height', height);
+        }
+        if (this.hasFlag(flags, dia.ElementView.Flags.TRANSLATE)) {
+            this.translate();
+        }
+    },
+    translate() {
+        const { x, y } = this.model.position();
+        this.el.setAttribute('transform', `translate(${x},${y})`);
+    },
+});
+
 @Component({
     selector: 'app-root',
     standalone: true,
@@ -24,16 +68,25 @@ const cellNamespace = {
     styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
-    @ViewChild('paperContainer') paperContainer!: ElementRef<HTMLDivElement>;
+    @ViewChild('scrollerContainer') scrollerContainer!: ElementRef<HTMLDivElement>;
+    @ViewChild('navigatorContainer') navigatorContainer!: ElementRef<HTMLDivElement>;
+    @ViewChild('toolbarContainer') toolbarContainer!: ElementRef<HTMLDivElement>;
 
     private graph!: dia.Graph;
     private paper!: dia.Paper;
+    private scroller!: ui.PaperScroller;
+    private navigator!: ui.Navigator;
+    private toolbar!: ui.Toolbar;
+
 
     ngAfterViewInit(): void {
         this.initDiagram();
     }
 
     ngOnDestroy(): void {
+        this.toolbar?.remove();
+        this.navigator?.remove();
+        this.scroller?.remove();
         this.paper?.remove();
         this.graph?.clear();
     }
@@ -42,11 +95,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         this.graph = new dia.Graph({}, { cellNamespace });
 
         this.paper = new dia.Paper({
-            el: this.paperContainer.nativeElement,
             model: this.graph,
             cellViewNamespace: cellNamespace,
-            width: '100%',
-            height: '100%',
             gridSize: 10,
             interactive: { linkMove: false },
             linkPinning: false,
@@ -95,14 +145,91 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             },
         });
 
+        this.scroller = new ui.PaperScroller({
+            paper: this.paper,
+            autoResizePaper: true,
+            contentOptions: {
+                useModelGeometry: true,
+                padding: 100,
+                allowNewOrigin: 'any',
+            },
+            cursor: 'grab',
+        });
+
+        this.scrollerContainer.nativeElement.appendChild(this.scroller.el);
+        this.scroller.render();
+
+        this.paper.on('blank:pointerdown', (evt: dia.Event) => {
+            this.scroller.startPanning(evt);
+        });
+
+        this.paper.on('paper:pinch', (evt: dia.Event, ox: number, oy: number, scale: number) => {
+            evt.preventDefault();
+            this.scroller.zoom(scale - 1, { min: 0.2, max: 5, ox, oy });
+        });
+
+        this.paper.on('paper:pan', (evt: dia.Event, tx: number, ty: number) => {
+            evt.preventDefault();
+            this.scroller.el.scrollLeft += tx;
+            this.scroller.el.scrollTop += ty;
+        });
+
+        this.navigator = new ui.Navigator({
+            paperScroller: this.scroller,
+            width: 200,
+            height: 150,
+            paperOptions: {
+                elementView: NavigatorElementView,
+            },
+        });
+
+        this.navigatorContainer.nativeElement.appendChild(this.navigator.el);
+        this.navigator.render();
+
+        this.initToolbar();
+
         this.createSampleDiagram();
         await this.initRouter();
 
         this.paper.unfreeze();
-        this.paper.fitToContent({
-            useModelGeometry: true,
-            padding: 50,
-            allowNewOrigin: 'any',
+        this.scroller.centerContent({ useModelGeometry: true });
+    }
+
+    private initToolbar(): void {
+        this.toolbar = new ui.Toolbar({
+            autoToggle: true,
+            references: {
+                paperScroller: this.scroller,
+            },
+            tools: [
+                { type: 'zoom-slider', min: 20, max: 500 },
+                { type: 'separator' },
+                { type: 'button', name: 'png', text: 'Export PNG' },
+                { type: 'button', name: 'svg', text: 'Export SVG' },
+                { type: 'button', name: 'json', text: 'Export JSON' },
+            ],
+        });
+
+        this.toolbarContainer.nativeElement.appendChild(this.toolbar.el);
+        this.toolbar.render();
+
+        this.toolbar.on('png:pointerclick', () => {
+            format.toPNG(this.paper, (dataUri: string) => {
+                util.downloadDataUri(dataUri, 'diagram.png');
+            }, { padding: 10, useComputedStyles: false });
+        });
+
+        this.toolbar.on('svg:pointerclick', () => {
+            format.toSVG(this.paper, (svgString: string) => {
+                const dataUri = 'data:image/svg+xml,' + encodeURIComponent(svgString);
+                util.downloadDataUri(dataUri, 'diagram.svg');
+            }, { useComputedStyles: false });
+        });
+
+        this.toolbar.on('json:pointerclick', () => {
+            const jsonString = JSON.stringify(this.graph.toJSON());
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            util.downloadBlob(blob, 'diagram.json');
         });
     }
 
