@@ -292,51 +292,54 @@ export class AvoidRouter {
         delete this.shapeRefs[element.id];
     }
 
-    // Returns two vertices that create an orthogonal L-shaped path
-    // from the libavoid route endpoint to the port center.
-    // The first vertex is offset outward from the endpoint,
-    // the second shares the same offset coordinate but at the port center's y/x.
-    // This ensures all links to/from the same port converge at the port center.
+    // Returns a vertex offset outward from the port so that all links
+    // sharing the same port converge at the port center. If the route
+    // endpoint already matches the port center, no vertex is needed.
     getPortConvergenceVertices(element, portId, routeEndpoint) {
         const port = element.getPort(portId);
         const portPosition = element.getPortsPositions(port.group)[portId];
         const { width, height } = element.size();
         const pos = element.position();
-        const portCenterX = pos.x + portPosition.x;
-        const portCenterY = pos.y + portPosition.y;
+        const portCenter = {
+            x: pos.x + portPosition.x,
+            y: pos.y + portPosition.y,
+        };
+        // Route endpoint is already at the port center — nothing to do.
+        if (routeEndpoint.x === portCenter.x && routeEndpoint.y === portCenter.y) {
+            return [];
+        }
         const side = new g.Rect(0, 0, width, height).sideNearestToPoint(portPosition);
+        // Distance from the port center to the orthogonal turn vertex.
         const offset = 20;
-        let v1, v2;
+        // How much closer to the port the slope vertex is (creates
+        // a sloped segment from the turn into the port center).
+        const slopeInset = 5;
         switch (side) {
             case 'left': {
-                const x = routeEndpoint.x - offset;
-                v1 = { x, y: routeEndpoint.y };
-                v2 = { x, y: portCenterY };
-                break;
+                return [
+                    { x: portCenter.x - offset, y: routeEndpoint.y },
+                    { x: portCenter.x - offset + slopeInset, y: portCenter.y },
+                ];
             }
             case 'right': {
-                const x = routeEndpoint.x + offset;
-                v1 = { x, y: routeEndpoint.y };
-                v2 = { x, y: portCenterY };
-                break;
+                return [
+                    { x: portCenter.x + offset, y: routeEndpoint.y },
+                    { x: portCenter.x + offset - slopeInset, y: portCenter.y },
+                ];
             }
             case 'top': {
-                const y = routeEndpoint.y - offset;
-                v1 = { x: routeEndpoint.x, y };
-                v2 = { x: portCenterX, y };
-                break;
+                return [
+                    { x: routeEndpoint.x, y: portCenter.y - offset },
+                    { x: portCenter.x, y: portCenter.y - offset + slopeInset },
+                ];
             }
             case 'bottom': {
-                const y = routeEndpoint.y + offset;
-                v1 = { x: routeEndpoint.x, y };
-                v2 = { x: portCenterX, y };
-                break;
+                return [
+                    { x: routeEndpoint.x, y: portCenter.y + offset },
+                    { x: portCenter.x, y: portCenter.y + offset - slopeInset },
+                ];
             }
         }
-        // Skip vertices that would overlap (e.g. when the route
-        // endpoint is already aligned with the port center).
-        if (v1.x === v2.x && v1.y === v2.y) return [];
-        return [v1, v2];
     }
 
     getLinkAnchorDelta(element, portId, point) {
@@ -407,11 +410,11 @@ export class AvoidRouter {
             // We update the link with the route.
             const vertices = this.getVerticesFromAvoidRoute(route);
 
-            // For port connections, anchor at port center and add two
-            // L-shaped vertices to route orthogonally from the libavoid
-            // route to the port center. All links sharing a port converge.
+            // For port connections, anchor at port center and add a
+            // convergence vertex outward from the port so all links
+            // sharing the same port meet at the port center.
             if (sourcePortId) {
-                vertices.unshift(...this.getPortConvergenceVertices(sourceElement, sourcePortId, sourcePoint));
+                vertices.unshift(...this.getPortConvergenceVertices(sourceElement, sourcePortId, sourcePoint).reverse());
             } else {
                 linkAttributes.source.anchor.args = {
                     dx: sourceAnchorDelta.x,

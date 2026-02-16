@@ -4,7 +4,7 @@ export class Edge extends shapes.standard.Link {
     override defaults() {
         return util.defaultsDeep({
             type: 'Edge',
-            z: 1,
+            z: 2,
             attrs: {
                 line: {
                     stroke: '#464454',
