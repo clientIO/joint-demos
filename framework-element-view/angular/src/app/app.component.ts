@@ -1,9 +1,6 @@
 import {
     Component,
-    ElementRef,
     ViewChild,
-    AfterViewInit,
-    OnDestroy,
     ApplicationRef,
     EnvironmentInjector,
     inject,
@@ -12,6 +9,7 @@ import { dia, elementTools, highlighters, shapes } from '@joint/core';
 import { createAngularElementView } from './views/angular-element-view';
 import { AngularElement } from './models/angular-element';
 import { Link } from './models/link';
+import type { ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 
 // Define the cell namespace
 const cellNamespace = {

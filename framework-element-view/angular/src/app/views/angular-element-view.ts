@@ -1,13 +1,10 @@
-import {
-    ApplicationRef,
-    ComponentRef,
-    createComponent,
-    EnvironmentInjector,
-} from '@angular/core';
-import { Subscription } from 'rxjs';
+import { createComponent } from '@angular/core';
 import { dia } from '@joint/core';
-import { AngularElement } from '../models/angular-element';
 import { ElementComponent } from '../components/element.component';
+import type { ApplicationRef, ComponentRef, EnvironmentInjector } from '@angular/core';
+import type { Subscription } from 'rxjs';
+import type { AngularElement } from '../models/angular-element';
+
 
 /**
  * Custom JointJS ElementView that renders an Angular component inside a foreignObject.

@@ -1,4 +1,7 @@
-import { PersonNode, ParentChildLink } from '../data';
+import type { dia } from '@joint/core';
+import type { graphlib } from '@dagrejs/dagre';
+import type { PersonNode, ParentChildLink } from '../data';
+import type { DirectedGraph } from '@joint/layout-directed-graph';
 
 // Maximum barycenter sweep iterations. The barycenter heuristic for crossing
 // minimization (Sugiyama et al.) converges quickly in practice. Empirical
@@ -25,9 +28,9 @@ export interface MinimizeCrossingsContext {
 // 5. Enforce twin/triplet adjacency.
 //
 export function minimizeCrossings(
-    glGraph: any,
-    _jointGraph: any,
-    defaultOrder: (g: any) => void,
+    glGraph: graphlib.Graph<DirectedGraph.DagreNodeProperties>,
+    _jointGraph: dia.Graph,
+    defaultOrder: (g: graphlib.Graph<DirectedGraph.DagreNodeProperties>) => void,
     context: MinimizeCrossingsContext
 ) {
     const { parentChildLinks, layoutId, personById, identicalGroupOf, nodeMultipleGroup } = context;
@@ -237,7 +240,7 @@ export function minimizeCrossings(
 // crossings after each sweep direction separately (a bottom-to-top sweep
 // can reverse the fix from a top-to-bottom sweep).
 function resolveContainerCrossings(
-    glGraph: any,
+    glGraph: graphlib.Graph<DirectedGraph.DagreNodeProperties>,
     parentChildLinks: ParentChildLink[],
     layoutId: (personElId: string) => string,
     ranks: number[],

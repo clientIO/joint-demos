@@ -1,10 +1,12 @@
 import { dia, shapes } from '@joint/core';
 import { MalePerson, FemalePerson, UnknownPerson, ParentChildLink, MateLink, IdenticalLink } from './shapes';
 import { colors, sizes, linkStyleOverrides } from './theme';
-import { getParentChildLinks, getMateLinks, PersonNode } from './data';
+import { getParentChildLinks, getMateLinks } from './data';
 import { layoutGenogram } from './layout';
 import { createPersonElement, setupLineageHighlighting, buildFamilyTree } from './utils';
 import { applySymbolHighlighters } from './highlighters';
+import type { PersonNode } from './data';
+
 import './styles.css';
 
 // --- All available datasets (Vite eager imports) ---
@@ -38,7 +40,7 @@ const paper = new dia.Paper({
     defaultConnector: {
         name: 'straight',
     },
-    defaultConnectionPoint: { name: 'rectangle', args: { useModelGeometry: true } },
+    defaultConnectionPoint: { name: 'rectangle', args: { useModelGeometry: true }},
     defaultAnchor: {
         name: 'center',
         args: { useModelGeometry: true }
