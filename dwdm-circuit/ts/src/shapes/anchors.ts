@@ -15,15 +15,15 @@ export const multiLinkAnchor: anchors.Anchor = function(
     if (endType === 'source') {
         const anchor = link.getSourcePoint();
         const source = link.getSourceElement();
-        if (isCellHidden(source)) {
+        if (isCellHidden(source!)) {
             // Center of the collapsed node (the source element position
             // might not be inside the collapsed node)
-            anchor.x = source.getParentCell().getBBox().center().x;
+            anchor.x = source!.getParentCell()!.getBBox().center().x;
             return anchor;
         }
         const { port } = link.source();
-        if (getPortLinks(graph, source, port).length < 2) return anchor;
-        const { group } = source.getPort(port);
+        if (getPortLinks(graph, source!, port!).length < 2) return anchor;
+        const { group } = source!.getPort(port!);
         switch (group) {
             case 'top':
                 anchor.x -= 3;
@@ -42,15 +42,15 @@ export const multiLinkAnchor: anchors.Anchor = function(
     } else {
         const anchor = link.getTargetPoint();
         const target = link.getTargetElement();
-        if (isCellHidden(target)) {
+        if (isCellHidden(target!)) {
             // Center of the collapsed node (the target element position
             // might not be inside the collapsed node)
-            anchor.x = target.getParentCell().getBBox().x;
+            anchor.x = target!.getParentCell()!.getBBox().x;
             return anchor;
         }
         const { port } = link.target();
-        if (getPortLinks(graph, target, port).length < 2) return anchor;
-        const { group } = target.getPort(port);
+        if (getPortLinks(graph, target!, port!).length < 2) return anchor;
+        const { group } = target!.getPort(port!);
         switch (group) {
             case 'top':
                 anchor.x += 3;

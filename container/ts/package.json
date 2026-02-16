@@ -9,14 +9,13 @@
   "license": "http://jointjs.com/license",
   "private": true,
   "scripts": {
-    "start": "concurrently \"npm run build\" \"webpack serve --config webpack.config.js\"",
-    "build": "webpack --config webpack.config.js"
+    "start": "webpack-dev-server",
+    "build": "webpack"
   },
   "dependencies": {
     "@joint/core": "4.2.4"
   },
   "devDependencies": {
-    "concurrently": "4.1.0",
     "copy-webpack-plugin": "13.0.0",
     "css-loader": "^6.8.1",
     "style-loader": "^3.3.3",

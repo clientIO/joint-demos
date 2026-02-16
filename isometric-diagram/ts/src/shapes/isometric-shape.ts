@@ -129,7 +129,7 @@ export class CylinderShape extends IsometricShape {
 
         const baseDiagonal = new g.Line(baseRect.bottomLeft(), baseRect.topRight());
         const base = g.Ellipse.fromRect(baseRect);
-        const [bottomLeftIntersection, bottomRightIntersection] = baseDiagonal.intersect(base);
+        const [ bottomLeftIntersection, bottomRightIntersection ] = baseDiagonal.intersect(base) as g.Point[];
 
         const topLeftIntersection = bottomLeftIntersection.clone().translate(-this.isometricHeight, -this.isometricHeight);
         const topRightIntersection = topLeftIntersection.reflection(this.topCenter);

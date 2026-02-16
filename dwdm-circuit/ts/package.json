@@ -7,17 +7,14 @@
     "name": "client IO",
     "url": "https://client.io"
   },
-  "license": "MPL-2.0",
+  "license": "http://jointjs.com/license",
   "private": true,
-  "installConfig": {
-    "hoistingLimits": "workspaces"
-  },
   "scripts": {
     "start": "webpack-dev-server",
-    "tsc": "tsc"
+    "build": "webpack"
   },
   "dependencies": {
-    "@joint/core": "workspace:^"
+    "@joint/core": "4.2.4"
   },
   "devDependencies": {
     "css-loader": "^3.6.0",
@@ -27,10 +24,5 @@
     "webpack": "5.98.0",
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "5.2.0"
-  },
-  "volta": {
-    "node": "22.14.0",
-    "npm": "11.2.0",
-    "yarn": "4.7.0"
   }
 }

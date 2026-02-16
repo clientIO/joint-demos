@@ -49,11 +49,11 @@ export class Monitor {
     subscribe(callback: (data: MonitorCallbackData) => void) {
         const { interval, maxAlerts } = this;
         const components = this.getGraphComponents();
-        const alerts = [];
+        const alerts: MonitorComponent[] = [];
         const intervalId = setInterval(() => {
             if (alerts.length > Math.random() * maxAlerts + 1) {
                 const component = alerts.shift();
-                callback({ ...component, resolved: true });
+                callback({ ...component!, resolved: true });
             } else {
                 const component = components[Math.floor(Math.random() * components.length)];
                 alerts.push(component);
@@ -65,13 +65,13 @@ export class Monitor {
 
     protected getGraphComponents(): MonitorComponent[] {
         const { graph } = this;
-        const components = [];
+        const components: MonitorComponent[] = [];
         graph.getCells().forEach((cell) => {
             if (cell.isElement()) {
                 if (Card.isCard(cell)) {
                     const ports = cell.getPorts();
                     ports.forEach((port) => {
-                        components.push({ cell, port: port.id });
+                        components.push({ cell, port: port.id! });
                     });
                 }
             } else {

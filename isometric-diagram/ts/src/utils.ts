@@ -53,7 +53,7 @@ const topologicalSort = (nodes: Node[]) => {
     }
 }
 
-export const sortElements = (graph) => {
+export const sortElements = (graph: dia.Graph) => {
     const elements = graph.getElements();
     const nodes: Node[] = elements.map(el => {
         return {
@@ -105,7 +105,7 @@ export const drawGrid = (paper: dia.Paper, size: number, step: number, color = '
     gridVEl.appendTo(paper.getLayerNode(dia.Paper.Layers.BACK));
 }
 
-export const switchView = (paper: dia.Paper, view: View, selectedCell: IsometricShape | Link) => {
+export const switchView = (paper: dia.Paper, view: View, selectedCell: IsometricShape | Link | null) => {
     paper.model.getElements().forEach((element: IsometricShape) => {
         element.toggleView(view);
     });

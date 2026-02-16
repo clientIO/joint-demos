@@ -3,16 +3,12 @@
   "version": "4.2.3",
   "description": "JointJS - MSAGL Demo",
   "main": "dist/bundle.js",
-  "homepage": "https://jointjs.com",
   "author": {
     "name": "client IO",
     "url": "https://client.io"
   },
-  "license": "MPL-2.0",
+  "license": "http://jointjs.com/license",
   "private": true,
-  "installConfig": {
-    "hoistingLimits": "workspaces"
-  },
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack"
@@ -25,8 +21,8 @@
     "./webpack.config.js"
   ],
   "dependencies": {
-    "@joint/core": "workspace:^",
-    "@joint/layout-msagl": "workspace:^"
+    "@joint/core": "4.2.4",
+    "@joint/layout-msagl": "4.2.3"
   },
   "devDependencies": {
     "css-loader": "^6.8.1",
@@ -36,10 +32,5 @@
     "webpack": "^5.53.0",
     "webpack-cli": "^4.8.0",
     "webpack-dev-server": "^4.2.1"
-  },
-  "volta": {
-    "node": "22.14.0",
-    "npm": "11.2.0",
-    "yarn": "4.7.0"
   }
 }

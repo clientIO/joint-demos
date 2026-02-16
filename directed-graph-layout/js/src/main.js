@@ -1,5 +1,7 @@
-import * as joint from '@joint/core';
+import { dia, mvc, shapes } from '@joint/core';
 import { DirectedGraph } from '@joint/layout-directed-graph';
+
+import './styles.scss';
 
 function val(view, selector, val) {
     var el = view.el.querySelector(selector);
@@ -10,7 +12,7 @@ function val(view, selector, val) {
     el.value = val;
 }
 
-var Shape = joint.dia.Element.define('demo.Shape', {
+const Shape = dia.Element.define('demo.Shape', {
     z: 2,
     size: {
         width: 100,
@@ -48,13 +50,14 @@ var Shape = joint.dia.Element.define('demo.Shape', {
     }
 });
 
-var Link = joint.dia.Link.define('demo.Link', {
+const Link = shapes.standard.Link.define('demo.Link', {
     attrs: {
+        root: {
+            cursor: 'pointer'
+        },
         line: {
-            connection: true,
             stroke: 'gray',
             strokeWidth: 2,
-            pointerEvents: 'none',
             targetMarker: {
                 type: 'path',
                 fill: 'gray',
@@ -110,14 +113,6 @@ var Link = joint.dia.Link.define('demo.Link', {
 
 }, {
 
-    markup: [{
-        tagName: 'path',
-        selector: 'line',
-        attributes: {
-            'fill': 'none'
-        }
-    }],
-
     connect: function(sourceId, targetId) {
         return this.set({
             source: { id: sourceId },
@@ -130,7 +125,7 @@ var Link = joint.dia.Link.define('demo.Link', {
     }
 });
 
-var LayoutControls = joint.mvc.View.extend({
+const LayoutControls = mvc.View.extend({
 
     events: {
         change: 'onChange',
@@ -225,12 +220,12 @@ var LayoutControls = joint.mvc.View.extend({
 });
 
 
-var template = document.getElementById('link-controls-template');
+let template = document.getElementById('link-controls-template');
 if (template.content) {
     template = template.content;
 }
 
-var LinkControls = joint.mvc.View.extend({
+const LinkControls = mvc.View.extend({
 
     highlighter: {
         name: 'stroke',
@@ -319,13 +314,11 @@ var LinkControls = joint.mvc.View.extend({
 
 });
 
-var controls = new LayoutControls({
+const controls = new LayoutControls({
     el: document.getElementById('layout-controls'),
-    paper: new joint.dia.Paper({
+    paper: new dia.Paper({
         el: document.getElementById('paper'),
-        interactive: function(cellView) {
-            return cellView.model.isElement();
-        }
+        interactive: false
     }).on({
         'link:pointerdown': LinkControls.create,
         'blank:pointerdown element:pointerdown': LinkControls.remove

@@ -36,7 +36,7 @@
     />
 
     <image @selector="topImage" @group-selector="iso"
-        xlink-href="assets/switch-icon.svg"
+        xlink-href="./assets/switch-icon.svg"
         width="calc(w-4)"
         height="calc(h-4)"
         transform="translate(2,2)"
@@ -45,7 +45,7 @@
     />
 
     <image @selector="2DImage" @group-selector="2d"
-        xlink-href="assets/switch-icon.svg"
+        xlink-href="./assets/switch-icon.svg"
         x="2"
         y="2"
         width="calc(w - 4)"

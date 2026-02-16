@@ -23,7 +23,7 @@ const paper = new dia.Paper({
     defaultConnectionPoint: { name: 'boundary', args: { offset: 3 }},
     defaultConnector: { name: 'straight', args: { cornerType: 'line', cornerRadius: 6 }},
     defaultRouter: function(_vertices, _opt, linkView) {
-        const link = linkView.model;
+        const link = linkView!.model;
         const source = link.getSourceCell();
         const target = link.getTargetCell();
         if ((source && isCellHidden(source)) || (target && isCellHidden(target))) {
@@ -54,7 +54,7 @@ paper.on('blank:pointerdown', (evt) => {
 
 paper.on('blank:pointermove', (evt) => {
     // Scroll little faster than the mouse (3x)
-    window.scroll(evt.data.scrollX + (evt.data.clientX - evt.clientX) * 3, 0);
+    window.scroll(evt.data.scrollX + (evt.data.clientX - evt.clientX!) * 3, 0);
 });
 
 // Load example data

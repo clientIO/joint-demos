@@ -249,11 +249,11 @@ class ListElement extends dia.Element {
 
     getDefaultPortName() {
         const ports = this.getGroupPorts(LIST_GROUP_NAME);
-        let portName;
+        let portName: string;
         let i = 1;
         do {
             portName = `${LIST_ITEM_LABEL} ${i++}`;
-        } while (ports.find(port => port.attrs.portLabel.text === portName));
+        } while (ports.find(port => port.attrs?.portLabel?.text === portName));
         return portName;
     }
 
@@ -337,7 +337,7 @@ function onPaperElementPortRemove(elementView: dia.ElementView, evt: dia.Event):
     evt.stopPropagation();
     const portId = elementView.findAttribute('port', evt.target);
     const message = elementView.model as ListElement;
-    message.removePort(portId);
+    message.removePort(portId!);
 }
 
 function onPaperLinkMouseEnter(linkView: dia.LinkView) {

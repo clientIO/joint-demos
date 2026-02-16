@@ -47,10 +47,10 @@ function layoutNode(_graph: dia.Graph, node: Node) {
 
 function layoutExternalLink(graph: dia.Graph, link: ExternalLink) {
     const { id, port } = link.target();
-    const { group } = (<dia.Element>graph.getCell(id)).getPort(port);
+    const { group } = (<dia.Element>graph.getCell(id!)).getPort(port!);
     const { y } = link.getTargetPoint();
-    const node = link.getTargetElement().getParentCell();
-    const { x, width } = node.getBBox();
+    const node = link.getTargetElement()!.getParentCell();
+    const { x, width } = node!.getBBox();
     // Set the link's source point further away from the node container
     // while keeping it vertically aligned with the target point
     // (currently only for the left and right ports)

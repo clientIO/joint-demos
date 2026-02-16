@@ -26,7 +26,8 @@ export class NodePlaceholder extends dia.HighlighterView {
         const collapsed = node.isCollapsed();
         if (collapsed) {
             this.renderChildren();
-            const { name, image } = this.childNodes;
+            const name = this.childNodes!['name'];
+            const image = this.childNodes!['image'];
             const { x, y, width, height } = nodeView.getNodeBoundingRect(nodeEl).inflate(-this.padding);
             // image
             image.setAttribute('x', x.toFixed(2));
@@ -64,7 +65,7 @@ export class ExpandButton extends dia.HighlighterView {
         const { width } = nodeView.model.size();
         this.renderChildren();
         const { el, childNodes, offset } = this;
-        childNodes.icon.setAttribute('d', this.getIconPath(<Node>nodeView.model));
+        childNodes!.icon.setAttribute('d', this.getIconPath(<Node>nodeView.model));
         el.setAttribute('transform', `translate(${width - offset}, ${Node.HEADER_HEIGHT / 2})`);
     }
     getIconPath(node: Node) {
@@ -84,7 +85,7 @@ export class NodeAlert extends dia.HighlighterView {
         const size = 16;
         this.tagName = 'image';
         this.attributes = {
-            href: 'assets/alert.svg',
+            href: './assets/alert.svg',
             x: -size / 2,
             y: -size / 2,
             width: size,
@@ -142,7 +143,7 @@ export class PortAlert extends highlighters.stroke {
     }
 }
 
-export function toggleCellAlert(cellView: dia.CellView, selector, add: boolean) {
+export function toggleCellAlert(cellView: dia.CellView, selector: { port: string | null }, add: boolean) {
     const { model: cell, paper } = cellView;
     const { id } = cell;
     const { port = null } = selector;
@@ -154,11 +155,11 @@ export function toggleCellAlert(cellView: dia.CellView, selector, add: boolean) 
         if (cell.isLink()) {
             LinkAlert.add(cellView, { selector: 'line' }, alertId);
         } else {
-            PortAlert.add(cellView, { port, selector: 'portBody' }, alertId);
+            PortAlert.add(cellView, { port: port!, selector: 'portBody' }, alertId);
         }
         // Show alert highlighter on the container
         if (!parent) return;
-        const parentView = parent.findView(paper);
+        const parentView = parent.findView(paper!);
         if (NodeAlert.get(parentView, nodeAlertId)) return;
         NodeAlert.add(parentView, 'root', nodeAlertId);
     } else {
@@ -166,11 +167,11 @@ export function toggleCellAlert(cellView: dia.CellView, selector, add: boolean) 
         if (!parent) return;
         // Remove the alert highlighter from the container if there are no more alerts
         if(parent.getEmbeddedCells().every(cell => {
-            const cellView = cell.findView(paper);
+            const cellView = cell.findView(paper!);
             const CellAlert = cell.isLink() ? LinkAlert : PortAlert;
             return CellAlert.get(cellView).length === 0;
         })) {
-            NodeAlert.remove(parent.findView(paper), nodeAlertId);
+            NodeAlert.remove(parent.findView(paper!), nodeAlertId);
         }
     }
 }

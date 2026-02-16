@@ -11,7 +11,7 @@ const canvasEl = document.getElementById('canvas') as HTMLDivElement;
 const buttonEl = document.getElementById('toggle') as HTMLButtonElement;
 
 let currentView = View.Isometric;
-let currentCell: IsometricShape | Link = null;
+let currentCell: IsometricShape | Link | null = null;
 
 const graph = new dia.Graph({}, { cellNamespace });
 
@@ -167,7 +167,7 @@ paper.on('blank:pointerdown', (evt) => {
 });
 
 paper.on('blank:pointermove', (evt) => {
-    window.scroll(evt.data.scrollX + (evt.data.clientX - evt.clientX), evt.data.scrollY + (evt.data.clientY - evt.clientY));
+    window.scroll(evt.data.scrollX + (evt.data.clientX - evt.clientX!), evt.data.scrollY + (evt.data.clientY - evt.clientY!));
 });
 
 paper.on('blank:pointerup', () => {

@@ -1,6 +1,7 @@
 import { dia, shapes, util, g } from '@joint/core';
 import ELK from 'elkjs/lib/elk-api.js';
 import type { ElkNode, ElkExtendedEdge, ElkLabel } from 'elkjs/lib/elk-api.d.ts';
+
 import dependenciesJSON from './dependencies.json';
 import './styles.scss';
 
@@ -94,8 +95,8 @@ function addZoomAndPanListeners(paper: dia.Paper): void {
 
     paper.on('blank:pointermove', (evt) => {
         window.scroll(
-            evt.data.scrollX + (evt.data.clientX - evt.clientX),
-            evt.data.scrollY + (evt.data.clientY - evt.clientY)
+            evt.data.scrollX + (evt.data.clientX - evt.clientX!),
+            evt.data.scrollY + (evt.data.clientY - evt.clientY!)
         );
     });
 }
@@ -169,7 +170,7 @@ function generateCells(
     graph: dia.Graph
 ): void {
     const elementMap = new Map();
-    const cells = [];
+    const cells: dia.Cell[] = [];
     dependencies.forEach((dep) => {
         // The ELK graph uses string IDs
         const sourceId = `${dep.source}`;
@@ -332,7 +333,7 @@ function updateGraph(elkGraph: ElkGraph, graph: dia.Graph): void {
 function updateElements(nodes: ElkNode[], graph: dia.Graph): void {
     for (const node of nodes) {
         const el = graph.getCell(node.id) as dia.Element;
-        el.position(node.x, node.y);
+        el.position(node.x!, node.y!);
     }
 }
 
@@ -349,8 +350,8 @@ function updateLinks(edges: ElkExtendedEdge[], graph: dia.Graph): void {
         linkAttributes.vertices = bendPoints;
         // Update link source and target anchors (startPoint, endPoint)
         const link = graph.getCell(edge.id) as dia.Link;
-        linkAttributes.source = getLinkEnd(link.getSourceElement(), startPoint);
-        linkAttributes.target = getLinkEnd(link.getTargetElement(), endPoint);
+        linkAttributes.source = getLinkEnd(link.getSourceElement()!, startPoint);
+        linkAttributes.target = getLinkEnd(link.getTargetElement()!, endPoint);
         // Update link labels positions
         if (edgeLabels) {
             const polyline = new g.Polyline([startPoint, ...bendPoints, endPoint]);
@@ -369,13 +370,13 @@ function getLinkLabelPosition(
     edgeLabel: ElkLabel
 ): dia.Link.LabelPosition {
     const labelPosition = {
-        x: edgeLabel.x + edgeLabel.width / 2,
-        y: edgeLabel.y + edgeLabel.height / 2
+        x: edgeLabel.x! + edgeLabel.width! / 2,
+        y: edgeLabel.y! + edgeLabel.height! / 2
     };
     const length = polyline.closestPointLength(labelPosition);
     const closestPoint = polyline.pointAtLength(length);
     const distance = (length / polyline.length());
-    const offset = new g.Point(labelPosition).difference(closestPoint).toJSON();
+    const offset = new g.Point(labelPosition).difference(closestPoint!).toJSON();
     return {
         distance: distance,
         offset: offset

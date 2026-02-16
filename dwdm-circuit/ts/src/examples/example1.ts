@@ -13,7 +13,7 @@ const data: IData = {
             ip: '192.168.xxx.xxx',
             x: 100,
             y: 100,
-            image: 'assets/node1.svg',
+            image: './assets/node1.svg',
             cards: [
                 {
                     ctor: Multiplexer,
@@ -214,7 +214,7 @@ const data: IData = {
             ip: '192.168.xxx.xxx',
             x: 800,
             y: 100,
-            image: 'assets/node2.svg',
+            image: './assets/node2.svg',
             cards: [
                 {
                     ctor: RightAmplifier,
@@ -455,7 +455,7 @@ const data: IData = {
             ip: '192.168.xxx.xxx',
             x: 1680,
             y: 100,
-            image: 'assets/node3.svg',
+            image: './assets/node3.svg',
             cards: [
                 {
                     ctor: RightAmplifier,

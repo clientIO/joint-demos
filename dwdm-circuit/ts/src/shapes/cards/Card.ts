@@ -93,15 +93,15 @@ export class CardView extends dia.ElementView {
         });
     }
 
-    getMagnetFromLinkEnd(end) {
+    getMagnetFromLinkEnd(end: dia.LinkEnd): SVGElement {
       const { model, paper } = this;
       if (!isCellHidden(model)) {
         // Use the default implementation for visible elements.
         return super.getMagnetFromLinkEnd(end);
       }
       const parent = model.getParentCell();
-      if (!parent) return null;
+      if (!parent) return this.el;
       // Use the parent element node.
-      return parent.findView(paper).el;
+      return parent.findView(paper!).el;
     }
 }

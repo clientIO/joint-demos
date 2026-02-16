@@ -9,13 +9,13 @@ export default class Obstacles {
 
     step: number = GRID_SIZE;
     size: number = GRID_COUNT;
-    grid: string[][] = [];
+    grid: (string | null)[][] = [];
     graph: dia.Graph;
     listener: mvc.Listener<[]>;
 
     constructor(graph: dia.Graph) {
         this.graph = graph;
-        const listener = new mvc.Listener();
+        const listener = this.listener = new mvc.Listener();
         listener.listenTo(graph, 'reset', () => this.update());
         listener.listenTo(graph, 'add', (cell) => this.addCell(cell));
         listener.listenTo(graph, 'remove', (cell) => this.removeCell(cell));
@@ -33,11 +33,11 @@ export default class Obstacles {
         return new g.Rect({ x, y, width, height });
     }
 
-    protected toggleArea(area: g.Rect, value: string) {
+    protected toggleArea(area: g.Rect, value: string | null) {
         const { x, y, width, height } = area;
         for (let i = Math.max(0, x); i < Math.min(x + width, this.size); i++) {
             for (let j = Math.max(0, y); j < Math.min(y + height, this.size); j++) {
-                this.grid[i][j] = value;
+                this.grid[i][j] = value!;
             }
         }
     }
@@ -78,7 +78,7 @@ export default class Obstacles {
 
     // Is the given bounding box free of obstacles?
     // If key is given, the occupied cells are ignored if they belong to the same cell key
-    isFree(bbox: g.Rect, key: string = null): boolean {
+    isFree(bbox: g.Rect, key: string | null = null): boolean {
         const area = this.getCellArea(bbox);
         const { x, y, width, height } = area;
         for (let i = x; i < x + width; i++) {
