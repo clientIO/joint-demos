@@ -59,3 +59,8 @@ body {
 .joint-toolbar .joint-widget[data-type="zoomSlider"] output {
   min-width: 2em;
 }
+
+.joint-toolbar .joint-widget[data-type="undo"]::after,
+.joint-toolbar .joint-widget[data-type="redo"]::after {
+  content: none;
+}

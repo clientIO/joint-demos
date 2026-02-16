@@ -319,8 +319,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
                 commandManager: this.commandManager,
             },
             tools: [
-                { type: 'undo' },
-                { type: 'redo' },
+                { type: 'undo', text: 'Undo' },
+                { type: 'redo', text: 'Redo' },
                 { type: 'separator' },
                 { type: 'zoom-slider', min: 20, max: 500 },
                 { type: 'separator' },
