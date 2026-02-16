@@ -280,7 +280,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             width: 200,
             height: 150,
             useContentBBox: { useModelGeometry: true },
+            dynamicZoom: true,
             paperOptions: {
+                overflow: true,
                 elementView: NavigatorElementView,
                 defaultAnchor: {
                     name: 'center',
@@ -288,14 +290,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
                         useModelGeometry: true,
                     }
                 },
-                defaultRouter: {
-                    name: 'rightAngle',
-                }
             },
         });
 
         this.navigatorContainer.nativeElement.appendChild(this.navigator.el);
         this.navigator.render();
+        this.navigator.targetPaper.svg.style.shapeRendering = 'crispEdges';
 
         this.initToolbar();
 
