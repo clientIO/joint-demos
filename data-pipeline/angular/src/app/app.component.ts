@@ -125,7 +125,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
                 name: 'straight',
                 args: {
                     cornerType: 'cubic',
-                    cornerRadius: 4
+                    cornerRadius: 4,
+                    cornerPreserveAspectRatio: true,
                 },
             },
             defaultConnectionPoint: {

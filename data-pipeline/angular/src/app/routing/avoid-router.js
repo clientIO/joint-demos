@@ -313,7 +313,7 @@ export class AvoidRouter {
         const offset = 20;
         // How much closer to the port the slope vertex is (creates
         // a sloped segment from the turn into the port center).
-        const slopeInset = 5;
+        const slopeInset = 0;
         switch (side) {
             case 'left': {
                 return [
