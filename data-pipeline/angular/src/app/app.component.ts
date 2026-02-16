@@ -462,7 +462,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         const AWAITING_ID = 'awaiting-update';
 
         this.routerWorker = new Worker(
-            new URL('./shared/avoid-router.worker.js', import.meta.url)
+            new URL('./avoid-router.worker.js', import.meta.url)
         );
 
         // Receive routed cells from the worker
