@@ -18,6 +18,7 @@ const cellNamespace = {
 };
 
 const SELECTION_ID = 'selection';
+const NODE_WIDTH = 260;
 
 const NavigatorElementView = dia.ElementView.extend({
     body: null,
@@ -324,7 +325,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     }
 
     private createSampleDiagram(): void {
-        const W = 260;
+        const W = NODE_WIDTH;
 
         // Column 1 (x~50): Data Sources
         const database = new Node({
@@ -465,6 +466,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             new URL('./avoid-router.worker.js', import.meta.url)
         );
 
+        this.routerWorker.onerror = (error) => {
+            console.error('Router worker error:', error);
+        };
+
         // Receive routed cells from the worker
         this.routerWorker.onmessage = (e: MessageEvent) => {
             const { command, ...data } = e.data;
@@ -510,7 +515,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             // Show awaiting-update on connected links while worker routes
             if (cell.isElement() && (cell.hasChanged('position') || cell.hasChanged('size'))) {
                 this.graph.getConnectedLinks(cell).forEach((link) => {
-                    link.router() || link.router('rightAngle', {}, { skipHistory: true });
+                    if (!link.router()) {
+                        link.router('rightAngle', {}, { skipHistory: true });
+                    }
                     const linkView = link.findView(this.paper);
                     if (linkView) {
                         highlighters.addClass.add(linkView, 'root', AWAITING_ID, {
