@@ -1,6 +1,6 @@
-import type { mvc } from '@joint/core';
 import { shapes, dia, util, elementTools } from '@joint/core';
 import { Child, Container, Link, HEADER_HEIGHT } from './shapes';
+import type { mvc } from '@joint/core';
 
 import '../index.css';
 
@@ -29,6 +29,7 @@ const paper = new dia.Paper({
         // Hide any element or link which is embedded inside a collapsed parent (or parent of the parent).
         const hidden = cell.getAncestors().some((ancestor) => {
             if ((ancestor as Container).isCollapsed()) return true;
+            return false;
         });
         return !hidden;
     }
@@ -77,7 +78,7 @@ class ExpandButtonHighlighter extends dia.HighlighterView {
         } else {
             d = 'M -4 0 4 0';
         }
-        this.childNodes.icon.setAttribute('d', d);
+        this.childNodes!.icon.setAttribute('d', d);
     }
 }
 
@@ -100,17 +101,17 @@ graph.on({
 
     'remove': (cell: dia.Cell) => {
         if (cell.isLink()) return;
-        updateContainerSize(cell.getParentCell());
+        updateContainerSize(cell.getParentCell()!);
     },
 
     'change:position': (cell: dia.Cell) => {
         if (cell.isLink()) return;
-        updateContainerSize(cell.getParentCell());
+        updateContainerSize(cell.getParentCell()!);
     },
 
     'change:size': (cell: dia.Cell) => {
         if (cell.isLink()) return;
-        updateContainerSize(cell.getParentCell());
+        updateContainerSize(cell.getParentCell()!);
     },
 
     'change:embeds': (cell: dia.Cell) => {

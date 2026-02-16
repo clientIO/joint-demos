@@ -1,33 +1,52 @@
-const path = require('path');
+var CopyPlugin = require('copy-webpack-plugin');
+
+var path = process.cwd() + '/dist';
 
 module.exports = {
-    resolve: {
-        extensions: ['.ts', '.tsx', '.js']
-    },
     entry: './src/index.ts',
-    output: {
-        filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist'),
-        publicPath: '/dist/'
-    },
     mode: 'development',
+    output: {
+        path: path,
+        filename: 'bundle.js'
+    },
+    resolve: {
+        extensions: ['.ts', '.js']
+    },
+    devtool: 'source-map',
+    devServer: {
+        static: path,
+        hot: true,
+        port: process.env.PORT || 8080,
+        host: process.env.HOST || 'localhost'
+    },
     module: {
         rules: [
-            { test: /\.ts$/, loader: 'ts-loader' },
             {
-                test: /\.css$/,
-                sideEffects: true,
+                test: /\.ts$/,
+                use: [{ loader: 'ts-loader', options: { allowTsInNodeModules: true }}]
+            },
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader']
+            },
+            {
+                test: /\.s[ac]ss$/i,
                 use: [
-                    'style-loader',
-                    'css-loader'
+                    {
+                        loader: 'file-loader',
+                        options: { outputPath: 'css/', name: '[name].css' }
+                    },
+                    'sass-loader'
                 ]
             }
         ]
     },
-    devServer: {
-        static: {
-            directory: __dirname,
-        },
-        compress: true
-    },
+    plugins: [
+        new CopyPlugin({
+            patterns: [
+                { from: './index.html', to: './' },
+                { from: './assets', to: './assets', noErrorOnMissing: true }
+            ]
+        })
+    ]
 };
