@@ -12,11 +12,12 @@ This example demonstrates a data pipeline diagram built with JointJS and Angular
 ## Features
 
 - **Data Pipeline Visualization**: Nodes represent pipeline stages (Database, Transform, Aggregate, Dashboard, etc.) with typed input/output ports
-- **Automatic Routing**: Links are routed orthogonally around nodes using the libavoid WASM library
-- **Live Re-routing**: Dragging nodes triggers automatic re-routing of all connected links
+- **Automatic Routing**: Links are routed orthogonally around nodes using the libavoid WASM library running in a Web Worker to keep the UI responsive
+- **Live Re-routing**: Dragging nodes triggers automatic re-routing of all connected links in the background worker
 - **PaperScroller**: Pan and zoom the diagram with trackpad or mouse
 - **Navigator**: Minimap with simplified element views for quick orientation
-- **Toolbar**: Zoom slider and export buttons (PNG, SVG, JSON)
+- **Undo/Redo**: Command manager tracks user actions while excluding router-generated changes from the history
+- **Toolbar**: Undo/redo, zoom slider, auto layout, and export buttons (PNG, SVG, JSON)
 - **Fallback Router**: Uses JointJS `rightAngle` router when libavoid cannot find a valid route
 
 ## Running the Example
