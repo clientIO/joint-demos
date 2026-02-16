@@ -1,8 +1,9 @@
 import { dia } from '@joint/plus';
-import { Node } from './models/node';
+import { Node, GRID_SIZE } from './models/node';
 import { Edge } from './models/edge';
 
-const NODE_WIDTH = 260;
+const G = GRID_SIZE;
+const NODE_WIDTH = 26 * G;
 
 /**
  * Populates the graph with a sample four-column data-pipeline layout:
@@ -11,12 +12,11 @@ const NODE_WIDTH = 260;
  * across columns.
  */
 export function createSampleDiagram(graph: dia.Graph): void {
-    const W = NODE_WIDTH;
 
-    // Column 1 (x~50): Data Sources
+    // Column 1: Data Sources
     const database = new Node({
-        position: { x: 50, y: 50 },
-        size: { width: W, height: Node.getHeight(0, 3) },
+        position: { x: 5 * G, y: 5 * G },
+        size: { width: NODE_WIDTH, height: Node.getHeight(0, 3) },
         attrs: { label: { text: 'Database' } },
         ports: {
             items: [
@@ -28,8 +28,8 @@ export function createSampleDiagram(graph: dia.Graph): void {
     });
 
     const apiGateway = new Node({
-        position: { x: 50, y: 290 },
-        size: { width: W, height: Node.getHeight(0, 2) },
+        position: { x: 5 * G, y: 29 * G },
+        size: { width: NODE_WIDTH, height: Node.getHeight(0, 2) },
         attrs: { label: { text: 'API Gateway' } },
         ports: {
             items: [
@@ -39,10 +39,10 @@ export function createSampleDiagram(graph: dia.Graph): void {
         },
     });
 
-    // Column 2 (x~450): Processing
+    // Column 2: Processing
     const transform = new Node({
-        position: { x: 450, y: 50 },
-        size: { width: W, height: Node.getHeight(3, 4) },
+        position: { x: 45 * G, y: 5 * G },
+        size: { width: NODE_WIDTH, height: Node.getHeight(3, 4) },
         attrs: { label: { text: 'Transform' } },
         ports: {
             items: [
@@ -58,8 +58,8 @@ export function createSampleDiagram(graph: dia.Graph): void {
     });
 
     const enrich = new Node({
-        position: { x: 450, y: 300 },
-        size: { width: W, height: Node.getHeight(2, 2) },
+        position: { x: 45 * G, y: 30 * G },
+        size: { width: NODE_WIDTH, height: Node.getHeight(2, 2) },
         attrs: { label: { text: 'Enrich' } },
         ports: {
             items: [
@@ -71,10 +71,10 @@ export function createSampleDiagram(graph: dia.Graph): void {
         },
     });
 
-    // Column 3 (x~850): Analytics
+    // Column 3: Analytics
     const aggregate = new Node({
-        position: { x: 850, y: 50 },
-        size: { width: W, height: Node.getHeight(5, 3) },
+        position: { x: 85 * G, y: 5 * G },
+        size: { width: NODE_WIDTH, height: Node.getHeight(5, 3) },
         attrs: { label: { text: 'Aggregate' } },
         ports: {
             items: [
@@ -91,8 +91,8 @@ export function createSampleDiagram(graph: dia.Graph): void {
     });
 
     const monitor = new Node({
-        position: { x: 850, y: 320 },
-        size: { width: W, height: Node.getHeight(1, 1) },
+        position: { x: 85 * G, y: 32 * G },
+        size: { width: NODE_WIDTH, height: Node.getHeight(1, 1) },
         attrs: { label: { text: 'Monitor' } },
         ports: {
             items: [
@@ -102,10 +102,10 @@ export function createSampleDiagram(graph: dia.Graph): void {
         },
     });
 
-    // Column 4 (x~1250): Output
+    // Column 4: Output
     const dashboard = new Node({
-        position: { x: 1250, y: 50 },
-        size: { width: W, height: Node.getHeight(4, 0) },
+        position: { x: 125 * G, y: 5 * G },
+        size: { width: NODE_WIDTH, height: Node.getHeight(4, 0) },
         attrs: { label: { text: 'Dashboard' } },
         ports: {
             items: [
