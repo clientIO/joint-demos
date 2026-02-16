@@ -5,21 +5,31 @@ import {
     AfterViewInit,
     OnDestroy,
 } from '@angular/core';
-import { dia, shapes, ui, format, util, highlighters } from '@joint/plus';
+import { dia, mvc, shapes, ui, format, util, highlighters } from '@joint/plus';
 import { DirectedGraph } from '@joint/layout-directed-graph';
 import { Node, GRID_SIZE } from './models/node';
 import { Edge } from './models/edge';
+import { createSampleDiagram } from './sample-diagram';
 
 
+/** Cell namespace mapping type strings to shape constructors for graph deserialization. */
 const cellNamespace = {
     ...shapes,
     Node,
     Edge,
 };
 
+/** Highlighter ID used for tracking the selected cell. */
 const SELECTION_ID = 'selection';
-const NODE_WIDTH = 260;
 
+/** Shared options passed to PNG/SVG export functions. */
+const EXPORT_OPTIONS = { useComputedStyles: false };
+
+/**
+ * Lightweight element view used inside the {@link ui.Navigator} minimap.
+ * Renders a simple colored rectangle instead of the full node markup,
+ * which keeps the minimap fast regardless of graph complexity.
+ */
 const NavigatorElementView = dia.ElementView.extend({
     body: null,
     markup: util.svg/* xml */`
@@ -64,6 +74,40 @@ const NavigatorElementView = dia.ElementView.extend({
     },
 });
 
+/**
+ * Root component that sets up the JointJS data-pipeline diagram.
+ *
+ * ## Architecture
+ *
+ * The diagram uses a Web Worker for link routing so the libavoid WASM
+ * computation never blocks the UI thread. The main thread and the worker
+ * each maintain their own {@link dia.Graph} instance, kept in sync via
+ * a simple message protocol:
+ *
+ * ### Worker communication protocol
+ *
+ * **Main thread → Worker** (commands sent via `postMessage`):
+ *
+ * | Command    | Payload                 | Description                                      |
+ * |------------|-------------------------|--------------------------------------------------|
+ * | `reset`    | `{ cells: CellJSON[] }` | Send the full graph; worker replaces its state    |
+ * | `change`   | `{ cell: CellJSON }`    | An element moved/resized or a link reconnected    |
+ * | `add`      | `{ cell: CellJSON }`    | A new cell was added to the graph                 |
+ * | `remove`   | `{ id: string }`        | A cell was removed from the graph                 |
+ *
+ * **Worker → Main thread** (responses received via `onmessage`):
+ *
+ * | Command    | Payload                 | Description                                      |
+ * |------------|-------------------------|--------------------------------------------------|
+ * | `routed`   | `{ cells: CellJSON[] }` | Updated link vertices/source/target after routing |
+ *
+ * While the worker is computing, affected links display a visual
+ * "awaiting-update" state (reduced opacity). Once the `routed` response
+ * arrives the vertices are applied and the visual indicator is removed.
+ *
+ * Changes originating from the worker carry `{ fromWorker: true }` and
+ * are excluded from the {@link dia.CommandManager} undo/redo history.
+ */
 @Component({
     selector: 'app-root',
     standalone: true,
@@ -82,21 +126,26 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     private toolbar!: ui.Toolbar;
     private commandManager!: dia.CommandManager;
     private routerWorker!: Worker;
+    private controller = new mvc.Listener();
 
     ngAfterViewInit(): void {
         this.initDiagram();
     }
 
     ngOnDestroy(): void {
+        this.controller.stopListening();
         this.routerWorker?.terminate();
-        this.commandManager?.clear();
         this.toolbar?.remove();
         this.navigator?.remove();
         this.scroller?.remove();
         this.paper?.remove();
-        this.graph?.clear();
     }
 
+    /**
+     * Initializes the full diagram: graph, command manager, paper,
+     * paper scroller, navigator, toolbar, sample data, and router worker.
+     * Called once from {@link ngAfterViewInit}.
+     */
     private initDiagram(): void {
         this.graph = new dia.Graph({}, { cellNamespace });
 
@@ -201,32 +250,29 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         this.scrollerContainer.nativeElement.appendChild(this.scroller.el);
         this.scroller.render();
 
-        this.paper.on('blank:pointerdown', (evt: dia.Event) => {
-            this.deselectAll();
-            this.scroller.startPanning(evt);
-        });
-
-        this.paper.on('element:pointerclick', (elementView: dia.ElementView) => {
-            this.select(elementView);
-        });
-
-        this.paper.on('link:pointerclick', (linkView: dia.LinkView) => {
-            this.select(linkView);
-        });
-
-        this.paper.on('link:connect', (linkView: dia.LinkView) => {
-            this.select(linkView);
-        });
-
-        this.paper.on('paper:pinch', (evt: dia.Event, ox: number, oy: number, scale: number) => {
-            evt.preventDefault();
-            this.scroller.zoom(scale - 1, { min: 0.2, max: 5, ox, oy });
-        });
-
-        this.paper.on('paper:pan', (evt: dia.Event, tx: number, ty: number) => {
-            evt.preventDefault();
-            this.scroller.el.scrollLeft += tx;
-            this.scroller.el.scrollTop += ty;
+        this.controller.listenTo(this.paper, {
+            'blank:pointerdown': (evt: dia.Event) => {
+                this.deselectAll();
+                this.scroller.startPanning(evt);
+            },
+            'element:pointerclick': (elementView: dia.ElementView) => {
+                this.select(elementView);
+            },
+            'link:pointerclick': (linkView: dia.LinkView) => {
+                this.select(linkView);
+            },
+            'link:connect': (linkView: dia.LinkView) => {
+                this.select(linkView);
+            },
+            'paper:pinch': (evt: dia.Event, ox: number, oy: number, scale: number) => {
+                evt.preventDefault();
+                this.scroller.zoom(scale - 1, { min: 0.2, max: 5, ox, oy });
+            },
+            'paper:pan': (evt: dia.Event, tx: number, ty: number) => {
+                evt.preventDefault();
+                this.scroller.el.scrollLeft += tx;
+                this.scroller.el.scrollTop += ty;
+            },
         });
 
         this.navigator = new ui.Navigator({
@@ -253,13 +299,18 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
         this.initToolbar();
 
-        this.createSampleDiagram();
+        createSampleDiagram(this.graph);
         this.initRouter();
 
         this.paper.unfreeze();
         this.scroller.centerContent({ useModelGeometry: true });
     }
 
+    /**
+     * Creates the toolbar with undo/redo, zoom, auto-layout, and export buttons.
+     * Export handlers convert the current diagram to PNG, SVG, or JSON and
+     * trigger a browser download.
+     */
     private initToolbar(): void {
         this.toolbar = new ui.Toolbar({
             autoToggle: true,
@@ -284,36 +335,36 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         this.toolbarContainer.nativeElement.appendChild(this.toolbar.el);
         this.toolbar.render();
 
-        this.toolbar.on('png:pointerclick', () => {
-            format.toPNG(this.paper, (dataUri: string) => {
-                util.downloadDataUri(dataUri, 'diagram.png');
-            }, { padding: 10, useComputedStyles: false });
-        });
-
-        this.toolbar.on('svg:pointerclick', () => {
-            format.toSVG(this.paper, (svgString: string) => {
-                const dataUri = 'data:image/svg+xml,' + encodeURIComponent(svgString);
-                util.downloadDataUri(dataUri, 'diagram.svg');
-            }, { useComputedStyles: false });
-        });
-
-        this.toolbar.on('json:pointerclick', () => {
-            const jsonString = JSON.stringify(this.graph.toJSON());
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            util.downloadBlob(blob, 'diagram.json');
-        });
-
-        this.toolbar.on('layout:pointerclick', () => {
-            DirectedGraph.layout(this.graph, {
-                rankDir: 'LR',
-                rankSep: 120,
-                nodeSep: 30,
-                setVertices: false
-            });
-            this.scroller.centerContent({ useModelGeometry: true });
+        this.controller.listenTo(this.toolbar, {
+            'png:pointerclick': () => {
+                format.toPNG(this.paper, (dataUri: string) => {
+                    util.downloadDataUri(dataUri, 'diagram.png');
+                }, { ...EXPORT_OPTIONS, padding: 10 });
+            },
+            'svg:pointerclick': () => {
+                format.toSVG(this.paper, (svgString: string) => {
+                    const dataUri = 'data:image/svg+xml,' + encodeURIComponent(svgString);
+                    util.downloadDataUri(dataUri, 'diagram.svg');
+                }, EXPORT_OPTIONS);
+            },
+            'json:pointerclick': () => {
+                const jsonString = JSON.stringify(this.graph.toJSON());
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                util.downloadBlob(blob, 'diagram.json');
+            },
+            'layout:pointerclick': () => {
+                DirectedGraph.layout(this.graph, {
+                    rankDir: 'LR',
+                    rankSep: 120,
+                    nodeSep: 30,
+                    setVertices: false
+                });
+                this.scroller.centerContent({ useModelGeometry: true });
+            },
         });
     }
 
+    /** Selects a cell by applying the `selected` CSS class via a highlighter. */
     private select(cellView: dia.CellView): void {
         this.deselectAll();
         highlighters.addClass.add(cellView, 'root', SELECTION_ID, {
@@ -321,145 +372,25 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         });
     }
 
+    /** Removes the selection highlighter from all cells on the paper. */
     private deselectAll(): void {
         highlighters.addClass.removeAll(this.paper, SELECTION_ID);
     }
 
-    private createSampleDiagram(): void {
-        const W = NODE_WIDTH;
-
-        // Column 1 (x~50): Data Sources
-        const database = new Node({
-            position: { x: 50, y: 50 },
-            size: { width: W, height: Node.getHeight(0, 3) },
-            attrs: { label: { text: 'Database' } },
-            ports: {
-                items: [
-                    { group: 'right', id: 'users', attrs: { label: { text: 'users' } } },
-                    { group: 'right', id: 'orders', attrs: { label: { text: 'orders' } } },
-                    { group: 'right', id: 'products', attrs: { label: { text: 'products' } } },
-                ],
-            },
-        });
-
-        const apiGateway = new Node({
-            position: { x: 50, y: 290 },
-            size: { width: W, height: Node.getHeight(0, 2) },
-            attrs: { label: { text: 'API Gateway' } },
-            ports: {
-                items: [
-                    { group: 'right', id: 'requests', attrs: { label: { text: 'requests' } } },
-                    { group: 'right', id: 'sessions', attrs: { label: { text: 'sessions' } } },
-                ],
-            },
-        });
-
-        // Column 2 (x~450): Processing
-        const transform = new Node({
-            position: { x: 450, y: 50 },
-            size: { width: W, height: Node.getHeight(3, 4) },
-            attrs: { label: { text: 'Transform' } },
-            ports: {
-                items: [
-                    { group: 'left', id: 'raw_users', attrs: { label: { text: 'raw users' } } },
-                    { group: 'left', id: 'raw_orders', attrs: { label: { text: 'raw orders' } } },
-                    { group: 'left', id: 'raw_requests', attrs: { label: { text: 'raw requests' } } },
-                    { group: 'right', id: 'clean_users', attrs: { label: { text: 'clean users' } } },
-                    { group: 'right', id: 'clean_orders', attrs: { label: { text: 'clean orders' } } },
-                    { group: 'right', id: 'user_activity', attrs: { label: { text: 'user activity' } } },
-                    { group: 'right', id: 'error_log', attrs: { label: { text: 'error log' } } },
-                ],
-            },
-        });
-
-        const enrich = new Node({
-            position: { x: 450, y: 300 },
-            size: { width: W, height: Node.getHeight(2, 2) },
-            attrs: { label: { text: 'Enrich' } },
-            ports: {
-                items: [
-                    { group: 'left', id: 'products', attrs: { label: { text: 'products' } } },
-                    { group: 'left', id: 'sessions', attrs: { label: { text: 'sessions' } } },
-                    { group: 'right', id: 'catalog', attrs: { label: { text: 'catalog' } } },
-                    { group: 'right', id: 'user_sessions', attrs: { label: { text: 'user sessions' } } },
-                ],
-            },
-        });
-
-        // Column 3 (x~850): Analytics
-        const aggregate = new Node({
-            position: { x: 850, y: 50 },
-            size: { width: W, height: Node.getHeight(5, 3) },
-            attrs: { label: { text: 'Aggregate' } },
-            ports: {
-                items: [
-                    { group: 'left', id: 'clean_users', attrs: { label: { text: 'clean users' } } },
-                    { group: 'left', id: 'clean_orders', attrs: { label: { text: 'clean orders' } } },
-                    { group: 'left', id: 'user_activity', attrs: { label: { text: 'user activity' } } },
-                    { group: 'left', id: 'catalog', attrs: { label: { text: 'catalog' } } },
-                    { group: 'left', id: 'user_sessions', attrs: { label: { text: 'user sessions' } } },
-                    { group: 'right', id: 'revenue', attrs: { label: { text: 'revenue' } } },
-                    { group: 'right', id: 'engagement', attrs: { label: { text: 'engagement' } } },
-                    { group: 'right', id: 'conversion', attrs: { label: { text: 'conversion' } } },
-                ],
-            },
-        });
-
-        const monitor = new Node({
-            position: { x: 850, y: 320 },
-            size: { width: W, height: Node.getHeight(1, 1) },
-            attrs: { label: { text: 'Monitor' } },
-            ports: {
-                items: [
-                    { group: 'left', id: 'error_log', attrs: { label: { text: 'error log' } } },
-                    { group: 'right', id: 'alerts', attrs: { label: { text: 'alerts' } } },
-                ],
-            },
-        });
-
-        // Column 4 (x~1250): Output
-        const dashboard = new Node({
-            position: { x: 1250, y: 50 },
-            size: { width: W, height: Node.getHeight(4, 0) },
-            attrs: { label: { text: 'Dashboard' } },
-            ports: {
-                items: [
-                    { group: 'left', id: 'revenue', attrs: { label: { text: 'revenue' } } },
-                    { group: 'left', id: 'engagement', attrs: { label: { text: 'engagement' } } },
-                    { group: 'left', id: 'conversion', attrs: { label: { text: 'conversion' } } },
-                    { group: 'left', id: 'alerts', attrs: { label: { text: 'alerts' } } },
-                ],
-            },
-        });
-
-        // Links: right ports → left ports across columns
-        const links = [
-            // Database → Transform
-            new Edge({ source: { id: database.id, port: 'users' }, target: { id: transform.id, port: 'raw_users' } }),
-            new Edge({ source: { id: database.id, port: 'orders' }, target: { id: transform.id, port: 'raw_orders' } }),
-            new Edge({ source: { id: database.id, port: 'products' }, target: { id: enrich.id, port: 'products' } }),
-            // API Gateway → Transform / Enrich
-            new Edge({ source: { id: apiGateway.id, port: 'requests' }, target: { id: transform.id, port: 'raw_requests' } }),
-            new Edge({ source: { id: apiGateway.id, port: 'sessions' }, target: { id: enrich.id, port: 'sessions' } }),
-            // Transform → Aggregate / Monitor
-            new Edge({ source: { id: transform.id, port: 'clean_users' }, target: { id: aggregate.id, port: 'clean_users' } }),
-            new Edge({ source: { id: transform.id, port: 'clean_orders' }, target: { id: aggregate.id, port: 'clean_orders' } }),
-            new Edge({ source: { id: transform.id, port: 'user_activity' }, target: { id: aggregate.id, port: 'user_activity' } }),
-            new Edge({ source: { id: transform.id, port: 'error_log' }, target: { id: monitor.id, port: 'error_log' } }),
-            // Enrich → Aggregate
-            new Edge({ source: { id: enrich.id, port: 'catalog' }, target: { id: aggregate.id, port: 'catalog' } }),
-            new Edge({ source: { id: enrich.id, port: 'user_sessions' }, target: { id: aggregate.id, port: 'user_sessions' } }),
-            // Aggregate → Dashboard
-            new Edge({ source: { id: aggregate.id, port: 'revenue' }, target: { id: dashboard.id, port: 'revenue' } }),
-            new Edge({ source: { id: aggregate.id, port: 'engagement' }, target: { id: dashboard.id, port: 'engagement' } }),
-            new Edge({ source: { id: aggregate.id, port: 'conversion' }, target: { id: dashboard.id, port: 'conversion' } }),
-            // Monitor → Dashboard
-            new Edge({ source: { id: monitor.id, port: 'alerts' }, target: { id: dashboard.id, port: 'alerts' } }),
-        ];
-
-        this.graph.resetCells([database, apiGateway, transform, enrich, aggregate, monitor, dashboard, ...links]);
-    }
-
+    /**
+     * Starts the libavoid routing Web Worker and wires up the bidirectional
+     * communication between the main-thread graph and the worker graph.
+     *
+     * On startup, sends a `reset` command with all cells so the worker
+     * builds its internal obstacle map. Then listens for graph `change`,
+     * `add`, and `remove` events to keep the worker in sync.
+     *
+     * While the worker computes routes, connected links are given a
+     * temporary `rightAngle` router as a visual placeholder and marked
+     * with an "awaiting-update" highlighter. When the worker responds
+     * with a `routed` message, the computed vertices replace the
+     * placeholder and the highlighter is removed.
+     */
     private initRouter(): void {
         const AWAITING_ID = 'awaiting-update';
 
@@ -507,49 +438,50 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         });
 
         // Forward graph changes to the worker
-        this.graph.on('change', (cell: dia.Cell, opt: any) => {
-            if (opt.fromWorker) return;
-            this.routerWorker.postMessage([{
-                command: 'change',
-                cell: cell.toJSON(),
-            }]);
-            // Show awaiting-update on connected links while worker routes
-            if (cell.isElement() && (cell.hasChanged('position') || cell.hasChanged('size'))) {
-                this.graph.getConnectedLinks(cell).forEach((link) => {
-                    if (!link.router()) {
-                        link.router('rightAngle', {}, { skipHistory: true });
-                    }
-                    const linkView = link.findView(this.paper);
-                    if (linkView) {
-                        highlighters.addClass.add(linkView, 'root', AWAITING_ID, {
-                            className: 'awaiting-update',
-                        });
-                    }
-                });
-            }
-        });
-
-        this.graph.on('remove', (cell: dia.Cell) => {
-            this.routerWorker.postMessage([{
-                command: 'remove',
-                id: cell.id,
-            }]);
-        });
-
-        this.graph.on('add', (cell: dia.Cell) => {
-            this.routerWorker.postMessage([{
-                command: 'add',
-                cell: cell.toJSON(),
-            }]);
+        this.controller.listenTo(this.graph, {
+            'change': (cell: dia.Cell, opt: any) => {
+                if (opt.fromWorker) return;
+                this.routerWorker.postMessage([{
+                    command: 'change',
+                    cell: cell.toJSON(),
+                }]);
+                // Show awaiting-update on connected links while worker routes
+                if (cell.isElement() && (cell.hasChanged('position') || cell.hasChanged('size'))) {
+                    this.graph.getConnectedLinks(cell).forEach((link) => {
+                        if (!link.router()) {
+                            link.router('rightAngle', {}, { skipHistory: true });
+                        }
+                        const linkView = link.findView(this.paper);
+                        if (linkView) {
+                            highlighters.addClass.add(linkView, 'root', AWAITING_ID, {
+                                className: 'awaiting-update',
+                            });
+                        }
+                    });
+                }
+            },
+            'remove': (cell: dia.Cell) => {
+                this.routerWorker.postMessage([{
+                    command: 'remove',
+                    id: cell.id,
+                }]);
+            },
+            'add': (cell: dia.Cell) => {
+                this.routerWorker.postMessage([{
+                    command: 'add',
+                    cell: cell.toJSON(),
+                }]);
+            },
         });
 
         // Apply temporary rightAngle router during link snapping
-        this.paper.on('link:snap:connect', (linkView: dia.LinkView) => {
-            linkView.model.router('rightAngle', {},  { skipHistory: true });
-        });
-
-        this.paper.on('link:snap:disconnect', (linkView: dia.LinkView) => {
-            linkView.model.set({ vertices: [], router: null }, { skipHistory: true });
+        this.controller.listenTo(this.paper, {
+            'link:snap:connect': (linkView: dia.LinkView) => {
+                linkView.model.router('rightAngle', {}, { skipHistory: true });
+            },
+            'link:snap:disconnect': (linkView: dia.LinkView) => {
+                linkView.model.set({ vertices: [], router: null }, { skipHistory: true });
+            },
         });
     }
 }
