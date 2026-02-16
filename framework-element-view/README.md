@@ -1,5 +1,8 @@
 # JointJS: Framework Element View
 
+
+![screenshot](./screenshot.png)
+
 This demo demonstrates how to integrate JointJS with UI frameworks by rendering framework components inside custom element views.
 
 This demo is also available online at [demos.jointjs.com](https://demos.jointjs.com/framework-element-view).

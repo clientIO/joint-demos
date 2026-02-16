@@ -1,5 +1,8 @@
 # JointJS: Entity-Relationship Diagram
 
+
+![screenshot](./screenshot.png)
+
 This demo visualizes an Entity-Relationship diagram with entities, relationships, and attributes.
 
 ## Available Versions
