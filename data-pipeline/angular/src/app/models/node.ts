@@ -1,5 +1,5 @@
 import { shapes, util } from '@joint/plus';
-import { portLayoutNamespace } from '../port-layouts';
+import { portLayoutNamespace } from './port-layouts';
 
 /**
  * The base grid step used across the diagram. All layout dimensions

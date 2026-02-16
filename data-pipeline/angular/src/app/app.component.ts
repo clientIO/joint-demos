@@ -463,7 +463,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         const AWAITING_ID = 'awaiting-update';
 
         this.routerWorker = new Worker(
-            new URL('./avoid-router.worker.js', import.meta.url)
+            new URL('./routing/avoid-router.worker.js', import.meta.url)
         );
 
         this.routerWorker.onerror = (error) => {

@@ -47,10 +47,11 @@ src/
     ├── app.component.ts              # Main component with JointJS setup
     ├── app.component.html            # Layout template
     ├── app.component.css             # Layout styles
-    ├── port-layouts.ts               # Custom port layout (vertical fixed offsets)
-    ├── avoid-router.js               # Libavoid WASM router integration
-    ├── avoid-router.worker.js        # Web worker for off-thread routing
+    ├── routing/
+    │   ├── avoid-router.js           # Libavoid WASM router integration
+    │   └── avoid-router.worker.js    # Web worker for off-thread routing
     └── models/
         ├── node.ts                   # Node shape with left/right port groups
-        └── edge.ts                   # Link with arrow marker
+        ├── edge.ts                   # Link with arrow marker
+        └── port-layouts.ts           # Custom port layout (vertical fixed offsets)
 ```

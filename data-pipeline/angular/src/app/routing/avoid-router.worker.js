@@ -1,6 +1,6 @@
 import { AvoidRouter } from './avoid-router';
 import { dia, shapes, util } from '@joint/plus';
-import { portLayoutNamespace } from './port-layouts';
+import { portLayoutNamespace } from '../models/port-layouts';
 
 class Node extends shapes.standard.Rectangle {
     constructor(attributes, options) {
