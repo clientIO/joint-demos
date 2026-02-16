@@ -1,22 +1,36 @@
-# JointJS List Demo
+# JointJS: List (TypeScript)
 
-## Setup
+The List demo showcases how the user can create custom elements that contain a set of port List items that can be added or removed dynamically.
 
-Use Yarn to run this demo.
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/list/ts" target="_blank">
+  <img
+    alt="Open in StackBlitz"
+    src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
+  />
+</a>
 
-You need to build *JointJS* first. Navigate to the root folder and run:
+This demo is also available online at [jointjs.com](https://jointjs.com/demos/list).
+
+## How to download this demo
+
+You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
+
 ```bash
-yarn install
-yarn run build
+npx @joint/cli download list/ts
 ```
 
-Navigate to this directory, then run:
+Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.
+
+## Running the application
+
+Install the dependencies by running:
+
 ```bash
-yarn start
+npm install
 ```
 
-## License
+And then start the application with:
 
-The *JointJS* library is licensed under the [Mozilla Public License 2.0](https://github.com/clientIO/joint/blob/master/LICENSE).
-
-Copyright © 2013-2026 client IO
+```bash
+npm run dev
+```

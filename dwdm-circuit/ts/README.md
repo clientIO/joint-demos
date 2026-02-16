@@ -1,22 +1,36 @@
-# JointJS DWDM Demo
+# JointJS: DWDM Circuit (TypeScript)
 
-## Setup
+DWDM circuits (Dense wavelength-division multiplexing) are frequently utilized in long-distance telecommunications networks to enable the effective transmission of substantial data volumes across extended distances. Moreover, they find application in various domains including cable TV and internet service providers, facilitating the transmission of numerous signals through a solitary fiber optic connection. Explore this demo to familiarize yourself with this concept, and feel free to grab its source code if you need to create a graphical visualization of such a data transmission.
 
-Use Yarn to run this demo.
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/dwdm-circuit/ts" target="_blank">
+  <img
+    alt="Open in StackBlitz"
+    src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
+  />
+</a>
 
-You need to build *JointJS* first. Navigate to the root folder and run:
+This demo is also available online at [jointjs.com](https://jointjs.com/demos/dwdm-circuit).
+
+## How to download this demo
+
+You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
+
 ```bash
-yarn install
-yarn run build
+npx @joint/cli download dwdm-circuit/ts
 ```
 
-Navigate to this directory, then run:
+Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.
+
+## Running the application
+
+Install the dependencies by running:
+
 ```bash
-yarn start
+npm install
 ```
 
-## License
+And then start the application with:
 
-The *JointJS* library is licensed under the [Mozilla Public License 2.0](https://github.com/clientIO/joint/blob/master/LICENSE).
-
-Copyright © 2013-2026 client IO
+```bash
+npm run dev
+```

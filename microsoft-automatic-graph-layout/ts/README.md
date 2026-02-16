@@ -1,22 +1,36 @@
-# JointJS MSAGL Demo
+# JointJS: Microsoft Automatic Graph Layout (TypeScript)
 
-## Setup
+See how the @joint/layout-msagl, an MSAGL-powered automatic layout for JointJS keeps diagrams readable — layered positioning, rectilinear or bundled‑spline routing, adjustable separations, and animated updates.
 
-Use Yarn to run this demo.
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/microsoft-automatic-graph-layout/ts" target="_blank">
+  <img
+    alt="Open in StackBlitz"
+    src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
+  />
+</a>
 
-You need to build *JointJS* first. Navigate to the root folder and run:
+This demo is also available online at [jointjs.com](https://jointjs.com/demos/msagl).
+
+## How to download this demo
+
+You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
+
 ```bash
-yarn install
-yarn run build
+npx @joint/cli download microsoft-automatic-graph-layout/ts
 ```
 
-Navigate to this directory, then run:
+Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.
+
+## Running the application
+
+Install the dependencies by running:
+
 ```bash
-yarn start
+npm install
 ```
 
-## License
+And then start the application with:
 
-The *JointJS* library is licensed under the [Mozilla Public License 2.0](https://github.com/clientIO/joint/blob/master/LICENSE).
-
-Copyright © 2013-2026 client IO
+```bash
+npm run dev
+```
