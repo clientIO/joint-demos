@@ -13,6 +13,10 @@
     "data-pipeline": {
       "variant": "angular",
       "buildFlags": "--configuration production"
+    },
+    "tabs": {
+      "variant": "angular",
+      "buildFlags": "--configuration production"
     }
   }
 }

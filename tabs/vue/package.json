@@ -1,0 +1,25 @@
+{
+  "name": "@joint/demo-tabs-vue",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "@joint/plus": "4.2.2",
+    "core-js": "^3.23.2",
+    "vue": "^3.2.31",
+    "vue3-tabs": "^0.1.13-beta.3"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^5.0.0",
+    "@vue/cli-plugin-typescript": "^5.0.0",
+    "@vue/cli-service": "^5.0.0",
+    "@vue/compiler-sfc": "^3.2.31",
+    "vue-loader": "^16.0.0",
+    "sass": "^1.49.0",
+    "sass-loader": "^12.0.0",
+    "typescript": "^4.5.5"
+  }
+}

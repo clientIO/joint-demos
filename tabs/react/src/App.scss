@@ -1,0 +1,73 @@
+@import "~@joint/plus/joint-plus.css";
+@import '~react-tabs/style/react-tabs.css';
+
+.app {
+    width: 100%;
+    height: 100%;
+
+    .joint-tooltip {
+        color: #ffffff;
+    }
+}
+
+.app__tab {
+    font-family: sans-serif;
+    margin: 5px 0 0 5px;
+}
+
+.app__tab-button {
+    margin: 0 0 0 10px;
+}
+
+.app__tab-buttons {
+    display: inline-block;
+    bottom: -1px;
+    position: relative;
+    padding: 6px 12px;
+}
+
+.app__tabs {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
+}
+
+.app__tab-list {
+    flex-grow: 1;
+    background: #efefef;
+    margin: 0 0 0 0;
+
+    &::after {
+        content: '';
+        position: absolute;
+        display: block;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(to bottom, #fff, transparent);
+        transform: translate(0px, 1px);
+        z-index: 1;
+    }
+}
+
+.app__tab-panel {
+    max-width: 100%;
+    max-height: 100%;
+
+    .joint-paper {
+        border: 1px solid lightgray;
+    }
+}
+
+.app__tab-title {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 1;
+    background: rgba(#ffffff, 0.6);
+    font-family: sans-serif;
+}
+

@@ -1,0 +1,143 @@
+@import "~@joint/plus/joint-plus.css";
+
+* {
+  box-sizing: border-box;
+  font-family: arial, sans-serif;
+}
+
+body {
+  height: 100vh;
+  box-sizing: border-box;
+  margin: 0;
+
+  .canvas {
+    width: 100%;
+    height: 100%;
+
+    .joint-paper {
+      border: 1px solid #A0A0A0;
+    }
+  }
+}
+
+#root {
+  height: 100%;
+}
+
+.wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .joint-tooltip {
+    color: #ffffff;
+  }
+}
+
+.tabs-wrapper {
+  min-height: 2.75rem;
+  position: relative;
+  padding-top: .25rem;
+  padding-inline: 1rem;
+  background: #efefef;
+
+  &::before {
+      content: '';
+      position: absolute;
+      display: block;
+      bottom: -4px;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to bottom, #fff, transparent);
+      z-index: 2;
+    }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: black;
+  }
+}
+
+.tab {
+  position: relative;
+  margin-right: 1px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  height: 40px;
+
+  & * {
+    cursor: pointer;
+  }
+
+  &.is-active {
+    border-color: black;
+    border-bottom: white;
+    border-radius: 8px 8px 0 0;
+    background: white;
+  }
+
+  &.is-active::after {
+    content: "";
+    z-index: 1;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: white;
+  }
+}
+
+.remove-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  margin-left: .5rem;
+}
+
+.add-btn {
+  margin-left: .5rem;
+  height: 80%;
+  aspect-ratio: 1;
+  background: transparent;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background .2s ease-in-out;
+  border: 1px solid black;
+  align-self: center;
+  text-align: center;
+  vertical-align: middle;
+
+  &:hover {
+    background: rgb(209, 209, 209);
+  }
+}
+
+.tab-panels {
+  flex-grow: 1;
+
+  .tab-panel {
+    height: 100%;
+    position: relative;
+
+    .joint-paper {
+      border: 1px solid lightgray;
+    }
+  }
+
+  h2 {
+    z-index: 1;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, .5);
+  }
+}

@@ -1,0 +1,32 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~@joint/plus/joint-plus.css";
+
+body {
+  height: 100vh;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.mat-tab-group.mat-tab-fill-height .mat-tab-body-wrapper {
+  flex: 1 1 100%;
+}
+
+.joint-paper {
+  border: 1px solid #d3d3d3
+}
+
+.mat-tab-header {
+  &::after {
+      content: '';
+      position: fixed;
+      display: block;
+      top: 49px;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to bottom, #fff, transparent);
+      z-index: 2;
+  }
+}
