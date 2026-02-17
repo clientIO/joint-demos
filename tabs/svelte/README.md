@@ -1,46 +1,46 @@
-# jointjs-plus-tutorial-svelte
+# JointJS+: Tabs (Svelte) <a href="https://www.jointjs.com/jointjs-plus"><img src="../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
-This git repository is intended for instructional purposes. 
+This is a Svelte version of the Tabs demo that allows the user to display multiple JointJS diagrams while navigating them via a Tabs component.
 
-### Prerequisites  
+## How to download this demo
 
-To run the following code, you will need a [JointJS+ license](https://www.jointjs.com/license) that comes with the Rappid installable package file `joint-plus.tgz`.
+You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
-### Dependencies
-
-Make sure you have the following dependencies installed on your system:
-
-- [Node.js](https://nodejs.org/en/)
-- git
-
-#### Setup
-
-Clone this repository.
-
-```
-git clone git@github.com:clientIO/joint-plus-tutorial-svelte.git
+```bash
+npx @joint/cli download tabs/svelte
 ```
 
-Change into the `joint-plus-tutorial-svelte` directory.
+Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.
 
+## Running the application
+
+To run this application you need to have access to JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).
+
+If you are a trial user, you received your access token during the trial sign-up process.
+If you are a customer, log in to the customer portal at https://my.jointjs.com to obtain your access token.
+
+This example uses `.npmrc` file to set up access to the JointJS+ private npm registry. By default it uses `JOINTJS_NPM_TOKEN` environment variable to get authentication token. You can set this environment variable in your terminal or CI environment in the following way:
+
+**macOS / Linux**:
+```sh
+export JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
-cd joint-plus-tutorial-svelte
+
+**Windows (PowerShell)**:
+```sh
+$env:JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
 
-For this tutorial, you need to place your own `joint-plus.tgz` file in the root directory.
+Learn more about our [private npm registry here.](https://docs.jointjs.com/learn/help-center/npm-registry)
 
-When that is completed, you can install the dependencies.
+After setting up access to JointJS+ package, install the dependencies by running:
 
-```
+```bash
 npm install
 ```
 
-Your demo is now ready to start.
+And then start the application with:
 
-```
+```bash
 npm run dev
 ```
-
-You should be able to view the demo at `http://localhost:8080`.
-
-
