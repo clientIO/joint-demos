@@ -15,7 +15,7 @@
  */
 
 import { chromium } from 'playwright';
-import { readFileSync, existsSync, readdirSync, statSync, writeFileSync } from 'fs';
+import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { join, resolve } from 'path';
 import { execSync, spawn } from 'child_process';
 
@@ -152,39 +152,6 @@ function ensureDeps(buildDir) {
 }
 
 // ---------------------------------------------------------------------------
-// Insert screenshot into README
-// ---------------------------------------------------------------------------
-
-function updateReadme(demoDir, screenshotFilename) {
-    const readmePath = join(demoDir, 'README.md');
-    if (!existsSync(readmePath)) return;
-
-    let content = readFileSync(readmePath, 'utf-8');
-    const imgTag = `![screenshot](./${screenshotFilename})`;
-
-    // Already has the screenshot reference
-    if (content.includes(screenshotFilename)) return;
-
-    // Insert after the first heading line
-    const lines = content.split('\n');
-    let insertIndex = 0;
-    for (let i = 0; i < lines.length; i++) {
-        if (lines[i].startsWith('# ')) {
-            insertIndex = i + 1;
-            // Skip any blank lines after the heading
-            while (insertIndex < lines.length && lines[insertIndex].trim() === '') {
-                insertIndex++;
-            }
-            break;
-        }
-    }
-
-    lines.splice(insertIndex, 0, '', imgTag, '');
-    writeFileSync(readmePath, lines.join('\n'));
-    console.log(`  Updated ${readmePath}`);
-}
-
-// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -292,9 +259,6 @@ async function main() {
             await page.close();
 
             console.log(`  Saved ${screenshotPath}`);
-
-            // Update README
-            updateReadme(join(ROOT, demoName), screenshotFile);
 
             results.captured.push(demoName);
         } catch (err) {
