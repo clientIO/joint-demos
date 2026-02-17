@@ -1,0 +1,55 @@
+@import '@joint/plus/joint-plus.css';
+
+body {
+  font-family: sans-serif;
+}
+
+#logo {
+  position: absolute;
+  bottom: 20px;
+  right: 0;
+}
+
+#stencil-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 150px;
+  bottom: 0;
+}
+
+#paper-container {
+  position: absolute;
+  right: 0;
+  top: 0;
+  left: 150px;
+  bottom: 0;
+}
+
+#toolbar-container {
+  position: absolute;
+  top: 5px;
+  left: 155px;
+  font-family: sans-serif;
+  color: #131e29;
+  border: 1px solid #d3d3d3;
+}
+
+#toolbar-container .joint-toolbar {
+  background-color: #cad8e3;
+  padding: 5px;
+  margin: 5
+}
+
+#toolbar-container .current-file-name-container {
+  padding: 5px;
+  background-color: #cad8e3;
+}
+
+.joint-dialog.joint-theme-default .titlebar {
+  background-color: #ed2637;
+}
+
+.joint-toolbar button {
+  text-transform: capitalize;
+}
