@@ -17,6 +17,10 @@
     "tabs": {
       "variant": "angular",
       "buildFlags": "--configuration production"
+    },
+    "diagram-index": {
+      "variant": "angular",
+      "buildFlags": "--configuration production"
     }
   }
 }

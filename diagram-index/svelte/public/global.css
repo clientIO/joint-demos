@@ -1,0 +1,104 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+    user-select: none;
+}
+
+#root {
+    height: 100vh;
+    width: 100vw;
+}
+
+
+.app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.canvas {
+    width: 75%;
+}
+
+.joint-highlight-mask {
+    fill: #08B081;
+}
+
+/* Arrowheads */
+marker path {
+    stroke: #08B081;
+    fill: #08B081;
+}
+
+.joint-link [joint-selector="line"],
+.joint-element ellipse,
+.joint-element path,
+.joint-element rect {
+    stroke: #08B081;
+}
+
+/* 
+    TreeView
+*/
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+li:focus {
+    outline: none;
+}
+
+.bx--tree {
+    min-width: 200px;
+    width: 25%;
+    height: 100vh;
+    border-right: 1px solid #E2E2E2;
+    background-color: #F5F5F5;
+}
+
+.bx--tree-parent-node {
+    padding-left: 4px;
+}
+
+.bx--tree-leaf-node {
+    padding-left: 16px;
+}
+
+.bx--tree-parent-node,
+.bx--tree-leaf-node {
+    cursor: pointer;
+}
+
+.bx--tree-node__label:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.bx--tree-node--active > .bx--tree-node__label, 
+.bx--tree-node--selected > .bx--tree-node__label {
+    background: #08B081;
+    color: #ffffff;
+}
+
+.bx--tree-parent-node__toggle {
+    vertical-align: middle;
+}
+
+.bx--tree-parent-node__toggle-icon:hover {
+    cursor: pointer;
+}
+
+.bx--tree-parent-node__toggle-icon.false {
+    transform: rotate(270deg);
+}

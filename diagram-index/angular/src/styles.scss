@@ -1,0 +1,43 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "~@joint/plus/joint-plus.css";
+body {
+    height: 100vh;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.mat-tab-group.mat-tab-fill-height .mat-tab-body-wrapper {
+    flex: 1 1 100%;
+}
+
+.canvas {
+    width: 75%;
+    height: 100vh;
+    .joint-paper {
+        .joint-highlight-mask {
+            fill: #08B081;
+        }
+        // Arrowheads
+        marker path {
+            stroke: #08B081;
+            fill: #08B081;
+        }
+        .joint-link [joint-selector="line"],
+        .joint-element ellipse,
+        .joint-element path,
+        .joint-element rect {
+            stroke: #08B081;
+        }
+    }
+}

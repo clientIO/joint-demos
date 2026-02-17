@@ -1,6 +1,7 @@
 {
   "name": "@joint/demo-tabs-react",
   "version": "0.1.0",
+  "license": "http://jointjs.com/license",
   "private": true,
   "dependencies": {
     "@joint/plus": "4.2.2",

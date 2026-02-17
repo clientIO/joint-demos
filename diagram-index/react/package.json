@@ -1,0 +1,46 @@
+{
+  "name": "@joint/demo-diagram-index-react",
+  "version": "0.1.0",
+  "license": "http://jointjs.com/license",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.10.0",
+    "@emotion/styled": "^11.8.1",
+    "@joint/plus": "4.2.2",
+    "@mui/icons-material": "^5.8.4",
+    "@mui/material": "^5.8.7",
+    "@mui/x-tree-view": "^6.17.0",
+    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/react": "^12.0.0",
+    "@testing-library/user-event": "^14.0.0",
+    "@types/jest": "^27.0.0",
+    "@types/node": "^16.0.0",
+    "@types/react": "^17.0.40",
+    "@types/react-dom": "^17.0.11",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "5.0.0",
+    "sass": "^1.7.0",
+    "typescript": "^4.5.2",
+    "web-vitals": "^2.1.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "homepage": "./"
+}

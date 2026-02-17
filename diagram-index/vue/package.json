@@ -1,5 +1,5 @@
 {
-  "name": "@joint/demo-tabs-vue",
+  "name": "@joint/demo-diagram-index-vue",
   "version": "0.1.0",
   "license": "http://jointjs.com/license",
   "private": true,
@@ -11,7 +11,7 @@
     "@joint/plus": "4.2.2",
     "core-js": "^3.23.2",
     "vue": "^3.2.31",
-    "vue3-tabs": "^0.1.13-beta.3"
+    "vue-material-design-icons": "^5.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^5.0.0",

@@ -1,0 +1,55 @@
+@import "~@joint/plus/joint-plus.css";
+
+#root {
+
+    height: 100vh;
+    width: 100vw;
+
+    .app {
+
+        display: flex;
+        flex-direction: row;
+
+        .tree {
+            min-width: 200px;
+            width: 25%;
+            height: 100vh;
+            border-right: 1px solid #E2E2E2;
+            background-color: #F5F5F5;
+
+            .Mui-focused,
+            .Mui-selected {
+                background: #08B081;
+                color: #ffffff;
+            }
+        }
+
+        .canvas {
+
+            width: 75%;
+
+            height: 100vh;
+
+            .joint-paper {
+
+                .joint-highlight-mask {
+                    fill: #08B081;
+                }
+
+                // Arrowheads
+                marker path {
+                    stroke: #08B081;
+                    fill: #08B081;
+                }
+
+                .joint-link [joint-selector="line"],
+                .joint-element ellipse,
+                .joint-element path,
+                .joint-element rect {
+                    stroke: #08B081;
+                }
+            }
+        }
+    }
+
+}
