@@ -1,8 +1,8 @@
-# JointJS: Standalone Link Routing with Libavoid (TypeScript)
+# JointJS: Standalone Link Routing with Libavoid (JavaScript)
 
 Libavoid is a library that offers high-quality polyline and orthogonal link routing, effectively navigating around objects and avoiding overlapping parallel links. It is particularly useful when used in conjunction with interactive diagram editors, such as those that can be created with JointJS. This demo showcases the functionality of Libavoid, integrated into a JointJS diagram.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/standalone-link-routing-with-libavoid/js" target="_blank">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/libavoid-standalone-link-routing/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
@@ -18,7 +18,7 @@ This demo is also available online at [jointjs.com](https://jointjs.com/demos/li
 You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npx @joint/cli download standalone-link-routing-with-libavoid/js
+npx @joint/cli download libavoid-standalone-link-routing/js
 ```
 
 Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.

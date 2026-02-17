@@ -1,5 +1,5 @@
 {
-  "name": "@joint/demo-libavoid",
+  "name": "@joint/demo-libavoid-standalone-link-routing-js",
   "version": "4.2.3",
   "main": "src/index.js",
   "homepage": "https://jointjs.com",

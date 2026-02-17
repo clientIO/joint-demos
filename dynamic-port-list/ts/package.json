@@ -1,7 +1,8 @@
 {
-  "name": "@joint/demo-container-ts",
+  "name": "@joint/demo-dynamic-port-list-ts",
   "version": "4.2.3",
-  "main": "dist/bundle.js",
+  "main": "src/index.ts",
+  "homepage": "https://jointjs.com",
   "author": {
     "name": "client IO",
     "url": "https://client.io"
@@ -16,9 +17,8 @@
     "@joint/core": "4.2.4"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "13.0.0",
-    "css-loader": "^6.8.1",
-    "style-loader": "^3.3.3",
+    "css-loader": "3.5.3",
+    "style-loader": "1.2.1",
     "ts-loader": "^9.2.5",
     "typescript": "5.8.2",
     "webpack": "5.98.0",

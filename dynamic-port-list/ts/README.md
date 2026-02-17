@@ -1,22 +1,22 @@
-# JointJS: ELK Automatic Layout (TypeScript)
+# JointJS: Dynamic Port List (TypeScript)
 
-This ELK Layout demo is built with TypeScript and shows how to use the elkjs library together with JointJS to create automatic diagram layouts powered by the Eclipse Layout Kernel (ELK).
+The Dynamic Port List demo showcases how the user can create custom elements that contain a set of port List items that can be added or removed dynamically.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/elk-automatic-layout/ts" target="_blank">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/dynamic-port-list/ts" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
   />
 </a>
 
-This demo is also available online at [jointjs.com](https://jointjs.com/demos/elk-automatic-layout).
+This demo is also available online at [jointjs.com](https://jointjs.com/demos/dynamic-port-list).
 
 ## How to download this demo
 
 You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npx @joint/cli download elk-automatic-layout/ts
+npx @joint/cli download dynamic-port-list/ts
 ```
 
 Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.

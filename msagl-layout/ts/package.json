@@ -1,5 +1,5 @@
 {
-  "name": "@joint/demo-layout-msagl",
+  "name": "@joint/demo-msagl-layout-ts",
   "version": "4.2.3",
   "description": "JointJS - MSAGL Demo",
   "main": "dist/bundle.js",

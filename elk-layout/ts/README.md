@@ -1,22 +1,22 @@
-# JointJS: Container (TypeScript)
+# JointJS: ELK Automatic Layout (TypeScript)
 
-The Container demo demonstrates how to use embedding functionality in JointJS while allowing the user to collapse and expand parent containers.
+This ELK Layout demo is built with TypeScript and shows how to use the elkjs library together with JointJS to create automatic diagram layouts powered by the Eclipse Layout Kernel (ELK).
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/container/js" target="_blank">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/elk-layout/ts" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
   />
 </a>
 
-This demo is also available online at [jointjs.com](https://jointjs.com/demos/container).
+This demo is also available online at [jointjs.com](https://jointjs.com/demos/elk-layout).
 
 ## How to download this demo
 
 You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npx @joint/cli download container/js
+npx @joint/cli download elk-layout/ts
 ```
 
 Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.

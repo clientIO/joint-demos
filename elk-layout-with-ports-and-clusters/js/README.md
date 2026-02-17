@@ -9,7 +9,7 @@ The Eclipse Kernel Layout demo provides a collection of algorithms sometimes kno
   />
 </a>
 
-This demo is also available online at [jointjs.com](https://jointjs.com/demos/eclipse-kernel-layout).
+This demo is also available online at [jointjs.com](https://jointjs.com/demos/elk-layout-with-ports-and-clusters).
 
 ## How to download this demo
 
