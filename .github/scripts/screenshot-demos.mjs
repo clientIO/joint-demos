@@ -7,7 +7,7 @@
  *   node .github/scripts/screenshot-demos.mjs [demo-name]
  *
  * Prerequisites:
- *   npm install -g playwright
+ *   npm install playwright
  *   npx playwright install chromium
  *
  * The script reuses the same variant-resolution logic as build-demos.sh,
@@ -23,9 +23,10 @@ const ROOT = resolve(import.meta.dirname, '..', '..');
 const CONFIG_FILE = join(ROOT, 'demos.config.json');
 const FILTER = process.argv[2] || '';
 
-const VIEWPORT = { width: 1280, height: 800 };
+const DEFAULT_VIEWPORT = { width: 1024, height: 768 };
 const SERVER_TIMEOUT_MS = 60_000;
 const SETTLE_MS = 3000;
+const BASE_PORT = 9100;
 
 // ---------------------------------------------------------------------------
 // Config helpers
@@ -64,23 +65,26 @@ function resolveBuildDir(config, demoName) {
 }
 
 // ---------------------------------------------------------------------------
-// Detect dev command and expected port
+// Detect dev command and port flag for each server type
 // ---------------------------------------------------------------------------
 
-function detectDevServer(buildDir) {
+function detectDevServer(buildDir, port) {
     const pkg = JSON.parse(readFileSync(join(buildDir, 'package.json'), 'utf-8'));
+    const p = String(port);
 
     if (pkg.scripts?.dev) {
-        // Vite → default port 5173
-        return { command: 'npm', args: ['run', 'dev'], port: 5173 };
+        // Vite — accepts --port via npm passthrough
+        return { command: 'npm', args: ['run', 'dev', '--', '--port', p], port };
     }
     if (pkg.scripts?.start) {
         const startScript = pkg.scripts.start;
         if (startScript.includes('ng serve')) {
-            return { command: 'npm', args: ['start'], port: 4200 };
+            // Angular — accepts --port via npm passthrough
+            return { command: 'npm', args: ['start', '--', '--port', p], port };
         }
-        // webpack-dev-server → default port 8080
-        return { command: 'npm', args: ['start'], port: 8080 };
+        // webpack-dev-server — run directly to bypass concurrently
+        // which swallows extra args passed via npm start --
+        return { command: 'npx', args: ['webpack', 'serve', '--config', 'webpack.config.js', '--port', p], port };
     }
     return null;
 }
@@ -101,6 +105,39 @@ async function waitForServer(url, timeoutMs) {
         await new Promise(r => setTimeout(r, 500));
     }
     return false;
+}
+
+// ---------------------------------------------------------------------------
+// Wait for a port to be free
+// ---------------------------------------------------------------------------
+
+async function waitForPortFree(port, timeoutMs = 10_000) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+        try {
+            await fetch(`http://localhost:${port}`);
+            // Still responding — wait
+            await new Promise(r => setTimeout(r, 300));
+        } catch {
+            return true; // Connection refused = port is free
+        }
+    }
+    return false;
+}
+
+// ---------------------------------------------------------------------------
+// Kill an entire process tree
+// ---------------------------------------------------------------------------
+
+function killProcessTree(proc) {
+    if (!proc.pid) return;
+    try {
+        // Kill the entire process group (npm + child server)
+        process.kill(-proc.pid, 'SIGTERM');
+    } catch {
+        // Process group kill failed, try direct kill
+        try { proc.kill('SIGTERM'); } catch { /* already dead */ }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -163,6 +200,7 @@ async function main() {
         .sort();
 
     const results = { captured: [], failed: [], skipped: [] };
+    let portCounter = BASE_PORT;
 
     for (const demoName of entries) {
         if (FILTER && demoName !== FILTER) continue;
@@ -180,32 +218,35 @@ async function main() {
             continue;
         }
 
-        const server = detectDevServer(buildDir);
+        const port = portCounter++;
+        const server = detectDevServer(buildDir, port);
         if (!server) {
             console.log(`:: Skipping ${demoName} (no dev/start script)`);
             results.skipped.push(demoName);
             continue;
         }
 
-        console.log(`:: ${demoName} (${buildDir}, port ${server.port})`);
+        console.log(`:: ${demoName} (${buildDir}, port ${port})`);
 
+        let proc;
         try {
             ensureDeps(buildDir);
 
-            // Start dev server
-            const proc = spawn(server.command, server.args, {
+            // Start dev server in its own process group so we can kill the tree
+            proc = spawn(server.command, server.args, {
                 cwd: buildDir,
                 stdio: 'pipe',
+                detached: true,
                 env: { ...process.env, BROWSER: 'none' },
             });
 
-            const url = `http://localhost:${server.port}`;
+            const url = `http://localhost:${port}`;
             console.log(`  Waiting for ${url}...`);
 
             const ready = await waitForServer(url, SERVER_TIMEOUT_MS);
             if (!ready) {
                 console.log(`  TIMEOUT waiting for server`);
-                proc.kill('SIGTERM');
+                killProcessTree(proc);
                 results.failed.push(demoName);
                 continue;
             }
@@ -213,14 +254,41 @@ async function main() {
             // Let the app settle (animations, async rendering)
             await new Promise(r => setTimeout(r, SETTLE_MS));
 
+            // Resolve viewport: per-demo config or default
+            const configViewport = demoConfig(config, demoName, 'viewport');
+            const viewport = configViewport
+                ? { width: configViewport.width || DEFAULT_VIEWPORT.width, height: configViewport.height || DEFAULT_VIEWPORT.height }
+                : DEFAULT_VIEWPORT;
+
             // Take screenshot
-            const page = await browser.newPage({ viewport: VIEWPORT });
+            const page = await browser.newPage({ viewport });
             await page.goto(url, { waitUntil: 'networkidle' });
             await page.waitForTimeout(SETTLE_MS);
 
             const screenshotFile = 'screenshot.png';
             const screenshotPath = join(ROOT, demoName, screenshotFile);
-            await page.screenshot({ path: screenshotPath });
+
+            // Clip to the bounding box of <body> children to avoid excess whitespace
+            const clip = await page.evaluate(() => {
+                const body = document.body;
+                if (!body.children.length) return null;
+                let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
+                for (const child of body.children) {
+                    const rect = child.getBoundingClientRect();
+                    if (rect.width === 0 || rect.height === 0) continue;
+                    minX = Math.min(minX, rect.x);
+                    minY = Math.min(minY, rect.y);
+                    maxX = Math.max(maxX, rect.x + rect.width);
+                    maxY = Math.max(maxY, rect.y + rect.height);
+                }
+                if (minX >= maxX || minY >= maxY) return null;
+                return { x: Math.max(0, minX), y: Math.max(0, minY), width: maxX - minX, height: maxY - minY };
+            });
+
+            await page.screenshot({
+                path: screenshotPath,
+                ...(clip ? { clip } : {}),
+            });
             await page.close();
 
             console.log(`  Saved ${screenshotPath}`);
@@ -229,14 +297,15 @@ async function main() {
             updateReadme(join(ROOT, demoName), screenshotFile);
 
             results.captured.push(demoName);
-
-            // Stop server
-            proc.kill('SIGTERM');
-            // Give it a moment to shut down
-            await new Promise(r => setTimeout(r, 1000));
         } catch (err) {
             console.log(`  ERROR: ${err.message}`);
             results.failed.push(demoName);
+        } finally {
+            // Kill the server and wait for the port to be released
+            if (proc) {
+                killProcessTree(proc);
+                await waitForPortFree(port);
+            }
         }
     }
 
