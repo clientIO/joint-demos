@@ -1,4 +1,4 @@
-import { getStroke } from 'perfect-freehand';
+import { getStroke, Vec2 } from 'perfect-freehand';
 import {
     dia,
     shapes,
@@ -37,6 +37,7 @@ class Species extends dia.Element {
             attrs: {
                 root: {
                     magnetSelector: 'border',
+                    cursor: 'move'
                 },
                 border: {
                     fill: colors.bg,
@@ -207,20 +208,25 @@ class Branch extends dia.Link {
                 _value: any,
                 _refBBox: g.Rect,
                 _node: SVGElement,
-                attrs: attributes.NativeSVGAttributes
+                attrs: attributes.NativeSVGAttributes,
+                view: dia.LinkView
             ) {
-                if (!this.model.isLink()) {
+                if (!view.model.isLink()) {
                     throw new Error('The `organicStroke` attribute can only be used with links.');
                 }
                 // The path of the link as returned by the `connector`.
-                const path = this.getConnection();
-                const segmentSubdivisions = this.getConnectionSubdivisions();
+                const path = view.getConnection();
+                const segmentSubdivisions = view.getConnectionSubdivisions();
                 // Convert polylines to points and add the pressure value to each point.
                 const polylines = path.toPolylines({ segmentSubdivisions });
-                let points = [];
-                polylines.forEach((polyline) => {
+                let points: (number[] | {
+                    x: number;
+                    y: number;
+                    pressure?: number;
+                })[] = [];
+                polylines?.forEach((polyline: { points: dia.Point[] }) => {
                     const maxIndex = polyline.points.length - 1;
-                    polyline.points.forEach((point, index) => {
+                    polyline.points.forEach((point: dia.Point, index: number) => {
                         points.push([
                             point.x,
                             point.y,
@@ -266,7 +272,7 @@ const organicStyle = (index: number, maxIndex: number) => {
 const average = (a: number, b: number) => (a + b) / 2;
 
 // Alternatively, a linear or a cubic interpolation can be used.
-function quadraticInterpolation(points) {
+function quadraticInterpolation(points: Vec2[]) {
     const len = points.length;
     if (len < 4) {
         return '';
@@ -290,6 +296,7 @@ function quadraticInterpolation(points) {
 
 // Rotate Tool
 // -----------
+import rotateIcon from '../assets/rotate.svg';
 
 const RotateTool = elementTools.Control.extend({
     children: [
@@ -312,7 +319,7 @@ const RotateTool = elementTools.Control.extend({
                         y: -10,
                         width: 20,
                         height: 20,
-                        'xlink:href': 'assets/rotate.svg',
+                        'xlink:href': rotateIcon,
                     },
                 },
             ],
@@ -380,8 +387,8 @@ const paper = new dia.Paper({
 
 // Move the labels layer to the front so that the labels are not covered
 // by the link tools.
-const labelLayerEl = paper.getLayerNode('labels');
-labelLayerEl.parentElement.appendChild(labelLayerEl);
+const labelLayerEl = paper.getLayerView('labels').el;
+labelLayerEl.parentElement?.appendChild(labelLayerEl);
 
 // Events
 
@@ -438,6 +445,7 @@ paper.on({
 // Species
 // -------
 
+import poriferaIcon from '../assets/porifera.svg';
 const porifera = new Species({
     id: 'Porifera',
     position: { x: 696, y: 552 },
@@ -446,11 +454,12 @@ const porifera = new Species({
             text: 'Porifera',
         },
         icon: {
-            xlinkHref: 'assets/porifera.svg',
+            xlinkHref: poriferaIcon,
         },
     },
 });
 
+import cnidariaIcon from '../assets/cnidaria.svg';
 const cnidaria = new Species({
     id: 'Cnidaria',
     position: { x: 264, y: 432 },
@@ -459,11 +468,12 @@ const cnidaria = new Species({
             text: 'Cnidaria',
         },
         icon: {
-            xlinkHref: 'assets/cnidaria.svg',
+            xlinkHref: cnidariaIcon,
         },
     },
 });
 
+import cnidaria2Icon from '../assets/cnidaria2.svg';
 const cnidaria2 = new Species({
     id: 'Cnidaria2',
     position: { x: 330, y: 396 },
@@ -471,11 +481,12 @@ const cnidaria2 = new Species({
     angle: 15,
     attrs: {
         icon: {
-            xlinkHref: 'assets/cnidaria2.svg',
+            xlinkHref: cnidaria2Icon,
         },
     },
 });
 
+import platyhelminthaIcon from '../assets/platyhelmintha.svg';
 const platyhelmintha = new Species({
     id: 'platyhelmintha',
     position: { x: 768, y: 400 },
@@ -485,11 +496,12 @@ const platyhelmintha = new Species({
             text: 'Platyhelmintha',
         },
         icon: {
-            xlinkHref: 'assets/platyhelmintha.svg',
+            xlinkHref: platyhelminthaIcon,
         },
     },
 });
 
+import brachiopodaIcon from '../assets/brachiopoda.svg';
 const brachiopoda = new Species({
     id: 'Brachiopoda',
     position: { x: 840, y: 248 },
@@ -499,11 +511,12 @@ const brachiopoda = new Species({
             text: 'Brachiopoda',
         },
         icon: {
-            xlinkHref: 'assets/brachiopoda.svg',
+            xlinkHref: brachiopodaIcon,
         },
     },
 });
 
+import annelidaIcon from '../assets/annelida.svg';
 const annelida = new Species({
     id: 'Annelida',
     position: { x: 936, y: 112 },
@@ -512,11 +525,12 @@ const annelida = new Species({
             text: 'Annelida',
         },
         icon: {
-            xlinkHref: 'assets/annelida.svg',
+            xlinkHref: annelidaIcon,
         },
     },
 });
 
+import molluscaIcon from '../assets/mollusca.svg';
 const mollusca = new Species({
     id: 'Mollusca',
     position: { x: 856, y: 8 },
@@ -526,11 +540,12 @@ const mollusca = new Species({
             text: 'Mollusca',
         },
         icon: {
-            xlinkHref: 'assets/mollusca.svg',
+            xlinkHref: molluscaIcon,
         },
     },
 });
 
+import tarigradaIcon from '../assets/tarigrada.svg';
 const tarigrada = new Species({
     id: 'Tarigrada',
     position: { x: 560, y: -136 },
@@ -540,11 +555,12 @@ const tarigrada = new Species({
             text: 'Tarigrada',
         },
         icon: {
-            xlinkHref: 'assets/tarigrada.svg',
+            xlinkHref: tarigradaIcon,
         },
     },
 });
 
+import arthropodaIcon from '../assets/arthropoda.svg';
 const arthropoda = new Species({
     id: 'Arthropoda',
     position: { x: 784, y: -105 },
@@ -554,11 +570,12 @@ const arthropoda = new Species({
             text: 'Arthropoda',
         },
         icon: {
-            xlinkHref: 'assets/arthropoda.svg',
+            xlinkHref: arthropodaIcon,
         },
     },
 });
 
+import nematodaIcon from '../assets/nematoda.svg';
 const nematoda = new Species({
     id: 'Nematoda',
     position: { x: 432, y: -56 },
@@ -567,11 +584,12 @@ const nematoda = new Species({
             text: 'Nematoda',
         },
         icon: {
-            xlinkHref: 'assets/nematoda.svg',
+            xlinkHref: nematodaIcon,
         },
     },
 });
 
+import echinodermataIcon from '../assets/echinodermata.svg';
 const echinodermata = new Species({
     id: 'Echinodermata',
     position: { x: 56, y: 128 },
@@ -581,11 +599,12 @@ const echinodermata = new Species({
             text: 'Echinodermata',
         },
         icon: {
-            xlinkHref: 'assets/echinodermata.svg',
+            xlinkHref: echinodermataIcon,
         },
     },
 });
 
+import chordataIcon from '../assets/chordata.svg';
 const chordata = new Species({
     id: 'Chordata',
     position: { x: 256, y: 8 },
@@ -595,11 +614,12 @@ const chordata = new Species({
             text: 'Chordata',
         },
         icon: {
-            xlinkHref: 'assets/chordata.svg',
+            xlinkHref: chordataIcon,
         },
     },
 });
 
+import chordata2Icon from '../assets/chordata2.svg';
 const chordata2 = new Species({
     id: 'Chordata2',
     position: { x: 290, y: -70 },
@@ -607,11 +627,12 @@ const chordata2 = new Species({
     angle: 15,
     attrs: {
         icon: {
-            xlinkHref: 'assets/chordata2.svg',
+            xlinkHref: chordata2Icon,
         },
     },
 });
 
+import chordata3Icon from '../assets/chordata3.svg';
 const chordata3 = new Species({
     id: 'Chordata3',
     position: { x: 206, y: -60 },
@@ -619,7 +640,7 @@ const chordata3 = new Species({
     angle: -20,
     attrs: {
         icon: {
-            xlinkHref: 'assets/chordata3.svg',
+            xlinkHref: chordata3Icon,
         },
     },
 });

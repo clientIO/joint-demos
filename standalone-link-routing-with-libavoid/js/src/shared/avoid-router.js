@@ -319,6 +319,11 @@ export class AvoidRouter {
 
         const sourceElement = link.getSourceElement();
         const targetElement = link.getTargetElement();
+
+        if (!sourceElement || !targetElement) {
+            return;
+        }
+
         const sourceAnchorDelta = this.getLinkAnchorDelta(
             sourceElement,
             sourcePortId,
