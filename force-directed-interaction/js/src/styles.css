@@ -1,0 +1,15 @@
+@import '@joint/plus/joint-plus.css';
+
+body {
+  font-family: sans-serif;
+}
+
+#paper {
+  top: 30px;
+  margin: auto;
+  border: 1px solid #ccc;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
