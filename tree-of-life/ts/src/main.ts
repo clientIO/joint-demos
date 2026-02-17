@@ -1,4 +1,4 @@
-import { getStroke, Vec2 } from 'perfect-freehand';
+import { getStroke } from 'perfect-freehand';
 import {
     dia,
     shapes,
@@ -9,6 +9,7 @@ import {
     elementTools,
     highlighters,
 } from '@joint/core';
+import type { Vec2 } from 'perfect-freehand';
 
 import '../index.css'
 
