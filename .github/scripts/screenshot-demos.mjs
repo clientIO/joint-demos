@@ -129,7 +129,7 @@ async function waitForPortFree(port, timeoutMs = 10_000) {
 // Kill an entire process tree
 // ---------------------------------------------------------------------------
 
-function killProcessTree(proc) {
+async function killProcessTree(proc) {
     if (!proc.pid) return;
     try {
         // Kill the entire process group (npm + child server)
@@ -138,6 +138,12 @@ function killProcessTree(proc) {
         // Process group kill failed, try direct kill
         try { proc.kill('SIGTERM'); } catch { /* already dead */ }
     }
+    // Give the process a moment to exit gracefully
+    await new Promise(r => setTimeout(r, 2000));
+    // Force kill if still alive
+    try {
+        process.kill(-proc.pid, 'SIGKILL');
+    } catch { /* already dead */ }
 }
 
 // ---------------------------------------------------------------------------
@@ -267,8 +273,11 @@ async function main() {
         } finally {
             // Kill the server and wait for the port to be released
             if (proc) {
-                killProcessTree(proc);
-                await waitForPortFree(port);
+                await killProcessTree(proc);
+                const freed = await waitForPortFree(port);
+                if (!freed) {
+                    console.log(`  WARNING: port ${port} still in use after killing server`);
+                }
             }
         }
     }
