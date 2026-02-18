@@ -4,7 +4,10 @@
  * Captures a screenshot of each demo and saves it to the demo's root directory.
  *
  * Usage:
- *   node .github/scripts/screenshot-demos.mjs [demo-name]
+ *   node .github/scripts/screenshot-demos.mjs [--update] [demo-name]
+ *
+ * By default, only demos missing a screenshot.png are processed.
+ * --update    Regenerate screenshots for all demos (including existing ones).
  *
  * Prerequisites:
  *   npm install playwright
@@ -21,7 +24,13 @@ import { execSync, spawn } from 'child_process';
 
 const ROOT = resolve(import.meta.dirname, '..', '..');
 const CONFIG_FILE = join(ROOT, 'demos.config.json');
-const FILTER = process.argv[2] || '';
+
+let FILTER = '';
+let UPDATE = false;
+for (const arg of process.argv.slice(2)) {
+    if (arg === '--update') UPDATE = true;
+    else FILTER = arg;
+}
 
 const DEFAULT_VIEWPORT = { width: 800, height: 600 };
 const SERVER_TIMEOUT_MS = 60_000;
@@ -53,13 +62,13 @@ function resolveBuildDir(config, demoName) {
     const variant = demoConfig(config, demoName, 'variant');
     if (variant) {
         const variantDir = join(demoDir, variant);
-        if (existsSync(variantDir)) return variantDir;
+        if (existsSync(join(variantDir, 'package.json'))) return variantDir;
         console.warn(`  WARNING: variant '${variant}' not found, falling back`);
     }
 
     for (const fallback of ['ts', 'js']) {
         const dir = join(demoDir, fallback);
-        if (existsSync(dir)) return dir;
+        if (existsSync(join(dir, 'package.json'))) return dir;
     }
     return null;
 }
@@ -180,6 +189,11 @@ async function main() {
 
         if (demoConfig(config, demoName, 'skip') === true) {
             console.log(`:: Skipping ${demoName} (skip=true)`);
+            results.skipped.push(demoName);
+            continue;
+        }
+
+        if (!UPDATE && !FILTER && existsSync(join(ROOT, demoName, 'screenshot.png'))) {
             results.skipped.push(demoName);
             continue;
         }

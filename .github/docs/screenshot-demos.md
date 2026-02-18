@@ -12,10 +12,13 @@ npx playwright install chromium
 ## Usage
 
 ```bash
-# Screenshot all demos
+# Screenshot only demos missing a screenshot.png
 node .github/scripts/screenshot-demos.mjs
 
-# Screenshot a single demo
+# Regenerate screenshots for all demos
+node .github/scripts/screenshot-demos.mjs --update
+
+# Screenshot a single demo (always runs, even if screenshot exists)
 node .github/scripts/screenshot-demos.mjs data-pipeline
 ```
 
@@ -37,8 +40,9 @@ node .github/scripts/screenshot-demos.mjs data-pipeline
 ## Notes
 
 - Screenshots are saved in the demo root (e.g. `data-pipeline/screenshot.png`), not the variant subdirectory, so they appear alongside the top-level `README.md`.
+- By default, demos that already have a `screenshot.png` are skipped. Use `--update` to regenerate all screenshots.
+- When a specific demo name is provided, it always runs regardless of whether a screenshot exists.
 - The script skips demos marked with `skip: true` in `demos.config.json`.
-- If a demo's `README.md` already references `screenshot.png`, it won't be modified.
 
 ## Related files
 
