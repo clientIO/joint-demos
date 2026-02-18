@@ -1,22 +1,22 @@
-# JointJS: Bus (JavaScript)
+# JointJS: UML StateChart Diagram (JavaScript)
 
-This demo demonstrates an audio mixing bus diagram with custom shapes for components, faders, and auxiliary sends.
+This demo implements a UML State Chart diagram with states and transitions.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/bus/js" target="_blank">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/uml-statechart-diagram/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
   />
 </a>
 
-This demo is also available online at [jointjs.com](https://www.jointjs.com/demos/mix-bus).
+This demo is also available online at [jointjs.com](https://www.jointjs.com/demos/uml-statechart-diagram).
 
 ## How to download this demo
 
 You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npx @joint/cli download bus/js
+npx @joint/cli download uml-statechart-diagram/js
 ```
 
 Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.

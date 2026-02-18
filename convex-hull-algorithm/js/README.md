@@ -1,22 +1,22 @@
-# JointJS: Finite State Automata (JavaScript)
+# JointJS: Convex Hull Algorithm (JavaScript)
 
-This demo visualizes a finite state automaton for parsing C-style comments.
+This demo demonstrates convex hull boundaries around groups of draggable elements.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/finite-state-automata/js" target="_blank">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/convex-hull-algorithm/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
   />
 </a>
 
-This demo is also available online at [jointjs.com](https://www.jointjs.com/demos/finite-state-machines).
+This demo is also available online at [jointjs.com](https://www.jointjs.com/demos/convex-hull-algorithm).
 
 ## How to download this demo
 
 You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npx @joint/cli download finite-state-automata/js
+npx @joint/cli download convex-hull-algorithm/js
 ```
 
 Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.

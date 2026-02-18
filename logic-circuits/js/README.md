@@ -1,22 +1,22 @@
-# JointJS: UML State Chart (JavaScript)
+# JointJS: Logic Circuits (JavaScript)
 
-This demo implements a UML State Chart diagram with states and transitions.
+This demo simulates logic circuits with interactive AND, OR, NOT gates and signal propagation.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/uml-state-chart/js" target="_blank">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/logic-circuits/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
   />
 </a>
 
-This demo is also available online at [jointjs.com](https://www.jointjs.com/demos/uml-statechart-diagrams).
+This demo is also available online at [jointjs.com](https://www.jointjs.com/demos/logic-circuits).
 
 ## How to download this demo
 
 You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npx @joint/cli download uml-state-chart/js
+npx @joint/cli download logic-circuits/js
 ```
 
 Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.

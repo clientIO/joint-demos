@@ -1,4 +1,4 @@
-# JointJS: Finite State Automata
+# JointJS: Finite State Machines
 
 This demo visualizes a finite state automaton for parsing C-style comments.
 
