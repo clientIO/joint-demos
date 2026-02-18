@@ -5,3 +5,7 @@ The Container Collapse/Expand demo demonstrates how to use embedding functionali
 ## Available Versions
 
 - [TypeScript](./ts/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)
