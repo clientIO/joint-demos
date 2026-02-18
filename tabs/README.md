@@ -10,3 +10,7 @@ This demo is also available online at [jointjs.com](https://jointjs.com/demos/ta
 - [React](./react/)
 - [Vue](./vue/)
 - [Svelte](./svelte/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

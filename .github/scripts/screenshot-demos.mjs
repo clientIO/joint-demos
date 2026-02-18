@@ -85,11 +85,20 @@ function detectDevServer(buildDir, port) {
         // Vite — accepts --port via npm passthrough
         return { command: 'npm', args: ['run', 'dev', '--', '--port', p], port };
     }
-    if (pkg.scripts?.start) {
-        const startScript = pkg.scripts.start;
+    const startScriptName = pkg.scripts?.start ? 'start' : pkg.scripts?.serve ? 'serve' : null;
+    const startScript = pkg.scripts?.[startScriptName] || '';
+    if (startScript) {
         if (startScript.includes('ng serve')) {
             // Angular — accepts --port via npm passthrough
-            return { command: 'npm', args: ['start', '--', '--port', p], port };
+            return { command: 'npm', args: [startScriptName, '--', '--port', p], port };
+        }
+        if (startScript.includes('react-scripts')) {
+            // Create React App — uses PORT env variable
+            return { command: 'npm', args: [startScriptName], port, env: { PORT: p } };
+        }
+        if (startScript.includes('vue-cli-service')) {
+            // Vue CLI — accepts --port via npm passthrough
+            return { command: 'npm', args: ['run', startScriptName, '--', '--port', p], port };
         }
         // webpack-dev-server — run directly to bypass concurrently
         // which swallows extra args passed via npm start --
@@ -224,7 +233,7 @@ async function main() {
                 cwd: buildDir,
                 stdio: 'pipe',
                 detached: true,
-                env: { ...process.env, BROWSER: 'none' },
+                env: { ...process.env, BROWSER: 'none', ...server.env },
             });
 
             const url = `http://localhost:${port}`;

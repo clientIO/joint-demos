@@ -10,3 +10,7 @@ This demo is also available online at [jointjs.com](https://jointjs.com/demos/ch
 - [ReactReduxTS](./react-redux-ts/)
 - [ReactTS](./react-ts/)
 - [VueTS](./vue-ts/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)
