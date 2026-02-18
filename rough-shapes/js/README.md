@@ -1,22 +1,22 @@
-# JointJS: Rough.js (JavaScript)
+# JointJS: Rough Shapes (JavaScript)
 
 This demo creates hand-drawn style diagrams using the Rough.js library integration.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/rough/js" target="_blank">
+<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/rough-shapes/js" target="_blank">
   <img
     alt="Open in StackBlitz"
     src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
   />
 </a>
 
-This demo is also available online at [jointjs.com](https://www.jointjs.com/demos/rough-js).
+This demo is also available online at [jointjs.com](https://www.jointjs.com/demos/rough-shapes).
 
 ## How to download this demo
 
 You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
 
 ```bash
-npx @joint/cli download rough/js
+npx @joint/cli download rough-shapes/js
 ```
 
 Alternatively, you can get the [copy of the repository](https://github.com/clientIO/joint-demos/archive/refs/heads/main.zip) from GitHub as usual.

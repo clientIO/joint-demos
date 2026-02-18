@@ -1,4 +1,4 @@
-# JointJS: Rough.js
+# JointJS: Rough Shapes
 
 This demo creates hand-drawn style diagrams using the Rough.js library integration.
 
