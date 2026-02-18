@@ -15,12 +15,10 @@
       "buildFlags": "--configuration production"
     },
     "tabs": {
-      "variant": "angular",
-      "buildFlags": "--configuration production"
+      "variant": "react"
     },
     "diagram-index": {
-      "variant": "angular",
-      "buildFlags": "--configuration production"
+      "variant": "react"
     }
   }
 }
