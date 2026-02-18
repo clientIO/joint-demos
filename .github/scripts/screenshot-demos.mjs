@@ -23,7 +23,7 @@ const ROOT = resolve(import.meta.dirname, '..', '..');
 const CONFIG_FILE = join(ROOT, 'demos.config.json');
 const FILTER = process.argv[2] || '';
 
-const DEFAULT_VIEWPORT = { width: 1024, height: 768 };
+const DEFAULT_VIEWPORT = { width: 800, height: 600 };
 const SERVER_TIMEOUT_MS = 60_000;
 const SETTLE_MS = 3000;
 const BASE_PORT = 9100;
