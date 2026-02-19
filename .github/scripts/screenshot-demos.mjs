@@ -90,11 +90,11 @@ function detectDevServer(buildDir, port) {
     if (startScript) {
         if (startScript.includes('ng serve')) {
             // Angular — accepts --port via npm passthrough
-            return { command: 'npm', args: [startScriptName, '--', '--port', p], port };
+            return { command: 'npm', args: ['run', startScriptName, '--', '--port', p], port };
         }
         if (startScript.includes('react-scripts')) {
             // Create React App — uses PORT env variable
-            return { command: 'npm', args: [startScriptName], port, env: { PORT: p } };
+            return { command: 'npm', args: ['run', startScriptName], port, env: { PORT: p } };
         }
         if (startScript.includes('vue-cli-service')) {
             // Vue CLI — accepts --port via npm passthrough
