@@ -3,24 +3,31 @@ import { g, util, mvc } from '@joint/core';
 
 const defaultPin = 1;
 
+// ConnDirFlags (bitwise) for the embind-based API (v0.5.0-beta)
+// These are no longer available as Avoid.ConnDirUp etc.
+const ConnDirUp = 1;
+const ConnDirDown = 2;
+const ConnDirLeft = 4;
+const ConnDirRight = 8;
+const ConnDirAll = 15;
+
+const connDirections = {
+    top: ConnDirUp,
+    right: ConnDirRight,
+    bottom: ConnDirDown,
+    left: ConnDirLeft,
+    all: ConnDirAll,
+};
+
 export class AvoidRouter {
     static async load() {
-        // Note: load() accepts a filepath to the libavoid.wasm file.
-        await AvoidLib.load();
+        // The embind-based v0.5.0-beta uses import.meta.url internally to locate
+        // the wasm file, which webpack transforms. Pass the path explicitly.
+        await AvoidLib.load('./libavoid.wasm');
     }
 
     constructor(graph, options = {}) {
-        const Avoid = AvoidLib.getInstance();
-
         this.graph = graph;
-
-        this.connDirections = {
-            top: Avoid.ConnDirUp,
-            right: Avoid.ConnDirRight,
-            bottom: Avoid.ConnDirDown,
-            left: Avoid.ConnDirLeft,
-            all: Avoid.ConnDirAll,
-        };
 
         this.shapeRefs = {
             // [element.id]: shapeRef
@@ -36,17 +43,15 @@ export class AvoidRouter {
             // [element.id + port.id]: number
         };
 
+        // Map ConnRef id to JointJS link for the connector callback.
+        this.linksById = {
+            // [connRef.id()]: link
+        };
 
-        // libavoid-js seems not to work properly
-        // if you add-remove-add a connRef with a same `id`.
-        // That's the reason we do not assign set connRef's `id`
-        // to JointJS link and let the libavoid to generate an `id`.
-        // We use this structure to find JointJS link from a pointer.
-        // (i.e. we can not use `connRef.id()` as explained above and
-        // we don't want to create a new function bind to a specific link
-        // for every connRef callback (see `avoidConnectorCallback`)
-        this.linksByPointer = {
-            // [connRef.g]: link
+        // Store user-defined checkpoints per link.
+        // These are JointJS vertices that are passed to libavoid as routing checkpoints.
+        this.checkpoints = {
+            // [link.id]: [{ x, y }, ...]
         };
 
         this.avoidConnectorCallback = this.onAvoidConnectorChange.bind(this);
@@ -70,7 +75,7 @@ export class AvoidRouter {
 
         const Avoid = AvoidLib.getInstance();
 
-        const router = new Avoid.Router(Avoid.OrthogonalRouting);
+        const router = new Avoid.Router(Avoid.RouterFlag.OrthogonalRouting.value);
 
         // Avoid Router Parameter
 
@@ -81,7 +86,7 @@ export class AvoidRouter {
         By default, this distance is set to a value of 4.
         */
         router.setRoutingParameter(
-            Avoid.idealNudgingDistance,
+            Avoid.RoutingParameter.idealNudgingDistance,
             idealNudgingDistance
         );
 
@@ -93,7 +98,7 @@ export class AvoidRouter {
         By default, this distance is set to a value of 0.
         */
         router.setRoutingParameter(
-            Avoid.shapeBufferDistance,
+            Avoid.RoutingParameter.shapeBufferDistance,
             shapeBufferDistance
         );
 
@@ -110,7 +115,7 @@ export class AvoidRouter {
         It's not suitable for links connected to ports.
         */
         router.setRoutingOption(
-            Avoid.nudgeOrthogonalTouchingColinearSegments,
+            Avoid.RoutingOption.nudgeOrthogonalTouchingColinearSegments,
             false
         );
 
@@ -125,14 +130,14 @@ export class AvoidRouter {
         and will make little difference.
         */
         router.setRoutingOption(
-            Avoid.performUnifyingNudgingPreprocessingStep,
+            Avoid.RoutingOption.performUnifyingNudgingPreprocessingStep,
             true
         );
 
-        router.setRoutingOption(Avoid.nudgeSharedPathsWithCommonEndPoint, true);
+        router.setRoutingOption(Avoid.RoutingOption.nudgeSharedPathsWithCommonEndPoint, true);
 
         router.setRoutingOption(
-            Avoid.nudgeOrthogonalSegmentsConnectedToShapes,
+            Avoid.RoutingOption.nudgeOrthogonalSegmentsConnectedToShapes,
             true
         );
 
@@ -151,7 +156,7 @@ export class AvoidRouter {
     getVerticesFromAvoidRoute(route) {
         const vertices = [];
         for (let i = 1; i < route.size() - 1; i++) {
-            const { x, y } = route.get_ps(i);
+            const { x, y } = route.at(i);
             vertices.push({ x, y });
         }
         return vertices;
@@ -164,7 +169,7 @@ export class AvoidRouter {
         if (shapeRefs[element.id]) {
             // Only update the position and size of the shape.
             const shapeRef = shapeRefs[element.id];
-            avoidRouter.moveShape(shapeRef, shapeRect);
+            avoidRouter.moveShape_poly(shapeRef, shapeRect, false);
             return;
         }
 
@@ -179,7 +184,7 @@ export class AvoidRouter {
             0.5,
             true,
             0,
-            Avoid.ConnDirAll // All directions
+            ConnDirAll // All directions
         );
         centerPin.setExclusive(false);
 
@@ -203,7 +208,7 @@ export class AvoidRouter {
                     true,
                     // x, y, false, (support offset on ports)
                     0,
-                    this.connDirections[side]
+                    connDirections[side]
                 );
                 pin.setExclusive(false);
             });
@@ -249,40 +254,46 @@ export class AvoidRouter {
 
         if (edgeRefs[link.id]) {
             connRef = edgeRefs[link.id];
+            connRef.setSourceEndpoint(sourceConnEnd);
+            connRef.setDestEndpoint(targetConnEnd);
         } else {
-            connRef = new Avoid.ConnRef(this.avoidRouter);
-            this.linksByPointer[connRef.g] = link;
+            // In libavoid-js v0.5.0-beta (embind), ConnRef requires
+            // source and target ConnEnd at construction time.
+            connRef = new Avoid.ConnRef(this.avoidRouter, sourceConnEnd, targetConnEnd);
+            edgeRefs[link.id] = connRef;
+            this.linksById[connRef.id()] = link;
+
+            // In embind, setCallback takes a single callback argument.
+            // The callback receives the ConnRef object directly (not a pointer).
+            connRef.setCallback(this.avoidConnectorCallback);
         }
 
-        connRef.setSourceEndpoint(sourceConnEnd);
-        connRef.setDestEndpoint(targetConnEnd);
-
-        if (edgeRefs[link.id]) {
-            // It was already created, we just updated
-            // the source and target endpoints.
-            return connRef;
-        }
-
-        edgeRefs[link.id] = connRef;
-
-        connRef.setCallback(this.avoidConnectorCallback, connRef);
-
-        // Custom vertices (checkpoints) are not supported yet.
-        // const checkpoint1 = new Avoid.Checkpoint(
-        //     new Avoid.Point(400, 200),
-        // );
-        // Method does not exists in libavoid-js v4.
-        // connRef.setRoutingCheckpoints([checkpoint1]);
+        // Apply checkpoints (JointJS vertices used as libavoid routing checkpoints)
+        this.applyCheckpoints(link, connRef);
 
         return connRef;
+    }
+
+    // Apply stored checkpoints to the connector.
+    applyCheckpoints(link, connRef) {
+        const Avoid = AvoidLib.getInstance();
+        const checkpoints = this.checkpoints[link.id];
+        const cpVector = new Avoid.CheckpointVector();
+        if (checkpoints && checkpoints.length > 0) {
+            checkpoints.forEach(({ x, y }) => {
+                cpVector.push_back(new Avoid.Checkpoint(new Avoid.Point(x, y)));
+            });
+        }
+        connRef.setRoutingCheckpoints(cpVector);
     }
 
     deleteConnector(link) {
         const connRef = this.edgeRefs[link.id];
         if (!connRef) return;
+        delete this.linksById[connRef.id()];
         this.avoidRouter.deleteConnector(connRef);
-        delete this.linksByPointer[connRef.g];
         delete this.edgeRefs[link.id];
+        delete this.checkpoints[link.id];
     }
 
     deleteShape(element) {
@@ -311,8 +322,8 @@ export class AvoidRouter {
         if (!connRef) return;
 
         const route = connRef.displayRoute();
-        const sourcePoint = new g.Point(route.get_ps(0));
-        const targetPoint = new g.Point(route.get_ps(route.size() - 1));
+        const sourcePoint = new g.Point(route.at(0));
+        const targetPoint = new g.Point(route.at(route.size() - 1));
 
         const { id: sourceId, port: sourcePortId = null } = link.source();
         const { id: targetId, port: targetPortId = null } = link.target();
@@ -472,6 +483,18 @@ export class AvoidRouter {
             // not defined proportionally to the shape.
             needsRerouting = true;
         }
+        // When the user modifies vertices (e.g. via the Vertices tool),
+        // treat them as routing checkpoints.
+        if ('vertices' in cell.changed) {
+            if (!cell.isLink()) return;
+            const vertices = cell.get('vertices') || [];
+            this.checkpoints[cell.id] = vertices.map(({ x, y }) => ({ x, y }));
+            const connRef = this.edgeRefs[cell.id];
+            if (connRef) {
+                this.applyCheckpoints(cell, connRef);
+                needsRerouting = true;
+            }
+        }
         // TODO:
         // if ("ports" in cell.changed) {}
         if (this.commitTransactions && needsRerouting) {
@@ -491,8 +514,9 @@ export class AvoidRouter {
         this.routeAll();
     }
 
-    onAvoidConnectorChange(connRefPtr) {
-        const link = this.linksByPointer[connRefPtr];
+    onAvoidConnectorChange(connRef) {
+        // In embind, the callback receives the ConnRef object directly.
+        const link = this.linksById[connRef.id()];
         if (!link) return;
         this.routeLink(link);
     }
@@ -516,8 +540,8 @@ export class AvoidRouter {
             return true;
         }
 
-        const sourcePs = route.get_ps(0);
-        const targetPs = route.get_ps(size - 1);
+        const sourcePs = route.at(0);
+        const targetPs = route.at(size - 1);
         if (sourcePs.x !== targetPs.x && sourcePs.y !== targetPs.y) {
             // The route is not straight.
             return false;

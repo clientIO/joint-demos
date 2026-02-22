@@ -34,7 +34,8 @@ onmessage = async(e) => {
                 // An edge was changed.
                 model.set({
                     source: cell.source,
-                    target: cell.target
+                    target: cell.target,
+                    vertices: cell.vertices || [],
                 }, {
                     fromBrowser: true
                 });

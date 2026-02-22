@@ -130,6 +130,7 @@ export const init = async () => {
         linkView.addTools(
             new dia.ToolsView({
                 tools: [
+                    new linkTools.Vertices(),
                     new linkTools.Remove(),
                     new linkTools.TargetArrowhead(),
                 ],
