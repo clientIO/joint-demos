@@ -35,7 +35,7 @@ onmessage = async(e) => {
                 model.set({
                     source: cell.source,
                     target: cell.target,
-                    vertices: cell.vertices || [],
+                    checkpoints: cell.checkpoints || [],
                 }, {
                     fromBrowser: true
                 });

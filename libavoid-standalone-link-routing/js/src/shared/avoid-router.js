@@ -48,12 +48,6 @@ export class AvoidRouter {
             // [connRef.id()]: link
         };
 
-        // Store user-defined checkpoints per link.
-        // These are JointJS vertices that are passed to libavoid as routing checkpoints.
-        this.checkpoints = {
-            // [link.id]: [{ x, y }, ...]
-        };
-
         this.avoidConnectorCallback = this.onAvoidConnectorChange.bind(this);
 
         this.id = 100000;
@@ -274,16 +268,14 @@ export class AvoidRouter {
         return connRef;
     }
 
-    // Apply stored checkpoints to the connector.
+    // Apply checkpoints from the link model to the connector.
     applyCheckpoints(link, connRef) {
         const Avoid = AvoidLib.getInstance();
-        const checkpoints = this.checkpoints[link.id];
+        const checkpoints = link.get('checkpoints') || [];
         const cpVector = new Avoid.CheckpointVector();
-        if (checkpoints && checkpoints.length > 0) {
-            checkpoints.forEach(({ x, y }) => {
-                cpVector.push_back(new Avoid.Checkpoint(new Avoid.Point(x, y)));
-            });
-        }
+        checkpoints.forEach(({ x, y }) => {
+            cpVector.push_back(new Avoid.Checkpoint(new Avoid.Point(x, y)));
+        });
         connRef.setRoutingCheckpoints(cpVector);
     }
 
@@ -293,7 +285,6 @@ export class AvoidRouter {
         delete this.linksById[connRef.id()];
         this.avoidRouter.deleteConnector(connRef);
         delete this.edgeRefs[link.id];
-        delete this.checkpoints[link.id];
     }
 
     deleteShape(element) {
@@ -483,17 +474,17 @@ export class AvoidRouter {
             // not defined proportionally to the shape.
             needsRerouting = true;
         }
-        // When the user modifies vertices (e.g. via the Vertices tool),
-        // treat them as routing checkpoints.
-        if ('vertices' in cell.changed) {
+        // When the user modifies checkpoints (e.g. via the CheckpointsVertices tool),
+        // update the libavoid routing checkpoints and re-route.
+        if ('checkpoints' in cell.changed) {
             if (!cell.isLink()) return;
-            const vertices = cell.get('vertices') || [];
-            this.checkpoints[cell.id] = vertices.map(({ x, y }) => ({ x, y }));
-            const connRef = this.edgeRefs[cell.id];
-            if (connRef) {
-                this.applyCheckpoints(cell, connRef);
-                needsRerouting = true;
-            }
+            // Workaround: calling setRoutingCheckpoints() alone does not mark the
+            // connector as dirty in libavoid, so processTransaction() ignores it.
+            // Re-setting the endpoints via updateConnector() forces libavoid to
+            // recalculate the route. This should be fixed on the libavoid-js side
+            // so that setRoutingCheckpoints() marks the connector for rerouting.
+            this.updateConnector(cell);
+            needsRerouting = true;
         }
         // TODO:
         // if ("ports" in cell.changed) {}
@@ -502,7 +493,7 @@ export class AvoidRouter {
         }
     }
 
-    onGraphReset(previousModels) {
+    onGraphReset(previousModels = []) {
         previousModels.forEach((cell) => {
             if (cell.isElement()) {
                 this.deleteShape(cell);

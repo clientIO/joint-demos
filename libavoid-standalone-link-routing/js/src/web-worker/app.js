@@ -2,6 +2,7 @@ import { linkTools, elementTools, dia, shapes, highlighters } from '@joint/core'
 import { Node, Edge } from '../shared/shapes';
 import ResizeTool from '../shared/resize-tool';
 import { AvoidRouter } from '../shared/avoid-router';
+import { CheckpointsVertices } from '../shared/checkpoints-vertices-tool';
 import json from './example.json';
 
 // Avoid Docs
@@ -130,7 +131,7 @@ export const init = async () => {
         linkView.addTools(
             new dia.ToolsView({
                 tools: [
-                    new linkTools.Vertices(),
+                    new CheckpointsVertices(),
                     new linkTools.Remove(),
                     new linkTools.TargetArrowhead(),
                 ],
