@@ -220,6 +220,20 @@ export const init = async () => {
             });
         }
 
+        // While the user drags a checkpoint, use rightAngle router with
+        // checkpoints as vertices for immediate visual feedback. The worker
+        // will replace this with the full libavoid route once it responds.
+        if (cell.isLink() && cell.hasChanged('checkpoints')) {
+            const checkpoints = cell.get('checkpoints') || [];
+            cell.set({
+                vertices: checkpoints,
+                router: checkpoints.length > 0 ? { name: 'rightAngle', args: { useVertices: true } } : null,
+            });
+            highlighters.addClass.add(cell.findView(paper), 'line', 'awaiting-update', {
+                className: 'awaiting-update'
+            });
+        }
+
     });
 
     graph.on('remove', (cell) => {
