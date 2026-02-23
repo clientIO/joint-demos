@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@joint/core": "4.2.4",
-    "libavoid-js": "0.5.0-beta.3"
+    "libavoid-js": "0.5.0-beta.4"
   },
   "devDependencies": {
     "copy-webpack-plugin": "5.1.1",

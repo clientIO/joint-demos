@@ -478,12 +478,10 @@ export class AvoidRouter {
         // update the libavoid routing checkpoints and re-route.
         if ('checkpoints' in cell.changed) {
             if (!cell.isLink()) return;
-            // Workaround: calling setRoutingCheckpoints() alone does not mark the
-            // connector as dirty in libavoid, so processTransaction() ignores it.
-            // Re-setting the endpoints via updateConnector() forces libavoid to
-            // recalculate the route. This should be fixed on the libavoid-js side
-            // so that setRoutingCheckpoints() marks the connector for rerouting.
-            this.updateConnector(cell);
+            const connRef = this.edgeRefs[cell.id];
+            if (connRef) {
+                this.applyCheckpoints(cell, connRef);
+            }
             needsRerouting = true;
         }
         // TODO:
