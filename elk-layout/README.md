@@ -5,3 +5,7 @@ This ELK Layout demo is built with TypeScript and shows how to use the elkjs lib
 ## Available Versions
 
 - [TypeScript](./ts/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

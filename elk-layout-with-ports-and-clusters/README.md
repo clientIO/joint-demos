@@ -5,3 +5,7 @@ The Eclipse Kernel Layout demo provides a collection of algorithms sometimes kno
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

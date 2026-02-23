@@ -5,3 +5,7 @@ Need to create multiple Bootstrap Tabs while displaying and manipulating diagram
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

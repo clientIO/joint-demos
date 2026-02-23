@@ -5,3 +5,7 @@ Libavoid is a library that offers high-quality polyline and orthogonal link rout
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

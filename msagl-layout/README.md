@@ -5,3 +5,7 @@ See how the @joint/layout-msagl, an MSAGL-powered automatic layout for JointJS k
 ## Available Versions
 
 - [TypeScript](./ts/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

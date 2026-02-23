@@ -5,3 +5,7 @@ This demo shows how to embed HTML content inside JointJS elements using foreignO
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

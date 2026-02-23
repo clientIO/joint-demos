@@ -5,3 +5,7 @@ This demo creates hand-drawn style diagrams using the Rough.js library integrati
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

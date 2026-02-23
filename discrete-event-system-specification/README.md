@@ -5,3 +5,7 @@ This demo implements a Discrete Event System Specification (DEVS) diagram with c
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

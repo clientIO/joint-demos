@@ -5,3 +5,7 @@ This demo simulates logic circuits with interactive AND, OR, NOT gates and signa
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

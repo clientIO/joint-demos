@@ -5,3 +5,7 @@ This demo demonstrates an audio mixing bus diagram with custom shapes for compon
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

@@ -5,3 +5,7 @@ The Dynamic Port List demo showcases how the user can create custom elements tha
 ## Available Versions
 
 - [TypeScript](./ts/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

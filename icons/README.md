@@ -5,3 +5,7 @@ This demo demonstrates how to add dynamic icon lists to elements using highlight
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

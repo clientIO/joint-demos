@@ -26,6 +26,7 @@ Demos not listed in the config use default behavior. All fields are optional.
 | `skip` | `boolean` | build script | Skip build and deploy entirely. The demo appears in the "Skipped" summary. |
 | `variant` | `string` | build script | Subdirectory to build (e.g. `"vue-ts"`, `"react-ts"`). Overrides the default `ts` → `js` fallback. If the directory doesn't exist, falls back to default. |
 | `buildFlags` | `string` | build script | Overrides the default flags passed to `npm run build`. When not set, defaults to `--base=./ --mode=production` for Vite projects or `--mode=production` for others. Use this for frameworks that need different flags (e.g. `"--configuration production"` for Angular). |
+| `viewport` | `object` | screenshot script | Custom viewport size `{ "width": N, "height": N }` for screenshots. Defaults to 1024x768. |
 | `unlisted` | `boolean` | CLI tooling | Hides the demo from `@joint/cli list`. Still builds and deploys normally. |
 
 ## Default behavior

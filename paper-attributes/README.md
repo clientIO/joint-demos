@@ -5,3 +5,7 @@ This demo allows interactive exploration of JointJS Paper attributes including o
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

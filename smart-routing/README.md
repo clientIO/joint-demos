@@ -5,3 +5,7 @@ This demo showcases various routing and connector strategies for links navigatin
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

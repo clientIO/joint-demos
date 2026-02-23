@@ -5,3 +5,7 @@ This demo demonstrates convex hull boundaries around groups of draggable element
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

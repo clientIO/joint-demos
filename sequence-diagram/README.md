@@ -5,3 +5,7 @@ This demo implements an interactive UML sequence diagram editor with roles, life
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

@@ -5,3 +5,7 @@ This demo visualizes an Entity-Relationship diagram with entities, relationships
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

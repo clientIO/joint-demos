@@ -5,3 +5,7 @@ This demo visualizes a train scheduling Marey chart with interactive panning and
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

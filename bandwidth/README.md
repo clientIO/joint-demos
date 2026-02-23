@@ -5,3 +5,7 @@ This demo shows interactive bandwidth frequency elements that can be dragged and
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

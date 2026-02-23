@@ -7,3 +7,7 @@ This demo is also available online at [jointjs.com](https://jointjs.com/demos/pr
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

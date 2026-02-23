@@ -13,3 +13,7 @@ This demo is also available online at [jointjs.com](https://jointjs.com/demos/ki
 - [ReactTS](./react-ts/)
 - [VueJS](./vue-js/)
 - [VueTS](./vue-ts/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

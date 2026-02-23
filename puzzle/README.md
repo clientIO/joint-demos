@@ -5,3 +5,7 @@ This demo generates interactive jigsaw puzzles from images with draggable and ro
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

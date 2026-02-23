@@ -5,3 +5,7 @@ This demo showcases curve connectors between different shape types including rho
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

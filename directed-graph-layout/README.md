@@ -5,3 +5,7 @@ The Directed Graph Layout demo provides the user with the ability to automatical
 ## Available Versions
 
 - [JavaScript](./js/)
+
+## Screenshot
+
+![screenshot](./screenshot.png)

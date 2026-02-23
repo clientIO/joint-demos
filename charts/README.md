@@ -8,3 +8,7 @@ This demo is also available online at [jointjs.com](https://jointjs.com/demos/ch
 
 - [JavaScript](./js/)
 -
+
+## Screenshot
+
+![screenshot](./screenshot.png)
