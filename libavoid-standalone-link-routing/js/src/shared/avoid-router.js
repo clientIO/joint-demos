@@ -354,15 +354,7 @@ export class AvoidRouter {
             },
         };
 
-        if (
-            this.isRouteValid(
-                route,
-                sourceElement,
-                targetElement,
-                sourcePortId,
-                targetPortId
-            )
-        ) {
+        if (connRef.hasValidRoute()) {
             // We have a valid route.
             // We update the link with the route.
             linkAttributes.source.anchor.args = {
@@ -510,50 +502,4 @@ export class AvoidRouter {
         this.routeLink(link);
     }
 
-    // This method is used to check if the route is valid.
-    // It is used to determine if we should use the libavoid route
-    // or the rightAngle router.
-    // Unfortunately, the libavoid does not provide a method to check
-    // if the route is valid, so we must use heuristics.
-    isRouteValid(
-        route,
-        sourceElement,
-        targetElement,
-        sourcePortId,
-        targetPortId
-    ) {
-        const size = route.size();
-        if (size > 2) {
-            // when the libavoid route has more than 2 points,
-            // we consider it valid.
-            return true;
-        }
-
-        const sourcePs = route.at(0);
-        const targetPs = route.at(size - 1);
-        if (sourcePs.x !== targetPs.x && sourcePs.y !== targetPs.y) {
-            // The route is not straight.
-            return false;
-        }
-
-        const margin = this.margin;
-
-        if (
-            sourcePortId &&
-            targetElement.getBBox().inflate(margin).containsPoint(sourcePs)
-        ) {
-            // The source point is inside the target element.
-            return false;
-        }
-
-        if (
-            targetPortId &&
-            sourceElement.getBBox().inflate(margin).containsPoint(targetPs)
-        ) {
-            // The target point is inside the source element.
-            return false;
-        }
-
-        return true;
-    }
 }
