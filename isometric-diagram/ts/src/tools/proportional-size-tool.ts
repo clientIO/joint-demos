@@ -1,5 +1,7 @@
-import { dia, elementTools, g } from '@joint/core';
-import IsometricShape, { PyramidShape } from '../shapes/isometric-shape';
+import type { dia } from '@joint/core';
+import { elementTools, g } from '@joint/core';
+import type IsometricShape from '../shapes/isometric-shape';
+import { PyramidShape } from '../shapes/isometric-shape';
 import { SIZE_TOOL_MARKUP } from './tools';
 import { GRID_SIZE } from '../theme';
 
@@ -28,7 +30,7 @@ export class ProportionalSizeControl extends elementTools.Control {
         const newWidth = Math.max(GRID_SIZE, width + sizePerStep);
         const newHeight = Math.max(GRID_SIZE, height + sizePerStep);
 
-        const { x, y } = element.position()
+        const { x, y } = element.position();
         const newBBox = new g.Rect(x, y, newWidth, newHeight);
 
         if (!graph.get('obstacles').isFree(newBBox, element.cid)) return;
@@ -36,7 +38,7 @@ export class ProportionalSizeControl extends elementTools.Control {
         // Pyramids that are tall as wide are not appealing in isometric view
         if (element instanceof PyramidShape) {
             const pyramidStep = step <= -1 && width === GRID_SIZE && height === GRID_SIZE ? 0 : step;
-            element.set('isometricHeight', element.isometricHeight + GRID_SIZE * pyramidStep)
+            element.set('isometricHeight', element.isometricHeight + GRID_SIZE * pyramidStep);
         }
 
         element.resize(newWidth, newHeight);

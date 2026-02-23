@@ -54,14 +54,14 @@ export class Constant extends shapes.standard.BorderedRecord {
             },
             items: [
                 [{
-                        id: 'icon',
-                        icon: 'assets/images/clipboard.svg',
-                    }],
+                    id: 'icon',
+                    icon: 'assets/images/clipboard.svg',
+                }],
                 [{
-                        id: 'value',
-                        label: '',
-                        span: 2
-                    }],
+                    id: 'value',
+                    label: '',
+                    span: 2
+                }],
                 [
                 
                 ]
@@ -157,40 +157,40 @@ export class Concat extends shapes.standard.HeaderedRecord {
             },
             items: [
                 [{
-                        id: 'value_1',
-                        label: 'Value 1',
-                        icon: 'assets/images/link.svg',
-                    }, {
-                        id: 'value_2',
-                        label: 'Value 2',
-                        icon: 'assets/images/link.svg',
-                    }, {
-                        id: 'value_3',
-                        label: 'Value 3',
-                        icon: 'assets/images/link.svg',
-                    }], [{
-                        id: 'result',
-                        label: 'Result ⇛',
-                        height: 40
-                    }]
+                    id: 'value_1',
+                    label: 'Value 1',
+                    icon: 'assets/images/link.svg',
+                }, {
+                    id: 'value_2',
+                    label: 'Value 2',
+                    icon: 'assets/images/link.svg',
+                }, {
+                    id: 'value_3',
+                    label: 'Value 3',
+                    icon: 'assets/images/link.svg',
+                }], [{
+                    id: 'result',
+                    label: 'Result ⇛',
+                    height: 40
+                }]
             ]
         }, super.defaults);
     }
     
     preinitialize() {
         this.markup = [{
-                tagName: 'rect',
-                selector: 'body'
-            }, {
-                tagName: 'rect',
-                selector: 'header'
-            }, {
-                tagName: 'rect',
-                selector: 'tabColor'
-            }, {
-                tagName: 'text',
-                selector: 'headerLabel'
-            }];
+            tagName: 'rect',
+            selector: 'body'
+        }, {
+            tagName: 'rect',
+            selector: 'header'
+        }, {
+            tagName: 'rect',
+            selector: 'tabColor'
+        }, {
+            tagName: 'text',
+            selector: 'headerLabel'
+        }];
     }
     
     getNumberOfValues() {
@@ -294,41 +294,41 @@ export class GetDate extends shapes.standard.HeaderedRecord {
             },
             items: [
                 [{
-                        id: 'value',
-                        label: '⇛ Value',
-                        height: 60
-                    }],
+                    id: 'value',
+                    label: '⇛ Value',
+                    height: 60
+                }],
                 [{
-                        id: 'year',
-                        label: 'year',
-                        icon: 'assets/images/link.svg',
-                    }, {
-                        id: 'month',
-                        label: 'month',
-                        icon: 'assets/images/link.svg',
-                    }, {
-                        id: 'day',
-                        label: 'day',
-                        icon: 'assets/images/link.svg',
-                    }]
+                    id: 'year',
+                    label: 'year',
+                    icon: 'assets/images/link.svg',
+                }, {
+                    id: 'month',
+                    label: 'month',
+                    icon: 'assets/images/link.svg',
+                }, {
+                    id: 'day',
+                    label: 'day',
+                    icon: 'assets/images/link.svg',
+                }]
             ]
         }, super.defaults);
     }
     
     preinitialize() {
         this.markup = [{
-                tagName: 'rect',
-                selector: 'body'
-            }, {
-                tagName: 'rect',
-                selector: 'header'
-            }, {
-                tagName: 'rect',
-                selector: 'tabColor'
-            }, {
-                tagName: 'text',
-                selector: 'headerLabel'
-            }];
+            tagName: 'rect',
+            selector: 'body'
+        }, {
+            tagName: 'rect',
+            selector: 'header'
+        }, {
+            tagName: 'rect',
+            selector: 'tabColor'
+        }, {
+            tagName: 'text',
+            selector: 'headerLabel'
+        }];
     }
     
     getDefaultItem() {
@@ -435,21 +435,21 @@ export class Record extends shapes.standard.HeaderedRecord {
     
     preinitialize() {
         this.markup = [{
-                tagName: 'rect',
-                selector: 'body'
-            }, {
-                tagName: 'rect',
-                selector: 'header'
-            }, {
-                tagName: 'rect',
-                selector: 'tabColor'
-            }, {
-                tagName: 'text',
-                selector: 'headerLabel'
-            }, {
-                tagName: 'rect',
-                selector: 'footer'
-            }];
+            tagName: 'rect',
+            selector: 'body'
+        }, {
+            tagName: 'rect',
+            selector: 'header'
+        }, {
+            tagName: 'rect',
+            selector: 'tabColor'
+        }, {
+            tagName: 'text',
+            selector: 'headerLabel'
+        }, {
+            tagName: 'rect',
+            selector: 'footer'
+        }];
     }
     
     setName(name, opt) {
@@ -492,18 +492,18 @@ export class Record extends shapes.standard.HeaderedRecord {
                 label: 'Icon',
                 type: 'select-button-group',
                 options: [{
-                        value: 'assets/images/link.svg',
-                        content: '<img height="42px" src="assets/images/link.svg"/>'
-                    }, {
-                        value: 'assets/images/document.svg',
-                        content: '<img height="42px" src="assets/images/document.svg"/>'
-                    }, {
-                        value: 'assets/images/clipboard.svg',
-                        content: '<img height="42px" src="assets/images/clipboard.svg"/>'
-                    }, {
-                        value: 'assets/images/file.svg',
-                        content: '<img height="42px" src="assets/images/file.svg"/>'
-                    }]
+                    value: 'assets/images/link.svg',
+                    content: '<img height="42px" src="assets/images/link.svg"/>'
+                }, {
+                    value: 'assets/images/document.svg',
+                    content: '<img height="42px" src="assets/images/document.svg"/>'
+                }, {
+                    value: 'assets/images/clipboard.svg',
+                    content: '<img height="42px" src="assets/images/clipboard.svg"/>'
+                }, {
+                    value: 'assets/images/file.svg',
+                    content: '<img height="42px" src="assets/images/file.svg"/>'
+                }]
             },
             highlighted: {
                 label: 'Highlight',

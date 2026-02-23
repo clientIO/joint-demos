@@ -33,22 +33,22 @@ export class Resize extends Node {
                 height: calculateHeight(3)
             },
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }, {
-                    name: 'Width',
-                    type: 'number',
-                    property: 'width'
-                }, {
-                    name: 'Height',
-                    type: 'number',
-                    property: 'height'
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }, {
+                name: 'Width',
+                type: 'number',
+                property: 'width'
+            }, {
+                name: 'Height',
+                type: 'number',
+                property: 'height'
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }]
+                name: 'Image',
+                type: 'image',
+            }]
         }, defaults);
     }
     

@@ -85,12 +85,12 @@ function dragstart(elementView) {
 
 function drag(elementView, evt, x, y) {
     const element = elementView.model;
-    forceLayout.changeElementData(element.id, { p: { x, y } });
+    forceLayout.changeElementData(element.id, { p: { x, y }});
     animate();
 }
 
 function dragend(elementView) {
-    let element = elementView.model;
+    const element = elementView.model;
     forceLayout.changeElementData(element.id, { fixed: false });
 }
 

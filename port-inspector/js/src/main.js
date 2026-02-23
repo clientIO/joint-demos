@@ -150,8 +150,8 @@ class DoubleBorderRectangle extends dia.Element {
                     ...attributes.body,
                     x: 10,
                     y: 10,
-                    width: `calc(w - 20)`,
-                    height: `calc(h - 20)`
+                    width: 'calc(w - 20)',
+                    height: 'calc(h - 20)'
                 },
                 label: {
                     ...attributes.label
@@ -196,7 +196,7 @@ class DoubleBorderRhombus extends dia.Element {
                 },
                 innerBorder: {
                     ...attributes.body,
-                    d: `M calc(w/2) 10 calc(w - 10) calc(h/2) calc(w/2) calc(h - 10) 10 calc(h/2) Z`
+                    d: 'M calc(w/2) 10 calc(w - 10) calc(h/2) calc(w/2) calc(h - 10) 10 calc(h/2) Z'
                 },
                 label: {
                     ...attributes.label

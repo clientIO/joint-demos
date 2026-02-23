@@ -1,11 +1,11 @@
 import { inspectorOptions } from '../shared-config';
 
 export var PoolShapeTypes;
-(function (PoolShapeTypes) {
-    PoolShapeTypes["HORIZONTAL_POOL"] = "pool.HorizontalPool";
-    PoolShapeTypes["VERTICAL_POOL"] = "pool.VerticalPool";
-    PoolShapeTypes["HORIZONTAL_SWIMLANE"] = "pool.HorizontalSwimlane";
-    PoolShapeTypes["VERTICAL_SWIMLANE"] = "pool.VerticalSwimlane";
+(function(PoolShapeTypes) {
+    PoolShapeTypes['HORIZONTAL_POOL'] = 'pool.HorizontalPool';
+    PoolShapeTypes['VERTICAL_POOL'] = 'pool.VerticalPool';
+    PoolShapeTypes['HORIZONTAL_SWIMLANE'] = 'pool.HorizontalSwimlane';
+    PoolShapeTypes['VERTICAL_SWIMLANE'] = 'pool.VerticalSwimlane';
 })(PoolShapeTypes || (PoolShapeTypes = {}));
 
 export const LANE_CONTENT_MARGIN = 20;

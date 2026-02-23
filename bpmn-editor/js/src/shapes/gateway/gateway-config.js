@@ -9,12 +9,12 @@ export const GatewayLabels = {
 };
 
 export var GatewayShapeTypes;
-(function (GatewayShapeTypes) {
-    GatewayShapeTypes["EXCLUSIVE"] = "gateway.Exclusive";
-    GatewayShapeTypes["INCLUSIVE"] = "gateway.Inclusive";
-    GatewayShapeTypes["EVENT_BASED"] = "gateway.EventBased";
-    GatewayShapeTypes["PARALLEL"] = "gateway.Parallel";
-    GatewayShapeTypes["COMPLEX"] = "gateway.Complex";
+(function(GatewayShapeTypes) {
+    GatewayShapeTypes['EXCLUSIVE'] = 'gateway.Exclusive';
+    GatewayShapeTypes['INCLUSIVE'] = 'gateway.Inclusive';
+    GatewayShapeTypes['EVENT_BASED'] = 'gateway.EventBased';
+    GatewayShapeTypes['PARALLEL'] = 'gateway.Parallel';
+    GatewayShapeTypes['COMPLEX'] = 'gateway.Complex';
 })(GatewayShapeTypes || (GatewayShapeTypes = {}));
 
 export const gatewayIconClasses = {

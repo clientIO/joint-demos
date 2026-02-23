@@ -10,7 +10,7 @@ class Node extends shapes.standard.Rectangle {
 
 const routerLoaded = AvoidRouter.load();
 
-onmessage = async (e) => {
+onmessage = async(e) => {
     await routerLoaded;
 
     const [{ command, ...data }] = e.data;

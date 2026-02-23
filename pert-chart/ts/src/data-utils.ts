@@ -3,7 +3,7 @@ import { TaskElement } from './PertChart/TaskElement';
 import { getItemIcon } from './PertChart/utils';
 
 export function extractTasks(rawTasks: any[], data: any, options: any = {}): TaskData[] {
-    let tasks = [];
+    const tasks = [];
     rawTasks.forEach(task => {
         const { id, name, startDate, percentDone, duration, children = [] } = task;
         const assignees = (data.assignments[id] || []).map(resourceId => {

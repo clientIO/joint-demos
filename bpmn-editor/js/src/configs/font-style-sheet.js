@@ -13,7 +13,7 @@ function base64convert(file) {
     });
 }
 
-export const fontsStyleSheet = async () => {
+export const fontsStyleSheet = async() => {
     
     const openSans = await fetch(OPEN_SANS_URL);
     const openSansBase64 = await base64convert(await openSans.blob());

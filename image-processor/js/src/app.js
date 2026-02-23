@@ -311,10 +311,10 @@ export class App {
         };
         
         this.keyboard.on({
-            'ctrl+c': function () {
+            'ctrl+c': function() {
                 clipboard.copyElements(selection.collection, graph);
             },
-            'ctrl+v': function () {
+            'ctrl+v': function() {
                 const pastedCells = clipboard.pasteCells(graph);
                 
                 const elements = pastedCells.filter(cell => cell.isElement());
@@ -326,11 +326,11 @@ export class App {
                     this.graph.removeCells(selection.collection.toArray());
                 }
             },
-            'ctrl+z': function () {
+            'ctrl+z': function() {
                 cmd.undo();
                 selection.collection.reset([]);
             },
-            'ctrl+y': function () {
+            'ctrl+y': function() {
                 cmd.redo();
                 selection.collection.reset([]);
             },
@@ -501,7 +501,7 @@ export class App {
             evt.stopPropagation();
             
             const shift = 100;
-            let { x, y } = paper.clientToLocalPoint(evt.clientX, evt.clientY);
+            const { x, y } = paper.clientToLocalPoint(evt.clientX, evt.clientY);
             
             const files = Array.from(evt.dataTransfer.files);
             

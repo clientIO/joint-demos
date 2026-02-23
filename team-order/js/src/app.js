@@ -106,7 +106,7 @@ const addTeam = (teamMembers, graph, paper) => {
             label: { x: MEMBER_HEIGHT / 2, text: `${i + 1}` }
         });
         
-        const link = new Link({ attrs: { line: { stroke: member.color } } });
+        const link = new Link({ attrs: { line: { stroke: member.color }}});
         
         link.source(member1).target(member2);
         

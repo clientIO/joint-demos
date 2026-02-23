@@ -29,11 +29,11 @@ export class Activity extends shapes.bpmn2.Activity {
                     containerSelector: 'background'
                 },
                 label: Object.assign(Object.assign({}, defaultAttrs.shapeLabel), { textVerticalAnchor: 'middle', text: 'Activity', textWrap: {
-                        width: -10,
-                        height: null, // reset the default -50 height and use maxLineCount instead
-                        maxLineCount: 2,
-                        ellipsis: true
-                    } })
+                    width: -10,
+                    height: null, // reset the default -50 height and use maxLineCount instead
+                    maxLineCount: 2,
+                    ellipsis: true
+                }})
             }
         }, super.defaults);
     }

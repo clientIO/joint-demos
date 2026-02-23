@@ -4,7 +4,7 @@ import { VisioArchive, types } from '@joint/format-visio';
 const { VisioSectionType } = types;
 const { standard, bpmn2 } = shapes;
 
-export const init = async () => {
+export const init = async() => {
     
     const graph = new dia.Graph();
     
@@ -19,7 +19,7 @@ export const init = async () => {
         frozen: true,
         sorting: dia.Paper.sorting.APPROX,
         background: { color: '#F3F7F6' },
-        defaultConnectionPoint: { name: 'boundary', args: { stroke: true } }
+        defaultConnectionPoint: { name: 'boundary', args: { stroke: true }}
     });
     
     const { document: vsdDocument } = await VisioArchive.fromURL('./assets/process.vsdx');
@@ -213,7 +213,7 @@ export const init = async () => {
     
     paper.on({
         
-        'link:mouseenter': function (linkView) {
+        'link:mouseenter': function(linkView) {
             const toolsView = new dia.ToolsView({
                 tools: [
                     new linkTools.Vertices(),
@@ -223,7 +223,7 @@ export const init = async () => {
             linkView.addTools(toolsView);
         },
         
-        'link:mouseleave': function (linkView) {
+        'link:mouseleave': function(linkView) {
             linkView.removeTools();
         }
         

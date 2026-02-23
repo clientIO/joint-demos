@@ -32,18 +32,18 @@ export class Grayscale extends Node {
                 height: calculateHeight(2)
             },
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }, {
-                    name: 'Keep alpha',
-                    type: 'boolean',
-                    property: 'keepAlpha'
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }, {
+                name: 'Keep alpha',
+                type: 'boolean',
+                property: 'keepAlpha'
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }]
+                name: 'Image',
+                type: 'image',
+            }]
         }, defaults);
     }
     

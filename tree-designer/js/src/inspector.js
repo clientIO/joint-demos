@@ -13,24 +13,24 @@ const inputType = {
     label: 'Type',
     defaultValue: 'device',
     options: [{
-            content: 'Computer',
-            value: Shapes.Computer
-        }, {
-            content: 'Cloud',
-            value: Shapes.Cloud
-        }, {
-            content: 'Device',
-            value: Shapes.Device
-        }, {
-            content: 'Line',
-            value: Shapes.Line
-        }, {
-            content: 'Router',
-            value: Shapes.Router
-        }, {
-            content: 'Virtual',
-            value: Shapes.Virtual
-        }],
+        content: 'Computer',
+        value: Shapes.Computer
+    }, {
+        content: 'Cloud',
+        value: Shapes.Cloud
+    }, {
+        content: 'Device',
+        value: Shapes.Device
+    }, {
+        content: 'Line',
+        value: Shapes.Line
+    }, {
+        content: 'Router',
+        value: Shapes.Router
+    }, {
+        content: 'Virtual',
+        value: Shapes.Virtual
+    }],
     index: 2,
 };
 
@@ -77,18 +77,18 @@ const inputConnections = {
     defaultValue: 'parallel',
     index: 9,
     options: [{
-            content: 'None',
-            value: Connections.None
-        }, {
-            content: 'Parallel',
-            value: Connections.Parallel
-        }, {
-            content: 'Serial',
-            value: Connections.Serial
-        }, {
-            content: 'Branch',
-            value: Connections.Branch
-        }]
+        content: 'None',
+        value: Connections.None
+    }, {
+        content: 'Parallel',
+        value: Connections.Parallel
+    }, {
+        content: 'Serial',
+        value: Connections.Serial
+    }, {
+        content: 'Branch',
+        value: Connections.Branch
+    }]
 };
 
 const inputConnectionDirection = {
@@ -97,18 +97,18 @@ const inputConnectionDirection = {
     defaultValue: 'none',
     index: 10,
     options: [{
-            content: 'None',
-            value: ConnectionDirection.None
-        }, {
-            content: 'Forward',
-            value: ConnectionDirection.Forward
-        }, {
-            content: 'Backward',
-            value: ConnectionDirection.Backward
-        }, {
-            content: 'Bidirectional',
-            value: ConnectionDirection.Bidirectional
-        }]
+        content: 'None',
+        value: ConnectionDirection.None
+    }, {
+        content: 'Forward',
+        value: ConnectionDirection.Forward
+    }, {
+        content: 'Backward',
+        value: ConnectionDirection.Backward
+    }, {
+        content: 'Bidirectional',
+        value: ConnectionDirection.Bidirectional
+    }]
 };
 
 const inputConnectionStyle = {
@@ -117,15 +117,15 @@ const inputConnectionStyle = {
     defaultValue: 'solid',
     index: 11,
     options: [{
-            content: 'Solid',
-            value: ConnectionStyle.Solid
-        }, {
-            content: 'Dashed',
-            value: ConnectionStyle.Dashed
-        }, {
-            content: 'Dotted',
-            value: ConnectionStyle.Dotted
-        }]
+        content: 'Solid',
+        value: ConnectionStyle.Solid
+    }, {
+        content: 'Dashed',
+        value: ConnectionStyle.Dashed
+    }, {
+        content: 'Dotted',
+        value: ConnectionStyle.Dotted
+    }]
 };
 
 const inputChildren = {
@@ -212,7 +212,7 @@ export const createInspector = (dataModel) => {
         cell: dataModel,
         inputs,
         operators: {
-            empty: function (_, value) {
+            empty: function(_, value) {
                 return util.isEmpty(value);
             }
         },

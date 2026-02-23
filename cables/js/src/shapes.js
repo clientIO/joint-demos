@@ -36,12 +36,12 @@ export const RotateTool = elementTools.Control.extend({
             }
         }
     ],
-    getPosition: function (view) {
+    getPosition: function(view) {
         const { model } = view;
         const { width, height } = model.size();
         return new g.Point(width / 2, height + 10);
     },
-    setPosition: function (view, coordinates) {
+    setPosition: function(view, coordinates) {
         const { model } = view;
         const { width, height } = model.size();
         const center = new g.Point(width / 2, height / 2);
@@ -203,15 +203,15 @@ export class CompositeCable extends dia.Element {
             z: -2,
             source: {
                 id: cableSource.id,
-                anchor: { name: 'right', args: { rotate: true } },
+                anchor: { name: 'right', args: { rotate: true }},
                 connectionPoint: { name: 'anchor' },
             },
             target: {
                 id: cableTarget.id,
-                anchor: { name: 'left', args: { rotate: true } },
+                anchor: { name: 'left', args: { rotate: true }},
                 connectionPoint: { name: 'anchor' },
             },
-            connector: { name: 'curve', args: { rotate: true } },
+            connector: { name: 'curve', args: { rotate: true }},
             attrs: {
                 line: {
                     stroke: '#222',
@@ -246,11 +246,11 @@ export class CompositeCable extends dia.Element {
             const wireSource = new shapes.standard.Link({
                 source: {
                     id: cableSource.id,
-                    anchor: { name: 'left', args: { dy, rotate: true } },
+                    anchor: { name: 'left', args: { dy, rotate: true }},
                     connectionPoint: { name: 'anchor' },
                 },
                 target: { x: -50, y: -10 + index * 30 },
-                connector: { name: 'curve', args: { rotate: true } },
+                connector: { name: 'curve', args: { rotate: true }},
                 attrs: {
                     line: {
                         stroke: color,
@@ -264,10 +264,10 @@ export class CompositeCable extends dia.Element {
                 source: { x: 150, y: 20 + index * 30 },
                 target: {
                     id: cableTarget.id,
-                    anchor: { name: 'right', args: { dy, rotate: true } },
+                    anchor: { name: 'right', args: { dy, rotate: true }},
                     connectionPoint: { name: 'anchor' },
                 },
-                connector: { name: 'curve', args: { rotate: true } },
+                connector: { name: 'curve', args: { rotate: true }},
                 attrs: {
                     line: {
                         stroke: color,
@@ -334,7 +334,7 @@ export class ScrewTerminal extends dia.Element {
                 groups: {
                     left: {
                         size: { width: 20, height: 10 },
-                        position: { name: 'left', args: { dy: -10 } },
+                        position: { name: 'left', args: { dy: -10 }},
                         attrs: {
                             portBody: {
                                 width: 'calc(w)',
@@ -383,7 +383,7 @@ export class ScrewTerminal extends dia.Element {
                     },
                     right: {
                         size: { width: 20, height: 10 },
-                        position: { name: 'right', args: { dx: -20, dy: -10 } },
+                        position: { name: 'right', args: { dx: -20, dy: -10 }},
                         attrs: {
                             portBody: {
                                 width: 'calc(w)',
@@ -422,7 +422,7 @@ export class ScrewTerminal extends dia.Element {
                             </g>
                         `,
                         label: {
-                            position: { name: 'left', args: { x: 18, y: 17 } },
+                            position: { name: 'left', args: { x: 18, y: 17 }},
                             markup: util.svg /* xml */ `
                                 <text @selector="portLabel"/>
                             `
@@ -438,7 +438,7 @@ export class ScrewTerminal extends dia.Element {
     connectionStrategy(end, coords) {
         const center = this.getBBox().center();
         const dx = (coords.x > center.x) ? 20 : 0;
-        end.anchor = { name: 'modelCenter', args: { dx, dy: 5 } };
+        end.anchor = { name: 'modelCenter', args: { dx, dy: 5 }};
         end.connectionPoint = { name: 'anchor' };
         return end;
     }
@@ -611,48 +611,48 @@ export class Plug extends dia.Element {
                     }
                 },
                 items: [{
-                        group: 'pins',
-                        id: 'neutral',
-                        args: {
-                            x: 20,
-                            y: 'calc(h-40)',
-                        },
-                        attrs: {
-                            portLabel: {
-                                text: 'N'
-                            }
+                    group: 'pins',
+                    id: 'neutral',
+                    args: {
+                        x: 20,
+                        y: 'calc(h-40)',
+                    },
+                    attrs: {
+                        portLabel: {
+                            text: 'N'
                         }
-                    }, {
-                        group: 'pins',
-                        id: 'live',
-                        args: {
-                            x: 60,
-                            y: 25,
-                        },
-                        attrs: {
-                            portLabel: {
-                                text: 'L'
-                            }
+                    }
+                }, {
+                    group: 'pins',
+                    id: 'live',
+                    args: {
+                        x: 60,
+                        y: 25,
+                    },
+                    attrs: {
+                        portLabel: {
+                            text: 'L'
                         }
-                    }, {
-                        group: 'pins',
-                        id: 'earth',
-                        args: {
-                            x: 40,
-                            y: 15,
-                        },
-                        attrs: {
-                            portLabel: {
-                                text: 'E'
-                            }
+                    }
+                }, {
+                    group: 'pins',
+                    id: 'earth',
+                    args: {
+                        x: 40,
+                        y: 15,
+                    },
+                    attrs: {
+                        portLabel: {
+                            text: 'E'
                         }
-                    }]
+                    }
+                }]
             }
         }, dia.Element.prototype.defaults);
     }
     
     connectionStrategy(end) {
-        end.anchor = { name: 'modelCenter', args: { dx: 5, dy: 20 } };
+        end.anchor = { name: 'modelCenter', args: { dx: 5, dy: 20 }};
         end.connectionPoint = { name: 'anchor' };
         return end;
     }

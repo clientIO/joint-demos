@@ -1,7 +1,7 @@
 import { connectors } from '@joint/plus';
 import { TREE_PARENT_GAP } from '../theme';
 
-const connector = function (sourcePoint, targetPoint, route) {
+const connector = function(sourcePoint, targetPoint, route) {
     const layout = this.model.getTargetCell().get('layout');
     const signX = (layout === 'L') ? -1 : 1;
     const args = {

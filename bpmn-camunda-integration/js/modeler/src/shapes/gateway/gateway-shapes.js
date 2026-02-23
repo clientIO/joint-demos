@@ -24,8 +24,8 @@ class Gateway extends shapes.bpmn2.Gateway {
             shapeType: ShapeTypes.GATEWAY,
             attrs: {
                 label: Object.assign(Object.assign({}, defaultAttrs.shapeLabel), { refDy: null, refX: null, x: 'calc(w/2)', y: `calc(h+${LABEL_Y_OFFSET})`, text: '', textWrap: {
-                        width: '200%'
-                    } }),
+                    width: '200%'
+                }}),
                 labelBody: defaultAttrs.labelBody
             },
             size: {

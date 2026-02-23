@@ -42,17 +42,17 @@ export default class StencilService {
             .getGraph()
             .getElements()
             .forEach((el) => {
-            const elView = el.findView(stencil.getPaper());
-            StencilHoverHighlighter.add(elView, 'root', 'stencil-highlight', {
-                className: 'stencil-background-highlight',
-                padding: 4
+                const elView = el.findView(stencil.getPaper());
+                StencilHoverHighlighter.add(elView, 'root', 'stencil-highlight', {
+                    className: 'stencil-background-highlight',
+                    padding: 4
+                });
+                const tooltip = el.get('tooltip');
+                if (tooltip) {
+                    elView.el.setAttribute('data-tooltip', tooltip);
+                    elView.el.setAttribute('data-tooltip-position', 'right');
+                }
             });
-            const tooltip = el.get('tooltip');
-            if (tooltip) {
-                elView.el.setAttribute('data-tooltip', tooltip);
-                elView.el.setAttribute('data-tooltip-position', 'right');
-            }
-        });
         
         this.stencilController = new StencilController({ stencil, paper: paperScroller.options.paper, selection });
         this.stencilController.startListening();

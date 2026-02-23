@@ -19,13 +19,13 @@ export class Connection extends dia.Link {
     
     preinitialize() {
         this.markup = [{
-                tagName: 'path',
-                selector: 'line',
-                attributes: {
-                    'fill': 'none',
-                    'pointer-events': 'none'
-                }
-            }];
+            tagName: 'path',
+            selector: 'line',
+            attributes: {
+                'fill': 'none',
+                'pointer-events': 'none'
+            }
+        }];
     }
     
     setColor(color, opt) {

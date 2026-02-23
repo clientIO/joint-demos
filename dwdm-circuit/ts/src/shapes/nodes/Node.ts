@@ -13,15 +13,15 @@ export default class Node extends dia.Element {
     defaults(): Partial<NodeAttributes> {
         return {
             ...super.defaults,
-            type: "ngv.Node",
+            type: 'ngv.Node',
             collapsed: false,
             attrs: {
                 body: {
-                    stroke: "#cad8e3",
+                    stroke: '#cad8e3',
                     strokeWidth: 2,
                     fill: NODE_BG_COLOR,
                     y: HEADER_HEIGHT,
-                    width: "calc(w)",
+                    width: 'calc(w)',
                     height: `calc(h - ${HEADER_HEIGHT})`,
                     pointerEvents: 'none',
                 },
@@ -30,33 +30,33 @@ export default class Node extends dia.Element {
                     strokeWidth: 2,
                     fill: NODE_HEADER_BG_COLOR,
                     height: HEADER_HEIGHT,
-                    width: "calc(w)"
+                    width: 'calc(w)'
                 },
                 labelNodeName: {
                     fill: NODE_HEADER_COLOR,
                     fontSize: 14,
-                    textVerticalAnchor: "middle",
-                    textAnchor: "start",
-                    fontFamily: "sans-serif",
+                    textVerticalAnchor: 'middle',
+                    textAnchor: 'start',
+                    fontFamily: 'sans-serif',
                     x: BORDER_OFFSET,
                     y: HEADER_HEIGHT / 2,
                     textWrap: {
                         ellipsis: true,
-                        width: "calc(w / 2 - 50)",
+                        width: 'calc(w / 2 - 50)',
                         maxLineCount: 1
                     }
                 },
                 labelNodeIp: {
                     fill: NODE_HEADER_COLOR,
                     fontSize: 14,
-                    textVerticalAnchor: "middle",
-                    textAnchor: "start",
-                    fontFamily: "sans-serif",
-                    x: "calc(0.3 * w + 50)",
+                    textVerticalAnchor: 'middle',
+                    textAnchor: 'start',
+                    fontFamily: 'sans-serif',
+                    x: 'calc(0.3 * w + 50)',
                     y: HEADER_HEIGHT / 2,
                     textWrap: {
                         ellipsis: true,
-                        width: "calc(w / 2 - 50)",
+                        width: 'calc(w / 2 - 50)',
                         maxLineCount: 1
                     }
                 }
@@ -102,12 +102,12 @@ export default class Node extends dia.Element {
     }
 
     isCollapsed() {
-        return Boolean(this.get("collapsed"));
+        return Boolean(this.get('collapsed'));
     }
 
     toggleCollapse(): boolean {
         const collapsed = !this.isCollapsed();
-        this.set("collapsed", collapsed);
+        this.set('collapsed', collapsed);
         return collapsed;
     }
 

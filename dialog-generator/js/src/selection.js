@@ -13,17 +13,17 @@ export const SelectionView = mvc.View.extend({
         'pointer-events': 'none'
     }),
 
-    init: function () {
+    init: function() {
         this.listenTo(this.model, 'add reset change', this.render);
     },
 
-    render: function () {
+    render: function() {
 
         if (this.boxes) {
             this.boxes.forEach(box => box.remove());
         }
 
-        this.boxes = this.model.map(function (element) {
+        this.boxes = this.model.map(function(element) {
             return this.BOX_TEMPLATE
                 .clone()
                 .attr(element.getBBox().inflate(this.PADDING))
@@ -33,7 +33,7 @@ export const SelectionView = mvc.View.extend({
         return this;
     },
 
-    onRemove: function () {
+    onRemove: function() {
         if (this.boxes) {
             this.boxes.forEach(box => box.remove());
         }

@@ -45,7 +45,7 @@ export class Kanban {
             stackSize: this.taskWidth,
             stackGap: this.columnMargin,
             stackElementGap: this.taskMargin,
-            setAttributes: function (el, { position }) {
+            setAttributes: function(el, { position }) {
                 el.set('position', position, { ignoreCommandManager: true });
             }
         };

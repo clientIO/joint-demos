@@ -44,7 +44,7 @@ export function createDialogJSON(graph, rootCell) {
         links: []
     };
 
-    graph.getCells().forEach(function (cell) {
+    graph.getCells().forEach(function(cell) {
 
         const o = {
             id: cell.id,

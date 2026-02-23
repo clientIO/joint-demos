@@ -1,4 +1,4 @@
-import { Model, Function } from "@joint/decorators";
+import { Model, Function } from '@joint/decorators';
 import svg from './firewall.svg';
 import { CuboidShape } from '../isometric-shape';
 import { GRID_SIZE } from '../../theme';
@@ -23,7 +23,7 @@ export class Firewall extends CuboidShape {
 
     @Function()
     topXPosition(): number {
-        return this.topX
+        return this.topX;
     }
 
     @Function()

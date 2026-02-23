@@ -30,24 +30,24 @@ export const TargetArrowhead = linkTools.TargetArrowhead.extend({
 
 export const Button = linkTools.Button.extend({
     children: [{
-            tagName: 'circle',
-            selector: 'button',
-            attributes: {
-                'r': 10,
-                'fill': '#f6f6f6',
-                'stroke': '#5755a1',
-                'stroke-width': 2,
-                'cursor': 'pointer'
-            }
-        }, {
-            tagName: 'path',
-            selector: 'icon',
-            attributes: {
-                'd': 'M -4 -4 4 4 M -4 4 4 -4',
-                'fill': 'none',
-                'stroke': '#5755a1',
-                'stroke-width': 4,
-                'pointer-events': 'none'
-            }
-        }]
+        tagName: 'circle',
+        selector: 'button',
+        attributes: {
+            'r': 10,
+            'fill': '#f6f6f6',
+            'stroke': '#5755a1',
+            'stroke-width': 2,
+            'cursor': 'pointer'
+        }
+    }, {
+        tagName: 'path',
+        selector: 'icon',
+        attributes: {
+            'd': 'M -4 -4 4 4 M -4 4 4 -4',
+            'fill': 'none',
+            'stroke': '#5755a1',
+            'stroke-width': 4,
+            'pointer-events': 'none'
+        }
+    }]
 });

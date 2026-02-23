@@ -97,7 +97,7 @@ export default class Navigator {
                     min: zoomOptions.min * 100,
                     max: zoomOptions.max * 100,
                     step: zoomOptions.step,
-                    attrs: { input: { 'data-tooltip': 'Slide to zoom' } }
+                    attrs: { input: { 'data-tooltip': 'Slide to zoom' }}
                 },
                 { type: 'separator' },
                 {

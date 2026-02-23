@@ -31,12 +31,12 @@ export class Node extends dia.Element {
     }
     
     markup = [{
-            tagName: 'rect',
-            selector: 'rect'
-        }, {
-            tagName: 'text',
-            selector: 'text',
-        }];
+        tagName: 'rect',
+        selector: 'rect'
+    }, {
+        tagName: 'text',
+        selector: 'text',
+    }];
 }
 
 export class Link extends shapes.standard.Link {

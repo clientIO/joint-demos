@@ -405,7 +405,7 @@ function generateTreeCells(strategies = [], roundCount = 3) {
             const chanceEventNode = new ChanceEventNode({
                 attrs: {
                     body: {
-                        dataTooltip: `<b>Chance Event Node</b>`
+                        dataTooltip: '<b>Chance Event Node</b>'
                     }
                 }
             });
@@ -458,7 +458,7 @@ function generateTreeCells(strategies = [], roundCount = 3) {
                         result,
                         attrs: {
                             body: {
-                                dataTooltip: `<b>Endpoint Node</b>`
+                                dataTooltip: '<b>Endpoint Node</b>'
                             }
                         }
                     });

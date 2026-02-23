@@ -27,7 +27,7 @@ export class InspectorService {
                     const field = document.createElement('div');
                     field.appendChild(label);
                     field.appendChild(input);
-                    input.addEventListener('change', function () {
+                    input.addEventListener('change', function() {
                         inspector.updateCell(field, path, options);
                     });
                     return field;

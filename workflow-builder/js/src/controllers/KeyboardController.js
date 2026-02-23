@@ -44,7 +44,7 @@ function onEscape(app) {
 
 // Conditional wrapper to execute the callback only if no dialog is opened
 function ifNoDialogOpen(callback) {
-    return function (app, evt) {
+    return function(app, evt) {
         const { state } = app;
         if (state.get(State.DialogOpened))
             return;

@@ -4,7 +4,7 @@ import { VisioArchive, types } from '@joint/format-visio';
 const { VisioSectionType } = types;
 const { bpmn2, standard } = shapes;
 
-export const init = async () => {
+export const init = async() => {
     
     const navigationEl = document.getElementById('navigation');
     const paperEl = document.getElementById('paper');

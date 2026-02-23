@@ -1,5 +1,6 @@
-import React, { ChangeEvent, ReactElement, useCallback, useState } from 'react';
-import { shapes } from '@joint/plus';
+import type { ChangeEvent, ReactElement } from 'react';
+import React, { useCallback, useState } from 'react';
+import type { shapes } from '@joint/plus';
 
 import { useBaseInspector } from './useBaseInspector';
 import Input from '../Input/Input';
@@ -69,28 +70,28 @@ const MessageInspector = (props: Props): ReactElement => {
 
             <label>Label
                 <Input type="text"
-                       placeholder="Enter label"
-                       value={label}
-                       onChange={(e: ChangeEvent<HTMLInputElement>) => changeCellProp(cellProps.label, e.target.value)}
+                    placeholder="Enter label"
+                    value={label}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => changeCellProp(cellProps.label, e.target.value)}
                 />
             </label>
 
             <label>Description
                 <Input type="text"
-                       placeholder="Enter description"
-                       value={description}
-                       onChange={(e: ChangeEvent<HTMLInputElement>) => changeCellProp(cellProps.description, e.target.value)}
+                    placeholder="Enter description"
+                    value={description}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => changeCellProp(cellProps.description, e.target.value)}
                 />
             </label>
 
             <label>Icon (Base64)
-            <span className="icon-input-logo"/>
+                <span className="icon-input-logo"/>
                 <Input className="icon-input"
-                       type="text"
-                       placeholder="Enter icon"
-                       value={icon}
-                       spellCheck={false}
-                       onChange={(e: ChangeEvent<HTMLInputElement>) => changeCellProp(cellProps.icon, e.target.value)}
+                    type="text"
+                    placeholder="Enter icon"
+                    value={icon}
+                    spellCheck={false}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => changeCellProp(cellProps.icon, e.target.value)}
                 />
             </label>
 
@@ -98,20 +99,20 @@ const MessageInspector = (props: Props): ReactElement => {
                 <div className="out-ports-bar">
                     <span>Out Ports</span>
                     <button disabled={!canAddPort}
-                            onClick={addCellPort}
-                            className="add-port"
-                            data-tooltip="Add Output Port">
+                        onClick={addCellPort}
+                        className="add-port"
+                        data-tooltip="Add Output Port">
                     </button>
                 </div>
                 {ports.map(port => {
                     return (
                         <div key={port.id} className="port">
                             <Input defaultValue={port.label}
-                                   onChange={(e: ChangeEvent<HTMLInputElement>) => changeCellPort(port, e.target.value)}
+                                onChange={(e: ChangeEvent<HTMLInputElement>) => changeCellPort(port, e.target.value)}
                             />
                             <button className="remove-port"
-                                    onClick={() => removeCellPort(port.id)}
-                                    data-tooltip="Remove Output Port">
+                                onClick={() => removeCellPort(port.id)}
+                                data-tooltip="Remove Output Port">
                             </button>
                         </div>
                     );

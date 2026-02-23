@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { dia } from '@joint/plus';
+import type { dia } from '@joint/plus';
 
 interface Props {
     cell: dia.Cell;

@@ -90,7 +90,7 @@ export class NodeAlert extends dia.HighlighterView {
             y: -size / 2,
             width: size,
             height: size
-        }
+        };
     }
 
     protected highlight(nodeView: dia.ElementView): void {
@@ -111,7 +111,7 @@ export class LinkAlert extends highlighters.stroke {
             'stroke-width': 10,
             'stroke-linecap': 'round',
             'stroke-linejoin': 'miter',
-        }
+        };
     }
 
 }
@@ -123,7 +123,7 @@ export class PortAlert extends highlighters.stroke {
         this.options.attrs = {
             'stroke': ALERT_COLOR,
             'stroke-width': 5
-        }
+        };
     }
 
     protected highlight(cellView: dia.CellView, node: SVGElement): void {

@@ -28,7 +28,7 @@ export const init = () => {
         defaultAnchor: { name: 'perpendicular' },
         defaultConnectionPoint: { name: 'boundary' },
         clickThreshold: 5,
-        defaultLink: function () {
+        defaultLink: function() {
             return makeLink();
         },
     });
@@ -141,7 +141,7 @@ export const init = () => {
     
     // Custom TreeLayoutView to override updateParentPreview
     const TreeLayoutView = ui.TreeLayoutView.extend({
-        updateParentPreview: function (position, size, parent) {
+        updateParentPreview: function(position, size, parent) {
             
             // Use the parent's border radius
             const rx = parent.attr('body/rx') || 0;
@@ -190,7 +190,7 @@ export const init = () => {
             radius: 450
         },
         useModelGeometry: true,
-        validatePosition: function (_el, _x, _y) {
+        validatePosition: function(_el, _x, _y) {
             // Elements have to be connected to the main tree.
             return false;
         },
@@ -211,7 +211,7 @@ export const init = () => {
             // Select the element after reconnecting it
             selection.collection.reset([element]);
         },
-        canInteract: function (elementView) {
+        canInteract: function(elementView) {
             return !elementView.model.get('busElement');
         },
         layoutFunction: (tlView) => layoutDiagram(tlView.model, paperScroller, selection)
@@ -282,7 +282,7 @@ export const init = () => {
             id: 'edit-description-dialog',
             theme: 'default',
             width: 400,
-            title: `Edit`,
+            title: 'Edit',
             closeButton: false,
             content,
             buttons: [

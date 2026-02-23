@@ -9,7 +9,7 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 import Vue from 'vue';
 
 declare module 'vue/types/vue' {

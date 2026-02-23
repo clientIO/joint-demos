@@ -1,13 +1,14 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { dia, shapes } from '@joint/plus';
+import type { dia, shapes } from '@joint/plus';
 
 import MessageInspector from './MessageInspector';
 import './Inspector.scss';
 import LinkInspector from './LinkInspector';
 import LabelInspector from './LabelInspector';
 import { ShapeTypesEnum } from '../../../joint-plus/shapes/app.shapes';
-import { State } from '../../../redux/reducer';
+import type { State } from '../../../redux/reducer';
 
 const Inspector = (): ReactElement => {
     const [cell, setCell] = useState<dia.Cell>(null);

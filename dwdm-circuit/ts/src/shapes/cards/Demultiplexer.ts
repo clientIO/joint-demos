@@ -33,7 +33,7 @@ export default class Demultiplexer extends Card {
                     fontFamily: 'sans-serif'
                 }
             },
-        }
+        };
     }
 
     preinitialize(...args: any[]): void {

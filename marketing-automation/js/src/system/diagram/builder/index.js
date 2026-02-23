@@ -26,9 +26,9 @@ const ZIndex = {
 export function buildDiagram(data, graph, options = {}) {
     const { 
     // By default the data node is used as-is to create the model.
-    buildNode = (node) => node, 
-    // By default, nodes have no growth limit.
-    growthLimit = () => Infinity, disableOptimalOrderHeuristic = true, } = options;
+        buildNode = (node) => node, 
+        // By default, nodes have no growth limit.
+        growthLimit = () => Infinity, disableOptimalOrderHeuristic = true, } = options;
     const { addedNodeIds, addedButtonIds, replacedNodePositions } = updateGraph(graph, data, buildNode, growthLimit);
     // Note: This only sets the initial positions for new and replaced nodes and buttons,
     // to disable the animations completely, set the transition to none in shapes.scss.

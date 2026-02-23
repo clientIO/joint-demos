@@ -286,7 +286,7 @@ function addExample() {
     graph.resetCells([el1, el2, l12]);
     // We're in the async mode, make sure all the views are rendered for the PNG export
     paper.once('render:done', function() {
-         addShapesToStencil([el1, el2]);
+        addShapesToStencil([el1, el2]);
     });
 }
 

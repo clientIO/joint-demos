@@ -12,14 +12,14 @@ export class Sepia extends Node {
                 height: calculateHeight(1)
             },
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }]
+                name: 'Image',
+                type: 'image',
+            }]
         }, defaults);
     }
     
@@ -34,7 +34,7 @@ export class Sepia extends Node {
             
             for (let i = 0; i < result.rows; i++) {
                 for (let j = 0; j < result.cols; j++) {
-                    let pixel = result.ucharPtr(i, j);
+                    const pixel = result.ucharPtr(i, j);
                     const r = pixel[0];
                     const g = pixel[1];
                     const b = pixel[2];

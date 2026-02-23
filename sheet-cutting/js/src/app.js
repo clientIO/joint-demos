@@ -123,25 +123,25 @@ export const init = () => {
     
     const toolbar = new ui.Toolbar({
         tools: [{
-                type: 'undo',
-                text: '⇤'
-            }, {
-                type: 'redo',
-                text: '⇥'
-            }, {
-                type: 'separator'
-            }, {
-                type: 'checkbox',
-                name: 'snaplines',
-                label: 'Snaplines',
-                value: true
-            }, {
-                type: 'separator'
-            }, {
-                type: 'button',
-                name: 'print',
-                text: '🖨'
-            }],
+            type: 'undo',
+            text: '⇤'
+        }, {
+            type: 'redo',
+            text: '⇥'
+        }, {
+            type: 'separator'
+        }, {
+            type: 'checkbox',
+            name: 'snaplines',
+            label: 'Snaplines',
+            value: true
+        }, {
+            type: 'separator'
+        }, {
+            type: 'button',
+            name: 'print',
+            text: '🖨'
+        }],
         autoToggle: true,
         references: {
             commandManager: history

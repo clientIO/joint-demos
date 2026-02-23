@@ -1,4 +1,5 @@
-import React, { ChangeEvent, ReactElement, useEffect } from 'react';
+import type { ChangeEvent, ReactElement } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { SharedEvents } from '../../../joint-plus/controller';
@@ -35,19 +36,19 @@ const Input = (props: Props): ReactElement => {
     useEffect(() => {
         return () => {
             onBlur();
-        }
+        };
     }, []);
 
     return (
         <input className={props.className}
-               type={props.type}
-               placeholder={props.placeholder}
-               spellCheck={('spellCheck' in props) ? props.spellCheck : true}
-               value={props.value}
-               defaultValue={props.defaultValue}
-               onChange={props.onChange}
-               onFocus={onFocus}
-               onBlur={onBlur}
+            type={props.type}
+            placeholder={props.placeholder}
+            spellCheck={('spellCheck' in props) ? props.spellCheck : true}
+            value={props.value}
+            defaultValue={props.defaultValue}
+            onChange={props.onChange}
+            onFocus={onFocus}
+            onBlur={onBlur}
         />);
 };
 

@@ -19,18 +19,18 @@ export class Clip extends Node {
                 height: calculateHeight(2)
             },
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }, {
-                    name: 'Mask',
-                    type: 'image',
-                    property: 'mask'
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }, {
+                name: 'Mask',
+                type: 'image',
+                property: 'mask'
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }]
+                name: 'Image',
+                type: 'image',
+            }]
         }, defaults);
     }
     

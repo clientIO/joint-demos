@@ -121,7 +121,7 @@ export const init = () => {
         displayTree();
     });
 
-    let subtrees: { [key: dia.Cell.ID]: dia.Cell[] } = {};
+    const subtrees: { [key: dia.Cell.ID]: dia.Cell[] } = {};
 
     paper.on('cell:pointerclick', function(cellView) {
         const cell = cellView.model;

@@ -24,7 +24,7 @@ export class DurationNumberInput extends dia.HighlighterView<DurationNumberInput
     }
 
     highlight(view: dia.ElementView) {
-        let active = view.model.get('active');
+        const active = view.model.get('active');
 
         const duration = view.model.get('duration');
         const topColor = view.model.get('topColor');

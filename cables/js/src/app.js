@@ -37,7 +37,7 @@ export const init = () => {
         snapLinks: { radius: 10 },
         defaultConnectionPoint: { name: 'anchor' },
         
-        connectionStrategy: function (end, view, _magnet, coords, _link) {
+        connectionStrategy: function(end, view, _magnet, coords, _link) {
             const element = view.model;
             if (ScrewTerminal.isScrewTerminal(element) || Plug.isPlug(element)) {
                 return element.connectionStrategy(end, coords);
@@ -45,7 +45,7 @@ export const init = () => {
             return end;
         },
         
-        validateConnection: function (cellViewS, magnetS, cellViewT, magnetT, end, _linkView) {
+        validateConnection: function(cellViewS, magnetS, cellViewT, magnetT, end, _linkView) {
             if (magnetS === magnetT)
                 return false;
             if (cellViewS === cellViewT)
@@ -255,7 +255,7 @@ export const init = () => {
                     x: -10,
                     y: -10,
                     useModelGeometry: true,
-                    action: function () {
+                    action: function() {
                         const ports = root.getPorts();
                         ports.forEach(port => disconnectCables(graph, element, port.id));
                         root.remove();
@@ -341,7 +341,7 @@ export const init = () => {
     wire1.target({
         id: terminal1.id,
         port: 'right-1',
-        anchor: { name: 'modelCenter', args: { dx: 20, dy: 5 } }
+        anchor: { name: 'modelCenter', args: { dx: 20, dy: 5 }}
     });
     highlightPort(terminal1.findView(paper), 'right-1');
     cable1.addTools(paper);

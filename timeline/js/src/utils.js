@@ -50,14 +50,14 @@ function routeOneDirection(tree, sourceElement, links, direction) {
     
     // The actual gap between links.
     const gap = Math.min(idealGap, Math.floor((tree.get('parentGap') - bundleParentGap * 2) / Math.max(leftLinkCount, rightLinkCount)), // vertical check
-    (sourceBBox.width - minBundleGap * 2) / (linkCount - 1) // horizontal check
+        (sourceBBox.width - minBundleGap * 2) / (linkCount - 1) // horizontal check
     );
     
     // The x coordinate of the first left link. Every link to the right side is in the rightLinks array.
     const firstLeftLinkX = sourceBBox.width / 2 + sourceBBox.x + gap * (leftLinkCount - rightLinkCount - 1) / 2;
     
     const [firstLeftLink] = leftLinks;
-    let isFirstLinkStraight = (firstLeftLink)
+    const isFirstLinkStraight = (firstLeftLink)
         ? sourceCenter.x === firstLeftLink.getTargetElement().getBBox().center().x
         : false;
     

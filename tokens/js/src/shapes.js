@@ -30,12 +30,12 @@ export class Node extends dia.Element {
         };
     }
     markup = [{
-            tagName: 'rect',
-            selector: 'body',
-        }, {
-            tagName: 'text',
-            selector: 'label',
-        }];
+        tagName: 'rect',
+        selector: 'body',
+    }, {
+        tagName: 'text',
+        selector: 'label',
+    }];
     setText(text) {
         return this.attr('label/text', text || '');
     }
@@ -66,19 +66,19 @@ export class Link extends dia.Link {
         };
     }
     markup = [{
-            tagName: 'path',
-            selector: 'wrapper',
-            attributes: {
-                'fill': 'none',
-                'stroke': 'transparent'
-            }
-        }, {
-            tagName: 'path',
-            selector: 'line',
-            attributes: {
-                'fill': 'none',
-            }
-        }];
+        tagName: 'path',
+        selector: 'wrapper',
+        attributes: {
+            'fill': 'none',
+            'stroke': 'transparent'
+        }
+    }, {
+        tagName: 'path',
+        selector: 'line',
+        attributes: {
+            'fill': 'none',
+        }
+    }];
     connect(sourceId, targetId) {
         return this.set({
             source: { id: sourceId },
@@ -115,18 +115,18 @@ export class Token extends dia.Element {
         };
     }
     markup = [{
-            tagName: 'rect',
-            selector: 'body',
-            attributes: {
-                'cursor': 'pointer',
-            }
-        }, {
-            tagName: 'text',
-            selector: 'label',
-            attributes: {
-                'cursor': 'pointer',
-            }
-        }];
+        tagName: 'rect',
+        selector: 'body',
+        attributes: {
+            'cursor': 'pointer',
+        }
+    }, {
+        tagName: 'text',
+        selector: 'label',
+        attributes: {
+            'cursor': 'pointer',
+        }
+    }];
     setText(text) {
         return this.attr('label/text', text || '');
     }

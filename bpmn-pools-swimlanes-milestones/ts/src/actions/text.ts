@@ -41,7 +41,7 @@ export function editElementLabel(elementView: dia.ElementView) {
                     throw new Error('The `label/textWrap/width` attribute must be a number.');
                 }
                 width += 2 * textMargin; // padding
-                let height = element.attr(['label', 'textWrap', 'height']);
+                const height = element.attr(['label', 'textWrap', 'height']);
                 if (!Number.isFinite(height)) {
                     throw new Error('The `label/textWrap/height` attribute must be a number.');
                 }

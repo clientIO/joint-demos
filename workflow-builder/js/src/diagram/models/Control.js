@@ -35,8 +35,8 @@ export default class Control extends DiagramNode {
             // Shape-specific attributes
             [Attribute.ControlKey]: null,
             [Attribute.InboundPorts]: [{
-                    id: 'input',
-                }],
+                id: 'input',
+            }],
             // JointJS attributes
             z: 1,
             type: TYPE,
@@ -188,8 +188,8 @@ export default class Control extends DiagramNode {
     unsetConfiguration() {
         this.set(Attribute.OutboundPorts, []);
         this.set(Attribute.InboundPorts, [{
-                id: 'input',
-            }]);
+            id: 'input',
+        }]);
         
         this.attr({
             root: {
@@ -216,8 +216,8 @@ export default class Control extends DiagramNode {
         
         this.set(Attribute.OutboundPorts, outboundPorts || []);
         this.set(Attribute.InboundPorts, inboundPorts || [{
-                id: 'input',
-            }]);
+            id: 'input',
+        }]);
         this.updateInboundPorts();
         this.updateOutboundPorts();
         this.updateBody();

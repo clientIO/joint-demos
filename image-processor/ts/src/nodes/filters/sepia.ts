@@ -35,7 +35,7 @@ export class Sepia extends Node {
 
             for (let i = 0; i < result.rows; i++) {
                 for (let j = 0; j < result.cols; j++) {
-                    let pixel = result.ucharPtr(i,j);
+                    const pixel = result.ucharPtr(i,j);
                     const r = pixel[0];
                     const g = pixel[1];
                     const b = pixel[2];

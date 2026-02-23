@@ -63,7 +63,7 @@ export class ToolbarService {
                     const reader = new FileReader();
                     
                     reader.onload = (evt) => {
-                        let str = evt.target.result;
+                        const str = evt.target.result;
                         App.processor.reset();
                         resetGraphFromFile(graph, JSON.parse(str));
                         

@@ -10,16 +10,16 @@ import { TabComponent } from './tab/tab.component';
 
 
 @NgModule({
-  declarations: [
-    TabsContainerComponent,
-    TabComponent
-  ],
-  imports: [
-    CommonModule,
-    TabsRoutingModule,
-    MatTabsModule,
-    MatIconModule,
-    MatButtonModule
-  ]
+    declarations: [
+        TabsContainerComponent,
+        TabComponent
+    ],
+    imports: [
+        CommonModule,
+        TabsRoutingModule,
+        MatTabsModule,
+        MatIconModule,
+        MatButtonModule
+    ]
 })
 export class TabsModule { }

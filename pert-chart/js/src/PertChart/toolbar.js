@@ -1,13 +1,13 @@
 import { mvc, ui } from '@joint/plus';
 
 const IconButton = ui.widgets.button.extend({
-    render: function () {
+    render: function() {
         this.el.style.display = 'inline-block';
         this.setIcon(this.options.icon);
         this.setTooltip(this.options.tooltip);
         return this;
     },
-    setIcon: function (icon = '') {
+    setIcon: function(icon = '') {
         if (!icon) {
             this.el.innerHTML = '';
         }
@@ -15,7 +15,7 @@ const IconButton = ui.widgets.button.extend({
             this.el.innerHTML = icon;
         }
     },
-    setTooltip: function (text = '') {
+    setTooltip: function(text = '') {
         if (text) {
             this.el.dataset.tooltip = text;
         }

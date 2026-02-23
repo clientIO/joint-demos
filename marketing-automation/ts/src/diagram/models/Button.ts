@@ -37,7 +37,7 @@ export default class Button extends SystemButton<ButtonAttributes> {
                 },
                 icon: {
                     ...buttonIconAttributes,
-                    transform: `translate(calc(s/2), calc(s/2))`,
+                    transform: 'translate(calc(s/2), calc(s/2))',
                 }
             }
         };

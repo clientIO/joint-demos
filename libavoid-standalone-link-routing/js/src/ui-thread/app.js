@@ -9,7 +9,7 @@ import { AvoidRouter } from '../shared/avoid-router';
 // There is a bug in JointJS, that does not allow you to use port
 // ids that are numbers.
 
-export const init = async () => {
+export const init = async() => {
 
     document.documentElement.classList.add('ui-thread');
 

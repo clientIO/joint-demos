@@ -9,21 +9,22 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import {
+import type {
     AfterViewInit,
     ChangeDetectorRef,
-    Component,
     ElementRef,
     OnDestroy,
     OnInit,
-    Renderer2,
+    Renderer2 } from '@angular/core';
+import {
+    Component,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import JointPlusService from '../../services/joint-plus.service';
-import { EventBusService } from '../../services/event-bus.service';
+import type { EventBusService } from '../../services/event-bus.service';
 import { STENCIL_WIDTH } from '../../theme';
 import { SharedEvents } from '../../joint-plus/controller';
 import { loadStencilShapes, importGraphFromJSON, zoomToFit } from '../../joint-plus/actions';

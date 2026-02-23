@@ -35,7 +35,7 @@ export default class FiberProtectionUnit extends Card {
                     fontFamily: 'sans-serif'
                 }
             },
-        }
+        };
     }
 
     preinitialize(...args: any[]): void {

@@ -6,9 +6,9 @@ export const AnnotationLabels = {
 };
 
 export var AnnotationShapeTypes;
-(function (AnnotationShapeTypes) {
-    AnnotationShapeTypes["ANNOTATION"] = "annotation.Annotation";
-    AnnotationShapeTypes["LINK"] = "annotation.AnnotationLink";
+(function(AnnotationShapeTypes) {
+    AnnotationShapeTypes['ANNOTATION'] = 'annotation.Annotation';
+    AnnotationShapeTypes['LINK'] = 'annotation.AnnotationLink';
 })(AnnotationShapeTypes || (AnnotationShapeTypes = {}));
 
 export const annotationIconClasses = {

@@ -7,7 +7,7 @@ const namespace = {
     app: {
         Shape,
     }
-}
+};
 
 const graph = new dia.Graph({}, { cellNamespace: namespace });
 

@@ -1,4 +1,5 @@
-import React, { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import './Chatbot.scss';
@@ -7,7 +8,7 @@ import JsonEditor from './JsonEditor/JsonEditor';
 import Inspector from './Inspector/Inspector';
 import { importGraphFromJSON, loadStencilShapes, zoomToFit } from '../../joint-plus/actions';
 import { STENCIL_WIDTH } from '../../theme';
-import { State } from '../../redux/reducer';
+import type { State } from '../../redux/reducer';
 
 import exampleGraphJSON from '../../joint-plus/config/example-graph.json';
 
@@ -33,7 +34,7 @@ const Chatbot = (): ReactElement => {
         setFileJSON(graphJSON);
     }, [graphJSON]);
 
-    const openFile = useCallback((json: Object): void => {
+    const openFile = useCallback((json: object): void => {
         setFileJSON(json);
         importGraphFromJSON(joint, json);
         zoomToFit(joint);
@@ -107,17 +108,17 @@ const Chatbot = (): ReactElement => {
             <div className="side-bar">
                 <div className="toggle-bar">
                     <div onClick={toggleStencil}
-                         className={'icon toggle-stencil ' + (!stencilOpened ? 'disabled-icon' : '')}
-                         data-tooltip="Toggle Element Palette"
-                         data-tooltip-position-selector=".toggle-bar"/>
+                        className={'icon toggle-stencil ' + (!stencilOpened ? 'disabled-icon' : '')}
+                        data-tooltip="Toggle Element Palette"
+                        data-tooltip-position-selector=".toggle-bar"/>
                     <div onClick={toggleJsonEditor}
-                         className={'icon toggle-editor ' + (!jsonEditorOpened ? 'disabled-icon' : '')}
-                         data-tooltip="Toggle JSON Editor"
-                         data-tooltip-position-selector=".toggle-bar"/>
+                        className={'icon toggle-editor ' + (!jsonEditorOpened ? 'disabled-icon' : '')}
+                        data-tooltip="Toggle JSON Editor"
+                        data-tooltip-position-selector=".toggle-bar"/>
                 </div>
                 <div ref={stencilRef}
-                     style={{ display: stencilOpened ? 'initial' : 'none' }}
-                     className="stencil-container"/>
+                    style={{ display: stencilOpened ? 'initial' : 'none' }}
+                    className="stencil-container"/>
             </div>
             <div className="main-container">
                 <div ref={paperRef} className="paper-container"/>

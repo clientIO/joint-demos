@@ -9,7 +9,8 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import type { ElementRef, OnInit } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 
 import { StencilService } from '../services/stencil-service';
 import { ToolbarService } from '../services/toolbar-service';

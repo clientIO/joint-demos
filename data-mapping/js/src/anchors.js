@@ -1,6 +1,6 @@
 import { g, anchors } from '@joint/plus';
 
-const mapping = function (view, magnet, ref) {
+const mapping = function(view, magnet, ref) {
     let anchor;
     const model = view.model;
     const bbox = view.getNodeUnrotatedBBox(magnet);

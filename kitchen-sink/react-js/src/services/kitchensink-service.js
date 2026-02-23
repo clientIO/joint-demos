@@ -54,7 +54,7 @@ class KitchenSinkService {
                 'normal': joint.routers.normal,
                 'orthogonal': joint.routers.orthogonal,
                 // Redefine the rightAngle router to use vertices.
-                'rightAngle': function (vertices, opt, linkView) {
+                'rightAngle': function(vertices, opt, linkView) {
                     opt.useVertices = true;
                     return joint.routers.rightAngle.call(this, vertices, opt, linkView);
                 }
@@ -278,7 +278,7 @@ class KitchenSinkService {
             this.selectPrimaryCell(primaryCellView);
         }
         else if (collection.length === 2) {
-            collection.each(function (cell) {
+            collection.each(function(cell) {
                 selection.createSelectionBox(cell);
             });
         }
@@ -313,7 +313,7 @@ class KitchenSinkService {
             new ns.SourceArrowhead(),
             new ns.TargetArrowhead(),
             new ns.Segments({
-                visibility: function (linkView) {
+                visibility: function(linkView) {
                     return linkView.model.router().name === 'normal';
                 }
             }),
@@ -379,7 +379,7 @@ class KitchenSinkService {
     }
     applyOnSelection(method) {
         this.graph.startBatch('selection');
-        this.selection.collection.models.forEach(function (model) { model[method](); });
+        this.selection.collection.models.forEach(function(model) { model[method](); });
         this.graph.stopBatch('selection');
     }
     changeSnapLines(checked) {

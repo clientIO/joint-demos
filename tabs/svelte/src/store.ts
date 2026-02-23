@@ -17,10 +17,10 @@ export const createTabState = (title: string, json?: any) => {
         title,
         graph,
         focusPoint
-    }
-}
+    };
+};
 
-let tabs = TabsData.map(({ title, json }) => createTabState(title, json));
+const tabs = TabsData.map(({ title, json }) => createTabState(title, json));
 
 /* 
     Create Svelte store - stores are available in any part of a svelte app

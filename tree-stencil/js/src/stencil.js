@@ -19,7 +19,7 @@ export function createStencil(paper, width, list, onNodeDrop) {
             viewManagement: {
                 disposeHidden: true,
             },
-            cellVisibility: function (cell) {
+            cellVisibility: function(cell) {
                 // Never hide elements matched by the search
                 if (cell.isElement() && cell.isMatched())
                     return true;

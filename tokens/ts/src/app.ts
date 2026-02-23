@@ -204,8 +204,8 @@ export const init = () => {
                 return;
             }
             // Calculate time passed since animation was started
-            let currentTime = Date.now();
-            let elapsedTime = currentTime - startTime;
+            const currentTime = Date.now();
+            const elapsedTime = currentTime - startTime;
             startTime = currentTime;
 
             // Elapsed time in milliseconds added to current range value
@@ -321,7 +321,7 @@ export const init = () => {
 
                     tokenElements.push(tokenElement);
                     // Create token data
-                    let token: IToken = {
+                    const token: IToken = {
                         data: {
                             id: `follow-${tokenEvent.caseId}-${tokenEvent.start}`,
                             currentLutIndex: 0,
@@ -335,7 +335,7 @@ export const init = () => {
                     // If range time is between token start/end time, update token position, if not, hide token
                     token.data.move = function(value: number): void {
                         if ((value >= this.start) && (value <= this.end)) {
-                            let index = this.currentLutIndex;
+                            const index = this.currentLutIndex;
                             const lut = this.lut[index];
                             if (lut) {
                                 this.element.set('hidden', false);

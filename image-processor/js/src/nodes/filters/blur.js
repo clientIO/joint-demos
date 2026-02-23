@@ -13,19 +13,19 @@ export class Blur extends Node {
                 height: calculateHeight(2)
             },
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }, {
-                    name: 'Radius',
-                    type: 'number',
-                    property: 'radius',
-                    defaultValue: 10
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }, {
+                name: 'Radius',
+                type: 'number',
+                property: 'radius',
+                defaultValue: 10
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }]
+                name: 'Image',
+                type: 'image',
+            }]
         }, defaults);
     }
     

@@ -1,4 +1,5 @@
-import { dia, linkTools, util } from '@joint/core';
+import type { dia } from '@joint/core';
+import { linkTools, util } from '@joint/core';
 import { BG_COLOR, GRID_SIZE, HIGHLIGHT_COLOR } from '../theme';
 
 const SIZE = 6;
@@ -32,7 +33,7 @@ export const CONNECT_TOOL_PRESET = {
     x: '100%',
     y: -CONNECT_TOOL_SIZE,
     markup: CONNECT_TOOL_MARKUP
-}
+};
 
 export class TargetArrowHeadTool extends linkTools.TargetArrowhead {
     constructor() {
@@ -63,6 +64,6 @@ export class RemoveTool extends linkTools.Remove {
                 <circle @selector="button" r="7" fill="${HIGHLIGHT_COLOR}" stroke="${BG_COLOR}" cursor="pointer"/>
                 <path @selector="icon" d="M -3 -3 3 3 M -3 3 3 -3" fill="none" stroke="#FFFFFF" stroke-width="2" pointer-events="none"/>
             `
-        })
+        });
     }
 }

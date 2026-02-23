@@ -16,19 +16,19 @@ export const ActivityLabels = {
 };
 
 export var ActivityShapeTypes;
-(function (ActivityShapeTypes) {
-    ActivityShapeTypes["TASK"] = "activity.Task";
-    ActivityShapeTypes["SEND"] = "activity.Send";
-    ActivityShapeTypes["SERVICE"] = "activity.Service";
-    ActivityShapeTypes["MANUAL"] = "activity.Manual";
-    ActivityShapeTypes["BUSINESS_RULE"] = "activity.BusinessRule";
-    ActivityShapeTypes["RECEIVE"] = "activity.Receive";
-    ActivityShapeTypes["USER"] = "activity.User";
-    ActivityShapeTypes["SCRIPT"] = "activity.Script";
-    ActivityShapeTypes["SUB_PROCESS"] = "activity.SubProcess";
-    ActivityShapeTypes["CALL_ACTIVITY"] = "activity.CallActivity";
-    ActivityShapeTypes["EVENT_SUB_PROCESS"] = "activity.EventSubProcess";
-    ActivityShapeTypes["HTTP_CONNECTOR"] = "activity.HttpConnector";
+(function(ActivityShapeTypes) {
+    ActivityShapeTypes['TASK'] = 'activity.Task';
+    ActivityShapeTypes['SEND'] = 'activity.Send';
+    ActivityShapeTypes['SERVICE'] = 'activity.Service';
+    ActivityShapeTypes['MANUAL'] = 'activity.Manual';
+    ActivityShapeTypes['BUSINESS_RULE'] = 'activity.BusinessRule';
+    ActivityShapeTypes['RECEIVE'] = 'activity.Receive';
+    ActivityShapeTypes['USER'] = 'activity.User';
+    ActivityShapeTypes['SCRIPT'] = 'activity.Script';
+    ActivityShapeTypes['SUB_PROCESS'] = 'activity.SubProcess';
+    ActivityShapeTypes['CALL_ACTIVITY'] = 'activity.CallActivity';
+    ActivityShapeTypes['EVENT_SUB_PROCESS'] = 'activity.EventSubProcess';
+    ActivityShapeTypes['HTTP_CONNECTOR'] = 'activity.HttpConnector';
 })(ActivityShapeTypes || (ActivityShapeTypes = {}));
 
 export const activityIconClasses = {

@@ -63,7 +63,7 @@ paper.on('blank:pointerdown', (linkView) => {
     }
 });
 
-paper.on('cell:pointerup', function (cellView) {
+paper.on('cell:pointerup', function(cellView) {
     // We don't want a Halo for links.
     if (cellView.model instanceof dia.Link) return;
 
@@ -336,7 +336,7 @@ commandManager.on('stack:push', (cmd) => {
 
 // The function which gets the id of the last command in the undo stack.
 function getLastCmdId(commandManager) {
-    let lastCmd = commandManager.undoStack[commandManager.undoStack.length - 1];
+    const lastCmd = commandManager.undoStack[commandManager.undoStack.length - 1];
     if (!lastCmd) return null;
     if (!Array.isArray(lastCmd)) {
         return lastCmd.id;
@@ -410,7 +410,7 @@ document.getElementById('current-file-name').textContent = currentFileName + '*'
 let currentCmdId = null;
 
 // The function which saves current diagram to a new file
-const saveAsRoutine = async () => {
+const saveAsRoutine = async() => {
     // Get a file handler from the user
     currentFileHandle = await window.showSaveFilePicker({
         // The setting that shows that we accept only '.joint' files
@@ -440,10 +440,10 @@ const saveAsRoutine = async () => {
     commandManager.reset();
     currentCmdId = null;
     document.getElementById('current-file-name').textContent = currentFileName;
-}
+};
 
 // Create and open a new file handler
-toolbar.on('new:pointerclick', async () => {
+toolbar.on('new:pointerclick', async() => {
     // Get a file handler from the user
     currentFileHandle = await window.showSaveFilePicker({
         // The setting that shows that we accept only '.joint' files
@@ -460,7 +460,7 @@ toolbar.on('new:pointerclick', async () => {
     currentFileName = currentFileHandle.name;
 
     // Clear graph for a new file
-    graph.clear()
+    graph.clear();
     const str = JSON.stringify(graph.toJSON());
     const bytes = new TextEncoder().encode(str);
 
@@ -476,7 +476,7 @@ toolbar.on('new:pointerclick', async () => {
 });
 
 // Save a file handler
-toolbar.on('save:pointerclick', async () => {
+toolbar.on('save:pointerclick', async() => {
     // If there is a current file we save the graph to it
     if (currentFileHandle) {
         // Convert current graph into byte array
@@ -498,7 +498,7 @@ toolbar.on('save:pointerclick', async () => {
 });
 
 // Open a file handler
-toolbar.on('open:pointerclick', async () => {
+toolbar.on('open:pointerclick', async() => {
     // Get a file handler from the user
     [currentFileHandle] = await window.showOpenFilePicker({
         // The setting that shows that we accept only '.joint' files
@@ -527,7 +527,7 @@ toolbar.on('open:pointerclick', async () => {
 });
 
 // Save to a new file handler
-toolbar.on('saveas:pointerclick', async () => {
+toolbar.on('saveas:pointerclick', async() => {
     saveAsRoutine();
 });
 
@@ -551,7 +551,7 @@ function showRestrictedDialog(options = {}) {
 
     dialog.open();
     dialog.on({
-        'action:ok': function () {
+        'action:ok': function() {
             dialog.remove();
         },
     });
@@ -575,7 +575,7 @@ function showBrowserSupportDialog(options = {}) {
 
     dialog.open();
     dialog.on({
-        'action:ok': function () {
+        'action:ok': function() {
             dialog.remove();
         },
     });

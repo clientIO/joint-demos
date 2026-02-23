@@ -5,7 +5,7 @@ import NavigatorController from '../controllers/navigator-controller';
 const baseUrl = 'assets/navigator';
 
 const IconButton = ui.widgets.button.extend({
-    render: function () {
+    render: function() {
         const size = this.options.size || 20;
         const imageEl = document.createElement('img');
         imageEl.style.width = `${size}px`;
@@ -15,10 +15,10 @@ const IconButton = ui.widgets.button.extend({
         this.setTooltip(this.options.tooltip);
         return this;
     },
-    setIcon: function (icon = '') {
+    setIcon: function(icon = '') {
         this.el.querySelector('img').src = icon;
     },
-    setTooltip: function (tooltip = '') {
+    setTooltip: function(tooltip = '') {
         this.el.dataset.tooltip = tooltip;
     }
 });
@@ -44,7 +44,7 @@ const NavigatorElementView = dia.ElementView.extend({
     },
     // calls in an animation frame after a multiple changes
     // has been made to the model
-    confirmUpdate: function (flags) {
+    confirmUpdate: function(flags) {
         if (this.hasFlag(flags, UpdateFlags.Render))
             this.render();
         if (this.hasFlag(flags, UpdateFlags.Update))
@@ -53,12 +53,12 @@ const NavigatorElementView = dia.ElementView.extend({
         if (this.hasFlag(flags, UpdateFlags.Transform))
             this.updateTransformation();
     },
-    render: function () {
+    render: function() {
         const doc = util.parseDOMJSON(this.markup);
         this.body = doc.selectors.body;
         this.el.appendChild(doc.fragment);
     },
-    update: function () {
+    update: function() {
         const { model, body } = this;
         // shape
         const { width, height } = model.size();
@@ -86,12 +86,12 @@ export default class NavigatorService {
                     name: 'fit-to-screen',
                     icon: `${baseUrl}/icon-zoom-to-fit.svg`,
                     tooltip: 'Fit to screen',
-                    attrs: { button: { 'data-tooltip-position': 'top' } }
+                    attrs: { button: { 'data-tooltip-position': 'top' }}
                 },
                 {
                     type: 'icon-button',
                     name: 'fullscreen',
-                    attrs: { button: { 'data-tooltip-position': 'top' } }
+                    attrs: { button: { 'data-tooltip-position': 'top' }}
                     /* icon and tooltip are set in updateToolbarButtons() */
                 },
                 {
@@ -99,14 +99,14 @@ export default class NavigatorService {
                     min: ZOOM_SETTINGS.min * 100,
                     max: ZOOM_SETTINGS.max * 100,
                     step: 10,
-                    attrs: { input: { 'data-tooltip': 'Slide to zoom', 'data-tooltip-position': 'top' } }
+                    attrs: { input: { 'data-tooltip': 'Slide to zoom', 'data-tooltip-position': 'top' }}
                 },
                 { type: 'separator' },
                 {
                     type: 'icon-button',
                     name: 'minimap',
                     icon: `${baseUrl}/icon-minimap.svg`,
-                    attrs: { button: { 'data-tooltip-position': 'top' } }
+                    attrs: { button: { 'data-tooltip-position': 'top' }}
                 }
             ],
             widgetNamespace: Object.assign(Object.assign({}, ui.widgets), { iconButton: IconButton })

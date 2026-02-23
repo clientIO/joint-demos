@@ -12,7 +12,7 @@ const namespace = {
         QuestionView,
         Answer,
     }
-}
+};
 
 export const AppView = mvc.View.extend({
 
@@ -29,7 +29,7 @@ export const AppView = mvc.View.extend({
         'click #toolbar .clear': 'clear'
     },
 
-    init: function () {
+    init: function() {
 
         this.initializePaper();
         this.initializeSelection();
@@ -41,12 +41,12 @@ export const AppView = mvc.View.extend({
         this.loadExample();
     },
 
-    initializeTooltips: function () {
+    initializeTooltips: function() {
 
         new ui.Tooltip({
             rootTarget: '#paper',
             target: '.joint-element',
-            content: function (target) {
+            content: function(target) {
 
                 const cell = this.paper.findView(target).model;
 
@@ -64,7 +64,7 @@ export const AppView = mvc.View.extend({
         });
     },
 
-    initializeInlineTextEditor: function () {
+    initializeInlineTextEditor: function() {
 
         let cellViewUnderEdit;
 
@@ -78,7 +78,7 @@ export const AppView = mvc.View.extend({
             }
         };
 
-        this.paper.on('cell:pointerdblclick', function (cellView, evt) {
+        this.paper.on('cell:pointerdblclick', function(cellView, evt) {
 
             // Clean up the old text editor if there was one.
             closeEditor();
@@ -125,7 +125,7 @@ export const AppView = mvc.View.extend({
                 this.textEditor = new ui.TextEditor({ text: text });
                 this.textEditor.render(this.paper.el);
 
-                this.textEditor.on('text:change', function (newText) {
+                this.textEditor.on('text:change', function(newText) {
 
                     const cellUnderEdit = cellViewUnderEdit.model;
                     // TODO: prop() changes options and so options are re-rendered
@@ -158,9 +158,9 @@ export const AppView = mvc.View.extend({
         });
     },
 
-    initializeHalo: function () {
+    initializeHalo: function() {
 
-        this.paper.on('element:pointerup', function (elementView, evt) {
+        this.paper.on('element:pointerup', function(elementView, evt) {
 
             const halo = new ui.Halo({
                 cellView: elementView,
@@ -177,13 +177,13 @@ export const AppView = mvc.View.extend({
         }, this);
     },
 
-    initializeSelection: function () {
+    initializeSelection: function() {
 
         const paper = this.paper;
         const graph = this.graph;
         const selection = this.selection = new Selection();
 
-        selection.on('add reset', function () {
+        selection.on('add reset', function() {
             const cell = this.selection.first();
             if (cell) {
                 this.status('Selection: ' + cell.get('type'));
@@ -193,15 +193,15 @@ export const AppView = mvc.View.extend({
         }, this);
 
         paper.on({
-            'element:pointerup': function (elementView) {
+            'element:pointerup': function(elementView) {
                 this.selection.reset([elementView.model]);
             },
-            'blank:pointerdown': function () {
+            'blank:pointerdown': function() {
                 this.selection.reset([]);
             }
         }, this);
 
-        graph.on('remove', function () {
+        graph.on('remove', function() {
             this.selection.reset([]);
         }, this);
 
@@ -225,7 +225,7 @@ export const AppView = mvc.View.extend({
         }, false);
     },
 
-    initializeLinkHover: function () {
+    initializeLinkHover: function() {
 
         this.paper.on('link:mouseenter', (linkView) => {
             const toolsView = new dia.ToolsView({
@@ -245,7 +245,7 @@ export const AppView = mvc.View.extend({
         });
     },
 
-    initializePaper: function () {
+    initializePaper: function() {
 
         this.graph = new dia.Graph({}, { cellNamespace: namespace });
 
@@ -262,9 +262,9 @@ export const AppView = mvc.View.extend({
             linkPinning: false,
             multiLinks: false,
             defaultLink: createLink(),
-            defaultRouter: { name: 'manhattan', args: { padding: 20 } },
+            defaultRouter: { name: 'manhattan', args: { padding: 20 }},
             defaultConnector: { name: 'rounded' },
-            validateConnection: function (cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
+            validateConnection: function(cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
                 // Prevent linking from input ports.
                 if (magnetS && magnetS.getAttribute('port-group') === 'in') return false;
                 // Prevent linking from output ports to input ports within one element.
@@ -272,7 +272,7 @@ export const AppView = mvc.View.extend({
                 // Prevent linking to input ports.
                 return (magnetT && magnetT.getAttribute('port-group') === 'in') || (cellViewS.model.get('type') === 'qad.Question' && cellViewT.model.get('type') === 'qad.Answer');
             },
-            validateMagnet: function (cellView, magnet) {
+            validateMagnet: function(cellView, magnet) {
                 // Note that this is the default behaviour. Just showing it here for reference.
                 return magnet.getAttribute('magnet') !== 'passive';
             }
@@ -280,23 +280,23 @@ export const AppView = mvc.View.extend({
     },
 
     // Show a message in the statusbar.
-    status: function (m) {
+    status: function(m) {
         this.el.querySelector('#statusbar .message').textContent = m;
     },
 
-    addQuestion: function () {
+    addQuestion: function() {
 
         createQuestion('Question').addTo(this.graph);
         this.status('Question added.');
     },
 
-    addAnswer: function () {
+    addAnswer: function() {
 
         createAnswer('Answer').addTo(this.graph);
         this.status('Answer added.');
     },
 
-    previewDialog: function () {
+    previewDialog: function() {
 
         const previewEl = document.getElementById('preview');
 
@@ -304,7 +304,7 @@ export const AppView = mvc.View.extend({
         const dialogJSON = createDialogJSON(this.graph, cell);
         const backgroundEl = document.createElement('div');
         backgroundEl.classList.add('background');
-        backgroundEl.addEventListener('click', function () {
+        backgroundEl.addEventListener('click', function() {
             previewEl.replaceChildren();
         });
 
@@ -314,12 +314,12 @@ export const AppView = mvc.View.extend({
         previewEl.style.display = 'block';
     },
 
-    clear: function () {
+    clear: function() {
 
         this.graph.clear();
     },
 
-    showCodeSnippet: function () {
+    showCodeSnippet: function() {
 
         const cell = this.selection.first();
         const dialogJSON = createDialogJSON(this.graph, cell);
@@ -347,7 +347,7 @@ export const AppView = mvc.View.extend({
         dialog.open();
     },
 
-    loadExample: function () {
+    loadExample: function() {
 
         this.selection.reset([]);
         this.graph.fromJSON({
@@ -376,7 +376,7 @@ export const AppView = mvc.View.extend({
                                     },
                                 },
                                 label: {
-                                    position: { name: 'left', args: { x: 5 } },
+                                    position: { name: 'left', args: { x: 5 }},
                                 },
                             },
                             out: {
@@ -394,11 +394,11 @@ export const AppView = mvc.View.extend({
                         items: [
                             {
                                 group: 'in',
-                                attrs: { text: { text: 'in' } },
+                                attrs: { text: { text: 'in' }},
                                 id: '0827c5d5-e3e4-47db-b2a7-665e47e5ffbc',
                             },
-                            { group: 'out', id: 'yes', args: { y: 60 } },
-                            { group: 'out', id: 'no', args: { y: 90 } },
+                            { group: 'out', id: 'yes', args: { y: 60 }},
+                            { group: 'out', id: 'no', args: { y: 90 }},
                         ],
                     },
                     position: { x: 45, y: 38 },
@@ -467,7 +467,7 @@ export const AppView = mvc.View.extend({
                                     },
                                 },
                                 label: {
-                                    position: { name: 'left', args: { x: 5 } },
+                                    position: { name: 'left', args: { x: 5 }},
                                 },
                             },
                             out: {
@@ -485,11 +485,11 @@ export const AppView = mvc.View.extend({
                         items: [
                             {
                                 group: 'in',
-                                attrs: { text: { text: 'in' } },
+                                attrs: { text: { text: 'in' }},
                                 id: '3da4004a-938e-4b8d-aac7-94f93eded50a',
                             },
-                            { group: 'out', id: 'yes', args: { y: 60 } },
-                            { group: 'out', id: 'no', args: { y: 90 } },
+                            { group: 'out', id: 'yes', args: { y: 60 }},
+                            { group: 'out', id: 'no', args: { y: 90 }},
                         ],
                     },
                     position: { x: 55, y: 245 },
@@ -560,7 +560,7 @@ export const AppView = mvc.View.extend({
                                     },
                                 },
                                 label: {
-                                    position: { name: 'left', args: { x: 5 } },
+                                    position: { name: 'left', args: { x: 5 }},
                                 },
                             },
                             out: {
@@ -578,11 +578,11 @@ export const AppView = mvc.View.extend({
                         items: [
                             {
                                 group: 'in',
-                                attrs: { text: { text: 'in' } },
+                                attrs: { text: { text: 'in' }},
                                 id: '17d84052-8cce-4357-89dc-92514c3a5cfe',
                             },
-                            { group: 'out', id: 'yes', args: { y: 60 } },
-                            { group: 'out', id: 'no', args: { y: 90 } },
+                            { group: 'out', id: 'yes', args: { y: 60 }},
+                            { group: 'out', id: 'no', args: { y: 90 }},
                         ],
                     },
                     position: { x: 238, y: 429 },
@@ -636,7 +636,7 @@ export const AppView = mvc.View.extend({
                     answer: 'Don\'t mess about with it.',
                     id: '6d15cdcb-9981-4620-b023-b30d8f4f19d9',
                     z: 4,
-                    attrs: { label: { text: 'Don\'t mess about with it.' } },
+                    attrs: { label: { text: 'Don\'t mess about with it.' }},
                 },
                 {
                     type: 'qad.Answer',
@@ -647,7 +647,7 @@ export const AppView = mvc.View.extend({
                     answer: 'Run away!',
                     id: 'ef4e38b0-592b-415d-937f-75c74b969ad2',
                     z: 5,
-                    attrs: { label: { text: 'Run away!' } },
+                    attrs: { label: { text: 'Run away!' }},
                 },
                 {
                     type: 'qad.Answer',
@@ -658,7 +658,7 @@ export const AppView = mvc.View.extend({
                     answer: 'Poor boy.',
                     id: '61b31adc-2640-4790-a46a-bcc736dba3b6',
                     z: 6,
-                    attrs: { label: { text: 'Poor boy.' } },
+                    attrs: { label: { text: 'Poor boy.' }},
                 },
                 {
                     type: 'qad.Answer',
@@ -669,7 +669,7 @@ export const AppView = mvc.View.extend({
                     answer: 'Put it in a bin.',
                     id: 'dc726ad6-0dbc-4185-986d-82204a4bc77a',
                     z: 7,
-                    attrs: { label: { text: 'Put it in a bin.' } },
+                    attrs: { label: { text: 'Put it in a bin.' }},
                 },
                 {
                     type: 'standard.Link',

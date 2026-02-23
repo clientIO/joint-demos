@@ -57,7 +57,7 @@ export class StencilService {
             groups: this.getStencilGroups(),
             dropAnimation: true,
             groupsToggleButtons: true,
-            paperOptions: function () {
+            paperOptions: function() {
                 return {
                     model: new dia.Graph({}, {
                         cellNamespace: appShapes

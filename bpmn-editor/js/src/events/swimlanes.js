@@ -56,11 +56,11 @@ export function onSwimlaneDrag(paper, elementView, evt, x, y) {
     const viewInArea = paper
         .findElementViewsAtPoint({ x, y })
         .sort((a, b) => {
-        const bZ = b.model.get('z') ?? 0;
-        const aZ = a.model.get('z') ?? 0;
+            const bZ = b.model.get('z') ?? 0;
+            const aZ = a.model.get('z') ?? 0;
         
-        return bZ - aZ;
-    });
+            return bZ - aZ;
+        });
     
     // Find the `poolView` that is the top-most pool under the cursor.
     const poolView = viewInArea.find((view) => shapes.bpmn2.CompositePool.isPool(view.model));

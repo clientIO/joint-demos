@@ -224,7 +224,7 @@ export const init = () => {
             cellView: elementView,
             textProperty: TextNode.LABEL_PATH,
             annotationsProperty: TextNode.ANNOTATION_PATH,
-            onOutsidePointerdown: function (pointerEvt, editor) {
+            onOutsidePointerdown: function(pointerEvt, editor) {
                 const target = pointerEvt.target;
                 // If the user clicks not on the text but on the background (the cell view)
                 // we set the cursor to the closest line to the click position

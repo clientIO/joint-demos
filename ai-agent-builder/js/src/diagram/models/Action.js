@@ -120,7 +120,7 @@ export default class Action extends LabeledNode {
     
     updateProvider(provider, action) {
         const { icon } = provider;
-        const { name = '', data = {} } = action;
+        const { name = '', data = {}} = action;
         
         this.attr({
             icon: {

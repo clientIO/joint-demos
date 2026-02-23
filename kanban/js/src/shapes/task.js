@@ -60,18 +60,18 @@ export class Task extends dia.Element {
     }
     
     markup = [{
-            tagName: 'rect',
-            selector: 'body'
-        }, {
-            tagName: 'rect',
-            selector: 'header'
-        }, {
-            tagName: 'text',
-            selector: 'headerText'
-        }, {
-            tagName: 'text',
-            selector: 'bodyText'
-        }];
+        tagName: 'rect',
+        selector: 'body'
+    }, {
+        tagName: 'rect',
+        selector: 'header'
+    }, {
+        tagName: 'text',
+        selector: 'headerText'
+    }, {
+        tagName: 'text',
+        selector: 'bodyText'
+    }];
     
     static isTask(cell) {
         return cell.get('type') === 'kanban.Task';

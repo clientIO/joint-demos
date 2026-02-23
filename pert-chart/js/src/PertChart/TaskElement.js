@@ -39,7 +39,7 @@ export class TaskElement extends Record {
                     fill: TASK_BG_COLOR,
                     stroke: TASK_OUTLINE_COLOR,
                     strokeWidth: 1,
-                    filter: { id: FILTER_SHADOW_ID, name: 'dropShadow', args: { dx: 2, dy: 2, color: '#ccc' } }
+                    filter: { id: FILTER_SHADOW_ID, name: 'dropShadow', args: { dx: 2, dy: 2, color: '#ccc' }}
                 },
                 nameRow: {
                     d: `M 0 ${TASK_HEADER_HEIGHT} L 0 ${TASK_BORDER_RADIUS} A ${TASK_BORDER_RADIUS} ${TASK_BORDER_RADIUS} 0 0 1 ${TASK_BORDER_RADIUS} 0 L calc(w - ${TASK_BORDER_RADIUS}) 0 A ${TASK_BORDER_RADIUS} ${TASK_BORDER_RADIUS} 0 0 1 calc(w) ${TASK_BORDER_RADIUS} L calc(w) ${TASK_HEADER_HEIGHT} Z`,
@@ -290,23 +290,23 @@ export class TaskElement extends Record {
             },
             items: [
                 [{
-                        id: 'task_id',
-                        label: `${id}`,
-                        icon: getItemIcon('id', secondaryColor)
-                    }, {
-                        id: 'start_date',
-                        label: startDate ? TaskElement.formatDate(new Date(startDate)) : '-',
-                        icon: getItemIcon('start', secondaryColor)
-                    }],
+                    id: 'task_id',
+                    label: `${id}`,
+                    icon: getItemIcon('id', secondaryColor)
+                }, {
+                    id: 'start_date',
+                    label: startDate ? TaskElement.formatDate(new Date(startDate)) : '-',
+                    icon: getItemIcon('start', secondaryColor)
+                }],
                 [{
-                        id: 'duration',
-                        label: duration ? `${duration} day${duration > 1 ? 's' : ''}` : '-',
-                        icon: getItemIcon('duration', secondaryColor)
-                    }, {
-                        id: 'end_date',
-                        label: endDate ? TaskElement.formatDate(new Date(endDate)) : '-',
-                        icon: getItemIcon('end', secondaryColor)
-                    }]
+                    id: 'duration',
+                    label: duration ? `${duration} day${duration > 1 ? 's' : ''}` : '-',
+                    icon: getItemIcon('duration', secondaryColor)
+                }, {
+                    id: 'end_date',
+                    label: endDate ? TaskElement.formatDate(new Date(endDate)) : '-',
+                    icon: getItemIcon('end', secondaryColor)
+                }]
             ]
         });
     }

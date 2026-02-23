@@ -97,32 +97,32 @@ const structure = {
     parentFill: '#202E66',
     childFill: '#2C408F',
     children: [{
-            label: 'b1',
-            embeds: ['e1', 'e2', 'e3'],
-            parentFill: '#334AA6',
-            childFill: '#3F5BCC',
-            children: [{
-                    parentFill: '#4767E6',
-                    childFill: '#4B6DF2',
-                    label: 'c1',
-                    embeds: ['d1', 'd2', 'd3']
-                }, {
-                    parentFill: '#4767E6',
-                    childFill: '#4B6DF2',
-                    label: 'c2',
-                    embeds: ['d4', 'd5', 'd6']
-                }]
+        label: 'b1',
+        embeds: ['e1', 'e2', 'e3'],
+        parentFill: '#334AA6',
+        childFill: '#3F5BCC',
+        children: [{
+            parentFill: '#4767E6',
+            childFill: '#4B6DF2',
+            label: 'c1',
+            embeds: ['d1', 'd2', 'd3']
         }, {
-            label: 'b2',
-            parentFill: '#334AA6',
-            childFill: '#3F5BCC',
-            children: [{
-                    parentFill: '#4767E6',
-                    childFill: '#4B6DF2',
-                    label: 'c3',
-                    embeds: ['d7', 'd8', 'd9', 'd10', 'd11']
-                }]
+            parentFill: '#4767E6',
+            childFill: '#4B6DF2',
+            label: 'c2',
+            embeds: ['d4', 'd5', 'd6']
         }]
+    }, {
+        label: 'b2',
+        parentFill: '#334AA6',
+        childFill: '#3F5BCC',
+        children: [{
+            parentFill: '#4767E6',
+            childFill: '#4B6DF2',
+            label: 'c3',
+            embeds: ['d7', 'd8', 'd9', 'd10', 'd11']
+        }]
+    }]
 };
 
 const findContainerFromPoint = (graph, x, y) => {
@@ -174,8 +174,8 @@ const createCells = (struct, graph) => {
         children.forEach((childStruct) => {
             const child = createCells(childStruct, graph);
             const link = new shapes.app.Link();
-            link.source(root, { anchor: { name: 'bottom', args: { dy: -20 } } });
-            link.target(child, { anchor: { name: 'top' } });
+            link.source(root, { anchor: { name: 'bottom', args: { dy: -20 }}});
+            link.target(child, { anchor: { name: 'top' }});
             link.addTo(graph);
         });
     }

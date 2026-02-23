@@ -26,19 +26,19 @@ export function setupNavigator(graph, paperScroller, tree) {
         },
         // calls in an animation frame after a multiple changes
         // has been made to the model
-        confirmUpdate: function (flags) {
+        confirmUpdate: function(flags) {
             if (this.hasFlag(flags, UpdateFlags.Render))
                 this.render();
             if (this.hasFlag(flags, UpdateFlags.Update))
                 this.update();
         },
-        render: function () {
+        render: function() {
             const doc = util.parseDOMJSON(this.markup);
             this.body = doc.selectors.body;
             this.body.classList.add(this.model.get('group'));
             this.el.appendChild(doc.fragment);
         },
-        update: function () {
+        update: function() {
             const { model, body } = this;
             
             const layoutArea = tree.getLayoutArea(this.model);

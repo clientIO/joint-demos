@@ -265,7 +265,7 @@ export const init = () => {
                 properties: {
                     name: {
                         type: 'content-editable',
-                        label: `Name`
+                        label: 'Name'
                     },
                 }
             }

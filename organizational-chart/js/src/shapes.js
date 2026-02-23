@@ -113,44 +113,44 @@ export const Member = dia.Element.define('Member', {
 }, {
     
     markup: [{
+        tagName: 'rect',
+        selector: 'body',
+    }, {
+        tagName: 'text',
+        selector: 'label',
+    }, {
+        tagName: 'text',
+        selector: 'description',
+    }, {
+        tagName: 'image',
+        selector: 'icon',
+    }, {
+        tagName: 'g',
+        selector: 'memberAddButton',
+        children: [{
             tagName: 'rect',
-            selector: 'body',
-        }, {
-            tagName: 'text',
-            selector: 'label',
-        }, {
-            tagName: 'text',
-            selector: 'description',
-        }, {
-            tagName: 'image',
-            selector: 'icon',
-        }, {
-            tagName: 'g',
-            selector: 'memberAddButton',
-            children: [{
-                    tagName: 'rect',
-                    selector: 'memberAddButtonBody'
-                }, {
-                    tagName: 'path',
-                    selector: 'memberAddButtonIcon'
-                }]
-        }, {
-            tagName: 'g',
-            selector: 'memberRemoveButton',
-            children: [{
-                    tagName: 'rect',
-                    selector: 'memberRemoveButtonBody'
-                }, {
-                    tagName: 'path',
-                    selector: 'memberRemoveButtonIcon'
-                }]
-        }, {
-            tagName: 'rect',
-            selector: 'memberEditIconContainer'
+            selector: 'memberAddButtonBody'
         }, {
             tagName: 'path',
-            selector: 'memberEditIcon'
+            selector: 'memberAddButtonIcon'
         }]
+    }, {
+        tagName: 'g',
+        selector: 'memberRemoveButton',
+        children: [{
+            tagName: 'rect',
+            selector: 'memberRemoveButtonBody'
+        }, {
+            tagName: 'path',
+            selector: 'memberRemoveButtonIcon'
+        }]
+    }, {
+        tagName: 'rect',
+        selector: 'memberEditIconContainer'
+    }, {
+        tagName: 'path',
+        selector: 'memberEditIcon'
+    }]
 });
 
 export const Link = dia.Link.define('Link', {
@@ -167,7 +167,7 @@ export const Link = dia.Link.define('Link', {
     }
 }, {
     markup: [{
-            tagName: 'path',
-            selector: 'line'
-        }]
+        tagName: 'path',
+        selector: 'line'
+    }]
 });

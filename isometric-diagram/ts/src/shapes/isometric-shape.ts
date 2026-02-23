@@ -96,7 +96,7 @@ export class CuboidShape extends IsometricShape {
             [SIZE_KEY]: new SizeControl({ defaultSize }),
             [CONNECT_KEY]: new elementTools.Connect(CONNECT_TOOL_PRESET),
             [ISOMETRIC_HEIGHT_KEY]: new CenterBasedHeightControl({ defaultIsometricHeight }),
-        }
+        };
     }
 }
 
@@ -108,7 +108,7 @@ export class ProportionalCuboidShape extends IsometricShape {
             [SIZE_KEY]: new ProportionalSizeControl({ defaultSize }),
             [CONNECT_KEY]: new elementTools.Connect(CONNECT_TOOL_PRESET),
             [ISOMETRIC_HEIGHT_KEY]: new CenterBasedHeightControl({ defaultIsometricHeight }),
-        }
+        };
     }
 }
 
@@ -120,7 +120,7 @@ export class CylinderShape extends IsometricShape {
             [SIZE_KEY]: new ProportionalSizeControl({ defaultSize }),
             [CONNECT_KEY]: new elementTools.Connect(CONNECT_TOOL_PRESET),
             [ISOMETRIC_HEIGHT_KEY]: new CenterBasedHeightControl({ defaultIsometricHeight }),
-        }
+        };
     }
 
     get sideData(): string {
@@ -151,7 +151,7 @@ export class PyramidShape extends IsometricShape {
             [SIZE_KEY]: new ProportionalSizeControl({ defaultSize }),
             [CONNECT_KEY]: new elementTools.Connect(CONNECT_TOOL_PRESET),
             [ISOMETRIC_HEIGHT_KEY]: new PyramidHeightControl({ defaultIsometricHeight }),
-        }
+        };
     }
 
     get topX(): number {

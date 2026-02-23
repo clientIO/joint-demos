@@ -13,7 +13,7 @@ export function resetGraphFromFile(graph: dia.Graph, file: ImpFile) {
         const nodeCell = createNodeShape(createNodeByType(node.type));
         nodeCell.attributes.id = node.id;
         nodeCell.id = node.id;
-        for (let prop in node.attributes) {
+        for (const prop in node.attributes) {
             nodeCell.prop(prop, node.attributes[prop]);
         }
         nodeMap[node.id] = nodeCell;

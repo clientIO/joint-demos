@@ -1,4 +1,4 @@
-import { dia } from '@joint/core';
+import type { dia } from '@joint/core';
 import { Card, ExternalLink } from './shapes';
 
 interface MonitorComponent {

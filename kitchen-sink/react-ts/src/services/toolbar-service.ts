@@ -297,7 +297,7 @@ export class ToolbarService {
                 const reader = new FileReader();
 
                 reader.onload = (evt) => {
-                    let str = evt.target.result as string;
+                    const str = evt.target.result as string;
                     graph.fromJSON(JSON.parse(str));
                     commandManager.reset();
                 };

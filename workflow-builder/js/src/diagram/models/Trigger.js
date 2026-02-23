@@ -38,8 +38,8 @@ export default class Trigger extends DiagramNode {
             // Shape-specific attributes
             [Attribute.TriggerKey]: null,
             [Attribute.OutboundPorts]: [{
-                    id: 'output',
-                }],
+                id: 'output',
+            }],
             // JointJS attributes
             z: 1,
             type: TYPE,

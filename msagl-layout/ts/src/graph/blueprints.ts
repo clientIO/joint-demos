@@ -80,8 +80,8 @@ export const dagBlueprint: GraphBlueprint = {
         { from: 'modeling', to: 'serving' },
         { from: 'registry', to: 'serving' },
         { from: 'registry', to: 'observability' },
-        { from: 'serving', to: 'feedback', options: { label: 'Serve' } },
-        { from: 'observability', to: 'feedback', options: { label: 'Insights' } }
+        { from: 'serving', to: 'feedback', options: { label: 'Serve' }},
+        { from: 'observability', to: 'feedback', options: { label: 'Insights' }}
     ]
 };
 
@@ -117,8 +117,8 @@ export const networkBlueprint: GraphBlueprint = {
         { from: 'data-guild', to: 'sales' },
         { from: 'ops-crew', to: 'sales' },
         { from: 'ops-crew', to: 'success' },
-        { from: 'growth-pod', to: 'success', options: { label: 'Playbooks' } },
-        { from: 'security-unit', to: 'sales', options: { label: 'Security Review' } }
+        { from: 'growth-pod', to: 'success', options: { label: 'Playbooks' }},
+        { from: 'security-unit', to: 'sales', options: { label: 'Security Review' }}
     ]
 };
 
@@ -139,9 +139,9 @@ export const cycleBlueprint: GraphBlueprint = {
             from: list[index].toLowerCase(),
             to: list[(index + 1) % list.length].toLowerCase()
         })),
-        { from: 'prototype', to: 'launch', options: { label: 'Pivot' } },
-        { from: 'develop', to: 'ideate', options: { label: 'Backlog' } },
-        { from: 'measure', to: 'review', options: { label: 'Retro' } }
+        { from: 'prototype', to: 'launch', options: { label: 'Pivot' }},
+        { from: 'develop', to: 'ideate', options: { label: 'Backlog' }},
+        { from: 'measure', to: 'review', options: { label: 'Retro' }}
     ]
 };
 
@@ -168,9 +168,9 @@ export const completeBlueprint: GraphBlueprint = {
 export const nestedBlueprint: GraphBlueprint = {
     nodes: [
         // Top-level ecosystem containers
-        { id: 'frontend-ecosystem', label: 'Frontend Ecosystem', kind: 'parent', size: { width: 300, height: 180 } },
-        { id: 'backend-ecosystem', label: 'Backend Ecosystem', kind: 'parent', size: { width: 300, height: 180 } },
-        { id: 'data-ecosystem', label: 'Data Ecosystem', kind: 'parent', size: { width: 300, height: 180 } },
+        { id: 'frontend-ecosystem', label: 'Frontend Ecosystem', kind: 'parent', size: { width: 300, height: 180 }},
+        { id: 'backend-ecosystem', label: 'Backend Ecosystem', kind: 'parent', size: { width: 300, height: 180 }},
+        { id: 'data-ecosystem', label: 'Data Ecosystem', kind: 'parent', size: { width: 300, height: 180 }},
 
         // Frontend teams
         { id: 'react-team', label: 'React Team', parentId: 'frontend-ecosystem' },
@@ -189,20 +189,20 @@ export const nestedBlueprint: GraphBlueprint = {
     ],
     links: [
         // Internal ecosystem flows
-        { from: 'react-team', to: 'design-system', options: { label: 'Components' } },
-        { from: 'design-system', to: 'accessibility', options: { label: 'Standards' } },
-        { from: 'api-gateway', to: 'microservices', options: { label: 'Routes' } },
-        { from: 'microservices', to: 'database', options: { label: 'Queries' } },
-        { from: 'data-pipeline', to: 'ml-platform', options: { label: 'Features' } },
-        { from: 'ml-platform', to: 'analytics-engine', options: { label: 'Models' } },
+        { from: 'react-team', to: 'design-system', options: { label: 'Components' }},
+        { from: 'design-system', to: 'accessibility', options: { label: 'Standards' }},
+        { from: 'api-gateway', to: 'microservices', options: { label: 'Routes' }},
+        { from: 'microservices', to: 'database', options: { label: 'Queries' }},
+        { from: 'data-pipeline', to: 'ml-platform', options: { label: 'Features' }},
+        { from: 'ml-platform', to: 'analytics-engine', options: { label: 'Models' }},
 
         // Cross-ecosystem integrations
-        { from: 'frontend-ecosystem', to: 'backend-ecosystem', options: { label: 'API Calls' } },
-        { from: 'backend-ecosystem', to: 'data-ecosystem', options: { label: 'Data Ingestion' } },
-        { from: 'data-ecosystem', to: 'frontend-ecosystem', options: { label: 'Dashboards' } },
+        { from: 'frontend-ecosystem', to: 'backend-ecosystem', options: { label: 'API Calls' }},
+        { from: 'backend-ecosystem', to: 'data-ecosystem', options: { label: 'Data Ingestion' }},
+        { from: 'data-ecosystem', to: 'frontend-ecosystem', options: { label: 'Dashboards' }},
 
         // Cross-cutting technical flows
-        { from: 'api-gateway', to: 'data-pipeline', options: { label: 'Event Streams' } },
-        { from: 'analytics-engine', to: 'react-team', options: { label: 'User Metrics' } }
+        { from: 'api-gateway', to: 'data-pipeline', options: { label: 'Event Streams' }},
+        { from: 'analytics-engine', to: 'react-team', options: { label: 'User Metrics' }}
     ]
 };

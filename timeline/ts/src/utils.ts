@@ -58,7 +58,7 @@ function routeOneDirection(tree: layout.TreeLayout, sourceElement: dia.Element, 
     const firstLeftLinkX = sourceBBox.width / 2 + sourceBBox.x + gap * (leftLinkCount - rightLinkCount - 1) / 2;
 
     const [firstLeftLink] = leftLinks;
-    let isFirstLinkStraight = (firstLeftLink)
+    const isFirstLinkStraight = (firstLeftLink)
         ? sourceCenter.x === firstLeftLink.getTargetElement().getBBox().center().x
         : false;
 

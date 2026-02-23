@@ -77,18 +77,18 @@ export class Table extends shapes.standard.HeaderedRecord {
     
     preinitialize() {
         this.markup = [{
-                tagName: 'rect',
-                selector: 'body'
-            }, {
-                tagName: 'rect',
-                selector: 'header'
-            }, {
-                tagName: 'rect',
-                selector: 'tabColor'
-            }, {
-                tagName: 'text',
-                selector: 'headerLabel'
-            }];
+            tagName: 'rect',
+            selector: 'body'
+        }, {
+            tagName: 'rect',
+            selector: 'header'
+        }, {
+            tagName: 'rect',
+            selector: 'tabColor'
+        }, {
+            tagName: 'text',
+            selector: 'headerLabel'
+        }];
     }
     
     initialize(...args) {
@@ -186,19 +186,19 @@ export class Link extends dia.Link {
         };
     }
     markup = [{
-            tagName: 'path',
-            selector: 'wrapper',
-            attributes: {
-                'fill': 'none',
-                'stroke': 'transparent'
-            }
-        }, {
-            tagName: 'path',
-            selector: 'line',
-            attributes: {
-                'fill': 'none'
-            }
-        }];
+        tagName: 'path',
+        selector: 'wrapper',
+        attributes: {
+            'fill': 'none',
+            'stroke': 'transparent'
+        }
+    }, {
+        tagName: 'path',
+        selector: 'line',
+        attributes: {
+            'fill': 'none'
+        }
+    }];
 }
 
 const TableView = shapes.standard.RecordView;

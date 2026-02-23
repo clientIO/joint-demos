@@ -273,8 +273,8 @@ function createEffectNode(name) {
             shadow: {
                 x: 3,
                 y: 3,
-                width: `calc(w)`,
-                height: `calc(h)`,
+                width: 'calc(w)',
+                height: 'calc(h)',
                 rx: 5,
                 ry: 5,
                 fill: '#333',

@@ -1,7 +1,7 @@
 import * as joint from '@joint/plus';
 const cache = new Map();
 export var app;
-(function (app) {
+(function(app) {
     class Link extends joint.shapes.standard.Link {
         constructor() {
             super(...arguments);
@@ -18,7 +18,7 @@ export var app;
                     }
                 }
             };
-            this.getDataWidthCached = function (d) {
+            this.getDataWidthCached = function(d) {
                 if (cache.has(d)) {
                     return cache.get(d);
                 }

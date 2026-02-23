@@ -55,10 +55,10 @@ export class ColorInput extends Node {
             name: 'Color',
             group: 'inputs',
             outputSettings: [{
-                    name: 'Color',
-                    type: 'color',
-                    defaultValue: '#ffffff'
-                }],
+                name: 'Color',
+                type: 'color',
+                defaultValue: '#ffffff'
+            }],
             attrs: {
                 foreignObject: {
                     width: 'calc(w-60)',

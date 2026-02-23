@@ -1,5 +1,5 @@
-import { dia } from '@joint/core';
-import { EdgeRoutingMode, LayerDirectionEnum } from '@joint/layout-msagl';
+import type { dia } from '@joint/core';
+import type { EdgeRoutingMode, LayerDirectionEnum } from '@joint/layout-msagl';
 
 export type GraphType =
     | 'tree'

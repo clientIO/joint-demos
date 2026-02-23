@@ -66,29 +66,29 @@ export class StencilNode extends dia.Element {
     MINUS_SIGN = 'M 2 5 8 5';
     
     markup = [{
+        tagName: 'rect',
+        selector: 'body',
+    }, {
+        tagName: 'text',
+        selector: 'label'
+    }, {
+        tagName: 'image',
+        selector: 'icon'
+    }, {
+        tagName: 'g',
+        selector: 'buttonGroup',
+        children: [{
             tagName: 'rect',
-            selector: 'body',
+            selector: 'button'
         }, {
-            tagName: 'text',
-            selector: 'label'
-        }, {
-            tagName: 'image',
-            selector: 'icon'
-        }, {
-            tagName: 'g',
-            selector: 'buttonGroup',
-            children: [{
-                    tagName: 'rect',
-                    selector: 'button'
-                }, {
-                    tagName: 'path',
-                    selector: 'buttonSign',
-                    attributes: {
-                        'fill': 'none',
-                        'pointer-events': 'none'
-                    }
-                }]
-        }];
+            tagName: 'path',
+            selector: 'buttonSign',
+            attributes: {
+                'fill': 'none',
+                'pointer-events': 'none'
+            }
+        }]
+    }];
     setIcon(icon) {
         return this.attr(['icon', 'xlinkHref'], icon);
     }
@@ -121,13 +121,13 @@ export class StencilNode extends dia.Element {
         const displayName = this.getPathString(' / ');
         
         const annotations = [{
-                // Bold Node Name
-                start: 0,
-                end: displayName.length - name.length,
-                attrs: {
-                    'fill': '#999'
-                }
-            }];
+            // Bold Node Name
+            start: 0,
+            end: displayName.length - name.length,
+            attrs: {
+                'fill': '#999'
+            }
+        }];
         
         const matchIndex = displayName.toLowerCase().lastIndexOf(keyword.toLowerCase());
         if (matchIndex > -1) {
@@ -194,12 +194,12 @@ export class StencilLink extends dia.Link {
         };
     }
     markup = [{
-            tagName: 'path',
-            selector: 'line',
-            attributes: {
-                'fill': 'none',
-            }
-        }];
+        tagName: 'path',
+        selector: 'line',
+        attributes: {
+            'fill': 'none',
+        }
+    }];
     connect(parentId, childId) {
         this.set({
             source: {

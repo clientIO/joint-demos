@@ -48,7 +48,7 @@ export function onPoolDragStart(paper: dia.Paper, poolView: dia.ElementView, evt
 
     const { clientX, clientY } = evt;
     // Local center of the pool
-    let { x, y } = paper.clientToLocalPoint(clientX!, clientY!);
+    const { x, y } = paper.clientToLocalPoint(clientX!, clientY!);
     node.setAttribute('transform', `translate(${x - poolDimensions.width / 2}, ${y - poolDimensions.height / 2})`);
 
     const frontLayer = paper.layers.querySelector('g.joint-back-layer')!;
@@ -209,7 +209,7 @@ function constructPoolPreview(pool: HorizontalPool | VerticalPool, poolDimension
     const poolHeaderSize = pool.getHeaderSize();
     const { width, height } = poolDimensions;
 
-    let path = pool.isHorizontal() ?
+    const path = pool.isHorizontal() ?
         `M 0 0 H ${width + poolHeaderSize} V ${height} H 0 z M ${poolHeaderSize} 0 V ${height}` :
         `M 0 0 V ${height + poolHeaderSize} H ${width} V 0 z M 0 ${poolHeaderSize} H ${width}`;
 

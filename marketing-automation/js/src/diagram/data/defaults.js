@@ -33,10 +33,10 @@ export function getDefaultBranchData() {
         type: Branch.type,
         [Attribute.Label]: 'Branch',
         to: [{
-                // Add an extra condition to the existing one
-                [Attribute.EdgeCondition]: '',
-                id: util.uuid()
-            }]
+            // Add an extra condition to the existing one
+            [Attribute.EdgeCondition]: '',
+            id: util.uuid()
+        }]
     };
 }
 

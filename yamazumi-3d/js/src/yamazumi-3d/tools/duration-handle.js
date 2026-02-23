@@ -9,14 +9,14 @@ export class DurationHandle extends elementTools.Control {
     
     preinitialize() {
         this.children = [{
-                tagName: 'circle',
-                selector: 'handle',
-                attributes: {
-                    class: 'jj-yamazumi-duration-handle',
-                    r: 6,
-                    fill: this.options.color
-                }
-            }];
+            tagName: 'circle',
+            selector: 'handle',
+            attributes: {
+                class: 'jj-yamazumi-duration-handle',
+                r: 6,
+                fill: this.options.color
+            }
+        }];
     }
     
     getPosition(view) {

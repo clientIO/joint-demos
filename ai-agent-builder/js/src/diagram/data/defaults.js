@@ -33,10 +33,10 @@ export function getDefaultConditionData() {
         type: Condition.type,
         [Attribute.Label]: 'Condition',
         to: [{
-                // Add an extra branch to the existing one
-                [Attribute.EdgePrompt]: '',
-                id: util.uuid()
-            }]
+            // Add an extra branch to the existing one
+            [Attribute.EdgePrompt]: '',
+            id: util.uuid()
+        }]
     };
 }
 
@@ -45,10 +45,10 @@ export function getDefaultAgentData() {
         type: Agent.type,
         skills: {},
         to: [{
-                // Add an extra branch to the existing one
-                [Attribute.EdgePrompt]: '',
-                id: util.uuid()
-            }]
+            // Add an extra branch to the existing one
+            [Attribute.EdgePrompt]: '',
+            id: util.uuid()
+        }]
     };
 }
 

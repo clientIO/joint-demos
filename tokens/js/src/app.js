@@ -171,7 +171,7 @@ export const init = () => {
             rankSep: 20,
             edgeSep: 5,
             align: 'UR',
-            setVertices: function (link, vertices) {
+            setVertices: function(link, vertices) {
                 const polyline = new g.Polyline(vertices);
                 polyline.simplify({ threshold: 0.001 });
 
@@ -201,8 +201,8 @@ export const init = () => {
                 return;
             }
             // Calculate time passed since animation was started
-            let currentTime = Date.now();
-            let elapsedTime = currentTime - startTime;
+            const currentTime = Date.now();
+            const elapsedTime = currentTime - startTime;
             startTime = currentTime;
 
             // Elapsed time in milliseconds added to current range value
@@ -301,7 +301,7 @@ export const init = () => {
 
                     // Create token graph element
                     const tokenElement = new Token({
-                        attrs: { body: { fill: tokenColor } },
+                        attrs: { body: { fill: tokenColor }},
                         eventName: tokenEvent.eventName,
                         caseId: tokenEvent.caseId
                     });
@@ -309,7 +309,7 @@ export const init = () => {
 
                     tokenElements.push(tokenElement);
                     // Create token data
-                    let token = {
+                    const token = {
                         data: {
                             id: `follow-${tokenEvent.caseId}-${tokenEvent.start}`,
                             currentLutIndex: 0,
@@ -321,9 +321,9 @@ export const init = () => {
                     };
 
                     // If range time is between token start/end time, update token position, if not, hide token
-                    token.data.move = function (value) {
+                    token.data.move = function(value) {
                         if ((value >= this.start) && (value <= this.end)) {
-                            let index = this.currentLutIndex;
+                            const index = this.currentLutIndex;
                             const lut = this.lut[index];
                             if (lut) {
                                 this.element.set('hidden', false);
@@ -397,8 +397,8 @@ export const init = () => {
     new ui.Tooltip({
         rootTarget: paper.cells,
         target: '.joint-type-app-token',
-        content: function (element) {
-            const { model: { attributes } } = paper.findView(element);
+        content: function(element) {
+            const { model: { attributes }} = paper.findView(element);
             return `Event: ${attributes.eventName}<br>ID: ${attributes.caseId}`;
         },
         padding: 10

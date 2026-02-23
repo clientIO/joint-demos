@@ -64,7 +64,7 @@ export const init = () => {
             return true;
         },
         defaultConnectionPoint: { name: 'anchor' },
-        defaultAnchor: function (elementView, _magnet, _ref, _opt) {
+        defaultAnchor: function(elementView, _magnet, _ref, _opt) {
             const link = this.model;
             const element = elementView.model;
             const source = link.getSourceElement();
@@ -134,7 +134,7 @@ export const init = () => {
     const cmd = new dia.CommandManager({
         graph,
         stackLimit: 20,
-        cmdBeforeAdd: function (_cmdName, cell, _graph, options = {}) {
+        cmdBeforeAdd: function(_cmdName, cell, _graph, options = {}) {
             if (HeaderShape.isHeader(cell))
                 return false;
             return !options.ignoreCommandManager;

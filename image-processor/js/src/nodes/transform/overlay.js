@@ -30,28 +30,28 @@ export class Overlay extends Node {
                 height: calculateHeight(4)
             },
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }, {
-                    name: 'Overlay',
-                    type: 'image',
-                    property: 'overlay'
-                }, {
-                    name: 'X',
-                    type: 'number',
-                    property: 'x',
-                    defaultValue: 0
-                }, {
-                    name: 'Y',
-                    type: 'number',
-                    property: 'y',
-                    defaultValue: 0
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }, {
+                name: 'Overlay',
+                type: 'image',
+                property: 'overlay'
+            }, {
+                name: 'X',
+                type: 'number',
+                property: 'x',
+                defaultValue: 0
+            }, {
+                name: 'Y',
+                type: 'number',
+                property: 'y',
+                defaultValue: 0
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }]
+                name: 'Image',
+                type: 'image',
+            }]
         }, defaults);
     }
     

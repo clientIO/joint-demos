@@ -1,5 +1,6 @@
 import { dia, shapes, util, g } from '@joint/core';
-import { layout, LayerDirectionEnum, EdgeRoutingMode, Options } from '@joint/layout-msagl';
+import type { Options } from '@joint/layout-msagl';
+import { layout, LayerDirectionEnum, EdgeRoutingMode } from '@joint/layout-msagl';
 import { createGraph, defaultGraphType, graphTitles } from './graph/presets';
 import type { GraphMeta, GraphType } from './graph/types';
 import '../css/styles.css';

@@ -1,74 +1,74 @@
 import { Link, Constant, Concat, GetDate, Record } from './shapes';
 
-export const loadExample = function (graph) {
+export const loadExample = function(graph) {
     
     const order = new Record({
         items: [[{
-                    id: 'file',
-                    label: 'File: (default)',
+            id: 'file',
+            label: 'File: (default)',
+            icon: 'assets/images/file.svg',
+            highlighted: true,
+            items: [{
+                id: 'order',
+                label: 'Order',
+                icon: 'assets/images/document.svg',
+                items: [{
+                    id: 'order_id',
+                    label: 'id',
+                    icon: 'assets/images/document.svg',
+                }, {
+                    id: 'order_name',
+                    label: 'name',
+                    icon: 'assets/images/document.svg',
+                }, {
+                    id: 'order_email',
+                    label: 'email',
+                    icon: 'assets/images/document.svg',
+                }, {
+                    id: 'order_entry_date',
+                    label: 'entry_date',
                     icon: 'assets/images/file.svg',
-                    highlighted: true,
                     items: [{
-                            id: 'order',
-                            label: 'Order',
-                            icon: 'assets/images/document.svg',
-                            items: [{
-                                    id: 'order_id',
-                                    label: 'id',
-                                    icon: 'assets/images/document.svg',
-                                }, {
-                                    id: 'order_name',
-                                    label: 'name',
-                                    icon: 'assets/images/document.svg',
-                                }, {
-                                    id: 'order_email',
-                                    label: 'email',
-                                    icon: 'assets/images/document.svg',
-                                }, {
-                                    id: 'order_entry_date',
-                                    label: 'entry_date',
-                                    icon: 'assets/images/file.svg',
-                                    items: [{
-                                            id: 'entry_date_year',
-                                            label: 'year',
-                                            icon: 'assets/images/document.svg',
-                                        }, {
-                                            id: 'entry_date_month',
-                                            label: 'month',
-                                            icon: 'assets/images/document.svg',
-                                        }, {
-                                            id: 'entry_date_day',
-                                            label: 'day',
-                                            icon: 'assets/images/document.svg',
-                                        }]
-                                }, {
-                                    id: 'address',
-                                    label: 'address',
-                                    icon: 'assets/images/file.svg',
-                                    items: [{
-                                            id: 'address_city',
-                                            label: 'city',
-                                            icon: 'assets/images/document.svg'
-                                        }, {
-                                            id: 'address_street',
-                                            label: 'street',
-                                            icon: 'assets/images/document.svg'
-                                        }, {
-                                            id: 'address_number',
-                                            label: 'number',
-                                            icon: 'assets/images/document.svg'
-                                        }, {
-                                            id: 'address_shipping',
-                                            label: 'shipping',
-                                            icon: 'assets/images/document.svg'
-                                        }, {
-                                            id: 'address_billing',
-                                            label: 'billing',
-                                            icon: 'assets/images/document.svg'
-                                        }]
-                                }]
-                        }]
-                }]]
+                        id: 'entry_date_year',
+                        label: 'year',
+                        icon: 'assets/images/document.svg',
+                    }, {
+                        id: 'entry_date_month',
+                        label: 'month',
+                        icon: 'assets/images/document.svg',
+                    }, {
+                        id: 'entry_date_day',
+                        label: 'day',
+                        icon: 'assets/images/document.svg',
+                    }]
+                }, {
+                    id: 'address',
+                    label: 'address',
+                    icon: 'assets/images/file.svg',
+                    items: [{
+                        id: 'address_city',
+                        label: 'city',
+                        icon: 'assets/images/document.svg'
+                    }, {
+                        id: 'address_street',
+                        label: 'street',
+                        icon: 'assets/images/document.svg'
+                    }, {
+                        id: 'address_number',
+                        label: 'number',
+                        icon: 'assets/images/document.svg'
+                    }, {
+                        id: 'address_shipping',
+                        label: 'shipping',
+                        icon: 'assets/images/document.svg'
+                    }, {
+                        id: 'address_billing',
+                        label: 'billing',
+                        icon: 'assets/images/document.svg'
+                    }]
+                }]
+            }]
+        }]]
     })
         .setName('order')
         .position(780, 200)
@@ -81,90 +81,90 @@ export const loadExample = function (graph) {
         },
         items: [
             [{
-                    id: 'orders',
-                    label: 'orders',
+                id: 'orders',
+                label: 'orders',
+                icon: 'assets/images/file.svg',
+                items: [{
+                    id: 'order_id',
+                    label: 'id',
+                    icon: 'assets/images/document.svg',
+                }, {
+                    id: 'order_created_at',
+                    label: 'created_at',
+                    icon: 'assets/images/document.svg',
+                }, {
+                    id: 'order_updated_at',
+                    label: 'updated_at',
+                    icon: 'assets/images/document.svg',
+                }, {
+                    id: 'orderedproducts',
+                    label: 'orderedproducts',
+                    icon: 'assets/images/file.svg',
+                    group: 'disabled'
+                }, {
+                    id: 'users',
+                    label: 'users',
                     icon: 'assets/images/file.svg',
                     items: [{
-                            id: 'order_id',
+                        id: 'user_id',
+                        label: 'id',
+                        icon: 'assets/images/document.svg',
+                    }, {
+                        id: 'user_first_name',
+                        label: 'first_name',
+                        icon: 'assets/images/document.svg',
+                    }, {
+                        id: 'user_last_name',
+                        label: 'last_name',
+                        icon: 'assets/images/document.svg',
+                    }, {
+                        id: 'user_email',
+                        label: 'email',
+                        icon: 'assets/images/document.svg',
+                    }, {
+                        id: 'user_created_at',
+                        label: 'created_at',
+                        icon: 'assets/images/document.svg',
+                    }, {
+                        id: 'user_updated_at',
+                        label: 'updated_at',
+                        icon: 'assets/images/document.svg',
+                    }, {
+                        id: 'addresses',
+                        label: 'addresses',
+                        icon: 'assets/images/file.svg',
+                        items: [{
+                            id: 'address_id',
                             label: 'id',
                             icon: 'assets/images/document.svg',
                         }, {
-                            id: 'order_created_at',
-                            label: 'created_at',
+                            id: 'address_type',
+                            label: 'type',
                             icon: 'assets/images/document.svg',
                         }, {
-                            id: 'order_updated_at',
-                            label: 'updated_at',
+                            id: 'address_city',
+                            label: 'city',
                             icon: 'assets/images/document.svg',
                         }, {
-                            id: 'orderedproducts',
-                            label: 'orderedproducts',
-                            icon: 'assets/images/file.svg',
-                            group: 'disabled'
+                            id: 'address_street',
+                            label: 'street',
+                            icon: 'assets/images/document.svg',
                         }, {
-                            id: 'users',
-                            label: 'users',
-                            icon: 'assets/images/file.svg',
-                            items: [{
-                                    id: 'user_id',
-                                    label: 'id',
-                                    icon: 'assets/images/document.svg',
-                                }, {
-                                    id: 'user_first_name',
-                                    label: 'first_name',
-                                    icon: 'assets/images/document.svg',
-                                }, {
-                                    id: 'user_last_name',
-                                    label: 'last_name',
-                                    icon: 'assets/images/document.svg',
-                                }, {
-                                    id: 'user_email',
-                                    label: 'email',
-                                    icon: 'assets/images/document.svg',
-                                }, {
-                                    id: 'user_created_at',
-                                    label: 'created_at',
-                                    icon: 'assets/images/document.svg',
-                                }, {
-                                    id: 'user_updated_at',
-                                    label: 'updated_at',
-                                    icon: 'assets/images/document.svg',
-                                }, {
-                                    id: 'addresses',
-                                    label: 'addresses',
-                                    icon: 'assets/images/file.svg',
-                                    items: [{
-                                            id: 'address_id',
-                                            label: 'id',
-                                            icon: 'assets/images/document.svg',
-                                        }, {
-                                            id: 'address_type',
-                                            label: 'type',
-                                            icon: 'assets/images/document.svg',
-                                        }, {
-                                            id: 'address_city',
-                                            label: 'city',
-                                            icon: 'assets/images/document.svg',
-                                        }, {
-                                            id: 'address_street',
-                                            label: 'street',
-                                            icon: 'assets/images/document.svg',
-                                        }, {
-                                            id: 'address_number',
-                                            label: 'number',
-                                            icon: 'assets/images/document.svg',
-                                        }, {
-                                            id: 'address_is_shipping',
-                                            label: 'is_shipping',
-                                            icon: 'assets/images/document.svg',
-                                        }, {
-                                            id: 'address_is_billing',
-                                            label: 'is_billing',
-                                            icon: 'assets/images/document.svg',
-                                        }]
-                                }]
+                            id: 'address_number',
+                            label: 'number',
+                            icon: 'assets/images/document.svg',
+                        }, {
+                            id: 'address_is_shipping',
+                            label: 'is_shipping',
+                            icon: 'assets/images/document.svg',
+                        }, {
+                            id: 'address_is_billing',
+                            label: 'is_billing',
+                            icon: 'assets/images/document.svg',
                         }]
+                    }]
                 }]
+            }]
         ]
     })
         .setName('nanonull')
@@ -286,7 +286,7 @@ export const loadExample = function (graph) {
         }),
     ];
     
-    links.forEach(function (link) {
+    links.forEach(function(link) {
         link.addTo(graph);
     });
 };

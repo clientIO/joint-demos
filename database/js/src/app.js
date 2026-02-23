@@ -40,7 +40,7 @@ export const init = () => {
             }
         },
         defaultLink: () => new Link(),
-        validateConnection: function (_srcView, srcMagnet, tgtView, tgtMagnet) {
+        validateConnection: function(_srcView, srcMagnet, tgtView, tgtMagnet) {
             return tgtView.model.isElement() && srcMagnet !== tgtMagnet;
         }
     });
@@ -52,7 +52,7 @@ export const init = () => {
         baseHeight: 100,
         inertia: { friction: 0.8 },
         autoResizePaper: true,
-        contentOptions: function () {
+        contentOptions: function() {
             return {
                 useModelGeometry: true,
                 allowNewOrigin: 'any',
@@ -71,11 +71,11 @@ export const init = () => {
         .setTabColor('#6495ED')
         .position(170, 220)
         .setColumns([
-        { name: 'id', type: 'int', key: true },
-        { name: 'full_name', type: 'varchar' },
-        { name: 'created_at', type: 'datetime' },
-        { name: 'country_code', type: 'int' }
-    ])
+            { name: 'id', type: 'int', key: true },
+            { name: 'full_name', type: 'varchar' },
+            { name: 'created_at', type: 'datetime' },
+            { name: 'country_code', type: 'int' }
+        ])
         .addTo(graph);
     
     
@@ -84,11 +84,11 @@ export const init = () => {
         .setTabColor('#008B8B')
         .position(570, 140)
         .setColumns([
-        { name: 'user_id', type: 'int', key: true },
-        { name: 'status', type: 'varchar' },
-        { name: 'product_id', type: 'int' },
-        { name: 'created_at', type: 'datetime' }
-    ])
+            { name: 'user_id', type: 'int', key: true },
+            { name: 'status', type: 'varchar' },
+            { name: 'product_id', type: 'int' },
+            { name: 'created_at', type: 'datetime' }
+        ])
         .addTo(graph);
     
     
@@ -97,9 +97,9 @@ export const init = () => {
         .setTabColor('#CD5C5C')
         .position(170, 540)
         .setColumns([
-        { name: 'code', type: 'int', key: true },
-        { name: 'name', type: 'varchar' }
-    ])
+            { name: 'code', type: 'int', key: true },
+            { name: 'name', type: 'varchar' }
+        ])
         .addTo(graph);
     
     
@@ -108,12 +108,12 @@ export const init = () => {
         .setTabColor('#FFD700')
         .position(570, 440)
         .setColumns([
-        { name: 'id', type: 'int', key: true },
-        { name: 'name', type: 'varchar' },
-        { name: 'price', type: 'int' },
-        { name: 'status', type: 'varchar' },
-        { name: 'created_at', type: 'datetime' }
-    ])
+            { name: 'id', type: 'int', key: true },
+            { name: 'name', type: 'varchar' },
+            { name: 'price', type: 'int' },
+            { name: 'status', type: 'varchar' },
+            { name: 'created_at', type: 'datetime' }
+        ])
         .addTo(graph);
     
     const links = [
@@ -166,9 +166,9 @@ export const init = () => {
         const table = new Table();
         table.position(x, y);
         table.setColumns([{
-                name: 'id',
-                type: 'int'
-            }]);
+            name: 'id',
+            type: 'int'
+        }]);
         table.addTo(graph);
         editTable(table.findView(paper));
     });
@@ -182,26 +182,26 @@ export const init = () => {
                 new linkTools.Remove({
                     distance: '50%',
                     markup: [{
-                            tagName: 'circle',
-                            selector: 'button',
-                            attributes: {
-                                'r': 7,
-                                'fill': '#f6f6f6',
-                                'stroke': '#ff5148',
-                                'stroke-width': 2,
-                                'cursor': 'pointer'
-                            }
-                        }, {
-                            tagName: 'path',
-                            selector: 'icon',
-                            attributes: {
-                                'd': 'M -3 -3 3 3 M -3 3 3 -3',
-                                'fill': 'none',
-                                'stroke': '#ff5148',
-                                'stroke-width': 2,
-                                'pointer-events': 'none'
-                            }
-                        }]
+                        tagName: 'circle',
+                        selector: 'button',
+                        attributes: {
+                            'r': 7,
+                            'fill': '#f6f6f6',
+                            'stroke': '#ff5148',
+                            'stroke-width': 2,
+                            'cursor': 'pointer'
+                        }
+                    }, {
+                        tagName: 'path',
+                        selector: 'icon',
+                        attributes: {
+                            'd': 'M -3 -3 3 3 M -3 3 3 -3',
+                            'fill': 'none',
+                            'stroke': '#ff5148',
+                            'stroke-width': 2,
+                            'pointer-events': 'none'
+                        }
+                    }]
                 }),
                 new linkTools.SourceArrowhead(),
                 new linkTools.TargetArrowhead()

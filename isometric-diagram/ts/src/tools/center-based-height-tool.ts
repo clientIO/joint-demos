@@ -1,7 +1,8 @@
-import { dia, elementTools, g } from '@joint/core';
+import type { dia } from '@joint/core';
+import { elementTools, g } from '@joint/core';
 import { GRID_SIZE } from '../theme';
 import { ISOMETRIC_HEIGHT_TOOL_MARKUP } from './tools';
-import IsometricShape from '../shapes/isometric-shape';
+import type IsometricShape from '../shapes/isometric-shape';
 
 interface CenterBasedHeightControlOptions extends elementTools.Control.Options {
     /** The value of the isometric height after reset.
@@ -21,7 +22,7 @@ export class CenterBasedHeightControl extends elementTools.Control<CenterBasedHe
     }
 
     get isometricHeight(): number {
-        let { defaultIsometricHeight = 0 } = this.options;
+        const { defaultIsometricHeight = 0 } = this.options;
         const fallBackIsometricHeight = typeof defaultIsometricHeight === 'number' ? defaultIsometricHeight : 0;
         return this.element.get('isometricHeight') ?? fallBackIsometricHeight;
     }

@@ -37,9 +37,9 @@ export const TreeData = [{
             body: {
                 d: 'M 0 calc(0.5 * h) calc(0.5 * w) 0 calc(w) calc(0.5 * h) calc(0.5 * w) calc(h) Z'
             },
-                label: {
-                    text: 'Decision'
-                }
+            label: {
+                text: 'Decision'
+            }
         }
     }, {
         id: 'r4',
@@ -76,14 +76,14 @@ export const TreeData = [{
         type: 'standard.Link',
         source: { id: 'p1' },
         target: { id: 'r4' },
-        labels: [{ attrs: { text: { text: 'Yes' } } }]
+        labels: [{ attrs: { text: { text: 'Yes' }}}]
     }, {
         id: 'l4',
         type: 'standard.Link',
         source: { id: 'p1' },
         target: { id: 'p2' },
         vertices: [{ x: 400, y: 450 }, { x: 400, y: 260 }],
-        labels: [{ attrs: { text: { text: 'No' } } }]
+        labels: [{ attrs: { text: { text: 'No' }}}]
     }, {
         id: 'l5',
         type: 'standard.Link',

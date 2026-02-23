@@ -56,126 +56,126 @@ const stencilNodes = {
     name: 'HTML',
     dir: true,
     children: [{
-            name: 'Favorites',
-            icon: 'assets/favorite.svg',
-            dir: true,
-            children: [{
-                    name: 'svg',
-                    icon: 'assets/link.svg'
-                }],
+        name: 'Favorites',
+        icon: 'assets/favorite.svg',
+        dir: true,
+        children: [{
+            name: 'svg',
+            icon: 'assets/link.svg'
+        }],
+    }, {
+        name: 'Document metadata',
+        dir: true,
+        collapsed: true,
+        children: [{
+            name: 'base'
         }, {
-            name: 'Document metadata',
-            dir: true,
-            collapsed: true,
-            children: [{
-                    name: 'base'
-                }, {
-                    name: 'head'
-                }, {
-                    name: 'link'
-                }, {
-                    name: 'meta'
-                }, {
-                    name: 'style'
-                }, {
-                    name: 'title'
-                }]
+            name: 'head'
         }, {
-            name: 'Content sectioning',
-            dir: true,
-            collapsed: true,
-            children: [{
-                    name: 'address'
-                }, {
-                    name: 'article'
-                }, {
-                    name: 'aside'
-                }, {
-                    name: 'footer'
-                }, {
-                    name: 'header'
-                }, {
-                    name: 'main'
-                }, {
-                    name: 'nav'
-                }, {
-                    name: 'section'
-                }]
+            name: 'link'
         }, {
-            name: 'Text content',
-            dir: true,
-            collapsed: true,
-            children: [{
-                    name: 'blockquote'
-                }, {
-                    name: 'dd'
-                }, {
-                    name: 'div'
-                }, {
-                    name: 'dl'
-                }, {
-                    name: 'dt'
-                }, {
-                    name: 'figcaption'
-                }, {
-                    name: 'figure'
-                }, {
-                    name: 'hr'
-                }, {
-                    name: 'li'
-                }, {
-                    name: 'ol'
-                }, {
-                    name: 'p'
-                }, {
-                    name: 'pre'
-                }, {
-                    name: 'ul'
-                }]
+            name: 'meta'
         }, {
-            name: 'Image and media',
-            dir: true,
-            collapsed: true,
-            children: [{
-                    name: 'area'
-                }, {
-                    name: 'audio'
-                }, {
-                    name: 'img'
-                }, {
-                    name: 'map'
-                }, {
-                    name: 'track'
-                }, {
-                    name: 'video'
-                }]
+            name: 'style'
         }, {
-            name: 'Embedded content',
-            dir: true,
-            collapsed: true,
-            children: [{
-                    name: 'embed'
-                }, {
-                    name: 'iframe'
-                }, {
-                    name: 'object'
-                }, {
-                    name: 'param'
-                }, {
-                    name: 'picture'
-                }, {
-                    name: 'portal'
-                }, {
-                    name: 'source'
-                }]
-        }, {
-            name: 'SVG and MathML',
-            dir: true,
-            collapsed: true,
-            children: [{
-                    name: 'svg'
-                }, {
-                    name: 'math'
-                }]
+            name: 'title'
         }]
+    }, {
+        name: 'Content sectioning',
+        dir: true,
+        collapsed: true,
+        children: [{
+            name: 'address'
+        }, {
+            name: 'article'
+        }, {
+            name: 'aside'
+        }, {
+            name: 'footer'
+        }, {
+            name: 'header'
+        }, {
+            name: 'main'
+        }, {
+            name: 'nav'
+        }, {
+            name: 'section'
+        }]
+    }, {
+        name: 'Text content',
+        dir: true,
+        collapsed: true,
+        children: [{
+            name: 'blockquote'
+        }, {
+            name: 'dd'
+        }, {
+            name: 'div'
+        }, {
+            name: 'dl'
+        }, {
+            name: 'dt'
+        }, {
+            name: 'figcaption'
+        }, {
+            name: 'figure'
+        }, {
+            name: 'hr'
+        }, {
+            name: 'li'
+        }, {
+            name: 'ol'
+        }, {
+            name: 'p'
+        }, {
+            name: 'pre'
+        }, {
+            name: 'ul'
+        }]
+    }, {
+        name: 'Image and media',
+        dir: true,
+        collapsed: true,
+        children: [{
+            name: 'area'
+        }, {
+            name: 'audio'
+        }, {
+            name: 'img'
+        }, {
+            name: 'map'
+        }, {
+            name: 'track'
+        }, {
+            name: 'video'
+        }]
+    }, {
+        name: 'Embedded content',
+        dir: true,
+        collapsed: true,
+        children: [{
+            name: 'embed'
+        }, {
+            name: 'iframe'
+        }, {
+            name: 'object'
+        }, {
+            name: 'param'
+        }, {
+            name: 'picture'
+        }, {
+            name: 'portal'
+        }, {
+            name: 'source'
+        }]
+    }, {
+        name: 'SVG and MathML',
+        dir: true,
+        collapsed: true,
+        children: [{
+            name: 'svg'
+        }, {
+            name: 'math'
+        }]
+    }]
 };

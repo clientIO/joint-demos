@@ -177,12 +177,12 @@ export const init = () => {
             closeButton: false,
             content: inspector.render().el,
             buttons: [{
-                    content: 'Cancel',
-                    action: 'cancel',
-                }, {
-                    content: 'Apply',
-                    action: 'apply'
-                }]
+                content: 'Cancel',
+                action: 'cancel',
+            }, {
+                content: 'Apply',
+                action: 'apply'
+            }]
         });
         
         dialog.on({
@@ -220,7 +220,7 @@ export const init = () => {
         if (!paper.hasScheduledUpdates()) {
             return;
         }
-        paper.once('render:done', function () {
+        paper.once('render:done', function() {
             scroller.scrollToContent({ useModelGeometry: true });
         });
     });

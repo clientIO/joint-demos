@@ -17,7 +17,7 @@ const ZIndex = {
 export async function buildDiagram(data, graph, options = {}) {
     const { 
     // By default the data node is used as-is to create the model.
-    buildNode = (node) => node, disableOptimalOrderHeuristic = true, } = options;
+        buildNode = (node) => node, disableOptimalOrderHeuristic = true, } = options;
     updateGraph(graph, data, buildNode);
     await layoutGraph(graph, disableOptimalOrderHeuristic);
 }

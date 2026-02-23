@@ -37,34 +37,34 @@ export class Crop extends Node {
                 height: calculateHeight(5)
             },
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }, {
-                    name: 'Width',
-                    type: 'number',
-                    property: 'width',
-                    defaultValue: 200
-                }, {
-                    name: 'Height',
-                    type: 'number',
-                    property: 'height',
-                    defaultValue: 200
-                }, {
-                    name: 'X',
-                    type: 'number',
-                    property: 'x',
-                    defaultValue: 0
-                }, {
-                    name: 'Y',
-                    type: 'number',
-                    property: 'y',
-                    defaultValue: 0
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }, {
+                name: 'Width',
+                type: 'number',
+                property: 'width',
+                defaultValue: 200
+            }, {
+                name: 'Height',
+                type: 'number',
+                property: 'height',
+                defaultValue: 200
+            }, {
+                name: 'X',
+                type: 'number',
+                property: 'x',
+                defaultValue: 0
+            }, {
+                name: 'Y',
+                type: 'number',
+                property: 'y',
+                defaultValue: 0
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }]
+                name: 'Image',
+                type: 'image',
+            }]
         }, defaults);
     }
     

@@ -27,8 +27,8 @@ export class Event extends shapes.bpmn2.Event {
             outputMappings: [],
             attrs: {
                 label: Object.assign(Object.assign({}, defaultAttrs.shapeLabel), { text: 'Event', refDy: null, refX: null, x: 'calc(w/2)', y: `calc(h+${LABEL_Y_OFFSET})`, textWrap: {
-                        width: '200%'
-                    } }),
+                    width: '200%'
+                }}),
                 labelBody: defaultAttrs.labelBody
             }
         }, super.defaults);

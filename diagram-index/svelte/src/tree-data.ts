@@ -76,14 +76,14 @@ export const TreeData = [{
         type: 'standard.Link',
         source: { id: 'p1' },
         target: { id: 'r4' },
-        labels: [{ attrs: { text: { text: 'Yes' } } }]
+        labels: [{ attrs: { text: { text: 'Yes' }}}]
     }, {
         id: 'l4',
         type: 'standard.Link',
         source: { id: 'p1' },
         target: { id: 'p2' },
         vertices: [{ x: 400, y: 450 }, { x: 400, y: 260 }],
-        labels: [{ attrs: { text: { text: 'No' } } }]
+        labels: [{ attrs: { text: { text: 'No' }}}]
     }, {
         id: 'l5',
         type: 'standard.Link',
@@ -116,12 +116,12 @@ export const TreeData = [{
     }, {
         id: 'l6',
         type: 'standard.Link',
-        source: { id: 'r1', anchor: { name: 'center', args: { dy: -10 } } },
-        target: { id: 'r2', anchor: { name: 'center', args: { dy: -10 } } },
+        source: { id: 'r1', anchor: { name: 'center', args: { dy: -10 }}},
+        target: { id: 'r2', anchor: { name: 'center', args: { dy: -10 }}},
     }, {
         id: 'l7',
         type: 'standard.Link',
-        source: { id: 'r1', anchor: { name: 'center', args: { dy: 10 } } },
-        target: { id: 'r2', anchor: { name: 'center', args: { dy: 10 } } }
+        source: { id: 'r1', anchor: { name: 'center', args: { dy: 10 }}},
+        target: { id: 'r2', anchor: { name: 'center', args: { dy: 10 }}}
     }],
 }];

@@ -69,14 +69,14 @@ export class Upload extends Node {
             type: 'processor.Upload',
             name: 'Upload',
             inputSettings: [{
-                    name: 'Url',
-                    type: 'string',
-                    property: 'url'
-                }],
+                name: 'Url',
+                type: 'string',
+                property: 'url'
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }],
+                name: 'Image',
+                type: 'image',
+            }],
             size: {
                 width: 145,
                 height: 75
@@ -135,12 +135,12 @@ export class Upload extends Node {
     
     getContextToolbarItems() {
         return [{
-                action: 'uploadImage',
-                content: 'Upload Image',
-                attrs: {
-                    'group': 'node-tools'
-                }
-            }];
+            action: 'uploadImage',
+            content: 'Upload Image',
+            attrs: {
+                'group': 'node-tools'
+            }
+        }];
     }
     
     setContextToolbarEvents(contextToolbar) {

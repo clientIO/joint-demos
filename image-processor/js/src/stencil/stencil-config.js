@@ -30,13 +30,13 @@ class StencilElement extends dia.Element {
     }
     
     markup = [{
-            tagName: 'image',
-            selector: 'icon',
-        }, {
-            tagName: 'text',
-            selector: 'label',
-            className: 'stencil-label'
-        }];
+        tagName: 'image',
+        selector: 'icon',
+    }, {
+        tagName: 'text',
+        selector: 'label',
+        className: 'stencil-label'
+    }];
 }
 
 function createStencilElement(type) {

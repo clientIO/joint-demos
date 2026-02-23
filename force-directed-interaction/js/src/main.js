@@ -45,74 +45,74 @@ const namespace = {
 const graph = new dia.Graph({}, { cellNamespace: namespace });
 
 const cells = [
-    { type: 'Link', source: { id: 'A' }, target: { id: 'B' } },
-    { type: 'Link', source: { id: 'A' }, target: { id: 'C' } },
-    { type: 'Link', source: { id: 'A' }, target: { id: 'D' } },
-    { type: 'Link', source: { id: 'A' }, target: { id: 'E' } },
-    { type: 'Link', source: { id: 'A' }, target: { id: 'F' } },
-    { type: 'Link', source: { id: 'A' }, target: { id: 'G' } },
-    { type: 'Link', source: { id: 'B' }, target: { id: 'H' } },
-    { type: 'Link', source: { id: 'B' }, target: { id: 'I' } },
-    { type: 'Link', source: { id: 'B' }, target: { id: 'J' } },
+    { type: 'Link', source: { id: 'A' }, target: { id: 'B' }},
+    { type: 'Link', source: { id: 'A' }, target: { id: 'C' }},
+    { type: 'Link', source: { id: 'A' }, target: { id: 'D' }},
+    { type: 'Link', source: { id: 'A' }, target: { id: 'E' }},
+    { type: 'Link', source: { id: 'A' }, target: { id: 'F' }},
+    { type: 'Link', source: { id: 'A' }, target: { id: 'G' }},
+    { type: 'Link', source: { id: 'B' }, target: { id: 'H' }},
+    { type: 'Link', source: { id: 'B' }, target: { id: 'I' }},
+    { type: 'Link', source: { id: 'B' }, target: { id: 'J' }},
     {
         id: 'A',
         type: 'Node',
         position: { x: 350, y: 400 },
-        attrs: { label: { text: 'A' } },
+        attrs: { label: { text: 'A' }},
     },
     {
         id: 'B',
         type: 'Node',
         position: { x: 450, y: 400 },
-        attrs: { label: { text: 'B' } },
+        attrs: { label: { text: 'B' }},
     },
     {
         id: 'C',
         type: 'Node',
         position: { x: 550, y: 400 },
-        attrs: { label: { text: 'C' } },
+        attrs: { label: { text: 'C' }},
     },
     {
         id: 'D',
         type: 'Node',
         position: { x: 650, y: 400 },
-        attrs: { label: { text: 'D' } },
+        attrs: { label: { text: 'D' }},
     },
     {
         id: 'E',
         type: 'Node',
         position: { x: 350, y: 500 },
-        attrs: { label: { text: 'E' } },
+        attrs: { label: { text: 'E' }},
     },
     {
         id: 'F',
         type: 'Node',
         position: { x: 450, y: 500 },
-        attrs: { label: { text: 'F' } },
+        attrs: { label: { text: 'F' }},
     },
     {
         id: 'G',
         type: 'Node',
         position: { x: 550, y: 500 },
-        attrs: { label: { text: 'G' } },
+        attrs: { label: { text: 'G' }},
     },
     {
         id: 'H',
         type: 'Node',
         position: { x: 650, y: 500 },
-        attrs: { label: { text: 'H' } },
+        attrs: { label: { text: 'H' }},
     },
     {
         id: 'I',
         type: 'Node',
         position: { x: 350, y: 600 },
-        attrs: { label: { text: 'I' } },
+        attrs: { label: { text: 'I' }},
     },
     {
         id: 'J',
         type: 'Node',
         position: { x: 450, y: 600 },
-        attrs: { label: { text: 'J' } },
+        attrs: { label: { text: 'J' }},
     },
 ];
 
@@ -191,7 +191,7 @@ function dragstart(elementView) {
 
 function drag(elementView, evt, x, y) {
     const element = elementView.model;
-    forceLayout.changeElementData(element.id, { p: { x, y } });
+    forceLayout.changeElementData(element.id, { p: { x, y }});
     forceLayout.restart(0.6);
     animate();
 }

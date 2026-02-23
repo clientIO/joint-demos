@@ -34,24 +34,24 @@ export class Threshold extends Node {
                 height: calculateHeight(3)
             },
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }, {
-                    name: 'Threshold',
-                    type: 'number',
-                    property: 'threshold',
-                    defaultValue: 127
-                }, {
-                    name: 'Value',
-                    type: 'number',
-                    property: 'value',
-                    defaultValue: 255
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }, {
+                name: 'Threshold',
+                type: 'number',
+                property: 'threshold',
+                defaultValue: 127
+            }, {
+                name: 'Value',
+                type: 'number',
+                property: 'value',
+                defaultValue: 255
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }]
+                name: 'Image',
+                type: 'image',
+            }]
         }, defaults);
     }
     

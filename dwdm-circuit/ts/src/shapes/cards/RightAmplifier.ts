@@ -33,7 +33,7 @@ export default class RightAmplifier extends Card {
                     fontFamily: 'sans-serif'
                 }
             }
-        }
+        };
     }
 
     preinitialize(...args: any[]): void {

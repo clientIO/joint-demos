@@ -32,19 +32,19 @@ export class FillContours extends Node {
                 height: calculateHeight(2)
             },
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }, {
-                    name: 'Color',
-                    type: 'color',
-                    property: 'color',
-                    defaultValue: { r: 255, g: 255, b: 255 }
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }, {
+                name: 'Color',
+                type: 'color',
+                property: 'color',
+                defaultValue: { r: 255, g: 255, b: 255 }
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }]
+                name: 'Image',
+                type: 'image',
+            }]
         }, defaults);
     }
     
@@ -60,8 +60,8 @@ export class FillContours extends Node {
             const thresh = new cv.Mat();
             cv.threshold(gray, thresh, 127, 255, cv.THRESH_BINARY);
             
-            let contours = new cv.MatVector();
-            let h = new cv.Mat();
+            const contours = new cv.MatVector();
+            const h = new cv.Mat();
             cv.findContours(thresh, contours, h, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
             
             const result = image.clone();

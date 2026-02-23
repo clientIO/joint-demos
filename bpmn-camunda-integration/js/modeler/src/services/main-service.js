@@ -36,7 +36,7 @@ export default class MainService {
             markAvailable: true,
             clickThreshold: 10,
             labelsLayer: true,
-            interactive: function (view) {
+            interactive: function(view) {
                 const { model } = view;
                 // Prevent swimlane move to pool/show ghost
                 const isSwimlane = shapes.bpmn2.Swimlane.isSwimlane(model);
@@ -100,7 +100,7 @@ export default class MainService {
                         return bbox.leftMiddle();
                 }
             },
-            connectionStrategy: function (end, view, _, coords) {
+            connectionStrategy: function(end, view, _, coords) {
                 
                 const { model } = view;
                 

@@ -1,9 +1,10 @@
+import type {
+    ElementRef,
+    AfterViewInit,
+    OnDestroy } from '@angular/core';
 import {
     Component,
-    ElementRef,
-    ViewChild,
-    AfterViewInit,
-    OnDestroy,
+    ViewChild
 } from '@angular/core';
 import { dia, mvc, shapes, ui, format, util, highlighters } from '@joint/plus';
 import { DirectedGraph } from '@joint/layout-directed-graph';

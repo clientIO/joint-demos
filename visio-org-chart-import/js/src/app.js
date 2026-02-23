@@ -4,7 +4,7 @@ import { VisioArchive, VisioElement, types } from '@joint/format-visio';
 const { VisioSectionType, VisioCellName } = types;
 const { standard } = shapes;
 
-export const init = async () => {
+export const init = async() => {
     
     const graph = new dia.Graph({}, {
         cellNamespace: {
@@ -73,13 +73,13 @@ export const init = async () => {
                         lineHeight: '1.5em',
                         fontSize: 11,
                         annotations: [{
-                                start: 0,
-                                end: name.length,
-                                attrs: {
-                                    'font-weight': 'bold',
-                                    'fill': '#000000'
-                                }
-                            }]
+                            start: 0,
+                            end: name.length,
+                            attrs: {
+                                'font-weight': 'bold',
+                                'fill': '#000000'
+                            }
+                        }]
                     }
                 }
             });

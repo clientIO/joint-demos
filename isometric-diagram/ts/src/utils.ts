@@ -1,7 +1,8 @@
 import { V, dia } from '@joint/core';
-import IsometricShape, { View } from './shapes/isometric-shape';
+import type IsometricShape from './shapes/isometric-shape';
+import { View } from './shapes/isometric-shape';
 import { GRID_COUNT, GRID_SIZE, SCALE, ISOMETRIC_SCALE, ROTATION_DEGREES } from './theme';
-import { Link } from './shapes';
+import type { Link } from './shapes';
 
 export const transformationMatrix = (view: View = View.Isometric, margin: number = 20) => {
     let matrix = V.createSVGMatrix().translate(margin, margin);
@@ -16,7 +17,7 @@ export const transformationMatrix = (view: View = View.Isometric, margin: number
             .scale(SCALE, SCALE);
     }
     return matrix;
-}
+};
 
 export interface Node {
     el: dia.Element,
@@ -45,13 +46,13 @@ const topologicalSort = (nodes: Node[]) => {
             node.depth = depth++;
             node.el.set('z', node.depth);
         }
-    }
+    };
 
     for (let i = 0; i < nodes.length; ++i)
     {
         visitNode(nodes[i]);
     }
-}
+};
 
 export const sortElements = (graph: dia.Graph) => {
     const elements = graph.getElements();
@@ -60,7 +61,7 @@ export const sortElements = (graph: dia.Graph) => {
             el: el,
             behind: [],
             visited: false
-        }
+        };
     });
 
     for (let i = 0; i < nodes.length; ++i)
@@ -88,7 +89,7 @@ export const sortElements = (graph: dia.Graph) => {
     topologicalSort(nodes);
 
     return nodes;
-}
+};
 
 export const drawGrid = (paper: dia.Paper, size: number, step: number, color = '#E0E0E0') => {
     const gridData = [];
@@ -103,7 +104,7 @@ export const drawGrid = (paper: dia.Paper, size: number, step: number, color = '
         'stroke': color
     });
     gridVEl.appendTo(paper.getLayerNode(dia.Paper.Layers.BACK));
-}
+};
 
 export const switchView = (paper: dia.Paper, view: View, selectedCell: IsometricShape | Link | null) => {
     paper.model.getElements().forEach((element: IsometricShape) => {
@@ -116,4 +117,4 @@ export const switchView = (paper: dia.Paper, view: View, selectedCell: Isometric
     if (selectedCell) {
         selectedCell.addTools(paper, view);
     }
-}
+};

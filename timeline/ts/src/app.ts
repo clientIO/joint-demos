@@ -277,7 +277,7 @@ export const init = () => {
             id: 'edit-description-dialog',
             theme: 'default',
             width: 400,
-            title: `Edit`,
+            title: 'Edit',
             closeButton: false,
             content,
             buttons: [

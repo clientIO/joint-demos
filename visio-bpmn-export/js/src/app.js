@@ -1,7 +1,7 @@
 import { dia, util, shapes } from '@joint/plus';
 import { VisioArchive, VisioShape, types, util as vsdUtil } from '@joint/format-visio';
 
-export const init = async () => {
+export const init = async() => {
     
     const { VisioCellName, VisioUnitType, VisioSectionType } = types;
     
@@ -15,7 +15,7 @@ export const init = async () => {
         async: true,
         interactive: false,
         defaultRouter: { name: 'normal' },
-        defaultConnectionPoint: { name: 'boundary', args: { stroke: true } }
+        defaultConnectionPoint: { name: 'boundary', args: { stroke: true }}
     });
     
     document.getElementById('export-button').onclick = (() => exportPaperToVSDX(appPaper));
@@ -31,12 +31,12 @@ export const init = async () => {
         
         await page0.fromPaper(paper, {
             
-            exportLink: async (_linkView, vsdPage) => {
+            exportLink: async(_linkView, vsdPage) => {
                 const master = masters['Sequence Flow'];
                 return VisioShape.fromMaster(master, vsdPage);
             },
             
-            exportElement: async (elementView, vsdPage) => {
+            exportElement: async(elementView, vsdPage) => {
                 const { model, paper } = elementView;
                 // map Joint Cell to a Visio Master from the loaded document
                 // do not map if master is not found (can also fall back to default)
@@ -134,7 +134,7 @@ export const init = async () => {
         
         const start = new bpmn2.Event({
             position: { x: 50, y: 280 },
-            attrs: { label: { text: 'Received order' } },
+            attrs: { label: { text: 'Received order' }},
         }).addTo(graph);
         
         const a1 = new bpmn2.Activity({
@@ -148,7 +148,7 @@ export const init = async () => {
         new bpmn2.Flow({
             source: { id: start.id },
             target: { id: a1.id },
-            attrs: { line: { stroke: '#AAA' } }
+            attrs: { line: { stroke: '#AAA' }}
         }).addTo(graph);
         
         const a2 = new bpmn2.Activity({
@@ -162,7 +162,7 @@ export const init = async () => {
         new bpmn2.Flow({
             source: { id: a1.id },
             target: { id: a2.id },
-            attrs: { line: { stroke: '#AAA' } }
+            attrs: { line: { stroke: '#AAA' }}
         }).addTo(graph);
         
         const e1 = new bpmn2.Gateway({
@@ -176,7 +176,7 @@ export const init = async () => {
         new bpmn2.Flow({
             source: { id: a2.id },
             target: { id: e1.id },
-            attrs: { line: { stroke: '#AAA' } }
+            attrs: { line: { stroke: '#AAA' }}
         }).addTo(graph);
         
         const a3 = new bpmn2.Activity({
@@ -191,8 +191,8 @@ export const init = async () => {
             source: { id: e1.id },
             target: { id: a3.id },
             vertices: [{ x: 579, y: 150 }],
-            attrs: { line: { stroke: '#AAA' } },
-            labels: [{ attrs: { text: { text: 'YES' } } }]
+            attrs: { line: { stroke: '#AAA' }},
+            labels: [{ attrs: { text: { text: 'YES' }}}]
         }).addTo(graph);
         
         const a4 = new bpmn2.Activity({
@@ -207,9 +207,9 @@ export const init = async () => {
             source: { id: e1.id },
             target: { id: a4.id },
             vertices: [{ x: 579, y: 450 }],
-            attrs: { line: { stroke: '#AAA' } },
+            attrs: { line: { stroke: '#AAA' }},
             z: -1,
-            labels: [{ attrs: { text: { text: 'NO' } } }]
+            labels: [{ attrs: { text: { text: 'NO' }}}]
         }).addTo(graph);
         
         const e2 = new bpmn2.Event({
@@ -223,7 +223,7 @@ export const init = async () => {
         new bpmn2.Flow({
             source: { id: a3.id },
             target: { id: e2.id },
-            attrs: { line: { stroke: '#AAA' } }
+            attrs: { line: { stroke: '#AAA' }}
         }).addTo(graph);
         
         const e3 = new bpmn2.Event({
@@ -237,7 +237,7 @@ export const init = async () => {
         new bpmn2.Flow({
             source: { id: a4.id },
             target: { id: e3.id },
-            attrs: { line: { stroke: '#AAA' } }
+            attrs: { line: { stroke: '#AAA' }}
         }).addTo(graph);
     }
     

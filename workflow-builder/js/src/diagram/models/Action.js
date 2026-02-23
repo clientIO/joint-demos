@@ -37,11 +37,11 @@ export default class Action extends DiagramNode {
             // Shape-specific attributes
             [Attribute.ActionKey]: null,
             [Attribute.InboundPorts]: [{
-                    id: 'input',
-                }],
+                id: 'input',
+            }],
             [Attribute.OutboundPorts]: [{
-                    id: 'output',
-                }],
+                id: 'output',
+            }],
             // JointJS attributes
             type: TYPE,
             size: { width: 80, height: 80 },
@@ -188,7 +188,7 @@ export default class Action extends DiagramNode {
         this.configuration = configuration;
         
         const { icon, name: appName } = configuration.provider;
-        const { name: actionName = '', data = {} } = configuration.action;
+        const { name: actionName = '', data = {}} = configuration.action;
         
         this.attr({
             root: {

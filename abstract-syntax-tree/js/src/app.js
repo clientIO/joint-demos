@@ -48,17 +48,17 @@ export const init = () => {
         
         const cells = graphUtils.constructTree(syntax, {
             children: getChildren,
-            makeElement: function (node) {
+            makeElement: function(node) {
                 return new Node({
                     size: { width: 120, height: 30 },
                     attrs: {
-                        text: { textWrap: { text: getLabel(node) } },
+                        text: { textWrap: { text: getLabel(node) }},
                         rect: { fill: getElementColor(node) }
                     },
                     node: node
                 });
             },
-            makeLink: function (parentElement, childElement) {
+            makeLink: function(parentElement, childElement) {
                 return new Link({
                     source: { id: parentElement.id, selector: 'rect' },
                     target: { id: childElement.id, selector: 'rect' }
@@ -117,9 +117,9 @@ export const init = () => {
         displayTree();
     });
     
-    let subtrees = {};
+    const subtrees = {};
     
-    paper.on('cell:pointerclick', function (cellView) {
+    paper.on('cell:pointerclick', function(cellView) {
         const cell = cellView.model;
         if (cell.isLink())
             return;
@@ -133,7 +133,7 @@ export const init = () => {
             const successors = graph.getSuccessors(cell);
             if (successors.length > 0) {
                 subtrees[cell.id] = [].concat(graph.getSubgraph(successors), graph.getConnectedLinks(cell, { outbound: true }));
-                successors.forEach(function (successor) {
+                successors.forEach(function(successor) {
                     successor.remove();
                 });
             }

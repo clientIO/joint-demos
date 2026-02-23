@@ -5,9 +5,9 @@ import { eventBus, EventBusEvents } from '../event-bus';
 const INSPECTOR_EMPTY = document.createElement('div');
 
 var InspectorView;
-(function (InspectorView) {
-    InspectorView["CONTENT"] = "CONTENT";
-    InspectorView["APPEARANCE"] = "APPEARANCE";
+(function(InspectorView) {
+    InspectorView['CONTENT'] = 'CONTENT';
+    InspectorView['APPEARANCE'] = 'APPEARANCE';
 })(InspectorView || (InspectorView = {}));
 
 export default class InspectorService {

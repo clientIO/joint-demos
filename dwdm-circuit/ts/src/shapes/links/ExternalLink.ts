@@ -1,4 +1,5 @@
-import { dia, util } from '@joint/core';
+import type { dia } from '@joint/core';
+import { util } from '@joint/core';
 import Link from './Link';
 import { EXTERNAL_LINK_COLOR } from '../../theme';
 
@@ -51,8 +52,8 @@ export default class ExternalLink extends Link {
             attrs: {
                 description: {
                     text: description,
-                    textAnchor: "middle",
-                    textVerticalAnchor: "middle",
+                    textAnchor: 'middle',
+                    textVerticalAnchor: 'middle',
                     fontSize: 10,
                     fontFamily: 'sans-serif',
                     fill: EXTERNAL_LINK_COLOR,

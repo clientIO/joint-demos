@@ -89,16 +89,16 @@ export class Node extends dia.Element {
                     name: 'right',
                 },
                 markup: [{
-                        tagName: 'text',
-                        selector: 'label',
-                        className: 'node-port-label'
-                    }]
+                    tagName: 'text',
+                    selector: 'label',
+                    className: 'node-port-label'
+                }]
             },
             markup: [{
-                    tagName: 'circle',
-                    selector: 'portBody',
-                    className: 'node-port-body'
-                }]
+                tagName: 'circle',
+                selector: 'portBody',
+                className: 'node-port-body'
+            }]
         };
 
         const portsOut = {
@@ -124,16 +124,16 @@ export class Node extends dia.Element {
                     name: 'left',
                 },
                 markup: [{
-                        tagName: 'text',
-                        selector: 'label',
-                        className: 'node-port-label'
-                    }]
+                    tagName: 'text',
+                    selector: 'label',
+                    className: 'node-port-label'
+                }]
             },
             markup: [{
-                    tagName: 'circle',
-                    selector: 'portBody',
-                    className: 'node-port-body'
-                }]
+                tagName: 'circle',
+                selector: 'portBody',
+                className: 'node-port-body'
+            }]
         };
 
         return {

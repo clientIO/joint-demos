@@ -67,10 +67,10 @@ export const init = () => {
                 }
             }
         },
-        defaultLink: function () {
+        defaultLink: function() {
             return new Link();
         },
-        validateConnection: function (sv, sm, tv, tm, end) {
+        validateConnection: function(sv, sm, tv, tm, end) {
             const svModel = sv.model;
             const tvModel = tv.model;
             if (sv === tv)
@@ -106,7 +106,7 @@ export const init = () => {
     // Undo / Redo
     const commandManager = new dia.CommandManager({
         graph: graph,
-        cmdBeforeAdd: function (eventName) {
+        cmdBeforeAdd: function(eventName) {
             if (eventName === 'change:scrollTop')
                 return false;
             return true;
@@ -231,7 +231,7 @@ export const init = () => {
         showElementTools(elementView);
     });
     
-    paper.on('element:pointermove', function (view, evt, x, y) {
+    paper.on('element:pointermove', function(view, evt, x, y) {
         const data = evt.data;
         let ghost = data.ghost;
         if (!ghost) {
@@ -281,7 +281,7 @@ export const init = () => {
             resizeDirections: (isScrollable)
                 ? ['top-left', 'top', 'top-right', 'right', 'bottom-right', 'bottom', 'bottom-left', 'left']
                 : ['left', 'right'],
-            minWidth: function () { return element.getMinimalSize().width; },
+            minWidth: function() { return element.getMinimalSize().width; },
             minHeight: (isScrollable)
                 ? padding.top + padding.bottom
                 : 0
@@ -296,7 +296,7 @@ export const init = () => {
                 new TargetArrowhead(),
                 new Button({
                     distance: '25%',
-                    action: function () {
+                    action: function() {
                         linkAction(this.model);
                     }
                 })
@@ -317,32 +317,32 @@ export const init = () => {
         
         ctxToolbar.render();
         ctxToolbar.on({
-            'action:remove': function () {
+            'action:remove': function() {
                 element.startBatch('item-remove');
                 element.removeItem(itemId);
                 element.removeInvalidLinks();
                 element.stopBatch('item-remove');
                 ctxToolbar.remove();
             },
-            'action:edit': function () {
+            'action:edit': function() {
                 ctxToolbar.remove();
                 itemEditAction(element, itemId);
             },
-            'action:add-child': function () {
+            'action:add-child': function() {
                 ctxToolbar.remove();
                 element.addItemAtIndex(itemId, Infinity, element.getDefaultItem());
                 if (element.isItemCollapsed(itemId))
                     element.toggleItemCollapse(itemId);
             },
-            'action:add-next-sibling': function () {
+            'action:add-next-sibling': function() {
                 ctxToolbar.remove();
                 element.addNextSibling(itemId, element.getDefaultItem());
             },
-            'action:add-prev-sibling': function () {
+            'action:add-prev-sibling': function() {
                 ctxToolbar.remove();
                 element.addPrevSibling(itemId, element.getDefaultItem());
             },
-            'action:edit-decorator': function () {
+            'action:edit-decorator': function() {
                 ctxToolbar.remove();
                 itemDecoratorEditAction(element, itemId);
             }
@@ -361,11 +361,11 @@ export const init = () => {
         
         ctxToolbar.render();
         ctxToolbar.on({
-            'action:remove': function () {
+            'action:remove': function() {
                 ctxToolbar.remove();
                 element.remove();
             },
-            'action:add-item': function () {
+            'action:add-item': function() {
                 ctxToolbar.remove();
                 element.addItemAtIndex(0, Infinity, element.getDefaultItem());
             }
@@ -373,7 +373,7 @@ export const init = () => {
     }
     
     function itemDecoratorEditAction(element, itemId) {
-        const config = { [itemId]: { type: 'content-editable', label: 'Decorator' } };
+        const config = { [itemId]: { type: 'content-editable', label: 'Decorator' }};
         const path = ['decorators'];
         itemAction(element, config, path);
     }
@@ -405,21 +405,21 @@ export const init = () => {
             closeButton: false,
             content: inspector.el,
             buttons: [{
-                    content: 'Cancel',
-                    action: 'cancel'
-                }, {
-                    content: '<span style="color:#fe854f">Change</span>',
-                    action: 'change'
-                }]
+                content: 'Cancel',
+                action: 'cancel'
+            }, {
+                content: '<span style="color:#fe854f">Change</span>',
+                action: 'change'
+            }]
         });
         
         dialog.open();
         dialog.on({
-            'action:cancel': function () {
+            'action:cancel': function() {
                 inspector.remove();
                 dialog.close();
             },
-            'action:change': function () {
+            'action:change': function() {
                 inspector.updateCell();
                 inspector.remove();
                 dialog.close();
@@ -450,11 +450,11 @@ export const init = () => {
         
         dialog.open();
         dialog.on({
-            'action:remove': function () {
+            'action:remove': function() {
                 link.remove();
                 dialog.remove();
             },
-            'action:cancel': function () {
+            'action:cancel': function() {
                 dialog.remove();
             }
         });

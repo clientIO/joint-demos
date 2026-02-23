@@ -5,8 +5,8 @@ export const GroupLabels = {
 };
 
 export var GroupShapeTypes;
-(function (GroupShapeTypes) {
-    GroupShapeTypes["GROUP"] = "group.Group";
+(function(GroupShapeTypes) {
+    GroupShapeTypes['GROUP'] = 'group.Group';
 })(GroupShapeTypes || (GroupShapeTypes = {}));
 
 export const groupAppearanceConfig = {

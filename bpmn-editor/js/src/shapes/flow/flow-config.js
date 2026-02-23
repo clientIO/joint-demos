@@ -8,11 +8,11 @@ export const FlowLabels = {
 };
 
 export var FlowShapeTypes;
-(function (FlowShapeTypes) {
-    FlowShapeTypes["SEQUENCE"] = "flow.Sequence";
-    FlowShapeTypes["DEFAULT"] = "flow.Default";
-    FlowShapeTypes["CONDITIONAL"] = "flow.Conditional";
-    FlowShapeTypes["MESSAGE"] = "flow.Message";
+(function(FlowShapeTypes) {
+    FlowShapeTypes['SEQUENCE'] = 'flow.Sequence';
+    FlowShapeTypes['DEFAULT'] = 'flow.Default';
+    FlowShapeTypes['CONDITIONAL'] = 'flow.Conditional';
+    FlowShapeTypes['MESSAGE'] = 'flow.Message';
 })(FlowShapeTypes || (FlowShapeTypes = {}));
 
 export const flowIconClasses = {
@@ -47,7 +47,7 @@ export const flowAppearanceConfig = {
             0: {
                 type: 'object',
                 group: 'label',
-                when: { ne: { 'labels/0': null } },
+                when: { ne: { 'labels/0': null }},
                 properties: {
                     attrs: {
                         body: {

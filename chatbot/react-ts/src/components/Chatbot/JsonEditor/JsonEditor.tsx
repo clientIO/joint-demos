@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -7,7 +8,7 @@ import eventBusServiceContext from '../../../services/event-bus-service.context'
 import { SharedEvents } from '../../../joint-plus/controller';
 
 interface Props {
-    content: Object;
+    content: object;
 }
 
 const DEBOUNCE_TIME_MS = 500;
@@ -15,12 +16,12 @@ const DEBOUNCE_TIME_MS = 500;
 const JsonEditor = (props: Props): ReactElement => {
 
     const [placeholder] = useState('e.g. { "cells": [{ "type": "app.Message"}] }');
-    const [content, setContent] = useState<string | Object>(null);
-    const [contentSubject] = useState(new Subject<Object>());
+    const [content, setContent] = useState<string | object>(null);
+    const [contentSubject] = useState(new Subject<object>());
     const eventBusService = useContext(eventBusServiceContext);
 
     useEffect(() => {
-        contentSubject.pipe(debounceTime(DEBOUNCE_TIME_MS)).subscribe((json: Object) => {
+        contentSubject.pipe(debounceTime(DEBOUNCE_TIME_MS)).subscribe((json: object) => {
             eventBusService.emit(SharedEvents.JSON_EDITOR_CHANGED, json);
         });
     }, [contentSubject, eventBusService]);
@@ -47,7 +48,7 @@ const JsonEditor = (props: Props): ReactElement => {
         contentSubject.next(json);
     };
 
-    const formatJSON = (json: string | Object): string => {
+    const formatJSON = (json: string | object): string => {
         if (!json) {
             return '';
         }
@@ -57,9 +58,9 @@ const JsonEditor = (props: Props): ReactElement => {
     return (
         <div className="chatbot-json-editor">
             <textarea placeholder={placeholder}
-                      spellCheck="false"
-                      value={formatJSON(content)}
-                      onChange={(e) => parseJSON(e.target.value)}
+                spellCheck="false"
+                value={formatJSON(content)}
+                onChange={(e) => parseJSON(e.target.value)}
             />
         </div>
     );

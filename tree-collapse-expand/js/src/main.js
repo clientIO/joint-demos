@@ -8,7 +8,7 @@ const namespace = {
     ...shapes,
     Model,
     Link
-}
+};
 
 const graph = buildGraphFromObject(data);
 

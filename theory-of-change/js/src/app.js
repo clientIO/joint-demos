@@ -272,9 +272,9 @@ export const init = () => {
             }
             else if (!siblings) {
                 util.setByPath(theoryOfChange, path, [{
-                        id: util.guid(),
-                        description: 'New Item',
-                    }]);
+                    id: util.guid(),
+                    description: 'New Item',
+                }]);
             }
             else {
                 return;
@@ -432,39 +432,39 @@ export const init = () => {
                 },
                 level: 1,
                 markup: [{
+                    tagName: 'rect',
+                    selector: 'body'
+                }, {
+                    tagName: 'rect',
+                    selector: 'header'
+                }, {
+                    tagName: 'text',
+                    selector: 'headerText'
+                }, {
+                    tagName: 'text',
+                    selector: 'bodyText'
+                }, {
+                    tagName: 'g',
+                    selector: 'dragButton',
+                    children: [{
                         tagName: 'rect',
-                        selector: 'body'
+                        attributes: {
+                            width: 30,
+                            height: 20,
+                            x: -5,
+                            y: -5,
+                            fill: 'transparent',
+                        }
                     }, {
-                        tagName: 'rect',
-                        selector: 'header'
-                    }, {
-                        tagName: 'text',
-                        selector: 'headerText'
-                    }, {
-                        tagName: 'text',
-                        selector: 'bodyText'
-                    }, {
-                        tagName: 'g',
-                        selector: 'dragButton',
-                        children: [{
-                                tagName: 'rect',
-                                attributes: {
-                                    width: 30,
-                                    height: 20,
-                                    x: -5,
-                                    y: -5,
-                                    fill: 'transparent',
-                                }
-                            }, {
-                                tagName: 'path',
-                                attributes: {
-                                    d: 'M 0 0 20 0 M 0 5 20 5 M 0 10 20 10',
-                                    stroke: '#6F89B0',
-                                    strokeWidth: 3,
-                                    strokeLinecap: 'round'
-                                }
-                            }]
-                    }],
+                        tagName: 'path',
+                        attributes: {
+                            d: 'M 0 0 20 0 M 0 5 20 5 M 0 10 20 10',
+                            stroke: '#6F89B0',
+                            strokeWidth: 3,
+                            strokeLinecap: 'round'
+                        }
+                    }]
+                }],
                 attrs: {
                     root: {
                         highlighterSelector: 'body',
@@ -714,7 +714,7 @@ export const init = () => {
         stackLayoutView.model.bbox = result.bbox;
         
         // Layout the assumption rectangles
-        result.stacks.forEach(function (stack, index, _stacks) {
+        result.stacks.forEach(function(stack, index, _stacks) {
             if (index >= assumptionBackgrounds.length)
                 return;
             const { x, y, height } = stack.bbox;
@@ -819,26 +819,26 @@ export const init = () => {
                 // sibling to sibling
                 router = { name: 'normal' };
                 connector = { name: 'curve' };
-                sourceAnchor = { name: 'left', args: { dy: 10 } };
-                targetAnchor = { name: 'left', args: { dy: -10 } };
+                sourceAnchor = { name: 'left', args: { dy: 10 }};
+                targetAnchor = { name: 'left', args: { dy: -10 }};
             }
             else {
                 router = { name: 'normal' };
                 connector = { name: 'curve' };
                 if (sourceLevel === 1) {
-                    sourceAnchor = { name: 'topRight', args: { dy: config.level2.y / 2 } };
+                    sourceAnchor = { name: 'topRight', args: { dy: config.level2.y / 2 }};
                 }
                 else if (sourceLevel === 2) {
-                    sourceAnchor = { name: 'topRight', args: { dy: config.level3.y / 2 } };
+                    sourceAnchor = { name: 'topRight', args: { dy: config.level3.y / 2 }};
                 }
                 else {
                     sourceAnchor = { name: 'right' };
                 }
                 if (targetLevel === 1) {
-                    targetAnchor = { name: 'topLeft', args: { dy: config.level2.y / 2 } };
+                    targetAnchor = { name: 'topLeft', args: { dy: config.level2.y / 2 }};
                 }
                 else if (targetLevel === 2) {
-                    targetAnchor = { name: 'topLeft', args: { dy: config.level3.y / 2 } };
+                    targetAnchor = { name: 'topLeft', args: { dy: config.level3.y / 2 }};
                 }
                 else {
                     targetAnchor = { name: 'left' };
@@ -877,33 +877,33 @@ export const init = () => {
                     }
                 },
                 labels: [{
-                        markup: [{
-                                tagName: 'ellipse',
-                                selector: 'body'
-                            }, {
-                                tagName: 'text',
-                                selector: 'text'
-                            }],
-                        attrs: {
-                            body: {
-                                fill: '#E68946',
-                                stroke: '#F6F6F6',
-                                strokeWidth: 2,
-                                cx: 'calc(w / 2)',
-                                cy: 'calc(h / 2)',
-                                rx: 'calc(w + 12)',
-                                ry: 'calc(h + 12)',
-                            },
-                            text: {
-                                fill: '#fff',
-                                fontFamily: 'sans-serif',
-                                fontSize: 10,
-                                text: assumptionLink.assumption.code,
-                                textVerticalAnchor: 'middle',
-                                textAnchor: 'middle',
-                            }
+                    markup: [{
+                        tagName: 'ellipse',
+                        selector: 'body'
+                    }, {
+                        tagName: 'text',
+                        selector: 'text'
+                    }],
+                    attrs: {
+                        body: {
+                            fill: '#E68946',
+                            stroke: '#F6F6F6',
+                            strokeWidth: 2,
+                            cx: 'calc(w / 2)',
+                            cy: 'calc(h / 2)',
+                            rx: 'calc(w + 12)',
+                            ry: 'calc(h + 12)',
+                        },
+                        text: {
+                            fill: '#fff',
+                            fontFamily: 'sans-serif',
+                            fontSize: 10,
+                            text: assumptionLink.assumption.code,
+                            textVerticalAnchor: 'middle',
+                            textAnchor: 'middle',
                         }
-                    }]
+                    }
+                }]
             });
             
             acc.push(link);

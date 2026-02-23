@@ -116,7 +116,7 @@ export const init = () => {
                 return false;
             return true;
         },
-        validateUnembedding: function (childView) {
+        validateUnembedding: function(childView) {
             const child = childView.model;
             if (shapes.bpmn2.CompositePool.isPool(child))
                 return true;
@@ -265,20 +265,20 @@ export const init = () => {
             commandManager: history
         },
         tools: [{
-                type: 'button',
-                name: 'clear',
-                text: '╳ Clear',
-            }, {
-                type: 'undo',
-                text: '↩',
-            }, {
-                type: 'redo',
-                text: '↪',
-            }, {
-                type: 'button',
-                name: 'export',
-                text: 'Export',
-            }]
+            type: 'button',
+            name: 'clear',
+            text: '╳ Clear',
+        }, {
+            type: 'undo',
+            text: '↩',
+        }, {
+            type: 'redo',
+            text: '↪',
+        }, {
+            type: 'button',
+            name: 'export',
+            text: 'Export',
+        }]
     });
     
     toolbar.render();

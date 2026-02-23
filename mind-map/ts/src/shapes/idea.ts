@@ -140,7 +140,7 @@ export class Idea extends Element {
         const imageSize = attributes[IMAGE_SIZE_PROPERTY];
         let width = spacing * 2;
         let height = spacing * 2;
-        let x = spacing;
+        const x = spacing;
         let y = spacing;
         // image metrics
         let $image;

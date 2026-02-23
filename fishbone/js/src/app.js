@@ -75,53 +75,53 @@ export const init = () => {
     
     const toolbar = new ui.Toolbar({
         tools: [{
-                type: 'undo',
-                text: 'Undo'
-            }, {
-                type: 'redo',
-                text: 'Redo'
-            }, {
-                type: 'separator',
-            }, {
-                type: 'zoom-in',
-                text: 'Zoom In'
-            }, {
-                type: 'zoom-out',
-                text: 'Zoom Out'
-            }, {
-                type: 'zoom-to-fit',
-                text: 'Zoom To Fit'
-            }, {
-                type: 'separator',
-            }, {
-                type: 'label',
-                text: 'hsGap',
-            }, {
-                type: 'range',
-                name: 'hsGap',
-                value: 4
-            }, {
-                type: 'label',
-                text: 'vsGap',
-            }, {
-                type: 'range',
-                name: 'vsGap',
-                value: 10
-            }, {
-                type: 'label',
-                text: 'hcGap',
-            }, {
-                type: 'range',
-                name: 'hcGap',
-                value: 5
-            }, {
-                type: 'label',
-                text: 'vcGap',
-            }, {
-                type: 'range',
-                name: 'vcGap',
-                value: 15
-            }],
+            type: 'undo',
+            text: 'Undo'
+        }, {
+            type: 'redo',
+            text: 'Redo'
+        }, {
+            type: 'separator',
+        }, {
+            type: 'zoom-in',
+            text: 'Zoom In'
+        }, {
+            type: 'zoom-out',
+            text: 'Zoom Out'
+        }, {
+            type: 'zoom-to-fit',
+            text: 'Zoom To Fit'
+        }, {
+            type: 'separator',
+        }, {
+            type: 'label',
+            text: 'hsGap',
+        }, {
+            type: 'range',
+            name: 'hsGap',
+            value: 4
+        }, {
+            type: 'label',
+            text: 'vsGap',
+        }, {
+            type: 'range',
+            name: 'vsGap',
+            value: 10
+        }, {
+            type: 'label',
+            text: 'hcGap',
+        }, {
+            type: 'range',
+            name: 'hcGap',
+            value: 5
+        }, {
+            type: 'label',
+            text: 'vcGap',
+        }, {
+            type: 'range',
+            name: 'vcGap',
+            value: 15
+        }],
         autoToggle: true,
         references: {
             paperScroller: scroller,
@@ -132,7 +132,7 @@ export const init = () => {
     toolbar.render();
     document.getElementById('toolbar')?.appendChild(toolbar.el);
     
-    const runLayout = function () {
+    const runLayout = function() {
         const getRangeValue = (widget) => {
             return widget.getValue();
         };
@@ -244,15 +244,15 @@ export const init = () => {
                 label: 'Direction',
                 defaultValue: null,
                 options: [{
-                        value: null,
-                        content: 'Auto'
-                    }, {
-                        value: 'top',
-                        content: 'Top'
-                    }, {
-                        value: 'bottom',
-                        content: 'Bottom'
-                    }]
+                    value: null,
+                    content: 'Auto'
+                }, {
+                    value: 'top',
+                    content: 'Top'
+                }, {
+                    value: 'bottom',
+                    content: 'Bottom'
+                }]
             };
         }
         
@@ -266,7 +266,7 @@ export const init = () => {
                 properties: {
                     name: {
                         type: 'content-editable',
-                        label: `Name`
+                        label: 'Name'
                     },
                 }
             }

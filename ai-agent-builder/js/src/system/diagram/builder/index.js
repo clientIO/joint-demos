@@ -19,9 +19,9 @@ const ZIndex = {
 export function buildDiagram(data, graph, options = {}) {
     const { 
     // By default the data node is used as-is to create the model.
-    buildNode = (node) => node, 
-    // By default, nodes have no growth limit.
-    growthLimit = () => Infinity, disableOptimalOrderHeuristic = true, } = options;
+        buildNode = (node) => node, 
+        // By default, nodes have no growth limit.
+        growthLimit = () => Infinity, disableOptimalOrderHeuristic = true, } = options;
     updateGraph(graph, data, buildNode, growthLimit);
     layoutGraph(graph, disableOptimalOrderHeuristic);
 }
@@ -146,15 +146,15 @@ function makeButton(nodeId) {
     const buttonId = `${nodeId}-button`;
     const buttonLineId = `${nodeId}-button-line`;
     return [{
-            id: buttonId,
-            type: SystemButton.type,
-            z: ZIndex.Button,
-        }, {
-            id: buttonLineId,
-            type: SystemButtonLine.type,
-            source: { id: nodeId },
-            target: { id: buttonId },
-            z: ZIndex.ButtonLine,
-        }];
+        id: buttonId,
+        type: SystemButton.type,
+        z: ZIndex.Button,
+    }, {
+        id: buttonLineId,
+        type: SystemButtonLine.type,
+        source: { id: nodeId },
+        target: { id: buttonId },
+        z: ZIndex.ButtonLine,
+    }];
 }
 

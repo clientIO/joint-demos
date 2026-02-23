@@ -10,7 +10,7 @@ import json from './example.json';
 // There is a bug in JointJS, that does not allow you to use port
 // ids that are numbers.
 
-export const init = async () => {
+export const init = async() => {
 
     document.documentElement.classList.add('web-worker');
 
@@ -164,7 +164,7 @@ export const init = async () => {
 
     // Start the Avoid Router.
 
-    const routerWorker = new Worker(new URL("./worker.js", import.meta.url));
+    const routerWorker = new Worker(new URL('./worker.js', import.meta.url));
 
     routerWorker.onmessage = (e) => {
         const { command, ...data } = e.data;
@@ -190,7 +190,7 @@ export const init = async () => {
                 console.log('Unknown command', command);
                 break;
         }
-    }
+    };
 
     routerWorker.postMessage([{
         command: 'reset',

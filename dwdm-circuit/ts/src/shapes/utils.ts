@@ -1,4 +1,4 @@
-import { dia } from '@joint/core';
+import type { dia } from '@joint/core';
 
 export function isCellHidden(cell: dia.Cell): boolean {
     return Boolean(cell.get('hidden'));

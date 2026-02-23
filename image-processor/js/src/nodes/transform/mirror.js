@@ -31,14 +31,14 @@ export class Mirror extends Node {
                 height: calculateHeight(1)
             },
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }]
+                name: 'Image',
+                type: 'image',
+            }]
         }, defaults);
     }
     
@@ -87,12 +87,12 @@ export class Mirror extends Node {
                         label: 'Direction',
                         width: '204',
                         options: [{
-                                content: 'horizontal'
-                            }, {
-                                content: 'vertical'
-                            }, {
-                                content: 'both'
-                            }],
+                            content: 'horizontal'
+                        }, {
+                            content: 'vertical'
+                        }, {
+                            content: 'both'
+                        }],
                         group: 'grayscale'
                     },
                 }

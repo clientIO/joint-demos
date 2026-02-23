@@ -26,7 +26,7 @@ export const init = () => {
         embeddingMode: true,
         moveThreshold: 10,
         clickThreshold: 10,
-        validateEmbedding: function (childView, parentView) {
+        validateEmbedding: function(childView, parentView) {
             if (childView.model instanceof ShelfElement) {
                 return false;
             }
@@ -228,10 +228,10 @@ export const init = () => {
     
     const stencilEventMap = (stencil) => {
         return {
-            'element:dragstart': function () {
+            'element:dragstart': function() {
                 unsetElement(paper);
             },
-            'element:drag': function (cloneView, evt, _dropArea, validDropTarget) {
+            'element:drag': function(cloneView, evt, _dropArea, validDropTarget) {
                 if (validDropTarget) {
                     cloneView.vel.toggleClass('invalid', !isPositionValid(graph, cloneView.model));
                     cloneView.vel.removeAttr('opacity');
@@ -241,12 +241,12 @@ export const init = () => {
                     cloneView.vel.attr('opacity', 0.5);
                 }
             },
-            'element:dragend': function (cloneView, _evt) {
+            'element:dragend': function(cloneView, _evt) {
                 if (cloneView.vel.hasClass('invalid')) {
                     stencil.cancelDrag({ dropAnimation: true });
                 }
             },
-            'element:drop': function (elementView) {
+            'element:drop': function(elementView) {
                 setElement(elementView);
             }
         };

@@ -127,7 +127,7 @@ function loadFromJSON(context) {
         
         input.click();
         
-        input.onchange = async () => {
+        input.onchange = async() => {
             
             const file = input.files?.[0];
             
@@ -151,7 +151,7 @@ function loadFromXML(context) {
         
         input.click();
         
-        input.onchange = async () => {
+        input.onchange = async() => {
             
             const file = input.files?.[0];
             

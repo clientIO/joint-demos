@@ -9,12 +9,12 @@ export default class InsertNodeTool extends linkTools.Button {
             cursor: 'pointer'
         };
         this.children = [{
-                tagName: 'circle',
-                attributes: { ...insertToolBodyAttributes }
-            }, {
-                tagName: 'path',
-                attributes: { ...insertToolIconAttributes }
-            }];
+            tagName: 'circle',
+            attributes: { ...insertToolBodyAttributes }
+        }, {
+            tagName: 'path',
+            attributes: { ...insertToolIconAttributes }
+        }];
         this.options = {
             distance: '50%',
             ...options,

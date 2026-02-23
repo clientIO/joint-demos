@@ -1,10 +1,10 @@
-import { dia } from '@joint/core';
+import type { dia } from '@joint/core';
 import { EdgeRoutingMode, LayerDirectionEnum } from '@joint/layout-msagl';
 import { paletteLibrary } from './palette';
 import { buildGraph } from './builders-from-blueprint';
 import { createLink, createNode, makePaletteCycler } from './builders';
 import { cycleBlueprint, dagBlueprint, networkBlueprint, treeBlueprint, completeBlueprint, nestedBlueprint } from './blueprints';
-import { GraphMeta, GraphPreset, GraphType, PaletteCycler } from './types';
+import type { GraphMeta, GraphPreset, GraphType, PaletteCycler } from './types';
 
 const graphPresets: Record<GraphType, GraphPreset> = {
     tree: {

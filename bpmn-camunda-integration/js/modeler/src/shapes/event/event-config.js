@@ -49,52 +49,52 @@ export const EventLabels = {
 };
 
 export var EventShapeTypes;
-(function (EventShapeTypes) {
+(function(EventShapeTypes) {
     // Start
-    EventShapeTypes["START"] = "event.Start";
-    EventShapeTypes["MESSAGE_START"] = "event.MessageStart";
-    EventShapeTypes["TIMER_START"] = "event.TimerStart";
-    EventShapeTypes["CONDITIONAL_START"] = "event.ConditionalStart";
-    EventShapeTypes["SIGNAL_START"] = "event.SignalStart";
+    EventShapeTypes['START'] = 'event.Start';
+    EventShapeTypes['MESSAGE_START'] = 'event.MessageStart';
+    EventShapeTypes['TIMER_START'] = 'event.TimerStart';
+    EventShapeTypes['CONDITIONAL_START'] = 'event.ConditionalStart';
+    EventShapeTypes['SIGNAL_START'] = 'event.SignalStart';
     // Intermediate Catching
-    EventShapeTypes["INTERMEDIATE_CATCHING"] = "event.IntermediateCatching";
-    EventShapeTypes["MESSAGE_INTERMEDIATE_CATCHING"] = "event.MessageIntermediateCatching";
-    EventShapeTypes["TIMER_INTERMEDIATE_CATCHING"] = "event.TimerIntermediateCatching";
-    EventShapeTypes["CONDITIONAL_INTERMEDIATE_CATCHING"] = "event.ConditionalIntermediateCatching";
-    EventShapeTypes["LINK_INTERMEDIATE_CATCHING"] = "event.LinkIntermediateCatching";
-    EventShapeTypes["SIGNAL_INTERMEDIATE_CATCHING"] = "event.SignalIntermediateCatching";
+    EventShapeTypes['INTERMEDIATE_CATCHING'] = 'event.IntermediateCatching';
+    EventShapeTypes['MESSAGE_INTERMEDIATE_CATCHING'] = 'event.MessageIntermediateCatching';
+    EventShapeTypes['TIMER_INTERMEDIATE_CATCHING'] = 'event.TimerIntermediateCatching';
+    EventShapeTypes['CONDITIONAL_INTERMEDIATE_CATCHING'] = 'event.ConditionalIntermediateCatching';
+    EventShapeTypes['LINK_INTERMEDIATE_CATCHING'] = 'event.LinkIntermediateCatching';
+    EventShapeTypes['SIGNAL_INTERMEDIATE_CATCHING'] = 'event.SignalIntermediateCatching';
     // Intermediate boundary
-    EventShapeTypes["INTERMEDIATE_BOUNDARY"] = "event.IntermediateBoundary";
-    EventShapeTypes["MESSAGE_INTERMEDIATE_BOUNDARY"] = "event.MessageIntermediateBoundary";
-    EventShapeTypes["TIMER_INTERMEDIATE_BOUNDARY"] = "event.TimerIntermediateBoundary";
-    EventShapeTypes["CONDITIONAL_INTERMEDIATE_BOUNDARY"] = "event.ConditionalIntermediateBoundary";
-    EventShapeTypes["SIGNAL_INTERMEDIATE_BOUNDARY"] = "event.SignalIntermediateBoundary";
-    EventShapeTypes["ERROR_INTERMEDIATE_BOUNDARY"] = "event.ErrorIntermediateBoundary";
-    EventShapeTypes["ESCALATION_INTERMEDIATE_BOUNDARY"] = "event.EscalationIntermediateBoundary";
-    EventShapeTypes["COMPENSATION_INTERMEDIATE_BOUNDARY"] = "event.CompensationIntermediateBoundary";
-    EventShapeTypes["CANCEL_INTERMEDIATE_BOUNDARY"] = "event.CancelIntermediateBoundary";
+    EventShapeTypes['INTERMEDIATE_BOUNDARY'] = 'event.IntermediateBoundary';
+    EventShapeTypes['MESSAGE_INTERMEDIATE_BOUNDARY'] = 'event.MessageIntermediateBoundary';
+    EventShapeTypes['TIMER_INTERMEDIATE_BOUNDARY'] = 'event.TimerIntermediateBoundary';
+    EventShapeTypes['CONDITIONAL_INTERMEDIATE_BOUNDARY'] = 'event.ConditionalIntermediateBoundary';
+    EventShapeTypes['SIGNAL_INTERMEDIATE_BOUNDARY'] = 'event.SignalIntermediateBoundary';
+    EventShapeTypes['ERROR_INTERMEDIATE_BOUNDARY'] = 'event.ErrorIntermediateBoundary';
+    EventShapeTypes['ESCALATION_INTERMEDIATE_BOUNDARY'] = 'event.EscalationIntermediateBoundary';
+    EventShapeTypes['COMPENSATION_INTERMEDIATE_BOUNDARY'] = 'event.CompensationIntermediateBoundary';
+    EventShapeTypes['CANCEL_INTERMEDIATE_BOUNDARY'] = 'event.CancelIntermediateBoundary';
     // Intermediate boundary non-interrupting
-    EventShapeTypes["MESSAGE_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING"] = "event.MessageIntermediateBoundaryNonInterrupting";
-    EventShapeTypes["TIMER_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING"] = "event.TimerIntermediateBoundaryNonInterrupting";
-    EventShapeTypes["CONDITIONAL_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING"] = "event.ConditionalIntermediateBoundaryNonInterrupting";
-    EventShapeTypes["SIGNAL_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING"] = "event.SignalIntermediateBoundaryNonInterrupting";
-    EventShapeTypes["ESCALATION_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING"] = "event.EscalationIntermediateBoundaryNonInterrupting";
+    EventShapeTypes['MESSAGE_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING'] = 'event.MessageIntermediateBoundaryNonInterrupting';
+    EventShapeTypes['TIMER_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING'] = 'event.TimerIntermediateBoundaryNonInterrupting';
+    EventShapeTypes['CONDITIONAL_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING'] = 'event.ConditionalIntermediateBoundaryNonInterrupting';
+    EventShapeTypes['SIGNAL_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING'] = 'event.SignalIntermediateBoundaryNonInterrupting';
+    EventShapeTypes['ESCALATION_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING'] = 'event.EscalationIntermediateBoundaryNonInterrupting';
     // Intermediate throwing
-    EventShapeTypes["INTERMEDIATE_THROWING"] = "event.IntermediateThrowing";
-    EventShapeTypes["MESSAGE_INTERMEDIATE_THROWING"] = "event.MessageIntermediateThrowing";
-    EventShapeTypes["LINK_INTERMEDIATE_THROWING"] = "event.LinkIntermediateThrowing";
-    EventShapeTypes["SIGNAL_INTERMEDIATE_THROWING"] = "event.SignalIntermediateThrowing";
-    EventShapeTypes["ESCALATION_INTERMEDIATE_THROWING"] = "event.EscalationIntermediateThrowing";
-    EventShapeTypes["COMPENSATION_INTERMEDIATE_THROWING"] = "event.CompensationIntermediateThrowing";
+    EventShapeTypes['INTERMEDIATE_THROWING'] = 'event.IntermediateThrowing';
+    EventShapeTypes['MESSAGE_INTERMEDIATE_THROWING'] = 'event.MessageIntermediateThrowing';
+    EventShapeTypes['LINK_INTERMEDIATE_THROWING'] = 'event.LinkIntermediateThrowing';
+    EventShapeTypes['SIGNAL_INTERMEDIATE_THROWING'] = 'event.SignalIntermediateThrowing';
+    EventShapeTypes['ESCALATION_INTERMEDIATE_THROWING'] = 'event.EscalationIntermediateThrowing';
+    EventShapeTypes['COMPENSATION_INTERMEDIATE_THROWING'] = 'event.CompensationIntermediateThrowing';
     // End
-    EventShapeTypes["END"] = "event.End";
-    EventShapeTypes["MESSAGE_END"] = "event.MessageEnd";
-    EventShapeTypes["SIGNAL_END"] = "event.SignalEnd";
-    EventShapeTypes["ERROR_END"] = "event.ErrorEnd";
-    EventShapeTypes["ESCALATION_END"] = "event.EscalationEnd";
-    EventShapeTypes["TERMINATION_END"] = "event.TerminationEnd";
-    EventShapeTypes["COMPENSATION_END"] = "event.CompensationEnd";
-    EventShapeTypes["CANCEL_END"] = "event.CancelEnd";
+    EventShapeTypes['END'] = 'event.End';
+    EventShapeTypes['MESSAGE_END'] = 'event.MessageEnd';
+    EventShapeTypes['SIGNAL_END'] = 'event.SignalEnd';
+    EventShapeTypes['ERROR_END'] = 'event.ErrorEnd';
+    EventShapeTypes['ESCALATION_END'] = 'event.EscalationEnd';
+    EventShapeTypes['TERMINATION_END'] = 'event.TerminationEnd';
+    EventShapeTypes['COMPENSATION_END'] = 'event.CompensationEnd';
+    EventShapeTypes['CANCEL_END'] = 'event.CancelEnd';
 })(EventShapeTypes || (EventShapeTypes = {}));
 
 export const eventIconClasses = {

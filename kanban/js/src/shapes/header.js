@@ -30,12 +30,12 @@ export class Header extends dia.Element {
     }
     
     markup = [{
-            tagName: 'text',
-            selector: 'label'
-        }, {
-            tagName: 'rect',
-            selector: 'marker'
-        }];
+        tagName: 'text',
+        selector: 'label'
+    }, {
+        tagName: 'rect',
+        selector: 'marker'
+    }];
     
     static isHeader(cell) {
         return cell.get('type') === 'kanban.Header';

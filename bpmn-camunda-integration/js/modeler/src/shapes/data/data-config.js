@@ -9,12 +9,12 @@ export const DataLabels = {
 };
 
 export var DataShapeTypes;
-(function (DataShapeTypes) {
-    DataShapeTypes["DATA_STORE"] = "data.DataStore";
-    DataShapeTypes["DATA_OBJECT"] = "data.DataObject";
-    DataShapeTypes["DATA_INPUT"] = "data.DataInput";
-    DataShapeTypes["DATA_OUTPUT"] = "data.DataOutput";
-    DataShapeTypes["DATA_ASSOCIATION"] = "data.DataAssociation";
+(function(DataShapeTypes) {
+    DataShapeTypes['DATA_STORE'] = 'data.DataStore';
+    DataShapeTypes['DATA_OBJECT'] = 'data.DataObject';
+    DataShapeTypes['DATA_INPUT'] = 'data.DataInput';
+    DataShapeTypes['DATA_OUTPUT'] = 'data.DataOutput';
+    DataShapeTypes['DATA_ASSOCIATION'] = 'data.DataAssociation';
 })(DataShapeTypes || (DataShapeTypes = {}));
 
 export const dataIconClasses = {

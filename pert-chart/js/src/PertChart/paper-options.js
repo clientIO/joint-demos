@@ -14,7 +14,7 @@ export const defaultAnchor = (view, magnet, refPoint, options, endType, linkView
     return anchor;
 };
 
-export const defaultConnector = function (sourcePoint, targetPoint, routePoints, _opt, linkView) {
+export const defaultConnector = function(sourcePoint, targetPoint, routePoints, _opt, linkView) {
     const link = linkView.model;
     const opt = {
         cornerType: 'cubic',

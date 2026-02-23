@@ -280,15 +280,15 @@ const cells = graphUtils.constructTree(items['organic-compound'], {
                 label,
                 attrs: {
                     header: {
-                        stroke: `var(--compound-stroke-color)`,
-                        fill: `var(--compound-fill-color)`,
+                        stroke: 'var(--compound-stroke-color)',
+                        fill: 'var(--compound-fill-color)',
                         height: 20
                     },
                     body: {
                         rx: 5,
                         ry: 5,
-                        stroke: `var(--compound-stroke-color)`,
-                        fill: `var(--compound-fill-color)`
+                        stroke: 'var(--compound-stroke-color)',
+                        fill: 'var(--compound-fill-color)'
                     },
                     headerText: {
                         fill: 'var(--shape-font-color)',
@@ -332,8 +332,8 @@ const cells = graphUtils.constructTree(items['organic-compound'], {
                     body: {
                         rx: 5,
                         ry: 5,
-                        stroke: `var(--group-stroke-color)`,
-                        fill: `var(--group-fill-color)`
+                        stroke: 'var(--group-stroke-color)',
+                        fill: 'var(--group-fill-color)'
                     }
                 }
             });

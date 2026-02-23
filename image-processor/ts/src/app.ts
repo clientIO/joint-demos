@@ -498,7 +498,7 @@ export class App {
             evt.stopPropagation();
 
             const shift = 100;
-            let { x, y } = paper.clientToLocalPoint(evt.clientX, evt.clientY);
+            const { x, y } = paper.clientToLocalPoint(evt.clientX, evt.clientY);
 
             const files = Array.from(evt.dataTransfer.files);
 

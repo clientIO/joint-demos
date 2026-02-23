@@ -11,7 +11,7 @@ distributed by client IO. See the LICENSE file.
 
 import { Directive } from '@angular/core';
 
-import { EventBusService } from '../services/event-bus.service';
+import type { EventBusService } from '../services/event-bus.service';
 import { SharedEvents } from '../joint-plus/controller';
 
 const BATCH_NAME = 'inspector-input';

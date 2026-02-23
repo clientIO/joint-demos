@@ -8,7 +8,7 @@ export function renderDialog(dialog, node) {
 
     if (!node) {
 
-        for (let dNode of currentDialog.nodes) {
+        for (const dNode of currentDialog.nodes) {
 
             if (dNode.id === currentDialog.root) {
 
@@ -100,7 +100,7 @@ export function onOptionClick(evt) {
     const optionId = elOption.getAttribute('data-option-id');
 
     let outboundLink;
-    for (let dLink of currentDialog.links) {
+    for (const dLink of currentDialog.links) {
         if (dLink.source.id === currentNode.id && dLink.source.port === optionId) {
 
             outboundLink = dLink;
@@ -111,7 +111,7 @@ export function onOptionClick(evt) {
     if (outboundLink) {
 
         let nextNode;
-        for (let dNode of currentDialog.nodes) {
+        for (const dNode of currentDialog.nodes) {
 
             if (dNode.id === outboundLink.target.id) {
 

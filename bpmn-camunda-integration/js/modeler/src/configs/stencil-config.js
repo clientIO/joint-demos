@@ -4,8 +4,8 @@ import { GatewayShapeTypes } from '../shapes/gateway/gateway-config';
 import { ActivityShapeTypes } from '../shapes/activity/activity-config';
 
 export var StencilShapeTypes;
-(function (StencilShapeTypes) {
-    StencilShapeTypes["STENCIL_SHAPE"] = "stencil.Shape";
+(function(StencilShapeTypes) {
+    StencilShapeTypes['STENCIL_SHAPE'] = 'stencil.Shape';
 })(StencilShapeTypes || (StencilShapeTypes = {}));
 
 const SHAPE_SIZE = 32;
@@ -17,24 +17,24 @@ class StencilShape extends dia.Element {
         super(...arguments);
         
         this.markup = [{
-                tagName: 'text',
-                selector: 'icon'
-            }];
+            tagName: 'text',
+            selector: 'icon'
+        }];
     }
     
     defaults() {
         return Object.assign(Object.assign({}, super.defaults), { type: StencilShapeTypes.STENCIL_SHAPE, size: { width: SHAPE_SIZE, height: SHAPE_SIZE }, attrs: {
-                icon: {
-                    pointerEvents: 'none',
-                    fontSize: 'calc(h)',
-                    x: 'calc(w / 2)',
-                    y: 'calc(h / 2 + 1.5)',
-                    fontFamily: 'JJ BPMN Icons',
-                    textAnchor: 'middle',
-                    textVerticalAnchor: 'middle',
-                    fill: '#191919'
-                }
-            } });
+            icon: {
+                pointerEvents: 'none',
+                fontSize: 'calc(h)',
+                x: 'calc(w / 2)',
+                y: 'calc(h / 2 + 1.5)',
+                fontFamily: 'JJ BPMN Icons',
+                textAnchor: 'middle',
+                textVerticalAnchor: 'middle',
+                fill: '#191919'
+            }
+        }});
     }
     
     static create(type) {

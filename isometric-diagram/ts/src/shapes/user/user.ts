@@ -41,14 +41,14 @@ export class User extends IsometricShape {
             new g.Point(0, height)
         );
 
-        const { divider: { x, y } } = curve.getSkeletonPoints(0.6);
+        const { divider: { x, y }} = curve.getSkeletonPoints(0.6);
         const dx = width * 3 / 4;
 
         return {
             start: new g.Point(x - dx / 2, y - dx / 8),
             end: new g.Point(x + dx / 2, y - dx / 8),
             dx
-        }
+        };
     }
 
     @Function()
@@ -60,7 +60,7 @@ export class User extends IsometricShape {
             L ${width} ${0.75 * height}
             C ${width - isometricHeight + 0.25 * height} ${height - isometricHeight} ${-isometricHeight + 0.25 * height} ${height - isometricHeight - 0.25 * height} 0 ${height * 0.75}
             Z
-        `
+        `;
     }
 
     @Function()
@@ -71,20 +71,20 @@ export class User extends IsometricShape {
             M 0 ${height}
             L ${width} ${height}
             C ${width - isometricHeight} ${height - isometricHeight} ${-isometricHeight} ${height - isometricHeight} 0 ${height}
-            `
+            `;
     }
 
     @Function()
     headFrontData(isometricHeight: number): string {
         const angle = -60;
 
-        const { start, dx } = this._getHeadPosition(isometricHeight)
+        const { start, dx } = this._getHeadPosition(isometricHeight);
 
         return `
             M ${start.x} ${start.y}
             a 1 2 ${angle} 0 0 ${dx} 0
             a 1 2 ${angle} 0 0 ${-dx} 0
-        `
+        `;
     }
 
     @Function()
@@ -98,6 +98,6 @@ export class User extends IsometricShape {
             M ${start.x} ${start.y - offset}
             a 1 2 ${angle} 0 0 ${dx} 0
             a 1 2 ${angle} 0 0 ${-dx} 0
-        `
+        `;
     }
 }

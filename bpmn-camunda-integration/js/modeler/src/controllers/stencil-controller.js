@@ -61,7 +61,7 @@ export default class StencilController extends Controller {
             },
             'element:drop': (context, elementView, evt, x, y) => {
                 const { paper, selection } = context;
-                let { model } = elementView;
+                const { model } = elementView;
                 
                 let selectedModel;
                 

@@ -41,7 +41,7 @@ export function editElementLabel(elementView) {
                     throw new Error('The `label/textWrap/width` attribute must be a number.');
                 }
                 width += 2 * textMargin; // padding
-                let height = element.attr(['label', 'textWrap', 'height']);
+                const height = element.attr(['label', 'textWrap', 'height']);
                 if (!Number.isFinite(height)) {
                     throw new Error('The `label/textWrap/height` attribute must be a number.');
                 }
@@ -152,7 +152,7 @@ function editText(paper, element, bbox, basePath, options) {
     
     // Select all text
     textarea.setSelectionRange(0, textarea.value.length);
-    textarea.addEventListener('blur', function () {
+    textarea.addEventListener('blur', function() {
         const text = prefix + textarea.value;
         element.prop(textPath, text);
         textarea.remove();

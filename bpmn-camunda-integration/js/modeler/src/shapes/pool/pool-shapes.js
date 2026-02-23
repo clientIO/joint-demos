@@ -51,15 +51,15 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool {
     
     defaults() {
         return util.defaultsDeep(Object.assign({ shapeType: ShapeTypes.POOL, type: PoolShapeTypes.HORIZONTAL_POOL, size: DEFAULT_HORIZONTAL_POOL_SIZE, attrs: {
-                root: {
-                    highlighterSelector: 'body',
-                    magnetSelector: 'body'
-                },
-                header: {
-                    fill: '#FFFFFF'
-                },
-                headerText: Object.assign(Object.assign({}, defaultAttrs.shapeLabel), { text: 'Pool', fontSize: 14 }),
-            }, padding: HORIZONTAL_POOL_PADDING }, poolAttributes), super.defaults);
+            root: {
+                highlighterSelector: 'body',
+                magnetSelector: 'body'
+            },
+            header: {
+                fill: '#FFFFFF'
+            },
+            headerText: Object.assign(Object.assign({}, defaultAttrs.shapeLabel), { text: 'Pool', fontSize: 14 }),
+        }, padding: HORIZONTAL_POOL_PADDING }, poolAttributes), super.defaults);
     }
     
     // Not used
@@ -133,15 +133,15 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool {
     
     defaults() {
         return util.defaultsDeep(Object.assign({ shapeType: ShapeTypes.POOL, type: PoolShapeTypes.VERTICAL_POOL, size: DEFAULT_VERTICAL_POOL_SIZE, attrs: {
-                root: {
-                    highlighterSelector: 'body',
-                    magnetSelector: 'body'
-                },
-                header: {
-                    fill: '#FFFFFF'
-                },
-                headerText: Object.assign(Object.assign({}, defaultAttrs.shapeLabel), { text: 'Pool', fontSize: 14 }),
-            }, padding: VERTICAL_POOL_PADDING }, poolAttributes), super.defaults);
+            root: {
+                highlighterSelector: 'body',
+                magnetSelector: 'body'
+            },
+            header: {
+                fill: '#FFFFFF'
+            },
+            headerText: Object.assign(Object.assign({}, defaultAttrs.shapeLabel), { text: 'Pool', fontSize: 14 }),
+        }, padding: VERTICAL_POOL_PADDING }, poolAttributes), super.defaults);
     }
     
     // Not used
@@ -216,16 +216,16 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane {
     
     defaults() {
         return util.defaultsDeep(Object.assign({ shapeType: ShapeTypes.SWIMLANE, type: PoolShapeTypes.HORIZONTAL_SWIMLANE, size: {
-                width: SWIMLANE_HEADER_SIZE
-            }, attrs: {
-                root: {
-                    highlighterSelector: 'body'
-                },
-                header: {
-                    fill: 'transparent'
-                },
-                headerText: Object.assign(Object.assign({}, defaultAttrs.shapeLabel), { text: 'Lane' })
-            } }, swimlaneAttributes), super.defaults);
+            width: SWIMLANE_HEADER_SIZE
+        }, attrs: {
+            root: {
+                highlighterSelector: 'body'
+            },
+            header: {
+                fill: 'transparent'
+            },
+            headerText: Object.assign(Object.assign({}, defaultAttrs.shapeLabel), { text: 'Lane' })
+        }}, swimlaneAttributes), super.defaults);
     }
     
     // Not used
@@ -286,16 +286,16 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane {
     
     defaults() {
         return util.defaultsDeep(Object.assign({ shapeType: ShapeTypes.SWIMLANE, type: PoolShapeTypes.VERTICAL_SWIMLANE, size: {
-                height: SWIMLANE_HEADER_SIZE
-            }, attrs: {
-                root: {
-                    highlighterSelector: 'body'
-                },
-                header: {
-                    fill: 'transparent'
-                },
-                headerText: Object.assign(Object.assign({}, defaultAttrs.shapeLabel), { text: 'Lane' })
-            } }, swimlaneAttributes), super.defaults);
+            height: SWIMLANE_HEADER_SIZE
+        }, attrs: {
+            root: {
+                highlighterSelector: 'body'
+            },
+            header: {
+                fill: 'transparent'
+            },
+            headerText: Object.assign(Object.assign({}, defaultAttrs.shapeLabel), { text: 'Lane' })
+        }}, swimlaneAttributes), super.defaults);
     }
     
     // Not used

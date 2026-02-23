@@ -58,10 +58,10 @@ const options = {
         { value: 'left', content: 'Left Side' }
     ],
     portLabelPositionRectangle: [
-        { value: { name: 'top', args: { y: -12 } }, content: 'Above' },
-        { value: { name: 'right', args: { y: 0 } }, content: 'On Right' },
-        { value: { name: 'bottom', args: { y: 12 } }, content: 'Below' },
-        { value: { name: 'left', args: { y: 0 } }, content: 'On Left' }
+        { value: { name: 'top', args: { y: -12 }}, content: 'Above' },
+        { value: { name: 'right', args: { y: 0 }}, content: 'On Right' },
+        { value: { name: 'bottom', args: { y: 12 }}, content: 'Below' },
+        { value: { name: 'left', args: { y: 0 }}, content: 'On Left' }
     ],
     portLabelPositionEllipse: [
         { value: 'radial', content: 'Horizontal' },
@@ -165,36 +165,36 @@ const options = {
         { value: -30, content: 'Close to target' },
     ],
     portMarkup: [{
-            value: [{
-                    tagName: 'rect',
-                    selector: 'portBody',
-                    attributes: {
-                        'width': 20,
-                        'height': 20,
-                        'x': -10,
-                        'y': -10
-                    }
-                }],
-            content: 'Rectangle'
-        }, {
-            value: [{
-                    tagName: 'circle',
-                    selector: 'portBody',
-                    attributes: {
-                        'r': 10
-                    }
-                }],
-            content: 'Circle'
-        }, {
-            value: [{
-                    tagName: 'path',
-                    selector: 'portBody',
-                    attributes: {
-                        'd': 'M -10 -10 10 -10 0 10 z'
-                    }
-                }],
-            content: 'Triangle'
-        }]
+        value: [{
+            tagName: 'rect',
+            selector: 'portBody',
+            attributes: {
+                'width': 20,
+                'height': 20,
+                'x': -10,
+                'y': -10
+            }
+        }],
+        content: 'Rectangle'
+    }, {
+        value: [{
+            tagName: 'circle',
+            selector: 'portBody',
+            attributes: {
+                'r': 10
+            }
+        }],
+        content: 'Circle'
+    }, {
+        value: [{
+            tagName: 'path',
+            selector: 'portBody',
+            attributes: {
+                'd': 'M -10 -10 10 -10 0 10 z'
+            }
+        }],
+        content: 'Triangle'
+    }]
 };
 export const inspectorDefinitions = {
     'app.Link': {
@@ -206,7 +206,7 @@ export const inspectorDefinitions = {
                         options: options.strokeWidth,
                         group: 'connection',
                         label: 'Link thickness',
-                        when: { ne: { 'attrs/line/stroke': 'transparent' } },
+                        when: { ne: { 'attrs/line/stroke': 'transparent' }},
                         index: 5
                     },
                     strokeDasharray: {
@@ -214,7 +214,7 @@ export const inspectorDefinitions = {
                         options: options.strokeStyle,
                         group: 'connection',
                         label: 'Link style',
-                        when: { ne: { 'attrs/line/stroke': 'transparent' } },
+                        when: { ne: { 'attrs/line/stroke': 'transparent' }},
                         index: 6
                     },
                     stroke: {
@@ -237,7 +237,7 @@ export const inspectorDefinitions = {
                             options: options.colorPaletteReset,
                             group: 'marker-source',
                             label: 'Fill',
-                            when: { ne: { 'attrs/line/sourceMarker/d': 'M 0 0 0 0' } },
+                            when: { ne: { 'attrs/line/sourceMarker/d': 'M 0 0 0 0' }},
                             index: 2
                         }
                     },
@@ -254,7 +254,7 @@ export const inspectorDefinitions = {
                             options: options.colorPaletteReset,
                             group: 'marker-target',
                             label: 'Fill',
-                            when: { ne: { 'attrs/line/targetMarker/d': 'M 0 0 0 0' } },
+                            when: { ne: { 'attrs/line/targetMarker/d': 'M 0 0 0 0' }},
                             index: 2
                         }
                     }
@@ -275,7 +275,7 @@ export const inspectorDefinitions = {
                         placeholder: 'Pick a side',
                         group: 'connection',
                         label: 'Source anchor side',
-                        when: { eq: { 'router/name': 'rightAngle' }, otherwise: { unset: true } },
+                        when: { eq: { 'router/name': 'rightAngle' }, otherwise: { unset: true }},
                         index: 2
                     },
                     targetDirection: {
@@ -284,7 +284,7 @@ export const inspectorDefinitions = {
                         placeholder: 'Pick a side',
                         group: 'connection',
                         label: 'Target anchor side',
-                        when: { eq: { 'router/name': 'rightAngle' }, otherwise: { unset: true } },
+                        when: { eq: { 'router/name': 'rightAngle' }, otherwise: { unset: true }},
                         index: 3
                     }
                 }
@@ -408,7 +408,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Font size',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 2
                     },
                     fontFamily: {
@@ -416,7 +416,7 @@ export const inspectorDefinitions = {
                         options: options.fontFamily,
                         label: 'Font family',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 3
                     },
                     fontWeight: {
@@ -424,7 +424,7 @@ export const inspectorDefinitions = {
                         options: options.fontWeight,
                         label: 'Font thickness',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 4
                     },
                     fill: {
@@ -432,7 +432,7 @@ export const inspectorDefinitions = {
                         options: options.colorPalette,
                         label: 'Text Color',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 5
                     }
                 },
@@ -459,7 +459,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Outline thickness',
                         group: 'presentation',
-                        when: { ne: { 'attrs/body/stroke': 'transparent' } },
+                        when: { ne: { 'attrs/body/stroke': 'transparent' }},
                         index: 3
                     },
                     strokeDasharray: {
@@ -469,8 +469,8 @@ export const inspectorDefinitions = {
                         group: 'presentation',
                         when: {
                             and: [
-                                { ne: { 'attrs/body/stroke': 'transparent' } },
-                                { ne: { 'attrs/body/strokeWidth': 0 } }
+                                { ne: { 'attrs/body/stroke': 'transparent' }},
+                                { ne: { 'attrs/body/strokeWidth': 0 }}
                             ]
                         },
                         index: 4
@@ -506,7 +506,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Font size',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 2
                     },
                     fontFamily: {
@@ -514,7 +514,7 @@ export const inspectorDefinitions = {
                         options: options.fontFamily,
                         label: 'Font family',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 3
                     },
                     fontWeight: {
@@ -522,7 +522,7 @@ export const inspectorDefinitions = {
                         options: options.fontWeight,
                         label: 'Font thickness',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 4
                     },
                     fill: {
@@ -530,7 +530,7 @@ export const inspectorDefinitions = {
                         options: options.colorPalette,
                         label: 'Text Color',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 5
                     }
                 },
@@ -557,7 +557,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Outline thickness',
                         group: 'presentation',
-                        when: { ne: { 'attrs/body/stroke': 'transparent' } },
+                        when: { ne: { 'attrs/body/stroke': 'transparent' }},
                         index: 3
                     },
                     strokeDasharray: {
@@ -567,8 +567,8 @@ export const inspectorDefinitions = {
                         group: 'presentation',
                         when: {
                             and: [
-                                { ne: { 'attrs/body/stroke': 'transparent' } },
-                                { ne: { 'attrs/body/stroke-width': 0 } }
+                                { ne: { 'attrs/body/stroke': 'transparent' }},
+                                { ne: { 'attrs/body/stroke-width': 0 }}
                             ]
                         },
                         index: 4
@@ -604,7 +604,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Font size',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 2
                     },
                     fontFamily: {
@@ -612,7 +612,7 @@ export const inspectorDefinitions = {
                         options: options.fontFamily,
                         label: 'Font family',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 3
                     },
                     fontWeight: {
@@ -620,7 +620,7 @@ export const inspectorDefinitions = {
                         options: options.fontWeight,
                         label: 'Font thickness',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 4
                     },
                     fill: {
@@ -628,7 +628,7 @@ export const inspectorDefinitions = {
                         options: options.colorPalette,
                         label: 'Text Color',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 5
                     }
                 },
@@ -655,7 +655,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Outline thickness',
                         group: 'presentation',
-                        when: { ne: { 'attrs/body/stroke': 'transparent' } },
+                        when: { ne: { 'attrs/body/stroke': 'transparent' }},
                         index: 3
                     },
                     strokeDasharray: {
@@ -665,8 +665,8 @@ export const inspectorDefinitions = {
                         group: 'presentation',
                         when: {
                             and: [
-                                { ne: { 'attrs/body/stroke': 'transparent' } },
-                                { ne: { 'attrs/body/strokeWidth': 0 } }
+                                { ne: { 'attrs/body/stroke': 'transparent' }},
+                                { ne: { 'attrs/body/strokeWidth': 0 }}
                             ]
                         },
                         index: 4
@@ -718,7 +718,7 @@ export const inspectorDefinitions = {
                         options: options.strokeStyle,
                         label: 'Style',
                         group: 'presentation',
-                        when: { ne: { 'attrs/line/strokeWidth': 0 } },
+                        when: { ne: { 'attrs/line/strokeWidth': 0 }},
                         index: 4
                     }
                 },
@@ -736,7 +736,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Font size',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 2
                     },
                     fontFamily: {
@@ -744,7 +744,7 @@ export const inspectorDefinitions = {
                         options: options.fontFamily,
                         label: 'Font family',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 3
                     },
                     fontWeight: {
@@ -752,7 +752,7 @@ export const inspectorDefinitions = {
                         options: options.fontWeight,
                         label: 'Font thickness',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 4
                     },
                     fill: {
@@ -760,7 +760,7 @@ export const inspectorDefinitions = {
                         options: options.colorPalette,
                         label: 'Text Color',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 5
                     }
                 }
@@ -810,7 +810,7 @@ export const inspectorDefinitions = {
                         options: options.strokeStyle,
                         label: 'Style',
                         group: 'presentation',
-                        when: { ne: { 'attrs/body/strokeWidth': 0 } },
+                        when: { ne: { 'attrs/body/strokeWidth': 0 }},
                         index: 4
                     }
                 },
@@ -828,7 +828,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Font size',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 2
                     },
                     fontFamily: {
@@ -836,7 +836,7 @@ export const inspectorDefinitions = {
                         options: options.fontFamily,
                         label: 'Font family',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 3
                     },
                     fontWeight: {
@@ -844,7 +844,7 @@ export const inspectorDefinitions = {
                         options: options.fontWeight,
                         label: 'Font thickness',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 4
                     },
                     fill: {
@@ -852,7 +852,7 @@ export const inspectorDefinitions = {
                         options: options.colorPalette,
                         label: 'Text Color',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 5
                     }
                 }
@@ -886,7 +886,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Font size',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 2
                     },
                     fontFamily: {
@@ -894,7 +894,7 @@ export const inspectorDefinitions = {
                         options: options.fontFamily,
                         label: 'Font family',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 3
                     },
                     fontWeight: {
@@ -902,7 +902,7 @@ export const inspectorDefinitions = {
                         options: options.fontWeight,
                         label: 'Font thickness',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 4
                     },
                     fill: {
@@ -910,7 +910,7 @@ export const inspectorDefinitions = {
                         options: options.colorPalette,
                         label: 'Text Color',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 5
                     }
                 },
@@ -952,7 +952,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Font size',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 2
                     },
                     fontFamily: {
@@ -960,7 +960,7 @@ export const inspectorDefinitions = {
                         options: options.fontFamily,
                         label: 'Font family',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 3
                     },
                     fontWeight: {
@@ -968,7 +968,7 @@ export const inspectorDefinitions = {
                         options: options.fontWeight,
                         label: 'Font thickness',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 4
                     },
                     fill: {
@@ -976,7 +976,7 @@ export const inspectorDefinitions = {
                         options: options.colorPalette,
                         label: 'Text Color',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 5
                     }
                 },
@@ -1003,7 +1003,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Outline thickness',
                         group: 'presentation',
-                        when: { ne: { 'attrs/body/stroke': 'transparent' } },
+                        when: { ne: { 'attrs/body/stroke': 'transparent' }},
                         index: 3
                     },
                     strokeDasharray: {
@@ -1013,8 +1013,8 @@ export const inspectorDefinitions = {
                         group: 'presentation',
                         when: {
                             and: [
-                                { ne: { 'attrs/body/stroke': 'transparent' } },
-                                { ne: { 'attrs/body/strokeWidth': 0 } }
+                                { ne: { 'attrs/body/stroke': 'transparent' }},
+                                { ne: { 'attrs/body/strokeWidth': 0 }}
                             ]
                         },
                         index: 4
@@ -1067,7 +1067,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Outline thickness',
                         group: 'header',
-                        when: { ne: { 'attrs/header/stroke': 'transparent' } },
+                        when: { ne: { 'attrs/header/stroke': 'transparent' }},
                         index: 3
                     },
                     strokeDasharray: {
@@ -1077,8 +1077,8 @@ export const inspectorDefinitions = {
                         group: 'header',
                         when: {
                             and: [
-                                { ne: { 'attrs/header/stroke': 'transparent' } },
-                                { ne: { 'attrs/header/strokeWidth': 0 } }
+                                { ne: { 'attrs/header/stroke': 'transparent' }},
+                                { ne: { 'attrs/header/strokeWidth': 0 }}
                             ]
                         },
                         index: 4
@@ -1098,7 +1098,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Font size',
                         group: 'headerText',
-                        when: { ne: { 'attrs/headerText/text': '' } },
+                        when: { ne: { 'attrs/headerText/text': '' }},
                         index: 2
                     },
                     fontFamily: {
@@ -1106,7 +1106,7 @@ export const inspectorDefinitions = {
                         options: options.fontFamily,
                         label: 'Font family',
                         group: 'headerText',
-                        when: { ne: { 'attrs/headerText/text': '' } },
+                        when: { ne: { 'attrs/headerText/text': '' }},
                         index: 3
                     },
                     fontWeight: {
@@ -1114,7 +1114,7 @@ export const inspectorDefinitions = {
                         options: options.fontWeight,
                         label: 'Font thickness',
                         group: 'headerText',
-                        when: { ne: { 'attrs/headerText/text': '' } },
+                        when: { ne: { 'attrs/headerText/text': '' }},
                         index: 4
                     },
                     fill: {
@@ -1122,7 +1122,7 @@ export const inspectorDefinitions = {
                         options: options.colorPalette,
                         label: 'Text Color',
                         group: 'headerText',
-                        when: { ne: { 'attrs/headerText/text': '' } },
+                        when: { ne: { 'attrs/headerText/text': '' }},
                         index: 5
                     }
                 },
@@ -1149,7 +1149,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Outline thickness',
                         group: 'body',
-                        when: { ne: { 'attrs/body/stroke': 'transparent' } },
+                        when: { ne: { 'attrs/body/stroke': 'transparent' }},
                         index: 3
                     },
                     strokeDasharray: {
@@ -1159,8 +1159,8 @@ export const inspectorDefinitions = {
                         group: 'body',
                         when: {
                             and: [
-                                { ne: { 'attrs/body/stroke': 'transparent' } },
-                                { ne: { 'attrs/body/strokeWidth': 0 } }
+                                { ne: { 'attrs/body/stroke': 'transparent' }},
+                                { ne: { 'attrs/body/strokeWidth': 0 }}
                             ]
                         },
                         index: 4
@@ -1180,7 +1180,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Font size',
                         group: 'bodyText',
-                        when: { ne: { 'attrs/bodyText/text': '' } },
+                        when: { ne: { 'attrs/bodyText/text': '' }},
                         index: 2
                     },
                     fontFamily: {
@@ -1188,7 +1188,7 @@ export const inspectorDefinitions = {
                         options: options.fontFamily,
                         label: 'Font family',
                         group: 'bodyText',
-                        when: { ne: { 'attrs/bodyText/text': '' } },
+                        when: { ne: { 'attrs/bodyText/text': '' }},
                         index: 3
                     },
                     fontWeight: {
@@ -1196,7 +1196,7 @@ export const inspectorDefinitions = {
                         options: options.fontWeight,
                         label: 'Font thickness',
                         group: 'bodyText',
-                        when: { ne: { 'attrs/bodyText/text': '' } },
+                        when: { ne: { 'attrs/bodyText/text': '' }},
                         index: 4
                     },
                     fill: {
@@ -1204,7 +1204,7 @@ export const inspectorDefinitions = {
                         options: options.colorPalette,
                         label: 'Text Color',
                         group: 'bodyText',
-                        when: { ne: { 'attrs/boduText/text': '' } },
+                        when: { ne: { 'attrs/boduText/text': '' }},
                         index: 5
                     }
                 }
@@ -1246,7 +1246,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Font size',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 2
                     },
                     fontFamily: {
@@ -1254,7 +1254,7 @@ export const inspectorDefinitions = {
                         options: options.fontFamily,
                         label: 'Font family',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 3
                     },
                     fontWeight: {
@@ -1262,7 +1262,7 @@ export const inspectorDefinitions = {
                         options: options.fontWeight,
                         label: 'Font thickness',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 4
                     },
                     fill: {
@@ -1270,7 +1270,7 @@ export const inspectorDefinitions = {
                         options: options.colorPalette,
                         label: 'Text Color',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 5
                     }
                 },
@@ -1299,7 +1299,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Outline thickness',
                         group: 'presentation',
-                        when: { ne: { 'attrs/border/stroke': 'transparent' } },
+                        when: { ne: { 'attrs/border/stroke': 'transparent' }},
                         index: 4
                     }
                 },
@@ -1341,7 +1341,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Font size',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 2
                     },
                     fontFamily: {
@@ -1349,7 +1349,7 @@ export const inspectorDefinitions = {
                         options: options.fontFamily,
                         label: 'Font family',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 3
                     },
                     fontWeight: {
@@ -1357,7 +1357,7 @@ export const inspectorDefinitions = {
                         options: options.fontWeight,
                         label: 'Font thickness',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 4
                     },
                     fill: {
@@ -1365,7 +1365,7 @@ export const inspectorDefinitions = {
                         options: options.colorPalette,
                         label: 'Text Color',
                         group: 'text',
-                        when: { ne: { 'attrs/label/text': '' } },
+                        when: { ne: { 'attrs/label/text': '' }},
                         index: 5
                     }
                 },
@@ -1392,7 +1392,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Outline thickness',
                         group: 'presentation',
-                        when: { ne: { 'attrs/body/stroke': 'transparent' } },
+                        when: { ne: { 'attrs/body/stroke': 'transparent' }},
                         index: 3
                     },
                     strokeDasharray: {
@@ -1402,8 +1402,8 @@ export const inspectorDefinitions = {
                         group: 'presentation',
                         when: {
                             and: [
-                                { ne: { 'attrs/body/stroke': 'transparent' } },
-                                { ne: { 'attrs/body/strokeWidth': 0 } }
+                                { ne: { 'attrs/body/stroke': 'transparent' }},
+                                { ne: { 'attrs/body/strokeWidth': 0 }}
                             ]
                         },
                         index: 4
@@ -1432,7 +1432,7 @@ export const inspectorDefinitions = {
                         unit: 'px',
                         label: 'Outline thickness',
                         group: 'top',
-                        when: { ne: { 'attrs/body/stroke': 'transparent' } },
+                        when: { ne: { 'attrs/body/stroke': 'transparent' }},
                         index: 3
                     },
                     strokeDasharray: {
@@ -1442,8 +1442,8 @@ export const inspectorDefinitions = {
                         group: 'top',
                         when: {
                             and: [
-                                { ne: { 'attrs/body/stroke': 'transparent' } },
-                                { ne: { 'attrs/body/strokeWidth': 0 } }
+                                { ne: { 'attrs/body/stroke': 'transparent' }},
+                                { ne: { 'attrs/body/strokeWidth': 0 }}
                             ]
                         },
                         index: 4

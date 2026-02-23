@@ -135,7 +135,7 @@ export class Processor {
             });
             node.set('outputs', data);
 
-            for(let id in targetNodes) {
+            for(const id in targetNodes) {
                 await this.process(id).catch((error) => {
                     console.error(error);
                     console.log('process error');

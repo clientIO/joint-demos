@@ -54,10 +54,10 @@ export class Display extends Node {
             type: 'processor.Display',
             name: 'Display',
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }],
             size: {
                 width: 105,
                 height: 75
@@ -94,12 +94,12 @@ export class Display extends Node {
     getContextToolbarItems() {
         const nodeItems = super.getContextToolbarItems();
         return nodeItems.concat([{
-                action: 'exportImage',
-                content: 'Export Image',
-                attrs: {
-                    'group': 'node-tools'
-                }
-            }]);
+            action: 'exportImage',
+            content: 'Export Image',
+            attrs: {
+                'group': 'node-tools'
+            }
+        }]);
     }
 
     setContextToolbarEvents(contextToolbar) {

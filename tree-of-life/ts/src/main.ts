@@ -1,17 +1,18 @@
 import { getStroke } from 'perfect-freehand';
+import type {
+    attributes } from '@joint/core';
 import {
     dia,
     shapes,
     g,
     linkTools,
     connectors,
-    attributes,
     elementTools,
     highlighters,
 } from '@joint/core';
 import type { Vec2 } from 'perfect-freehand';
 
-import '../index.css'
+import '../index.css';
 
 const { TangentDirections } = connectors.curve;
 const borderWidth = 4;
@@ -205,7 +206,7 @@ class Branch extends dia.Link {
         // The `organicStroke` attribute is used to set the `d` attribute of the `<path>` element.
         // It works similarly to the `connection` attribute of JointJS.
         'organic-stroke': {
-            set: function (
+            set: function(
                 _value: any,
                 _refBBox: g.Rect,
                 _node: SVGElement,
@@ -220,7 +221,7 @@ class Branch extends dia.Link {
                 const segmentSubdivisions = view.getConnectionSubdivisions();
                 // Convert polylines to points and add the pressure value to each point.
                 const polylines = path.toPolylines({ segmentSubdivisions });
-                let points: (number[] | {
+                const points: (number[] | {
                     x: number;
                     y: number;
                     pressure?: number;
@@ -282,8 +283,8 @@ function quadraticInterpolation(points: Vec2[]) {
     let result = `
         M${a[0].toFixed(2)},${a[1].toFixed(2)}
         Q${b[0].toFixed(2)},${b[1].toFixed(2)} ${average(b[0], c[0]).toFixed(
-        2
-    )},${average(b[1], c[1]).toFixed(2)}
+    2
+)},${average(b[1], c[1]).toFixed(2)}
         T
     `;
     for (let i = 2, max = len - 1; i < max; i++) {
@@ -326,12 +327,12 @@ const RotateTool = elementTools.Control.extend({
             ],
         },
     ],
-    getPosition: function (view: dia.ElementView) {
+    getPosition: function(view: dia.ElementView) {
         const { model } = view;
         const { width } = model.size();
         return new g.Point(width, 0);
     },
-    setPosition: function (view: dia.ElementView, coordinates: g.Point) {
+    setPosition: function(view: dia.ElementView, coordinates: g.Point) {
         const { model } = view;
         const { width, height } = model.size();
         const center = new g.Point(width / 2, height / 2);
@@ -698,7 +699,7 @@ const chordataLink = new Branch({
 const arthropodaLink = new Branch({
     source: {
         id: chordataLink.id,
-        anchor: { name: 'connectionRatio', args: { ratio: 0.2 } },
+        anchor: { name: 'connectionRatio', args: { ratio: 0.2 }},
     },
     target: { id: 'Arthropoda' },
     vertices: [
@@ -728,7 +729,7 @@ const arthropodaLink = new Branch({
 const echinodermataLink = new Branch({
     source: {
         id: chordataLink.id,
-        anchor: { name: 'connectionRatio', args: { ratio: 0.8 } },
+        anchor: { name: 'connectionRatio', args: { ratio: 0.8 }},
     },
     target: { id: 'Echinodermata' },
     vertices: [{ x: 216, y: 213.4 }],
@@ -742,7 +743,7 @@ const echinodermataLink = new Branch({
 const cnidariaLink = new Branch({
     source: {
         id: chordataLink.id,
-        anchor: { name: 'connectionRatio', args: { ratio: 0.1 } },
+        anchor: { name: 'connectionRatio', args: { ratio: 0.1 }},
     },
     target: { id: 'Cnidaria' },
     vertices: [{ x: 440, y: 560 }],
@@ -756,7 +757,7 @@ const cnidariaLink = new Branch({
 const poriferaLink = new Branch({
     source: {
         id: chordataLink.id,
-        anchor: { name: 'connectionRatio', args: { ratio: 0.05 } },
+        anchor: { name: 'connectionRatio', args: { ratio: 0.05 }},
     },
     target: { id: 'Porifera' },
     vertices: [{ x: 608, y: 632 }],
@@ -770,7 +771,7 @@ const poriferaLink = new Branch({
 const nematodaLink = new Branch({
     source: {
         id: arthropodaLink.id,
-        anchor: { name: 'connectionRatio', args: { ratio: 0.8 } },
+        anchor: { name: 'connectionRatio', args: { ratio: 0.8 }},
     },
     target: { id: 'Nematoda' },
     vertices: [{ x: 608, y: 32 }],
@@ -784,7 +785,7 @@ const nematodaLink = new Branch({
 const platyhelminthaLink = new Branch({
     source: {
         id: arthropodaLink.id,
-        anchor: { name: 'connectionRatio', args: { ratio: 0.2 } },
+        anchor: { name: 'connectionRatio', args: { ratio: 0.2 }},
     },
     target: { id: 'platyhelmintha' },
     vertices: [{ x: 696, y: 462.54 }],
@@ -798,7 +799,7 @@ const platyhelminthaLink = new Branch({
 const tarigradaLink = new Branch({
     source: {
         id: arthropodaLink.id,
-        anchor: { name: 'connectionRatio', args: { ratio: 0.9 } },
+        anchor: { name: 'connectionRatio', args: { ratio: 0.9 }},
     },
     target: { id: 'Tarigrada' },
     vertices: [{ x: 674, y: -32 }],
@@ -812,7 +813,7 @@ const tarigradaLink = new Branch({
 const brachiopodaLink = new Branch({
     source: {
         id: arthropodaLink.id,
-        anchor: { name: 'connectionRatio', args: { ratio: 0.4 } },
+        anchor: { name: 'connectionRatio', args: { ratio: 0.4 }},
     },
     target: { id: 'Brachiopoda' },
     vertices: [{ x: 776, y: 352 }],
@@ -826,7 +827,7 @@ const brachiopodaLink = new Branch({
 const molluscaLink = new Branch({
     source: {
         id: arthropodaLink.id,
-        anchor: { name: 'connectionRatio', args: { ratio: 0.6 } },
+        anchor: { name: 'connectionRatio', args: { ratio: 0.6 }},
     },
     target: { id: 'Mollusca' },
     vertices: [{ x: 784, y: 152 }],
@@ -840,7 +841,7 @@ const molluscaLink = new Branch({
 const annelidaLink = new Branch({
     source: {
         id: molluscaLink.id,
-        anchor: { name: 'connectionRatio', args: { ratio: 0.5 } },
+        anchor: { name: 'connectionRatio', args: { ratio: 0.5 }},
     },
     target: { id: 'Annelida' },
     vertices: [{ x: 856, y: 199.31 }],

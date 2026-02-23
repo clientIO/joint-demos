@@ -164,7 +164,7 @@ const markField = StateField.define({
     create() { return Decoration.none; },
     update(value, tr) {
         value = value.map(tr.changes);
-        for (let effect of tr.effects) {
+        for (const effect of tr.effects) {
             if (effect.is(highlightMark))
                 value = value.update({ add: effect.value, sort: true });
             else if (effect.is(filterMarks))

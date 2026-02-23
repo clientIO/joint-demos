@@ -125,12 +125,12 @@ export default class Edge extends SystemEdge {
         
         this.set({
             labels: [{
-                    attrs: {
-                        labelText: {
-                            text: wrappedText
-                        }
+                attrs: {
+                    labelText: {
+                        text: wrappedText
                     }
-                }],
+                }
+            }],
         });
     }
     

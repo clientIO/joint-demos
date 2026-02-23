@@ -119,12 +119,12 @@ export default class Edge extends SystemEdge {
         const size = measureTextSize(wrappedText, fontSize, fontFamily);
         this.set({
             labels: [{
-                    attrs: {
-                        labelText: {
-                            text: wrappedText
-                        }
+                attrs: {
+                    labelText: {
+                        text: wrappedText
                     }
-                }],
+                }
+            }],
             // Directed graph uses this property to make space for the label
             labelSize: {
                 width: margin + size.width,

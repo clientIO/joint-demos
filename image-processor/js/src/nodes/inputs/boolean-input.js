@@ -55,10 +55,10 @@ export class BooleanInput extends Node {
             name: 'Boolean',
             group: 'inputs',
             outputSettings: [{
-                    name: 'Boolean',
-                    type: 'boolean',
-                    defaultValue: true
-                }],
+                name: 'Boolean',
+                type: 'boolean',
+                defaultValue: true
+            }],
             attrs: {
                 foreignObject: {
                     width: 'calc(w-80)',

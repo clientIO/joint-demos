@@ -19,7 +19,7 @@ export const init = () => {
         async: true,
         autoFreeze: true,
         sorting: dia.Paper.sorting.APPROX,
-        defaultConnector: { name: 'straight', args: { cornerType: 'cubic' } },
+        defaultConnector: { name: 'straight', args: { cornerType: 'cubic' }},
         defaultAnchor: { name: 'perpendicular' },
         background: { color: '#FBFBFB' },
         clickThreshold: 10,

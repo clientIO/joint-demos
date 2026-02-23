@@ -54,10 +54,10 @@ export class NumberInput extends Node {
             name: 'Number',
             group: 'inputs',
             outputSettings: [{
-                    name: 'Number',
-                    type: 'number',
-                    defaultValue: 0
-                }],
+                name: 'Number',
+                type: 'number',
+                defaultValue: 0
+            }],
             attrs: {
                 foreignObject: {
                     width: 'calc(w-80)',

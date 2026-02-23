@@ -60,8 +60,8 @@ export class FillContours extends Node {
             const thresh = new cv.Mat();
             cv.threshold(gray, thresh, 127, 255, cv.THRESH_BINARY);
 
-            let contours: any = new cv.MatVector();
-            let h: any = new cv.Mat();
+            const contours: any = new cv.MatVector();
+            const h: any = new cv.Mat();
             cv.findContours(thresh, contours, h, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 
             const result = image.clone();

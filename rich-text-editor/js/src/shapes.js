@@ -45,12 +45,12 @@ export class TextNode extends dia.Element {
     
     preinitialize() {
         this.markup = [{
-                tagName: 'path',
-                selector: 'body'
-            }, {
-                tagName: 'text',
-                selector: 'label'
-            }];
+            tagName: 'path',
+            selector: 'body'
+        }, {
+            tagName: 'text',
+            selector: 'label'
+        }];
     }
     
     adjustSize(paper) {

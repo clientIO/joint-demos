@@ -7,15 +7,15 @@ import { TreeRoutingModule } from './tree-routing.module';
 import { TreeContainerComponent } from './tree-container/tree-container.component';
 
 @NgModule({
-  declarations: [
-    TreeContainerComponent
-  ],
-  imports: [
-    CommonModule,
-    TreeRoutingModule,
-    MatTreeModule,
-    MatIconModule,
-    MatButtonModule
-  ]
+    declarations: [
+        TreeContainerComponent
+    ],
+    imports: [
+        CommonModule,
+        TreeRoutingModule,
+        MatTreeModule,
+        MatIconModule,
+        MatButtonModule
+    ]
 })
 export class TreeModule { }

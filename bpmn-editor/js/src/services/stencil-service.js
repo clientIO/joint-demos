@@ -46,11 +46,11 @@ export default class StencilService {
             .getGraph()
             .getElements()
             .forEach((el) => {
-            StencilHoverHighlighter.add(el.findView(stencil.getPaper()), 'root', 'stencil-highlight', {
-                className: 'stencil-background-highlight',
-                padding: 4
+                StencilHoverHighlighter.add(el.findView(stencil.getPaper()), 'root', 'stencil-highlight', {
+                    className: 'stencil-background-highlight',
+                    padding: 4
+                });
             });
-        });
         
         this.stencilController = new StencilController({ stencil, paper: paperScroller.options.paper, selection });
         this.stencilController.startListening();

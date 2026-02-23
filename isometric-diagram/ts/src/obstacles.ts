@@ -1,4 +1,5 @@
-import { g, dia, mvc } from '@joint/core';
+import type { dia } from '@joint/core';
+import { g, mvc } from '@joint/core';
 import { GRID_COUNT, GRID_SIZE } from './theme';
 
 // Simplified version of obstacle detection.

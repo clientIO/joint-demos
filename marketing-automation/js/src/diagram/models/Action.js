@@ -137,7 +137,7 @@ export default class Action extends LabeledNode {
      */
     updateProvider(provider, action) {
         const { icon, iconBackground, minimapBackground } = provider;
-        const { name = '', data = {} } = action;
+        const { name = '', data = {}} = action;
         
         this.attr({
             icon: {

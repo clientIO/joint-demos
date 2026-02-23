@@ -1,6 +1,6 @@
-import { dia } from '@joint/core';
+import type { dia } from '@joint/core';
 import { createLink, createNode, createParentNode } from './builders';
-import { GraphBlueprint } from './blueprints';
+import type { GraphBlueprint } from './blueprints';
 
 import type { PaletteCycler } from './types';
 

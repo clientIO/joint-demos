@@ -2,7 +2,7 @@ import { g, anchors } from '@joint/plus';
 
 export const anchorNamespace = { ...anchors };
 
-const customAnchor = function (view, magnet, ref) {
+const customAnchor = function(view, magnet, ref) {
     let anchor;
     const { model } = view;
     const bbox = view.getNodeUnrotatedBBox(magnet);

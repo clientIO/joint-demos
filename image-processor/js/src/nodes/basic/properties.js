@@ -13,17 +13,17 @@ export class Properties extends Node {
                 height: calculateHeight(2)
             },
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }],
             outputSettings: [{
-                    name: 'Width',
-                    type: 'number',
-                }, {
-                    name: 'Height',
-                    type: 'number',
-                }]
+                name: 'Width',
+                type: 'number',
+            }, {
+                name: 'Height',
+                type: 'number',
+            }]
         }, defaults);
     }
     

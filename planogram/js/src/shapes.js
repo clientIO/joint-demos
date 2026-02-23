@@ -3,26 +3,26 @@ import { util, dia, shapes, V } from '@joint/plus';
 const grid = 30;
 
 export var ShelfTypes;
-(function (ShelfTypes) {
-    ShelfTypes["top"] = "TOP";
-    ShelfTypes["middle"] = "MIDDLE";
-    ShelfTypes["bottom"] = "BOTTOM";
-    ShelfTypes["full"] = "FULL";
+(function(ShelfTypes) {
+    ShelfTypes['top'] = 'TOP';
+    ShelfTypes['middle'] = 'MIDDLE';
+    ShelfTypes['bottom'] = 'BOTTOM';
+    ShelfTypes['full'] = 'FULL';
 })(ShelfTypes || (ShelfTypes = {}));
 
 export var ProductCategories;
-(function (ProductCategories) {
-    ProductCategories["chips"] = "CHIPS";
-    ProductCategories["nachos"] = "NACHOS";
-    ProductCategories["bombay_mix"] = "BOMBAY MIX";
-    ProductCategories["snacks"] = "SNACKS";
-    ProductCategories["candy"] = "CANDY";
-    ProductCategories["sports_drink"] = "SPORTS DRINK";
-    ProductCategories["soda"] = "SODA";
-    ProductCategories["cordial"] = "CORDIAL";
-    ProductCategories["cola"] = "COLA";
-    ProductCategories["pop"] = "POP";
-    ProductCategories["ice_tea"] = "ICE TEA";
+(function(ProductCategories) {
+    ProductCategories['chips'] = 'CHIPS';
+    ProductCategories['nachos'] = 'NACHOS';
+    ProductCategories['bombay_mix'] = 'BOMBAY MIX';
+    ProductCategories['snacks'] = 'SNACKS';
+    ProductCategories['candy'] = 'CANDY';
+    ProductCategories['sports_drink'] = 'SPORTS DRINK';
+    ProductCategories['soda'] = 'SODA';
+    ProductCategories['cordial'] = 'CORDIAL';
+    ProductCategories['cola'] = 'COLA';
+    ProductCategories['pop'] = 'POP';
+    ProductCategories['ice_tea'] = 'ICE TEA';
 })(ProductCategories || (ProductCategories = {}));
 
 export const storeItemsConfig = {
@@ -146,22 +146,22 @@ const fg = '#CACCD4';
 export class ShelfElement extends dia.Element {
     
     markup = [{
-            tagName: 'g',
-            selector: 'top',
-            children: [{
-                    tagName: 'rect',
-                    selector: 'topBackground'
-                }, {
-                    tagName: 'rect',
-                    selector: 'topForeground'
-                }]
+        tagName: 'g',
+        selector: 'top',
+        children: [{
+            tagName: 'rect',
+            selector: 'topBackground'
         }, {
             tagName: 'rect',
-            selector: 'bottom'
-        }, {
-            tagName: 'rect',
-            selector: 'middle'
-        }];
+            selector: 'topForeground'
+        }]
+    }, {
+        tagName: 'rect',
+        selector: 'bottom'
+    }, {
+        tagName: 'rect',
+        selector: 'middle'
+    }];
     
     defaults() {
         return {
@@ -243,7 +243,7 @@ export class ShelfElement extends dia.Element {
     
     static attributes = {
         'fill-pattern': {
-            set: function (image) {
+            set: function(image) {
                 const { paper } = this;
                 const MARGIN = 0;
                 const width = 60;
@@ -291,9 +291,9 @@ export class ShelfElement extends dia.Element {
 export class ProductElement extends dia.Element {
     
     markup = [{
-            tagName: 'rect',
-            selector: 'body'
-        }];
+        tagName: 'rect',
+        selector: 'body'
+    }];
     
     defaults() {
         return {
@@ -338,7 +338,7 @@ export class ProductElement extends dia.Element {
     
     static attributes = {
         'product-image': {
-            set: function (image) {
+            set: function(image) {
                 const { paper, model } = this;
                 const MARGIN = 8;
                 const { width, height } = calcSize(model.get('productSize'));

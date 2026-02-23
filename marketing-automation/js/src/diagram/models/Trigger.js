@@ -192,7 +192,7 @@ export default class Trigger extends Node {
         
         return {
             ...super.getInspectorConfig(),
-            headerText: `Trigger`,
+            headerText: 'Trigger',
             headerIcon: this.attr('icon/href'),
             headerIconBackground: this.attr('iconBackground/fill'),
             headerHint: 'Configure automation rules',

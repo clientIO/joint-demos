@@ -53,10 +53,10 @@ export class TextInput extends Node {
             name: 'Text',
             group: 'inputs',
             outputSettings: [{
-                    name: 'Text',
-                    type: 'string',
-                    defaultValue: ''
-                }],
+                name: 'Text',
+                type: 'string',
+                defaultValue: ''
+            }],
             attrs: {
                 foreignObject: {
                     width: 'calc(w-60)',

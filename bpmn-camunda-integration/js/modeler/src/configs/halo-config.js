@@ -48,7 +48,7 @@ export const groups = {
 };
 
 const removeSwimlaneEvents = {
-    'pointerup': function (_evt, _x, _y) {
+    'pointerup': function(_evt, _x, _y) {
         const element = this.options.cellView.model;
         const pool = element.getParentCell();
         pool.removeSwimlane(element);
@@ -57,29 +57,29 @@ const removeSwimlaneEvents = {
 
 export const handles = {
     ConnectEndEvent: Object.assign(Object.assign({}, ui.Halo.getDefaultHandle('fork')), { name: 'connect-end-event', position: GroupNames.BPMNTools, content: `<span class="${eventIconClasses.END}"></span>`, data: {
-            elementType: EventShapeTypes.END,
-            fork: true
-        }, hideOnDrag: true }),
+        elementType: EventShapeTypes.END,
+        fork: true
+    }, hideOnDrag: true }),
     ConnectIntermediateThrowingEvent: Object.assign(Object.assign({}, ui.Halo.getDefaultHandle('fork')), { name: 'connect-intermediate-throwing-event', position: GroupNames.BPMNTools, content: `<span class="${eventIconClasses.INTERMEDIATE_THROWING}"></span>`, data: {
-            elementType: EventShapeTypes.INTERMEDIATE_THROWING,
-            fork: true
-        }, hideOnDrag: true }),
+        elementType: EventShapeTypes.INTERMEDIATE_THROWING,
+        fork: true
+    }, hideOnDrag: true }),
     ConnectGateway: Object.assign(Object.assign({}, ui.Halo.getDefaultHandle('fork')), { name: 'connect-gateway', position: GroupNames.BPMNTools, content: `<span class="${gatewayIconClasses.EMPTY}"></span>`, data: {
-            elementType: GatewayShapeTypes.EXCLUSIVE,
-            fork: true
-        }, hideOnDrag: true }),
+        elementType: GatewayShapeTypes.EXCLUSIVE,
+        fork: true
+    }, hideOnDrag: true }),
     ConnectServiceTask: Object.assign(Object.assign({}, ui.Halo.getDefaultHandle('fork')), { name: 'connect-service-task', position: GroupNames.BPMNTools, content: `<span class="${activityIconClasses.SERVICE}"></span>`, data: {
-            elementType: ActivityShapeTypes.SERVICE,
-            fork: true
-        }, hideOnDrag: true }),
+        elementType: ActivityShapeTypes.SERVICE,
+        fork: true
+    }, hideOnDrag: true }),
     ConnectHttpRequest: Object.assign(Object.assign({}, ui.Halo.getDefaultHandle('fork')), { name: 'connect-http-request', position: GroupNames.BPMNTools, content: `<span class="${activityIconClasses.HTTP_CONNECTOR}"></span>`, data: {
-            elementType: ActivityShapeTypes.HTTP_CONNECTOR,
-            fork: true
-        }, hideOnDrag: true }),
+        elementType: ActivityShapeTypes.HTTP_CONNECTOR,
+        fork: true
+    }, hideOnDrag: true }),
     ConnectAnnotation: Object.assign(Object.assign({}, ui.Halo.getDefaultHandle('fork')), { name: 'connect-annotation', position: GroupNames.BPMNTools, content: `<span class="${annotationIconClasses.ANNOTATION}"></span>`, data: {
-            elementType: AnnotationShapeTypes.ANNOTATION,
-            fork: true
-        }, hideOnDrag: true }),
+        elementType: AnnotationShapeTypes.ANNOTATION,
+        fork: true
+    }, hideOnDrag: true }),
     Link: Object.assign(Object.assign({}, ui.Halo.getDefaultHandle('link')), { name: 'link-sequence', position: GroupNames.BPMNTools, content: `<span class="${flowIconClasses.SEQUENCE}"></span>`, hideOnDrag: true }),
     RemoveHorizontalSwimlane: {
         name: 'remove-swimlane',

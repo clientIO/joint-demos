@@ -23,20 +23,20 @@ const Container = dia.Element.define('app.Container', {
     z: 1
 }, {
     markup: [{
-            tagName: 'rect',
-            selector: 'body'
-        }, {
-            tagName: 'text',
-            selector: 'label'
-        }, {
-            tagName: 'path',
-            selector: 'grid',
-            attributes: {
-                'stroke': 'white',
-                'stroke-opacity': 0.05,
-                'fill': 'none'
-            }
-        }]
+        tagName: 'rect',
+        selector: 'body'
+    }, {
+        tagName: 'text',
+        selector: 'label'
+    }, {
+        tagName: 'path',
+        selector: 'grid',
+        attributes: {
+            'stroke': 'white',
+            'stroke-opacity': 0.05,
+            'fill': 'none'
+        }
+    }]
 }, {
     isContainer(el) {
         return el.get('type') === 'app.Container';
@@ -67,12 +67,12 @@ const Child = dia.Element.define('app.Child', {
     }
 }, {
     markup: [{
-            tagName: 'rect',
-            selector: 'body',
-        }, {
-            tagName: 'text',
-            selector: 'label'
-        }]
+        tagName: 'rect',
+        selector: 'body',
+    }, {
+        tagName: 'text',
+        selector: 'label'
+    }]
 });
 
 const Link = dia.Link.define('Link', {
@@ -90,9 +90,9 @@ const Link = dia.Link.define('Link', {
     }
 }, {
     markup: [{
-            tagName: 'path',
-            selector: 'line'
-        }]
+        tagName: 'path',
+        selector: 'line'
+    }]
 });
 
 Object.assign(shapes, {

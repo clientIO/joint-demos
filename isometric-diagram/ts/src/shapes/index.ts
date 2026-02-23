@@ -1,13 +1,13 @@
 import { shapes } from '@joint/core';
 
-import { Link } from './link/link'
-import { Switch } from './switch/switch'
-import { Router } from './router/router'
-import { Computer } from './computer/computer'
-import { Database } from './database/database'
-import { ActiveDirectory } from './active-directory/active-directory'
-import { User } from './user/user'
-import { Firewall } from './firewall/firewall'
+import { Link } from './link/link';
+import { Switch } from './switch/switch';
+import { Router } from './router/router';
+import { Computer } from './computer/computer';
+import { Database } from './database/database';
+import { ActiveDirectory } from './active-directory/active-directory';
+import { User } from './user/user';
+import { Firewall } from './firewall/firewall';
 
 export const cellNamespace = {
     ...shapes,
@@ -19,7 +19,7 @@ export const cellNamespace = {
     ActiveDirectory,
     User,
     Firewall
-}
+};
 
 export {
     Link,
@@ -30,4 +30,4 @@ export {
     ActiveDirectory,
     User,
     Firewall
-}
+};

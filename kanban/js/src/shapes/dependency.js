@@ -18,23 +18,23 @@ export class Dependency extends shapes.standard.Link {
                 }
             }),
             labels: [{
-                    position: 0.3,
-                    attrs: {
-                        text: {
-                            fontSize: 8,
-                            fontFamily: 'sans-serif',
-                            text: 'depends on',
-                            fill: 'white'
-                        },
-                        rect: {
-                            fill: color,
-                            stroke: color,
-                            strokeWidth: 5,
-                            rx: 1,
-                            ry: 1
-                        }
+                position: 0.3,
+                attrs: {
+                    text: {
+                        fontSize: 8,
+                        fontFamily: 'sans-serif',
+                        text: 'depends on',
+                        fill: 'white'
+                    },
+                    rect: {
+                        fill: color,
+                        stroke: color,
+                        strokeWidth: 5,
+                        rx: 1,
+                        ry: 1
                     }
-                }]
+                }
+            }]
         }, super.defaults);
     }
 }

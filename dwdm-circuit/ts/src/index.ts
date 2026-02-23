@@ -65,7 +65,7 @@ resizePaper(paper, layout(graph));
 graph.getElements().forEach((element) => {
     if (!Node.isNode(element)) return;
     const nodeView = paper.findViewByModel(element);
-    NodePlaceholder.add(nodeView, 'body', `placeholder-image`);
+    NodePlaceholder.add(nodeView, 'body', 'placeholder-image');
     ExpandButton.add(nodeView, 'header', 'expand-button');
 });
 

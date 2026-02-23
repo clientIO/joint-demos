@@ -31,23 +31,23 @@ export class Tint extends Node {
                 height: calculateHeight(2)
             },
             inputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                    property: 'image'
-                }, {
-                    name: 'Color',
-                    type: 'color',
-                    property: 'color',
-                    defaultValue: {
-                        r: 255,
-                        g: 255,
-                        b: 255
-                    }
-                }],
+                name: 'Image',
+                type: 'image',
+                property: 'image'
+            }, {
+                name: 'Color',
+                type: 'color',
+                property: 'color',
+                defaultValue: {
+                    r: 255,
+                    g: 255,
+                    b: 255
+                }
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }]
+                name: 'Image',
+                type: 'image',
+            }]
         }, defaults);
     }
     

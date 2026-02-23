@@ -32,24 +32,24 @@ export function addElementTools(cellView) {
                 offset: { x: padding.right + 14, y: -padding.top - 14 },
                 useModelGeometry: true,
                 markup: [{
-                        tagName: 'circle',
-                        selector: 'button',
-                        attributes: {
-                            'r': 10,
-                            'fill': '#0058FF',
-                            'cursor': 'pointer'
-                        }
-                    }, {
-                        tagName: 'path',
-                        selector: 'icon',
-                        attributes: {
-                            'd': 'M -4 -4 4 4 M -4 4 4 -4',
-                            'fill': 'none',
-                            'stroke': '#FFFFFF',
-                            'stroke-width': 2,
-                            'pointer-events': 'none'
-                        }
-                    }]
+                    tagName: 'circle',
+                    selector: 'button',
+                    attributes: {
+                        'r': 10,
+                        'fill': '#0058FF',
+                        'cursor': 'pointer'
+                    }
+                }, {
+                    tagName: 'path',
+                    selector: 'icon',
+                    attributes: {
+                        'd': 'M -4 -4 4 4 M -4 4 4 -4',
+                        'fill': 'none',
+                        'stroke': '#FFFFFF',
+                        'stroke-width': 2,
+                        'pointer-events': 'none'
+                    }
+                }]
             })
         ]
     });
@@ -69,37 +69,37 @@ const SizeLabelHeight = 24;
 export const SizeLabel = dia.ToolView.extend({
     
     children: [{
-            tagName: 'rect',
-            selector: 'background',
-            attributes: {
-                'width': SizeLabelWidth,
-                'height': SizeLabelHeight,
-                'x': -SizeLabelWidth / 2,
-                'rx': 2,
-                'ry': 2,
-                'fill': '#fff',
-                'stroke': '#333',
-                'stroke-width': 2
-            }
-        }, {
-            tagName: 'text',
-            selector: 'label',
-            attributes: {
-                'text-anchor': 'middle',
-                'x': 0,
-                'y': 17,
-                'font-size': 13,
-                'font-family': 'Roboto',
-                'fill': '#333',
-            }
-        }],
+        tagName: 'rect',
+        selector: 'background',
+        attributes: {
+            'width': SizeLabelWidth,
+            'height': SizeLabelHeight,
+            'x': -SizeLabelWidth / 2,
+            'rx': 2,
+            'ry': 2,
+            'fill': '#fff',
+            'stroke': '#333',
+            'stroke-width': 2
+        }
+    }, {
+        tagName: 'text',
+        selector: 'label',
+        attributes: {
+            'text-anchor': 'middle',
+            'x': 0,
+            'y': 17,
+            'font-size': 13,
+            'font-family': 'Roboto',
+            'fill': '#333',
+        }
+    }],
     
-    onRender: function () {
+    onRender: function() {
         this.renderChildren();
         this.update();
     },
     
-    update: function () {
+    update: function() {
         const { el: groupEl, relatedView } = this;
         const product = relatedView.model;
         const [/* rectEl */ , textEl] = groupEl.children;

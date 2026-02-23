@@ -48,7 +48,7 @@ export const groups = {
 };
 
 const removeSwimlaneEvents = {
-    'pointerup': function (_evt, _x, _y) {
+    'pointerup': function(_evt, _x, _y) {
         const element = this.options.cellView.model;
         const pool = element.getParentCell();
         pool.removeSwimlane(element);

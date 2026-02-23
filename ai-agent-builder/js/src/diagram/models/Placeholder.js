@@ -42,7 +42,7 @@ export default class Placeholder extends SystemPlaceholder {
                 },
                 buttonIcon: {
                     ...buttonIconAttributes,
-                    transform: `translate(calc(w/2), calc(h/2))`,
+                    transform: 'translate(calc(w/2), calc(h/2))',
                 }
             }
         };

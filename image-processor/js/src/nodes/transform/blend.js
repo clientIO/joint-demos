@@ -32,18 +32,18 @@ export class Blend extends Node {
                 height: calculateHeight(2)
             },
             inputSettings: [{
-                    name: 'Image 1',
-                    type: 'image',
-                    property: 'image1'
-                }, {
-                    name: 'Image 2',
-                    type: 'image',
-                    property: 'image2'
-                }],
+                name: 'Image 1',
+                type: 'image',
+                property: 'image1'
+            }, {
+                name: 'Image 2',
+                type: 'image',
+                property: 'image2'
+            }],
             outputSettings: [{
-                    name: 'Image',
-                    type: 'image',
-                }]
+                name: 'Image',
+                type: 'image',
+            }]
         }, defaults);
     }
     

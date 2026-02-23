@@ -4,8 +4,8 @@ import { DataShapeTypes } from '../data/data-config';
 import { MAIN_COLOR } from '../../configs/theme';
 
 export var PlaceholderShapeTypes;
-(function (PlaceholderShapeTypes) {
-    PlaceholderShapeTypes["LINK"] = "placeholder.Link";
+(function(PlaceholderShapeTypes) {
+    PlaceholderShapeTypes['LINK'] = 'placeholder.Link';
 })(PlaceholderShapeTypes || (PlaceholderShapeTypes = {}));
 
 const PLACEHOLDER_STROKE = MAIN_COLOR;

@@ -13,12 +13,12 @@ export class InspectorService {
         this.element.innerHTML = '';
         const inspector = ui.Inspector.create(this.element, opts);
         
-        for (let prop in node.inputProperties) {
+        for (const prop in node.inputProperties) {
             this.disable(prop, node);
         }
         
         inspector.on('render', () => {
-            for (let prop in node.inputProperties) {
+            for (const prop in node.inputProperties) {
                 this.disable(prop, node);
             }
         });

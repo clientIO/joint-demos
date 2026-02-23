@@ -7,8 +7,8 @@ import { GroupShapeTypes } from '../shapes/group/group-config';
 import { PoolShapeTypes } from '../shapes/pool/pool-config';
 
 export var StencilShapeTypes;
-(function (StencilShapeTypes) {
-    StencilShapeTypes["STENCIL_SHAPE"] = "stencil.Shape";
+(function(StencilShapeTypes) {
+    StencilShapeTypes['STENCIL_SHAPE'] = 'stencil.Shape';
 })(StencilShapeTypes || (StencilShapeTypes = {}));
 
 const SHAPE_SIZE = 32;
@@ -38,9 +38,9 @@ class StencilShape extends dia.Element {
     }
     
     markup = [{
-            tagName: 'text',
-            selector: 'icon'
-        }];
+        tagName: 'text',
+        selector: 'icon'
+    }];
     
     static create(type) {
         const config = stencilShapesConfig[type];

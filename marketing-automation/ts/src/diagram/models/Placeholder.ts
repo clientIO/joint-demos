@@ -48,7 +48,7 @@ export default class Placeholder extends SystemPlaceholder<PlaceholderAttributes
                 },
                 buttonIcon: {
                     ...buttonIconAttributes,
-                    transform: `translate(calc(w/2), calc(h/2))`,
+                    transform: 'translate(calc(w/2), calc(h/2))',
                 }
             }
         };

@@ -35,7 +35,7 @@ export default class OpticalPowerMonitoring extends Card {
                     fontFamily: 'sans-serif'
                 }
             },
-        }
+        };
     }
 
     preinitialize(...args: any[]): void {

@@ -31,7 +31,7 @@ export const SwimlanePreview = dia.HighlighterView.extend({
 
         if (horizontal) {
             let y = 0;
-            let x = poolPadding.left;
+            const x = poolPadding.left;
             if (!swimlane) {
                 y = poolBBox.height - paddingBottom;
             } else {
@@ -44,7 +44,7 @@ export const SwimlanePreview = dia.HighlighterView.extend({
             });
         } else {
             let x = 0;
-            let y = poolPadding.top;
+            const y = poolPadding.top;
             if (!swimlane) {
                 x = poolBBox.width - paddingRight;
             } else {

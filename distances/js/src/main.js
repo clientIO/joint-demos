@@ -9,7 +9,7 @@ const namespace = {
         Distance,
         MainDistance
     }
-}
+};
 
 const graph = new dia.Graph({}, { cellNamespace: namespace });
 

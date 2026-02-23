@@ -18,7 +18,7 @@ function getOutsidePoint(bbox, angle, anchor, padding) {
     return point.round();
 }
 
-const mapping = function (vertices, opt, linkView) {
+const mapping = function(vertices, opt, linkView) {
     const link = linkView.model;
     const route = [];
     // Target Point

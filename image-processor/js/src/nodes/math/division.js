@@ -14,20 +14,20 @@ export class Division extends Node {
                 height: calculateHeight(2)
             },
             inputSettings: [{
-                    name: 'A',
-                    type: 'number',
-                    property: 'a',
-                    defaultValue: 0
-                }, {
-                    name: 'B',
-                    type: 'number',
-                    property: 'b',
-                    defaultValue: 0
-                }],
+                name: 'A',
+                type: 'number',
+                property: 'a',
+                defaultValue: 0
+            }, {
+                name: 'B',
+                type: 'number',
+                property: 'b',
+                defaultValue: 0
+            }],
             outputSettings: [{
-                    name: 'Result',
-                    type: 'number',
-                }]
+                name: 'Result',
+                type: 'number',
+            }]
         }, defaults);
     }
     
