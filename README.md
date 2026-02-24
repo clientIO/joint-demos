@@ -93,6 +93,33 @@ export JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 $env:JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
 
+## 🛠️ Root Scripts
+
+After cloning the repository, install the root dev dependencies once:
+
+```bash
+npm install
+```
+
+The following scripts are then available from the repository root:
+
+| Script | Command | Description |
+|---|---|---|
+| `lint` | `npm run lint` | Lint all JS/TS files using the root ESLint config |
+| `lint:fix` | `npm run lint:fix` | Lint and auto-fix all JS/TS files |
+| `build` | `npm run build` | Build all demos into `_site/` (stops on first failure) |
+| `build:force` | `npm run build:force` | Build all demos, continuing past failures |
+| `screenshot` | `npm run screenshot` | Capture screenshots for demos that don't have one yet |
+| `screenshot:update` | `npm run screenshot:update` | Regenerate screenshots for all demos |
+
+> [!NOTE]
+> `build` and `build:force` require Bash. On Windows, run them from Git Bash or WSL.
+>
+> `screenshot` and `screenshot:update` require Playwright's Chromium browser. Install it once with:
+> ```bash
+> npx playwright install chromium
+> ```
+
 ## 🤝 Resources
 
 - [Documentation](https://docs.jointjs.com/)
