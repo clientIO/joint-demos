@@ -16,7 +16,7 @@ const Theme = {
     ControlOutlineColor: '#D7E8D0',
 
     /** Border color of edges in the diagram. */
-    EdgeColor: '#B8CACD',
+    EdgeColor: '#A5ADB6',
 
     /** Color used to highlight edges during preview (e.g., when dragging a new connection) */
     EdgePreviewColor: '#275EE7',
