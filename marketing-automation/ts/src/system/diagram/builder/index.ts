@@ -1,4 +1,3 @@
-import type { dia } from '@joint/plus';
 import { util } from '@joint/plus';
 import { layoutCells } from './layouts/elk-layout';
 import { Attribute } from '../const';
@@ -6,10 +5,11 @@ import { extractGraphCells, setNodeAttribute, isNodeJSON } from './utils';
 import { setCustomPosition } from '../custom-positions';
 import { extractNodesIds } from '../data/utils';
 import { SystemButton, SystemButtonLine, SystemEdge, SystemPlaceholder } from '../models';
+import { runAfterLayout } from '../../../diagram/utils';
 
+import type { dia } from '@joint/plus';
 import type { BuildNode, GrowthLimit, BuildDiagramOptions } from './types';
 import type { SystemDiagramJSON, SystemTypedNodeData } from '../types';
-import { runAfterLayout } from '../../../diagram/utils';
 
 export * from './types';
 

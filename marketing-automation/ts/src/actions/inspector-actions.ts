@@ -1,8 +1,8 @@
 import { ui } from '@joint/plus';
+import { LabeledNode } from '../diagram/models';
 
 import type { App } from '../app';
 import type { Model } from '../diagram/types';
-import { LabeledNode } from '../diagram/models';
 
 /**
  * HTML string for the inspector empty state, used when the inspector is closed.

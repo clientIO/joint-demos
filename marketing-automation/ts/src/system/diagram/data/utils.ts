@@ -1,5 +1,6 @@
-import type { dia } from '@joint/plus';
 import { util } from '@joint/plus';
+
+import type { dia } from '@joint/plus';
 import type { SystemNodeData, SystemDiagramJSON, SystemEdgeData, SortIteratee } from '../types';
 
 // Data modification

@@ -1,6 +1,7 @@
-import type { dia, shapes } from '@joint/plus';
 import { HorizontalSwimlane, VerticalSwimlane } from '../shapes';
 import { swimlaneAttributes, fontAttributes, DEFAULT_POOL_WIDTH } from '../theme';
+
+import type { dia, shapes } from '@joint/plus';
 
 export function onPoolDragStart(_paper: dia.Paper, _poolView: dia.ElementView, _evt: dia.Event, _x: number, _y: number) {
     // no-op

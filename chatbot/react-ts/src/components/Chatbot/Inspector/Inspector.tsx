@@ -1,8 +1,5 @@
-import type { ReactElement } from 'react';
 import React, { useContext, useEffect, useState } from 'react';
-import type { dia, shapes } from '@joint/plus';
 import { Subscription } from 'rxjs';
-
 import MessageInspector from './MessageInspector';
 import './Inspector.scss';
 import LinkInspector from './LinkInspector';
@@ -10,6 +7,9 @@ import LabelInspector from './LabelInspector';
 import eventBusServiceContext from '../../../services/event-bus-service.context';
 import { SharedEvents } from '../../../joint-plus/controller';
 import { ShapeTypesEnum } from '../../../joint-plus/shapes/app.shapes';
+
+import type { ReactElement } from 'react';
+import type { dia, shapes } from '@joint/plus';
 
 const Inspector = (): ReactElement => {
     const [cell, setCell] = useState<dia.Cell>(null);

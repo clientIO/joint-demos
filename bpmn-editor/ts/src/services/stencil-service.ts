@@ -1,9 +1,10 @@
-import type { dia } from '@joint/plus';
 import { ui } from '@joint/plus';
 import { stencilShapes } from '../configs/stencil-config';
 import { getShapeConstructorByType } from '../utils';
 import StencilController from '../controllers/stencil-controller';
 import { StencilHoverHighlighter } from '../configs/stencil-config';
+
+import type { dia } from '@joint/plus';
 
 export default class StencilService {
 

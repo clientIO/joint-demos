@@ -1,10 +1,10 @@
-import type { mvc } from '@joint/plus';
 import { dia, util, V } from '@joint/plus';
-import type Trigger from '../models/Trigger';
 import AnimatedElementView from './AnimatedElementView';
 import Theme from '../theme';
 import { Attribute } from '../const';
 
+import type { mvc } from '@joint/plus';
+import type Trigger from '../models/Trigger';
 import type { TriggerCriteria } from '../models/Trigger';
 
 const CRITERIA_WIDTH = Theme.NodeWidth - 2 * Theme.NodeHorizontalPadding;

@@ -1,8 +1,9 @@
-import type { mvc } from '@joint/plus';
 import { dia, V } from '@joint/plus';
-import type { AgentSkill } from '../models/Agent';
 import Agent from '../models/Agent';
 import Theme from '../theme';
+
+import type { mvc } from '@joint/plus';
+import type { AgentSkill } from '../models/Agent';
 
 export default class AgentView extends dia.ElementView<Agent> {
 

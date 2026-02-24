@@ -1,6 +1,4 @@
-import type { dia } from '@joint/plus';
 import { shapes, util, V, type g } from '@joint/plus';
-import type { AppElement, AppLink, Marker } from '../shapes-typing';
 import { MarkerNames, ShapeTypes } from '../shapes-typing';
 import { dataObjectAppearanceConfig, dataStoreAppearanceConfig, dataAssociationAppearanceConfig, dataIconClasses, DataShapeTypes, DataLabels } from './data-config';
 import { ActivityShapeTypes } from '../activity/activity-config';
@@ -9,6 +7,9 @@ import { defaultAttrs, labelEditorWrapperStyles, markerClasses } from '../shared
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
+
+import type { dia } from '@joint/plus';
+import type { AppElement, AppLink, Marker } from '../shapes-typing';
 
 const LABEL_Y_OFFSET = 14;
 

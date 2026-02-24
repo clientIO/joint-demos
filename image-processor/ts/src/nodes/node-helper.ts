@@ -1,5 +1,3 @@
-import type { dia } from '@joint/plus';
-import type { Node } from './node';
 import { Display } from './basic/display';
 import { TextInput } from './inputs/text-input';
 import { Grayscale } from './filters/grayscale';
@@ -24,6 +22,9 @@ import { Multiplication } from './math/multiplication';
 import { Subtraction } from './math/subtraction';
 import { Threshold } from './transform/threshold';
 import { FillContours } from './transform/fill-contours';
+
+import type { dia } from '@joint/plus';
+import type { Node } from './node';
 
 export function createNodeByType(type: string): Node {
     switch (type) {

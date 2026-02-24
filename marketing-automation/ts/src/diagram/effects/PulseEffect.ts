@@ -1,6 +1,7 @@
 import { dia } from '@joint/plus';
-import type { Node } from '../models';
 import Theme from '../theme';
+
+import type { Node } from '../models';
 
 export interface PulseEffectOptions extends dia.HighlighterView.Options {
     /** The duration of one pulse cycle in seconds */

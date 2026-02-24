@@ -1,8 +1,9 @@
-import type { dia } from '@joint/core';
 import { elementTools, g } from '@joint/core';
-import type IsometricShape from '../shapes/isometric-shape';
 import { GRID_SIZE } from '../theme';
 import { SIZE_TOOL_MARKUP } from './tools';
+
+import type { dia } from '@joint/core';
+import type IsometricShape from '../shapes/isometric-shape';
 
 export class SizeControl extends elementTools.Control {
 

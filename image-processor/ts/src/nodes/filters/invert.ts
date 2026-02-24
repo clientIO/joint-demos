@@ -1,7 +1,8 @@
 import { util } from '@joint/plus';
-import type { ActionResult, NodeAttributes } from '../node';
 import { Node, calculateHeight } from '../node';
 import * as cv from '@techstark/opencv-js';
+
+import type { ActionResult, NodeAttributes } from '../node';
 export class Invert extends Node {
 
     defaults(): NodeAttributes {

@@ -1,8 +1,9 @@
-import type { ActionResult, NodeAttributes } from '../node';
 import { Node, NodeView } from '../node';
-import type { mvc, dia } from '@joint/plus';
 import { ui, util } from '@joint/plus';
 import * as cv from '@techstark/opencv-js';
+
+import type { ActionResult, NodeAttributes } from '../node';
+import type { mvc, dia } from '@joint/plus';
 export class DisplayView extends NodeView {
 
     initialize(): void {

@@ -1,7 +1,8 @@
-import type { dia } from '@joint/plus';
 import { util } from '@joint/plus';
 import { SystemButton } from '../../system/diagram/models';
 import Theme, { buttonBodyAttributes, buttonIconAttributes } from '../theme';
+
+import type { dia } from '@joint/plus';
 
 /** SVG markup for the button */
 const buttonMarkup = util.svg/* xml */`

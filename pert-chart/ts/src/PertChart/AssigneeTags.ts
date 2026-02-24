@@ -1,12 +1,13 @@
 
 import { dia, V } from '@joint/plus';
-import type { TaskElement } from './TaskElement';
 import {
     TASK_ROW_MARGIN, PROGRESS_ROW_HEIGHT, ASSIGNEE_TEXT_COLOR,
     ASSIGNEE_FONT_FAMILY, ASSIGNEE_FONT_SIZE, ASSIGNEE_GAP, ASSIGNEE_ICON_WIDTH, ASSIGNEE_PADDING,
     TASK_TEXT_COLOR,
 } from './theme';
 import { getItemIcon } from './utils';
+
+import type { TaskElement } from './TaskElement';
 
 export default class AssigneeTags extends dia.HighlighterView {
 

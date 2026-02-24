@@ -1,5 +1,6 @@
-import type { dia } from '@joint/plus';
 import { g, routers } from '@joint/plus';
+
+import type { dia } from '@joint/plus';
 import type { RouterOptions } from './interfaces';
 
 const DEFAULT_PADDING = 30;

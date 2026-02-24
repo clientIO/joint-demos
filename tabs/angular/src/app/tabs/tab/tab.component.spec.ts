@@ -1,7 +1,7 @@
-import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
-
 import { TabComponent } from './tab.component';
+
+import type { ComponentFixture } from '@angular/core/testing';
 
 describe('TabComponent', () => {
     let component: TabComponent;

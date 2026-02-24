@@ -1,5 +1,6 @@
-import type { dia } from '@joint/plus';
 import { g, anchors } from '@joint/plus';
+
+import type { dia } from '@joint/plus';
 
 export const anchorNamespace = { ...anchors };
 

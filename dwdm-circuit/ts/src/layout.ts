@@ -1,10 +1,11 @@
-import type { dia } from '@joint/core';
 import { Node, ExternalLink } from './shapes';
 import {
     NODE_MARGIN_HORIZONTAL, NODE_PADDING_VERTICAL,
     NODE_PADDING_HORIZONTAL,
     NODE_HEIGHT, NODE_COLLAPSED_WIDTH
 } from './theme';
+
+import type { dia } from '@joint/core';
 
 export function layout(graph: dia.Graph): number {
 

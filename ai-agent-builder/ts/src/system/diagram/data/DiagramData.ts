@@ -1,7 +1,7 @@
-import type { dia } from '@joint/plus';
 import { util, mvc } from '@joint/plus';
 import { removeEdge, removeNode, sortChildren, insertNode, appendNode, createNode, changeNode, addEdge, changeEdge } from './utils';
 
+import type { dia } from '@joint/plus';
 import type { SystemDiagramJSON, SystemNodeData, ToEdge } from '../types';
 
 export interface DiagramSetOptions extends mvc.ModelSetOptions {

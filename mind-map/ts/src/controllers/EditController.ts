@@ -1,8 +1,5 @@
-import type { dia } from '@joint/plus';
 import { ui } from '@joint/plus';
 import { Controller } from '../classes/Controller';
-import type { App } from '../classes/App';
-import type { IdeaView } from '../shapes/idea';
 import { openImagePicker } from '../utils';
 import {
     startEditingIdeaLabel,
@@ -18,6 +15,10 @@ import {
     blurIdea,
     showURLDialog,
 } from '../actions';
+
+import type { dia } from '@joint/plus';
+import type { App } from '../classes/App';
+import type { IdeaView } from '../shapes/idea';
 
 export default class EditController extends Controller<App> {
 

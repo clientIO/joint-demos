@@ -1,7 +1,8 @@
 import { mvc, ui } from '@joint/plus';
+import { getFocusableTextFieldElements } from '../utils';
+
 import type { App } from '../classes/App';
 import type { IdeaView } from '../shapes/idea';
-import { getFocusableTextFieldElements } from '../utils';
 
 const THEME = 'mind-map';
 

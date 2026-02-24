@@ -1,5 +1,6 @@
-import type { dia } from '@joint/plus';
 import { shapes, util } from '@joint/plus';
+
+import type { dia } from '@joint/plus';
 
 export class AddButton extends shapes.standard.Rectangle {
 

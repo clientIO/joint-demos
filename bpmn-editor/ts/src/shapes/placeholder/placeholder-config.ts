@@ -1,9 +1,10 @@
-import type { dia } from '@joint/plus';
-import type { LinkType } from '../shapes-typing';
 import { FlowShapeTypes } from '../flow/flow-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { DataShapeTypes } from '../data/data-config';
 import { MAIN_COLOR } from '../../configs/theme';
+
+import type { dia } from '@joint/plus';
+import type { LinkType } from '../shapes-typing';
 
 export enum PlaceholderShapeTypes {
     LINK = 'placeholder.Link'

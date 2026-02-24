@@ -9,11 +9,9 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
 import { ChatbotComponent } from './chatbot.component';
 import { JsonEditorComponent } from '../json-editor/json-editor.component';
 import { InspectorComponent } from '../inspector/inspector.component';
@@ -22,6 +20,8 @@ import { LabelInspectorComponent } from '../inspector/label-inspector/label-insp
 import { LinkInspectorComponent } from '../inspector/link-inspector/link-inspector.component';
 import { BatchDirective } from '../../directives/batch.directive';
 import { EventBusService } from '../../services/event-bus.service';
+
+import type { ComponentFixture } from '@angular/core/testing';
 
 
 describe('ChatbotComponent', () => {

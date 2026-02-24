@@ -1,7 +1,7 @@
-import type { dia } from '@joint/core';
 import { createLink, createNode, createParentNode } from './builders';
-import type { GraphBlueprint } from './blueprints';
 
+import type { dia } from '@joint/core';
+import type { GraphBlueprint } from './blueprints';
 import type { PaletteCycler } from './types';
 
 export const buildGraph = (blueprint: GraphBlueprint, palette: PaletteCycler): dia.Cell[] => {

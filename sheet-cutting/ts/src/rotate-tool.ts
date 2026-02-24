@@ -1,5 +1,6 @@
-import type { dia } from '@joint/plus';
 import { elementTools, util, g } from '@joint/plus';
+
+import type { dia } from '@joint/plus';
 import type { Polygon } from './polygon';
 
 export class RotateTool extends elementTools.Control {

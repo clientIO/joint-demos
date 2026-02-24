@@ -1,6 +1,7 @@
-import type { dia } from '@joint/core';
 import { g, mvc } from '@joint/core';
 import { GRID_COUNT, GRID_SIZE } from './theme';
+
+import type { dia } from '@joint/core';
 
 // Simplified version of obstacle detection.
 // It assumes that the grid is always square, which is true in our case

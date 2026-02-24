@@ -1,10 +1,11 @@
-import type { dia } from '@joint/plus';
 import { connectors, shapes } from '@joint/plus';
-import type { ImpFile, ImpFileConnection, ImpFileNode } from './file-format';
 import { App } from '../app';
-import type { Node } from '../nodes/node';
 import { createNodeByType, createNodeShape } from '../nodes/node-helper';
 import { Connection } from '../connection/connection';
+
+import type { dia } from '@joint/plus';
+import type { ImpFile, ImpFileConnection, ImpFileNode } from './file-format';
+import type { Node } from '../nodes/node';
 
 export function resetGraphFromFile(graph: dia.Graph, file: ImpFile) {
     graph.resetCells([]);

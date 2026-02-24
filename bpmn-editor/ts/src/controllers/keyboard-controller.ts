@@ -1,7 +1,8 @@
 import Controller from '../controller';
-import type { dia, ui } from '@joint/plus';
 import { shapes } from '@joint/plus';
 import { ZOOM_SETTINGS } from '../configs/navigator-config';
+
+import type { dia, ui } from '@joint/plus';
 
 type KeyboardControllerArgs = {
     graph: dia.Graph;

@@ -1,4 +1,3 @@
-import type { dia } from '@joint/plus';
 import { shapes } from '@joint/plus';
 import { fromBPMN, findExtensionElements } from '@joint/format-bpmn-import';
 import {
@@ -14,6 +13,8 @@ import {
     POOL_HEADER_SIZE,
     PHASE_HEADER_SIZE
 } from '../shapes';
+
+import type { dia } from '@joint/plus';
 
 export function importXML(graph: dia.Graph, xml: XMLDocument) {
 

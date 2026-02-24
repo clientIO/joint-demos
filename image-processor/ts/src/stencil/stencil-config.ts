@@ -1,6 +1,7 @@
-import type { ui } from '@joint/plus';
 import { dia } from '@joint/plus';
 import { createNodeByType } from '../nodes/node-helper';
+
+import type { ui } from '@joint/plus';
 
 class StencilElement extends dia.Element {
 

@@ -1,6 +1,7 @@
 import { util } from '@joint/plus';
-import type { ActionResult, NodeAttributes } from '../node';
 import { Node, calculateHeight } from '../node';
+
+import type { ActionResult, NodeAttributes } from '../node';
 import type * as cv from '@techstark/opencv-js';
 export class Sepia extends Node {
     defaults(): NodeAttributes {

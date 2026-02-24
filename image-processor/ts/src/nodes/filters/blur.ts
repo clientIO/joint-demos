@@ -1,8 +1,9 @@
 import { util } from '@joint/plus';
-import type { ActionResult, NodeAttributes } from '../node';
 import { Node, calculateHeight } from '../node';
-import type * as cv from '@techstark/opencv-js';
 import { App } from '../../app';
+
+import type { ActionResult, NodeAttributes } from '../node';
+import type * as cv from '@techstark/opencv-js';
 export class Blur extends Node {
     defaults(): NodeAttributes {
         const defaults = super.defaults();

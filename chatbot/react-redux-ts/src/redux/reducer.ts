@@ -9,11 +9,11 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { dia } from '@joint/plus';
-
 import { SharedEvents } from '../joint-plus/controller';
-import type JointPlusService from '../services/joint-plus.service';
 import { STORE_JOINT } from './helpers/actionTypes';
+
+import type { dia } from '@joint/plus';
+import type JointPlusService from '../services/joint-plus.service';
 
 export interface State {
     joint: JointPlusService;

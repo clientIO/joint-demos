@@ -1,5 +1,6 @@
-import type { graphUtils } from '@joint/plus';
 import { IDEA_USER_COLORS } from './theme';
+
+import type { graphUtils } from '@joint/plus';
 
 const example: graphUtils.ConstructTreeNode = {
     label: 'Business Plan\nwww.example.com\n\n2022',

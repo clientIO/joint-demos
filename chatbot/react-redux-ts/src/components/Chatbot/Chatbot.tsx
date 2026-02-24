@@ -1,16 +1,15 @@
-import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
 import './Chatbot.scss';
 import JointPlusService from '../../services/joint-plus.service';
 import JsonEditor from './JsonEditor/JsonEditor';
 import Inspector from './Inspector/Inspector';
 import { importGraphFromJSON, loadStencilShapes, zoomToFit } from '../../joint-plus/actions';
 import { STENCIL_WIDTH } from '../../theme';
-import type { State } from '../../redux/reducer';
-
 import exampleGraphJSON from '../../joint-plus/config/example-graph.json';
+
+import type { ReactElement } from 'react';
+import type { State } from '../../redux/reducer';
 
 const Chatbot = (): ReactElement => {
 

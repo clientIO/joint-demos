@@ -9,9 +9,7 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { mvc } from '@joint/plus';
 import { dia, shapes } from '@joint/plus';
-
 import {
     FONT_FAMILY,
     PADDING_L,
@@ -19,6 +17,8 @@ import {
     MAIN_COLOR,
     MESSAGE_ICON,
 } from '../../theme';
+
+import type { mvc } from '@joint/plus';
 
 export enum ShapeTypesEnum {
     MESSAGE = 'stencil.Message',

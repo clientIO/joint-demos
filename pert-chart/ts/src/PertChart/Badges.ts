@@ -1,4 +1,3 @@
-import type { dia } from '@joint/plus';
 import { V, highlighters } from '@joint/plus';
 import {
     BADGE_GAP, BADGE_ICON_SIZE, BADGE_ICON_MARGIN,
@@ -6,6 +5,8 @@ import {
     FILTER_SHADOW_ID,
     TASK_OUTLINE_COLOR,
 } from './theme';
+
+import type { dia } from '@joint/plus';
 
 export default class Badges extends highlighters.list {
     createListItem({ icon, description }, { width, height }, currentItemNode) {

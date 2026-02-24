@@ -9,14 +9,14 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { dia, shapes } from '@joint/plus';
 import { util } from '@joint/plus';
-
-import type JointPlusService from '../../services/joint-plus.service';
 import { Controller, SharedEvents } from '../controller';
 import * as actions from '../actions';
 import { actionCreator } from '../../redux/helpers/actionCreator';
 import { ZOOM_MIN, ZOOM_MAX, ZOOM_STEP } from '../../theme';
+
+import type { dia, shapes } from '@joint/plus';
+import type JointPlusService from '../../services/joint-plus.service';
 
 const DEBOUNCE_TIME_MS = 500;
 

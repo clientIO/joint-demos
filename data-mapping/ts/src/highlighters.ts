@@ -1,5 +1,6 @@
-import type { shapes } from '@joint/plus';
 import { dia } from '@joint/plus';
+
+import type { shapes } from '@joint/plus';
 
 interface Options {
     text?: string,

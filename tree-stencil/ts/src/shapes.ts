@@ -1,5 +1,6 @@
-import type { Vectorizer } from '@joint/plus';
 import { dia, shapes, g } from '@joint/plus';
+
+import type { Vectorizer } from '@joint/plus';
 
 const WIDTH = 80;
 const HEIGHT = 20;

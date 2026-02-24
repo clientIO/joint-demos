@@ -1,9 +1,10 @@
-import type { dia } from '@joint/core';
 import { elementTools, g } from '@joint/core';
-import type IsometricShape from '../shapes/isometric-shape';
 import { PyramidShape } from '../shapes/isometric-shape';
 import { SIZE_TOOL_MARKUP } from './tools';
 import { GRID_SIZE } from '../theme';
+
+import type { dia } from '@joint/core';
+import type IsometricShape from '../shapes/isometric-shape';
 
 export class ProportionalSizeControl extends elementTools.Control {
 

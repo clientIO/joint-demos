@@ -1,5 +1,6 @@
-import type { dia } from '@joint/plus';
 import { ui } from '@joint/plus';
+
+import type { dia } from '@joint/plus';
 
 export default class EditableTextWidget extends ui.Widget {
 

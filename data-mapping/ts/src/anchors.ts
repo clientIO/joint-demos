@@ -1,5 +1,6 @@
-import type { dia, shapes } from '@joint/plus';
 import { g, anchors } from '@joint/plus';
+
+import type { dia, shapes } from '@joint/plus';
 
 const mapping = function(view: dia.ElementView, magnet: SVGElement, ref: g.Point) {
     let anchor;

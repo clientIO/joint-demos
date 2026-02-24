@@ -1,14 +1,15 @@
 import Controller from '../controller';
-import type { ui } from '@joint/plus';
 import { dia, shapes } from '@joint/plus';
-import type InspectorService from '../services/inspector-service';
-import type { AppElement, AppLink } from '../shapes/shapes-typing';
 import { ShapeTypes } from '../shapes/shapes-typing';
 import { addEffect, removeEffect, EffectType } from '../effects';
-import type { BPMNLinkView } from '../shapes/placeholder/placeholder-shapes';
 import { isForkEvent, getPoolParent, resolveDefaultLinkType, getSwimlaneParent } from '../utils';
 import { PlaceholderShapeTypes } from '../shapes/placeholder/placeholder-config';
 import { ZOOM_SETTINGS } from '../configs/navigator-config';
+
+import type { ui } from '@joint/plus';
+import type InspectorService from '../services/inspector-service';
+import type { AppElement, AppLink } from '../shapes/shapes-typing';
+import type { BPMNLinkView } from '../shapes/placeholder/placeholder-shapes';
 
 type ViewControllerArgs = {
     paper: dia.Paper;

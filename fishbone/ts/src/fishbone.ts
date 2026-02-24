@@ -1,5 +1,6 @@
-import type { dia } from '@joint/core';
 import { g, util } from '@joint/core';
+
+import type { dia } from '@joint/core';
 
 const sin45 = Math.sin(Math.PI / 4);
 

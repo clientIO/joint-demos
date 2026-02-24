@@ -1,7 +1,7 @@
 import Controller from './Controller';
-import type { BuildDiagramOptions } from '../diagram/builder';
 import { buildDiagram } from '../diagram/builder';
 
+import type { BuildDiagramOptions } from '../diagram/builder';
 import type { dia } from '@joint/plus';
 import type { SystemDiagramContext } from '../diagram/types';
 

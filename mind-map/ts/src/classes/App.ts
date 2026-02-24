@@ -1,13 +1,14 @@
-import type { dia, ui, layout } from '@joint/plus';
-import type { Controller as _Controller } from './Controller';
-import type IdeaCollection from './IdeaCollection';
-import type TreeGraph from './TreeGraph';
 import { plugins } from '../plugins';
 import EditController from '../controllers/EditController';
 import ViewController from '../controllers/ViewController';
 import SelectionController from '../controllers/SelectionController';
 import LayoutController from '../controllers/LayoutController';
 import { Idea } from '../shapes/idea';
+
+import type { dia, ui, layout } from '@joint/plus';
+import type { Controller as _Controller } from './Controller';
+import type IdeaCollection from './IdeaCollection';
+import type TreeGraph from './TreeGraph';
 import type { Connection } from '../shapes/connection';
 
 export namespace App {

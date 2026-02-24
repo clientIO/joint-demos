@@ -7,10 +7,11 @@ import {
     ASSIGNEE_PADDING, FILTER_SHADOW_ID, ASSIGNEE_ROW_HEIGHT,
     TASK_OUTLINE_COLOR
 } from './theme';
-import type { TaskResource, TaskData } from './types';
 import { blendWithWhite, getItemIcon, measureTextSize } from './utils';
-import type { dia } from '@joint/plus';
 import { shapes, util } from '@joint/plus';
+
+import type { TaskResource, TaskData } from './types';
+import type { dia } from '@joint/plus';
 
 const { Record, RecordView } = shapes.standard;
 

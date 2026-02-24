@@ -1,8 +1,9 @@
 import { graphUtils } from '@joint/plus';
-import type { App } from '../classes/App';
 import { makeElement, makeLink } from '../shapes';
 import { layoutTree } from './layout';
 import { IDEA_LABEL_DEFAULT } from '../theme';
+
+import type { App } from '../classes/App';
 import type { Idea } from '../shapes/idea';
 
 export function importTreeNode(app: App, data: graphUtils.ConstructTreeNode) {

@@ -1,7 +1,8 @@
-import type { dia } from '@joint/plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
 import { addElementTools, removeElementTools } from '../tools';
 import { removeCell } from '../utils';
+
+import type { dia } from '@joint/plus';
 
 let selection: dia.Cell[] = null;
 

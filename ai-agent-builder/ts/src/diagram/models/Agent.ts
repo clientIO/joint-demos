@@ -1,9 +1,9 @@
-import type { dia } from '@joint/plus';
 import { util } from '@joint/plus';
 import LabeledNode from './LabeledNode';
 import Theme, { nodeLabelAttributes, typeLabelAttributes } from '../theme';
 import { Attribute } from '../const';
 
+import type { dia } from '@joint/plus';
 import type { LabeledNodeAttributes } from './LabeledNode';
 import type { InspectorConfig } from '../../types';
 

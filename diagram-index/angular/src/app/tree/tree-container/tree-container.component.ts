@@ -1,8 +1,9 @@
 import { NestedTreeControl } from '@angular/cdk/tree';
-import type { AfterViewInit, OnInit, ElementRef } from '@angular/core';
 import { Component, ViewChild } from '@angular/core';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { dia, highlighters, shapes, ui } from '@joint/plus';
+
+import type { AfterViewInit, OnInit, ElementRef } from '@angular/core';
 import type { TreeDataService } from '../tree-data.service';
 import type { TreeNode } from '../tree.models';
 

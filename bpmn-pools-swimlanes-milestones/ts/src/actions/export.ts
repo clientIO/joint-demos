@@ -1,6 +1,7 @@
-import type { dia } from '@joint/plus';
 import { util } from '@joint/plus';
 import { toBPMN, exportableObjects, createExtensionElement } from '@joint/format-bpmn-export';
+
+import type { dia } from '@joint/plus';
 
 class HorizontalPoolExportableObject extends exportableObjects.HorizontalPool {
 

@@ -1,8 +1,9 @@
-import type { dia } from '@joint/core';
 import { elementTools, g } from '@joint/core';
-import type { PyramidShape } from '../shapes/isometric-shape';
 import { ISOMETRIC_HEIGHT_TOOL_MARKUP } from './tools';
 import { GRID_SIZE } from '../theme';
+
+import type { dia } from '@joint/core';
+import type { PyramidShape } from '../shapes/isometric-shape';
 
 interface PyramidHeightControlOptions extends elementTools.Control.Options {
     /** The value of the isometric height after reset.

@@ -10,9 +10,9 @@ distributed by client IO. See the LICENSE file.
 */
 
 import { Directive } from '@angular/core';
+import { SharedEvents } from '../joint-plus/controller';
 
 import type { EventBusService } from '../services/event-bus.service';
-import { SharedEvents } from '../joint-plus/controller';
 
 const BATCH_NAME = 'inspector-input';
 

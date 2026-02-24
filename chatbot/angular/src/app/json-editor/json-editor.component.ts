@@ -9,13 +9,13 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-
-import type { EventBusService } from '../../services/event-bus.service';
 import { SharedEvents } from '../../joint-plus/controller';
+
+import type { OnInit } from '@angular/core';
+import type { EventBusService } from '../../services/event-bus.service';
 
 const DEBOUNCE_TIME_MS = 500;
 

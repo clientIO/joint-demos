@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import type { TreeNode } from './tree.models';
 import { dia, shapes } from '@joint/plus';
+
+import type { TreeNode } from './tree.models';
 
 const data: any[] = [
     {

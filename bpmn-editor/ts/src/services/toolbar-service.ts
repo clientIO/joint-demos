@@ -1,7 +1,8 @@
-import type { dia } from '@joint/plus';
 import { ui } from '@joint/plus';
 import toolbarConfig from '../configs/toolbar-config';
 import ToolbarActionsController from '../controllers/toolbar-actions-controller';
+
+import type { dia } from '@joint/plus';
 
 export default class ToolbarService {
 

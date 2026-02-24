@@ -1,8 +1,9 @@
-import type { dia, shapes } from '@joint/plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
 import { isStencilEvent, findViewFromEvent } from '../utils';
 import { deselect } from '../actions/selection';
 import { VerticalPhase, HorizontalPhase } from '../shapes';
+
+import type { dia, shapes } from '@joint/plus';
 
 export function onPhaseDragStart(paper: dia.Paper, _elementView: dia.ElementView, evt: dia.Event, _x: number, _y: number) {
     if (isStencilEvent(evt)) {

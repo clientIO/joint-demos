@@ -1,5 +1,6 @@
-import type { dia } from '@joint/plus';
 import { shapes, ui } from '@joint/plus';
+
+import type { dia } from '@joint/plus';
 import type { AppElement } from '../shapes/shapes-typing';
 
 const freeTransformAttributes = {

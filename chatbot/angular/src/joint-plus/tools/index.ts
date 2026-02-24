@@ -9,10 +9,10 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { shapes } from '@joint/plus';
 import { dia, elementTools, linkTools } from '@joint/plus';
-
 import { RemoveTool } from './remove.tool';
+
+import type { shapes } from '@joint/plus';
 
 export function addCellTools(cellView: dia.CellView): void {
     if (cellView.model.isLink()) {

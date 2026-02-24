@@ -9,9 +9,7 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { ElementRef, OnInit } from '@angular/core';
 import { Component, ViewChild } from '@angular/core';
-
 import { StencilService } from '../services/stencil-service';
 import { ToolbarService } from '../services/toolbar-service';
 import { InspectorService } from '../services/inspector-service';
@@ -19,8 +17,9 @@ import { HaloService } from '../services/halo-service';
 import { KeyboardService } from '../services/keyboard-service';
 import { NavigatorService } from '../services/navigator-service';
 import RappidService from '../services/kitchensink-service';
-
 import { sampleGraphs } from '../config/sample-graphs';
+
+import type { ElementRef, OnInit } from '@angular/core';
 
 @Component({
     selector: 'app-root',

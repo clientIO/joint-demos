@@ -9,6 +9,18 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
+import {
+    Component,
+    ViewChild,
+    ViewEncapsulation
+} from '@angular/core';
+import { Subscription } from 'rxjs';
+import JointPlusService from '../../services/joint-plus.service';
+import { STENCIL_WIDTH } from '../../theme';
+import { SharedEvents } from '../../joint-plus/controller';
+import { loadStencilShapes, importGraphFromJSON, zoomToFit } from '../../joint-plus/actions';
+import exampleGraphJSON from '../../joint-plus/config/example-graph.json';
+
 import type {
     AfterViewInit,
     ChangeDetectorRef,
@@ -16,20 +28,7 @@ import type {
     OnDestroy,
     OnInit,
     Renderer2 } from '@angular/core';
-import {
-    Component,
-    ViewChild,
-    ViewEncapsulation
-} from '@angular/core';
-import { Subscription } from 'rxjs';
-
-import JointPlusService from '../../services/joint-plus.service';
 import type { EventBusService } from '../../services/event-bus.service';
-import { STENCIL_WIDTH } from '../../theme';
-import { SharedEvents } from '../../joint-plus/controller';
-import { loadStencilShapes, importGraphFromJSON, zoomToFit } from '../../joint-plus/actions';
-
-import exampleGraphJSON from '../../joint-plus/config/example-graph.json';
 
 @Component({
     selector: 'chatbot',

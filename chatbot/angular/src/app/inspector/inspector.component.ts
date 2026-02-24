@@ -9,19 +9,19 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type {
-    OnDestroy,
-    OnInit
-} from '@angular/core';
 import {
     Component
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import type { dia } from '@joint/plus';
-
-import type { EventBusService } from '../../services/event-bus.service';
 import { ShapeTypesEnum } from '../../joint-plus/shapes/app.shapes';
 import { SharedEvents } from '../../joint-plus/controller';
+
+import type {
+    OnDestroy,
+    OnInit
+} from '@angular/core';
+import type { dia } from '@joint/plus';
+import type { EventBusService } from '../../services/event-bus.service';
 
 
 @Component({

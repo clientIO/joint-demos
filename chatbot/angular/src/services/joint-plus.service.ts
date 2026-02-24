@@ -10,12 +10,12 @@ distributed by client IO. See the LICENSE file.
 */
 
 import { Subscription } from 'rxjs';
-import type { dia, ui } from '@joint/plus';
-
-import type { EventBusService } from './event-bus.service';
-import type { Controller } from '../joint-plus/controller';
 import { createPlugins } from '../joint-plus/plugins';
 import { JointPlusController, KeyboardController } from '../joint-plus/controllers';
+
+import type { dia, ui } from '@joint/plus';
+import type { EventBusService } from './event-bus.service';
+import type { Controller } from '../joint-plus/controller';
 
 export class JointPlusService {
 

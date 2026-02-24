@@ -1,5 +1,6 @@
-import type { ui } from '@joint/plus';
 import { dia, util } from '@joint/plus';
+
+import type { ui } from '@joint/plus';
 
 export interface DurationNumberInputOptions extends dia.HighlighterView.Options {
     layoutView: ui.StackLayoutView,

@@ -1,8 +1,9 @@
-import type { shapes } from '@joint/plus';
 import { type dia } from '@joint/plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
 import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentPath } from '../utils';
 import { ShapeTypes } from '../shapes/shapes-typing';
+
+import type { shapes } from '@joint/plus';
 
 export function onElementDragStart(_paper: dia.Paper, elementView: dia.ElementView, _evt: dia.Event, _x: number, _y: number) {
     addEffect(elementView, EffectType.Shadow);

@@ -1,6 +1,7 @@
+import { Node, NodeLink } from './shapes';
+
 import type { dia } from '@joint/core';
 import type { Link } from './shapes';
-import { Node, NodeLink } from './shapes';
 
 interface INode {
     x: number;

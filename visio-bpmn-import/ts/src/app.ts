@@ -1,6 +1,7 @@
 import { dia, shapes } from '@joint/plus';
-import type { VisioPageContent } from '@joint/format-visio';
 import { VisioArchive, types } from '@joint/format-visio';
+
+import type { VisioPageContent } from '@joint/format-visio';
 
 const { VisioSectionType } = types;
 const { bpmn2, standard } = shapes;

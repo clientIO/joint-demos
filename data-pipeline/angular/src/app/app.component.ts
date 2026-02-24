@@ -1,7 +1,3 @@
-import type {
-    ElementRef,
-    AfterViewInit,
-    OnDestroy } from '@angular/core';
 import {
     Component,
     ViewChild
@@ -11,6 +7,11 @@ import { DirectedGraph } from '@joint/layout-directed-graph';
 import { Node, GRID_SIZE } from './models/node';
 import { Edge } from './models/edge';
 import { createSampleDiagram } from './sample-diagram';
+
+import type {
+    ElementRef,
+    AfterViewInit,
+    OnDestroy } from '@angular/core';
 
 
 /** Cell namespace mapping type strings to shape constructors for graph deserialization. */

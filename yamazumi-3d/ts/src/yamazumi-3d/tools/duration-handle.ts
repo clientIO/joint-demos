@@ -1,5 +1,6 @@
-import type { dia, ui } from '@joint/plus';
 import { elementTools } from '@joint/plus';
+
+import type { dia, ui } from '@joint/plus';
 
 export interface DurationHandleOptions extends elementTools.Control.Options{
     durationHeight: number,

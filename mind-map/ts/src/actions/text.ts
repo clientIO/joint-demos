@@ -1,9 +1,10 @@
-import type { dia } from '@joint/plus';
 import { ui } from '@joint/plus';
-import type { App } from '../classes/App';
-import type { Idea, IdeaView } from '../shapes/idea';
 import { IDEA_LABEL_PLACEHOLDER, IDEA_URL_COLOR } from '../theme';
 import { prependHttp } from '../utils';
+
+import type { dia } from '@joint/plus';
+import type { App } from '../classes/App';
+import type { Idea, IdeaView } from '../shapes/idea';
 
 const { TextEditor } = ui;
 

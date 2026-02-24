@@ -1,6 +1,7 @@
 import { dia, shapes, setTheme } from '@joint/plus';
-import type { List } from './stencil';
 import { createStencil } from './stencil';
+
+import type { List } from './stencil';
 
 export const init = () => {
 

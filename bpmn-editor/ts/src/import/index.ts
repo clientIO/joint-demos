@@ -1,7 +1,8 @@
-import type { dia, ui } from '@joint/plus';
 import { fromBPMN } from '@joint/format-bpmn-import';
 import { bpmnImportOptions } from '../shapes/factories';
 import { importBPMN } from '../utils';
+
+import type { dia, ui } from '@joint/plus';
 
 interface FileImporter {
     canHandle(file: File): boolean;

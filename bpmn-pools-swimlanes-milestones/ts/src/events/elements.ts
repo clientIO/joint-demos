@@ -1,6 +1,7 @@
-import type { dia, shapes } from '@joint/plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
 import { isStencilEvent, findViewFromEvent } from '../utils';
+
+import type { dia, shapes } from '@joint/plus';
 
 export function onElementDragStart(_paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, _x: number, _y: number) {
     if (isStencilEvent(evt)) {

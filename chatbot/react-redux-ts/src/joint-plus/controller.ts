@@ -9,8 +9,9 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type JointPlusService from '../services/joint-plus.service';
 import { mvc } from '@joint/plus';
+
+import type JointPlusService from '../services/joint-plus.service';
 
 export enum SharedEvents {
     JSON_EDITOR_CHANGED = 'json-editor-changed',

@@ -5,9 +5,9 @@ import { getParentChildLinks, getMateLinks } from './data';
 import { layoutGenogram } from './layout';
 import { createPersonElement, setupLineageHighlighting, buildFamilyTree } from './utils';
 import { applySymbolHighlighters } from './highlighters';
-import type { PersonNode } from './data';
-
 import './styles.css';
+
+import type { PersonNode } from './data';
 
 // --- All available datasets (Vite eager imports) ---
 const dataModules = import.meta.glob<PersonNode[]>('./families/*.json', { eager: true, import: 'default' });

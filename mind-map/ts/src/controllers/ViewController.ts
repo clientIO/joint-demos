@@ -1,6 +1,4 @@
-import type { dia } from '@joint/plus';
 import { Controller } from '../classes/Controller';
-import type { App } from '../classes/App';
 import {
     selectParent,
     selectNextSibling,
@@ -11,6 +9,9 @@ import {
     showHelpDialog,
     openURL,
 } from '../actions';
+
+import type { dia } from '@joint/plus';
+import type { App } from '../classes/App';
 import type { IdeaView } from '../shapes/idea';
 
 export default class ViewController extends Controller<App> {

@@ -9,13 +9,13 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { dia, ui } from '@joint/plus';
-
-import type { Controller } from '../joint-plus/controller';
 import { createPlugins } from '../joint-plus/plugins';
 import { JointPlusController, KeyboardController } from '../joint-plus/controllers';
 import { actionCreator } from '../redux/helpers/actionCreator';
 import { STORE_JOINT } from '../redux/helpers/actionTypes';
+
+import type { dia, ui } from '@joint/plus';
+import type { Controller } from '../joint-plus/controller';
 
 export class JointPlusService {
 

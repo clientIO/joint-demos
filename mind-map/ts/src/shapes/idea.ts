@@ -1,5 +1,6 @@
-import type { ui, attributes as diaAttributes } from '@joint/plus';
 import { dia, V, util } from '@joint/plus';
+
+import type { ui, attributes as diaAttributes } from '@joint/plus';
 const { Element, ElementView } = dia;
 
 function measureText(svgDocument: SVGElement, text: string, attrs: object, annotations: any) {

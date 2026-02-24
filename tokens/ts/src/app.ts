@@ -2,9 +2,10 @@ import { g, dia, ui, shapes, util, V } from '@joint/plus';
 import { DirectedGraph } from '@joint/layout-directed-graph';
 import { data } from './gdata';
 import { tokensData } from './gtoken';
-import type { IData, IArc, IToken } from './interfaces/interfaces';
 import { Node, Link, Token } from './shapes';
 import WebGLHeatmap from '@nbxx/webgl-heatmap';
+
+import type { IData, IArc, IToken } from './interfaces/interfaces';
 
 export const init = () => {
     const canvas = document.getElementById('canvas');

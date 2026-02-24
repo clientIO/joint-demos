@@ -1,7 +1,8 @@
 import { Connection } from '../connection/connection';
+import { mvc } from '@joint/plus';
+
 import type { ActionResult, Node } from '../nodes/node';
 import type { dia } from '@joint/plus';
-import { mvc } from '@joint/plus';
 
 export type ErrorType = 'type-error';
 export class Processor {

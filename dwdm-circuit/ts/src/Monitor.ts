@@ -1,5 +1,6 @@
-import type { dia } from '@joint/core';
 import { Card, ExternalLink } from './shapes';
+
+import type { dia } from '@joint/core';
 
 interface MonitorComponent {
     cell: dia.Cell;

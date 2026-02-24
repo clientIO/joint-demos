@@ -1,7 +1,5 @@
-import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Subscription } from 'rxjs';
-
 import './Chatbot.scss';
 import JointPlusService from '../../services/joint-plus.service';
 import JsonEditor from './JsonEditor/JsonEditor';
@@ -11,8 +9,9 @@ import { EventBusService } from '../../services/event-bus.service';
 import { SharedEvents } from '../../joint-plus/controller';
 import { importGraphFromJSON, loadStencilShapes, zoomToFit } from '../../joint-plus/actions';
 import { STENCIL_WIDTH } from '../../theme';
-
 import exampleGraphJSON from '../../joint-plus/config/example-graph.json';
+
+import type { ReactElement } from 'react';
 
 const Chatbot = (): ReactElement => {
 

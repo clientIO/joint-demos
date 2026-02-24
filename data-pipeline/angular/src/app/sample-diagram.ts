@@ -1,6 +1,7 @@
-import type { dia } from '@joint/plus';
 import { Node, GRID_SIZE } from './models/node';
 import { Edge } from './models/edge';
+
+import type { dia } from '@joint/plus';
 
 const G = GRID_SIZE;
 const NODE_WIDTH = 26 * G;

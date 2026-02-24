@@ -1,10 +1,11 @@
-import type { dia } from '@joint/plus';
 import { shapes, V, g } from '@joint/plus';
-import type { VerticalPool } from '../shapes/pool/pool-shapes';
 import { type HorizontalPool, HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes';
 import { DEFAULT_HORIZONTAL_POOL_SIZE, DEFAULT_VERTICAL_POOL_SIZE, SWIMLANE_HEADER_SIZE } from '../shapes/pool/pool-config';
 import { ShapeTypes } from '../shapes/shapes-typing';
 import { MAIN_COLOR } from '../configs/theme';
+
+import type { dia } from '@joint/plus';
+import type { VerticalPool } from '../shapes/pool/pool-shapes';
 
 type PoolPreviewEventData = {
     node: SVGElement;

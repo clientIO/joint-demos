@@ -1,9 +1,10 @@
 import { dia, shapes, util, g } from '@joint/core';
-import type { Options } from '@joint/layout-msagl';
 import { layout, LayerDirectionEnum, EdgeRoutingMode } from '@joint/layout-msagl';
 import { createGraph, defaultGraphType, graphTitles } from './graph/presets';
-import type { GraphMeta, GraphType } from './graph/types';
 import '../css/styles.css';
+
+import type { Options } from '@joint/layout-msagl';
+import type { GraphMeta, GraphType } from './graph/types';
 
 const graph = new dia.Graph({}, { cellNamespace: shapes });
 const paper = new dia.Paper({

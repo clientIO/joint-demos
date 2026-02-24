@@ -1,7 +1,5 @@
 import { type dia, g, shapes } from '@joint/plus';
-import type { ExportOptions } from '@joint/format-bpmn-export';
 import { exportableObjects } from '@joint/format-bpmn-export';
-import type { ImportOptions } from '@joint/format-bpmn-import';
 import { ActivityShapeTypes } from './activity/activity-config';
 import { AnnotationShapeTypes } from './annotation/annotation-config';
 import { DataShapeTypes } from './data/data-config';
@@ -56,6 +54,9 @@ import { Annotation, AnnotationLink } from './annotation/annotation-shapes';
 import { MarkerNames } from './shapes-typing';
 import { PoolShapeTypes } from './pool/pool-config';
 import { HorizontalPool, HorizontalSwimlane, VerticalPool, VerticalSwimlane } from './pool/pool-shapes';
+
+import type { ExportOptions } from '@joint/format-bpmn-export';
+import type { ImportOptions } from '@joint/format-bpmn-import';
 
 class ExportableActivity extends exportableObjects.Activity {
 

@@ -1,11 +1,12 @@
-import type { Range } from '@codemirror/state';
 import { StateEffect, StateField } from '@codemirror/state';
-import type { DecorationSet } from '@codemirror/view';
 import { Decoration, keymap } from '@codemirror/view';
 import { EditorView, basicSetup } from 'codemirror';
 import { indentWithTab } from '@codemirror/commands';
 import { javascript } from '@codemirror/lang-javascript';
 import presets from './presets';
+
+import type { Range } from '@codemirror/state';
+import type { DecorationSet } from '@codemirror/view';
 
 export function getChildren(node: any) {
 

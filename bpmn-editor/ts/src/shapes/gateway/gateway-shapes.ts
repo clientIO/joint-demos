@@ -1,6 +1,4 @@
-import type { dia } from '@joint/plus';
 import { type g, shapes, util, V } from '@joint/plus';
-import type { AppElement } from '../shapes-typing';
 import { ShapeTypes } from '../shapes-typing';
 import { gatewayAppearanceConfig, gatewayIconClasses, GatewayLabels, GatewayShapeTypes } from './gateway-config';
 import { ActivityShapeTypes } from '../activity/activity-config';
@@ -9,6 +7,9 @@ import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
 import { isPoolShared } from '../../utils';
+
+import type { dia } from '@joint/plus';
+import type { AppElement } from '../shapes-typing';
 
 const LABEL_Y_OFFSET = 14;
 

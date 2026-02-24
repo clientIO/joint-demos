@@ -1,5 +1,6 @@
-import type { layout } from '@joint/plus';
 import { dia, util } from '@joint/plus';
+
+import type { layout } from '@joint/plus';
 
 export default class TreeGraph<
     E extends dia.Element = dia.Element,

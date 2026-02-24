@@ -1,8 +1,9 @@
-import type { anchors, connectors, connectionStrategies } from '@joint/plus';
 import { dia } from '@joint/plus';
 import { Attribute } from '../diagram/const';
 import { SystemButton } from '../diagram/models';
 import cubicConnector from '../../features/cubic-connector';
+
+import type { anchors, connectors, connectionStrategies } from '@joint/plus';
 
 export const magnetThreshold = 'onleave';
 export const clickThreshold = 10;

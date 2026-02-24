@@ -1,7 +1,8 @@
-import type { dia } from '@joint/plus';
 import { util } from '@joint/plus';
 import { Milestone, Category, Event } from './shapes';
 import { makeLink } from './utils';
+
+import type { dia } from '@joint/plus';
 
 interface TimelineNode {
     id: dia.Cell.ID;

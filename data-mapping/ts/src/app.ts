@@ -1,11 +1,12 @@
 import { dia, ui, setTheme, shapes, util, elementTools, format } from '@joint/plus';
-import type { Constant, Concat, GetDate, Record } from './shapes';
 import { Link } from './shapes';
 import { Decorator } from './highlighters';
 import { SourceArrowhead, TargetArrowhead, Button } from './link-tools';
 import { routerNamespace } from './routers';
 import { anchorNamespace } from './anchors';
 import { loadExample } from './example';
+
+import type { Constant, Concat, GetDate, Record } from './shapes';
 
 type Records = Constant | Concat | GetDate | Record;
 

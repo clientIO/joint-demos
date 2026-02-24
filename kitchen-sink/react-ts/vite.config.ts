@@ -1,8 +1,9 @@
-import type { Plugin } from 'vite';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
+
+import type { Plugin } from 'vite';
 
 function copyAndDeleteThemeAssets(): Plugin {
     const srcDir = 'joint-light-theme/assets';

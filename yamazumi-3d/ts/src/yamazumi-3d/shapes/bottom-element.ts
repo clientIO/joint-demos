@@ -1,8 +1,9 @@
-import type { dia } from '@joint/plus';
 import { util } from '@joint/plus';
+import { RectPrism, RectPrismView } from './rect-prism';
+
+import type { dia } from '@joint/plus';
 import type { Operator } from '../models';
 import type { RectPrismAttributes } from './rect-prism';
-import { RectPrism, RectPrismView } from './rect-prism';
 
 const TYPE = 'yamazumi.BottomElement';
 

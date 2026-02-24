@@ -1,11 +1,12 @@
-import type { dia } from '@joint/plus';
 import { shapes, util, V } from '@joint/plus';
-import type { AppLink } from '../shapes-typing';
 import { ShapeTypes } from '../shapes-typing';
 import { flowAppearanceConfig, flowIconClasses, FlowLabels, FlowShapeTypes } from './flow-config';
 import { defaultAttrs } from '../shared-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
+
+import type { dia } from '@joint/plus';
+import type { AppLink } from '../shapes-typing';
 
 abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
 

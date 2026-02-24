@@ -1,12 +1,13 @@
-import type { dia } from '@joint/plus';
 import { type g, shapes, util, V } from '@joint/plus';
-import type { AppElement, AppLink } from '../shapes-typing';
 import { ShapeTypes } from '../shapes-typing';
 import { annotationAppearanceConfig, annotationLinkAppearanceConfig, AnnotationShapeTypes } from './annotation-config';
 import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { handles } from '../../configs/halo-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
 import { getPoolParent } from '../../utils';
+
+import type { dia } from '@joint/plus';
+import type { AppElement, AppLink } from '../shapes-typing';
 
 export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
 

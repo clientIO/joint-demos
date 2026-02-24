@@ -1,4 +1,3 @@
-import type { dia } from '@joint/plus';
 import { util } from '@joint/plus';
 import { layoutCells } from './layouts/dagre-layout';
 import { Attribute } from '../const';
@@ -7,6 +6,7 @@ import { setCustomPosition } from '../custom-positions';
 import { extractNodesIds } from '../data/utils';
 import { SystemButton, SystemButtonLine, SystemEdge, SystemPlaceholder } from '../models';
 
+import type { dia } from '@joint/plus';
 import type { BuildNode, GrowthLimit, BuildDiagramOptions } from './types';
 import type { SystemDiagramJSON, SystemTypedNodeData } from '../types';
 

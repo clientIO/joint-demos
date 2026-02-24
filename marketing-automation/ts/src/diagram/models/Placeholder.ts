@@ -1,7 +1,8 @@
-import type { dia } from '@joint/plus';
 import { util } from '@joint/plus';
 import { SystemPlaceholder } from '../../system/diagram/models';
 import Theme, { buttonBodyAttributes, buttonIconAttributes } from '../theme';
+
+import type { dia } from '@joint/plus';
 
 /** SVG markup for the placeholder */
 const placeholderMarkup = util.svg/* xml*/`

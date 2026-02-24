@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
-import type { Routes } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { TreeContainerComponent } from './tree-container/tree-container.component';
+
+import type { Routes } from '@angular/router';
 
 const routes: Routes = [
     { path: 'tree-container', component: TreeContainerComponent }

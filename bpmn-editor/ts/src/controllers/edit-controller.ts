@@ -4,12 +4,13 @@ import { labelEditorWrapperStyles } from '../shapes/shared-config';
 import { prepareLinkReplacement, validateAndReplaceConnections } from '../utils';
 import { type AppShape, type AppElement, type AppLink } from '../shapes/shapes-typing';
 import { type dia, shapes, ui } from '@joint/plus';
+import { onSwimlaneDrag, onSwimlaneDragEnd, onSwimlaneDragStart } from '../events/swimlanes';
+import { onElementDrag, onElementDragEnd, onElementDragStart } from '../events/elements';
+
 import type HaloService from '../services/halo-service';
 import type InspectorService from '../services/inspector-service';
 import type LinkToolsService from '../services/link-tools-service';
 import type FreeTransformService from '../services/free-transform-service';
-import { onSwimlaneDrag, onSwimlaneDragEnd, onSwimlaneDragStart } from '../events/swimlanes';
-import { onElementDrag, onElementDragEnd, onElementDragStart } from '../events/elements';
 import type { LabelElementView } from '../shapes/shape-view';
 
 type EditControllerArgs = {

@@ -1,6 +1,7 @@
-import type { ui } from '@joint/plus';
 import { dia } from '@joint/plus';
 import { DEFAULT_TEXT_ATTRIBUTES } from './config';
+
+import type { ui } from '@joint/plus';
 
 const PADDING = 25;
 const CORNER = 20;

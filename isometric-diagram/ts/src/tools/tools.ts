@@ -1,6 +1,7 @@
-import type { dia } from '@joint/core';
 import { linkTools, util } from '@joint/core';
 import { BG_COLOR, GRID_SIZE, HIGHLIGHT_COLOR } from '../theme';
+
+import type { dia } from '@joint/core';
 
 const SIZE = 6;
 const CONNECT_TOOL_SIZE = 10;

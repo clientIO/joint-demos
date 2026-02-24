@@ -1,6 +1,6 @@
-import type { dia } from '@joint/plus';
 import { elementTools, util } from '@joint/plus';
 
+import type { dia } from '@joint/plus';
 import type Note from '../models/Note';
 
 

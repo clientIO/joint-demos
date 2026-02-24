@@ -1,6 +1,7 @@
-import type { g } from '@joint/plus';
 import { util, dia, ui, layout, V, elementTools, linkTools, highlighters } from '@joint/plus';
 import { Header, Task as TaskShape, Dependency as DependencyShape, AddButton } from '../shapes';
+
+import type { g } from '@joint/plus';
 import type { Column, Dependency, Task, TaskState } from './models';
 
 export interface KanbanOptions {

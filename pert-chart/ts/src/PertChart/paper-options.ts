@@ -1,5 +1,6 @@
-import type { dia, g } from '@joint/plus';
 import { anchors, connectors } from '@joint/plus';
+
+import type { dia, g } from '@joint/plus';
 
 const LINK_SOURCE_ANCHOR_OFFSET = 25;
 const LINK_TARGET_ANCHOR_OFFSET = 30;

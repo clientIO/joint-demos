@@ -1,6 +1,7 @@
-import type { dia } from '@joint/plus';
 import { connectors } from '@joint/plus';
 import { TREE_PARENT_GAP } from '../theme';
+
+import type { dia } from '@joint/plus';
 
 const connector: connectors.Connector = function(
     this: dia.LinkView,

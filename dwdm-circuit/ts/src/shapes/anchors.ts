@@ -1,5 +1,6 @@
-import type { anchors } from '@joint/core';
 import { getPortLinks, isCellHidden } from './utils';
+
+import type { anchors } from '@joint/core';
 
 // Shift the anchor point of a link to avoid overlapping with other links (max 2 links per port).
 export const multiLinkAnchor: anchors.Anchor = function(

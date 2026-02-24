@@ -1,7 +1,8 @@
-import type { ui } from '@joint/plus';
 import { util } from '@joint/plus';
-import type { ActionResult, NodeAttributes } from '../node';
 import { Node, calculateHeight } from '../node';
+
+import type { ui } from '@joint/plus';
+import type { ActionResult, NodeAttributes } from '../node';
 import type * as cv from '@techstark/opencv-js';
 
 export class Properties extends Node {

@@ -1,5 +1,6 @@
-import type { AfterViewInit, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+
+import type { AfterViewInit, OnInit } from '@angular/core';
 
 @Component({
     selector: 'app-root',

@@ -1,6 +1,7 @@
-import type { mvc } from '@joint/plus';
 import { dia, ui, util } from '@joint/plus';
 import { App } from '../app';
+
+import type { mvc } from '@joint/plus';
 
 export type ActionResult = any[];
 export interface NodeInput {

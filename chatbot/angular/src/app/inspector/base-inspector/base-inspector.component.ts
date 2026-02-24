@@ -9,8 +9,9 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { Component, Input } from '@angular/core';
+
+import type { OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import type { dia } from '@joint/plus';
 
 export interface Properties {

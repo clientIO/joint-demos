@@ -1,7 +1,6 @@
 import { anchors, connectors, dia, highlighters, shapes, ui } from '@joint/plus';
 import { StencilService } from './stencil/stencil-service';
 import { Processor } from './processor/processor';
-import type { ConnectionSource, ConnectionTarget } from './connection/connection';
 import { Connection } from './connection/connection';
 import { Node, NodeView } from './nodes/node';
 import { createNodeShape } from './nodes/node-helper';
@@ -36,6 +35,8 @@ import { Division } from './nodes/math/division';
 import { Subtraction } from './nodes/math/subtraction';
 import { FillContours } from './nodes/transform/fill-contours';
 import { NavigatorService } from './navigator/navigator-service';
+
+import type { ConnectionSource, ConnectionTarget } from './connection/connection';
 
 joint.setTheme('light');
 

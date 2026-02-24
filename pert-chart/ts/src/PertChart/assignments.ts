@@ -1,10 +1,11 @@
-import type { dia, g } from '@joint/plus';
 import { shapes, ui, util, highlighters, mvc } from '@joint/plus';
+import { StencilHoverHighlighter } from './StencilHoverHighlighter';
+import { getItemIcon } from './utils';
+
+import type { dia, g } from '@joint/plus';
 import type { TaskElement } from './TaskElement';
 import type { TaskId, TaskResource } from './types';
 import type { PertChartOptions } from './PertChart';
-import { StencilHoverHighlighter } from './StencilHoverHighlighter';
-import { getItemIcon } from './utils';
 
 export interface AssignmentChangeData {
     task: TaskId;

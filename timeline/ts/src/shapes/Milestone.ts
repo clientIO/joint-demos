@@ -1,5 +1,6 @@
-import type { dia } from '@joint/core';
 import { shapes, util } from '@joint/core';
+
+import type { dia } from '@joint/core';
 import type { ITimelineShape } from './index';
 
 export class Milestone extends shapes.standard.Rectangle implements ITimelineShape {

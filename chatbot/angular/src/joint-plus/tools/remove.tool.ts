@@ -9,8 +9,9 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { dia } from '@joint/plus';
 import { elementTools } from '@joint/plus';
+
+import type { dia } from '@joint/plus';
 
 export const RemoveTool = elementTools.Remove.extend({
     options: {

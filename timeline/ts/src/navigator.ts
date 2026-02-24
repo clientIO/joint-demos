@@ -1,5 +1,6 @@
-import type { layout } from '@joint/plus';
 import { dia, util, ui } from '@joint/plus';
+
+import type { layout } from '@joint/plus';
 
 const HEIGHT = 44;
 const PADDING = 12;

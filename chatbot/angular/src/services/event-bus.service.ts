@@ -10,10 +10,11 @@ distributed by client IO. See the LICENSE file.
 */
 
 import { Injectable } from '@angular/core';
-import type { Observable, Subscription } from 'rxjs';
 import { Subject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { mvc } from '@joint/plus';
+
+import type { Observable, Subscription } from 'rxjs';
 
 interface SharedEvent {
     name: string;

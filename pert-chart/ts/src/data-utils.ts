@@ -1,6 +1,7 @@
-import type { TaskBadge, TaskData } from './PertChart';
 import { TaskElement } from './PertChart/TaskElement';
 import { getItemIcon } from './PertChart/utils';
+
+import type { TaskBadge, TaskData } from './PertChart';
 
 export function extractTasks(rawTasks: any[], data: any, options: any = {}): TaskData[] {
     const tasks = [];

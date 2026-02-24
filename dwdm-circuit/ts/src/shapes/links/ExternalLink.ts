@@ -1,7 +1,8 @@
-import type { dia } from '@joint/core';
 import { util } from '@joint/core';
 import Link from './Link';
 import { EXTERNAL_LINK_COLOR } from '../../theme';
+
+import type { dia } from '@joint/core';
 
 const LINK_MARKUP = util.svg`
     <path @selector="wrapper" fill="none" cursor="pointer" stroke="transparent" stroke-linecap="round"/>

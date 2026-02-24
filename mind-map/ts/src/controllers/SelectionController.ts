@@ -1,9 +1,10 @@
 import { Controller } from '../classes/Controller';
-import type { App } from '../classes/App';
 import {
     highlightIdeas,
     updateToolbarButtons
 } from '../actions';
+
+import type { App } from '../classes/App';
 import type { dia } from '@joint/core';
 
 export default class SelectionController extends Controller<App> {

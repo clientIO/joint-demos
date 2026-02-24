@@ -1,9 +1,9 @@
 import { dia, shapes, util, g } from '@joint/core';
 import ELK from 'elkjs/lib/elk-api.js';
-import type { ElkNode, ElkExtendedEdge, ElkLabel } from 'elkjs/lib/elk-api.d.ts';
-
 import dependenciesJSON from './dependencies.json';
 import './styles.scss';
+
+import type { ElkNode, ElkExtendedEdge, ElkLabel } from 'elkjs/lib/elk-api.d.ts';
 
 type Require<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 type ElkGraph = Require<ElkNode, 'children' | 'edges'>;

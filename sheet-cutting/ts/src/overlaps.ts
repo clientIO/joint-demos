@@ -1,6 +1,7 @@
-import type { dia } from '@joint/plus';
 import { highlighters, g } from '@joint/plus';
 import { Polygon } from './polygon';
+
+import type { dia } from '@joint/plus';
 import type { AbsGeometryOptions } from './polygon';
 
 // Overlaps

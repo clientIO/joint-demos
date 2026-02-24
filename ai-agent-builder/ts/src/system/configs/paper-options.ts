@@ -1,7 +1,8 @@
-import type { g, anchors, connectionStrategies } from '@joint/plus';
 import { dia, connectors } from '@joint/plus';
 import { Attribute } from '../diagram/const';
 import { SystemButton } from '../diagram/models';
+
+import type { g, anchors, connectionStrategies } from '@joint/plus';
 
 const LINK_SOURCE_ANCHOR_OFFSET = 25;
 const LINK_TARGET_ANCHOR_OFFSET = 20;

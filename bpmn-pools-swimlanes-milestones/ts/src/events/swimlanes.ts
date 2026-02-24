@@ -1,9 +1,10 @@
-import type { dia, shapes } from '@joint/plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
 import { isStencilEvent, findViewFromEvent } from '../utils';
 import { showGhostOnNextInteraction } from '../actions/ghost';
 import { deselect } from '../actions/selection';
 import { VerticalSwimlane, HorizontalSwimlane } from '../shapes';
+
+import type { dia, shapes } from '@joint/plus';
 
 export function onSwimlaneDragStart(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, _x: number, _y: number) {
     deselect(paper);

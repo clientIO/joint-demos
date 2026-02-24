@@ -1,7 +1,8 @@
-import type { AfterViewInit, ElementRef, OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { dia, shapes, ui } from '@joint/plus';
 import { HyperlinkHighlighter } from '../hyperlink-highlighter';
+
+import type { AfterViewInit, ElementRef, OnInit } from '@angular/core';
 import type { Tab } from '../tabs.models';
 
 @Component({

@@ -1,5 +1,6 @@
-import type { dia } from '@joint/plus';
 import { Link, Constant, Concat, GetDate, Record } from './shapes';
+
+import type { dia } from '@joint/plus';
 
 export const loadExample = function(graph: dia.Graph) {
 

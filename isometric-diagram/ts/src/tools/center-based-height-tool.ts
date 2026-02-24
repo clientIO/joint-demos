@@ -1,7 +1,8 @@
-import type { dia } from '@joint/core';
 import { elementTools, g } from '@joint/core';
 import { GRID_SIZE } from '../theme';
 import { ISOMETRIC_HEIGHT_TOOL_MARKUP } from './tools';
+
+import type { dia } from '@joint/core';
 import type IsometricShape from '../shapes/isometric-shape';
 
 interface CenterBasedHeightControlOptions extends elementTools.Control.Options {

@@ -1,7 +1,5 @@
-import type { dia } from '@joint/plus';
 import { type g, shapes, util, V } from '@joint/plus';
 import { activityIconClasses, ActivityLabels, ActivityShapeTypes, activityAppearanceConfig } from './activity-config';
-import type { AppElement, Marker } from '../shapes-typing';
 import { MarkerNames, ShapeTypes } from '../shapes-typing';
 import { DataShapeTypes } from '../data/data-config';
 import { GatewayShapeTypes } from '../gateway/gateway-config';
@@ -11,6 +9,9 @@ import { PoolShapeTypes } from '../pool/pool-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
 import { isPoolShared, getPoolParent } from '../../utils';
+
+import type { dia } from '@joint/plus';
+import type { AppElement, Marker } from '../shapes-typing';
 
 export abstract class Activity extends shapes.bpmn2.Activity implements AppElement {
 

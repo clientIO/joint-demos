@@ -1,12 +1,12 @@
-import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-
 import './JsonEditor.scss';
 import { SharedEvents } from '../../../joint-plus/controller';
 import { actionCreator } from '../../../redux/helpers/actionCreator';
+
+import type { ReactElement } from 'react';
 
 interface Props {
     content: object;

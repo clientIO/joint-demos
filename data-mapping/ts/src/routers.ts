@@ -1,5 +1,6 @@
-import type { dia } from '@joint/plus';
 import { routers, g } from '@joint/plus';
+
+import type { dia } from '@joint/plus';
 
 interface RouterOptions {
     padding?: number,

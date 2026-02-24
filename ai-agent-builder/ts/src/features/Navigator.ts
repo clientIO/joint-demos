@@ -1,5 +1,6 @@
-import type { dia } from '@joint/plus';
 import { ui } from '@joint/plus';
+
+import type { dia } from '@joint/plus';
 
 /** Default URL for navigator icons */
 const defaultIconUrl = '.';

@@ -1,6 +1,4 @@
-import type { dia, g } from '@joint/plus';
 import { shapes, util, V } from '@joint/plus';
-import type { AppElement } from '../shapes-typing';
 import { ShapeTypes } from '../shapes-typing';
 import { PoolShapeTypes, DEFAULT_HORIZONTAL_POOL_SIZE, poolAttributes, swimlaneAttributes, poolAppearanceConfig, swimlaneAppearanceConfig, HORIZONTAL_POOL_PADDING, VERTICAL_POOL_PADDING, SWIMLANE_HEADER_SIZE, DEFAULT_VERTICAL_POOL_SIZE } from './pool-config';
 import { handles } from '../../configs/halo-config';
@@ -9,6 +7,9 @@ import { ActivityShapeTypes } from '../activity/activity-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { getPoolParent } from '../../utils';
 import { EventShapeTypes } from '../event/event-config';
+
+import type { dia, g } from '@joint/plus';
+import type { AppElement } from '../shapes-typing';
 
 type HeaderedShape = HorizontalPool | VerticalPool | HorizontalSwimlane | VerticalSwimlane;
 

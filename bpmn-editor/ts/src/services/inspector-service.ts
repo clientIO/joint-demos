@@ -1,7 +1,8 @@
 import { ui } from '@joint/plus';
-import type { AppElement, AppLink } from '../shapes/shapes-typing';
 import { constructMarkerContent, getShapeConstructorByType } from '../utils';
 import { eventBus, EventBusEvents } from '../event-bus';
+
+import type { AppElement, AppLink } from '../shapes/shapes-typing';
 
 const INSPECTOR_EMPTY = document.createElement('div');
 

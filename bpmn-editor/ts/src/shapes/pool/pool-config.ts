@@ -1,5 +1,6 @@
-import type { shapes } from '@joint/plus';
 import { inspectorOptions } from '../shared-config';
+
+import type { shapes } from '@joint/plus';
 
 export enum PoolShapeTypes {
     HORIZONTAL_POOL = 'pool.HorizontalPool',

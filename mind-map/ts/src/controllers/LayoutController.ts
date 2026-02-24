@@ -1,6 +1,7 @@
 import { Controller } from '../classes/Controller';
-import type { App } from '../classes/App';
 import { layoutTree } from '../actions';
+
+import type { App } from '../classes/App';
 
 export default class LayoutController extends Controller<App> {
 

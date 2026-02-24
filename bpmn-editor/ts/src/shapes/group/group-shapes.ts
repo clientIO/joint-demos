@@ -1,11 +1,12 @@
-import type { dia } from '@joint/plus';
 import { shapes, util, V, type g } from '@joint/plus';
-import type { AppElement } from '../shapes-typing';
 import { ShapeTypes } from '../shapes-typing';
 import { groupAppearanceConfig, GroupShapeTypes } from './group-config';
 import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
+
+import type { dia } from '@joint/plus';
+import type { AppElement } from '../shapes-typing';
 
 class Group extends shapes.bpmn2.Group implements AppElement {
 

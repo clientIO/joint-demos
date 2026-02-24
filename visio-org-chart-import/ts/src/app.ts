@@ -1,6 +1,7 @@
 import { dia, util, ui, shapes } from '@joint/plus';
-import type { VisioShape } from '@joint/format-visio';
 import { VisioArchive, VisioElement, types } from '@joint/format-visio';
+
+import type { VisioShape } from '@joint/format-visio';
 
 const { VisioSectionType, VisioCellName } = types;
 const { standard } = shapes;

@@ -9,11 +9,11 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed, waitForAsync } from '@angular/core/testing';
-
 import { AppComponent } from './app.component';
 import { AppModule } from './app.module';
+
+import type { ComponentFixture } from '@angular/core/testing';
 
 
 describe('AppComponent', () => {

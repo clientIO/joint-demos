@@ -1,8 +1,8 @@
 import { shapes, dia, util, elementTools } from '@joint/core';
 import { Child, Container, Link, HEADER_HEIGHT } from './shapes';
-import type { mvc } from '@joint/core';
-
 import '../index.css';
+
+import type { mvc } from '@joint/core';
 
 const cellNamespace = {
     ...shapes,

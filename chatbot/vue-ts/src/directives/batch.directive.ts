@@ -9,9 +9,9 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { ObjectDirective } from 'vue';
-
 import { SharedEvents } from '../joint-plus/controller';
+
+import type { ObjectDirective } from 'vue';
 
 const BATCH_NAME = 'inspector-input';
 

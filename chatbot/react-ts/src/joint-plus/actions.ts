@@ -9,16 +9,16 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-import type { dia } from '@joint/plus';
 import { ui, shapes, format } from '@joint/plus';
-
-import type JointPlusService from '../services/joint-plus.service';
 import { SharedEvents } from './controller';
 import { addCellTools } from './tools';
 import { ZOOM_MAX, ZOOM_MIN, ZOOM_STEP } from '../theme';
 import { stencilConfig } from './config/stencil.config';
 import { ShapeTypesEnum } from './shapes/app.shapes';
 import { PADDING_L } from '../theme';
+
+import type { dia } from '@joint/plus';
+import type JointPlusService from '../services/joint-plus.service';
 
 // Selection
 

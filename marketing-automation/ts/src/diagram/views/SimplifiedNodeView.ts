@@ -1,6 +1,7 @@
 import { dia, util } from '@joint/plus';
-import type { Node } from '../models';
 import { Attribute } from '../const';
+
+import type { Node } from '../models';
 
 /**
  * Update flags for the simplified node view.

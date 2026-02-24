@@ -1,20 +1,19 @@
-import type { g } from '@joint/plus';
 import { dia, shapes, mvc, ui, highlighters } from '@joint/plus';
 import { DirectedGraph } from '@joint/layout-directed-graph';
 import { TaskElement, TaskElementView } from './TaskElement';
 import { DependencyLink } from './DependencyLink';
-import type { TaskResource, TaskData, TaskId, ZoomSettings } from './types';
 import * as paperOptions from './paper-options';
 import Badges from './Badges';
 import AssigneeTags from './AssigneeTags';
 import NavigatorElementView from './NavigatorElementView';
-import type { AssignmentChangeData } from './assignments';
 import { initializeAssignments } from './assignments';
 import { initializeToolbar } from './toolbar';
-
 import './index.scss';
-
 import { initializeTooltips } from './tooltips';
+
+import type { g } from '@joint/plus';
+import type { TaskResource, TaskData, TaskId, ZoomSettings } from './types';
+import type { AssignmentChangeData } from './assignments';
 
 export interface PertChartOptions {
     target: HTMLElement;

@@ -1,7 +1,8 @@
-import type { ActionResult, NodeAttributes } from '../node';
 import { Node, NodeView } from '../node';
-import type { mvc, dia } from '@joint/plus';
 import { util } from '@joint/plus';
+
+import type { ActionResult, NodeAttributes } from '../node';
+import type { mvc, dia } from '@joint/plus';
 export class TextInputView extends NodeView {
 
     events(): mvc.EventsHash {

@@ -1,6 +1,7 @@
+import { CONNECTION_COLOR, IDEA_FILL_COLORS, IDEA_IMAGE_SIZES, IDEA_LINES, IDEA_SPACING } from '../theme';
+
 import type { App } from '../classes/App';
 import type { Idea } from '../shapes/idea';
-import { CONNECTION_COLOR, IDEA_FILL_COLORS, IDEA_IMAGE_SIZES, IDEA_LINES, IDEA_SPACING } from '../theme';
 
 function _valueAtLevel<T>(array: Array<T>, level: number): T {
     return array[Math.min(level, array.length - 1)];

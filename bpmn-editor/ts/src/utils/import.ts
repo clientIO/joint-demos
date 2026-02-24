@@ -1,9 +1,10 @@
-import type { dia, ui } from '@joint/plus';
 import { shapes } from '@joint/plus';
 import { SubProcess, EventSubProcess } from '../shapes/activity/activity-shapes';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
-import type { HorizontalPool, VerticalPool } from '../shapes/pool/pool-shapes';
 import { HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes';
+
+import type { dia, ui } from '@joint/plus';
+import type { HorizontalPool, VerticalPool } from '../shapes/pool/pool-shapes';
 
 export function importBPMN(paperScroller: ui.PaperScroller, commandManager: dia.CommandManager, cells: dia.Cell[]): void {
     const paper = paperScroller.options.paper;

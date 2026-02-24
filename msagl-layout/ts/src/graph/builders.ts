@@ -1,6 +1,7 @@
-import type { dia } from '@joint/core';
 import { shapes, util } from '@joint/core';
 import { defaultFallbackColor } from './palette';
+
+import type { dia } from '@joint/core';
 import type { LinkOptions, NodeOptions, PaletteCycler } from './types';
 
 const documentStyles = getComputedStyle(document.documentElement);

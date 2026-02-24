@@ -1,7 +1,8 @@
 import { V, dia } from '@joint/core';
-import type IsometricShape from './shapes/isometric-shape';
 import { View } from './shapes/isometric-shape';
 import { GRID_COUNT, GRID_SIZE, SCALE, ISOMETRIC_SCALE, ROTATION_DEGREES } from './theme';
+
+import type IsometricShape from './shapes/isometric-shape';
 import type { Link } from './shapes';
 
 export const transformationMatrix = (view: View = View.Isometric, margin: number = 20) => {

@@ -1,7 +1,7 @@
-import type { dia } from '@joint/plus';
 import { DirectedGraph } from '@joint/layout-directed-graph';
 import { SystemButton } from '../../models';
 
+import type { dia } from '@joint/plus';
 import type { AutoLayoutDiagramCells } from '../types';
 
 export function layoutCells(graph: dia.Graph, cells: AutoLayoutDiagramCells, options?: DirectedGraph.LayoutOptions): void {

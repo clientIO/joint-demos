@@ -1,5 +1,6 @@
-import type { Column, Task, Dependency } from './models';
 import { TaskState } from './models';
+
+import type { Column, Task, Dependency } from './models';
 
 export const tasks: Task[] = [{
     id: 'task-1',

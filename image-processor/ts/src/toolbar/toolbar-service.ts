@@ -1,8 +1,9 @@
-import type { dia } from '@joint/plus';
 import { ui } from '@joint/plus';
 import { getToolbarConfig } from './toolbar-config';
 import { getFileFromGraph, resetGraphFromFile } from '../file/file';
 import { App } from '../app';
+
+import type { dia } from '@joint/plus';
 export class ToolbarService {
     toolbar: ui.Toolbar;
     fileTools: { [key: string]: any };

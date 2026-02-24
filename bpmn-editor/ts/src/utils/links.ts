@@ -1,5 +1,3 @@
-import type { dia } from '@joint/plus';
-import type { AppLink, AppShape, LinkType } from '../shapes/shapes-typing';
 import { ShapeTypes } from '../shapes/shapes-typing';
 import { PlaceholderShapeTypes } from '../shapes/placeholder/placeholder-config';
 import { DataShapeTypes } from '../shapes/data/data-config';
@@ -9,6 +7,9 @@ import { AnnotationLink } from '../shapes/annotation/annotation-shapes';
 import { DataAssociation } from '../shapes/data/data-shapes';
 import { Conditional, Default, Message, Sequence } from '../shapes/flow/flow-shapes';
 import { isPoolShared } from '.';
+
+import type { dia } from '@joint/plus';
+import type { AppLink, AppShape, LinkType } from '../shapes/shapes-typing';
 
 const DEFAULT_LINK_STROKE = '#333';
 

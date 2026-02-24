@@ -1,9 +1,15 @@
-import type { g } from '@joint/plus';
 import { dia, ui, shapes, highlighters } from '@joint/plus';
 import { setupFileImport } from '../import';
 import ViewController from '../controllers/view-controller';
 import EditController from '../controllers/edit-controller';
 import KeyboardController from '../controllers/keyboard-controller';
+import { ShapeTypes, type AppElement } from '../shapes/shapes-typing';
+import { BPMNLinkView } from '../shapes/placeholder/placeholder-shapes';
+import { LabelElementView } from '../shapes/shape-view';
+import { canElementExistOutsidePool, getBoundaryPoint } from '../utils';
+import { MAIN_COLOR } from '../configs/theme';
+
+import type { g } from '@joint/plus';
 import type ToolbarService from './toolbar-service';
 import type StencilService from './stencil-service';
 import type NavigatorService from './navigator-service';
@@ -12,11 +18,6 @@ import type InspectorService from './inspector-service';
 import type LinkToolsService from './link-tools-service';
 import type FreeTransformService from './free-transform-service';
 import type { AppShape } from '../shapes/shapes-typing';
-import { ShapeTypes, type AppElement } from '../shapes/shapes-typing';
-import { BPMNLinkView } from '../shapes/placeholder/placeholder-shapes';
-import { LabelElementView } from '../shapes/shape-view';
-import { canElementExistOutsidePool, getBoundaryPoint } from '../utils';
-import { MAIN_COLOR } from '../configs/theme';
 
 interface secondaryServices {
     toolbarService: ToolbarService;

@@ -1,8 +1,9 @@
-import type { dia } from '@joint/plus';
 import { V, highlighters } from '@joint/plus';
+import { SELECTION_FRAME_COLOR } from '../theme';
+
+import type { dia } from '@joint/plus';
 import type { App } from '../classes/App';
 import type { Idea } from '../shapes/idea';
-import { SELECTION_FRAME_COLOR } from '../theme';
 
 // Selecting
 

@@ -1,6 +1,7 @@
-import type { dia, layout } from '@joint/plus';
 import { util } from '@joint/plus';
 import { TREE_PARENT_GAP, TREE_SIBLING_GAP } from '../../theme';
+
+import type { dia, layout } from '@joint/plus';
 
 export default {
     parentGap: TREE_PARENT_GAP,

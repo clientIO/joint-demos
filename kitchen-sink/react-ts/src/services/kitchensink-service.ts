@@ -1,12 +1,13 @@
 import * as joint from '@joint/plus';
+import * as appShapes from '../shapes/app-shapes';
+import { ZOOM_SETTINGS } from './navigator-service';
+
 import type { StencilService } from './stencil-service';
 import type { ToolbarService } from './toolbar-service';
 import type { InspectorService } from './inspector-service';
 import type { HaloService } from './halo-service';
 import type { KeyboardService } from './keyboard-service';
-import * as appShapes from '../shapes/app-shapes';
 import type { NavigatorService } from './navigator-service';
-import { ZOOM_SETTINGS } from './navigator-service';
 
 type Services = {
     stencilService: StencilService,

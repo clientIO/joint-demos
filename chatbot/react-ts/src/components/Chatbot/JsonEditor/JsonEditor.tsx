@@ -1,11 +1,11 @@
-import type { ReactElement } from 'react';
 import React, { useContext, useEffect, useState } from 'react';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-
 import './JsonEditor.scss';
 import eventBusServiceContext from '../../../services/event-bus-service.context';
 import { SharedEvents } from '../../../joint-plus/controller';
+
+import type { ReactElement } from 'react';
 
 interface Props {
     content: object;

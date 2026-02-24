@@ -1,7 +1,8 @@
 
-import type { attributes } from '@joint/plus';
 import { ui, mvc, util } from '@joint/plus';
 import { COLORS, FONT_FAMILIES, FONT_SIZES } from './config';
+
+import type { attributes } from '@joint/plus';
 
 interface RichTextToolbarOptions extends mvc.ViewOptions<undefined, HTMLDivElement> {
     defaultAttributes?: attributes.SVGAttributes;

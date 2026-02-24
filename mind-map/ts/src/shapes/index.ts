@@ -1,6 +1,7 @@
-import type { graphUtils } from '@joint/plus';
 import { Idea, IdeaView } from './idea';
 import { Connection } from './connection';
+
+import type { graphUtils } from '@joint/plus';
 
 export function makeElement(node: graphUtils.ConstructTreeNode): Idea {
     const { children, ...attributes } = node;

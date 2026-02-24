@@ -10,9 +10,9 @@ distributed by client IO. See the LICENSE file.
 */
 
 import { Component, Input } from '@angular/core';
-import type { shapes } from '@joint/plus';
-
 import { BaseInspectorComponent } from '../base-inspector/base-inspector.component';
+
+import type { shapes } from '@joint/plus';
 
 @Component({
     selector: 'app-link-inspector',

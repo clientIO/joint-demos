@@ -1,7 +1,7 @@
-import type { dia } from '@joint/plus';
 import { elementTools, util } from '@joint/plus';
 import Theme from '../theme';
 
+import type { dia } from '@joint/plus';
 import type Note from '../models/Note';
 
 const resizeToolMarkup = util.svg/* xml */`

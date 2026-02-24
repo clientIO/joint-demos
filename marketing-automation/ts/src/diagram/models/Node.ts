@@ -1,10 +1,10 @@
 import { V } from '@joint/plus';
 import { Attribute } from '../const';
 import { SystemNode } from '../../system/diagram/models';
+import Theme from '../theme';
 
 import type { InspectorConfig } from '../../types';
 import type { SystemNodeAttributes } from '../../system/diagram/models';
-import Theme from '../theme';
 
 export interface NodeAttributes extends SystemNodeAttributes {
     [Attribute.Removable]?: boolean;

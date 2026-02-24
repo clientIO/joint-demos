@@ -1,10 +1,11 @@
-import type { g } from '@joint/plus';
 import { dia, ui, layout, V, elementTools, util } from '@joint/plus';
-import type { Operator } from './models';
 import { DurationNumberInput } from './highlighters/duration-number-input';
 import { DurationHandle } from './tools/duration-handle';
 import { TaskElement, TaskElementView } from './shapes/task-element';
 import { BottomElement } from './shapes/bottom-element';
+
+import type { g } from '@joint/plus';
+import type { Operator } from './models';
 
 export interface Yamazumi3DOptions {
     paper: dia.Paper;

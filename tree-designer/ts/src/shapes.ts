@@ -1,7 +1,8 @@
-import type { dia } from '@joint/plus';
 import { shapes } from '@joint/plus';
 import { EL_WIDTH, EL_HEIGHT, LABEL_MARGIN, STROKE_WIDTH, LINE_HEIGHT } from './theme';
 import { Shapes, Connections, ConnectionDirection, ConnectionStyle } from './enums';
+
+import type { dia } from '@joint/plus';
 import type { Node } from './types';
 
 const LABEL_ATTRIBUTES = {

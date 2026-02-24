@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
-import type { Routes } from '@angular/router';
 import { RouterModule } from '@angular/router';
+
+import type { Routes } from '@angular/router';
 
 const routes: Routes = [
     { path: '', redirectTo: '/tree-container', pathMatch: 'full' },

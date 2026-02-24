@@ -1,9 +1,10 @@
-import type { ActionResult, NodeAttributes } from '../node';
 import { Node, NodeView } from '../node';
-import type { mvc, dia, ui } from '@joint/plus';
 import { util } from '@joint/plus';
 import * as cv from '@techstark/opencv-js';
 import { App } from '../../app';
+
+import type { ActionResult, NodeAttributes } from '../node';
+import type { mvc, dia, ui } from '@joint/plus';
 export class UploadView extends NodeView {
     imageMode: 'large' | 'small' = 'small';
 

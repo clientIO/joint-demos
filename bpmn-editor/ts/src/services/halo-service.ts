@@ -1,10 +1,11 @@
-import type { dia } from '@joint/plus';
 import { ui } from '@joint/plus';
 import { GroupNames, groups } from '../configs/halo-config';
-import type { AppElement } from '../shapes/shapes-typing';
 import { getShapeConstructorByType } from '../utils';
 import { Sequence } from '../shapes/flow/flow-shapes';
 import { PlaceholderAttributes, PlaceholderShapeTypes } from '../shapes/placeholder/placeholder-config';
+
+import type { dia } from '@joint/plus';
+import type { AppElement } from '../shapes/shapes-typing';
 
 export default class HaloService {
 

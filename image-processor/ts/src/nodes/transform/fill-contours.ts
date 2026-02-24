@@ -1,9 +1,10 @@
-import type { dia } from '@joint/plus';
 import { util } from '@joint/plus';
-import type { ActionResult, NodeAttributes } from '../node';
 import { Node, calculateHeight } from '../node';
 import * as cv from '@techstark/opencv-js';
 import { App } from '../../app';
+
+import type { dia } from '@joint/plus';
+import type { ActionResult, NodeAttributes } from '../node';
 
 export class FillContours extends Node {
 
