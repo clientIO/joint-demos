@@ -3,7 +3,7 @@ import { dia, shapes } from '@joint/plus';
 
 import type { TreeNode } from './tree.models';
 
-const data: any[] = [
+const data = [
     {
         id: 'process0',
         name: 'Process 1',

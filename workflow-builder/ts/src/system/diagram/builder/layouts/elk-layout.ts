@@ -34,7 +34,7 @@ export async function layoutCells(graph: dia.Graph, cells: AutoLayoutDiagramCell
         const laidOutGraph = await elk.layout(elkGraph);
         applyLayout(graph, laidOutGraph);
     } catch (error) {
-        console.error('ELK layout error:', error);
+        console.warn('ELK layout error:', error);
     } finally {
         graph.stopBatch(LAYOUT_BATCH_NAME);
     }

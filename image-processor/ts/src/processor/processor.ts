@@ -85,7 +85,7 @@ export class Processor {
         this.process(connection.target.nodeId).then(() => {
             return;
         }).catch((error) => {
-            console.error(error);
+            console.warn(error);
             console.log('process error');
         });
     }
@@ -112,7 +112,7 @@ export class Processor {
 
         this.nodes[connection.target.nodeId].onInputConnectionRemove(input);
         this.process(connection.target.nodeId).catch((error) => {
-            console.error(error);
+            console.warn(error);
             console.log('process error');
         });
     }
@@ -138,7 +138,7 @@ export class Processor {
 
             for(const id in targetNodes) {
                 await this.process(id).catch((error) => {
-                    console.error(error);
+                    console.warn(error);
                     console.log('process error');
                 });
             }

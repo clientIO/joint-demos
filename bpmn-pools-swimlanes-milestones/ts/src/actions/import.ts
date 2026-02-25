@@ -62,7 +62,7 @@ export function importXML(graph: dia.Graph, xml: XMLDocument) {
         useLegacyPool: false
     });
     if (result.errors.length) {
-        console.error(result.errors);
+        console.warn(result.errors);
     }
 
     const cells = result.cells;

@@ -66,8 +66,8 @@ const NavigatorElementView = dia.ElementView.extend({
 
 const NavigatorLinkView = dia.LinkView.extend({
     defaultTheme: null,
-    initialize: function() {
-        mvc.View.prototype.initialize.apply(this, arguments);
+    initialize: function(...args: unknown[]) {
+        mvc.View.prototype.initialize.apply(this, args);
     },
     onMount: () => { return; },
     render: () => { return; },
@@ -113,7 +113,7 @@ export class NavigatorService {
             widgetNamespace: {
                 ...ui.widgets,
                 iconButton: IconButton
-            } as any
+            } as { [name: string]: typeof ui.Widget }
         });
 
         this.toolbar.render();

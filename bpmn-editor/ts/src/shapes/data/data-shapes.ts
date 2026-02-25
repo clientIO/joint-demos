@@ -43,7 +43,7 @@ abstract class Data extends shapes.bpmn2.DataObject implements AppElement {
         }, super.defaults);
     }
 
-    preinitialize(...args: any[]) {
+    preinitialize(...args: unknown[]) {
         super.preinitialize(...args);
         // Add `labelBody` to markup
         this.markup = util.svg/* xml */ `
@@ -57,7 +57,7 @@ abstract class Data extends shapes.bpmn2.DataObject implements AppElement {
         `;
     }
 
-    initialize(...args: any[]): void {
+    initialize(...args: unknown[]): void {
         super.initialize(...args);
         this.on('change:markers', () => this.onMarkersChange());
     }
@@ -275,7 +275,7 @@ export class DataStore extends shapes.bpmn2.DataStore implements AppElement {
         }, super.defaults);
     }
 
-    preinitialize(...args: any[]) {
+    preinitialize(...args: unknown[]) {
         super.preinitialize(...args);
         // Add `labelBody` to markup
         this.markup = util.svg/* xml */ `

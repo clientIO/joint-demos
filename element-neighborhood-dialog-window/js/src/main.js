@@ -461,7 +461,7 @@ function createDialog(name, getContent, options = {}) {
         dialogPaper.toSVG(
             function(svg, error) {
                 if (error) {
-                    console.error(error.message);
+                    console.warn(error.message);
                 }
                 new ui.Lightbox({
                     title,

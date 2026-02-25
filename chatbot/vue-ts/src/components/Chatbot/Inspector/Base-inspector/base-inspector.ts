@@ -18,7 +18,7 @@ export interface Properties {
     [property: string]: dia.Path;
 }
 
-@Component({} as any)
+@Component({})
 export abstract class BaseInspector extends Vue {
 
     @Prop() cell: dia.Cell;

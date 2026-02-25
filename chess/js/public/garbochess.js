@@ -1,4 +1,5 @@
 'use strict';
+/* eslint-disable no-redeclare */
 
 // Perf TODO:
 // Merge material updating with psq values

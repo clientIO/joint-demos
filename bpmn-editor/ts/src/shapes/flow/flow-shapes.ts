@@ -33,7 +33,7 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
         }, super.defaults);
     }
 
-    constructor(...args: any[]) {
+    constructor(...args: unknown[]) {
         super(...args);
         this.router('rightAngle', { useVertices: true });
     }
@@ -93,7 +93,7 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
         const { x: cx, y: cy } = view.getPointAtRatio(0.5);
 
         const currentLabel = this.labels()[0]?.attrs || {};
-        const labelAttrs: any = util.defaultsDeep({}, currentLabel, this.defaultLabel.attrs);
+        const labelAttrs: typeof this.defaultLabel.attrs = util.defaultsDeep({}, currentLabel, this.defaultLabel.attrs);
 
         return {
             padding: `${labelPadding.vertical}px ${labelPadding.horizontal}px`,

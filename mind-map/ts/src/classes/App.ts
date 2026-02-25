@@ -14,7 +14,7 @@ import type { Connection } from '../shapes/connection';
 export namespace App {
 
     export type Callback<
-        TFunction extends (...args: any) => void = (...args: any) => void
+        TFunction extends (...args: unknown[]) => void = (...args: unknown[]) => void
     > = _Controller.Callback<App, TFunction>;
 
     export type Controller = _Controller<App>;

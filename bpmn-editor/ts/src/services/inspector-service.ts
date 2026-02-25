@@ -96,7 +96,7 @@ export default class InspectorService {
             markersButtonGroup.once('option:select', (options, _, opt) => {
                 if (opt.markersUpdated) return;
 
-                shape.setMarkers && shape.setMarkers(options.map((option: any) => option.value));
+                shape.setMarkers && shape.setMarkers(options.map((option: { value?: unknown }) => option.value as string));
                 this.createContentView(shape);
             });
 

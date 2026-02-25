@@ -149,7 +149,7 @@ app.post('/api/start', async(req, res) => {
         console.log('Process instance created:', result);
         res.json(result);
     } catch (e) {
-        console.error('Error starting process:', e);
+        console.warn('Error starting process:', e);
         res.status(500).json({ error: e.message });
     }
 });
@@ -197,7 +197,7 @@ app.get('/api/process-xml/:key', async(req, res) => {
 
         if (!response.ok) {
             const text = await response.text();
-            console.error('Error response:', text);
+            console.warn('Error response:', text);
             throw new Error(`HTTP ${response.status}: ${text}`);
         }
 
@@ -233,7 +233,7 @@ app.get('/api/process-xml/:key', async(req, res) => {
             }
         }
     } catch (e) {
-        console.error('Error fetching process XML:', e);
+        console.warn('Error fetching process XML:', e);
         res.status(500).json({ error: e.message });
     }
 });
@@ -253,6 +253,7 @@ app.get('/api/status/:key', async(req, res) => {
 
         res.json({ instance, stats });
     } catch (e) {
+        console.warn('Error fetching instance status:', e);
         res.status(500).json({ error: e.message });
     }
 });

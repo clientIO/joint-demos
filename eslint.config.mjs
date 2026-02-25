@@ -85,7 +85,7 @@ const combinedConfig = defineConfig([
         rules: {
             // Reuse common rules (from JavaScript config)
             ...commonRules,
-
+            '@typescript-eslint/no-namespace': ['off'],
             // TypeScript rules
             // Allow empty object types (e.g., {})
             '@typescript-eslint/no-empty-object-type': ['off'],

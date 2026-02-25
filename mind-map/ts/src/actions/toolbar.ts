@@ -20,6 +20,7 @@ export function updateToolbarButtons(app: App, ideas: Idea[]) {
         case 0:
             // multi selection not implemented (use empty selection logic)
             // break omitted
+            // eslint-disable-next-line no-fallthrough
         default: {
             // Upload an image
             imageWidget.disable();

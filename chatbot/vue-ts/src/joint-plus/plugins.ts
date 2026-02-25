@@ -109,7 +109,6 @@ export function createPlugins(
         },
         dragStartClone: (element: dia.Element) => {
             const name = element.get('name');
-            // @ts-ignore
             const Shape = shapes.app[name];
             if (!Shape) throw new Error(`Invalid stencil shape name: ${name}`);
             return Shape.fromStencilShape(element);

@@ -127,7 +127,6 @@ export class TaskElement extends Record {
                         textWrap: false
                     }
                 },
-                // @ts-ignore
             }, super.defaults.attrs)
         };
     }

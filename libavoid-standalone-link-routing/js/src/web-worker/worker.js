@@ -10,7 +10,6 @@ onmessage = async(e) => {
     const [{ command, ...data }] = e.data;
     switch (command) {
         case 'reset': {
-            const { json } = data;
             graph.resetCells(data.cells, { fromBrowser: true });
             router.routeAll();
             break;
@@ -19,7 +18,7 @@ onmessage = async(e) => {
             const { cell } = data;
             const model = graph.getCell(cell.id);
             if (!model) {
-                console.error(`Cell with id ${cell.id} not found.`);
+                console.warn(`Cell with id ${cell.id} not found.`);
                 return;
             }
             if (model.isElement()) {

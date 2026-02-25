@@ -13,7 +13,7 @@ import type { AppLink, AppShape, LinkType } from '../shapes/shapes-typing';
 
 const DEFAULT_LINK_STROKE = '#333';
 
-type AppLinkConstructor = new (...args: any[]) => AppLink;
+type AppLinkConstructor = new (...args: unknown[]) => AppLink;
 
 const LINK_CONNECTIONS: Record<LinkType, AppLinkConstructor> = {
     [PlaceholderShapeTypes.LINK]: Sequence,

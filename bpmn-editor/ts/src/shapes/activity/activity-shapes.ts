@@ -41,7 +41,7 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
         }, super.defaults);
     }
 
-    initialize(...args: any[]): void {
+    initialize(...args: unknown[]): void {
         super.initialize(...args);
         this.on('change:markers', () => this.onMarkersChange());
     }
@@ -167,7 +167,9 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
         if (prevMarkers.includes(MarkerNames.SEQUENTIAL) && markers.includes(MarkerNames.PARALLEL)) {
             idxToRemove = markers.indexOf(MarkerNames.SEQUENTIAL);
         }
-        idxToRemove > -1 && markers.splice(idxToRemove, 1);
+        if (idxToRemove > -1) {
+            markers.splice(idxToRemove, 1);
+        }
 
         if (markers.includes(MarkerNames.AD_HOC) || markers.includes(MarkerNames.SUB_PROCESS)) {
             markers = markers.filter((marker: MarkerNames) => marker !== MarkerNames.AD_HOC && marker !== MarkerNames.SUB_PROCESS);
@@ -399,7 +401,9 @@ export class CallActivity extends Activity {
                 idxToRemove = markers.indexOf(MarkerNames.AD_HOC);
             }
         }
-        idxToRemove > -1 && markers.splice(idxToRemove, 1);
+        if (idxToRemove > -1) {
+            markers.splice(idxToRemove, 1);
+        }
         if (markers.includes(MarkerNames.SUB_PROCESS)) {
             return markers;
         }
@@ -455,7 +459,9 @@ export class SubProcess extends Activity {
                 idxToRemove = markers.indexOf(MarkerNames.AD_HOC);
             }
         }
-        idxToRemove > -1 && markers.splice(idxToRemove, 1);
+        if (idxToRemove > -1) {
+            markers.splice(idxToRemove, 1);
+        }
         if (markers.includes(MarkerNames.SUB_PROCESS)) {
             return markers;
         }
@@ -513,7 +519,9 @@ export class EventSubProcess extends Activity {
                 idxToRemove = markers.indexOf(MarkerNames.AD_HOC);
             }
         }
-        idxToRemove > -1 && markers.splice(idxToRemove, 1);
+        if (idxToRemove > -1) {
+            markers.splice(idxToRemove, 1);
+        }
         if (markers.includes(MarkerNames.SUB_PROCESS)) {
             return markers;
         }

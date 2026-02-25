@@ -1,6 +1,6 @@
 interface TabData {
     title: string;
-    json: any;
+    json: Record<string, unknown>;
 }
 
 export const TabsDataRaw: TabData[] = [];

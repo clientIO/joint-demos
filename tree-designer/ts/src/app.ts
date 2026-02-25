@@ -171,12 +171,15 @@ export const init = () => {
         }
         if (inspectorFieldEl) {
             inspectorFieldEl.classList.add('highlighted');
-            scroll && inspectorFieldEl.scrollIntoView({ behavior: 'smooth' });
+            if (scroll) {
+                inspectorFieldEl.scrollIntoView({ behavior: 'smooth' });
+            }
         } else {
         // Highlight the top-most element in the inspector
             inspector.el.classList.add('highlighted');
-            scroll && inspector.el.scrollTo({ top: 0, behavior: 'smooth' });
-
+            if (scroll) {
+                inspector.el.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
         highlighters.mask.removeAll(paper, 'selection');
         highlighters.mask.add(element.findView(paper), element.get('selector') || 'body', 'selection', {

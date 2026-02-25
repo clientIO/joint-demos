@@ -41,7 +41,7 @@ export abstract class Event extends shapes.bpmn2.Event implements AppElement {
         }, super.defaults);
     }
 
-    preinitialize(...args: any[]) {
+    preinitialize(...args: unknown[]) {
         super.preinitialize(...args);
         // Add `labelBody` to markup
         this.markup = util.svg/* xml */ `

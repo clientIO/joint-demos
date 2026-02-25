@@ -130,7 +130,7 @@ const inputConnectionStyle = {
     }]
 };
 
-const inputChildren: any = {
+const inputChildren = {
     type: 'list',
     label: 'Children',
     addButtonLabel: 'Add Child',

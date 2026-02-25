@@ -4,13 +4,13 @@ export namespace Controller {
 
     export type Callback<
         TContext,
-        TFunction extends (...args: any) => any
+        TFunction extends (...args: unknown[]) => unknown
         > = (
             ...args: [TContext, ...Parameters<TFunction>]
         ) => ReturnType<TFunction>;
 
     export interface EventMap<T> {
-        [eventName: string]: Callback<T, (...args: any) => void>;
+        [eventName: string]: Callback<T, (...args: unknown[]) => void>;
     }
 
 }

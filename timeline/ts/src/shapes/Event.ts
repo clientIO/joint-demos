@@ -94,9 +94,9 @@ export class Event extends dia.Element implements ITimelineShape {
         `;
     }
 
-    initialize() {
+    initialize(...args: unknown[]): void {
 
-        super.initialize(...arguments);
+        super.initialize(...args);
 
         this.on('change:direction', () => this.updateDatePosition());
     }

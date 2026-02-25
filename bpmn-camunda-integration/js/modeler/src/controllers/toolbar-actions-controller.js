@@ -84,7 +84,7 @@ export default class ToolbarActionsController extends Controller {
 
 function onOpenFileDropdownClick(context) {
     const { toolbar } = context;
-    
+
     const contextToolbar = new ui.ContextToolbar({
         target: toolbar.getWidgetByName(toolbarToolNames.OPEN_FILE_DROPDOWN).el,
         root: toolbar.el,
@@ -95,12 +95,12 @@ function onOpenFileDropdownClick(context) {
         anchor: 'top-left',
         tools: openFileDropdownTools
     });
-    
+
     contextToolbar.on(`action:${openFileDropdownToolNames.LOAD_XML}`, loadFromXML(context));
     contextToolbar.on(`action:${openFileDropdownToolNames.DOWNLOAD_XML}`, () => onDownloadXMLClick(context));
-    
+
     contextToolbar.render();
-    
+
     return contextToolbar;
 }
 
@@ -189,7 +189,7 @@ function showNotification(variant, title, message, opts = {}) {
 
     if (autoClose > 0) {
         setTimeout(() => {
-            try { dialog.close(); } catch (e) { /* already closed */ }
+            try { dialog.close(); } catch { /* already closed */ }
         }, autoClose);
     }
 
@@ -920,9 +920,6 @@ function processXMLWithZeebeExtensions(paper, processName = null) {
             // and add zeebe:subscription if needed
             const messageRef = messageEventDef.getAttribute('messageRef');
             if (!messageRef) {
-                // Create a message element and reference it
-                const messageId = `Message_${eventId}`;
-
                 // Check if we need to add zeebe subscription
                 let extensionElements = catchEvent.getElementsByTagNameNS(bpmnNS, 'extensionElements')[0];
                 if (!extensionElements) {
@@ -1299,7 +1296,7 @@ function loadDeployedProcesses(controller) {
             const response = yield fetch('http://localhost:3000/api/processes');
 
             if (!response.ok) {
-                console.error('Failed to load deployed processes:', response.status, response.statusText);
+                console.warn('Failed to load deployed processes:', response.status, response.statusText);
                 return;
             }
 
@@ -1307,7 +1304,7 @@ function loadDeployedProcesses(controller) {
             controller.deployedProcesses = result.items || [];
             console.log(`Loaded ${controller.deployedProcesses.length} deployed processes:`, controller.deployedProcesses);
         } catch (error) {
-            console.error('Error loading deployed processes:', error);
+            console.warn('Error loading deployed processes:', error);
             controller.deployedProcesses = [];
         }
     });
@@ -1475,7 +1472,7 @@ function loadProcessIntoCanvas(context, process) {
             const displayName = process.name || process.processDefinitionId || 'Process';
             console.log(`Process "${displayName}" (v${process.version}) loaded successfully!`);
         } catch (error) {
-            console.error('Error loading process:', error);
+            console.warn('Error loading process:', error);
             showNotification('error', 'Load Failed', `Failed to load process:<br>${error.message}`);
         }
     });

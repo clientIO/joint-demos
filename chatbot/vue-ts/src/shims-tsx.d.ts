@@ -19,7 +19,7 @@ declare global {
 
     interface ElementClass extends Vue {}
     interface IntrinsicElements {
-      [elem: string]: any;
+      [elem: string]: unknown;
     }
   }
 }

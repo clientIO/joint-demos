@@ -21,7 +21,7 @@ export enum SharedEvents {
     GRAPH_STOP_BATCH = 'graph-stop-batch',
 }
 
-type ControllerCallback = (service: JointPlusService, ...args: any[]) => void;
+type ControllerCallback = (service: JointPlusService, ...args: unknown[]) => void;
 
 interface ControllerEventMap {
     [eventName: string]: ControllerCallback;

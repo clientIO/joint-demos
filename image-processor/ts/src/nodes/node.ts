@@ -228,7 +228,7 @@ export abstract class Node extends dia.Element<NodeAttributes> {
         this.prop(`properties/${name}`, value);
     }
 
-    get properties(): any {
+    get properties(): { [key: string]: unknown } {
         const inputSettings: NodeInput[] = this.get('inputSettings');
         const properties: { [key: string]: unknown } = this.get('properties');
 
@@ -241,7 +241,7 @@ export abstract class Node extends dia.Element<NodeAttributes> {
         return properties;
     }
 
-    get outputs(): any[] {
+    get outputs(): unknown[] {
         const outputs = this.get('outputs');
         const outputSettings = this.get('outputSettings');
         return outputSettings.map((o, i) => {

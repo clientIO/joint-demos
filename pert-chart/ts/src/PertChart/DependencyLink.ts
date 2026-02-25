@@ -19,7 +19,6 @@ export class DependencyLink extends shapes.standard.Link {
                         d: 'M 10 -5 -2 0 10 5'
                     },
                 },
-                // @ts-expect-error
             }, super.defaults.attrs)
         };
     }

@@ -161,7 +161,7 @@ function App() {
     /**
    * Change tab attributes at the specified index.
    */
-    const changeTab = (index: number, change: any) => {
+    const changeTab = (index: number, change: Record<string, unknown>) => {
         setTabs(prevState => prevState.map((tab, i) => {
             if (i !== index) return tab;
             return {

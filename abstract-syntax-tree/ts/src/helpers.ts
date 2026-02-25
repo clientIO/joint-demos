@@ -153,7 +153,7 @@ function tokenHover(e: Event) {
 export function changePreset() {
     const preset = document.getElementById('select-program') as HTMLSelectElement;
     const value = preset.value;
-    const code = (presets as any)[value];
+    const code = (presets as Record<string, string>)[value];
     editorView.dispatch({
         changes: { from: 0, to: editorView.state.doc.length, insert: code }
     });

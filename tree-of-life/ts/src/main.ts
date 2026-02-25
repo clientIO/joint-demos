@@ -279,6 +279,7 @@ function quadraticInterpolation(points: Vec2[]) {
     if (len < 4) {
         return '';
     }
+    // eslint-disable-next-line prefer-const
     let [a, b, c] = points;
     let result = `
         M${a[0].toFixed(2)},${a[1].toFixed(2)}

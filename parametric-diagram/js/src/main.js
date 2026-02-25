@@ -1202,7 +1202,7 @@ toolbar.on({
         paper.toSVG(
             (svg, error) => {
                 if (error) {
-                    console.error(error.message);
+                    console.warn(error.message);
                 }
                 const lightbox = new ui.Lightbox({
                     image: 'data:image/svg+xml,' + encodeURIComponent(svg),

@@ -34,7 +34,7 @@ export function extractDependencyMap(rawDependencies: any[]) {
     const dependencies = {};
     rawDependencies.forEach(dependency => {
         const { fromTask, toTask } = dependency;
-        dependencies[fromTask] || (dependencies[fromTask] = []);
+        dependencies[fromTask] ??= [];
         dependencies[fromTask].push(toTask);
     });
     return dependencies;
@@ -53,7 +53,7 @@ export function extractAssignmentMap(rawAssignments: any[]) {
     const assignments = {};
     rawAssignments.forEach(assignment => {
         const { event: taskId, resource: resourceId } = assignment;
-        assignments[taskId] || (assignments[taskId] = []);
+        assignments[taskId] ??= [];
         assignments[taskId].push(resourceId);
     });
     return assignments;

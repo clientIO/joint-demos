@@ -75,7 +75,7 @@ export const init = () => {
         document.querySelector('#stats .stats-n-tokens').textContent = syntax.tokens.length.toString();
         document.querySelector('#stats .stats-tokens').innerHTML = '';
 
-        syntax.tokens.forEach((token: any) => {
+        syntax.tokens.forEach((token: esprima.Token) => {
             const li = document.createElement('li');
             li.setAttribute('data-range', JSON.stringify(token.range));
             li.append(token.type + '(');

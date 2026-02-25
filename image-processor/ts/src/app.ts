@@ -567,7 +567,6 @@ export class App {
                     }
                 }];
 
-            let contextToolbar: ui.ContextToolbar;
             let node: Node;
 
             if (cells.length === 1) {
@@ -575,7 +574,7 @@ export class App {
                 tools = tools.concat(node.getContextToolbarItems());
             }
 
-            contextToolbar = new ui.ContextToolbar({
+            const contextToolbar = new ui.ContextToolbar({
                 target: point,
                 root: this.paper.el,
                 padding: 0,

@@ -123,7 +123,7 @@ export class NavigatorService {
             widgetNamespace: {
                 ...ui.widgets,
                 iconButton: IconButton
-            } as any
+            } as { [name: string]: typeof ui.Widget }
         });
 
         this.toolbar.render();

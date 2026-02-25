@@ -80,9 +80,8 @@ export function openRegistryDialog(app: App, node: Configurable) {
 
     openDialog(app, dialog);
 
-    //@ts-ignore
     // TS can't select correct method overload between dia.Cell[] and {[groupName: string]: dia.Cell[]}
-    stencil.load(cells);
+    stencil.load(cells as unknown as dia.Cell[]);
 
     (stencil.el.querySelector('.search') as HTMLInputElement).focus();
 }
