@@ -302,7 +302,7 @@ export const init = () => {
         linkView.addTools(tools);
     }
 
-    function itemActionPicker(target: Element, elementView: dia.ElementView, itemId: string, tools: Array<{ [key: string]: any }>) {
+    function itemActionPicker(target: Element, elementView: dia.ElementView, itemId: string, tools: Array<{ [key: string]: unknown }>) {
 
         const element = elementView.model as Records;
         const ctxToolbar = new ui.ContextToolbar({
@@ -345,7 +345,7 @@ export const init = () => {
         });
     }
 
-    function elementActionPicker(target: Element, elementView: dia.ElementView, tools: Array<{ [key: string]: any }>) {
+    function elementActionPicker(target: Element, elementView: dia.ElementView, tools: Array<{ [key: string]: unknown }>) {
 
         const element = elementView.model as Records;
         const ctxToolbar = new ui.ContextToolbar({

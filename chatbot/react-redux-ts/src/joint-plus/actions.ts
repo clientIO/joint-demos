@@ -112,13 +112,13 @@ export function openImageDownloadDialog(service: JointPlusService, dataURL: stri
     lightbox.open();
 }
 
-export function importGraphFromJSON(service: JointPlusService, json: any): void {
+export function importGraphFromJSON(service: JointPlusService, json: dia.Graph.JSON): void {
     setSelection(service, []);
     const { graph, history } = service;
     const shapeTypes = Object.values(ShapeTypesEnum);
     history.reset();
     try {
-        if (json.cells.some((cell: any) => !shapeTypes.includes(cell.type))) {
+        if (json.cells.some((cell: { type: string }) => !shapeTypes.includes(cell.type))) {
             throw new Error('Invalid JSON: Unknown Cell Type');
         }
         graph.fromJSON(json);
@@ -131,7 +131,7 @@ export function importGraphFromJSON(service: JointPlusService, json: any): void 
 
 export function loadStencilShapes(service: JointPlusService): void {
     const { stencil } = service;
-    const stencilShapes = stencilConfig.shapes.map(shape => new (shapes.stencil as any)[shape.name](shape));
+    const stencilShapes = stencilConfig.shapes.map(shape => new (shapes.stencil as Record<string, new (...args: unknown[]) => dia.Element>)[shape.name](shape));
     stencil.load(stencilShapes);
 }
 

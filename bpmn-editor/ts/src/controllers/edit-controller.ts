@@ -241,7 +241,7 @@ function prepareLabelEditor(context: EditControllerArgs, cellView: dia.CellView)
 
     // Apply global wrapper styles and styles from the shape
     for (const [key, value] of Object.entries(wrapperStyles)) {
-        (editableWrapper.style as any)[key] = value;
+        editableWrapper.style.setProperty(key, value as string);
     }
 
     const contentEditableDiv = document.createElement('div');

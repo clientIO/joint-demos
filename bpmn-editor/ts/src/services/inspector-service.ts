@@ -117,7 +117,7 @@ export default class InspectorService {
         if (shapes.length > 0) {
             const availableShapes = shapes.map((shape) => {
                 const shapeConstructor = getShapeConstructorByType(shape);
-                const { label, icon } = (<any>shapeConstructor);
+                const { label, icon } = shapeConstructor;
 
                 const shapeWrapper = document.createElement('div');
 

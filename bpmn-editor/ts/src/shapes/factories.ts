@@ -69,7 +69,7 @@ class ExportableSubProcess extends ExportableActivity {
 
     eventTriggered: boolean;
 
-    constructor(cellView: any, type?: string, markers?: string[], label?: string, eventTriggered: boolean = false) {
+    constructor(cellView: dia.CellView, type?: string, markers?: string[], label?: string, eventTriggered: boolean = false) {
         super(cellView, type, markers, label);
         this.eventTriggered = eventTriggered;
     }
@@ -97,7 +97,7 @@ class ExportableSubProcess extends ExportableActivity {
 
 class ExportableFlow extends exportableObjects.Flow {
 
-    constructor(cellView: any, label: string, type: string) {
+    constructor(cellView: dia.CellView, label: string, type: string) {
         super(cellView, label, type);
     }
 

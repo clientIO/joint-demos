@@ -112,13 +112,13 @@ export function openImageDownloadDialog(service: JointPlusService, dataURL: stri
     lightbox.open();
 }
 
-export function importGraphFromJSON(service: JointPlusService, json: any): void {
+export function importGraphFromJSON(service: JointPlusService, json: dia.Graph.JSON): void {
     setSelection(service, []);
     const { graph, history } = service;
     const shapeTypes = Object.values(ShapeTypesEnum);
     history.reset();
     try {
-        if (json.cells.some((cell: any) => !shapeTypes.includes(cell.type))) {
+        if (json.cells.some(cell => !shapeTypes.includes(cell.type as ShapeTypesEnum))) {
             throw new Error('Invalid JSON: Unknown Cell Type');
         }
         graph.fromJSON(json);

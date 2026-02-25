@@ -6,7 +6,7 @@ import { App } from '../app';
 import type { dia } from '@joint/plus';
 export class ToolbarService {
     toolbar: ui.Toolbar;
-    fileTools: { [key: string]: any };
+    fileTools: { action: string; content: string }[];
 
     constructor(private element: HTMLElement, private cmd: dia.CommandManager, private graph: dia.Graph) {
         const { tools, groups } = getToolbarConfig();

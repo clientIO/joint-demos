@@ -6,7 +6,7 @@ import { TabsData } from './tabs-data';
 /* 
     Create the default tab state
 */
-export const createTabState = (title: string, json?: any) => {
+export const createTabState = (title: string, json?: dia.Graph.JSON) => {
     const graph = new dia.Graph({ id: util.uuid() }, { cellNamespace: shapes });
     let focusPoint;
     if (json) {

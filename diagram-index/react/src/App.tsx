@@ -9,8 +9,8 @@ import './App.scss';
 
 function App() {
 
-    const canvasEl: any = useRef(null);
-    const treeEl: any = useRef(null);
+    const canvasEl = useRef<HTMLDivElement>(null);
+    const treeEl = useRef<HTMLDivElement>(null);
 
     const [initialDiagram = { id: '', cells: [] }] = TreeData;
     const [expandedTreeNodes, setExpandedTreeNodes] = useState<string[]>([initialDiagram.id]);

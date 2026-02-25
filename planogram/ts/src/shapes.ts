@@ -266,7 +266,7 @@ export class ShelfElement extends dia.Element implements PlanogramElement {
     static attributes = {
         'fill-pattern': {
             set: function(image: string): { fill: string } {
-                const { paper } = this as any;
+                const { paper } = this as dia.ElementView;
                 const MARGIN = 0;
                 const width = 60;
                 const height = 26;
@@ -334,7 +334,7 @@ export class ProductElement extends dia.Element implements PlanogramElement {
 
     public match(group: string, keyword: string): boolean {
         if (this.get('productType').includes(keyword.toLowerCase())) return true;
-        if ((ProductCategories as any)[group].includes(keyword.toUpperCase())) return true;
+        if ((ProductCategories as Record<string, string>)[group].includes(keyword.toUpperCase())) return true;
         return false;
     }
 
@@ -359,7 +359,7 @@ export class ProductElement extends dia.Element implements PlanogramElement {
     static attributes = {
         'product-image': {
             set: function(image: string): { fill: string } {
-                const { paper, model } = this as any;
+                const { paper, model } = this as dia.ElementView;
                 const MARGIN = 8;
                 const { width, height } = calcSize(model.get('productSize'));
                 const patternId = image + paper.cid;

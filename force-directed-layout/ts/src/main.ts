@@ -79,7 +79,7 @@ let dragging = false;
 
 function drag(
     elementView: dia.ElementView,
-    _event: any,
+    _event: dia.Event,
     clientX: number,
     clientY: number
 ) {

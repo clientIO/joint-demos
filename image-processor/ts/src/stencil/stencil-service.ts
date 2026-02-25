@@ -5,7 +5,7 @@ import type { Node } from '../nodes/node';
 export class StencilService {
     stencil: ui.Stencil;
 
-    constructor(element: HTMLElement, paperScroller: ui.PaperScroller, namespace: any) {
+    constructor(element: HTMLElement, paperScroller: ui.PaperScroller, namespace: Record<string, unknown>) {
         this.stencil = new ui.Stencil({
             paper: paperScroller,
             groups: getStencilGroups(),

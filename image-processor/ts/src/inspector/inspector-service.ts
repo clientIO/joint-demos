@@ -36,7 +36,7 @@ export class InspectorService {
     disable(property: string, node: Node) {
         if (!ui.Inspector.instance) return;
 
-        const inspectorNode: Node = (<any>ui.Inspector.instance).getModel();
+        const inspectorNode: Node = (ui.Inspector.instance as ui.Inspector).getModel();
         if (inspectorNode === node) {
             const element = this.element.querySelector(`.field[data-field="properties/${property}"]`);
             if (element) {
@@ -51,7 +51,7 @@ export class InspectorService {
     enable(property: string, node: Node) {
         if (!ui.Inspector.instance) return;
 
-        const inspectorNode: Node = (<any>ui.Inspector.instance).getModel();
+        const inspectorNode: Node = (ui.Inspector.instance as ui.Inspector).getModel();
         if (inspectorNode === node) {
             const element = this.element.querySelector(`.field[data-field="properties/${property}"]`);
             if (element) {

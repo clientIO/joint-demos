@@ -128,7 +128,7 @@ export const createLink = (source: dia.Element, target: dia.Element, options: Li
     const showLabel = options.showLabel ?? Boolean(options.label);
     const labelText = options.label ?? `${source.attr('label/text')} → ${target.attr('label/text')}`;
 
-    const baseConfig: any = {
+    const baseConfig: dia.Link.Attributes = {
         source: { id: source.id },
         target: { id: target.id },
         attrs: {

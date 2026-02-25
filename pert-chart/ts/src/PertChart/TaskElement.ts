@@ -41,7 +41,7 @@ export class TaskElement extends Record {
         `;
     }
 
-    defaults(): any {
+    defaults(): dia.Element.Attributes {
         return {
             ...super.defaults,
             type: 'task',

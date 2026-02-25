@@ -148,7 +148,7 @@ export class TreeDataService {
                 id: diagram.id,
                 name: diagram.name,
                 graph: diagram,
-                children: graph.getCells().map((cell: any) => {
+                children: graph.getCells().map((cell: dia.Cell) => {
                     return {
                         id: `${diagram.id}-${cell.id}`,
                         name: cell.isElement()

@@ -97,7 +97,7 @@ export class Display extends Node {
         return [];
     }
 
-    getContextToolbarItems(): any[] {
+    getContextToolbarItems(): object[] {
         const nodeItems = super.getContextToolbarItems();
         return nodeItems.concat([{
             action: 'exportImage',

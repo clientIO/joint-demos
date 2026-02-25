@@ -17,7 +17,7 @@ import type { Observable, Subscription } from 'rxjs';
 
 interface SharedEvent {
     name: string;
-    value: any;
+    value: unknown;
 }
 
 export class EventBusService implements mvc.Events  {
@@ -43,11 +43,11 @@ export class EventBusService implements mvc.Events  {
         return this._events.asObservable();
     }
 
-    emit(eventName: string, value?: any): void {
+    emit(eventName: string, value?: unknown): void {
         this._events.next({ name: eventName, value: value });
     }
 
-    subscribe(eventName: string, callback: any): Subscription {
+    subscribe(eventName: string, callback: (value: unknown) => void): Subscription {
         return this._events.pipe(
             filter(e => e.name === eventName),
             map(e => e.value)

@@ -296,7 +296,7 @@ export const init = () => {
                     y: 5,
                     markup: removeButtonMarkup,
                     action: () => {
-                        const path: any[] = element.get('path');
+                        const path: (string | number)[] = element.get('path');
                         const siblings = util.getByPath(theoryOfChange, path.slice(0, -1));
                         if (Array.isArray(siblings)) {
                             // get the element that is being removed

@@ -62,7 +62,7 @@ export function getFileFromGraph(graph: dia.Graph): ImpFile {
         return {
             id: node.id as string,
             type: node.get('type'),
-            attributes: node.getFileAttributes().reduce((obj: any, prop) => {
+            attributes: node.getFileAttributes().reduce((obj: { [key: string]: unknown }, prop) => {
                 obj[prop] = node.prop(prop);
                 return obj;
             }, {})

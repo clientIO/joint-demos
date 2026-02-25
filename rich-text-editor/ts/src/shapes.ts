@@ -79,7 +79,7 @@ export class TextNode extends dia.Element {
         });
     }
 
-    static create(x: number, y: number, text: string, annotations: ui.TextEditor.Annotation[], bodyAttrs?: any): TextNode {
+    static create(x: number, y: number, text: string, annotations: ui.TextEditor.Annotation[], bodyAttrs?: dia.SVGAttributes): TextNode {
         return new TextNode({
             position: { x, y },
             attrs: {

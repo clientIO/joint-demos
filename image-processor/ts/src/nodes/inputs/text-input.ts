@@ -19,14 +19,14 @@ export class TextInputView extends NodeView {
 
 export class TextInput extends Node {
 
-    initialize(attributes: NodeAttributes, options: any): void {
+    initialize(attributes: NodeAttributes, options: dia.Graph.Options): void {
         super.initialize(attributes, options);
 
         if (this.attr('input/props/value') != null) {
             this.updateCurrentData();
         }
 
-        this.on('change:attrs', (_input: TextInput, _attrs: any, options: any) => {
+        this.on('change:attrs', (_input: TextInput, _attrs: dia.Cell.Attributes, options: dia.Cell.Options) => {
             if (options.propertyPath === 'attrs/input/props/value') {
                 this.updateCurrentData();
             }
@@ -76,11 +76,11 @@ export class TextInput extends Node {
         }, defaults) as NodeAttributes;
     }
 
-    async action(_inputs: any[] = []): Promise<ActionResult> {
+    async action(_inputs: unknown[] = []): Promise<ActionResult> {
         return [];
     }
 
-    getCurrentData(): any[] {
+    getCurrentData(): unknown[] {
         return [this.attr('input/props/value')];
     }
 

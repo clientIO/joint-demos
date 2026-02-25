@@ -8,13 +8,13 @@ export interface NodeInput {
     name: string,
     type: string,
     property: string,
-    defaultValue?: any
+    defaultValue?: unknown
 }
 
 export interface NodeOutput {
     name: string,
     type: string,
-    defaultValue?: any
+    defaultValue?: unknown
 }
 
 export class NodeView extends dia.ElementView {
@@ -63,13 +63,13 @@ export interface NodeAttributes extends dia.Element.Attributes {
     name: string;
     inputSettings: NodeInput[];
     outputSettings: NodeOutput[];
-    properties?: any;
-    outputs?: any[];
+    properties?: unknown;
+    outputs?: unknown[];
     group: string;
 }
 export abstract class Node extends dia.Element<NodeAttributes> {
     inputProperties: { [key: string]: {
-        prevValue: any
+        prevValue: unknown
     }} = {};
 
     constructor(attributes?: NodeAttributes, options?: dia.Graph.Options) {
@@ -224,13 +224,13 @@ export abstract class Node extends dia.Element<NodeAttributes> {
 
     abstract action(): Promise<ActionResult>;
 
-    setProperty(name: string, value: any) {
+    setProperty(name: string, value: unknown) {
         this.prop(`properties/${name}`, value);
     }
 
     get properties(): any {
         const inputSettings: NodeInput[] = this.get('inputSettings');
-        const properties: { [key: string]: any } = this.get('properties');
+        const properties: { [key: string]: unknown } = this.get('properties');
 
         inputSettings.forEach((input) => {
             if (properties[input.property] == null) {
@@ -273,7 +273,7 @@ export abstract class Node extends dia.Element<NodeAttributes> {
         };
     }
 
-    onInputConnectionAdd(input: NodeInput, value: any) {
+    onInputConnectionAdd(input: NodeInput, value: unknown) {
         this.inputProperties[input.property] = this.get(input.property);
         this.prop(`properties/${input.property}`, value);
 
@@ -287,7 +287,7 @@ export abstract class Node extends dia.Element<NodeAttributes> {
         App.inspectorService.enable(input.property, this);
     }
 
-    getContextToolbarItems(): any[] {
+    getContextToolbarItems(): object[] {
         return [];
     }
 
@@ -308,7 +308,7 @@ export abstract class Node extends dia.Element<NodeAttributes> {
         } : null;
     }
 
-    getCurrentData(): any[] {
+    getCurrentData(): unknown[] {
         return [];
     }
 

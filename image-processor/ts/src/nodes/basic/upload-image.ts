@@ -121,7 +121,7 @@ export class Upload extends Node {
 
                     canvas.width = img.naturalWidth;
                     canvas.height = img.naturalHeight;
-                    canvas.getContext('2d').drawImage(img as any, 0, 0);
+                    canvas.getContext('2d').drawImage(img as HTMLImageElement, 0, 0);
 
                     const mat = cv.imread(canvas);
                     resolve([mat]);
@@ -133,7 +133,7 @@ export class Upload extends Node {
         });
     }
 
-    getContextToolbarItems(): any[] {
+    getContextToolbarItems(): object[] {
         return [{
             action: 'uploadImage',
             content: 'Upload Image',
@@ -162,7 +162,7 @@ export class Upload extends Node {
                     const canvas = this.canvas;
                     canvas.width = img.naturalWidth;
                     canvas.height = img.naturalHeight;
-                    canvas.getContext('2d').drawImage(img as any, 0, 0);
+                    canvas.getContext('2d').drawImage(img as HTMLImageElement, 0, 0);
 
                     const mat = cv.imread(canvas);
                     App.processor.updateCurrentData(this.id, [mat]);

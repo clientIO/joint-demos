@@ -4,7 +4,7 @@ export class CVService {
     worker: Worker;
     channel: MessageChannel;
 
-    constructor(ready: (error?: any) => void) {
+    constructor(ready: (error?: unknown) => void) {
         this.worker = new Worker(new URL('./cv-worker.js', import.meta.url));
         this.channel = new MessageChannel();
 
@@ -21,8 +21,8 @@ export class CVService {
         this.worker.postMessage({ msg: 'load' }, [this.channel.port2]);
     }
 
-    async do(name: string, data: any[] = []) {
-        const workerWrapper = (data: any[]) => new Promise((res, rej) => {
+    async do(name: string, data: unknown[] = []) {
+        const workerWrapper = (data: unknown[]) => new Promise((res, rej) => {
             const channel = new MessageChannel();
 
             channel.port1.onmessage = ({ data }) => {

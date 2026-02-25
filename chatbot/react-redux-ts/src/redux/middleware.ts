@@ -15,7 +15,7 @@ import { importGraphFromJSON } from '../joint-plus/actions';
 import { onGraphStartBatch, onGraphStopBatch } from '../joint-plus/controllers';
 
 export const sideEffects = ({ getState }: { getState: (...args: any[]) => any }) => {
-    return (next: (...args: any[]) => any) => (action: { type: string, payload: any }) => {
+    return (next: (...args: any[]) => any) => (action: { type: string, payload: unknown }) => {
         if (action.type === STORE_JOINT) {
             return next(action);
         }

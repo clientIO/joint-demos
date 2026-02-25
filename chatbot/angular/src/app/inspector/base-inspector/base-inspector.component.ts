@@ -41,7 +41,7 @@ export abstract class BaseInspectorComponent implements OnChanges, OnDestroy {
         this.removeCellListener(this.cell);
     }
 
-    public changeCellProp(path: dia.Path, value: any): void {
+    public changeCellProp(path: dia.Path, value: unknown): void {
         this.cell.prop(path, value);
     }
 

@@ -22,7 +22,7 @@ export class TaskElement extends RectPrism<TaskElementsAttributes> {
         });
     }
 
-    defaults(): any {
+    defaults(): dia.Element.Attributes {
         return util.defaultsDeep({
             type: TYPE,
             attrs: {

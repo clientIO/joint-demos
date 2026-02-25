@@ -9,4 +9,4 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-export const actionCreator = (type: string, payload: any) => ({ type, payload });
+export const actionCreator = (type: string, payload: unknown) => ({ type, payload });

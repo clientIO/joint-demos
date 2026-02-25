@@ -24,7 +24,7 @@ function App() {
     /**
    * Create the default tab state
    */
-    const createTabState = (title: string, json?: any) => {
+    const createTabState = (title: string, json?: dia.Graph.JSON) => {
         const graph = new dia.Graph({ id: util.uuid() }, { cellNamespace: shapes });
         let focusPoint;
         if (json) {

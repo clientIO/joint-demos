@@ -4,7 +4,7 @@ import { CARD_PORT_BG_COLOR, CARD_PORT_COLOR, CARD_PORT_LABEL_COLOR } from '../.
 
 export interface CardAttributes extends dia.Element.Attributes {
     hidden?: boolean;
-    attrs?: any;
+    attrs?: dia.Cell.Selectors;
 }
 
 export abstract class Card extends dia.Element<CardAttributes> {

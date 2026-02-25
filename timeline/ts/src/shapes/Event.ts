@@ -82,7 +82,7 @@ export class Event extends dia.Element implements ITimelineShape {
         }, super.defaults);
     }
 
-    preinitialize(attributes?: dia.Element.Attributes, options?: any): void {
+    preinitialize(attributes?: dia.Element.Attributes, options?: dia.Graph.Options): void {
         super.preinitialize(attributes, options);
 
         this.markup = util.svg/* xml */`

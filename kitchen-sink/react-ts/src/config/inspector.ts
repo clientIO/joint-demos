@@ -213,7 +213,7 @@ const options = {
     }]
 };
 
-export const inspectorDefinitions: Record<string, { inputs: any, groups: any }> = {
+export const inspectorDefinitions: Record<string, { inputs: Record<string, unknown>, groups: Record<string, unknown> }> = {
     'app.Link': {
         inputs: {
             attrs: {

@@ -64,7 +64,7 @@ export default class Node extends dia.Element {
         };
     }
 
-    preinitialize(attributes?: dia.Element.Attributes, options?: any): void {
+    preinitialize(attributes?: dia.Element.Attributes, options?: dia.Cell.Options): void {
         super.preinitialize(attributes, options);
         this.markup = util.svg`
             <rect @selector="body" />

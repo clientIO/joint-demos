@@ -52,6 +52,6 @@ app.graph.fromJSON(JSON.parse(sampleGraphs.emergencyProcedure));
 app.commandManager.reset();
 
 // for easier debugging in the browser's console
-declare let window: any;
+declare let window: Window & typeof globalThis & Record<string, unknown>;
 window['joint'] = joint;
 window['app'] = app;

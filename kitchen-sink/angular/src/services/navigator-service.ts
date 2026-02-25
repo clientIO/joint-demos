@@ -58,7 +58,7 @@ const NavigatorElementView = dia.ElementView.extend({
     },
     // calls in an animation frame after a multiple changes
     // has been made to the model
-    confirmUpdate: function(flags: any) {
+    confirmUpdate: function(flags: number) {
         if (this.hasFlag(flags, UpdateFlags.Render)) this.render();
         if (this.hasFlag(flags, UpdateFlags.Update)) this.update();
         // using the original `updateTransformation()` method
@@ -218,14 +218,14 @@ export class NavigatorService {
 
     updateToolbarButtons() {
         // Minimap
-        const minimapButton: any = this.toolbar.getWidgetByName('minimap');
+        const minimapButton = this.toolbar.getWidgetByName('minimap') as { setIcon?: (icon: string) => void; setTooltip: (tooltip: string) => void };
         if (this.isMinimapVisible()) {
             minimapButton.setTooltip('Hide minimap');
         } else {
             minimapButton.setTooltip('Show minimap');
         }
         // Full screen
-        const fullscreenButton: any = this.toolbar.getWidgetByName('fullscreen');
+        const fullscreenButton = this.toolbar.getWidgetByName('fullscreen') as { setIcon: (icon: string) => void; setTooltip: (tooltip: string) => void };
         if (document.fullscreenElement) {
             fullscreenButton.setIcon(`${baseUrl}/exit-fullscreen.svg`);
             fullscreenButton.setTooltip('Exit full screen');

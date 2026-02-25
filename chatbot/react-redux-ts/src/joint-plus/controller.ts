@@ -39,7 +39,7 @@ export abstract class Controller {
         mvc.Events.stopListening.call(this);
     }
 
-    protected listenTo(object: any, events: ControllerEventMap): void {
+    protected listenTo(object: mvc.Events, events: ControllerEventMap): void {
         Object.keys(events).forEach(event => {
             const callback = events[event];
             if (typeof callback !== 'function') return;

@@ -51,7 +51,7 @@ export class FillContours extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image, color }: { image: cv.Mat, color: any } = this.properties;
+        const { image, color }: { image: cv.Mat, color: { r: number; g: number; b: number } } = this.properties;
 
         if (!image) return [null];
 

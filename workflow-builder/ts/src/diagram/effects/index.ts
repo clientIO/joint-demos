@@ -21,7 +21,7 @@ export const Effect = {
 /**
  * Add an effect (highlighter) to a diagram node or edge.
  */
-export function addEffect(cellView: dia.CellView, effect: typeof Effect[keyof typeof Effect], options: any = {}) {
+export function addEffect(cellView: dia.CellView, effect: typeof Effect[keyof typeof Effect], options: Record<string, unknown> = {}) {
     switch (effect) {
         case Effect.NodeHover:
             HoverEffect.add(cellView, 'root', effect);

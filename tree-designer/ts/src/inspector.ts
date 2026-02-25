@@ -187,7 +187,7 @@ const inputs = {
             ...inputSize,
             when: {
                 empty: {
-                    'data/children': null as any
+                    'data/children': null as unknown
                 }
             }
         },

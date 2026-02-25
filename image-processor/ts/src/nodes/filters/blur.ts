@@ -38,7 +38,7 @@ export class Blur extends Node {
         if (!image) return [null];
 
         try {
-            const result: any = await App.cvService.do('blur', [image, radius]);
+            const result = await App.cvService.do('blur', [image, radius]) as cv.Mat;
             return [result];
         } catch {
             return [null];

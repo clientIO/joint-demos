@@ -207,7 +207,7 @@ class Branch extends dia.Link {
         // It works similarly to the `connection` attribute of JointJS.
         'organic-stroke': {
             set: function(
-                _value: any,
+                _value: boolean,
                 _refBBox: g.Rect,
                 _node: SVGElement,
                 attrs: attributes.NativeSVGAttributes,

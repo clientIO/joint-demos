@@ -230,7 +230,7 @@ export const init = () => {
         const level = element.get('level');
         const elementPath = ['data', ...element.get('path')].join('/');
 
-        const elementInputs: any = {
+        const elementInputs: Record<string, Record<string, unknown>> = {
             name: {
                 type: 'content-editable',
                 label: 'Name',

@@ -40,7 +40,7 @@ export class Category extends shapes.standard.Rectangle implements ITimelineShap
         }, super.defaults);
     }
 
-    preinitialize(attributes?: shapes.standard.RectangleAttributes, options?: any): void {
+    preinitialize(attributes?: shapes.standard.RectangleAttributes, options?: dia.Graph.Options): void {
         super.preinitialize(attributes, options);
 
         this.on('change:direction', (el, direction: 'T' | 'B') => {
@@ -72,7 +72,7 @@ export class Category extends shapes.standard.Rectangle implements ITimelineShap
 
     updateSize() {
         const text = this.attr('label/text') || '';
-        const { fontSize, fontFamily } = this.attr('label') as any;
+        const { fontSize, fontFamily } = this.attr('label') as { fontSize: number; fontFamily: string };
         const padding = HORIZONTAL_PADDING;
 
         const { width } = measureTextSize(text, fontSize, fontFamily);

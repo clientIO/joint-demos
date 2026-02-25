@@ -2,7 +2,7 @@ import type { dia } from '@joint/plus/index';
 
 // Validators
 
-export const validateChangePosition = (graph: dia.Graph) => (err: Error, command: any, next: (...args: any[]) => any): boolean => {
+export const validateChangePosition = (graph: dia.Graph) => (err: Error, command: { data: { id: dia.Cell.ID }; options: dia.Cell.Options }, next: (err: Error | { cell: dia.Cell; msg: string } | null) => boolean): boolean => {
     if (command.options.freeTransform) {
         // Position is changed after resize
         return next(err);
@@ -14,7 +14,7 @@ export const validateChangePosition = (graph: dia.Graph) => (err: Error, command
     return next(err);
 };
 
-export const validateChangeSize = (graph: dia.Graph) => (err: Error, command: any, next: (...args: any[]) => any): boolean => {
+export const validateChangeSize = (graph: dia.Graph) => (err: Error, command: { data: { id: dia.Cell.ID }; options: dia.Cell.Options }, next: (err: Error | { cell: dia.Cell; msg: string } | null) => boolean): boolean => {
     const cell = graph.getCell(command.data.id) as dia.Element;
     if (!isSizeValid(graph, cell)) {
         return next({ cell, msg: 'resizing error' });

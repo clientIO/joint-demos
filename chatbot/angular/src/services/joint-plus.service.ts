@@ -57,7 +57,7 @@ export class JointPlusService {
         stencil.remove();
         toolbar.remove();
         tooltip.remove();
-        Object.keys(controllers).forEach(name => (<any>controllers)[name].stopListening());
+        Object.keys(controllers).forEach(name => (controllers as Record<string, Controller>)[name].stopListening());
         subscriptions.unsubscribe();
     }
 }

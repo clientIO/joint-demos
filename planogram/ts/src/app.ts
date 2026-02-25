@@ -96,7 +96,7 @@ export const init = (): void => {
     const createStencilGroups = (): Record<string, ui.Stencil.Group> => {
 
         const { products } = storeItemsConfig;
-        const groups: { [key: string]: any } = {};
+        const groups: { [key: string]: ui.Stencil.Group } = {};
         const getLayoutOptions = (columnsCount: number): layout.GridLayout.Options => {
             return {
                 columns: columnsCount,
@@ -114,7 +114,7 @@ export const init = (): void => {
                 layout: getLayoutOptions(5 - maxWidth),
                 closed: idx > 3,
                 index: idx + 1,
-                label: (ProductCategories as any)[categoryName].toLowerCase()
+                label: (ProductCategories as Record<string, string>)[categoryName].toLowerCase()
             };
         });
 
@@ -188,7 +188,7 @@ export const init = (): void => {
     });
 
     graph.on({
-        'batch:stop': (batch: Record<string, any>): void => {
+        'batch:stop': (batch: Record<string, unknown>): void => {
             const { cell, batchName } = batch;
             if (batchName !== 'resize') return;
             const cellView = cell.findView(paper);

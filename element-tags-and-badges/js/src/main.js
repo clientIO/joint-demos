@@ -351,12 +351,12 @@ paper.on({
     },
     'element:badge:pointerdown': (elementView, evt) => {
         elementView.preventDefaultInteraction(evt);
-        // eslint-disable-next-line no-console
+         
         console.log(`Badge clicked: ${evt.currentTarget.dataset.name}`);
     },
     'element:tag:pointerdown': (elementView, evt) => {
         elementView.preventDefaultInteraction(evt);
-        // eslint-disable-next-line no-console
+         
         console.log(`Tag clicked: ${evt.currentTarget.dataset.name}`);
     }
 });

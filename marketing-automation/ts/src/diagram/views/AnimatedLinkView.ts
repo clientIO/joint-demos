@@ -20,7 +20,7 @@ export default class AnimatedLinkView extends dia.LinkView {
         }
     }
 
-    protected onLabelsChange(link: dia.Link, labels: dia.Link.Label[], opt: { [key: string]: any; }): void {
+    protected onLabelsChange(link: dia.Link, labels: dia.Link.Label[], opt: { [key: string]: unknown; }): void {
         super.onLabelsChange(link, labels, opt);
         // A label has been edited, prevent transition for the next update
         this.preventLabelTransition();

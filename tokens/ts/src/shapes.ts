@@ -36,7 +36,7 @@ export class Node extends dia.Element {
         tagName: 'text',
         selector: 'label',
     }];
-    setText(text: string): any {
+    setText(text: string): dia.Element {
         return this.attr('label/text', text || '');
     }
 }
@@ -79,7 +79,7 @@ export class Link extends dia.Link {
             'fill': 'none',
         }
     }];
-    connect(sourceId: string, targetId: string): any {
+    connect(sourceId: string, targetId: string): dia.Link {
         return this.set({
             source: { id: sourceId },
             target: { id: targetId }
@@ -127,7 +127,7 @@ export class Token extends dia.Element {
             'cursor': 'pointer',
         }
     }];
-    setText(text: string): any {
+    setText(text: string): dia.Element {
         return this.attr('label/text', text || '');
     }
 }

@@ -1,7 +1,7 @@
 export interface ImpFileNode {
     type: string;
     id: string;
-    attributes: { [key: string]: any };
+    attributes: { [key: string]: unknown };
 }
 
 export interface ImpFileConnection {

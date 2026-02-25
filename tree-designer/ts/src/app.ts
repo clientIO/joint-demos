@@ -160,7 +160,7 @@ export const init = () => {
         inspector: ui.Inspector,
         inspectorFieldEl: Element | null,
         element: dia.Element,
-        options: any = {}
+        options: { scroll?: boolean; blur?: boolean } = {}
     ) {
         const {
             scroll = true,

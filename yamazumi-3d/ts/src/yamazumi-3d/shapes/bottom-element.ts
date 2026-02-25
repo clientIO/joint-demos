@@ -57,7 +57,7 @@ export class BottomElement extends RectPrism<BottomElementAttributes> {
         });
     }
 
-    defaults(): any {
+    defaults(): dia.Element.Attributes {
         return {
             ...super.defaults(),
             type: TYPE,

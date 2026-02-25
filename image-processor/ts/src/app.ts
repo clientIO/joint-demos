@@ -433,7 +433,7 @@ export class App {
             const targetView = paper.findViewByModel(targetModel);
 
             const sourceMagnet: SVGElement = (sourceView as dia.ElementView).findPortNode(source.port);
-            const targetMagnet: SVGElement = (targetView as any).findPortNode(target.port);
+            const targetMagnet: SVGElement = (targetView as dia.ElementView).findPortNode(target.port);
             const targetGroup = targetMagnet.getAttribute('port-group');
 
             let inputIndex: number;

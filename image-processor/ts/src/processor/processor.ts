@@ -11,10 +11,10 @@ export class Processor {
     outboundConnections: { [sourceId: string]: Connection[] } = {};
     inboundConnections: { [targetId: string]: Connection[] } = {};
 
-    listener: mvc.Listener<any[]> = new mvc.Listener();
+    listener: mvc.Listener<unknown[]> = new mvc.Listener();
 
     constructor(public graph: dia.Graph) {
-        this.listener.listenTo(graph, 'add', (cell: dia.Cell, _: any, options: any) => {
+        this.listener.listenTo(graph, 'add', (cell: dia.Cell, _: dia.Graph, options: dia.Cell.Options) => {
             if (cell.isElement()) {
                 this.addNode(cell as Node);
             }

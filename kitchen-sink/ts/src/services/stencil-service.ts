@@ -178,7 +178,7 @@ export class StencilService {
             // Tooltip container denotes the area where the tooltip can be shown
             // It's adding a padding on the top and the bottom of the paper area.
             container: this.stencilContainer,
-            content: (el: HTMLElement): any => {
+            content: (el: HTMLElement): false | HTMLElement => {
 
                 const groups = Object.keys(this.getStencilGroups());
 

@@ -20,7 +20,7 @@ export const useBaseInspector = (props: Props): Function => {
         cell.off(null, null, context);
     }, [cell, context]);
 
-    const changeCellProp = (path: dia.Path, value: any): void => {
+    const changeCellProp = (path: dia.Path, value: unknown): void => {
         cell.prop(path, value);
     };
 

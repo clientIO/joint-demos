@@ -409,7 +409,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
             const { command, ...data } = e.data;
             if (command === 'routed') {
                 const { cells } = data;
-                cells.forEach((cell: any) => {
+                cells.forEach((cell: { id: string; vertices: dia.Link.Vertex[]; source: dia.Link.EndJSON; target: dia.Link.EndJSON; router: null }) => {
                     const model = this.graph.getCell(cell.id);
                     if (!model || model.isElement()) return;
                     model.set({
@@ -441,7 +441,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
         // Forward graph changes to the worker
         this.controller.listenTo(this.graph, {
-            'change': (cell: dia.Cell, opt: any) => {
+            'change': (cell: dia.Cell, opt: dia.Cell.Options) => {
                 if (opt.fromWorker) return;
                 this.routerWorker.postMessage([{
                     command: 'change',

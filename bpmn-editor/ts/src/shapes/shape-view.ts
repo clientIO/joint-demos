@@ -51,7 +51,7 @@ export class LabelElementView extends dia.ElementView<AppElement> {
         return this;
     }
 
-    update(element?: DOMElement, renderingOnlyAttrs?: { [key: string]: any; } | undefined): void {
+    update(element?: DOMElement, renderingOnlyAttrs?: { [key: string]: unknown; } | undefined): void {
         super.update(element, renderingOnlyAttrs);
 
         // If the node doesn't exist, there is no need to toggle its display

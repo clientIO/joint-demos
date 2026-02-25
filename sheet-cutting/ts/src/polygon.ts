@@ -47,13 +47,13 @@ export class Polygon extends dia.Element<PolygonAttributes> {
         this.markup = polygonMarkup;
     }
 
-    initialize(attributes?: PolygonAttributes, options?: any): void {
+    initialize(attributes?: PolygonAttributes, options?: dia.Graph.Options): void {
         super.initialize(attributes, options);
         this.on('change:rotation', (_, rotation) => this.setAngle(rotation, { ignoreHistory: true }));
         this.setAngle(this.get('rotation'));
     }
 
-    defaults(): any {
+    defaults(): dia.Element.Attributes {
         return {
             ...dia.Element.prototype.defaults,
             type: 'Polygon',
@@ -90,7 +90,7 @@ export class Polygon extends dia.Element<PolygonAttributes> {
         };
     }
 
-    setAngle(angle: number, setOptions: any = {}) {
+    setAngle(angle: number, setOptions: dia.Cell.Options = {}) {
         const newPolyline = this.getGeometry({ angle });
         const newBBox = newPolyline.bbox();
         const rotationCenter = this.getCenterOfRotation().offset(this.position());

@@ -75,7 +75,7 @@ export class DurationNumberInput extends dia.HighlighterView<DurationNumberInput
         let value = Number(evt.target.value);
         const duration = this.cellView.model.get('duration');
         const stack = this.options.layoutView.model.getStackFromElement(this.cellView.model as dia.Element);
-        const currentDuration = stack.elements.reduce((agg: any, el: dia.Element) => agg + el.get('duration'), 0) - duration;
+        const currentDuration = stack.elements.reduce((agg: number, el: dia.Element) => agg + el.get('duration'), 0) - duration;
         value = Math.max(value, this.options.minDuration);
         if (currentDuration + value > this.options.maxDuration) {
             value = this.options.maxDuration - currentDuration;

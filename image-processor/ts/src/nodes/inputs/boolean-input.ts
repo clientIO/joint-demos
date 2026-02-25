@@ -20,14 +20,14 @@ export class BooleanInputView extends NodeView {
 
 export class BooleanInput extends Node {
 
-    initialize(attributes: NodeAttributes, options: any): void {
+    initialize(attributes: NodeAttributes, options: dia.Graph.Options): void {
         super.initialize(attributes, options);
 
         if (this.attr('input/props/checked') != null) {
             this.updateCurrentData();
         }
 
-        this.on('change:attrs', (_input: BooleanInput, _attrs: any, options: any) => {
+        this.on('change:attrs', (_input: BooleanInput, _attrs: dia.Cell.Attributes, options: dia.Cell.Options) => {
             if (options.propertyPath === 'attrs/input/props/checked') {
                 this.updateCurrentData();
             }
@@ -80,7 +80,7 @@ export class BooleanInput extends Node {
         return [];
     }
 
-    getCurrentData(): any[] {
+    getCurrentData(): unknown[] {
         return [this.attr('input/props/checked')];
     }
 

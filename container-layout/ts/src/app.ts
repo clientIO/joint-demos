@@ -224,7 +224,7 @@ const gridPathData = (metrics: layout.GridLayout.GridMetrics, offset: dia.Paddin
 
 const layoutCells = (graph: dia.Graph): void => {
 
-    const directedGraphCells = graph.getLinks() as any;
+    const directedGraphCells = graph.getLinks() as dia.Cell[];
 
     graph.getElements().forEach((container: shapes.app.Container) => {
 

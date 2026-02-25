@@ -52,7 +52,7 @@ export interface AppShape extends dia.Cell {
 
 interface AppearanceConfig {
     groups: Record<string, { label: string, index: number }>;
-    inputs: Record<string, Record<string, any>>;
+    inputs: Record<string, Record<string, unknown>>;
 }
 
 export interface AppElement extends dia.Element {

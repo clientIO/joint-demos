@@ -13,7 +13,7 @@ interface INode {
 }
 
 interface ICard {
-    ctor: any;
+    ctor: new (...args: unknown[]) => dia.Element;
     id: string;
     x: number;
     y: number;
@@ -29,7 +29,7 @@ interface ICardPort {
 }
 
 interface ILink {
-    ctor: any;
+    ctor: new (...args: unknown[]) => Link;
     id: string;
     port: string;
 }

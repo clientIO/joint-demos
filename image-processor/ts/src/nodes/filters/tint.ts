@@ -54,7 +54,7 @@ export class Tint extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image, color, intensity }: { image: cv.Mat, color: any, intensity: number } = this.properties;
+        const { image, color, intensity }: { image: cv.Mat, color: { r: number; g: number; b: number }, intensity: number } = this.properties;
 
         if (!image) return [null];
 

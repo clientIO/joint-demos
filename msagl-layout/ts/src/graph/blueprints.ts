@@ -15,7 +15,7 @@ export type LinkSpec = {
     from: string;
     to: string;
     label?: string;
-    options?: Record<string, any>;
+    options?: Record<string, unknown>;
 };
 
 export type GraphBlueprint = {

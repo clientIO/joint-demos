@@ -27,7 +27,7 @@ const initialState: State = {
     selection: []
 };
 
-const reducer = (state = initialState, action: { type: string, payload: any }) => {
+const reducer = (state = initialState, action: { type: string, payload: unknown }) => {
     switch (action.type) {
         case STORE_JOINT:
             return {

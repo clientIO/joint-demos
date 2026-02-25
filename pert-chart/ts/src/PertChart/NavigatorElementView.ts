@@ -20,7 +20,7 @@ const NavigatorElementView = dia.ElementView.extend({
     },
     // calls in an animation frame after a multiple changes
     // has been made to the model
-    confirmUpdate: function(flags: any) {
+    confirmUpdate: function(flags: number) {
         if (this.hasFlag(flags, UpdateFlags.Render)) this.render();
         if (this.hasFlag(flags, UpdateFlags.Update)) this.update();
         // using the original `updateTransformation()` method

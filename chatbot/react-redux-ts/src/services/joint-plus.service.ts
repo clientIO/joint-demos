@@ -35,7 +35,7 @@ export class JointPlusService {
         paperElement: Element,
         stencilElement: Element,
         toolbarElement: Element,
-        public readonly dispatch: (...args: any[]) => any,
+        public readonly dispatch: (action: { type: string, payload: unknown }) => void,
     ) {
         Object.assign(this, createPlugins(scopeElement, paperElement, stencilElement, toolbarElement));
         this.controllers = {
@@ -52,7 +52,7 @@ export class JointPlusService {
         stencil.remove();
         toolbar.remove();
         tooltip.remove();
-        Object.keys(controllers).forEach(name => (controllers as any)[name].stopListening());
+        Object.keys(controllers).forEach(name => (controllers as Record<string, Controller>)[name].stopListening());
     }
 }
 

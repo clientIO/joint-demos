@@ -34,7 +34,7 @@ const portCircleAttrs = {
 export class Node extends shapes.standard.Rectangle {
     static PORT_RADIUS = PORT_RADIUS;
 
-    constructor(attributes?: any, options?: any) {
+    constructor(attributes?: shapes.standard.RectangleAttributes, options?: object) {
         super(attributes, { ...options, portLayoutNamespace });
     }
 
