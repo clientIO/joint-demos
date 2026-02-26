@@ -118,7 +118,7 @@ export function importGraphFromJSON(service: JointPlusService, json: dia.Graph.J
     const shapeTypes = Object.values(ShapeTypesEnum);
     history.reset();
     try {
-        if (json.cells.some((cell: { type: string }) => !shapeTypes.includes(cell.type))) {
+        if (json.cells.some((cell: { type: string }) => !shapeTypes.includes(cell.type as ShapeTypesEnum))) {
             throw new Error('Invalid JSON: Unknown Cell Type');
         }
         graph.fromJSON(json);

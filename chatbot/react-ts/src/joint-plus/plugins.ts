@@ -109,7 +109,8 @@ export function createPlugins(
         },
         dragStartClone: (element: dia.Element) => {
             const name = element.get('name');
-            const Shape = shapes.app[name];
+            // eslint-disable-next-line no-explicit-any
+            const Shape = (shapes.app as any)[name];
             if (!Shape) throw new Error(`Invalid stencil shape name: ${name}`);
             return Shape.fromStencilShape(element);
         },

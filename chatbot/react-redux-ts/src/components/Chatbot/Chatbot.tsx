@@ -10,6 +10,7 @@ import exampleGraphJSON from '../../joint-plus/config/example-graph.json';
 
 import type { ReactElement } from 'react';
 import type { State } from '../../redux/reducer';
+import type { dia } from '@joint/plus';
 
 const Chatbot = (): ReactElement => {
 
@@ -33,7 +34,7 @@ const Chatbot = (): ReactElement => {
         setFileJSON(graphJSON);
     }, [graphJSON]);
 
-    const openFile = useCallback((json: object): void => {
+    const openFile = useCallback((json: dia.Graph.JSON): void => {
         setFileJSON(json);
         importGraphFromJSON(joint, json);
         zoomToFit(joint);

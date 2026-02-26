@@ -41,9 +41,9 @@ export namespace app {
         };
 
         static connectionPoint(line: joint.g.Line, view: joint.dia.CellView, magnet: SVGElement, _opt: Record<string, unknown>, type: string, linkView: joint.dia.LinkView): joint.g.Point {
-            const link = linkView.model;
+            const link = linkView.model as Link;
             const markerWidth = (link.get('type') === 'app.Link') ? link.getMarkerWidth(type) : 0;
-            const opt: { offset: number; stroke: boolean; selector?: string } = { offset: markerWidth, stroke: true };
+            const opt = { offset: markerWidth, stroke: true } as { offset: number; stroke: boolean; selector?: string };
             // connection point for UML shapes lies on the root group containing all the shapes components
             const modelType = view.model.get('type');
             // taking the border stroke-width into account

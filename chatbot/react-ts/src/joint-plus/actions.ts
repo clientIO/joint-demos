@@ -118,7 +118,7 @@ export function importGraphFromJSON(service: JointPlusService, json: dia.Graph.J
     const shapeTypes = Object.values(ShapeTypesEnum);
     history.reset();
     try {
-        if (json.cells.some((cell: { type: string }) => !shapeTypes.includes(cell.type))) {
+        if (json.cells.some(cell => !shapeTypes.includes(cell.type as ShapeTypesEnum))) {
             throw new Error('Invalid JSON: Unknown Cell Type');
         }
         graph.fromJSON(json);
@@ -131,7 +131,8 @@ export function importGraphFromJSON(service: JointPlusService, json: dia.Graph.J
 
 export function loadStencilShapes(service: JointPlusService): void {
     const { stencil } = service;
-    const stencilShapes = stencilConfig.shapes.map(shape => new shapes.stencil[shape.name](shape));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const stencilShapes = stencilConfig.shapes.map(shape => new (shapes.stencil as any)[shape.name](shape));
     stencil.load(stencilShapes);
 }
 

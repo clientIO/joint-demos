@@ -12,6 +12,7 @@ import { STENCIL_WIDTH } from '../../theme';
 import exampleGraphJSON from '../../joint-plus/config/example-graph.json';
 
 import type { ReactElement } from 'react';
+import type { dia } from '@joint/plus';
 
 const Chatbot = (): ReactElement => {
 
@@ -27,7 +28,7 @@ const Chatbot = (): ReactElement => {
     const [fileJSON, setFileJSON] = useState(null);
     const [subscriptions] = useState(new Subscription());
 
-    const openFile = useCallback((json: object): void => {
+    const openFile = useCallback((json: dia.Graph.JSON): void => {
         setFileJSON(json);
         importGraphFromJSON(joint, json);
         zoomToFit(joint);
@@ -38,7 +39,7 @@ const Chatbot = (): ReactElement => {
         openFile(exampleGraphJSON);
     }, [joint, openFile]);
 
-    const onJsonEditorChange = useCallback((json: object): void => {
+    const onJsonEditorChange = useCallback((json: dia.Graph.JSON): void => {
         if (joint) {
             importGraphFromJSON(joint, json);
         }
@@ -80,10 +81,10 @@ const Chatbot = (): ReactElement => {
 
     useEffect(() => {
         subscriptions.add(
-            eventBusService.subscribe(SharedEvents.GRAPH_CHANGED, (json: object) => onJointGraphChange(json))
+            eventBusService.subscribe(SharedEvents.GRAPH_CHANGED, (json: dia.Graph.JSON) => onJointGraphChange(json))
         );
         subscriptions.add(
-            eventBusService.subscribe(SharedEvents.JSON_EDITOR_CHANGED, (json: object) => onJsonEditorChange(json))
+            eventBusService.subscribe(SharedEvents.JSON_EDITOR_CHANGED, (json: dia.Graph.JSON) => onJsonEditorChange(json))
         );
     }, [eventBusService, subscriptions, onJointGraphChange, onJsonEditorChange]);
 

@@ -12,7 +12,7 @@ distributed by client IO. See the LICENSE file.
 import { Controller } from '../controller';
 import * as actions from '../actions';
 
-import type { dia } from '@joint/plus';
+import type { dia, mvc } from '@joint/plus';
 import type JointPlusService from '../../services/joint-plus.service';
 
 export class KeyboardController extends Controller {
@@ -21,7 +21,7 @@ export class KeyboardController extends Controller {
 
         const { keyboard } = this.service;
 
-        this.listenTo(keyboard, {
+        this.listenTo(keyboard as unknown as mvc.Events, {
             'escape': onEscape,
             'delete backspace': onDelete,
             'ctrl+0': onCtrlZero,

@@ -14,11 +14,12 @@ import { SharedEvents } from '../joint-plus/controller';
 import { importGraphFromJSON } from '../joint-plus/actions';
 import { onGraphStartBatch, onGraphStopBatch } from '../joint-plus/controllers';
 
-import type { JointPlusService } from 'src/services/joint-plus.service';
+import type { Middleware } from 'redux';
 import type { dia } from '@joint/plus';
+import type { State } from './reducer';
 
-export const sideEffects = ({ getState }: { getState: (...args: unknown[]) => { joint: JointPlusService } }) => {
-    return (next: (...args: unknown[]) => unknown) => (action: { type: string, payload: unknown }) => {
+export const sideEffects: Middleware<object, State> = ({ getState }) => {
+    return (next) => (action: { type: string, payload: unknown }) => {
         if (action.type === STORE_JOINT) {
             return next(action);
         }
