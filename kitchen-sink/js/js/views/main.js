@@ -9,6 +9,8 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
+/* eslint-disable no-undef */
+
 var App = window.App || {};
 
 const ZOOM_SETTINGS = {
@@ -1189,7 +1191,7 @@ const HIGHLIGHT_COLOR = '#F4F7FB';
             paper.hideTools();
             joint.format.toSVG(paper, (svg, error) => {
                 if (error) {
-                    console.error(error.message);
+                    console.warn(error.message);
                 }
                 const lightbox = new joint.ui.Lightbox({
                     image: 'data:image/svg+xml,' + encodeURIComponent(svg),
@@ -1212,7 +1214,7 @@ const HIGHLIGHT_COLOR = '#F4F7FB';
             paper.hideTools();
             joint.format.toPNG(paper, (dataURL, error) => {
                 if (error) {
-                    console.error(error.message);
+                    console.warn(error.message);
                 }
                 const lightbox = new joint.ui.Lightbox({
                     image: dataURL,

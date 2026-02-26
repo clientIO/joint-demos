@@ -3,7 +3,7 @@ import { App } from '../app';
 
 import type { mvc } from '@joint/plus';
 
-export type ActionResult = any[];
+export type ActionResult = unknown[];
 export interface NodeInput {
     name: string,
     type: string,
@@ -230,7 +230,7 @@ export abstract class Node extends dia.Element<NodeAttributes> {
 
     get properties(): { [key: string]: unknown } {
         const inputSettings: NodeInput[] = this.get('inputSettings');
-        const properties: { [key: string]: unknown } = this.get('properties');
+        const properties = this.get('properties') as { [key: string]: unknown };
 
         inputSettings.forEach((input) => {
             if (properties[input.property] == null) {

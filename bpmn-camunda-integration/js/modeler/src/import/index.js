@@ -32,7 +32,7 @@ export class XMLFileImporter {
             const { cells, errors } = fromBPMN(xml, bpmnImportOptions);
 
             if (errors.length > 0) {
-                console.error(errors);
+                console.warn(errors);
                 return;
             }
 

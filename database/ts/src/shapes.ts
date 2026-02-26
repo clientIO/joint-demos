@@ -92,7 +92,7 @@ export class Table extends shapes.standard.HeaderedRecord {
         }];
     }
 
-    initialize(...args: any[]) {
+    initialize(...args: Parameters<dia.Element['initialize']>): void {
         super.initialize(...args);
         this.on('change', () => this.onColumnsChange());
         this._setColumns(this.get('columns'));

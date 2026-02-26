@@ -38,7 +38,7 @@ export class Clip extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image, mask }: { image: cv.Mat, mask: cv.Mat } = this.properties;
+        const { image, mask } = this.properties as { image: cv.Mat, mask: cv.Mat };
 
         if (!(image && mask)) return [null];
 
@@ -53,7 +53,7 @@ export class Clip extends Node {
 
             const result = new cv.Mat();
             channels.set(3, grayMask);
-            cv.merge(channels as any, result);
+            cv.merge(channels as unknown as cv.Mat, result);
 
             return [result];
 

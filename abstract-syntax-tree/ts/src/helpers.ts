@@ -7,8 +7,9 @@ import presets from './presets';
 
 import type { Range } from '@codemirror/state';
 import type { DecorationSet } from '@codemirror/view';
+import type { graphUtils } from '@joint/plus';
 
-export function getChildren(node: any) {
+export function getChildren(node: graphUtils.ConstructTreeNode) {
 
     switch (node.type) {
 
@@ -74,7 +75,7 @@ export function getChildren(node: any) {
     }
 }
 
-export function getLabel(node: any) {
+export function getLabel(node: graphUtils.ConstructTreeNode) {
 
     switch (node.type) {
 
@@ -95,7 +96,7 @@ export function getLabel(node: any) {
 
         case 'FunctionDeclaration':
         case 'FunctionExpression': {
-            const params = node.params.map((param: any) => param.name).join(',');
+            const params = node.params.map((param: graphUtils.ConstructTreeNode) => param.name).join(',');
             return 'function ' + (node.id && node.id.name || '') + '(' + params + ')';
         }
         default:
@@ -103,7 +104,7 @@ export function getLabel(node: any) {
     }
 }
 
-export function getElementColor(node: any) {
+export function getElementColor(node: graphUtils.ConstructTreeNode) {
 
     const color = ({
         'Program': 'black',

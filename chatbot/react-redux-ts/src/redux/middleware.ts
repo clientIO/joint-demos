@@ -14,7 +14,10 @@ import { SharedEvents } from '../joint-plus/controller';
 import { importGraphFromJSON } from '../joint-plus/actions';
 import { onGraphStartBatch, onGraphStopBatch } from '../joint-plus/controllers';
 
-export const sideEffects = ({ getState }: { getState: (...args: unknown[]) => any }) => {
+import type { JointPlusService } from 'src/services/joint-plus.service';
+import type { dia } from '@joint/plus';
+
+export const sideEffects = ({ getState }: { getState: (...args: unknown[]) => { joint: JointPlusService } }) => {
     return (next: (...args: unknown[]) => unknown) => (action: { type: string, payload: unknown }) => {
         if (action.type === STORE_JOINT) {
             return next(action);
@@ -25,15 +28,15 @@ export const sideEffects = ({ getState }: { getState: (...args: unknown[]) => an
         }
         switch (action.type) {
             case SharedEvents.JSON_EDITOR_CHANGED: {
-                const json = action.payload;
+                const json = action.payload as dia.Graph.JSON;
                 importGraphFromJSON(joint, json);
                 break;
             }
             case SharedEvents.GRAPH_START_BATCH:
-                onGraphStartBatch(joint, action.payload);
+                onGraphStartBatch(joint, action.payload as string);
                 break;
             case SharedEvents.GRAPH_STOP_BATCH:
-                onGraphStopBatch(joint, action.payload);
+                onGraphStopBatch(joint, action.payload as string);
         }
         return next(action);
     };

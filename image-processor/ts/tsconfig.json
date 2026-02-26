@@ -15,6 +15,7 @@
     "strictNullChecks": false,
     "noUnusedLocals": false,
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "types": []
   },
   "compileOnSave": false

@@ -1,16 +1,31 @@
 import { TaskElement } from './PertChart/TaskElement';
 import { getItemIcon } from './PertChart/utils';
 
-import type { TaskBadge, TaskData } from './PertChart';
+import type { TaskBadge, TaskData, TaskId, TaskResource } from './PertChart';
 
-export function extractTasks(rawTasks: any[], data: any, options: any = {}): TaskData[] {
-    const tasks = [];
+interface RawTask {
+    id: TaskId;
+    name: string;
+    startDate: string;
+    percentDone: number;
+    duration: number;
+    children?: RawTask[];
+}
+
+interface RawData {
+    assignments: Record<TaskId, TaskId[]>;
+    resources: Record<TaskId, TaskResource>;
+    dependencies: Record<TaskId, TaskId[]>;
+}
+
+export function extractTasks(rawTasks: RawTask[], data: RawData, options: Record<string, unknown> = {}): TaskData[] {
+    const tasks: TaskData[] = [];
     rawTasks.forEach(task => {
         const { id, name, startDate, percentDone, duration, children = [] } = task;
         const assignees = (data.assignments[id] || []).map(resourceId => {
             return data.resources[resourceId] ?? null;
-        }).filter(Boolean);
-        const currentTask = {
+        }).filter(Boolean) as TaskResource[];
+        const currentTask: TaskData = {
             id,
             name,
             startDate,
@@ -30,8 +45,8 @@ export function addBadgesToTasks(tasks: TaskData[], today = new Date()): void {
     tasks.forEach(task => addTaskBadges(task, today));
 }
 
-export function extractDependencyMap(rawDependencies: any[]) {
-    const dependencies = {};
+export function extractDependencyMap(rawDependencies: Array<{ fromTask: TaskId; toTask: TaskId }>) {
+    const dependencies: Record<TaskId, TaskId[]> = {};
     rawDependencies.forEach(dependency => {
         const { fromTask, toTask } = dependency;
         dependencies[fromTask] ??= [];
@@ -40,17 +55,17 @@ export function extractDependencyMap(rawDependencies: any[]) {
     return dependencies;
 }
 
-export function extractResourceMap(rawResources: any[]) {
-    const resources = {};
+export function extractResourceMap(rawResources: TaskResource[]) {
+    const resources: Record<TaskId, TaskResource> = {};
     rawResources.forEach(resource => {
         const { id, name, city } = resource;
-        resources[id] = { id, name, city, icon: getResourceIcon(id) };
+        resources[id] = { id, name, city, icon: getResourceIcon(String(id)) };
     });
     return resources;
 }
 
-export function extractAssignmentMap(rawAssignments: any[]) {
-    const assignments = {};
+export function extractAssignmentMap(rawAssignments: Array<{ event: TaskId; resource: TaskId }>) {
+    const assignments: Record<TaskId, TaskId[]> = {};
     rawAssignments.forEach(assignment => {
         const { event: taskId, resource: resourceId } = assignment;
         assignments[taskId] ??= [];

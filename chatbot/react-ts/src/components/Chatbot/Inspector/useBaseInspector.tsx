@@ -3,10 +3,10 @@ import type { dia } from '@joint/plus';
 
 interface Props {
     cell: dia.Cell;
-    assignFormFields: Function;
+    assignFormFields: () => void;
 }
 
-export const useBaseInspector = (props: Props): Function => {
+export const useBaseInspector = (props: Props): ((path: dia.Path, value: unknown) => void) => {
 
     const { cell, assignFormFields } = props;
 

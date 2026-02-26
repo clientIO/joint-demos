@@ -55,7 +55,7 @@ export class Grayscale extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image, keepAlpha }: { image: cv.Mat, keepAlpha: boolean } = this.properties;
+        const { image, keepAlpha } = this.properties as { image: cv.Mat, keepAlpha: boolean };
 
         if (!image) return [null];
 
@@ -69,7 +69,7 @@ export class Grayscale extends Node {
                 channels.set(0, grayscale);
                 channels.set(1, grayscale);
                 channels.set(2, grayscale);
-                cv.merge(channels as any, result);
+                cv.merge(channels as unknown as cv.Mat, result);
             } else {
                 cv.cvtColor(grayscale, result, cv.COLOR_GRAY2RGBA);
             }

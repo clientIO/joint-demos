@@ -22,17 +22,17 @@ const LayoutConfig = {
 
 export async function layoutCells(graph, cells, options) {
     const { nodes, edges, buttons, buttonLines, } = cells;
-    
+
     // Construct ELK Graph
     const elkGraph = getElkGraph([...nodes, ...edges, ...buttonLines, ...buttons], options);
-    
+
     try {
         graph.startBatch(LAYOUT_BATCH_NAME);
         const laidOutGraph = await elk.layout(elkGraph);
         applyLayout(graph, laidOutGraph);
     }
     catch (error) {
-        console.error('ELK layout error:', error);
+        console.warn('ELK layout error:', error);
     }
     finally {
         graph.stopBatch(LAYOUT_BATCH_NAME);
@@ -40,62 +40,62 @@ export async function layoutCells(graph, cells, options) {
 }
 
 function getElkGraph(cells, options) {
-    
+
     const layoutOptions = {
         // Use layered layout algorithm
         'elk.algorithm': 'layered',
-        
+
         // Layout the graph from top to bottom
         'elk.direction': 'DOWN',
-        
+
         // Route edges orthogonally (perpendicular to the nodes)
         'elk.edgeRouting': 'ORTHOGONAL',
-        
+
         // Ensure the feedback edges are routed to the side of graph.
         'elk.layered.feedbackEdges': 'true',
-        
+
         // Layout the graph based on order of edges we provided in the model.
         'elk.layered.considerModelOrder.strategy': 'PREFER_EDGES',
-        
+
         // Use DFS node order for cycle breaking
         'elk.layered.cycleBreaking.strategy': 'DFS_NODE_ORDER',
-        
+
         // Don't reorder nodes within a layer during crossing minimization
         'elk.layered.crossingMinimization.forceNodeModelOrder': 'true',
-        
+
         // Center layers as a whole
         'elk.layered.nodePlacement.bk.fixedAlignment': 'BALANCED',
-        
+
         // Spacing between layers
         'elk.layered.spacing.nodeNodeBetweenLayers': `${LayoutConfig.NodeNodeBetweenLayers}`,
-        
+
         // Spacing to be preserved between nodes on the same layer.
         'elk.spacing.nodeNode': `${LayoutConfig.NodeNode}`,
-        
+
         // The spacing to be preserved between nodes and edges that are routed next to the node’s layer.
         'elk.layered.spacing.edgeNodeBetweenLayers': `${LayoutConfig.EdgeNodeBetweenLayers}`,
-        
+
         // Spacing to be preserved between pairs of edges that are routed between the same pair of layers.
         'elk.layered.spacing.edgeEdgeBetweenLayers': `${LayoutConfig.EdgeEdgeBetweenLayers}`,
     };
-    
+
     if (options?.disableOptimalOrderHeuristic) {
         Object.assign(layoutOptions, {
             // No crossing minimization is done (at all)
             'elk.layered.crossingMinimization.strategy': 'NONE',
-            
+
             // Disables greedy switch for crossing minimization
             'elk.layered.crossingMinimization.greedySwitch.type': 'OFF',
         });
     }
-    
+
     const elkGraph = {
         id: 'root',
         layoutOptions,
         children: [],
         edges: []
     };
-    
+
     const buildElement = (element) => {
         const size = element.size();
         const elkNode = {
@@ -105,10 +105,10 @@ function getElkGraph(cells, options) {
             ports: [],
             children: []
         };
-        
+
         elkGraph.children.push(elkNode);
     };
-    
+
     const buildLink = (link) => {
         const sourceId = `${link.source().id}`;
         const targetId = `${link.target().id}`;
@@ -121,7 +121,7 @@ function getElkGraph(cells, options) {
             targets: [targetId]
         });
     };
-    
+
     cells.forEach(cell => {
         if (cell instanceof dia.Element) {
             buildElement(cell);
@@ -130,14 +130,14 @@ function getElkGraph(cells, options) {
             buildLink(cell);
         }
     });
-    
+
     return elkGraph;
 }
 
 function applyLayout(graph, elkGraph) {
     // Update Elements
     updateElements(elkGraph.children || [], graph);
-    
+
     // Update Edges
     updateLinks(elkGraph.edges || [], graph);
 }
@@ -147,9 +147,9 @@ function updateElements(nodes, graph) {
         const element = graph.getCell(node.id);
         if (!element)
             return;
-        
+
         let y = node.y || 0;
-        
+
         // Apply custom logic for SystemButton
         if (SystemButton.isButton(element)) {
             const [parent] = graph.getNeighbors(element, { inbound: true });
@@ -168,7 +168,7 @@ function updateElements(nodes, graph) {
                 }
             }
         }
-        
+
         element.position(node.x || 0, y);
     });
 }
@@ -178,7 +178,7 @@ function updateLinks(edges, graph) {
         const { sections } = edge;
         if (!sections)
             continue;
-        
+
         // Note: use only the bend points to update the link vertices
         // anchor is by default set to perpendicular on paper
         const [{ bendPoints = [] }] = sections;

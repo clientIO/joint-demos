@@ -2,6 +2,7 @@ import { Idea, IdeaView } from './idea';
 import { Connection } from './connection';
 
 export function makeElement(node) {
+    // eslint-disable-next-line no-unused-vars
     const { children, ...attributes } = node;
     return new Idea({
         ...attributes,

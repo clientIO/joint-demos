@@ -17,7 +17,7 @@ import { Invert } from './nodes/filters/invert';
 import { Sepia } from './nodes/filters/sepia';
 import { BooleanInput, BooleanInputView } from './nodes/inputs/boolean-input';
 import { Mirror } from './nodes/transform/mirror';
-import * as cv from '@techstark/opencv-js';
+import cv from '@techstark/opencv-js';
 import { CVService } from './cv/cv-service';
 import { Blend } from './nodes/transform/blend';
 import { Clip } from './nodes/transform/clip';
@@ -267,7 +267,7 @@ export class App {
         this.setInteractivity();
         this.setContextToolbar();
 
-        (<any>cv).onRuntimeInitialized = () => {
+        cv.onRuntimeInitialized = () => {
             App.cvService = new CVService(() => {
                 loadExample(this.graph, 'token-generator').then(() => {
                     this.cmd.reset();

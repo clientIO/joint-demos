@@ -25,7 +25,7 @@ export default class IsometricShape extends dia.Element<IsometricElementAttribut
 
     tools: Tools = {};
 
-    constructor(...args: any[]) {
+    constructor(...args: ConstructorParameters<typeof dia.Element>) {
         super(...args);
         this.toggleView(View.Isometric);
     }
@@ -89,7 +89,7 @@ export default class IsometricShape extends dia.Element<IsometricElementAttribut
 }
 
 export class CuboidShape extends IsometricShape {
-    constructor(...args: any[]) {
+    constructor(...args: ConstructorParameters<typeof dia.Element>) {
         super(...args);
         const { defaultSize, defaultIsometricHeight } = this.attributes;
         this.tools = {
@@ -101,7 +101,7 @@ export class CuboidShape extends IsometricShape {
 }
 
 export class ProportionalCuboidShape extends IsometricShape {
-    constructor(...args: any[]) {
+    constructor(...args: ConstructorParameters<typeof dia.Element>) {
         super(...args);
         const { defaultSize, defaultIsometricHeight } = this.attributes;
         this.tools = {
@@ -113,7 +113,7 @@ export class ProportionalCuboidShape extends IsometricShape {
 }
 
 export class CylinderShape extends IsometricShape {
-    constructor(...args: any[]) {
+    constructor(...args: ConstructorParameters<typeof dia.Element>) {
         super(...args);
         const { defaultSize, defaultIsometricHeight } = this.attributes;
         this.tools = {
@@ -144,7 +144,7 @@ export class CylinderShape extends IsometricShape {
 }
 
 export class PyramidShape extends IsometricShape {
-    constructor(...args: any[]) {
+    constructor(...args: ConstructorParameters<typeof dia.Element>) {
         super(...args);
         const { defaultSize, defaultIsometricHeight } = this.attributes;
         this.tools = {

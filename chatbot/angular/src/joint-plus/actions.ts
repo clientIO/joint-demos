@@ -131,7 +131,7 @@ export function importGraphFromJSON(service: JointPlusService, json: dia.Graph.J
 
 export function loadStencilShapes(service: JointPlusService): void {
     const { stencil } = service;
-    // @ts-ignore
+    // @ts-expect-error - get class by type from shapes namespace
     const stencilShapes = stencilConfig.shapes.map(shape => new shapes.stencil[shape.name](shape));
     stencil.load(stencilShapes);
 }

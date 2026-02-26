@@ -9,6 +9,8 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
+/* eslint-disable no-undef */
+
 // This ES6 version of Kitchen Sink defines everything
 // in the global variable `App`.
 var App = window.App || {};

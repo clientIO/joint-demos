@@ -24,7 +24,7 @@ onmessage = async(e) => {
             const { cell } = data;
             const model = graph.getCell(cell.id);
             if (!model) {
-                console.error(`Cell with id ${cell.id} not found.`);
+                console.warn(`Cell with id ${cell.id} not found.`);
                 return;
             }
             if (model.isElement()) {

@@ -137,7 +137,7 @@ export class TaskElement extends Record {
         assignees: TaskAssigneeLayout[];
     };
 
-    initialize(...args: any[]): void {
+    initialize(...args: Parameters<typeof Record.prototype.initialize>): void {
         super.initialize(...args);
         this.on('change', (el, opt) => {
             if ('assignees' in el.changed) {

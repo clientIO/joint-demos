@@ -78,7 +78,7 @@ export function importXML(graph: dia.Graph, xml: XMLDocument) {
             phaseConstructor = HorizontalPhase;
         }
 
-        const xmlPhases: any[] = cell.prop('xmlPhases') || [];
+        const xmlPhases: shapes.bpmn2.Phase.Attributes<shapes.bpmn2.Phase>[] = cell.prop('xmlPhases') || [];
 
         xmlPhases.forEach((xmlPhase) => {
             const attributes = {

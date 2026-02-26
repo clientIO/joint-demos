@@ -401,7 +401,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         );
 
         this.routerWorker.onerror = (error) => {
-            console.error('Router worker error:', error);
+            console.warn('Router worker error:', error);
         };
 
         // Receive routed cells from the worker

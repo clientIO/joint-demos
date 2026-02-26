@@ -28,7 +28,7 @@ export class Invert extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image }: { image: cv.Mat } = this.properties;
+        const { image } = this.properties as { image: cv.Mat };
 
         if (!image) return [null];
 
@@ -43,7 +43,7 @@ export class Invert extends Node {
             const negatedChannels = new cv.MatVector;
             cv.split(negatedImage, negatedChannels);
             negatedChannels.set(3, alpha);
-            cv.merge(negatedChannels as any, result);
+            cv.merge(negatedChannels as unknown as cv.Mat, result);
             return [result];
         } catch {
             return [null];

@@ -24,7 +24,7 @@ const defaultIsometricHeight = GRID_SIZE;
 
 export class User extends IsometricShape {
 
-    constructor(...args: any[]) {
+    constructor(...args: ConstructorParameters<typeof IsometricShape>) {
         super(...args);
         this.tools = {
             [CONNECT_KEY]: new elementTools.Connect(CONNECT_TOOL_PRESET)

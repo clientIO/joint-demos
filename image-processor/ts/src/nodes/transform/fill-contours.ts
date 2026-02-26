@@ -51,7 +51,7 @@ export class FillContours extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image, color }: { image: cv.Mat, color: { r: number; g: number; b: number } } = this.properties;
+        const { image, color } = this.properties as { image: cv.Mat, color: { r: number; g: number; b: number } };
 
         if (!image) return [null];
 
@@ -61,12 +61,12 @@ export class FillContours extends Node {
             const thresh = new cv.Mat();
             cv.threshold(gray, thresh, 127, 255, cv.THRESH_BINARY);
 
-            const contours: any = new cv.MatVector();
-            const h: any = new cv.Mat();
-            cv.findContours(thresh, contours, h, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+            const contours = new cv.MatVector();
+            const h = new cv.Mat();
+            cv.findContours(thresh, contours as unknown as cv.Mat, h, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 
             const result = image.clone();
-            cv.drawContours(result, contours, -1, new cv.Scalar(color.r, color.g, color.b, 255), -1, cv.LINE_8);
+            cv.drawContours(result, contours as unknown as cv.Mat, -1, new cv.Scalar(color.r, color.g, color.b, 255), -1, cv.LINE_8);
             return [result];
         } catch {
             return [null];

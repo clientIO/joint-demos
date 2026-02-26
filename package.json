@@ -13,11 +13,12 @@
         "screenshot:update": "node .github/scripts/screenshot-demos.mjs --update"
     },
     "devDependencies": {
-        "@eslint/js": "^9.25.1",
-        "@typescript-eslint/eslint-plugin": "^8.39.0",
-        "@typescript-eslint/parser": "^8.39.0",
-        "eslint": "^9.25.1",
-        "globals": "^16.0.0",
+        "@typescript-eslint/eslint-plugin": "8.53.0",
+        "@typescript-eslint/parser": "8.53.0",
+        "eslint": "9.39.2",
+        "eslint-import-resolver-typescript": "4.4.4",
+        "globals": "17.0.0",
+        "typescript-eslint": "8.53.0",
         "playwright": "^1.58.2"
     }
 }

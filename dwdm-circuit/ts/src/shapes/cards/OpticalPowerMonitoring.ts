@@ -38,7 +38,7 @@ export default class OpticalPowerMonitoring extends Card {
         };
     }
 
-    preinitialize(...args: any[]): void {
+    preinitialize(...args: Parameters<Card['preinitialize']>): void {
         super.preinitialize(...args);
         this.markup = ELEMENT_MARKUP;
     }

@@ -55,6 +55,9 @@ const combinedConfig = defineConfig([
         languageOptions: {
             ecmaVersion: 2022,
             sourceType: 'module',
+            parserOptions: {
+                ecmaFeatures: { jsx: true },
+            },
         },
         extends: [js.configs.recommended],
         rules: {
@@ -72,6 +75,7 @@ const combinedConfig = defineConfig([
             parser: tsParser,
             parserOptions: {
                 ecmaVersion: 2022,
+                ecmaFeatures: { jsx: true },
                 sourceType: 'module',
             },
         },

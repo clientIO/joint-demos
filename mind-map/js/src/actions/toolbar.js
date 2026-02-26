@@ -18,6 +18,7 @@ export function updateToolbarButtons(app, ideas) {
         case 0:
         // multi selection not implemented (use empty selection logic)
         // break omitted
+        // eslint-disable-next-line no-fallthrough
         default: {
             // Upload an image
             imageWidget.disable();
@@ -27,7 +28,7 @@ export function updateToolbarButtons(app, ideas) {
             colorWidget.setValue('#FFFFFF', { silent: true });
             break;
         }
-        
+
     }
 }
 

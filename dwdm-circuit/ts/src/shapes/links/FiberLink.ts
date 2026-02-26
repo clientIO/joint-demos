@@ -41,7 +41,7 @@ export default class FiberLink extends Link {
         };
     }
 
-    preinitialize(...args: any[]): void {
+    preinitialize(...args: Parameters<Link['preinitialize']>): void {
         super.preinitialize(...args);
         this.markup = LINK_MARKUP;
     }
