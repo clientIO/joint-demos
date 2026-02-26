@@ -1,7 +1,7 @@
 import { dia } from '@joint/plus';
 import { DEFAULT_TEXT_ATTRIBUTES } from './config';
 
-import type { ui } from '@joint/plus';
+import type { attributes, ui } from '@joint/plus';
 
 const PADDING = 25;
 const CORNER = 20;
@@ -79,7 +79,7 @@ export class TextNode extends dia.Element {
         });
     }
 
-    static create(x: number, y: number, text: string, annotations: ui.TextEditor.Annotation[], bodyAttrs?: dia.SVGAttributes): TextNode {
+    static create(x: number, y: number, text: string, annotations: ui.TextEditor.Annotation[], bodyAttrs?: attributes.SVGAttributes): TextNode {
         return new TextNode({
             position: { x, y },
             attrs: {

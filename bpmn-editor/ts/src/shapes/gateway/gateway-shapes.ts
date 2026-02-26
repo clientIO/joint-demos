@@ -43,7 +43,7 @@ abstract class Gateway extends shapes.bpmn2.Gateway implements AppElement {
         }, super.defaults);
     }
 
-    preinitialize(...args: unknown[]) {
+    preinitialize(...args: Parameters<dia.Element['preinitialize']>) {
         super.preinitialize(...args);
         // Add `labelBody` to markup
         this.markup = util.svg/* xml */ `

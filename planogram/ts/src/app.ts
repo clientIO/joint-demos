@@ -188,11 +188,11 @@ export const init = (): void => {
     });
 
     graph.on({
-        'batch:stop': (batch: Record<string, unknown>): void => {
-            const { cell, batchName } = batch;
+        'batch:stop': (batch: object): void => {
+            const { cell, batchName } = batch as { cell: dia.Cell, batchName: string }  ;
             if (batchName !== 'resize') return;
             const cellView = cell.findView(paper);
-            cellView.vel.toggleClass('invalid', !isSizeValid(graph, cell));
+            cellView.vel.toggleClass('invalid', !isSizeValid(graph, cell as dia.Element));
         }
     });
 

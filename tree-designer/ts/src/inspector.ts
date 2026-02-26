@@ -130,7 +130,8 @@ const inputConnectionStyle = {
     }]
 };
 
-const inputChildren = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const inputChildren: any = {
     type: 'list',
     label: 'Children',
     addButtonLabel: 'Add Child',

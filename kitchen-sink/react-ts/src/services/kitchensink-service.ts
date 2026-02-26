@@ -511,9 +511,11 @@ class KitchenSinkService {
 
     applyOnSelection(method: string) {
         this.graph.startBatch('selection');
-        this.selection.collection.models.forEach(function(model: joint.dia.Cell) { (model as Record<string, () => void>)[method](); });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.selection.collection.models.forEach(function(model: joint.dia.Cell) { (model as any)[method](); });
         this.graph.stopBatch('selection');
     }
+
 
     changeSnapLines(checked: boolean) {
 

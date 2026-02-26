@@ -428,7 +428,8 @@ export const init = () => {
             level1AddButton = '',
             maxLevel = 3
         } = options;
-        items.forEach((level1item: I, index) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        items.forEach((level1item: any, index) => {
             // level 1
             const level1Element = new shapes.standard.HeaderedRectangle({
                 id: level1item.id,
@@ -521,7 +522,8 @@ export const init = () => {
             const level2Items = Array.isArray(level1item[level2Key])
                 ? level1item[level2Key]
                 : level1item[level2Key] ? [level1item[level2Key]] : [];
-            level2Items.forEach((level2Item: I, level2Index: number) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            level2Items.forEach((level2Item: any, level2Index: number) => {
                 const level2Element = new shapes.standard.HeaderedRectangle({
                     id: level2Item.id,
                     path: [level1Key, index, level2Key, level2Index],
@@ -573,7 +575,8 @@ export const init = () => {
                 const level3Items = Array.isArray(level2Item[level3Key])
                     ? level2Item[level3Key]
                     : (level2Item[level3Key] ? [level2Item[level3Key]] : []);
-                level3Items.forEach((level3Item: I, level3Index: number) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                level3Items.forEach((level3Item: any, level3Index: number) => {
                     const level3Element = new shapes.standard.Rectangle({
                         id: level3Item.id,
                         path: [level1Key, index, level2Key, level2Index, level3Key, level3Index],

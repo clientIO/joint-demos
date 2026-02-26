@@ -18,7 +18,8 @@ export interface Properties {
     [property: string]: dia.Path;
 }
 
-@Component({})
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+@Component({} as any)
 export abstract class BaseInspector extends Vue {
 
     @Prop() cell: dia.Cell;

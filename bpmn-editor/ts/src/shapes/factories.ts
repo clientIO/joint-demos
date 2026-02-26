@@ -97,8 +97,8 @@ class ExportableSubProcess extends ExportableActivity {
 
 class ExportableFlow extends exportableObjects.Flow {
 
-    constructor(cellView: dia.CellView, label: string, type: string) {
-        super(cellView, label, type);
+    constructor(...args: ConstructorParameters<typeof exportableObjects.Flow>) {
+        super(...args);
     }
 
     toFlowXMLElement() {
@@ -314,7 +314,7 @@ export const bpmnExportOptions: ExportOptions = {
             return new exportableObjects.Flow(cellView as dia.LinkView, cellView.model.prop('labels/0/attrs/label/text'));
         },
         [FlowShapeTypes.CONDITIONAL]: (cellView) => {
-            return new ExportableFlow(cellView, cellView.model.prop('labels/0/attrs/label/text'), 'conditional');
+            return new ExportableFlow(cellView as dia.LinkView, cellView.model.prop('labels/0/attrs/label/text'), 'conditional');
         },
         [FlowShapeTypes.MESSAGE]: (cellView) => {
             return new exportableObjects.Flow(cellView as dia.LinkView, cellView.model.prop('labels/0/attrs/label/text'), 'message');

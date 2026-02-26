@@ -442,7 +442,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // Forward graph changes to the worker
         this.controller.listenTo(this.graph, {
             'change': (cell: dia.Cell, opt: dia.Cell.Options) => {
-                if (opt.fromWorker) return;
+                if (opt['fromWorker']) return;
                 this.routerWorker.postMessage([{
                     command: 'change',
                     cell: cell.toJSON(),

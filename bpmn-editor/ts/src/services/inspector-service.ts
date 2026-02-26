@@ -119,7 +119,8 @@ export default class InspectorService {
         if (shapes.length > 0) {
             const availableShapes = shapes.map((shape) => {
                 const shapeConstructor = getShapeConstructorByType(shape);
-                const { label, icon } = shapeConstructor;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { label, icon } = <any>shapeConstructor;
 
                 const shapeWrapper = document.createElement('div');
 

@@ -1,5 +1,7 @@
 import { util, dia, shapes, V } from '@joint/plus';
 
+import type { attributes } from '@joint/plus';
+
 const grid = 30;
 export interface Shelf {
     width: number;
@@ -265,8 +267,8 @@ export class ShelfElement extends dia.Element implements PlanogramElement {
 
     static attributes = {
         'fill-pattern': {
-            set: function(image: string): { fill: string } {
-                const { paper } = this as dia.ElementView;
+            set: function(image: string, _refBBox: dia.BBox, _node: SVGElement, _attrs: attributes.SVGAttributes, cellView: dia.ElementView): { fill: string } {
+                const { paper } = cellView;
                 const MARGIN = 0;
                 const width = 60;
                 const height = 26;
@@ -358,8 +360,8 @@ export class ProductElement extends dia.Element implements PlanogramElement {
 
     static attributes = {
         'product-image': {
-            set: function(image: string): { fill: string } {
-                const { paper, model } = this as dia.ElementView;
+            set: function(image: string, _refBBox: dia.BBox, _node: SVGElement, _attrs: attributes.SVGAttributes, cellView: dia.ElementView): { fill: string } {
+                const { paper, model } = cellView;
                 const MARGIN = 8;
                 const { width, height } = calcSize(model.get('productSize'));
                 const patternId = image + paper.cid;

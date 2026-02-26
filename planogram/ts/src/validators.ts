@@ -2,7 +2,8 @@ import type { dia } from '@joint/plus/index';
 
 // Validators
 
-export const validateChangePosition = (graph: dia.Graph) => (err: Error, command: { data: { id: dia.Cell.ID }; options: dia.Cell.Options }, next: (err: Error | { cell: dia.Cell; msg: string } | null) => boolean): boolean => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const validateChangePosition = (graph: dia.Graph) => (err: Error, command: { data: { id: dia.Cell.ID }; options: dia.Cell.Options }, next: (...args: any[]) => any): boolean => {
     if (command.options.freeTransform) {
         // Position is changed after resize
         return next(err);
@@ -14,14 +15,14 @@ export const validateChangePosition = (graph: dia.Graph) => (err: Error, command
     return next(err);
 };
 
-export const validateChangeSize = (graph: dia.Graph) => (err: Error, command: { data: { id: dia.Cell.ID }; options: dia.Cell.Options }, next: (err: Error | { cell: dia.Cell; msg: string } | null) => boolean): boolean => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const validateChangeSize = (graph: dia.Graph) => (err: Error, command: { data: { id: dia.Cell.ID }; options: dia.Cell.Options }, next: (...args: any[]) => any): boolean => {
     const cell = graph.getCell(command.data.id) as dia.Element;
     if (!isSizeValid(graph, cell)) {
         return next({ cell, msg: 'resizing error' });
     }
     return next(err);
 };
-
 // Checks
 
 export const isSizeValid = (graph: dia.Graph, element: dia.Element): boolean => {

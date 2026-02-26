@@ -218,14 +218,14 @@ export class NavigatorService {
 
     updateToolbarButtons() {
         // Minimap
-        const minimapButton = this.toolbar.getWidgetByName('minimap') as { setIcon?: (icon: string) => void; setTooltip: (tooltip: string) => void };
+        const minimapButton = this.toolbar.getWidgetByName('minimap') as typeof IconButton;
         if (this.isMinimapVisible()) {
             minimapButton.setTooltip('Hide minimap');
         } else {
             minimapButton.setTooltip('Show minimap');
         }
         // Full screen
-        const fullscreenButton = this.toolbar.getWidgetByName('fullscreen') as { setIcon: (icon: string) => void; setTooltip: (tooltip: string) => void };
+        const fullscreenButton = this.toolbar.getWidgetByName('fullscreen') as typeof IconButton;
         if (document.fullscreenElement) {
             fullscreenButton.setIcon(`${baseUrl}/exit-fullscreen.svg`);
             fullscreenButton.setTooltip('Exit full screen');

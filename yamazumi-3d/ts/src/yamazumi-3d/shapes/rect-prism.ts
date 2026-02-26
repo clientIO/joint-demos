@@ -47,7 +47,7 @@ export class RectPrism<T extends RectPrismAttributes = RectPrismAttributes> exte
         `;
     }
 
-    defaults() {
+    defaults(): dia.Element.Attributes {
         return {
             ...super.defaults,
             type: TYPE,

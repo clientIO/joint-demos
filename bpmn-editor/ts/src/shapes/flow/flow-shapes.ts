@@ -33,7 +33,7 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
         }, super.defaults);
     }
 
-    constructor(...args: unknown[]) {
+    constructor(...args: ConstructorParameters<typeof shapes.bpmn2.Flow>) {
         super(...args);
         this.router('rightAngle', { useVertices: true });
     }
@@ -93,7 +93,9 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
         const { x: cx, y: cy } = view.getPointAtRatio(0.5);
 
         const currentLabel = this.labels()[0]?.attrs || {};
-        const labelAttrs: typeof this.defaultLabel.attrs = util.defaultsDeep({}, currentLabel, this.defaultLabel.attrs);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const labelAttrs: any = util.defaultsDeep({}, currentLabel, this.defaultLabel.attrs);
 
         return {
             padding: `${labelPadding.vertical}px ${labelPadding.horizontal}px`,
@@ -183,7 +185,7 @@ export class Message extends Flow {
 declare module '@joint/plus' {
     namespace shapes {
         namespace flow {
-            export { 
+            export {
                 Sequence,
                 Default,
                 Conditional,

@@ -30,14 +30,14 @@ export namespace app {
         };
 
         static connectionPoint(line: joint.g.Line, view: joint.dia.CellView, magnet: SVGElement, _opt: Record<string, unknown>, type: string, linkView: joint.dia.LinkView): joint.g.Point {
-            const link = linkView.model;
+            const link = linkView.model as Link;
             const markerWidth = (link.get('type') === 'app.Link') ? link.getMarkerWidth(type) : 0;
             const opt: { offset: number; stroke: boolean; selector?: string } = { offset: markerWidth, stroke: true };
             // connection point for UML shapes lies on the root group containing all the shapes components
             const modelType = view.model.get('type');
             // taking the border stroke-width into account
             if (modelType === 'standard.InscribedImage') { opt.selector = 'border'; }
-            return joint.connectionPoints.boundary.call(this, line, view, magnet, opt, type, linkView);
+            return joint.connectionPoints.boundary.call(this, line, view, magnet, opt, type as joint.dia.LinkEnd, linkView);
         }
 
         defaults() {

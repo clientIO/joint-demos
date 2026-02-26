@@ -33,7 +33,8 @@ export class BPMNLinkView extends dia.LinkView<AppLink> {
         this.applyLinkProperties(util.merge(resetAttrs, attrs), router, verticesToApply);
     }
 
-    startArrowheadMove(end: dia.LinkEnd, options?: dia.Cell.Options): { marked?: Record<string, Element[]> } {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    startArrowheadMove(end: dia.LinkEnd, options?: dia.Cell.Options): any {
         this.saveCurrentLinkState();
 
         const data = super.startArrowheadMove(end, options);
@@ -60,7 +61,8 @@ export class BPMNLinkView extends dia.LinkView<AppLink> {
         super.dragArrowheadEnd(evt, x, y);
     }
 
-    private highlightEmbeddedLanes(data: { marked?: Record<string, Element[]> }): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private highlightEmbeddedLanes(data: any): void {
         if (!this.paper?.options.markAvailable || !data.marked) return;
 
         const markedKeys = Object.keys(data.marked || {});

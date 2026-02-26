@@ -41,7 +41,7 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
         }, super.defaults);
     }
 
-    initialize(...args: unknown[]): void {
+    initialize(...args: Parameters<shapes.bpmn2.Activity['initialize']>): void {
         super.initialize(...args);
         this.on('change:markers', () => this.onMarkersChange());
     }

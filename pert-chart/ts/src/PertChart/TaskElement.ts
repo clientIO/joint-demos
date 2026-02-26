@@ -46,7 +46,7 @@ export class TaskElement extends Record {
             ...super.defaults,
             type: 'task',
             z: 2,
-            size: { width: TASK_WIDTH },
+            size: { width: TASK_WIDTH, height: undefined },
             // padding: will be set dynamically based on the assignees
             itemHeight: 30,
             itemIcon: { width: 16, height: 16, padding: TASK_PADDING },
@@ -127,7 +127,8 @@ export class TaskElement extends Record {
                         textWrap: false
                     }
                 },
-            }, super.defaults.attrs)
+            // @ts-expect-error - base class has defaults as an object
+            }, super.defaults.attrs) as dia.Cell.Selectors
         };
     }
 

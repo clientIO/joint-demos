@@ -4,11 +4,12 @@ import { CARD_PORT_BG_COLOR, CARD_PORT_COLOR, CARD_PORT_LABEL_COLOR } from '../.
 
 export interface CardAttributes extends dia.Element.Attributes {
     hidden?: boolean;
-    attrs?: dia.Cell.Selectors;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    attrs?: any;
 }
 
 export abstract class Card extends dia.Element<CardAttributes> {
-    defaults(): Partial<CardAttributes> {
+    defaults(): CardAttributes {
         return {
             hidden: false,
             ports: {

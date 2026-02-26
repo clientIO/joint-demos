@@ -8,12 +8,12 @@ import { DataAssociation } from '../shapes/data/data-shapes';
 import { Conditional, Default, Message, Sequence } from '../shapes/flow/flow-shapes';
 import { isPoolShared } from '.';
 
-import type { dia } from '@joint/plus';
+import type { dia, shapes } from '@joint/plus';
 import type { AppLink, AppShape, LinkType } from '../shapes/shapes-typing';
 
 const DEFAULT_LINK_STROKE = '#333';
 
-type AppLinkConstructor = new (...args: unknown[]) => AppLink;
+type AppLinkConstructor = new (...args: ConstructorParameters<typeof shapes.bpmn2.Flow>) => AppLink;
 
 const LINK_CONNECTIONS: Record<LinkType, AppLinkConstructor> = {
     [PlaceholderShapeTypes.LINK]: Sequence,
@@ -48,7 +48,7 @@ export function resolveDefaultLinkType(link: AppLink): LinkType {
     if (isConnectedToData) return DataShapeTypes.DATA_ASSOCIATION;
 
     const isConnectedToPool = ShapeTypes.POOL === sourceShapeType || ShapeTypes.POOL === targetShapeType;
-    
+
     // The connection includes pool - return message flow by default
     if (isConnectedToPool || !isPoolShared(source, target)) return FlowShapeTypes.MESSAGE;
 
