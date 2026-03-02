@@ -1,24 +1,21 @@
 {
-    "name": "joint-demos",
-    "version": "1.0.0",
-    "description": "JointJS demos and boilerplates",
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "lint": "eslint .",
-        "lint:fix": "eslint . --fix",
-        "build": "bash .github/scripts/build-demos.sh",
-        "build:force": "bash .github/scripts/build-demos.sh --force",
-        "screenshot": "node .github/scripts/screenshot-demos.mjs",
-        "screenshot:update": "node .github/scripts/screenshot-demos.mjs --update"
-    },
-    "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "8.53.0",
-        "@typescript-eslint/parser": "8.53.0",
-        "eslint": "9.39.2",
-        "eslint-import-resolver-typescript": "4.4.4",
-        "globals": "17.0.0",
-        "typescript-eslint": "8.53.0",
-        "playwright": "^1.58.2"
-    }
+	"name": "joint-demos",
+	"version": "1.0.0",
+	"description": "JointJS demos and boilerplates",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"lint": "eslint .",
+		"build": "bash .github/scripts/build-demos.sh",
+		"screenshot": "node .github/scripts/screenshot-demos.mjs"
+	},
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "8.53.0",
+		"@typescript-eslint/parser": "8.53.0",
+		"eslint": "9.39.2",
+		"eslint-import-resolver-typescript": "4.4.4",
+		"globals": "17.0.0",
+		"typescript-eslint": "8.53.0",
+		"playwright": "^1.58.2"
+	}
 }

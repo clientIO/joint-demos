@@ -1,6 +1,7 @@
 interface TabData {
     title: string;
-    json: Record<string, unknown>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    json: any;
 }
 
 export const TabsData: TabData[] = [];

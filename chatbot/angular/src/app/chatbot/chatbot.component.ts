@@ -8,11 +8,14 @@ distributed with this file, You can obtain one at
 https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 
 import {
     Component,
     ViewChild,
-    ViewEncapsulation
+    ViewEncapsulation,
+    ChangeDetectorRef,
+    Renderer2
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import JointPlusService from '../../services/joint-plus.service';
@@ -20,15 +23,16 @@ import { STENCIL_WIDTH } from '../../theme';
 import { SharedEvents } from '../../joint-plus/controller';
 import { loadStencilShapes, importGraphFromJSON, zoomToFit } from '../../joint-plus/actions';
 import exampleGraphJSON from '../../joint-plus/config/example-graph.json';
+import { ElementRef } from '@angular/core';
+import { EventBusService } from '../../services/event-bus.service';
 
 import type {
     AfterViewInit,
-    ChangeDetectorRef,
-    ElementRef,
     OnDestroy,
-    OnInit,
-    Renderer2 } from '@angular/core';
-import type { EventBusService } from '../../services/event-bus.service';
+    OnInit
+} from '@angular/core';
+
+import type { dia } from '@joint/plus';
 
 @Component({
     selector: 'chatbot',
@@ -59,10 +63,10 @@ export class ChatbotComponent implements AfterViewInit, OnInit, OnDestroy {
     public ngOnInit(): void {
         const { subscriptions, eventBusService } = this;
         subscriptions.add(
-            eventBusService.subscribe(SharedEvents.GRAPH_CHANGED, (json: object) => this.onJointGraphChange(json))
+            eventBusService.subscribe(SharedEvents.GRAPH_CHANGED, (json: dia.Graph.JSON) => this.onJointGraphChange(json))
         );
         subscriptions.add(
-            eventBusService.subscribe(SharedEvents.JSON_EDITOR_CHANGED, (json: object) => this.onJsonEditorChange(json))
+            eventBusService.subscribe(SharedEvents.JSON_EDITOR_CHANGED, (json: dia.Graph.JSON) => this.onJsonEditorChange(json))
         );
     }
 
@@ -85,7 +89,7 @@ export class ChatbotComponent implements AfterViewInit, OnInit, OnDestroy {
         this.joint.destroy();
     }
 
-    public openFile(json: object): void {
+    public openFile(json: dia.Graph.JSON): void {
         const { joint } = this;
         this.fileJSON = json;
         importGraphFromJSON(joint, json);
@@ -107,12 +111,12 @@ export class ChatbotComponent implements AfterViewInit, OnInit, OnDestroy {
         this.openFile(exampleGraphJSON);
     }
 
-    private onJsonEditorChange(json: object): void {
+    private onJsonEditorChange(json: dia.Graph.JSON): void {
         const { joint } = this;
         if (joint) { importGraphFromJSON(joint, json); }
     }
 
-    private onJointGraphChange(json: object): void {
+    private onJointGraphChange(json: dia.Graph.JSON): void {
         this.fileJSON = json;
     }
 

@@ -3,7 +3,8 @@ import { dia, shapes } from '@joint/plus';
 
 import type { TreeNode } from './tree.models';
 
-const data = [
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const data: any = [
     {
         id: 'process0',
         name: 'Process 1',
@@ -141,7 +142,7 @@ export class TreeDataService {
     constructor() { }
 
     getTree(): TreeNode[] {
-        return data.map(diagram => {
+        return data.map((diagram: dia.Graph.JSON) => {
             const graph = new dia.Graph({}, { cellNamespace: shapes });
             graph.fromJSON(diagram);
             return {
