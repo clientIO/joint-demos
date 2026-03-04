@@ -38,7 +38,7 @@ const commonRules = {
  */
 const combinedConfig = defineConfig([
     {
-        ignores: ['.github/', '**/build/', '**/dist/', '**/node_modules/'],
+        ignores: ['.github/', '_site/', '**/build/', '**/dist/', '**/node_modules/', '**/.angular/'],
     },
     {
         // Common globals for all checked files
