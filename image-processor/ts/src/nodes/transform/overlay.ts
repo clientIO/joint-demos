@@ -58,7 +58,7 @@ export class Overlay extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image, overlay, x, y }: { image: cv.Mat, overlay: cv.Mat, x: number, y: number } = this.properties;
+        const { image, overlay, x, y } = this.properties as { image: cv.Mat, overlay: cv.Mat, x: number, y: number };
 
         if (!(image && overlay)) return [null];
 

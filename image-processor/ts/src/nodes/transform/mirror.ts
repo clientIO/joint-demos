@@ -45,7 +45,7 @@ export class Mirror extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image, direction }: { image: cv.Mat, direction: string } = this.properties;
+        const { image, direction } = this.properties as { image: cv.Mat, direction: string };
 
         if (!image) return [null];
 

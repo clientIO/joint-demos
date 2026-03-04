@@ -84,7 +84,7 @@ export class Display extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image }: { image: cv.Mat } = this.properties;
+        const { image } = this.properties as { image: cv.Mat };
         if (image) {
             cv.imshow(this.canvas, image);
             this.canvas.toBlob((blob) => {

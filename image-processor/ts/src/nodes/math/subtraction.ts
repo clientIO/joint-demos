@@ -35,7 +35,7 @@ export class Subtraction extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { a, b }: { a: number, b: number } = this.properties;
+        const { a, b } = this.properties as { a: number, b: number };
 
         const result = a - b;
         this.set('result', result);

@@ -13,11 +13,11 @@ export const init = () => {
     // 7 Days
     const processDuration = 7 * 24 * 60 * 60 * 1000;
     // Toolbar controls
-    const range: HTMLInputElement = document.querySelector('input[type="range"]');
-    const speedInput: HTMLInputElement = document.querySelector('input[type="number"]');
-    const startButton: HTMLButtonElement = document.querySelector('.start');
-    const stopButton = document.querySelector('.stop');
-    const timer = document.querySelector('.textTime');
+    const range: HTMLInputElement = document.querySelector('input[type="range"]') as HTMLInputElement;
+    const speedInput: HTMLInputElement = document.querySelector('input[type="number"]') as HTMLInputElement;
+    const startButton: HTMLButtonElement = document.querySelector('.start') as HTMLButtonElement;
+    const stopButton: HTMLButtonElement = document.querySelector('.stop') as HTMLButtonElement;
+    const timer: HTMLElement = document.querySelector('.textTime') as HTMLElement;
     // 200000 milliseconds / 200 seconds - used to increase/decrease rate of time in animation
     const DEFAULT_SPEED = 200000;
     let speed = DEFAULT_SPEED;
@@ -36,7 +36,7 @@ export const init = () => {
         range.value = target.value;
         // Update position of token based on time
         tokens.forEach((token) => {
-            token.data.move(Number(range.value));
+            token.data.move?.(Number(range.value));
         });
         paper.wakeUp();
         const milliseconds = Number(range.value);
@@ -62,12 +62,12 @@ export const init = () => {
         }
     });
 
-    startButton.addEventListener('click', () => {
+    startButton!.addEventListener('click', () => {
         startButton.setAttribute('disabled', '');
         startRangeAnimation();
     });
 
-    stopButton.addEventListener('click', () => {
+    stopButton!.addEventListener('click', () => {
         startButton.removeAttribute('disabled');
         stopRangeAnimation();
     });
@@ -122,7 +122,7 @@ export const init = () => {
         }
     });
 
-    canvas.appendChild(scroller.el);
+    canvas!.appendChild(scroller.el);
     scroller.render().center();
 
     let tokenLinks: Array<Link>;
@@ -131,7 +131,7 @@ export const init = () => {
     setTokens();
     paper.unfreeze({
         afterRender: () => {
-            cssLoader.classList.remove('loader');
+            cssLoader!.classList.remove('loader');
             startRangeAnimation();
             paper.unfreeze();
         }
@@ -152,16 +152,16 @@ export const init = () => {
 
         Object.keys(dataset.response.nodes).forEach((nodeLabel) => {
             // Add Elements
-            elements.push(
-                new Node({ id: nodeLabel }).setText(nodeLabel)
-            );
+            const node = new Node({ id: nodeLabel });
+            node.setText(nodeLabel);
+            elements.push(node);
         });
 
         Object.values(dataset.response.arcs).forEach((arc: IArc) => {
             // Add Links
-            links.push(
-                new Link().connect(arc.source, arc.target)
-            );
+            const link = new Link();
+            link.connect(arc.source, arc.target);
+            links.push(link);
         });
         return { cells: elements.concat(links), tokens: links };
     }
@@ -213,14 +213,14 @@ export const init = () => {
             range.value = String(Number(range.value) + (speed * elapsedTime));
 
             tokens.forEach((token) => {
-                token.data.move(Number(range.value));
+                token.data.move?.(Number(range.value));
             });
 
             updateHeatmap();
 
             const milliseconds = Number(range.value);
             const dateObject = new Date(milliseconds);
-            timer.innerHTML = dateObject.toLocaleString('en-GB');
+            timer!.innerHTML = dateObject.toLocaleString('en-GB');
 
             reqAnimId = util.nextFrame(fn);
         };
@@ -228,7 +228,7 @@ export const init = () => {
     }
 
     function stopRangeAnimation() {
-        util.cancelFrame(reqAnimId);
+        util.cancelFrame(reqAnimId!);
         reqAnimId = null;
     }
 
@@ -365,7 +365,7 @@ export const init = () => {
                                 y: 0,
                                 rotation: 0
                             };
-                            const point = p.pointAtLength(i * l);
+                            const point = p.pointAtLength(i * l) as g.Point;
                             lut.x = point.x;
                             lut.y = point.y;
 

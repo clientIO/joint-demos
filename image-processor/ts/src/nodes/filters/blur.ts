@@ -33,7 +33,7 @@ export class Blur extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image, radius }: { image: cv.Mat, radius: number } = this.properties;
+        const { image, radius } = this.properties as { image: cv.Mat, radius: number };
 
         if (!image) return [null];
 

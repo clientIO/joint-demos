@@ -55,7 +55,7 @@ export class Resize extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image, width, height }: { image: cv.Mat, width: number, height: number } = this.properties;
+        const { image, width, height } = this.properties as { image: cv.Mat, width: number, height: number };
 
         if (!image) return [null];
 

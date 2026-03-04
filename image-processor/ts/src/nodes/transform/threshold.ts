@@ -58,7 +58,7 @@ export class Threshold extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image, threshold, value }: { image: cv.Mat, threshold: number, value: number } = this.properties;
+        const { image, threshold, value } = this.properties as { image: cv.Mat, threshold: number, value: number };
 
         if (!image) return [null];
 

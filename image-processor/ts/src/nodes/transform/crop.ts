@@ -71,7 +71,7 @@ export class Crop extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image, width, height, x, y }: { image: cv.Mat, width: number, height: number, x: number, y: number } = this.properties;
+        const { image, width, height, x, y } = this.properties as { image: cv.Mat, width: number, height: number, x: number, y: number };
 
         if (!image) return [null];
 

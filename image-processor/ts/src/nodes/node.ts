@@ -287,7 +287,8 @@ export abstract class Node extends dia.Element<NodeAttributes> {
         App.inspectorService.enable(input.property, this);
     }
 
-    getContextToolbarItems(): object[] {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getContextToolbarItems(): any[] {
         return [];
     }
 

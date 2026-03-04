@@ -27,7 +27,7 @@ export class Sepia extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { image }: { image: cv.Mat } = this.properties;
+        const { image } = this.properties as { image: cv.Mat };
 
         if (!image) return [null];
 

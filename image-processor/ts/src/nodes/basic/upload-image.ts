@@ -98,7 +98,7 @@ export class Upload extends Node {
     }
 
     async action(): Promise<ActionResult> {
-        const { url }: { url: string } = this.properties;
+        const { url } = this.properties as { url: string };
         if (url) {
             try {
                 this.attr('image/href', url);
