@@ -1,4 +1,4 @@
-import { dia, highlighters, V, g } from '@joint/core';
+import { dia, V, g } from '@joint/core';
 import { cellNamespace } from './shapes';
 import { AvoidRouter } from '../shared/avoid-router';
 import { markAwaiting, unmarkAwaiting } from '../shared/awaiting';
@@ -87,6 +87,7 @@ export const init = async() => {
             const { command, ...data } = e.data;
             switch (command) {
                 case 'routed': {
+                    // eslint-disable-next-line no-console
                     console.timeEnd('worker routed');
                     const { cells } = data;
                     cells.forEach((cell) => {
@@ -252,6 +253,7 @@ export const init = async() => {
         routerWorker = createRouterWorker();
 
         // Tell the worker to reset with the full new cell set.
+        // eslint-disable-next-line no-console
         console.time('worker routed');
         routerWorker.postMessage([{
             command: 'reset',
