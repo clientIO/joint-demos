@@ -2,7 +2,7 @@ import { linkTools, elementTools, dia, shapes, highlighters } from '@joint/core'
 import { Node, Edge } from '../shared/shapes';
 import ResizeTool from '../shared/resize-tool';
 import { AvoidRouter } from '../shared/avoid-router';
-import json from './example.json';
+import { createExampleCells } from '../shared/example-graph';
 
 // Avoid Docs
 // https://www.adaptagrams.org/documentation/annotated.html
@@ -75,8 +75,7 @@ export const init = async() => {
         },
     });
 
-    graph.fromJSON(json);
-
+    graph.addCells(createExampleCells());
 
     graph.getLinks().forEach((link) => {
         highlighters.addClass.add(link.findView(paper), 'line', 'awaiting-update', {
