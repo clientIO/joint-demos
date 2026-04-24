@@ -1,6 +1,6 @@
 const CopyPlugin = require('copy-webpack-plugin');
 const path = process.cwd() + '/dist';
-const folder = process.env.USE_WEB_WORKERS ? 'web-worker' : 'ui-thread';
+const folder = process.env.VARIANT || 'ui-thread';
 
 module.exports = {
     entry: `./src/${folder}/index.js`,

@@ -12,8 +12,10 @@
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack",
-    "start-web-worker": "USE_WEB_WORKERS=1 webpack-dev-server",
-    "build-web-worker": "USE_WEB_WORKERS=1 webpack"
+    "start-web-worker": "VARIANT=web-worker webpack-dev-server",
+    "build-web-worker": "VARIANT=web-worker webpack",
+    "start-web-worker-perf": "VARIANT=web-worker-perf webpack-dev-server",
+    "build-web-worker-perf": "VARIANT=web-worker-perf webpack"
   },
   "dependencies": {
     "@joint/core": "4.2.4",

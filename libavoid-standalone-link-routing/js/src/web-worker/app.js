@@ -164,38 +164,45 @@ export const init = async() => {
 
     // Start the Avoid Router.
 
-    const routerWorker = new Worker(new URL('./worker.js', import.meta.url));
+    let routerWorker;
 
-    routerWorker.onmessage = (e) => {
-        const { command, ...data } = e.data;
-        switch (command) {
-            case 'routed': {
-                const { cells } = data;
-                cells.forEach((cell) => {
-                    const model = graph.getCell(cell.id);
-                    if (model.isElement()) return;
-                    model.set({
-                        vertices: cell.vertices,
-                        source: cell.source,
-                        target: cell.target,
-                        router: null
-                    }, {
-                        fromWorker: true
+    function createRouterWorker() {
+        const w = new Worker(new URL('./worker.js', import.meta.url));
+        w.onmessage = (e) => {
+            const { command, ...data } = e.data;
+            switch (command) {
+                case 'routed': {
+                    const { cells } = data;
+                    cells.forEach((cell) => {
+                        const model = graph.getCell(cell.id);
+                        if (model.isElement()) return;
+                        model.set({
+                            vertices: cell.vertices,
+                            source: cell.source,
+                            target: cell.target,
+                            router: null
+                        }, {
+                            fromWorker: true
+                        });
                     });
-                });
-                highlighters.addClass.removeAll(paper, 'awaiting-update');
-                break;
+                    highlighters.addClass.removeAll(paper, 'awaiting-update');
+                    break;
+                }
+                default:
+                    console.log('Unknown command', command);
+                    break;
             }
-            default:
-                console.log('Unknown command', command);
-                break;
-        }
-    };
+        };
+        return w;
+    }
 
-    routerWorker.postMessage([{
-        command: 'reset',
-        cells: graph.toJSON().cells
-    }]);
+    function resetRouter(cells) {
+        routerWorker?.terminate();
+        routerWorker = createRouterWorker();
+        routerWorker.postMessage([{ command: 'reset', cells }]);
+    }
+
+    resetRouter(graph.toJSON().cells);
 
     graph.on('change', (cell, opt) => {
 
