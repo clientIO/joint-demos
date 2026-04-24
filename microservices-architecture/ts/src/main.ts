@@ -218,7 +218,7 @@ export const init = () => {
 
     selection.removeHandle('resize');
     selection.removeHandle('rotate');
-    selection.changeHandle('remove', { icon: icons.remove, attrs: { '.handle': { title: 'Remove' } } });
+    selection.changeHandle('remove', { icon: icons.remove, attrs: { '.handle': { title: 'Remove' }}});
 
     selection.on('action:group:pointerup', () => {
         const elements = selection.collection
@@ -229,7 +229,7 @@ export const init = () => {
         if (!containerId) return;
         const container = graph.getCell(containerId) as dia.Element;
         if (!container) return;
-        const group = new GroupModel({ attrs: { label: { text: 'Group' } } });
+        const group = new GroupModel({ attrs: { label: { text: 'Group' }}});
         graph.startBatch('group');
         group.addTo(graph);
         container.embed(group);
@@ -260,7 +260,7 @@ export const init = () => {
                 const parent = graph.getCell(firstParent);
                 if (parent && ContainerModel.isContainer(parent as dia.Element)
                     && cells.every(c => (c as dia.Element).parent() === firstParent)) {
-                    selection.addHandle({ name: 'group', position: ui.Selection.HandlePosition.SW, icon: icons.group, attrs: { '.handle': { title: 'Group' } } });
+                    selection.addHandle({ name: 'group', position: ui.Selection.HandlePosition.SW, icon: icons.group, attrs: { '.handle': { title: 'Group' }}});
                 }
             }
         }
@@ -307,7 +307,7 @@ export const init = () => {
                 if (containerCount <= 1) {
                     halo.removeHandle('remove');
                 } else {
-                    halo.changeHandle('remove', { icon: icons.remove, attrs: { '.handle': { title: 'Remove' } } });
+                    halo.changeHandle('remove', { icon: icons.remove, attrs: { '.handle': { title: 'Remove' }}});
                 }
                 halo.render();
             } else {
@@ -329,7 +329,7 @@ export const init = () => {
                     halo.removeHandle('fork');
                     halo.removeHandle('link');
                     halo.removeHandle('unlink');
-                    halo.addHandle({ name: 'ungroup', position: 'sw', icon: icons.ungroup, attrs: { '.handle': { title: 'Ungroup' } } });
+                    halo.addHandle({ name: 'ungroup', position: 'sw', icon: icons.ungroup, attrs: { '.handle': { title: 'Ungroup' }}});
                     halo.on('action:ungroup:pointerup', () => {
                         const group = cell as dia.Element;
                         const containerId = group.parent();
@@ -344,12 +344,12 @@ export const init = () => {
                         selection.collection.reset(children);
                     });
                 }
-                halo.changeHandle('remove', { icon: icons.remove, attrs: { '.handle': { title: 'Remove' } } });
-                halo.changeHandle('clone', { icon: icons.clone, attrs: { '.handle': { title: 'Clone' } } });
+                halo.changeHandle('remove', { icon: icons.remove, attrs: { '.handle': { title: 'Remove' }}});
+                halo.changeHandle('clone', { icon: icons.clone, attrs: { '.handle': { title: 'Clone' }}});
                 if (!isGroup) {
-                    halo.changeHandle('fork', { icon: icons.fork, attrs: { '.handle': { title: 'Fork' } } });
-                    halo.changeHandle('link', { icon: icons.link, position: 'se', attrs: { '.handle': { title: 'Link' } } });
-                    halo.changeHandle('unlink', { icon: icons.unlink, position: 'sw', attrs: { '.handle': { title: 'Unlink' } } });
+                    halo.changeHandle('fork', { icon: icons.fork, attrs: { '.handle': { title: 'Fork' }}});
+                    halo.changeHandle('link', { icon: icons.link, position: 'se', attrs: { '.handle': { title: 'Link' }}});
+                    halo.changeHandle('unlink', { icon: icons.unlink, position: 'sw', attrs: { '.handle': { title: 'Unlink' }}});
                     halo.on('action:unlink:pointerdown', (evt) => {
                         highlighters.addClass.removeAll(paper, 'related-neighbor');
                     });
@@ -409,9 +409,9 @@ export const init = () => {
 
     stencil.render();
     stencil.load([
-        new ServiceModel({ position: { x: 25, y: 20 }, attrs: { label: { text: 'Service' } } }),
-        new DBModel({ position: { x: 125, y: 20 }, attrs: { label: { text: 'DB' } } }),
-        new GroupModel({ position: { x: 25, y: 90 }, attrs: { label: { text: 'Group' } } })
+        new ServiceModel({ position: { x: 25, y: 20 }, attrs: { label: { text: 'Service' }}}),
+        new DBModel({ position: { x: 125, y: 20 }, attrs: { label: { text: 'DB' }}}),
+        new GroupModel({ position: { x: 25, y: 90 }, attrs: { label: { text: 'Group' }}})
     ]);
 
     // --- Click selection: set selection.collection ---

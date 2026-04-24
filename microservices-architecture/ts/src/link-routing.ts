@@ -1,4 +1,5 @@
-import { dia, g, anchors, routers } from '@joint/plus';
+import type { dia, g } from '@joint/plus';
+import { anchors, routers } from '@joint/plus';
 import { GroupModel } from './models';
 
 function getParentGroup(cell: dia.Cell): dia.Element | null {
@@ -107,7 +108,7 @@ export function groupAwareRouter(
         ? new Proxy(linkView, {
             get(target, prop) {
                 if (prop in overrides) return overrides[prop as string];
-                return (target as any)[prop];
+                return Reflect.get(target, prop);
             }
         })
         : linkView;

@@ -1,4 +1,5 @@
-import { V, dia, mvc } from '@joint/plus';
+import type { dia } from '@joint/plus';
+import { V, mvc } from '@joint/plus';
 
 let activeInput: HTMLInputElement | null = null;
 

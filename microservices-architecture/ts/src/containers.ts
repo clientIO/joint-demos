@@ -66,7 +66,7 @@ export function addContainer(graph: dia.Graph, insertIndex: number = -1): Contai
         if (idx >= insertIndex) c.set('index', idx + 1);
     });
 
-    const container = ContainerModel.create(`Container ${nextContainerNumber}`)
+    const container = ContainerModel.create(`Container ${nextContainerNumber}`);
     nextContainerNumber++;
 
     container.set('index', insertIndex);

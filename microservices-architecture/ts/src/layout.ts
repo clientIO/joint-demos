@@ -1,4 +1,4 @@
-import { dia } from '@joint/plus';
+import type { dia } from '@joint/plus';
 import { ContainerModel } from './models';
 
 const MARGIN = 40;
