@@ -14,6 +14,7 @@ body {
 
 /* Styles for the UI thread example. */
 
+.web-worker,
 .ui-thread {
 
     body {
@@ -36,10 +37,6 @@ body {
 
 .web-worker,
 .web-worker-perf {
-
-    body {
-        overflow: auto;
-    }
 
     .awaiting-update {
         opacity: 0.3;

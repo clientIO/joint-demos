@@ -1,6 +1,7 @@
 import { dia, highlighters, V, g } from '@joint/core';
 import { cellNamespace } from './shapes';
 import { AvoidRouter } from '../shared/avoid-router';
+import { markAwaiting, unmarkAwaiting } from '../shared/awaiting';
 import diagram1 from './example-1.json';
 import diagram2 from './example-2.json';
 
@@ -91,6 +92,9 @@ export const init = async() => {
                     cells.forEach((cell) => {
                         const model = graph.getCell(cell.id);
                         if (!model || model.isElement()) return;
+                        // Skip if the user has disconnected an endpoint locally while
+                        // the worker was routing — applying would snap it back.
+                        if (!model.source()?.id || !model.target()?.id) return;
                         model.set({
                             vertices: cell.vertices,
                             source: cell.source,
@@ -99,8 +103,8 @@ export const init = async() => {
                         }, {
                             fromWorker: true
                         });
+                        unmarkAwaiting(model.findView(paper));
                     });
-                    highlighters.addClass.removeAll(paper, 'awaiting-update');
                     break;
                 }
                 default:
@@ -120,6 +124,15 @@ export const init = async() => {
     graph.on('change', (cell, opt) => {
         if (opt.fromWorker || loading) return;
 
+        if (cell.isLink()) {
+            // The worker only cares about source/target changes on links.
+            if (!cell.hasChanged('source') && !cell.hasChanged('target')) return;
+            // If the link was dangling and is still dangling, there's nothing to route.
+            const wasRoutable = Boolean(cell.previous('source')?.id && cell.previous('target')?.id);
+            const isRoutable = Boolean(cell.source()?.id && cell.target()?.id);
+            if (!wasRoutable && !isRoutable) return;
+        }
+
         routerWorker.postMessage([{
             command: 'change',
             cell: cell.toJSON()
@@ -129,9 +142,7 @@ export const init = async() => {
             const links = graph.getConnectedLinks(cell);
             links.forEach((link) => {
                 link.unset('router');
-                highlighters.addClass.add(link.findView(paper), 'line', 'awaiting-update', {
-                    className: 'awaiting-update'
-                });
+                markAwaiting(link.findView(paper));
             });
         }
     });
@@ -150,6 +161,9 @@ export const init = async() => {
             command: 'add',
             cell: cell.toJSON()
         }]);
+        if (cell.isLink()) {
+            markAwaiting(cell.findView(paper));
+        }
     });
 
     paper.on('link:snap:connect', (linkView) => {
@@ -161,6 +175,7 @@ export const init = async() => {
             vertices: [],
             router: null
         });
+        markAwaiting(linkView);
     });
 
     const FIT_OPTIONS = {
@@ -230,11 +245,7 @@ export const init = async() => {
         loading = false;
 
         // Mark links as awaiting-update while the worker routes them.
-        graph.getLinks().forEach((link) => {
-            highlighters.addClass.add(link.findView(paper), 'line', 'awaiting-update', {
-                className: 'awaiting-update'
-            });
-        });
+        graph.getLinks().forEach((link) => markAwaiting(link.findView(paper)));
 
         // Spin up a fresh worker so no state from the previous diagram leaks in.
         routerWorker.terminate();
