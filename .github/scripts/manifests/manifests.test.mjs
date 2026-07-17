@@ -3,7 +3,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { canonicalVariant, edition, extractUses } from './transform.mjs';
-import { generateManifests } from './generate.mjs';
+import { generateManifests, resolveKeywords } from './generate.mjs';
 
 const FIXTURES = join(import.meta.dirname, 'fixtures');
 
@@ -52,10 +52,69 @@ test('extractUses resolves namespace members and named symbols', () => {
         'new dia.Paper({});',
         'new ui.Stencil({});',
         'new shapes.standard.Rectangle();',
+        'render(GraphProvider);',
     ].join('\n');
     // shapes is never imported from a Joint package, so it is not recorded;
     // GraphProvider has no member access, so it is recorded bare.
     assert.deepEqual(extractUses([source]), ['GraphProvider', 'dia.Paper', 'ui.Stencil']);
+});
+
+test('extractUses collapses chains after the first capitalized segment', () => {
+    const source = [
+        'import { dia, shapes, util, highlighters } from \'@joint/core\';',
+        'new dia.Paper({} as dia.Paper.Options);',
+        'const id: dia.Cell.ID = id2;',
+        'new shapes.standard.Rectangle();',
+        'util.breakText(\'x\');',
+        'highlighters.addClass.add(view, \'body\', \'hl\');',
+    ].join('\n');
+    assert.deepEqual(extractUses([source]), [
+        'dia.Cell',
+        'dia.Paper',
+        'highlighters.addClass',
+        'shapes.standard.Rectangle',
+        'util.breakText',
+    ]);
+});
+
+test('extractUses canonicalizes aliased and star imports', () => {
+    const aliased = [
+        'import { shapes as defaultShapes } from \'@joint/core\';',
+        'new defaultShapes.standard.Rectangle();',
+    ].join('\n');
+    assert.deepEqual(extractUses([aliased]), ['shapes.standard.Rectangle']);
+    const bareAlias = [
+        'import { shapes as defaultShapes } from \'@joint/core\';',
+        'register(defaultShapes);',
+    ].join('\n');
+    assert.deepEqual(extractUses([bareAlias]), ['shapes']);
+    const star = [
+        'import * as joint from \'@joint/core\';',
+        'new joint.shapes.standard.Rectangle();',
+        'joint.util.breakText(\'x\');',
+    ].join('\n');
+    assert.deepEqual(extractUses([star]), ['shapes.standard.Rectangle', 'util.breakText']);
+});
+
+test('extractUses drops tooling and unused imports', () => {
+    const source = [
+        'import { jsx } from \'@joint/react-plus/jsx-runtime\';',
+        'import { env } from \'@joint/core\';',
+        'import { dia, ui } from \'@joint/plus\';',
+        'if (env.test) {}',
+        'new dia.Paper({});',
+    ].join('\n');
+    // jsx and env are tooling bindings; ui is imported but never referenced.
+    assert.deepEqual(extractUses([source]), ['dia.Paper']);
+});
+
+test('resolveKeywords omits missing demos and skips comma keywords', () => {
+    // Both paths warn on stderr; assertions cover the returned value only.
+    assert.deepEqual(resolveKeywords('kanban', {}), []);
+    assert.deepEqual(
+        resolveKeywords('kanban', { kanban: ['task board', 'flowchart, diagram', 'swimlane'] }),
+        ['task board', 'swimlane'],
+    );
 });
 
 test('golden: sample repo produces the expected manifests and index', () => {

@@ -1,5 +1,6 @@
-import { dia, shapes } from '@joint/core';
+import * as joint from '@joint/core';
 
-const graph = new dia.Graph();
-const rect = new shapes.standard.Rectangle();
-graph.addCell(rect);
+const options: joint.dia.Paper.Options = { gridSize: 10 };
+const paper = new joint.dia.Paper(options);
+const rect = new joint.shapes.standard.Rectangle();
+paper.model.addCell(rect);

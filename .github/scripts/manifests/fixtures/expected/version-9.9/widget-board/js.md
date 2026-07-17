@@ -14,15 +14,13 @@ packages:
 
 The Widget Board demo lets users arrange dashboard widgets on a grid and connect them with links.
 
-This demo is also available online at jointjs.com.
-
 **Variant:** js · **Edition:** commercial · **Packages:** @joint/plus
 
-**Keywords:** widget, board
+**Keywords:** Dashboard, Drag & Drop, widget grid
 
-**Uses:** dia.Graph, dia.Paper, ui.Stencil
+**Uses:** dia.Graph, dia.Paper, highlighters.addClass, ui.Stencil
 
-## Files
+## Source files
 
 - index.html
 - package.json

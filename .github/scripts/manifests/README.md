@@ -32,14 +32,35 @@ Each Manifest carries: `demo_id` (matches the R2 `versioned_demos/` layout,
 so `get_demo_code` resolves it unchanged), canonical `variant`
 (`react-ts`/`react-redux-ts` → `react`, `vue-ts` → `vue`), `variant_dir`
 (the actual directory), `version`, `edition`, `title`, `packages`, plus a
-summary, feature keywords, the Joint API symbols the code uses, and the
-variant's file list.
+summary, curated Keywords, the Joint API symbols the code uses (Uses), and
+its Source files.
 
 Rules of thumb:
 
-- **Uses** lists Joint API symbols extracted from imports of Joint
-  packages: named imports directly (`GraphProvider`), namespace bindings
-  resolved through member access (`ui.Stencil`, `shapes.standard.Rectangle`).
+- **Keywords** come solely from `demo-keywords.json` at the repo root, keyed
+  by demo name (shared across variants). Authoring rule: keywords are the
+  *synonym/expansion channel* — terms an agent might search for that the
+  title and summary do **not** already contain. Prefer the established
+  jointjs.com/demos vocabulary (application categories such as
+  "Project management", "Data modeling"; feature tags such as "Drag & Drop",
+  "Automatic layout"); free terms (diagram-type synonyms like "swimlane",
+  "ERD") are allowed. Casing and order are preserved as authored. A demo
+  missing from the overlay gets a build warning and no Keywords line; a
+  keyword containing a comma is warned about and skipped (the body line is
+  comma-joined).
+- **Uses** lists collapsed runtime Joint API surfaces extracted from imports
+  of Joint packages: named imports directly (`GraphProvider`), namespace
+  bindings resolved through member access and collapsed after the first
+  capitalized segment (`ui.Stencil`, `shapes.standard.Rectangle`,
+  `dia.Paper.Options` → `dia.Paper`). Aliased imports are recorded under
+  their original names, star imports without their local prefix;
+  imported-but-unused bindings and the `jsx`/`env` tooling bindings are
+  dropped.
+- **Source files** is a curated view for orientation, not the full
+  inventory (`get_demo_code` lists the real files live): lockfiles
+  (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`) and binary assets
+  (png, jpg, jpeg, gif, ico, woff, woff2, ttf, eot, mp3, mp4) are excluded;
+  `.svg` and config files are kept deliberately.
 
 - **Packages** come from the variant's `package.json` `dependencies`
   (`@joint/*`, `jointjs`, `rappid`, `@clientio/rappid`). **Edition** is `commercial` when

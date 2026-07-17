@@ -1,5 +1,5 @@
-import { dia, shapes } from '@joint/core';
+import { dia, shapes as defaultShapes } from '@joint/core';
 
 const graph = new dia.Graph();
-const rect = new shapes.standard.Rectangle();
+const rect = new defaultShapes.standard.Rectangle();
 graph.addCell(rect);

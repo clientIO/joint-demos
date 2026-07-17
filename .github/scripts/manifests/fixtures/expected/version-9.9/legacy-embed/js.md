@@ -15,11 +15,9 @@ Legacy Embed loads JointJS+ from a CDN bundle, so its package.json declares no J
 
 **Variant:** js · **Edition:** commercial · **Packages:** none
 
-**Keywords:** legacy, embed
-
 **Uses:** none
 
-## Files
+## Source files
 
 - index.html
 - package.json

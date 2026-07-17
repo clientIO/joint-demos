@@ -16,11 +16,11 @@ Flow Tool is an open-source JointJS demo showing a minimal process editor, built
 
 **Variant:** vue · **Edition:** open-source · **Packages:** @joint/core
 
-**Keywords:** flow, tool
+**Keywords:** Process modeling, Automatic layout, swimlane
 
 **Uses:** dia.Graph, shapes.standard.Rectangle
 
-## Files
+## Source files
 
 - README.md
 - package.json
