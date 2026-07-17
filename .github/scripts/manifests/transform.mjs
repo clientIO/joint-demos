@@ -113,6 +113,8 @@ export function extractUses(sources) {
     return [...uses].sort();
 }
 
+const ONLINE_NOTE_RE = /^This demo is also available online at /;
+
 function cleanInline(text) {
     return text
         .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
@@ -140,7 +142,7 @@ export function parseReadme(markdown) {
     }
     const summary = summaryLines
         .map(cleanInline)
-        .filter((line) => !/^This demo is also available online at /.test(line))
+        .filter((line) => !ONLINE_NOTE_RE.test(line))
         .join('\n')
         .replace(/\n{3,}/g, '\n\n')
         .trim();

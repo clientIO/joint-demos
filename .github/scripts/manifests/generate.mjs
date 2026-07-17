@@ -69,6 +69,8 @@ export function generateManifests(rootDir, version) {
                 continue;
             }
             const files = listFiles(variantPath);
+            // Resolve once per demo, on the first manifest-producing variant,
+            // so demos that yield no manifests never warn about a missing entry.
             demoKeywords ??= resolveKeywords(demoName, keywordOverlay);
             const manifest = buildManifest({
                 demoName,

@@ -540,7 +540,7 @@
     "REST API diagram",
     "data visualization",
     "tree diagram",
-    "data‑driven diagram",
+    "data-driven diagram",
     "data mapping",
     "JSON-to-diagram"
   ],
@@ -793,7 +793,6 @@
     "Graph API",
     "Collapse & Expand",
     "FTA",
-    "fta-js",
     "failure analysis",
     "risk assessment",
     "reliability engineering",
@@ -1464,7 +1463,9 @@
   "sankey-diagram": [
     "SCADA & HMI",
     "Energy networks",
+    "Anchors",
     "Custom shapes",
+    "Drag & Drop",
     "Tooltips",
     "Graph API",
     "Automatic layout",
@@ -1892,7 +1893,6 @@
     "Unified Modeling Language",
     "software modeling",
     "software architecture",
-    "class diagram",
     "object-oriented design"
   ],
   "upload-image-to-stencil": [
@@ -1911,10 +1911,9 @@
     "Embedding",
     "object-oriented design",
     "system modeling",
-    "classes",
-    "objects",
-    "inheritance",
-    "associations"
+    "actors",
+    "system boundary",
+    "include and extend relationships"
   ],
   "vector-editor": [
     "Custom shapes",
