@@ -1,0 +1,7 @@
+{
+    "name": "flow-tool-ts",
+    "private": true,
+    "dependencies": {
+        "@joint/core": "4.3.0"
+    }
+}
