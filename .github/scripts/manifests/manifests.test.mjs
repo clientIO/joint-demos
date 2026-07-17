@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { canonicalVariant, edition, extractUses } from './transform.mjs';
+import { canonicalVariant, edition, extractUses, parseReadme } from './transform.mjs';
 import { generateManifests, resolveKeywords } from './generate.mjs';
 
 const FIXTURES = join(import.meta.dirname, 'fixtures');
@@ -106,6 +106,27 @@ test('extractUses drops tooling and unused imports', () => {
     ].join('\n');
     // jsx and env are tooling bindings; ui is imported but never referenced.
     assert.deepEqual(extractUses([source]), ['dia.Paper']);
+});
+
+test('parseReadme strips multi-line HTML and keeps prose angle brackets', () => {
+    const markdown = [
+        '# Demo',
+        '',
+        'Summary paragraph.',
+        '',
+        '<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/demo/js">',
+        '  <img',
+        '    alt="Open in StackBlitz"',
+        '    src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"',
+        '  />',
+        '</a>',
+        '',
+        'Costs a < b and <em>emphasis</em> works.',
+        '',
+        '## Next',
+    ].join('\n');
+    const { summary } = parseReadme(markdown);
+    assert.equal(summary, 'Summary paragraph.\n\nCosts a < b and emphasis works.');
 });
 
 test('resolveKeywords omits missing demos and skips comma keywords', () => {

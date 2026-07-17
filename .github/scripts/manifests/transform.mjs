@@ -115,11 +115,16 @@ export function extractUses(sources) {
 
 const ONLINE_NOTE_RE = /^This demo is also available online at /;
 
+// Tags must start with a letter or '/', so a prose '<' (e.g. "a < b")
+// never swallows text. [^>] matches newlines, so a single pass over a
+// joined block also removes tags that span lines (the StackBlitz badge).
+const HTML_TAG_RE = /<\/?[a-zA-Z][^>]*>/g;
+
 function cleanInline(text) {
     return text
         .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
         .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-        .replace(/<[^>]+>/g, '')
+        .replace(HTML_TAG_RE, '')
         .trim();
 }
 
@@ -141,6 +146,9 @@ export function parseReadme(markdown) {
         summaryLines.push(line);
     }
     const summary = summaryLines
+        .join('\n')
+        .replace(HTML_TAG_RE, '')
+        .split('\n')
         .map(cleanInline)
         .filter((line) => !ONLINE_NOTE_RE.test(line))
         .join('\n')
