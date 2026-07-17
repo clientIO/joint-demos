@@ -3,7 +3,7 @@
 // Enumeration mirrors build-demos.sh: skip dot-dirs, node_modules, _site.
 // demos.config.json skip flags are build-only and intentionally not honored.
 
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildManifest, renderIndex } from './transform.mjs';
 
@@ -17,7 +17,10 @@ function listFiles(dir, prefix = '') {
         if (SKIP_VARIANT_ENTRIES.has(name)) continue;
         const path = join(dir, name);
         const rel = prefix ? `${prefix}/${name}` : name;
-        if (statSync(path).isDirectory()) {
+        const stats = lstatSync(path);
+        if (stats.isSymbolicLink()) continue;
+        if (stats.isDirectory()) {
+            if (name.startsWith('.')) continue;
             files.push(...listFiles(path, rel));
         } else {
             files.push(rel);

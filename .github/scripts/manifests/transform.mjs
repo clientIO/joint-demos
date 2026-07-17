@@ -2,7 +2,7 @@
 // inputs in, Manifest markdown + index entry out. No filesystem access —
 // the golden-fixture test drives this via generateManifests().
 
-const COMMERCIAL_PACKAGES = new Set(['@joint/plus', '@joint/react-plus']);
+const COMMERCIAL_PACKAGES = new Set(['@joint/plus', '@joint/react-plus', '@clientio/rappid', 'rappid']);
 const JOINT_PACKAGE_RE = /^(@joint\/|@clientio\/rappid$|jointjs$|rappid$)/;
 
 // 'react-redux-ts' -> 'react', 'vue-ts' -> 'vue', 'js' -> 'js'

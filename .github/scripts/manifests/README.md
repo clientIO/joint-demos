@@ -42,7 +42,7 @@ Rules of thumb:
   resolved through member access (`ui.Stencil`, `shapes.standard.Rectangle`).
 
 - **Packages** come from the variant's `package.json` `dependencies`
-  (`@joint/*`, `jointjs`, `rappid`). **Edition** is `commercial` when
+  (`@joint/*`, `jointjs`, `rappid`, `@clientio/rappid`). **Edition** is `commercial` when
   `@joint/plus` or `@joint/react-plus` is present; demos with no joint
   dependency (CDN-loaded) fall back to a `JointJS+` title check.
 - The variant-level `README.md` is preferred; the demo-root `README.md` is

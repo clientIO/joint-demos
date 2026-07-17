@@ -38,6 +38,8 @@ test('canonicalVariant maps directory names to Variants', () => {
 test('edition distinguishes commercial from open-source', () => {
     assert.equal(edition(['@joint/plus'], 'anything'), 'commercial');
     assert.equal(edition(['@joint/core', '@joint/react-plus'], 'anything'), 'commercial');
+    assert.equal(edition(['@clientio/rappid'], 'anything'), 'commercial');
+    assert.equal(edition(['rappid'], 'anything'), 'commercial');
     assert.equal(edition(['@joint/core'], 'anything'), 'open-source');
     assert.equal(edition([], 'JointJS+: CDN Demo'), 'commercial');
     assert.equal(edition([], 'Plain Demo'), 'open-source');
