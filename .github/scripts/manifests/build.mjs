@@ -11,9 +11,17 @@ import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { generateManifests } from './generate.mjs';
 
-const { values } = parseArgs({ options: { version: { type: 'string' } } });
+const USAGE = 'Usage: npm run manifests:build -- --version X.Y (e.g. 4.3)';
+
+let values = {};
+try {
+    ({ values } = parseArgs({ options: { version: { type: 'string' } } }));
+} catch {
+    console.warn(USAGE);
+    process.exit(1);
+}
 if (!values.version || !/^\d+\.\d+$/.test(values.version)) {
-    console.warn('Usage: npm run manifests:build -- --version X.Y (e.g. 4.3)');
+    console.warn(USAGE);
     process.exit(1);
 }
 
