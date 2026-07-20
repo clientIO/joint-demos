@@ -99,6 +99,11 @@ manifests/version-4.3/<demo>.md                  # search documents (this script
 manifests-index/version-4.3.json                 # framework pre-filter index (this script)
 ```
 
+The upload is scripted: `npm run sync -- --version X.Y` (dev bucket) /
+`npm run sync:prod -- --version X.Y` (prod) syncs all three prefixes —
+see `.github/scripts/sync.mjs`. It is sync-only and fails preflight
+unless this script's build output for that version exists.
+
 The AutoRAG demos index points at `manifests/` only; the slim
 `manifests-index/` sits outside it and `get_demo_code` keeps reading full
 source from `versioned_demos/`.
