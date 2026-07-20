@@ -1,0 +1,8 @@
+{
+    "name": "widget-board-react-js",
+    "private": true,
+    "dependencies": {
+        "@joint/plus": "4.3.0",
+        "react": "19.0.0"
+    }
+}

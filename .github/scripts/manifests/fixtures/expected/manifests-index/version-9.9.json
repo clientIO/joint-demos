@@ -1,0 +1,32 @@
+[
+  {
+    "demo": "flow-tool",
+    "variant_dir": "ts",
+    "variant": "ts"
+  },
+  {
+    "demo": "flow-tool",
+    "variant_dir": "vue-ts",
+    "variant": "vue"
+  },
+  {
+    "demo": "legacy-embed",
+    "variant_dir": "js",
+    "variant": "js"
+  },
+  {
+    "demo": "widget-board",
+    "variant_dir": "js",
+    "variant": "js"
+  },
+  {
+    "demo": "widget-board",
+    "variant_dir": "react-js",
+    "variant": "react"
+  },
+  {
+    "demo": "widget-board",
+    "variant_dir": "react-ts",
+    "variant": "react"
+  }
+]

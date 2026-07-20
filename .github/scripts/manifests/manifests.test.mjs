@@ -142,7 +142,10 @@ test('golden: sample repo produces the expected manifests and index', () => {
     const outputs = generateManifests(join(FIXTURES, 'sample-repo'), '9.9');
     const expectedRoot = join(FIXTURES, 'expected');
     const expectedFiles = walk(expectedRoot);
-    assert.deepEqual([...outputs.keys()].sort(), expectedFiles);
+    // Sort both sides: the walk descends per-directory, but the flat key sort
+    // orders the `manifests/` and `manifests-index/` prefixes differently
+    // ('-' < '/'), so compare the key sets order-insensitively.
+    assert.deepEqual([...outputs.keys()].sort(), [...expectedFiles].sort());
     for (const relPath of expectedFiles) {
         assert.equal(outputs.get(relPath), readFileSync(join(expectedRoot, relPath), 'utf8'), relPath);
     }

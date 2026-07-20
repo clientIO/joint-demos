@@ -1,11 +1,12 @@
-// Walks a joint-demos checkout and produces Demo Manifests for every demo
-// variant (any direct subdir of a demo that contains a package.json).
-// Enumeration mirrors build-demos.sh: skip dot-dirs, node_modules, _site.
-// demos.config.json skip flags are build-only and intentionally not honored.
+// Walks a joint-demos checkout and produces one Demo Manifest per demo
+// (a demo is any top-level dir with a root README.md; its variants are the
+// direct subdirs containing a package.json). Enumeration mirrors
+// build-demos.sh: skip dot-dirs, node_modules, _site. demos.config.json
+// skip flags are build-only and intentionally not honored.
 
 import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildManifest, renderIndex } from './transform.mjs';
+import { buildDemoManifest, renderIndex } from './transform.mjs';
 
 const SKIP_TOP_LEVEL = new Set(['node_modules', '_site']);
 const SKIP_VARIANT_ENTRIES = new Set(['node_modules', 'dist', 'build', 'coverage', '.git', '.angular', '.DS_Store']);
@@ -57,37 +58,42 @@ export function generateManifests(rootDir, version) {
         if (demoName.startsWith('.') || SKIP_TOP_LEVEL.has(demoName)) continue;
         const demoDir = join(rootDir, demoName);
         if (!statSync(demoDir).isDirectory()) continue;
-        let demoKeywords = null;
+        // Title/summary come from the demo-root README only; no root README
+        // means no manifest and no index entries for the demo.
+        const readmePath = join(demoDir, 'README.md');
+        if (!existsSync(readmePath)) {
+            console.warn(`:: Skipping ${demoName} (no root README.md)`);
+            continue;
+        }
+        const variants = [];
         for (const variantDir of readdirSync(demoDir).sort()) {
             const variantPath = join(demoDir, variantDir);
             if (variantDir.startsWith('.') || !statSync(variantPath).isDirectory()) continue;
             if (!existsSync(join(variantPath, 'package.json'))) continue;
-            const readmePath = [join(variantPath, 'README.md'), join(demoDir, 'README.md')]
-                .find((candidate) => existsSync(candidate));
-            if (!readmePath) {
-                console.warn(`:: Skipping ${demoName}/${variantDir} (no README.md at variant or demo level)`);
-                continue;
-            }
             const files = listFiles(variantPath);
-            // Resolve once per demo, on the first manifest-producing variant,
-            // so demos that yield no manifests never warn about a missing entry.
-            demoKeywords ??= resolveKeywords(demoName, keywordOverlay);
-            const manifest = buildManifest({
-                demoName,
+            variants.push({
                 variantDir,
-                version,
-                readme: readFileSync(readmePath, 'utf8'),
                 packageJson: JSON.parse(readFileSync(join(variantPath, 'package.json'), 'utf8')),
                 files,
                 sources: files
                     .filter((file) => CODE_FILE_RE.test(file))
                     .map((file) => readFileSync(join(variantPath, file), 'utf8')),
-                keywords: demoKeywords,
             });
-            outputs.set(manifest.path, manifest.content);
-            indexEntries.push(manifest.indexEntry);
         }
+        // A demo with a root README but no variants yields no manifest;
+        // resolve keywords only past this guard so it never warns about a
+        // missing entry.
+        if (variants.length === 0) continue;
+        const manifest = buildDemoManifest({
+            demoName,
+            version,
+            readme: readFileSync(readmePath, 'utf8'),
+            keywords: resolveKeywords(demoName, keywordOverlay),
+            variants,
+        });
+        outputs.set(manifest.path, manifest.content);
+        indexEntries.push(...manifest.indexEntries);
     }
-    outputs.set(`version-${version}/index.json`, renderIndex(version, indexEntries));
+    outputs.set(`manifests-index/version-${version}.json`, renderIndex(indexEntries));
     return outputs;
 }

@@ -1,6 +1,7 @@
-// Pure transform seam for Demo Manifests (joint-mcp#27): demo/variant
-// inputs in, Manifest markdown + index entry out. No filesystem access —
-// the golden-fixture test drives this via generateManifests().
+// Pure transform seam for Demo Manifests (joint-mcp#27, v3): one demo's
+// variants in, a single per-demo Manifest markdown + its index entries out.
+// No filesystem access — the golden-fixture test drives this via
+// generateManifests().
 
 const COMMERCIAL_PACKAGES = new Set(['@joint/plus', '@joint/react-plus', '@clientio/rappid', 'rappid']);
 const JOINT_PACKAGE_RE = /^(@joint\/|@clientio\/rappid$|jointjs$|rappid$)/;
@@ -161,48 +162,68 @@ function yaml(value) {
     return JSON.stringify(value);
 }
 
-export function buildManifest({ demoName, variantDir, version, readme, packageJson, files, sources, keywords }) {
+// Verbatim from joint-mcp#39 — do not rephrase. Rendered as a single line
+// directly after the **Packages:** line of an imperative-react variant.
+const IMPERATIVE_REACT_ADVISORY = '⚠ **API note:** this variant uses the imperative `@joint/plus` API inside React, not the declarative React package. For new React apps call `get_started(framework="react")` and prefer `@joint/react` — or `@joint/react-plus` if the project has a JointJS+ license (this demo relies on JointJS+ features). Adapt this demo\'s ideas, not its integration pattern.';
+
+// A react variant that pulls in an imperative Joint package instead of a
+// declarative @joint/react* one earns the advisory.
+function needsAdvisory(variantDir, packages) {
+    return canonicalVariant(variantDir) === 'react'
+        && !packages.some((name) => name.startsWith('@joint/react'));
+}
+
+// One Manifest per demo. `variants` is pre-grouped and sorted by the walker;
+// each carries { variantDir, packageJson, files, sources }. Title/summary
+// come from the demo-root README only; edition is keyed off the union of
+// every variant's joint packages (title fallback covers CDN-only demos).
+export function buildDemoManifest({ demoName, version, readme, keywords, variants }) {
     const { title, summary } = parseReadme(readme);
-    const variant = canonicalVariant(variantDir);
-    const packages = jointPackages(packageJson);
-    const demoEdition = edition(packages, title);
-    const demoId = `version-${version}/${demoName}/${variantDir}`;
-    const uses = extractUses(sources);
+    const allPackages = [...new Set(variants.flatMap((variant) => jointPackages(variant.packageJson)))].sort();
+    const demoEdition = edition(allPackages, title);
     const frontmatter = [
         '---',
-        `demo_id: ${yaml(demoId)}`,
         `demo: ${yaml(demoName)}`,
-        `variant: ${yaml(variant)}`,
-        `variant_dir: ${yaml(variantDir)}`,
         `version: ${yaml(version)}`,
         `edition: ${yaml(demoEdition)}`,
         `title: ${yaml(title)}`,
-        ...(packages.length === 0
-            ? ['packages: []']
-            : ['packages:', ...packages.map((name) => `  - ${yaml(name)}`)]),
         '---',
-    ];
-    const body = [
+    ].join('\n');
+    // Every element is separated from the next by exactly one blank line.
+    const sections = [
+        frontmatter,
         `# ${title}`,
-        '',
         summary,
-        '',
-        `**Variant:** ${variant} · **Edition:** ${demoEdition} · **Packages:** ${packages.join(', ') || 'none'}`,
-        '',
-        ...(keywords?.length ? [`**Keywords:** ${keywords.join(', ')}`, ''] : []),
-        `**Uses:** ${uses.join(', ') || 'none'}`,
-        '',
-        '## Source files',
-        '',
-        ...files.filter(isSourceFile).map((file) => `- ${file}`),
+        `**Edition:** ${demoEdition}`,
+        ...(keywords?.length ? [`**Keywords:** ${keywords.join(', ')}`] : []),
     ];
+    const indexEntries = [];
+    for (const { variantDir, packageJson, files, sources } of variants) {
+        const packages = jointPackages(packageJson);
+        const uses = extractUses(sources);
+        // demo_id/Packages/(advisory/)Uses are one consecutive block.
+        const block = [
+            `**demo_id:** version-${version}/${demoName}/${variantDir}`,
+            `**Packages:** ${packages.join(', ') || 'none'}`,
+            ...(needsAdvisory(variantDir, packages) ? [IMPERATIVE_REACT_ADVISORY] : []),
+            `**Uses:** ${uses.join(', ') || 'none'}`,
+        ].join('\n');
+        sections.push(
+            `## Variant: ${variantDir}`,
+            block,
+            '### Source files',
+            files.filter(isSourceFile).map((file) => `- ${file}`).join('\n'),
+        );
+        indexEntries.push({ demo: demoName, variant_dir: variantDir, variant: canonicalVariant(variantDir) });
+    }
     return {
-        path: `version-${version}/${demoName}/${variantDir}.md`,
-        content: [...frontmatter, '', ...body].join('\n') + '\n',
-        indexEntry: { demo_id: demoId, title, variant, edition: demoEdition, packages },
+        path: `manifests/version-${version}/${demoName}.md`,
+        content: sections.join('\n\n') + '\n',
+        indexEntries,
     };
 }
 
-export function renderIndex(version, entries) {
-    return JSON.stringify({ version, demos: entries }, null, 2) + '\n';
+// Slim bare-array index; the Demo Snapshot version lives in the filename.
+export function renderIndex(entries) {
+    return JSON.stringify(entries, null, 2) + '\n';
 }
