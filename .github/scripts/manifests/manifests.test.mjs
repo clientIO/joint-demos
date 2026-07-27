@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { canonicalVariant, edition, extractUses, parseReadme } from './transform.mjs';
+import { HIDDEN_VARIANTS, buildDemoManifests, canonicalVariant, edition, extractUses, parseReadme } from './transform.mjs';
 import { generateManifests, resolveKeywords } from './generate.mjs';
 
 const FIXTURES = join(import.meta.dirname, 'fixtures');
@@ -138,15 +138,61 @@ test('resolveKeywords omits missing demos and skips comma keywords', () => {
     );
 });
 
-test('golden: sample repo produces the expected manifests and index', () => {
+test('HIDDEN_VARIANTS names exactly the six imperative react variants', () => {
+    assert.deepEqual([...HIDDEN_VARIANTS].sort(), [
+        'chatbot/react-redux-ts',
+        'chatbot/react-ts',
+        'diagram-index/react',
+        'kitchen-sink/react-js',
+        'kitchen-sink/react-ts',
+        'tabs/react',
+    ]);
+});
+
+test('buildDemoManifests rejects two directories emitting the same variant', () => {
+    assert.throws(() => buildDemoManifests({
+        demoName: 'widget-board',
+        version: '9.9',
+        readme: '# Widget Board\n\nSummary.\n',
+        keywords: [],
+        variants: [
+            { variantDir: 'react-js', packageJson: {}, sources: [] },
+            { variantDir: 'react-ts', packageJson: {}, sources: [] },
+        ],
+    }), /react-js.+react-ts/);
+});
+
+test('golden: sample repo produces one document per emitted variant', () => {
     const outputs = generateManifests(join(FIXTURES, 'sample-repo'), '9.9');
     const expectedRoot = join(FIXTURES, 'expected');
     const expectedFiles = walk(expectedRoot);
-    // Sort both sides: the walk descends per-directory, but the flat key sort
-    // orders the `manifests/` and `manifests-index/` prefixes differently
-    // ('-' < '/'), so compare the key sets order-insensitively.
     assert.deepEqual([...outputs.keys()].sort(), [...expectedFiles].sort());
     for (const relPath of expectedFiles) {
         assert.equal(outputs.get(relPath), readFileSync(join(expectedRoot, relPath), 'utf8'), relPath);
     }
+});
+
+test('golden: hidden variants, vue/svelte, listings, advisory, and index are all absent', () => {
+    const outputs = generateManifests(join(FIXTURES, 'sample-repo'), '9.9');
+    const keys = [...outputs.keys()];
+    // tabs/react is in HIDDEN_VARIANTS: no document, and no react folder
+    // entry for tabs anywhere.
+    assert.ok(!keys.includes('manifests/version-9.9/react/tabs.md'));
+    // flow-tool's vue-ts variant is skipped (non-canonical folder).
+    assert.ok(keys.every((key) => !key.includes('/vue/') && !key.includes('/svelte/')));
+    assert.ok(keys.every((key) => !key.startsWith('manifests-index/')));
+    for (const [key, content] of outputs) {
+        assert.ok(!content.includes('Source files'), `${key} carries a file listing`);
+        assert.ok(!content.includes('API note'), `${key} carries the deleted advisory`);
+    }
+});
+
+test('golden: Variants line names the other emitted variants only', () => {
+    const outputs = generateManifests(join(FIXTURES, 'sample-repo'), '9.9');
+    assert.match(outputs.get('manifests/version-9.9/ts/flow-tool.md'), /^\*\*Variants:\*\* angular$/m);
+    assert.match(outputs.get('manifests/version-9.9/angular/flow-tool.md'), /^\*\*Variants:\*\* ts$/m);
+    // tabs' only other variant (react) is hidden; single-variant demos carry
+    // no Variants line at all.
+    assert.ok(!outputs.get('manifests/version-9.9/js/tabs.md').includes('**Variants:**'));
+    assert.ok(!outputs.get('manifests/version-9.9/js/legacy-embed.md').includes('**Variants:**'));
 });

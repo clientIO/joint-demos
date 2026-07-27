@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-// Builds Demo Manifests into .manifests/: one markdown Manifest per demo at
-// manifests/version-X.Y/{demo}.md plus a slim index at
-// manifests-index/version-X.Y.json, ready to upload to the demos R2 bucket
-// under the matching prefixes — see README.md here.
+// Builds Demo Manifests into .manifests/: one markdown Manifest per emitted
+// variant at manifests/version-X.Y/{variant}/{demo}.md, ready to upload to
+// the demos R2 bucket under the matching prefix — see README.md here.
 //
 // Usage: npm run manifests:build -- --version 4.3
 
@@ -36,8 +35,7 @@ for (const [relPath, content] of outputs) {
     mkdirSync(dirname(destination), { recursive: true });
     writeFileSync(destination, content);
 }
-const demoCount = [...outputs.keys()].filter((key) => key.startsWith('manifests/version-')).length;
-const variantCount = JSON.parse(outputs.get(`manifests-index/version-${values.version}.json`)).length;
+const demoCount = new Set([...outputs.keys()].map((key) => key.split('/').pop())).size;
 console.log(
-    `Wrote ${outputs.size} files to .manifests/ (${demoCount} demos, ${variantCount} variants, Demo Snapshot version ${values.version})`,
+    `Wrote ${outputs.size} manifest documents to .manifests/ (${demoCount} demos, Demo Snapshot version ${values.version})`,
 );

@@ -1,5 +1,5 @@
 {
-    "name": "widget-board-react-js",
+    "name": "tabs-react",
     "private": true,
     "dependencies": {
         "@joint/plus": "4.3.0",

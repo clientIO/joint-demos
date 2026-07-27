@@ -1,0 +1,7 @@
+{
+    "name": "tabs-js",
+    "private": true,
+    "dependencies": {
+        "@joint/core": "4.3.0"
+    }
+}

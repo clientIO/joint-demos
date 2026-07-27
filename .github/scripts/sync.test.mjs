@@ -41,8 +41,8 @@ test('planCommands emits the three version-scoped rclone commands', () => {
             'cf-r2:jointjs-demos-dev/manifests/version-4.3',
         ],
         [
-            'copyto', '.manifests/manifests-index/version-4.3.json',
-            'cf-r2:jointjs-demos-dev/manifests-index/version-4.3.json',
+            'delete', 'cf-r2:jointjs-demos-dev/manifests-index',
+            '--include', 'version-4.3.json',
         ],
     ]);
 });
@@ -53,7 +53,7 @@ test('planCommands targets the prod bucket when asked', () => {
     assert.deepEqual(destinations, [
         'cf-r2:jointjs-demos/versioned_demos/version-4.3',
         'cf-r2:jointjs-demos/manifests/version-4.3',
-        'cf-r2:jointjs-demos/manifests-index/version-4.3.json',
+        'cf-r2:jointjs-demos/manifests-index',
     ]);
 });
 

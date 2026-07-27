@@ -1,4 +1,5 @@
 {
     "flow-tool": ["Process modeling", "Automatic layout", "flowchart, diagram", "swimlane"],
+    "tabs": ["Tabbed interface", "UI regions"],
     "widget-board": ["Dashboard", "Drag & Drop", "widget grid"]
 }

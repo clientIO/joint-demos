@@ -1,12 +1,12 @@
 # Demo Manifests
 
-Builds one searchable **Demo Manifest** per demo, so the JointJS MCP
-demo search ranks catalog entries (title, summary, keywords, packages)
-instead of raw source chunks. Each manifest carries a section per
-**Variant**. Vocabulary (Manifest, Variant, Demo Snapshot, Edition)
+Builds one searchable **Demo Manifest** per demo **Variant**, so the
+JointJS MCP demo search ranks catalog entries (title, summary, keywords,
+packages) instead of raw source chunks, and a variant search is a plain
+folder filter. Vocabulary (Manifest, Variant, Demo Snapshot, Edition)
 follows `CONTEXT.md` in the
 [joint-mcp](https://github.com/clientIO/joint-mcp) repo; the spec is
-joint-mcp issue #27 (v3 layout: #39).
+joint-mcp issue #27 (v3 layout: #39, v4 per-variant layout: #44/#45).
 
 ## Usage
 
@@ -26,31 +26,41 @@ Manifests exist from snapshot 4.3 forward.
 .manifests/
   manifests/
     version-4.3/
-      <demo>.md            # one Manifest per demo, YAML frontmatter + per-variant sections
-  manifests-index/
-    version-4.3.json       # slim runtime index: bare array of { demo, variant_dir, variant }
+      js/<demo>.md         # one Manifest per emitted variant,
+      ts/<demo>.md         # YAML frontmatter + one variant's catalog entry
+      react/<demo>.md
+      angular/<demo>.md
 ```
 
-One Manifest per demo, flat under `manifests/version-X.Y/`. Frontmatter is
-`demo`, `version`, `edition`, `title`. A shared header (title + summary,
-**Edition**, curated **Keywords**) precedes one `## Variant: <dir>` section
-per variant, each carrying a `demo_id` / `**Packages:**` / `**Uses:**` block
-followed by its `### Source files`. `demo_id`
-(`version-X.Y/<demo>/<variant_dir>`) matches the R2 `versioned_demos/`
-layout, so `get_demo_code` resolves it unchanged.
-
-The `manifests-index/version-X.Y.json` is a bare array of
-`{ demo, variant_dir, variant }` (canonical `variant`: `react-ts` →
-`react`, `vue-ts` → `vue`) in generation order — the worker's framework
-pre-filter source. It is deliberately kept **outside** the `manifests/`
-prefix so the AutoRAG index never chunks it as searchable noise.
+One Manifest per emitted variant at `version-X.Y/<variant>/<demo>.md` —
+the variant folder precedes the demo name so the worker's variant filter is
+a single AI Search folder filter. Emitted variant folders are the canonical
+tokens `js`, `ts`, `react`, `angular` only; vue/svelte variants are skipped
+for now (deferred, see joint-mcp#44). Frontmatter is `demo`, `version`,
+`edition`, `title`. The body carries the shared header (title + summary,
+**Edition**, curated **Keywords**) followed by that variant's
+`**demo_id:**` / `**Packages:**` / `**Uses:**` block and a
+`**Variants:**` line naming the demo's *other* emitted variants (omitted
+when there are none) — so the worker renders "also available as" without
+runtime probing. `demo_id` (`version-X.Y/<demo>/<variant_dir>`) keeps the
+actual variant directory name and matches the R2 `versioned_demos/` layout,
+so `get_demo_code` resolves it unchanged.
 
 Rules of thumb:
 
+- **Hidden variants.** `HIDDEN_VARIANTS` in `transform.mjs` is an explicit
+  demo/variant-dir blacklist of the imperative react variants (react
+  variants built on `@joint/plus` instead of `@joint/react*`). They get no
+  manifest document and never appear on a `Variants:` line, but their Demo
+  Snapshot sources stay uploaded and `get_demo_code` still serves them.
+  Deliberately not predicate-derived: all future react demos will use
+  `@joint/react`. Two variant directories of one demo must not emit the
+  same canonical variant — generation fails loudly if they do.
 - **Title & summary** come from the **demo-root `README.md` only**; variant
-  READMEs are no longer parsed (they still appear under Source files). A demo
-  with no root README is skipped entirely (`:: Skipping <demo> (no root
-  README.md)`) — no manifest, no index entries.
+  READMEs are not parsed. A demo with no root README is skipped entirely
+  (`:: Skipping <demo> (no root README.md)`). A demo whose variants are all
+  hidden or non-canonical emits nothing and warns
+  (`:: <demo>: no emitted variants`).
 - **Keywords** come solely from `demo-keywords.json` at the repo root, keyed
   by demo name (shared across variants). Authoring rule: keywords are the
   *synonym/expansion channel* — terms an agent might search for that the
@@ -70,40 +80,31 @@ Rules of thumb:
   their original names, star imports without their local prefix;
   imported-but-unused bindings and the `jsx`/`env` tooling bindings are
   dropped.
-- **Source files** is a curated view for orientation, not the full
-  inventory (`get_demo_code` lists the real files live): lockfiles
-  (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`) and binary assets
-  (png, jpg, jpeg, gif, ico, woff, woff2, ttf, eot, mp3, mp4) are excluded;
-  `.svg` and config files are kept deliberately.
+- **No source-file listings.** Manifests carry no file inventory — asset
+  and icon filenames poisoned search ranking. `get_demo_code` lists the
+  real files live from `versioned_demos/`.
 - **Packages** come from the variant's `package.json` `dependencies`
   (`@joint/*`, `jointjs`, `rappid`, `@clientio/rappid`). **Edition** is
-  shared across the demo: `commercial` when any variant depends on
-  `@joint/plus` or `@joint/react-plus` (or `rappid`/`@clientio/rappid`);
-  demos with no joint dependency (CDN-loaded) fall back to a `JointJS+`
-  title check.
-- **Imperative-react advisory.** A `react` variant whose packages include no
-  `@joint/react*` package gets a single advisory line after its
-  `**Packages:**` line, steering agents to `get_started(framework="react")`
-  and `@joint/react` (or `@joint/react-plus` under a JointJS+ license).
-- Every variant directory with a `package.json` gets a section —
+  per-variant, keyed off that variant's joint packages; a variant with no
+  joint dependency (CDN-loaded) falls back to a `JointJS+` title check.
+- Every variant directory with a `package.json` is considered —
   `demos.config.json` `skip` flags are build-only and not honored here.
 
 ## R2 destination
 
 Manifests are uploaded (by the sync step, joint-mcp#30) to the demos bucket
-under two top-level prefixes, siblings of the demo source:
+under a top-level prefix, sibling of the demo source:
 
 ```
-versioned_demos/version-4.3/<demo>/<variant>/…   # demo source (existing)
-manifests/version-4.3/<demo>.md                  # search documents (this script)
-manifests-index/version-4.3.json                 # framework pre-filter index (this script)
+versioned_demos/version-4.3/<demo>/<variant>/…    # demo source (existing)
+manifests/version-4.3/<variant>/<demo>.md         # search documents (this script)
 ```
 
 The upload is scripted: `npm run sync -- --version X.Y` (dev bucket) /
-`npm run sync:prod -- --version X.Y` (prod) syncs all three prefixes —
-see `.github/scripts/sync.mjs`. It is sync-only and fails preflight
-unless this script's build output for that version exists.
+`npm run sync:prod -- --version X.Y` (prod) syncs both prefixes and removes
+the retired `manifests-index/` key for the version — see
+`.github/scripts/sync.mjs`. It is sync-only and fails preflight unless this
+script's build output for that version exists.
 
-The AutoRAG demos index points at `manifests/` only; the slim
-`manifests-index/` sits outside it and `get_demo_code` keeps reading full
-source from `versioned_demos/`.
+The AutoRAG demos index points at `manifests/` only; `get_demo_code` keeps
+reading full source from `versioned_demos/`.

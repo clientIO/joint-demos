@@ -1,12 +1,12 @@
-// Walks a joint-demos checkout and produces one Demo Manifest per demo
-// (a demo is any top-level dir with a root README.md; its variants are the
-// direct subdirs containing a package.json). Enumeration mirrors
+// Walks a joint-demos checkout and produces one Demo Manifest per emitted
+// variant (a demo is any top-level dir with a root README.md; its variants
+// are the direct subdirs containing a package.json). Enumeration mirrors
 // build-demos.sh: skip dot-dirs, node_modules, _site. demos.config.json
 // skip flags are build-only and intentionally not honored.
 
 import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildDemoManifest, renderIndex } from './transform.mjs';
+import { buildDemoManifests } from './transform.mjs';
 
 const SKIP_TOP_LEVEL = new Set(['node_modules', '_site']);
 const SKIP_VARIANT_ENTRIES = new Set(['node_modules', 'dist', 'build', 'coverage', '.git', '.angular', '.DS_Store']);
@@ -49,7 +49,6 @@ function listFiles(dir, prefix = '') {
 
 export function generateManifests(rootDir, version) {
     const outputs = new Map();
-    const indexEntries = [];
     const keywordsPath = join(rootDir, 'demo-keywords.json');
     const keywordOverlay = existsSync(keywordsPath)
         ? JSON.parse(readFileSync(keywordsPath, 'utf8'))
@@ -59,7 +58,7 @@ export function generateManifests(rootDir, version) {
         const demoDir = join(rootDir, demoName);
         if (!statSync(demoDir).isDirectory()) continue;
         // Title/summary come from the demo-root README only; no root README
-        // means no manifest and no index entries for the demo.
+        // means no manifest documents for the demo.
         const readmePath = join(demoDir, 'README.md');
         if (!existsSync(readmePath)) {
             console.warn(`:: Skipping ${demoName} (no root README.md)`);
@@ -70,12 +69,10 @@ export function generateManifests(rootDir, version) {
             const variantPath = join(demoDir, variantDir);
             if (variantDir.startsWith('.') || !statSync(variantPath).isDirectory()) continue;
             if (!existsSync(join(variantPath, 'package.json'))) continue;
-            const files = listFiles(variantPath);
             variants.push({
                 variantDir,
                 packageJson: JSON.parse(readFileSync(join(variantPath, 'package.json'), 'utf8')),
-                files,
-                sources: files
+                sources: listFiles(variantPath)
                     .filter((file) => CODE_FILE_RE.test(file))
                     .map((file) => readFileSync(join(variantPath, file), 'utf8')),
             });
@@ -84,16 +81,22 @@ export function generateManifests(rootDir, version) {
         // resolve keywords only past this guard so it never warns about a
         // missing entry.
         if (variants.length === 0) continue;
-        const manifest = buildDemoManifest({
+        const documents = buildDemoManifests({
             demoName,
             version,
             readme: readFileSync(readmePath, 'utf8'),
             keywords: resolveKeywords(demoName, keywordOverlay),
             variants,
         });
-        outputs.set(manifest.path, manifest.content);
-        indexEntries.push(...manifest.indexEntries);
+        // Hidden or non-canonical (vue/svelte) variants can leave a demo
+        // with no documents at all — it silently disappears from search, so
+        // say so at build time.
+        if (documents.length === 0) {
+            console.warn(`:: ${demoName}: no emitted variants (all hidden or non-canonical)`);
+        }
+        for (const { path, content } of documents) {
+            outputs.set(path, content);
+        }
     }
-    outputs.set(`manifests-index/version-${version}.json`, renderIndex(indexEntries));
     return outputs;
 }

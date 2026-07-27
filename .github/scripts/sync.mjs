@@ -52,8 +52,13 @@ export function parseSyncArgs(args) {
 export function planCommands({ version, bucket }) {
     return [
         ['sync', './', `cf-r2:${bucket}/versioned_demos/version-${version}`, ...SNAPSHOT_FILTERS],
+        // `sync` makes the destination identical, so retired consolidated
+        // manifest keys under this version disappear with the same command.
         ['sync', `.manifests/manifests/version-${version}`, `cf-r2:${bucket}/manifests/version-${version}`],
-        ['copyto', `.manifests/manifests-index/version-${version}.json`, `cf-r2:${bucket}/manifests-index/version-${version}.json`],
+        // The manifests-index artifact is retired (joint-mcp#44); remove the
+        // stale per-version index. `delete` with a filter is a no-op once
+        // the key is gone, so repeated syncs stay idempotent.
+        ['delete', `cf-r2:${bucket}/manifests-index`, '--include', `version-${version}.json`],
     ];
 }
 
@@ -70,8 +75,7 @@ if (isMain) {
 
     // Preflight 1: manifests:build output for this version must exist (sync-only script).
     const manifestsDir = join(ROOT, '.manifests', 'manifests', `version-${version}`);
-    const indexFile = join(ROOT, '.manifests', 'manifests-index', `version-${version}.json`);
-    if (!existsSync(manifestsDir) || readdirSync(manifestsDir).length === 0 || !existsSync(indexFile)) {
+    if (!existsSync(manifestsDir) || readdirSync(manifestsDir).length === 0) {
         console.warn(`No manifest build output for version ${version} in .manifests/.`);
         console.warn(`run: npm run manifests:build -- --version ${version}`);
         process.exit(1);
