@@ -1,0 +1,10 @@
+{
+    "name": "widget-board-js",
+    "private": true,
+    "dependencies": {
+        "@joint/plus": "4.3.0"
+    },
+    "devDependencies": {
+        "webpack": "5.99.5"
+    }
+}

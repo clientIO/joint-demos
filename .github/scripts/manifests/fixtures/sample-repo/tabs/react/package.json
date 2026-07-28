@@ -1,0 +1,8 @@
+{
+    "name": "tabs-react",
+    "private": true,
+    "dependencies": {
+        "@joint/plus": "4.3.0",
+        "react": "19.0.0"
+    }
+}

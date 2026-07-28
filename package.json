@@ -7,7 +7,12 @@
 	"scripts": {
 		"lint": "eslint .",
 		"build": "bash .github/scripts/build-demos.sh",
-		"screenshot": "node .github/scripts/screenshot-demos.mjs"
+		"screenshot": "node .github/scripts/screenshot-demos.mjs",
+		"manifests:build": "node .github/scripts/manifests/build.mjs",
+		"manifests:test": "node --test .github/scripts/manifests/manifests.test.mjs",
+		"sync": "node .github/scripts/sync.mjs",
+		"sync:prod": "node .github/scripts/sync.mjs --prod",
+		"sync:test": "node --test .github/scripts/sync.test.mjs"
 	},
 	"devDependencies": {
 		"@typescript-eslint/eslint-plugin": "8.53.0",

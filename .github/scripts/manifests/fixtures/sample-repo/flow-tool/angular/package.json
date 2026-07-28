@@ -1,0 +1,8 @@
+{
+    "name": "flow-tool-angular",
+    "private": true,
+    "dependencies": {
+        "@angular/core": "14.0.2",
+        "@joint/core": "4.3.0"
+    }
+}

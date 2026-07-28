@@ -108,6 +108,8 @@ The following scripts are then available from the repository root:
 | `lint` | `npm run lint` | Lint all JS/TS files using the root ESLint config |
 | `build` | `npm run build` | Build all demos into `_site/` (stops on first failure) |
 | `screenshot` | `npm run screenshot` | Capture screenshots for demos that don't have one yet |
+| `manifests:build` | `npm run manifests:build -- --version X.Y` | Build Demo Manifests for the MCP demo search into `.manifests/` |
+| `manifests:test` | `npm run manifests:test` | Run the manifest golden-fixture tests |
 
 > [!NOTE]
 > `build` require Bash. On Windows, run them from Git Bash or WSL.

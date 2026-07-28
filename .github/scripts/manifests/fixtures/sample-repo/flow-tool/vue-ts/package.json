@@ -1,0 +1,7 @@
+{
+    "name": "flow-tool-vue",
+    "private": true,
+    "dependencies": {
+        "@joint/core": "4.3.0"
+    }
+}
