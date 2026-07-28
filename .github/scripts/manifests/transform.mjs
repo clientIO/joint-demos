@@ -63,14 +63,15 @@ function importedBindings(source) {
     return bindings;
 }
 
-// dia.Paper.Options -> dia.Paper: keep segments while they are all-lowercase
-// namespaces; the first segment containing a capital ends the chain. Chains
-// with no capitalized segment (util.breakText) are kept whole.
+// dia.Paper.Options -> dia.Paper: keep segments while they start lowercase
+// (namespaces, including camelCase ones like elementTools); the first segment
+// starting with a capital ends the chain. Chains with no capital-starting
+// segment (util.breakText) are kept whole.
 function collapseChain(segments) {
     const kept = [];
     for (const segment of segments) {
         kept.push(segment);
-        if (/[A-Z]/.test(segment)) break;
+        if (/^[A-Z]/.test(segment)) break;
     }
     return kept.join('.');
 }
@@ -79,8 +80,8 @@ function collapseChain(segments) {
 // packages. Aliased bindings are recorded under their original names; star
 // imports emit members without the local namespace prefix; bindings never
 // referenced outside their import declaration are dropped, as are the
-// jsx/env tooling bindings. Member chains collapse after the first
-// capitalized segment (dia.Paper.Options -> dia.Paper).
+// jsx/env tooling bindings. Member chains collapse at the first segment
+// starting with a capital (dia.Paper.Options -> dia.Paper).
 export function extractUses(sources) {
     const uses = new Set();
     for (const source of sources) {

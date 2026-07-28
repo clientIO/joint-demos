@@ -59,7 +59,7 @@ test('extractUses resolves namespace members and named symbols', () => {
     assert.deepEqual(extractUses([source]), ['GraphProvider', 'dia.Paper', 'ui.Stencil']);
 });
 
-test('extractUses collapses chains after the first capitalized segment', () => {
+test('extractUses collapses chains at the first segment starting with a capital', () => {
     const source = [
         'import { dia, shapes, util, highlighters } from \'@joint/core\';',
         'new dia.Paper({} as dia.Paper.Options);',
@@ -68,13 +68,27 @@ test('extractUses collapses chains after the first capitalized segment', () => {
         'util.breakText(\'x\');',
         'highlighters.addClass.add(view, \'body\', \'hl\');',
     ].join('\n');
+    // addClass is a lowercase-starting member, so the chain continues to the
+    // first capital-starting segment (.add), not stopping at the interior 'C'.
     assert.deepEqual(extractUses([source]), [
         'dia.Cell',
         'dia.Paper',
-        'highlighters.addClass',
+        'highlighters.addClass.add',
         'shapes.standard.Rectangle',
         'util.breakText',
     ]);
+});
+
+test('extractUses keeps camelCase namespace members (elementTools, linkTools)', () => {
+    const source = [
+        'import { elementTools, linkTools } from \'@joint/core\';',
+        'new elementTools.Boundary({});',
+        'new linkTools.Button({});',
+    ].join('\n');
+    // camelCase namespaces contain a capital but do not start with one, so the
+    // Type-like member segment is preserved rather than truncated to the bare
+    // namespace.
+    assert.deepEqual(extractUses([source]), ['elementTools.Boundary', 'linkTools.Button']);
 });
 
 test('extractUses canonicalizes aliased and star imports', () => {

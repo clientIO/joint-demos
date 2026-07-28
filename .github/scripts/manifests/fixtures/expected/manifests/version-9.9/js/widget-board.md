@@ -15,5 +15,5 @@ The Widget Board demo lets users arrange dashboard widgets on a grid and connect
 
 **demo_id:** version-9.9/widget-board/js
 **Packages:** @joint/plus
-**Uses:** dia.Graph, dia.Paper, highlighters.addClass, ui.Stencil
+**Uses:** dia.Graph, dia.Paper, highlighters.addClass.add, ui.Stencil
 **Variants:** react
