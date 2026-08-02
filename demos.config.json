@@ -23,6 +23,13 @@
     "ai-workflow-builder": {
       "variant": "react"
     },
+    "mermaid-editor": {
+      "variant": "react",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      }
+    },
     "force-directed-layout": {
       "screenshotThreshold": 5
     },

@@ -1,0 +1,577 @@
+/*
+ * Palette follows Mermaid's default light theme so the JointJS output reads as
+ * a Mermaid diagram, with a JointJS-red accent for the app chrome.
+ */
+:root {
+    --surface: #ffffff;
+    --surface-sunken: #f6f7f9;
+    --surface-raised: #ffffff;
+    --border: #d8dce3;
+    --text: #1f2430;
+    --text-muted: #6b7280;
+    --accent: #ed2637;
+
+    --node-fill: #ececff;
+    --node-stroke: #9370db;
+    --node-text: #1f2430;
+    --node-detail: #9370db;
+    --link-stroke: #333333;
+    --label-fill: var(--surface-sunken);
+    --label-text: #1f2430;
+    /* Mermaid syntax colours, keyed to the shape palette above. */
+    --syntax-keyword: #7c3aed;
+    --syntax-orientation: #0e7490;
+    --syntax-node-id: #1d4ed8;
+    --syntax-text: #0f766e;
+    --syntax-arrow: #be123c;
+    --syntax-comment: #94a3b8;
+    --syntax-gutter: #b6bcc7;
+    --syntax-active-line: #f3f4f8;
+    --syntax-selection: #dbeafe;
+    --syntax-selected-line: #fff3d6;
+    --syntax-selected-token: #fbd88b;
+    --node-selected: #ed2637;
+
+    --error: #b42318;
+    --error-surface: #fef3f2;
+    --notice: #8a5a00;
+    --notice-surface: #fffaeb;
+
+    color-scheme: light;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+        sans-serif;
+}
+
+/*
+ * Dark theme. `useTheme` sets `data-theme` on <html>, so re-theming is a pure
+ * CSS variable swap — no React re-render and no rebuild of the JointJS paper.
+ * Mermaid's own dark theme is the reference for the diagram colours.
+ */
+:root[data-theme='dark'] {
+    --surface: #171821;
+    --surface-sunken: #101119;
+    --surface-raised: #1e2029;
+    --border: #2c2e3b;
+    --text: #e6e7ee;
+    --text-muted: #9aa0b0;
+    --accent: #ff5567;
+
+    --node-fill: #2b2545;
+    --node-stroke: #a78bfa;
+    --node-text: #ece9fb;
+    --node-detail: #a78bfa;
+    --link-stroke: #b9bfd0;
+    --label-fill: var(--surface-sunken);
+    --label-text: #e6e7ee;
+
+    --syntax-keyword: #c4b5fd;
+    --syntax-orientation: #5eead4;
+    --syntax-node-id: #7dd3fc;
+    --syntax-text: #6ee7b7;
+    --syntax-arrow: #fda4af;
+    --syntax-comment: #6b7280;
+    --syntax-gutter: #4b5162;
+    --syntax-active-line: #1c1e28;
+    --syntax-selection: #2a3350;
+    --syntax-selected-line: #35301c;
+    --syntax-selected-token: #6b5a22;
+    --node-selected: #ff5567;
+
+    --error: #ff9a90;
+    --error-surface: #2b1a1c;
+    --notice: #f0c674;
+    --notice-surface: #2a2418;
+
+    color-scheme: dark;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    background: var(--surface-sunken);
+    color: var(--text);
+}
+
+/* ---------------------------------------------------------------- layout */
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.app-lead {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
+}
+
+.app-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* The example picker lives up here: the editor pane is narrow, and this bar
+   had room going spare once the subtitle went. */
+.app-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.app-select {
+    padding: 5px 8px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+.app-actions {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 14px;
+}
+
+.app-brand {
+    display: flex;
+    align-items: center;
+    flex: none;
+}
+
+.app-brand:hover {
+    opacity: 0.75;
+}
+
+.app-logo {
+    display: block;
+    width: auto;
+    height: 22px;
+}
+
+.app-button {
+    padding: 7px 14px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.app-button.is-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    font-size: 15px;
+    line-height: 1;
+    color: var(--text-muted);
+}
+
+.app-button:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.app-button:disabled {
+    color: var(--text-muted);
+    cursor: default;
+    opacity: 0.5;
+}
+
+.app-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+/* ---------------------------------------------------------------- editor */
+
+.editor {
+    display: flex;
+    flex-direction: column;
+    width: 380px;
+    min-width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+}
+
+/*
+ * Counts live on their own row rather than beside the example picker: at the
+ * pane's 380px the two together wrapped onto a second line for most examples.
+ */
+.editor-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    border-top: 1px solid var(--border);
+}
+
+.editor-counts {
+    font-variant-numeric: tabular-nums;
+    /* Eased so a fast parse does not read as a flicker. */
+    transition: opacity 120ms ease-out;
+}
+
+/* Only the counts dim while a parse is in flight — they are the stale part. */
+.editor-counts.is-busy {
+    opacity: 0.35;
+}
+
+.editor-link {
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+.editor-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+/* CodeMirror host; the editor itself is styled by `mermaid-editor.tsx`. */
+.editor-code {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--surface);
+}
+
+.editor-message {
+    margin: 0;
+    padding: 10px 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    border-top: 1px solid var(--border);
+}
+
+.editor-message.is-error {
+    color: var(--error);
+    background: var(--error-surface);
+}
+
+.editor-message.is-notice {
+    color: var(--notice);
+    background: var(--notice-surface);
+}
+
+/* ---------------------------------------------------------------- canvas */
+
+.canvas {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.canvas-stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/*
+ * `.jj-paper-scroller` uses `contain: size`, so it needs a parent with a
+ * definite height — `.canvas-stage` above provides one.
+ */
+.mermaid-scroller {
+    --jj-paper-scroller-background: var(--surface-sunken);
+}
+
+.mermaid-paper {
+    background: var(--surface-sunken);
+}
+
+/* Diagonally opposite the zoom cluster: a document action, not camera state. */
+.canvas-actions {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    gap: 6px;
+}
+
+/* Same lift as the zoom cluster, so the two read as the same kind of thing
+   floating over the canvas rather than one control and one stray button. */
+.canvas-actions .app-button {
+    box-shadow: 0 2px 8px rgb(15 23 42 / 8%);
+}
+
+.zoom-controls {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgb(15 23 42 / 8%);
+}
+
+.zoom-value {
+    min-width: 46px;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/*
+ * In-place label editor, inside a `<foreignObject>` on the node itself.
+ *
+ * A textarea, so the author can type the line breaks Mermaid writes as `<br>`.
+ * Its height is set imperatively to fit the text — the rule below only has to
+ * keep the box model predictable enough for that measurement to be right, and
+ * to match the label it is standing in for.
+ */
+.mermaid-node-input {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    padding: 3px 4px;
+    overflow: auto;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 17px;
+    color: var(--node-text);
+    text-align: center;
+    resize: none;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    outline: none;
+}
+
+/* ----------------------------------------------------- node toolbar */
+
+/*
+ * Rendered by `<ElementOverlay>`, so it lives in an HTML layer above the SVG
+ * and keeps its size as the paper zooms.
+ */
+.node-toolbar {
+    display: flex;
+    /* Shapes on one row, fills on the next: side by side the bar grew wider
+       than most nodes and overhung them badly. */
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 6px;
+    white-space: nowrap;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgb(15 23 42 / 18%);
+}
+
+.node-toolbar-input {
+    width: 140px;
+    padding: 4px 7px;
+    font: inherit;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--surface-sunken);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+}
+
+/* Segmented shape picker: each button draws the shape it selects. */
+.node-toolbar-group {
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    background: var(--surface-sunken);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+.node-toolbar-shape {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.node-toolbar-shape:hover {
+    background: var(--surface);
+}
+
+.node-toolbar-shape.is-active {
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* Icons stay legible at 30x20: thinner strokes than the nodes carry. */
+.node-toolbar-icon .mermaid-node-body,
+.node-toolbar-icon .mermaid-node-detail {
+    stroke-width: 1.25;
+}
+
+.node-toolbar-swatches {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+}
+
+.node-toolbar-swatch {
+    /* Share the row evenly, so the strip lines up with the shapes above. */
+    flex: 1;
+    height: 18px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.node-toolbar-swatch:hover:not(:disabled) {
+    border-color: var(--accent);
+}
+
+.node-toolbar-swatch:disabled {
+    cursor: default;
+    opacity: 0.4;
+}
+
+/* The reset swatch reads as "no fill" via a diagonal strike. It is an action
+   rather than a colour, so it keeps a fixed width instead of sharing the row. */
+.node-toolbar-swatch.is-clear {
+    flex: 0 0 24px;
+    background:
+        linear-gradient(
+            to top right,
+            transparent 45%,
+            var(--accent) 45%,
+            var(--accent) 55%,
+            transparent 55%
+        ),
+        var(--surface-sunken);
+}
+
+/* ----------------------------------------------------------- diagram ink */
+
+.mermaid-node-body {
+    fill: var(--node-fill);
+    stroke: var(--node-stroke);
+    stroke-width: 1.5;
+}
+
+/*
+ * `<Selection wrapper={false}>` draws no overlay; it just puts `jj-is-selected`
+ * on the selected cell, which lets the shape's own outline carry the state.
+ */
+/*
+ * `!important` so selection still reads on a node carrying a Mermaid `style`
+ * directive — those land as an inline `style` attribute, which would otherwise
+ * win over this rule.
+ */
+.joint-element.jj-is-selected .mermaid-node-body {
+    stroke: var(--node-selected) !important;
+    stroke-width: 2.5 !important;
+}
+
+.joint-element.jj-is-selected .mermaid-node-detail {
+    stroke: var(--node-selected);
+}
+
+.mermaid-paper .joint-element {
+    cursor: pointer;
+}
+
+/* Inner rules of the subroutine shape, cylinder cap, double-circle ring. */
+.mermaid-node-detail {
+    fill: none;
+    stroke: var(--node-stroke);
+    stroke-width: 1.5;
+}
+
+.mermaid-node-text {
+    fill: var(--node-text);
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+        sans-serif;
+}
+
+/*
+ * No `stroke` here on purpose — the line colour is set through the link's
+ * `style.color` in `to-cells.ts` so the arrow-head markers inherit it too.
+ */
+.mermaid-link-line {
+    fill: none;
+}
+
+.mermaid-link-wrapper {
+    cursor: default;
+}
+
+/* `!important` because JointJS writes the link's style attrs inline. */
+.joint-link.jj-is-selected .mermaid-link-line {
+    stroke: var(--node-selected) !important;
+}
+
+/*
+ * The label sits on the paper in the paper's own colour and with no outline, so
+ * it reads as a gap punched in the line rather than a chip laid over it.
+ */
+.mermaid-link-label-body {
+    fill: var(--label-fill);
+    stroke: none;
+}
+
+.mermaid-link-label-text {
+    fill: var(--label-text);
+}
+
+@media (max-width: 720px) {
+    .app-body {
+        flex-direction: column;
+    }
+
+    .editor {
+        width: 100%;
+        height: 45%;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+    }
+}

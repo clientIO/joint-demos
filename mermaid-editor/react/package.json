@@ -1,0 +1,44 @@
+{
+  "name": "@joint/demo-mermaid-editor",
+  "private": true,
+  "version": "4.3.0",
+  "type": "module",
+  "description": "Renders Mermaid flowchart source as native JointJS cells using the Mermaid parser and @joint/react-plus.",
+  "license": "http://jointjs.com/license",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "typecheck": "tsc -b",
+    "test": "npm run typecheck && npm run lint"
+  },
+  "dependencies": {
+    "@codemirror/commands": "^6.10.4",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/state": "^6.7.1",
+    "@codemirror/view": "^6.43.7",
+    "@joint/layout-directed-graph": "4.3.0",
+    "@joint/plus": "4.3.1",
+    "@joint/react-plus": "^4.3.1",
+    "@lezer/highlight": "^1.2.3",
+    "codemirror-lang-mermaid": "^0.5.0",
+    "mermaid": "^11.12.2",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.12.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.12"
+  }
+}
