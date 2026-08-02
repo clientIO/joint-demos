@@ -10,7 +10,6 @@ import {
     Selection,
     useGraph,
     useOnElementsMeasured,
-    usePaper,
     usePaperScroller,
     useSelection,
 } from '@joint/react-plus';
@@ -21,6 +20,7 @@ import type {
     ZoomToFitOptions,
 } from '@joint/react-plus';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { RefObject } from 'react';
 import type { MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection } from '@/mermaid/types';
 import type { EditableShape } from '@/mermaid/edit-source';
@@ -70,23 +70,7 @@ const INTERACTIONS: InteractionsOptions = { selection: false };
  */
 const SELECTION: SelectionProps = { wrapper: false, allowTranslate: false };
 
-/**
- * Dagre reads element sizes, so it must not run before they are measured.
- * Elements start out 0×0 and get their real size from `useMeasureElement`.
- *
- * This is what makes the two layout triggers below safe to have at once. The
- * effect fires on a cell change, which is usually *before* the new elements
- * have been measured; without this guard it would lay out a graph of 0×0 boxes
- * and pile everything at the origin for a frame, until the measured callback
- * corrected it.
- */
-function isMeasured(graph: dia.Graph): boolean {
-    const elements = graph.getElements();
-    return elements.length > 0 && elements.every((element) => element.size().width > 0);
-}
-
-function runLayout(graph: dia.Graph, direction: FlowDirection): boolean {
-    if (!isMeasured(graph)) return false;
+function runLayout(graph: dia.Graph, direction: FlowDirection): void {
     DirectedGraph.layout(graph, {
         rankDir: direction,
         nodeSep: 46,
@@ -105,7 +89,13 @@ function runLayout(graph: dia.Graph, direction: FlowDirection): boolean {
         setLabels: false,
         exportLink: (link) => ({ minLen: link.get('data')?.minLen ?? 1 }),
     });
-    return true;
+}
+
+/** Where the reader left the view: zoom, plus the centre in paper coordinates. */
+interface Camera {
+    readonly zoom: number;
+    readonly x: number;
+    readonly y: number;
 }
 
 interface CanvasProps {
@@ -114,15 +104,28 @@ interface CanvasProps {
     readonly selectedIds: readonly CellId[];
     readonly onSelect: (ids: readonly CellId[]) => void;
     readonly fitToken: number;
+    /** Last `fitToken` framed; owned above so it survives the keyed remount. */
+    readonly fittedTokenRef: RefObject<number | null>;
+    /** Camera carried across the keyed remount; same reason. */
+    readonly cameraRef: RefObject<Camera | null>;
     readonly edit: NodeEditHandlers;
 }
 
-function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: CanvasProps) {
+function Canvas({
+    direction,
+    cells,
+    selectedIds,
+    onSelect,
+    fitToken,
+    fittedTokenRef,
+    cameraRef,
+    edit,
+}: CanvasProps) {
     const { graph } = useGraph();
-    const { paper } = usePaper();
     const { selectCells } = useSelection();
     // The scroller owns panning, wheel scrolling, pinch zoom and the zoom
-    // bounds; all this component needs from it is the fit-to-content call.
+    // bounds on its own. What this component asks of it is framing, bringing a
+    // selected node into view, and carrying the camera across a remount.
     const { zoomToFit, paperScroller } = usePaperScroller();
 
     // Selection is one-way: the app owns it, the canvas renders it and reports
@@ -151,50 +154,60 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
         if (paperScroller.isElementVisible(first, VISIBILITY_OPTIONS)) return;
         paperScroller.scrollToElement(first, SCROLL_OPTIONS);
     }, [graph, paperScroller, selectCells, selectedIds]);
-    // A fit is *requested*, then consumed once the graph has been laid out —
-    // framing before measurement would frame a graph of 0×0 boxes. Fresh on
-    // every mount, so the first render of a graph always frames itself.
-    const pendingFit = useRef(true);
 
     const fit = useCallback(() => zoomToFit(FIT_OPTIONS), [zoomToFit]);
 
-    // Primary trigger. `useOnElementsMeasured` flushes the paper after the
-    // callback, so there is no frame where nodes are visible at their
-    // pre-layout position.
+    /*
+     * Remember the camera while unmounting.
+     *
+     * The remount below rebuilds the scroller, and a fresh one starts at 100%
+     * centred on nothing in particular — so without this, renaming a node
+     * would throw away the reader's pan and zoom. Read here rather than
+     * tracked continuously because the scroller reports the whole camera in
+     * one go, and this is the only moment it is about to be lost.
+     */
+    useEffect(() => {
+        if (!paperScroller) return;
+        return () => {
+            const { x, y } = paperScroller.getVisibleArea().center();
+            cameraRef.current = { zoom: paperScroller.zoom(), x, y };
+        };
+    }, [cameraRef, paperScroller]);
+
+    /*
+     * The one place the diagram is laid out and framed.
+     *
+     * Dagre reads element sizes, so it must not run before they are measured —
+     * and here it cannot: this fires only once every element has reported its
+     * size. Anything that changes what the layout depends on is routed through
+     * a remount by `graphKey` below, which re-measures and comes back here, so
+     * there is no second trigger racing this one on an unmeasured graph.
+     * `useOnElementsMeasured` also flushes the paper afterwards, so no frame
+     * shows a node at its pre-layout position.
+     *
+     * Framing is deliberately not tied to the remount, which happens on
+     * something as small as a rename. It follows `fitToken` instead — raised by
+     * the app only when a different diagram is loaded — so editing leaves the
+     * camera where the reader put it.
+     */
     useOnElementsMeasured(({ graph: measuredGraph }) => {
-        if (!runLayout(measuredGraph, direction)) return;
-        if (pendingFit.current) {
-            pendingFit.current = false;
+        runLayout(measuredGraph, direction);
+        if (fittedTokenRef.current !== fitToken) {
+            fittedTokenRef.current = fitToken;
+            cameraRef.current = null;
             fit();
+            return;
         }
+        const camera = cameraRef.current;
+        if (!camera || !paperScroller) return;
+        // Consumed, not merely read: elements re-measure while the graph is
+        // alive — zooming alone is enough — and re-applying a camera saved
+        // before the last remount would snap the view back out from under
+        // whoever had just moved it.
+        cameraRef.current = null;
+        paperScroller.zoom(camera.zoom, { absolute: true });
+        paperScroller.center(camera.x, camera.y);
     });
-
-    // Secondary layout trigger, for edits that change what the layout depends
-    // on without changing any element's size.
-    //
-    // Adding or removing a cell already re-lays-out on its own: it changes the
-    // id set, `MermaidDiagram` keys the graph on that, and the remount
-    // re-measures. What slips through is an edit that keeps every id and every
-    // label — switching `flowchart TD` to `LR`, or lengthening `-->` to `---->`
-    // for a wider rank gap. Nothing re-measures there, so `useOnElementsMeasured`
-    // never fires and the diagram would keep its old shape. Verified: with this
-    // effect removed, `TD` → `LR` leaves the chart vertical.
-    //
-    // Note it re-lays-out but does not re-frame: an edit should leave the
-    // camera where the reader put it.
-    useEffect(() => {
-        if (!paper) return;
-        runLayout(graph, direction);
-    }, [cells, direction, graph, paper]);
-
-    // Framing is its own signal, raised by the app when a different diagram is
-    // loaded — not on every parse. Typing must not yank the camera around.
-    useEffect(() => {
-        pendingFit.current = true;
-        if (!paper || !isMeasured(graph)) return;
-        pendingFit.current = false;
-        fit();
-    }, [fitToken, fit, graph, paper]);
 
     // Double-click renames in place. The id lives here rather than in the node
     // so that only one node is ever in edit mode, and so the canvas can clear
@@ -308,10 +321,31 @@ export function MermaidDiagram({
      * cell at once does not hit this (switching examples has always worked), so
      * a keyed remount turns the unsafe partial diff into the safe wholesale one.
      *
-     * Keyed on the ids alone, so editing a label or an edge — the common case
-     * while typing — still flows through as a plain update.
+     * The key carries the rest of the layout's inputs too, because a remount
+     * re-measures and re-measuring is what triggers the layout. Direction and
+     * rank length change what dagre produces without changing any element's
+     * size — `flowchart TD` to `LR`, or `-->` lengthened to `---->` — so on
+     * their own they would leave the diagram in its old shape. Routing them
+     * through the same remount keeps one layout trigger, instead of a second
+     * one that has to guard against firing before measurement.
+     *
+     * `fitToken` is here for the same reason: framing is done from the measured
+     * callback, so loading a new example has to reach it even in the rare case
+     * where the new diagram reuses every id of the old one.
+     *
+     * Editing a label still flows through as a plain update — it re-measures
+     * on its own.
      */
-    const graphKey = useMemo(() => cells.map((cell) => cell.id).join(' '), [cells]);
+    const graphKey = useMemo(() => {
+        const cellKeys = cells.map((cell) =>
+            cell.type === 'link' ? `${cell.id}~${cell.data?.minLen ?? 1}` : cell.id);
+        return [fitToken, direction, ...cellKeys].join(' ');
+    }, [cells, direction, fitToken]);
+
+    // Survives the remount above, which is what lets framing follow `fitToken`
+    // rather than firing on every keyed rebuild.
+    const fittedTokenRef = useRef<number | null>(null);
+    const cameraRef = useRef<Camera | null>(null);
 
     return (
         <Diagram
@@ -326,6 +360,8 @@ export function MermaidDiagram({
                 selectedIds={selectedIds}
                 onSelect={onSelect}
                 fitToken={fitToken}
+                fittedTokenRef={fittedTokenRef}
+                cameraRef={cameraRef}
                 edit={edit}
             />
         </Diagram>
