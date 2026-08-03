@@ -33,6 +33,10 @@ Mermaid renders a static image. Rendering the same source through JointJS+ gives
 
 Only the `flowchart` (and legacy `graph`) diagram type is supported; any other Mermaid diagram is reported as unsupported. `subgraph` blocks are parsed but flattened — their members are rendered as ordinary nodes and a notice says how many groups were dropped. Mermaid's `click` directives are ignored, and edge styling (`linkStyle`) is not applied.
 
+Two parsers read the same text, and that is the demo's structural weak point. Mermaid supplies the graph, but its flowchart grammar is still the jison one inside `mermaid` core, and the normalised `getData()` output carries no source positions — so the editing features get their offsets from a second, independent grammar (`codemirror-lang-mermaid`'s Lezer parser). Anywhere the two disagree, an edit can land in the wrong place: Lezer requires a direction after `flowchart` where Mermaid defaults it to `TB` (worked around in `flowchart-tree.ts` by inserting one for the parse and mapping the offsets back), and it reads `[/label/]` as `[`…`]` around a label containing slashes, so the label span has to be taken from the shape's delimiters rather than from `NodeText`. Expect more of these for the shapes the demo does not model — the trapezoids, `(((double circle)))`, the `@{ shape: ... }` syntax.
+
+The clean fix is upstream. Mermaid's Langium parser (`@mermaid-js/parser`) exposes `$cstNode.offset` / `$cstNode.length` on every AST node, which is exactly what a source-editing tool needs — but as of 1.2.0 it covers only `architecture`, `gitGraph`, `info`, `packet`, `pie`, `radar` and `treemap`. If flowchart moves onto it, the offsets would come from the same parse as the semantics and the second grammar could be dropped entirely.
+
 ## How to download this demo
 
 You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
