@@ -54,8 +54,25 @@ export function RenderNode(data: NodeData) {
      * is attached, which re-runs the hook's effect with a node to register.
      */
     const [textNode, setTextNode] = useState<SVGTextElement | null>(null);
-    const textRef = useMemo(() => ({ current: textNode }), [textNode]);
-    const options = useMemo(() => ({ transform: spec.size }), [spec]);
+    /*
+     * Keyed on the shape as well as the node, so switching shape re-registers.
+     *
+     * `useMeasureElement` captures the `transform` at registration and its
+     * effect does not depend on it, so a new transform alone is never picked
+     * up. Nothing re-measures either: the label is the observed element and its
+     * box does not change when the shape does. The element therefore kept the
+     * previous shape's size — a circle turned into a rectangle stayed a 59x59
+     * square instead of losing the padding a circle needs for its diagonal.
+     *
+     * A fresh ref object makes the hook's effect re-run, which re-observes the
+     * node and recomputes the size through the new shape's transform. Both come
+     * out of one memo because together they *are* the registration: this node,
+     * measured through this shape's padding.
+     */
+    const { textRef, options } = useMemo(() => ({
+        textRef: { current: textNode },
+        options: { transform: spec.size },
+    }), [textNode, spec]);
     const { width, height } = useMeasureElement(textRef, options);
 
     const cx = width / 2;
