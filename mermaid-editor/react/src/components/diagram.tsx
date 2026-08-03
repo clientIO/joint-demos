@@ -311,7 +311,7 @@ export function MermaidDiagram({
      * Keyed on the ids alone, so editing a label or an edge — the common case
      * while typing — still flows through as a plain update.
      */
-    const graphKey = useMemo(() => cells.map((cell) => cell.id).join(' '), [cells]);
+    const graphKey = useMemo(() => cells.map((cell) => cell.id).join(' '), [cells]);
 
     return (
         <Diagram
