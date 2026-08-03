@@ -37,6 +37,20 @@
     --notice: #8a5a00;
     --notice-surface: #fffaeb;
 
+    /*
+     * Panels that float over the canvas. They are tokens because in dark mode
+     * every one of the usual cues fails at once: `--surface` sits 7 RGB units
+     * above `--surface-sunken`, and a dark shadow over a near-black canvas
+     * contributes nothing. The values here match what these panels always
+     * had, so light mode is unchanged.
+     */
+    --overlay-surface: var(--surface);
+    --overlay-border: var(--border);
+    --overlay-inset: var(--surface-sunken);
+    --overlay-chip: var(--surface);
+    --overlay-shadow: 0 4px 14px rgb(15 23 42 / 18%);
+    --overlay-shadow-sm: 0 2px 8px rgb(15 23 42 / 8%);
+
     color-scheme: light;
     font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
         sans-serif;
@@ -81,6 +95,21 @@
     --error-surface: #2b1a1c;
     --notice: #f0c674;
     --notice-surface: #2a2418;
+
+    /*
+     * A floating panel has to lift itself here: its own fill well clear of the
+     * canvas, a brighter edge, and a shadow dark enough to register against
+     * #101119. `--overlay-inset` matters more than it looks: the shape picker
+     * fills nearly the whole toolbar, so the panel is read through the well
+     * rather than around it — set to the canvas colour, as it was, the bar
+     * looked as dark as the canvas no matter what the panel fill said.
+     */
+    --overlay-surface: #2b2f3e;
+    --overlay-border: #464c62;
+    --overlay-inset: #232735;
+    --overlay-chip: #3a4054;
+    --overlay-shadow: 0 6px 18px rgb(0 0 0 / 55%);
+    --overlay-shadow-sm: 0 4px 12px rgb(0 0 0 / 45%);
 
     color-scheme: dark;
 }
@@ -331,7 +360,9 @@ body {
 /* Same lift as the zoom cluster, so the two read as the same kind of thing
    floating over the canvas rather than one control and one stray button. */
 .canvas-actions .app-button {
-    box-shadow: 0 2px 8px rgb(15 23 42 / 8%);
+    background: var(--overlay-surface);
+    border-color: var(--overlay-border);
+    box-shadow: var(--overlay-shadow-sm);
 }
 
 .zoom-controls {
@@ -342,10 +373,10 @@ body {
     align-items: center;
     gap: 6px;
     padding: 6px;
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: var(--overlay-surface);
+    border: 1px solid var(--overlay-border);
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgb(15 23 42 / 8%);
+    box-shadow: var(--overlay-shadow-sm);
 }
 
 .zoom-value {
@@ -397,21 +428,10 @@ body {
     gap: 6px;
     padding: 6px;
     white-space: nowrap;
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: var(--overlay-surface);
+    border: 1px solid var(--overlay-border);
     border-radius: 8px;
-    box-shadow: 0 4px 14px rgb(15 23 42 / 18%);
-}
-
-.node-toolbar-input {
-    width: 140px;
-    padding: 4px 7px;
-    font: inherit;
-    font-size: 12px;
-    color: var(--text);
-    background: var(--surface-sunken);
-    border: 1px solid var(--border);
-    border-radius: 5px;
+    box-shadow: var(--overlay-shadow);
 }
 
 /* Segmented shape picker: each button draws the shape it selects. */
@@ -419,8 +439,8 @@ body {
     display: flex;
     align-items: center;
     padding: 2px;
-    background: var(--surface-sunken);
-    border: 1px solid var(--border);
+    background: var(--overlay-inset);
+    border: 1px solid var(--overlay-border);
     border-radius: 6px;
 }
 
@@ -436,11 +456,11 @@ body {
 }
 
 .node-toolbar-shape:hover {
-    background: var(--surface);
+    background: var(--overlay-chip);
 }
 
 .node-toolbar-shape.is-active {
-    background: var(--surface);
+    background: var(--overlay-chip);
     box-shadow: inset 0 0 0 1px var(--accent);
 }
 
@@ -461,7 +481,7 @@ body {
     flex: 1;
     height: 18px;
     padding: 0;
-    border: 1px solid var(--border);
+    border: 1px solid var(--overlay-border);
     border-radius: 4px;
     cursor: pointer;
 }
@@ -487,7 +507,7 @@ body {
             var(--accent) 55%,
             transparent 55%
         ),
-        var(--surface-sunken);
+        var(--overlay-inset);
 }
 
 /* ----------------------------------------------------------- diagram ink */
