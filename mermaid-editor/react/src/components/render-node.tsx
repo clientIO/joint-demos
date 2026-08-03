@@ -35,7 +35,26 @@ export function RenderNode(data: NodeData) {
     const isEditing = editing !== null && cellId !== undefined && editing.editingId === cellId;
     const label = data.label;
     const spec = getShapeSpec(data.shape);
-    const textRef = useRef<SVGTextElement>(null);
+    /*
+     * The measured node is held in state, not in a plain ref.
+     *
+     * `SVGText` forwards its ref through `useCombinedRef`, which assigns it in
+     * a passive effect rather than synchronously on commit. `useMeasureElement`
+     * reads the ref in a *layout* effect — one phase earlier — so on the first
+     * commit it sees `null`, returns early, and never registers the node with
+     * the size observer: its dependencies do not include the node, so nothing
+     * makes it run again. The element then stays 0×0 for good, which renders as
+     * a bare label with no shape behind it and no layout.
+     *
+     * Development hid this. React's StrictMode remounts effects there, and the
+     * second pass finds the ref already set by the first pass's passive effect,
+     * so it only ever broke in a production build.
+     *
+     * Keeping the node in state produces a fresh ref object the moment the text
+     * is attached, which re-runs the hook's effect with a node to register.
+     */
+    const [textNode, setTextNode] = useState<SVGTextElement | null>(null);
+    const textRef = useMemo(() => ({ current: textNode }), [textNode]);
     const options = useMemo(() => ({ transform: spec.size }), [spec]);
     const { width, height } = useMeasureElement(textRef, options);
 
@@ -49,7 +68,7 @@ export function RenderNode(data: NodeData) {
         <>
             <SVGShape shape={data.shape} width={width} height={height} style={data.style?.body} />
             <SVGText
-                ref={textRef}
+                ref={setTextNode}
                 style={data.style?.text}
                 // Kept mounted while editing: this is what `useMeasureElement`
                 // measures, so hiding it rather than unmounting it holds the
