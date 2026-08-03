@@ -5,6 +5,7 @@ import type { dia } from '@joint/plus';
 import { DirectedGraph } from '@joint/layout-directed-graph';
 import {
     Diagram,
+    linkRoutingStraight,
     Paper,
     PaperScroller,
     Selection,
@@ -246,6 +247,7 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
                         drawGrid={false}
                         snapLabels
                         interactive={PAPER_INTERACTIVE}
+                        linkRouting={linkRoutingStraight({ targetOffset: 6 })}
                         onElementPointerClick={({ model }) => onSelect([model.id])}
                         onElementPointerDblClick={({ model }) => editing.begin(model.id)}
                         onBlankPointerClick={() => {
