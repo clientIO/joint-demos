@@ -32,6 +32,38 @@ export const SHAPE_SYNTAX = {
 
 export type EditableShape = keyof typeof SHAPE_SYNTAX;
 
+/** Longest opening delimiter first, so `[/` is tried before `[`. */
+const DELIMITER_PAIRS = Object.values(SHAPE_SYNTAX)
+    .toSorted((a, b) => b[0].length - a[0].length);
+
+/**
+ * How many characters of delimiter sit on each side of the label.
+ *
+ * The grammar's `NodeText` is not reliably the label. For `[/Wrapped/]` the
+ * span includes the slashes, because the parser reads the shape as `[`...`]`
+ * with a label that happens to start and end with `/`. Trusting it meant a
+ * reshape carried the slashes into the new delimiters — `{/Wrapped/}`, and
+ * `[//Wrapped//]` the second time round — while a rename replaced them and
+ * quietly turned the parallelogram into a rectangle.
+ *
+ * Reading the delimiters off the shape span instead makes both operate on the
+ * label alone. Shapes this demo cannot switch between (Mermaid's asymmetric
+ * `>text]`, the trapezoids) match nothing here and keep using `NodeText`.
+ * @returns Opening and closing delimiter lengths, or `null` if unrecognised.
+ */
+function delimiterWidths(shapeText: string): readonly [number, number] | null {
+    for (const [open, close] of DELIMITER_PAIRS) {
+        if (
+            shapeText.length >= open.length + close.length
+            && shapeText.startsWith(open)
+            && shapeText.endsWith(close)
+        ) {
+            return [open.length, close.length];
+        }
+    }
+    return null;
+}
+
 /** A node's declaration in the source: `start([Ticket raised])`. */
 interface Declaration {
     readonly id: string;
@@ -96,13 +128,17 @@ function parse(source: string): Parsed {
         }
         const label = nodes[index + 2];
         const hasLabel = label?.name === 'NodeText' && label.from >= next.from && label.to <= next.to;
+        const widths = delimiterWidths(source.slice(next.from, next.to));
+        const span = widths
+            ? { labelFrom: next.from + widths[0], labelTo: next.to - widths[1] }
+            : hasLabel ? { labelFrom: label.from, labelTo: label.to } : {};
         declarations.push({
             id,
             idFrom: node.from,
             idTo: node.to,
             shapeFrom: next.from,
             shapeTo: next.to,
-            ...(hasLabel ? { labelFrom: label.from, labelTo: label.to } : {}),
+            ...span,
         });
     }
 
