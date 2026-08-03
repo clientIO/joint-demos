@@ -71,14 +71,26 @@ const INTERACTIONS: InteractionsOptions = { selection: false };
 const SELECTION: SelectionProps = { wrapper: false, allowTranslate: false };
 
 /**
- * Dagre reads element sizes, so it must not run before they are measured.
- * Elements start out 0×0 and get their real size from `useMeasureElement`.
+ * Every element has reported a real size.
  *
- * This is what makes the two layout triggers below safe to have at once. The
- * effect fires on a cell change, which is usually *before* the new elements
- * have been measured; without this guard it would lay out a graph of 0×0 boxes
- * and pile everything at the origin for a frame, until the measured callback
- * corrected it.
+ * Less a readiness check than a decision about which of the two triggers below
+ * owns a given run. Dagre reads element sizes, and elements start out 0×0
+ * because `to-cells` emits them with none — the label is measured first and
+ * `useMeasureElement` supplies the size.
+ *
+ * The three cases, as measured:
+ *
+ * - Direction alone (`TB` to `BT`): no element changes size, so the graph is
+ *   already measured and the effect lays out on the spot. Nothing re-measures,
+ *   so no measured callback ever arrives — the effect is the only trigger there
+ *   is, which is why it cannot be dropped.
+ * - A changed id (rename, insert): the keyed remount builds a fresh graph, every
+ *   element is back to 0×0, and the effect stands down. The measured callback
+ *   owns that run.
+ * - A label alone: sizes are stale but non-zero, so both triggers run — the
+ *   effect against the old widths, the measured callback against the new ones.
+ *   Redundant rather than harmful: the hook flushes the paper afterwards, so
+ *   nothing paints in between.
  */
 function isMeasured(graph: dia.Graph): boolean {
     const elements = graph.getElements();
@@ -180,8 +192,10 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
     // never fires and the diagram would keep its old shape. Verified: with this
     // effect removed, `TD` → `LR` leaves the chart vertical.
     //
-    // Note it re-lays-out but does not re-frame: an edit should leave the
-    // camera where the reader put it.
+    // This trigger never re-frames, so a direction flip leaves the camera
+    // alone. An edit that changes an id is a different story: it remounts, and
+    // `pendingFit` is fresh on every mount, so a rename does re-fit. That is a
+    // side effect of the remount below, not a decision.
     useEffect(() => {
         if (!paper) return;
         runLayout(graph, direction);
@@ -310,6 +324,12 @@ export function MermaidDiagram({
      *
      * Keyed on the ids alone, so editing a label or an edge — the common case
      * while typing — still flows through as a plain update.
+     *
+     * Temporary. It goes once the store can drop a cell whose `renderElement`
+     * subtree is still mounted; clientIO/joint#3442 carries the minimal repro.
+     * Three things here are downstream of it and should go at the same time:
+     * the 0×0 pass that `isMeasured` exists to arbitrate, the camera reset on
+     * every rename, and a full graph teardown on a single keystroke.
      */
     const graphKey = useMemo(() => cells.map((cell) => cell.id).join(' '), [cells]);
 
