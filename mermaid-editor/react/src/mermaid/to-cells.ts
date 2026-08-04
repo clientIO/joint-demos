@@ -202,9 +202,6 @@ function endAnchor(mode: string) {
  */
 const LINK_COLOR = 'var(--link-stroke)';
 
-/** Soften the corners where dagre's vertices turn the line. */
-const CONNECTOR = { name: 'rounded', args: { radius: 8 }};
-
 const LABEL_BASE: Omit<LinkLabel, 'text'> = {
     position: 0.5,
     fontSize: 12,
@@ -252,7 +249,6 @@ export function toCells(flow: FlowGraph): MermaidCell[] {
         source: { id: edge.source, anchor },
         target: { id: edge.target, anchor },
         data: { minLen: edge.minLen },
-        connector: CONNECTOR,
         style: {
             color: LINK_COLOR,
             className: 'mermaid-link-line',

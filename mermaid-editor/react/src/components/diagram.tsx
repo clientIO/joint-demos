@@ -72,6 +72,15 @@ const INTERACTIONS: InteractionsOptions = { selection: false };
 const SELECTION: SelectionProps = { wrapper: false, allowTranslate: false };
 
 /**
+ * Straight links with a small gap at the end, and rounded corners where dagre's vertices turn the line.
+ */
+const LINK_ROUTING = linkRoutingStraight({
+    targetOffset: 6,
+    cornerType: 'cubic',
+    cornerRadius: 8
+});
+
+/**
  * Every element has reported a real size.
  *
  * Less a readiness check than a decision about which of the two triggers below
@@ -247,7 +256,7 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
                         drawGrid={false}
                         snapLabels
                         interactive={PAPER_INTERACTIVE}
-                        linkRouting={linkRoutingStraight({ targetOffset: 6 })}
+                        linkRouting={LINK_ROUTING}
                         onElementPointerClick={({ model }) => onSelect([model.id])}
                         onElementPointerDblClick={({ model }) => editing.begin(model.id)}
                         onBlankPointerClick={() => {
