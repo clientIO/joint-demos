@@ -66,7 +66,7 @@ All demos have `.npmrc` files configured to use the private registry at `https:/
 
 ```
 @joint:registry=https://npm.jointjs.com
-always-auth=true
+allow-remote=all
 //npm.jointjs.com/:_authToken=${JOINTJS_NPM_TOKEN}
 ```
 
