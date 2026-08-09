@@ -74,6 +74,20 @@ over element bounds. Every pointer gesture, and the viewport check virtual
 rendering runs, is a spatial query; on 750 elements a linear scan for each is
 what makes a large graph feel slow.
 
+It is set to `{ isQuadTreeLazy: true }` rather than the eager default. Eager
+reindexes each cell as it is written — dragging a node reindexes the node and
+every link attached to it on every pointer move, and the routed reply then
+reindexes each of the ~1250 links again as its vertices land, all before
+anything asks a question. Lazy marks the tree dirty instead and rebuilds once,
+on the next query. The write bursts here are large and the queries between them
+are few, which is the shape lazy mode is for.
+
+Worth knowing if you tune this: there is no per-write opt-out.
+`SearchGraph`'s change handlers take only the cell, never the `set()` options,
+so the levers are the mode itself, `invalidateQuadTree()` around a burst,
+`setQuadTreeIndexFilter()` for which cells are indexed at all, and
+`{ useIndex: false }` per query.
+
 ## How the routing works
 
 The graph owns the state on both sides of the worker boundary.

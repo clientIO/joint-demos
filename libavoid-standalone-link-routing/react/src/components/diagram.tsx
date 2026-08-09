@@ -8,6 +8,7 @@ import {
 import type {
     InteractionsOptions,
     PaperOptions,
+    SpatialIndexOptions,
     ZoomToFitOptions,
 } from '@joint/react-plus';
 import { useEffect, useRef } from 'react';
@@ -33,6 +34,23 @@ const FIT_OPTIONS: ZoomToFitOptions = {
  * stay on.
  */
 const INTERACTIONS: InteractionsOptions = { selection: false };
+
+/**
+ * Backs the graph with a `dia.SearchGraph`: a quad-tree index over element
+ * bounds. Every pointer gesture on the paper — hovering a node, dropping a link
+ * end, the viewport check virtual rendering runs — is a spatial query, and on
+ * 750 elements a linear scan for each of them is what makes a large graph feel
+ * slow.
+ *
+ * Lazy, rather than the eager default. Eager reindexes each cell as it is
+ * written: dragging a node reindexes the node and every link attached to it on
+ * every pointer move, and the routed reply then reindexes each of the ~1250
+ * links again as its vertices land — all of it before anything asks a question.
+ * Lazy marks the tree dirty instead and rebuilds once, on the next query. The
+ * write bursts here are large and the queries between them are few, which is
+ * the shape lazy mode is for.
+ */
+const SPATIAL_INDEX: SpatialIndexOptions = { isQuadTreeLazy: true };
 
 /**
  * Paper link defaults, matching the JavaScript variant.
@@ -136,14 +154,7 @@ export function FlowDiagram({ cells, onStatusChange }: FlowDiagramProps) {
         <Diagram
             initialCells={cells}
             interactions={INTERACTIONS}
-            /*
-             * Backs the graph with a `dia.SearchGraph`: a quad-tree index over
-             * element bounds. Every pointer gesture on the paper — hovering a
-             * node, dropping a link end, the viewport check virtual rendering
-             * runs — is a spatial query, and on ~380 elements a linear scan for
-             * each of them is what a large graph feels slow because of.
-             */
-            spatialIndex
+            spatialIndex={SPATIAL_INDEX}
         >
             <Canvas onStatusChange={onStatusChange} />
         </Diagram>
