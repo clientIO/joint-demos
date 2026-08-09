@@ -1,96 +1,104 @@
-import { SVGText } from '@joint/react-plus';
-import { NODE_SIZE } from '@/data/cells';
+import { HTMLHost, useCellId } from '@joint/react-plus';
 import type { NodeData } from '@/data/cells';
-import { BORDER_COLOR, DARK_COLOR, FONT_FAMILY, LIGHT_COLOR, MAIN_COLOR, MUTED_COLOR } from '@/theme';
 
-/** The "message" glyph, inlined so the node needs no network request. */
-const ICON_HREF =
-    'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iYmxhY2siIHdpZHRoPSIxOHB4IiBoZWlnaHQ9IjE4cHgiPjxwYXRoIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMjEgMy4wMUgzYy0xLjEgMC0yIC45LTIgMlY5aDJWNC45OWgxOHYxNC4wM0gzVjE1SDF2NC4wMWMwIDEuMS45IDEuOTggMiAxLjk4aDE4YzEuMSAwIDItLjg4IDItMS45OHYtMTRjMC0xLjExLS45LTItMi0yek0xMSAxNmw0LTQtNC00djNIMXYyaDEwdjN6Ii8+PC9zdmc+';
-
-const ICON_SIZE = 24;
-const ICON_X = 16;
-const LABEL_X = 54;
-
-/** Room the icon and the padding take from the label's wrapping width. */
-const LABEL_INSET = 70;
-
-function MessageNode({ label }: { readonly label: string }) {
-    const { width, height } = NODE_SIZE.message;
+/*
+ * The icons, as inline SVG inside the HTML.
+ *
+ * `fill="currentColor"` is the point: the colour comes from the CSS rule on the
+ * surrounding element, so a theme change is a stylesheet edit rather than a
+ * prop threaded down through every node. Authored on a 24x24 grid and sized by
+ * CSS.
+ */
+function MessageIcon() {
     return (
-        <>
-            <rect
-                width={width}
-                height={height}
-                rx={4}
-                ry={4}
-                fill={LIGHT_COLOR}
-                stroke={BORDER_COLOR}
-                strokeWidth={1}
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+                fill="currentColor"
+                d="M21 3.01H3c-1.1 0-2 .9-2 2V9h2V4.99h18v14.03H3V15H1v4.01c0 1.1.9 1.98 2 1.98h18c1.1 0 2-.88 2-1.98v-14c0-1.11-.9-2-2-2zM11 16l4-4-4-4v3H1v2h10v3z"
             />
-            <image
-                href={ICON_HREF}
-                x={ICON_X}
-                y={(height - ICON_SIZE) / 2}
-                width={ICON_SIZE}
-                height={ICON_SIZE}
-                preserveAspectRatio="xMidYMid meet"
+        </svg>
+    );
+}
+
+function ChevronIcon() {
+    return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 5l7 7-7 7"
             />
-            <SVGText
-                x={LABEL_X}
-                y={height / 2}
-                width={width - LABEL_INSET}
-                // One line, cut with an ellipsis: the box is a fixed width, so a
-                // long name has to give way rather than push the layout around.
-                textWrap={{ maxLineCount: 1, ellipsis: true }}
-                textAnchor="start"
-                textVerticalAnchor="middle"
-                fill={DARK_COLOR}
-                fontFamily={FONT_FAMILY}
-                fontSize={15}
-                fontWeight={600}
-                pointerEvents="none"
-            >
-                {label}
-            </SVGText>
-        </>
+        </svg>
+    );
+}
+
+function PlayIcon() {
+    return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M8 5l11 7-11 7z" />
+        </svg>
+    );
+}
+
+function MessageNode({ label, caption }: { readonly label: string; readonly caption: string }) {
+    return (
+        <HTMLHost useModelGeometry className="node-card">
+            <span className="node-badge"><MessageIcon /></span>
+            <span className="node-text">
+                <span className="node-title">{label}</span>
+                <span className="node-caption">{caption}</span>
+            </span>
+            <span className="node-next"><ChevronIcon /></span>
+        </HTMLHost>
     );
 }
 
 function StartNode({ label }: { readonly label: string }) {
-    const { width, height } = NODE_SIZE.start;
     return (
-        <>
-            <circle cx={width / 2} cy={height / 2} r={width / 2} fill={MAIN_COLOR} />
-            <SVGText
-                x={width / 2}
-                y={-10}
-                textAnchor="middle"
-                textVerticalAnchor="bottom"
-                fill={MUTED_COLOR}
-                fontFamily={FONT_FAMILY}
-                fontSize={13}
-                fontWeight={500}
-                pointerEvents="none"
-            >
-                {label}
-            </SVGText>
-        </>
+        <HTMLHost useModelGeometry className="node-start">
+            <PlayIcon />
+            {/*
+              * Sits above the disc, outside the element's own box. `HTMLHost`
+              * puts `overflow="visible"` on the `foreignObject` it renders
+              * into, so content is free to spill past the model geometry.
+              */}
+            <span className="node-start-label">{label}</span>
+        </HTMLHost>
     );
 }
 
 /**
- * One node of the flowchart, as SVG.
+ * One node of the flowchart, as HTML.
+ *
+ * `<HTMLHost useModelGeometry>` renders the node into a `foreignObject` and
+ * takes its size straight off the graph element — `useCell(selectElementSize)`
+ * — instead of measuring the rendered content. That is the whole reason for the
+ * flag here: the default host runs `useMeasureElement`, which would put a
+ * `ResizeObserver` round trip for each of the 750 nodes between the graph
+ * loading and the first route being computed. These cards are a fixed size per
+ * kind, written onto the model in `cells.ts`, so there is nothing to find out.
+ *
+ * HTML rather than SVG buys the layout: flexbox places the badge, the text
+ * column and the chevron, `text-overflow: ellipsis` truncates a long title, and
+ * `box-shadow` draws the card's shadow. The SVG version had to do each of those
+ * by hand — hard-coded offsets, a `V().text()` pass per label to find the
+ * ellipsis, and a second offset rect standing in for the shadow. Styling lives
+ * in `index.css`.
  *
  * `renderElement` hands over the element's `data` slice and nothing else, so
- * this component never re-runs when a node is dragged — JointJS moves the
- * rendered SVG itself. With virtual rendering on top of that, only the nodes
- * inside the viewport are mounted at all, so the subtree is kept small and
- * cheap to mount as it crosses the edge.
- *
- * The geometry is read from `NODE_SIZE` rather than measured: these shapes are
- * a fixed size per kind, and measuring ~380 of them would put a `ResizeObserver`
- * round trip between the graph loading and the first route being computed.
+ * this never re-runs when a node is dragged — JointJS moves the rendered node
+ * itself.
  */
 export function RenderNode({ kind, label }: NodeData) {
-    return kind === 'start' ? <StartNode label={label} /> : <MessageNode label={label} />;
+    /*
+     * The cell id, shown as the card's caption. A context read, not a store
+     * subscription. Worth showing on a graph this size: it is what tells two
+     * cards reading "Alpha" apart when you are looking at a route between them.
+     */
+    const id = useCellId();
+    if (kind === 'start') return <StartNode label={label} />;
+    return <MessageNode label={label} caption={String(id ?? '')} />;
 }

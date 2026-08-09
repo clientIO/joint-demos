@@ -36,22 +36,34 @@ A JointJS+ token is required — see the [repository README](../../README.md).
 
 ## What this variant demonstrates
 
-### React-rendered nodes
+### Nodes are HTML
 
 Nodes are React components (`src/components/render-node.tsx`) rendered through
-`<Paper renderElement>`, not JointJS shape classes. `renderElement` receives the
-element's `data` slice only, so dragging a node never re-runs the component —
-JointJS moves the rendered SVG itself.
+`<Paper renderElement>`, not JointJS shape classes — and their content is plain
+HTML, mounted by `<HTMLHost useModelGeometry>` into a `foreignObject`.
 
-Sizes are **declared**, not measured. `useMeasureElement` would put a
-`ResizeObserver` round trip for each of the 750 nodes between the graph loading
-and the first route being computed; these shapes are a fixed size per kind, so
-`src/data/cells.ts` writes it straight onto the model.
+Going through HTML is what buys the card its layout. Flexbox places the badge,
+the text column and the chevron, so no offset is hard-coded to the 344×80 box;
+`text-overflow: ellipsis` truncates a long title with no JS; and the gradient
+fill, `box-shadow` and `:hover` feedback are stylesheet lines rather than hand-
+built geometry. Styling lives in `index.css`, so retheming the nodes touches no
+TypeScript at all.
 
-Everything downstream reads that model geometry rather than the DOM: the fit
-(`useModelGeometry: true`), the quad-tree spatial index, and virtual rendering's
-viewport test — which matters, because with virtual rendering most cells have no
-rendered box to measure in the first place.
+`useModelGeometry` is the flag that matters for a graph this size. Without it
+`HTMLHost` runs `useMeasureElement` and syncs the measured box back to the
+element — a `ResizeObserver` round trip for each of the 750 nodes between the
+graph loading and the first route being computed. With it, the host reads
+`width` / `height` straight off the model (`useCell(selectElementSize)`); these
+cards are a fixed size per kind, written onto the model in `src/data/cells.ts`,
+so there is nothing to find out.
+
+Everything else downstream reads that same model geometry rather than the DOM:
+the fit (`useModelGeometry: true`), the quad-tree spatial index, and virtual
+rendering's viewport test — which matters, because with virtual rendering most
+cells have no rendered box to measure in the first place.
+
+`renderElement` receives the element's `data` slice only, so dragging a node
+never re-runs the component — JointJS moves the rendered node itself.
 
 ### Virtual rendering
 

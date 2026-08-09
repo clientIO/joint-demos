@@ -1,10 +1,13 @@
-/** The palette the JavaScript variant of this demo draws with, shared by the
- * React node renderer, the link records and the stylesheet. */
+/**
+ * The few palette values that have to exist in TypeScript.
+ *
+ * Links and ports are SVG cells whose colours are baked into the cell records
+ * (`cells.ts`), and the paper background is a `<Paper>` prop — none of those
+ * can read a CSS variable. Everything else, the whole node card included, is
+ * HTML and styled in `index.css`; the values below are mirrored there as
+ * `--main-color` and friends.
+ */
 export const MAIN_COLOR = '#4D64DD';
 export const DARK_COLOR = '#322A49';
-export const BORDER_COLOR = '#D4D4D4';
 export const LIGHT_COLOR = '#FFFFFF';
-export const MUTED_COLOR = '#655E77';
 export const CANVAS_COLOR = '#F3F7F6';
-
-export const FONT_FAMILY = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';

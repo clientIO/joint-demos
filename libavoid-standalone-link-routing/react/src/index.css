@@ -5,7 +5,13 @@
     --muted-color: #655e77;
     --canvas-color: #f3f7f6;
 
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    /* Node card: a softer border than the UI chrome, and a tint for the badge. */
+    --node-border-color: #e3e6f0;
+    --accent-soft-color: #eef1fd;
+
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    font-family: var(--font-family);
     color: var(--dark-color);
 }
 
@@ -84,6 +90,165 @@ body {
     width: 100%;
     height: 100%;
 }
+
+/* Nodes ------------------------------------------------------------------- */
+
+/*
+ * The nodes are HTML, rendered by `<HTMLHost useModelGeometry>` into a
+ * `foreignObject` sized from the graph element. The host writes `width` and
+ * `height` as inline styles, so `border-box` is what keeps a bordered card
+ * exactly the size the model says — a `content-box` card would be two pixels
+ * wider than its own geometry and every port would sit slightly inside it.
+ */
+.node-card,
+.node-start {
+    box-sizing: border-box;
+    font-family: var(--font-family);
+    /* Dragging a node must not turn into selecting its label. */
+    user-select: none;
+    cursor: move;
+}
+
+/*
+ * The card is deliberately not a translation of the SVG version.
+ *
+ * Everything below is something the SVG shape could not have had without
+ * scripting it by hand: a gradient fill, a real drop shadow, `:hover` feedback,
+ * a transition, and a text column that truncates itself. Flexbox places the
+ * three parts, so none of the offsets are hard-coded to the 344x80 box.
+ */
+.node-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 14px;
+    background: linear-gradient(180deg, #fff 0%, #fdfdff 100%);
+    border: 1px solid var(--node-border-color);
+    border-radius: 12px;
+    /* Cheap here, unlike in SVG: no filter region to rasterize per node. */
+    box-shadow: 0 1px 2px rgb(50 42 73 / 6%), 0 4px 10px rgb(50 42 73 / 5%);
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.node-card:hover {
+    border-color: var(--main-color);
+    box-shadow: 0 2px 4px rgb(77 100 221 / 14%), 0 8px 18px rgb(77 100 221 / 12%);
+}
+
+.node-badge {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    background: linear-gradient(140deg, #6c81ea 0%, var(--main-color) 100%);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 35%), 0 2px 6px rgb(77 100 221 / 30%);
+    color: #fff;
+}
+
+.node-badge svg {
+    display: block;
+    width: 21px;
+    height: 21px;
+}
+
+/* `min-width: 0` lets the flex item shrink far enough for the ellipsis below
+   to ever trigger; without it a long title would push the card wider. */
+.node-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.node-title,
+.node-caption {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.node-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--dark-color);
+}
+
+/* The cell id, set in a monospace face so it reads as an identifier rather
+   than as a second line of prose. */
+.node-caption {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--muted-color);
+}
+
+.node-next {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin-left: auto;
+    border-radius: 50%;
+    background: var(--accent-soft-color);
+    color: var(--main-color);
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.node-card:hover .node-next {
+    background: var(--main-color);
+    color: #fff;
+    transform: translateX(2px);
+}
+
+.node-next svg {
+    display: block;
+    width: 13px;
+    height: 13px;
+}
+
+/* The ring is a border rather than an outer `box-shadow`, so the whole node
+   stays inside the 48x48 the model declares. */
+.node-start {
+    position: relative;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(140deg, #6c81ea 0%, var(--main-color) 100%);
+    background-clip: padding-box;
+    border: 4px solid var(--accent-soft-color);
+    border-radius: 50%;
+    box-shadow: 0 3px 10px rgb(77 100 221 / 35%);
+    color: #fff;
+}
+
+.node-start svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    /* The optical centre of a triangle sits left of its bounding box. */
+    margin-left: 2px;
+}
+
+.node-start-label {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgb(50 42 73 / 12%);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--muted-color);
+    white-space: nowrap;
+    transform: translateX(-50%);
+}
+
+/* Links ------------------------------------------------------------------- */
 
 /*
  * A link with no route yet.
