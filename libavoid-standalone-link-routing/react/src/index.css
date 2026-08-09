@@ -1,0 +1,150 @@
+:root {
+    --main-color: #4d64dd;
+    --dark-color: #322a49;
+    --border-color: #d4d4d4;
+    --muted-color: #655e77;
+    --canvas-color: #f3f7f6;
+
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--dark-color);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Toolbar ----------------------------------------------------------------- */
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #fff;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.diagram-selector {
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font: inherit;
+    font-size: 14px;
+    color: inherit;
+    cursor: pointer;
+}
+
+.diagram-selector:hover {
+    border-color: var(--main-color);
+}
+
+.cell-count {
+    font-size: 13px;
+    color: var(--muted-color);
+}
+
+.routing-status {
+    margin-left: auto;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--canvas-color);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted-color);
+}
+
+.routing-status.is-routing {
+    background: color-mix(in srgb, var(--main-color) 12%, #fff);
+    color: var(--main-color);
+}
+
+/* Canvas ------------------------------------------------------------------ */
+
+.canvas-stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+
+.flow-scroller,
+.flow-paper {
+    width: 100%;
+    height: 100%;
+}
+
+/*
+ * A link with no route yet.
+ *
+ * The class is written onto the link's own `attrs`, not onto its view, so a
+ * link that virtual rendering has never mounted still comes back wearing it.
+ */
+.awaiting-update {
+    opacity: 0.3;
+    stroke-dasharray: 5, 5;
+    animation: awaiting-dash 20s linear infinite;
+}
+
+@keyframes awaiting-dash {
+    to {
+        stroke-dashoffset: 1000;
+    }
+}
+
+/* Zoom controls ----------------------------------------------------------- */
+
+.zoom-controls {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
+}
+
+.zoom-controls button {
+    min-width: 32px;
+    height: 28px;
+    padding: 0 8px;
+    background: transparent;
+    border: 0;
+    border-radius: 4px;
+    font: inherit;
+    font-size: 14px;
+    color: inherit;
+    cursor: pointer;
+}
+
+.zoom-controls button:hover:not(:disabled) {
+    background: var(--canvas-color);
+}
+
+.zoom-controls button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.zoom-level {
+    min-width: 48px;
+    text-align: center;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted-color);
+}

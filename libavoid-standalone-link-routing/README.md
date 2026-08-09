@@ -4,7 +4,11 @@ Libavoid is a library that offers high-quality polyline and orthogonal link rout
 
 ## Available Versions
 
-- [JavaScript](./js/)
+- [JavaScript](./js/) — three variants: the router on the UI thread, in a Web
+  Worker, and a Web Worker performance stress test.
+- [React](./react/) — the Web Worker performance variant, with React-rendered
+  nodes on a `@joint/react-plus` canvas using virtual rendering and a quad-tree
+  spatial index.
 
 ## Screenshot
 
