@@ -11,7 +11,7 @@ import type {
     SpatialIndexOptions,
     ZoomToFitOptions,
 } from '@joint/react-plus';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import type { FlowCell } from '@/data/cells';
 import { useAvoidRouter } from '@/routing/use-avoid-router';
 import type { RoutingStatus } from '@/routing/use-avoid-router';
@@ -80,23 +80,15 @@ function Canvas({ onStatusChange }: CanvasProps) {
     useEffect(() => onStatusChange(status), [onStatusChange, status]);
 
     /*
-     * Framed twice, and only ever on the way in: once as soon as the paper
-     * exists, so the diagram is never shown off-centre while the worker is
-     * thinking, and once more when the first routes land. The second pass is
-     * what actually settles the camera — a Libavoid route runs well outside the
-     * nodes it connects, so the content box the first fit measured is not the
-     * one the diagram ends up with.
-     *
-     * The latch matters as much as the fits do. Every later edit starts a
-     * routing pass of its own, and without it dragging a node would re-frame
-     * the canvas mid-drag — yanking the diagram out from under the pointer.
+     * Framed once, as soon as the paper exists. The nodes are already where
+     * they will stay, and a Libavoid route stays close enough to them that the
+     * content box barely moves once the routes land — not worth a second fit
+     * that would overrule whatever the user has zoomed to in the meantime.
      */
-    const hasFramedRoutes = useRef(false);
     useEffect(() => {
-        if (!paper || hasFramedRoutes.current) return;
-        if (!status.isRouting) hasFramedRoutes.current = true;
+        if (!paper) return;
         zoomToFit(FIT_OPTIONS);
-    }, [paper, status.isRouting, zoomToFit]);
+    }, [paper, zoomToFit]);
 
     return (
         <div className="canvas-stage">
