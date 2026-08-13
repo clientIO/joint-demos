@@ -195,19 +195,18 @@ function addToolbarListeners(
 }
 
 /**
- * Show how many of the cells of the graph are rendered at the moment.
+ * Show how many of the cells of the graph are rendered at the moment. The
+ * number is read from the DOM - a cell which is not visible has no node in the
+ * cells layer of the paper.
  */
 function addStats(scroller: ui.PaperScroller): void {
     const statsEl = document.getElementById('stats')!;
     const paper = scroller.options.paper;
     const graph = paper.model;
+    const cellsLayer = paper.getLayerNode('cells');
     const update = util.debounce(() => {
-        const cells = graph.getCells();
-        const rendered = cells.reduce(
-            (count, cell) => count + (paper.isCellVisible(cell) ? 1 : 0),
-            0
-        );
-        statsEl.textContent = `${rendered} of ${cells.length} cells rendered`;
+        const rendered = cellsLayer.childElementCount;
+        statsEl.textContent = `${rendered} of ${graph.getCells().length} cells rendered`;
     }, 100);
     paper.on('render:done', update);
     paper.on('transform', update);
