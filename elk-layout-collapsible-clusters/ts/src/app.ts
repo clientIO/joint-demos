@@ -154,17 +154,16 @@ function addPanningAndZooming(scroller: ui.PaperScroller): void {
     paper.on({
         'blank:pointerdown': (evt: dia.Event) => scroller.startPanning(evt),
         'element:pointerdown': (_view: dia.ElementView, evt: dia.Event) => scroller.startPanning(evt),
+        // Zooming with a pinch gesture (or the ctrl key and the mouse wheel).
         'paper:pinch': (evt: dia.Event, ox: number, oy: number, scale: number) => {
             evt.preventDefault();
             scroller.zoom((scale - 1) * 2, { min: MIN_ZOOM, max: MAX_ZOOM, ox, oy });
         },
-        'blank:mousewheel': (evt: dia.Event, ox: number, oy: number, delta: number) => {
+        // Scrolling with the mouse wheel (or a two-finger swipe).
+        'paper:pan': (evt: dia.Event, deltaX: number, deltaY: number) => {
             evt.preventDefault();
-            scroller.zoom(delta * 0.1, { min: MIN_ZOOM, max: MAX_ZOOM, ox, oy });
-        },
-        'cell:mousewheel': (_view: dia.CellView, evt: dia.Event, ox: number, oy: number, delta: number) => {
-            evt.preventDefault();
-            scroller.zoom(delta * 0.1, { min: MIN_ZOOM, max: MAX_ZOOM, ox, oy });
+            scroller.el.scrollLeft += deltaX;
+            scroller.el.scrollTop += deltaY;
         }
     });
 }
