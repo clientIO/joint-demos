@@ -1,6 +1,7 @@
 import { dia, util } from '@joint/core';
 import { AvoidRouter } from './avoid-router';
 import type { RoutedLink, RouterCommand, RouterResponse } from './protocol';
+import { IDEAL_NUDGING_DISTANCE, SHAPE_BUFFER_DISTANCE } from './settings';
 
 /**
  * The Libavoid router, off the main thread.
@@ -72,9 +73,8 @@ const ready = (async() => {
 
     graph = new dia.Graph({}, { cellNamespace });
     router = new AvoidRouter(graph, {
-        shapeBufferDistance: 20,
-        idealNudgingDistance: 10,
-        portOverflow: 8,
+        shapeBufferDistance: SHAPE_BUFFER_DISTANCE,
+        idealNudgingDistance: IDEAL_NUDGING_DISTANCE,
         // The debounce above owns the routing pass; the router must not commit
         // a transaction of its own for every cell it is handed.
         commitTransactions: false,

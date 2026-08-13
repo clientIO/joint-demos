@@ -2,7 +2,7 @@ import type { dia } from '@joint/plus';
 import { useGraph } from '@joint/react-plus';
 import { useEffect, useState } from 'react';
 import { setLinkAwaiting } from './awaiting';
-import type { CellJSON, RouterCommand, RouterResponse } from './protocol';
+import type { CellJSON, RoutedLink, RouterCommand, RouterResponse } from './protocol';
 
 /** What the router is doing, for the status readout. */
 export interface RoutingStatus {
@@ -15,6 +15,25 @@ export interface RoutingStatus {
 /** A link the worker can do something with: both ends attached to a cell. */
 function isRoutable(link: dia.Link): boolean {
     return Boolean(link.source()?.id && link.target()?.id);
+}
+
+/**
+ * One routed link as a single `set` payload.
+ *
+ * `router` is `normal` when Libavoid's own route won: the vertices *are* the
+ * route, so they are drawn through as they came rather than being sent through a
+ * router a second time. It is `null` when Libavoid had nothing usable, which
+ * hands the link back to the paper's own orthogonal routing — the way JointJS is
+ * told to fall back to the paper default, though the typings only allow a router
+ * or `undefined`, hence the cast.
+ */
+function applyRoute(routed: RoutedLink): Partial<dia.Link.Attributes> {
+    return {
+        vertices: routed.vertices as dia.Point[],
+        source: routed.source as dia.Link.EndJSON,
+        target: routed.target as dia.Link.EndJSON,
+        router: routed.router,
+    } as unknown as Partial<dia.Link.Attributes>;
 }
 
 /**
@@ -73,16 +92,7 @@ export function useAvoidRouter(): RoutingStatus {
                 // The user may have pulled an end off while the worker was
                 // routing; applying the route would snap it back.
                 if (!isRoutable(link)) return;
-                link.set({
-                    vertices: routed.vertices as dia.Point[],
-                    source: routed.source as dia.Link.EndJSON,
-                    target: routed.target as dia.Link.EndJSON,
-                    // A `null` router from the worker means Libavoid's own
-                    // route won: the vertices *are* the route, so the link is
-                    // drawn straight through them rather than being sent
-                    // through the paper's default router a second time.
-                    router: routed.router ?? { name: 'normal' },
-                }, { fromWorker: true });
+                link.set(applyRoute(routed), { fromWorker: true });
                 setLinkAwaiting(link, false);
             });
             graph.stopBatch('avoid-router');

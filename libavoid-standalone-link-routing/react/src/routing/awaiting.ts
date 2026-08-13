@@ -36,7 +36,7 @@ export function setLinkAwaiting(link: dia.Link, awaiting: boolean): void {
     });
     if (!awaiting) return;
     /*
-     * Hand the link back to the paper's `rightAngle` default for the wait.
+     * Hand the link back to the paper's own orthogonal routing for the wait.
      *
      * A routed link carries `router: 'normal'`, which draws it straight through
      * the vertices Libavoid gave it. Those vertices are exactly what is about to
@@ -45,4 +45,12 @@ export function setLinkAwaiting(link: dia.Link, awaiting: boolean): void {
      * keeps the pending link orthogonal — the same shape it will come back as.
      */
     link.unset('router', FROM_WORKER);
+    /*
+     * And drop the route itself, because the paper's router reads the vertices
+     * it is given. They describe a route Libavoid computed for the diagram as it
+     * was — mid-drag, for a node that has since moved — so routing through them
+     * would bend the pending link around nothing. A link with no route has no
+     * vertices; the reply brings both back together.
+     */
+    link.set('vertices', [], FROM_WORKER);
 }

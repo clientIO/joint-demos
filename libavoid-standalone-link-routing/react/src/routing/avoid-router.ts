@@ -13,7 +13,13 @@ interface RoutedEnd {
     anchor: { name: string; args?: { dx: number; dy: number }};
 }
 
-/** `null` hands the link back to the paper's default router. */
+/**
+ * The router a routed link is drawn with.
+ *
+ * `normal` draws the Libavoid vertices as they are. `null` hands the link back
+ * to the paper's default router, which is what happens when Libavoid's route is
+ * unusable and the paper's own orthogonal routing has to stand in.
+ */
 type RoutedRouter = { name: string; args?: Record<string, unknown> } | null;
 
 /** Everything the router writes onto a link, in one `set`. */
@@ -40,8 +46,6 @@ export interface AvoidRouterOptions {
     readonly shapeBufferDistance?: number;
     /** Spacing used to nudge overlapping segments apart, in px. */
     readonly idealNudgingDistance?: number;
-    /** How far a port sticks out of its element, in px; used by the fallback router. */
-    readonly portOverflow?: number;
     /**
      * Re-route on every graph change. The worker turns this off and drives
      * `processTransaction()` itself on a debounce, so a burst of changes costs
@@ -55,9 +59,8 @@ export interface AvoidRouterOptions {
  *
  * Every element becomes a Libavoid shape with a connection pin per port, every
  * link becomes a connector, and Libavoid writes the route it computes back onto
- * the link as `vertices` plus a pair of anchors. This is a straight TypeScript
- * port of `js/src/shared/avoid-router.js`, unchanged in behaviour: it never
- * touches the DOM, which is what lets the worker run it.
+ * the link as `vertices` plus a pair of anchors. It never touches the DOM, which
+ * is what lets the worker run it.
  */
 export class AvoidRouter {
 
@@ -91,7 +94,6 @@ export class AvoidRouter {
 
     private readonly commitTransactions: boolean;
     private margin: number;
-    private portOverflow: number;
     private nextPinId = 100_000;
     private graphListener: mvc.Listener<unknown[]> | null = null;
 
@@ -110,14 +112,12 @@ export class AvoidRouter {
 
         const {
             shapeBufferDistance = 0,
-            portOverflow = 0,
             idealNudgingDistance = 10,
             commitTransactions = true,
         } = options;
 
         this.commitTransactions = commitTransactions;
         this.margin = shapeBufferDistance;
-        this.portOverflow = portOverflow;
 
         const router = new avoid.Router(avoid.OrthogonalRouting);
 
@@ -313,20 +313,13 @@ export class AvoidRouter {
             source.anchor.args = { dx: sourceAnchorDelta.x, dy: sourceAnchorDelta.y };
             target.anchor.args = { dx: targetAnchorDelta.x, dy: targetAnchorDelta.y };
             vertices = this.getVerticesFromAvoidRoute(route);
-            router = null;
+            router = { name: 'normal' };
         } else {
-            // Fall back to the `rightAngle` router, whose automatic direction
-            // choice works the same way this one does.
+            // Nothing usable to draw through: hand the link back to the paper's
+            // own orthogonal router, which is also what drew it while the route
+            // was pending.
             vertices = [];
-            router = {
-                name: 'rightAngle',
-                args: {
-                    // `rightAngle` measures its margin from the port's border,
-                    // Libavoid from the port's centre — and exactly half of the
-                    // port overlaps the element here.
-                    margin: this.margin - this.portOverflow,
-                },
-            };
+            router = null;
         }
 
         setRoute(link, { source, target, vertices, router });
@@ -424,7 +417,8 @@ export class AvoidRouter {
     }
 
     /**
-     * Decides whether to keep Libavoid's route or fall back to `rightAngle`.
+     * Decides whether to keep Libavoid's route or hand the link back to the
+     * paper's own router.
      *
      * Libavoid offers no validity check of its own, so this is a heuristic: a
      * route with a bend is always taken, and a straight one is rejected when it

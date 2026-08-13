@@ -51,9 +51,9 @@ export interface RoutedLink {
     /**
      * The router the link should draw with.
      *
-     * `null` when Libavoid produced a usable route — the vertices are the
-     * route, so the link must be drawn straight through them. Otherwise it
-     * carries the `rightAngle` fallback the router chose instead.
+     * `normal` when Libavoid produced a usable route — the vertices are the
+     * route, so the link is drawn straight through them. `null` when it did
+     * not, which hands the link back to the paper's own orthogonal router.
      */
     readonly router: { readonly name: string; readonly args?: Record<string, unknown> } | null;
 }

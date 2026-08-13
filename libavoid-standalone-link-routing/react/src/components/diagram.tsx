@@ -2,17 +2,19 @@ import {
     Diagram,
     Paper,
     PaperScroller,
+    linkRoutingOrthogonal,
+    linkRoutingStraight,
     usePaper,
     usePaperScroller,
 } from '@joint/react-plus';
 import type {
     InteractionsOptions,
-    PaperOptions,
     SpatialIndexOptions,
     ZoomToFitOptions,
 } from '@joint/react-plus';
 import { useEffect } from 'react';
 import type { FlowCell } from '@/data/cells';
+import { CORNER_RADIUS, FALLBACK_MARGIN } from '@/routing/settings';
 import { useAvoidRouter } from '@/routing/use-avoid-router';
 import type { RoutingStatus } from '@/routing/use-avoid-router';
 import { CANVAS_COLOR } from '@/theme';
@@ -53,17 +55,30 @@ const INTERACTIONS: InteractionsOptions = { selection: false };
 const SPATIAL_INDEX: SpatialIndexOptions = { isQuadTreeLazy: true };
 
 /**
- * Paper link defaults, matching the JavaScript variant.
+ * The paper's own link routing, for every link Libavoid has not answered for.
  *
- * `rightAngle` is what a link is drawn with until its route arrives (and what
- * the router itself falls back to when Libavoid cannot find a usable route);
- * a routed link carries `router: 'normal'`, so its Libavoid vertices are drawn
- * through as-is. `modelCenter` is the anchor the router offsets from.
+ * A link is drawn with this until its route arrives, and stays with it when
+ * Libavoid cannot find a usable route at all — the worker replies with a `null`
+ * router in that case, which is what hands the link back here. A routed link
+ * carries `router: 'normal'` instead, so its Libavoid vertices are drawn as they
+ * came; the preset's connector is what rounds their corners.
  */
-const PAPER_OPTIONS: PaperOptions = {
-    defaultConnector: { name: 'straight', args: { cornerType: 'cubic', cornerRadius: 4 }},
-    defaultAnchor: { name: 'modelCenter' },
-    defaultRouter: { name: 'rightAngle' },
+const LINK_ROUTING = {
+    ...linkRoutingOrthogonal({
+        cornerRadius: CORNER_RADIUS,
+        margin: FALLBACK_MARGIN,
+    }),
+    /*
+     * The one part of the orthogonal preset this diagram cannot take: it ends a
+     * connected link on its anchor, and here that anchor is the point Libavoid
+     * routed to — the centre of a port. The arrowhead would be drawn from there
+     * inwards, underneath the port it points at.
+     *
+     * The straight preset's connection point stops the line where it meets the
+     * element and backs it off by the length of the arrowhead, which is what
+     * leaves the arrow in the open where it can be seen.
+     */
+    defaultConnectionPoint: linkRoutingStraight().defaultConnectionPoint,
 };
 
 interface CanvasProps {
@@ -119,7 +134,7 @@ function Canvas({ onStatusChange }: CanvasProps) {
                     snapLinks={{ radius: 30 }}
                     linkPinning={false}
                     overflow
-                    options={PAPER_OPTIONS}
+                    linkRouting={LINK_ROUTING}
                     moveThreshold={10}
                 />
             </PaperScroller>
