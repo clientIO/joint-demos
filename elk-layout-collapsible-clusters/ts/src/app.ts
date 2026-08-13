@@ -47,8 +47,9 @@ export async function init(): Promise<void> {
         cursor: 'grab',
         baseWidth: 1,
         baseHeight: 1,
+        // Note: a function is required here - it makes the paper adjusted on
+        // every zoom change and it provides the current content area.
         contentOptions: () => ({
-            useModelGeometry: true,
             contentArea,
             padding: PAPER_PADDING,
             allowNewOrigin: 'any'
