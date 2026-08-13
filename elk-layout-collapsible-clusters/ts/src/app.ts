@@ -1,0 +1,215 @@
+import { dia, ui, util } from '@joint/plus';
+
+import { createDiagram } from './dataset';
+import { createCells, embedCells, layoutDiagram } from './layout';
+import { Cluster, cellNamespace, TOGGLE_EVENT } from './shapes';
+
+/** How far outside of the visible area the cells are rendered. */
+const VIRTUAL_RENDERING_MARGIN = 300;
+const PAPER_PADDING = 100;
+const MIN_ZOOM = 0.05;
+const MAX_ZOOM = 2;
+
+export async function init(): Promise<void> {
+    const clusters = createDiagram();
+
+    const graph = new dia.Graph({}, { cellNamespace });
+
+    const paper = new dia.Paper({
+        model: graph,
+        cellViewNamespace: cellNamespace,
+        async: true,
+        frozen: true,
+        sorting: dia.Paper.sorting.APPROX,
+        interactive: false,
+        background: { color: '#F3F7F6' },
+        // Create the view of a cell when it becomes visible for the first time
+        // and throw it away when it is hidden again. Only the cells the user
+        // can actually see are kept in the DOM.
+        viewManagement: {
+            lazyInitialize: true,
+            disposeHidden: true
+        },
+        defaultConnectionPoint: { name: 'anchor' },
+        defaultConnector: {
+            name: 'straight',
+            args: { cornerType: 'cubic', cornerRadius: 5 }
+        }
+    });
+
+    // The area the paper is sized to. Only the top-level clusters are taken
+    // into account - the content of a collapsed cluster keeps the geometry of
+    // the previous layout and must not enlarge the paper.
+    let contentArea: dia.BBox = { x: 0, y: 0, width: 1, height: 1 };
+
+    const scroller = new ui.PaperScroller({
+        paper,
+        cursor: 'grab',
+        baseWidth: 1,
+        baseHeight: 1,
+        contentOptions: () => ({
+            useModelGeometry: true,
+            contentArea,
+            padding: PAPER_PADDING,
+            allowNewOrigin: 'any'
+        }),
+        // Render only the cells within the visible area of the scroller. The
+        // controller sets `paper.options.cellVisibility` and combines the
+        // viewport check with the callback below.
+        virtualRendering: {
+            margin: VIRTUAL_RENDERING_MARGIN,
+            cellVisibility: (cell) => !isInsideCollapsedCluster(cell)
+        }
+    });
+
+    document.getElementById('canvas')!.appendChild(scroller.el);
+    scroller.render();
+
+    graph.resetCells(createCells(clusters));
+    embedCells(graph, clusters);
+
+    const topLevelClusters = clusters.map(({ id }) => graph.getCell(id));
+
+    let isLayoutRunning = false;
+    let isLayoutQueued = false;
+    // The cluster the user has toggled last. The layout moves the cells
+    // around, the cluster is kept in the view afterwards.
+    let toggledCluster: Cluster | null = null;
+
+    async function runLayout(): Promise<void> {
+        if (isLayoutRunning) {
+            isLayoutQueued = true;
+            return;
+        }
+        isLayoutRunning = true;
+        paper.freeze();
+        try {
+            await layoutDiagram(graph, clusters);
+        } catch (error) {
+            console.warn('ELK layout error:', error);
+        } finally {
+            isLayoutRunning = false;
+        }
+        contentArea = graph.getCellsBBox(topLevelClusters) ?? contentArea;
+        scroller.adjustPaper();
+        paper.unfreeze();
+        // The collapsed state has changed - re-evaluate which cells are shown.
+        paper.updateCellsVisibility();
+        if (isLayoutQueued) {
+            isLayoutQueued = false;
+            await runLayout();
+            return;
+        }
+        // Everything has been laid out again, keep the toggled cluster (or the
+        // whole diagram) in the view.
+        if (toggledCluster) {
+            scroller.centerElement(toggledCluster);
+            toggledCluster = null;
+        } else {
+            scroller.center();
+        }
+    }
+
+    // A single layout run is enough for any number of clusters toggled at once
+    // (e.g. by the "Collapse All" button).
+    const scheduleLayout = util.debounce(() => runLayout(), 10);
+    graph.on('change:collapsed', () => scheduleLayout());
+
+    paper.on(TOGGLE_EVENT, (elementView: dia.ElementView, evt: dia.Event) => {
+        // Do not start panning the paper when the button is clicked.
+        evt.stopPropagation();
+        const cluster = elementView.model as Cluster;
+        toggledCluster = cluster;
+        cluster.toggle();
+    });
+
+    addPanningAndZooming(scroller);
+    addToolbarListeners(graph, scroller, () => (toggledCluster = null));
+    addStats(scroller);
+
+    await runLayout();
+    // Note: the rect is passed explicitly - `scroller.zoomToFit()` measures the
+    // rendered views, while most of the cells are not rendered at this point.
+    scroller.zoomToRect(contentArea, {
+        maxScale: 1,
+        // Leave a room for the toolbar at the top.
+        padding: { top: 60, right: 20, bottom: 20, left: 20 }
+    });
+}
+
+/**
+ * A cell is hidden when any of its ancestors is a collapsed cluster. Note that
+ * the links are reparented into the cluster of their endpoints, so the very
+ * same check applies to them.
+ */
+function isInsideCollapsedCluster(cell: dia.Cell): boolean {
+    return cell.getAncestors().some(
+        (ancestor) => Cluster.isCluster(ancestor) && ancestor.isCollapsed()
+    );
+}
+
+function addPanningAndZooming(scroller: ui.PaperScroller): void {
+    const paper = scroller.options.paper;
+    paper.on({
+        'blank:pointerdown': (evt: dia.Event) => scroller.startPanning(evt),
+        'element:pointerdown': (_view: dia.ElementView, evt: dia.Event) => scroller.startPanning(evt),
+        'paper:pinch': (evt: dia.Event, ox: number, oy: number, scale: number) => {
+            evt.preventDefault();
+            scroller.zoom((scale - 1) * 2, { min: MIN_ZOOM, max: MAX_ZOOM, ox, oy });
+        },
+        'blank:mousewheel': (evt: dia.Event, ox: number, oy: number, delta: number) => {
+            evt.preventDefault();
+            scroller.zoom(delta * 0.1, { min: MIN_ZOOM, max: MAX_ZOOM, ox, oy });
+        },
+        'cell:mousewheel': (_view: dia.CellView, evt: dia.Event, ox: number, oy: number, delta: number) => {
+            evt.preventDefault();
+            scroller.zoom(delta * 0.1, { min: MIN_ZOOM, max: MAX_ZOOM, ox, oy });
+        }
+    });
+}
+
+function addToolbarListeners(
+    graph: dia.Graph,
+    scroller: ui.PaperScroller,
+    onToggleAll: () => void
+): void {
+    const toggleAll = (collapsed: boolean): void => {
+        onToggleAll();
+        graph.getElements().forEach((element) => {
+            if (Cluster.isCluster(element)) element.toggle(collapsed);
+        });
+    };
+
+    document.getElementById('zoom-in')!.addEventListener(
+        'click', () => scroller.zoom(0.2, { max: MAX_ZOOM, grid: 0.2 })
+    );
+    document.getElementById('zoom-out')!.addEventListener(
+        'click', () => scroller.zoom(-0.2, { min: MIN_ZOOM, grid: 0.2 })
+    );
+    document.getElementById('collapse-all')!.addEventListener(
+        'click', () => toggleAll(true)
+    );
+    document.getElementById('expand-all')!.addEventListener(
+        'click', () => toggleAll(false)
+    );
+}
+
+/**
+ * Show how many of the cells of the graph are rendered at the moment.
+ */
+function addStats(scroller: ui.PaperScroller): void {
+    const statsEl = document.getElementById('stats')!;
+    const paper = scroller.options.paper;
+    const graph = paper.model;
+    const update = util.debounce(() => {
+        const cells = graph.getCells();
+        const rendered = cells.reduce(
+            (count, cell) => count + (paper.isCellVisible(cell) ? 1 : 0),
+            0
+        );
+        statsEl.textContent = `${rendered} of ${cells.length} cells rendered`;
+    }, 100);
+    paper.on('render:done', update);
+    paper.on('transform', update);
+    scroller.on('scroll', update);
+}

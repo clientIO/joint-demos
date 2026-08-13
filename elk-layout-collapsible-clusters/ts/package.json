@@ -1,0 +1,26 @@
+{
+  "name": "@joint/demo-elk-layout-collapsible-clusters",
+  "version": "4.3.1",
+  "description": "JointJS+ - ELK Layout with Collapsible Clusters",
+  "main": "src/main.ts",
+  "homepage": "https://jointjs.com",
+  "author": {
+    "name": "client IO",
+    "url": "https://client.io"
+  },
+  "license": "http://jointjs.com/license",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@joint/plus": "4.3.1",
+    "elkjs": "0.11.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}
