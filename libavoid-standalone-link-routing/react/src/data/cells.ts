@@ -38,14 +38,12 @@ const LINK_Z = 1;
 const ELEMENT_Z = 2;
 
 /*
- * The two graphs are the JointJS JSON the JavaScript variant loads, byte for
- * byte, so both variants stress the router with exactly the same diagram.
+ * The two saved graphs are plain JointJS JSON, describing `app.Message` /
+ * `app.FlowchartStart` / `app.Link` shape types.
  *
- * They describe native `app.Message` / `app.FlowchartStart` / `app.Link` shapes
- * — the classes `src/web-worker-perf/shapes.js` defines over there. Here there
- * are no shape classes to register: the nodes are React components, so the JSON
- * is converted below into the plain records `<Diagram>` takes, with everything
- * that used to live in a shape definition (size, ports, label, link styling)
+ * There are no shape classes to register here: the nodes are React components,
+ * so the JSON is converted below into the plain records `<Diagram>` takes, with
+ * everything a shape definition would hold (size, ports, label, link styling)
  * either derived from the node kind or carried on the record.
  */
 
@@ -194,7 +192,7 @@ export function makeLink({ id, source, target, label, labelPosition }: LinkSpec)
     };
 }
 
-/** Converts one of the JavaScript variant's saved graphs into cell records. */
+/** Converts one of the saved JointJS graphs into cell records. */
 export function fromJointJSON(graph: SourceGraph): readonly FlowCell[] {
     return graph.cells.map((cell) => {
         const kind = NODE_KINDS[cell.type];
