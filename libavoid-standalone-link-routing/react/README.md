@@ -9,6 +9,8 @@ with React-rendered nodes.
 A dropdown switches between three graphs, and the toolbar reports how long each
 routing pass took.
 
+![The small graph routed, zoomed in on the HTML nodes](./screenshot.png)
+
 | Graph | Cells | Ports | Routed in |
 |---|---|---|---|
 | Small | 47 (21 nodes / 26 links) | yes | ~220 ms |
