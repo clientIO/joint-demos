@@ -29,12 +29,33 @@ instead of one per port, and pin count is what Libavoid's cost is driven by.
 
 ## Running the application
 
+This demo depends on JointJS+, which is published to a private npm registry. To
+install it you need an access token — from a JointJS+ license or a
+[free trial](https://www.jointjs.com/free-trial). Trial users receive the token
+during sign-up; customers can find it in the customer portal at
+https://my.jointjs.com.
+
+`.npmrc` points `@joint` at the registry and reads the token from the
+`JOINTJS_NPM_TOKEN` environment variable, so set that before installing:
+
+**macOS / Linux**:
+```sh
+export JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+```
+
+**Windows (PowerShell)**:
+```sh
+$env:JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+```
+
+Then install and start the dev server:
+
 ```bash
 npm install
 npm run dev
 ```
 
-A JointJS+ token is required — see the [repository README](../../README.md).
+Learn more about the [private npm registry here](https://docs.jointjs.com/learn/help-center/npm-registry).
 
 ## What this variant demonstrates
 
