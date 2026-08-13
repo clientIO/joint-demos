@@ -1,4 +1,5 @@
-import { dia, g, mvc } from '@joint/core';
+import { g, mvc } from '@joint/core';
+import type { dia } from '@joint/core';
 import { getAvoid, loadAvoid } from './libavoid';
 import type { Avoid, AvoidConnRef, AvoidPolyLine, AvoidRouterInstance, AvoidShapeRef } from './libavoid';
 
