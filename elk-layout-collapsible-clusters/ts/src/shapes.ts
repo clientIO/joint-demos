@@ -16,9 +16,33 @@ const CLUSTER_COLORS = [
 const EXPANDED_ICON = 'M -4 0 4 0';
 const COLLAPSED_ICON = 'M -4 0 4 0 M 0 -4 0 4';
 
+const RADIUS = 3;
+const HEADER_BOTTOM = HEADER_HEIGHT - RADIUS;
+
+/** The header of an expanded cluster - rounded at the top, square at the bottom. */
+const EXPANDED_HEADER = [
+    `M 0 ${HEADER_HEIGHT} L 0 ${RADIUS}`,
+    `A ${RADIUS} ${RADIUS} 0 0 1 ${RADIUS} 0`,
+    `L calc(w - ${RADIUS}) 0`,
+    `A ${RADIUS} ${RADIUS} 0 0 1 calc(w) ${RADIUS}`,
+    `L calc(w) ${HEADER_HEIGHT} Z`
+].join(' ');
+
+/** A collapsed cluster is nothing but its header, so all the corners are rounded. */
+const COLLAPSED_HEADER = [
+    `M 0 ${HEADER_BOTTOM} L 0 ${RADIUS}`,
+    `A ${RADIUS} ${RADIUS} 0 0 1 ${RADIUS} 0`,
+    `L calc(w - ${RADIUS}) 0`,
+    `A ${RADIUS} ${RADIUS} 0 0 1 calc(w) ${RADIUS}`,
+    `L calc(w) ${HEADER_BOTTOM}`,
+    `A ${RADIUS} ${RADIUS} 0 0 1 calc(w - ${RADIUS}) ${HEADER_HEIGHT}`,
+    `L ${RADIUS} ${HEADER_HEIGHT}`,
+    `A ${RADIUS} ${RADIUS} 0 0 1 0 ${HEADER_BOTTOM} Z`
+].join(' ');
+
 const clusterMarkup = util.svg/* xml */`
     <rect @selector="body"/>
-    <rect @selector="header"/>
+    <path @selector="header"/>
     <text @selector="headerText"/>
     <rect @selector="button"/>
     <path @selector="buttonIcon"/>
@@ -39,17 +63,14 @@ export class Cluster extends dia.Element {
                 body: {
                     width: 'calc(w)',
                     height: 'calc(h)',
-                    rx: 3,
-                    ry: 3,
+                    rx: RADIUS,
+                    ry: RADIUS,
                     strokeWidth: 1,
                     stroke: CLUSTER_COLORS[0].border,
                     fill: CLUSTER_COLORS[0].body
                 },
                 header: {
-                    width: 'calc(w)',
-                    height: HEADER_HEIGHT,
-                    rx: 3,
-                    ry: 3,
+                    d: EXPANDED_HEADER,
                     fill: CLUSTER_COLORS[0].header
                 },
                 headerText: {
@@ -109,10 +130,13 @@ export class Cluster extends dia.Element {
 
     toggle(collapsed: boolean = !this.isCollapsed()): void {
         if (collapsed === this.isCollapsed()) return;
-        // The button icon is kept in the model (and not rendered by a
-        // highlighter), so that it survives the disposal of the element view
-        // by the virtual rendering.
-        this.attr('buttonIcon/d', collapsed ? COLLAPSED_ICON : EXPANDED_ICON);
+        // The button icon and the shape of the header are kept in the model
+        // (and not rendered by a highlighter), so that they survive the
+        // disposal of the element view by the virtual rendering.
+        this.attr({
+            buttonIcon: { d: collapsed ? COLLAPSED_ICON : EXPANDED_ICON },
+            header: { d: collapsed ? COLLAPSED_HEADER : EXPANDED_HEADER }
+        });
         this.set('collapsed', collapsed);
     }
 

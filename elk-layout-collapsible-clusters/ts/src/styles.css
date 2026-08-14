@@ -53,5 +53,10 @@ body {
     font-family: sans-serif;
     font-size: 12px;
     color: #6A6A75;
-    margin-left: 12px;
+    margin-left: 10px;
+    padding: 6px 12px;
+    border-radius: 16px;
+    /* The color of the canvas, so that the text stays readable above a shape. */
+    background: rgba(243, 247, 246, 0.9);
+    user-select: none;
 }
