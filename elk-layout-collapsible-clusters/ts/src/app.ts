@@ -18,8 +18,8 @@ export async function init(): Promise<void> {
     const paper = new dia.Paper({
         model: graph,
         cellViewNamespace: cellNamespace,
-        async: true,
         frozen: true,
+        async: true,
         sorting: dia.Paper.sorting.APPROX,
         interactive: false,
         background: { color: '#F3F7F6' },
@@ -83,7 +83,6 @@ export async function init(): Promise<void> {
             return;
         }
         isLayoutRunning = true;
-        paper.freeze();
         try {
             await layoutDiagram(graph, clusters);
         } catch (error) {
@@ -93,7 +92,6 @@ export async function init(): Promise<void> {
         }
         contentArea = graph.getCellsBBox(topLevelClusters) ?? contentArea;
         scroller.adjustPaper();
-        paper.unfreeze();
         // The collapsed state has changed - re-evaluate which cells are shown.
         paper.updateCellsVisibility();
         if (isLayoutQueued) {
@@ -129,6 +127,7 @@ export async function init(): Promise<void> {
     addStats(scroller);
 
     await runLayout();
+    paper.unfreeze();
     // Note: the rect is passed explicitly - `scroller.zoomToFit()` measures the
     // rendered views, while most of the cells are not rendered at this point.
     scroller.zoomToRect(contentArea, {
