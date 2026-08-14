@@ -1,4 +1,4 @@
-import { dia, ui, util } from '@joint/plus';
+import { dia, g, ui, util } from '@joint/plus';
 
 import { createDiagram } from './dataset';
 import { createCells, embedCells, layoutDiagram } from './layout';
@@ -37,10 +37,8 @@ export async function init(): Promise<void> {
         }
     });
 
-    // The area the paper is sized to. Only the top-level clusters are taken
-    // into account - the content of a collapsed cluster keeps the geometry of
-    // the previous layout and must not enlarge the paper.
-    let contentArea: dia.BBox = { x: 0, y: 0, width: 1, height: 1 };
+    // The bounding box of the visible cells - the area the paper is sized to.
+    let visibleContentArea: dia.BBox = { x: 0, y: 0, width: 1, height: 1 };
 
     const scroller = new ui.PaperScroller({
         paper,
@@ -50,7 +48,7 @@ export async function init(): Promise<void> {
         // Note: a function is required here - it makes the paper adjusted on
         // every zoom change and it provides the current content area.
         contentOptions: () => ({
-            contentArea,
+            contentArea: visibleContentArea,
             padding: PAPER_PADDING,
             allowNewOrigin: 'any'
         }),
@@ -59,7 +57,7 @@ export async function init(): Promise<void> {
         // viewport check with the callback below.
         virtualRendering: {
             margin: VIRTUAL_RENDERING_MARGIN,
-            cellVisibility: (cell) => !isInsideCollapsedCluster(cell)
+            cellVisibility: isCellVisible
         }
     });
 
@@ -68,8 +66,6 @@ export async function init(): Promise<void> {
 
     graph.resetCells(createCells(clusters));
     embedCells(graph, clusters);
-
-    const topLevelClusters = clusters.map(({ id }) => graph.getCell(id));
 
     let isLayoutRunning = false;
     let isLayoutQueued = false;
@@ -89,6 +85,7 @@ export async function init(): Promise<void> {
         const buttonOffset = toggledCluster
             ? toggledCluster.getBBox().topRight().difference(scroller.getVisibleArea().center())
             : null;
+        paper.freeze();
         try {
             await layoutDiagram(graph, clusters);
         } catch (error) {
@@ -96,7 +93,8 @@ export async function init(): Promise<void> {
         } finally {
             isLayoutRunning = false;
         }
-        contentArea = graph.getCellsBBox(topLevelClusters) ?? contentArea;
+        paper.unfreeze();
+        visibleContentArea = getVisibleContentArea(graph) ?? visibleContentArea;
         scroller.adjustPaper();
         // The collapsed state has changed - re-evaluate which cells are shown.
         paper.updateCellsVisibility();
@@ -112,7 +110,8 @@ export async function init(): Promise<void> {
             scroller.center(center.x, center.y);
             toggledCluster = null;
         } else {
-            scroller.center();
+            const center = new g.Rect(visibleContentArea).center();
+            scroller.center(center.x, center.y);
         }
     }
 
@@ -134,10 +133,9 @@ export async function init(): Promise<void> {
     addStats(scroller);
 
     await runLayout();
-    paper.unfreeze();
     // Note: the rect is passed explicitly - `scroller.zoomToFit()` measures the
     // rendered views, while most of the cells are not rendered at this point.
-    scroller.zoomToRect(contentArea, {
+    scroller.zoomToRect(visibleContentArea, {
         maxScale: 1,
         // Leave a room for the toolbar at the top.
         padding: { top: 60, right: 20, bottom: 20, left: 20 }
@@ -149,10 +147,19 @@ export async function init(): Promise<void> {
  * the links are reparented into the cluster of their endpoints, so the very
  * same check applies to them.
  */
-function isInsideCollapsedCluster(cell: dia.Cell): boolean {
-    return cell.getAncestors().some(
+function isCellVisible(cell: dia.Cell): boolean {
+    return !cell.getAncestors().some(
         (ancestor) => Cluster.isCluster(ancestor) && ancestor.isCollapsed()
     );
+}
+
+/**
+ * The bounding box of the cells which are not hidden. A cell inside a collapsed
+ * cluster is left where the previous layout put it, so it must not be measured
+ * (it would size the paper to a diagram which is not on the screen anymore).
+ */
+function getVisibleContentArea(graph: dia.Graph): dia.BBox | null {
+    return graph.getCellsBBox(graph.getCells().filter(isCellVisible));
 }
 
 function addPanningAndZooming(scroller: ui.PaperScroller): void {
