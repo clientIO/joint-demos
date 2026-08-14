@@ -1,6 +1,6 @@
 {
   "name": "@joint/demo-elk-layout-collapsible-clusters",
-  "version": "4.3.1",
+  "version": "4.2.3",
   "description": "JointJS+ - ELK Layout with Collapsible Clusters",
   "main": "src/main.ts",
   "homepage": "https://jointjs.com",
