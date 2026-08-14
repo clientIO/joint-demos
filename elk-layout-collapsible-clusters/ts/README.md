@@ -4,13 +4,6 @@ A diagram of about a thousand cells, arranged into nested clusters by the Eclips
 
 This demo is also available online at [jointjs.com](https://jointjs.com/demos/elk-layout-collapsible-clusters).
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/elk-layout-collapsible-clusters/ts" target="_blank">
-  <img
-    alt="Open in StackBlitz"
-    src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
-  />
-</a>
-
 ## Features
 
 - **Virtual rendering** -- the `virtualRendering` option of `ui.PaperScroller` renders the cells within the visible area only. Together with the `viewManagement` option of the paper, a view is created when a cell scrolls in and thrown away when it scrolls out. The toolbar shows how many of the cells are in the DOM at the moment.
