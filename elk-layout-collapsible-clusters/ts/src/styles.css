@@ -16,6 +16,19 @@ body {
     height: 100%;
 }
 
+/*
+    The collapse button of a cluster. A stylesheet rule wins over the
+    presentation attribute set by the shape, so the hover state survives the
+    disposal of the element view by the virtual rendering.
+*/
+.joint-paper [joint-selector="button"] {
+    transition: fill-opacity 100ms ease-out;
+}
+
+.joint-paper [joint-selector="button"]:hover {
+    fill-opacity: 0.5;
+}
+
 .toolbar {
     display: flex;
     position: absolute;
