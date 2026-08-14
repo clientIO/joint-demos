@@ -83,6 +83,12 @@ export async function init(): Promise<void> {
             return;
         }
         isLayoutRunning = true;
+        // The distance of the collapse button (the top-right corner of the
+        // cluster) from the center of the view. The button is moved back to
+        // the same position on the screen once the diagram is laid out again.
+        const buttonOffset = toggledCluster
+            ? toggledCluster.getBBox().topRight().difference(scroller.getVisibleArea().center())
+            : null;
         try {
             await layoutDiagram(graph, clusters);
         } catch (error) {
@@ -101,8 +107,9 @@ export async function init(): Promise<void> {
         }
         // Everything has been laid out again, keep the toggled cluster (or the
         // whole diagram) in the view.
-        if (toggledCluster) {
-            scroller.centerElement(toggledCluster);
+        if (toggledCluster && buttonOffset) {
+            const center = toggledCluster.getBBox().topRight().difference(buttonOffset);
+            scroller.center(center.x, center.y);
             toggledCluster = null;
         } else {
             scroller.center();
