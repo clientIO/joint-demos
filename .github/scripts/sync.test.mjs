@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import { parseSyncArgs, planCommands, SNAPSHOT_FILTERS } from './sync.mjs';
 
 test('parseSyncArgs parses a plain dev sync', () => {
@@ -32,6 +36,13 @@ test('planCommands emits the three version-scoped rclone commands', () => {
             '--filter', '- .DS_Store',
             '--filter', '- node_modules/**',
             '--filter', '- _site/**',
+            '--filter', '- dist/**',
+            '--filter', '- package-lock.json',
+            '--filter', '- yarn.lock',
+            '--filter', '- pnpm-lock.yaml',
+            '--filter', '- bun.lock',
+            '--filter', '- bun.lockb',
+            '--filter', '- npm-shrinkwrap.json',
             '--filter', '- /.*/**',
             '--filter', '+ /*/*/**',
             '--filter', '- *',
@@ -57,9 +68,63 @@ test('planCommands targets the prod bucket when asked', () => {
     ]);
 });
 
-test('SNAPSHOT_FILTERS is the verbatim #30 ruleset', () => {
+const hasRclone = spawnSync('rclone', ['version'], { stdio: 'ignore' }).status === 0;
+
+// Runs the real rclone matcher over a synthetic demo tree, so a mis-anchored
+// pattern (e.g. `- /dist/**`) fails even though the literal list looks right.
+test('SNAPSHOT_FILTERS admit demo content and exclude derived artifacts', { skip: !hasRclone }, () => {
+    const admitted = [
+        'demo/js/assets/data.json',
+        'demo/js/src/distributed.js',
+        'demo/js/src/main.js',
+    ];
+    const excluded = [
+        'root-file.md',
+        '.hidden/js/file.js',
+        'demo/js/node_modules/pkg/index.js',
+        'demo/js/dist/bundle.js',
+        'demo/js/nested/dist/chunk.js',
+        'demo/js/package-lock.json',
+        'demo/js/yarn.lock',
+        'demo/js/pnpm-lock.yaml',
+        'demo/js/bun.lock',
+        'demo/js/bun.lockb',
+        'demo/js/npm-shrinkwrap.json',
+    ];
+    const root = mkdtempSync(join(tmpdir(), 'snapshot-filters-'));
+    try {
+        for (const path of [...admitted, ...excluded]) {
+            mkdirSync(join(root, dirname(path)), { recursive: true });
+            writeFileSync(join(root, path), 'x');
+        }
+        const { status, stdout, stderr } = spawnSync(
+            'rclone', ['lsf', '-R', '--files-only', ...SNAPSHOT_FILTERS, root],
+            { encoding: 'utf8' },
+        );
+        assert.equal(status, 0, stderr);
+        assert.deepEqual(stdout.trim().split('\n').sort(), admitted);
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
+test('SNAPSHOT_FILTERS excludes derived artifacts and fails closed at the root', () => {
     assert.deepEqual(
         SNAPSHOT_FILTERS.filter((arg) => arg !== '--filter'),
-        ['- .DS_Store', '- node_modules/**', '- _site/**', '- /.*/**', '+ /*/*/**', '- *'],
+        [
+            '- .DS_Store',
+            '- node_modules/**',
+            '- _site/**',
+            '- dist/**',
+            '- package-lock.json',
+            '- yarn.lock',
+            '- pnpm-lock.yaml',
+            '- bun.lock',
+            '- bun.lockb',
+            '- npm-shrinkwrap.json',
+            '- /.*/**',
+            '+ /*/*/**',
+            '- *',
+        ],
     );
 });

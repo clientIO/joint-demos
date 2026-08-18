@@ -17,13 +17,21 @@ import { pathToFileURL } from 'node:url';
 
 export const USAGE = 'Usage: npm run sync -- --version X.Y [--allow-dirty] (sync:prod for production)';
 
-// Verbatim from joint-mcp#30 (grill decision 2026-07-17): every top-level
-// non-hidden directory is a demo, demo content lives at depth >= 2 inside it,
-// anything new at the root fails closed. First match wins.
+// Snapshot filter rules: every top-level non-hidden directory is a demo, demo
+// content lives at depth >= 2 inside it, and anything new at the root fails
+// closed. Derived artifacts — dist/ build output and lockfiles — are excluded
+// at any depth. First match wins.
 export const SNAPSHOT_FILTERS = [
     '--filter', '- .DS_Store',
     '--filter', '- node_modules/**',
     '--filter', '- _site/**',
+    '--filter', '- dist/**',
+    '--filter', '- package-lock.json',
+    '--filter', '- yarn.lock',
+    '--filter', '- pnpm-lock.yaml',
+    '--filter', '- bun.lock',
+    '--filter', '- bun.lockb',
+    '--filter', '- npm-shrinkwrap.json',
     '--filter', '- /.*/**',
     '--filter', '+ /*/*/**',
     '--filter', '- *',
@@ -52,12 +60,12 @@ export function parseSyncArgs(args) {
 export function planCommands({ version, bucket }) {
     return [
         ['sync', './', `cf-r2:${bucket}/versioned_demos/version-${version}`, ...SNAPSHOT_FILTERS],
-        // `sync` makes the destination identical, so retired consolidated
-        // manifest keys under this version disappear with the same command.
+        // `sync` makes the destination identical, so manifest keys under this
+        // version that no longer exist locally disappear with the same command.
         ['sync', `.manifests/manifests/version-${version}`, `cf-r2:${bucket}/manifests/version-${version}`],
-        // The manifests-index artifact is retired (joint-mcp#44); remove the
-        // stale per-version index. `delete` with a filter is a no-op once
-        // the key is gone, so repeated syncs stay idempotent.
+        // No manifests-index artifact exists; remove any stale per-version
+        // index key. `delete` with a filter is a no-op once the key is gone,
+        // so repeated syncs stay idempotent.
         ['delete', `cf-r2:${bucket}/manifests-index`, '--include', `version-${version}.json`],
     ];
 }
@@ -81,9 +89,9 @@ if (isMain) {
         process.exit(1);
     }
 
-    // Preflight 2: clean tree. The snapshot filters admit every file at depth >= 2
-    // inside demo directories, so untracked local files would upload into the
-    // Demo Snapshot. A fresh clone passes trivially; ignored files (.manifests/,
+    // Preflight 2: clean tree. The snapshot filters admit every non-derived
+    // file at depth >= 2 inside demo directories, so untracked local files
+    // would upload into the Demo Snapshot. A fresh clone passes trivially; ignored files (.manifests/,
     // node_modules/) don't trip porcelain.
     const dirty = execFileSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf8' }).trim();
     if (dirty && !allowDirty) {
