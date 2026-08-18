@@ -46,6 +46,7 @@ test('planCommands emits the three version-scoped rclone commands', () => {
             '--filter', '- /.*/**',
             '--filter', '+ /*/*/**',
             '--filter', '- *',
+            '--delete-excluded',
         ],
         [
             'sync', '.manifests/manifests/version-4.3',
@@ -105,6 +106,35 @@ test('SNAPSHOT_FILTERS admit demo content and exclude derived artifacts', { skip
         assert.deepEqual(stdout.trim().split('\n').sort(), admitted);
     } finally {
         rmSync(root, { recursive: true, force: true });
+    }
+});
+
+// Excluded paths are invisible to a plain mirror, so without --delete-excluded
+// derived artifacts already at the destination survive every sync.
+test('snapshot sync deletes excluded keys already at the destination', { skip: !hasRclone }, () => {
+    const src = mkdtempSync(join(tmpdir(), 'snapshot-sync-src-'));
+    const dst = mkdtempSync(join(tmpdir(), 'snapshot-sync-dst-'));
+    try {
+        for (const [base, paths] of [
+            [src, ['demo/js/src/main.js']],
+            [dst, ['demo/js/src/main.js', 'demo/js/dist/bundle.js', 'demo/js/package-lock.json']],
+        ]) {
+            for (const path of paths) {
+                mkdirSync(join(base, dirname(path)), { recursive: true });
+                writeFileSync(join(base, path), 'x');
+            }
+        }
+        const snapshotArgs = planCommands({ version: '0.0', bucket: 'unused' })[0].slice(3);
+        const { status, stderr } = spawnSync(
+            'rclone', ['sync', src, dst, ...snapshotArgs],
+            { encoding: 'utf8' },
+        );
+        assert.equal(status, 0, stderr);
+        const listed = spawnSync('rclone', ['lsf', '-R', '--files-only', dst], { encoding: 'utf8' });
+        assert.deepEqual(listed.stdout.trim().split('\n').sort(), ['demo/js/src/main.js']);
+    } finally {
+        rmSync(src, { recursive: true, force: true });
+        rmSync(dst, { recursive: true, force: true });
     }
 });
 

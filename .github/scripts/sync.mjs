@@ -59,7 +59,9 @@ export function parseSyncArgs(args) {
 
 export function planCommands({ version, bucket }) {
     return [
-        ['sync', './', `cf-r2:${bucket}/versioned_demos/version-${version}`, ...SNAPSHOT_FILTERS],
+        // Excluded paths are invisible to a plain mirror; --delete-excluded
+        // makes the sync also remove derived artifacts already in the bucket.
+        ['sync', './', `cf-r2:${bucket}/versioned_demos/version-${version}`, ...SNAPSHOT_FILTERS, '--delete-excluded'],
         // `sync` makes the destination identical, so manifest keys under this
         // version that no longer exist locally disappear with the same command.
         ['sync', `.manifests/manifests/version-${version}`, `cf-r2:${bucket}/manifests/version-${version}`],
