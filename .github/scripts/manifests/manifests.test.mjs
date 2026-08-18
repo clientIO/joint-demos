@@ -186,7 +186,7 @@ test('golden: sample repo produces one document per emitted variant', () => {
     }
 });
 
-test('golden: hidden variants, vue/svelte, listings, advisory, and index are all absent', () => {
+test('golden: hidden variants, vue/svelte, file listings, API notes, and index are all absent', () => {
     const outputs = generateManifests(join(FIXTURES, 'sample-repo'), '9.9');
     const keys = [...outputs.keys()];
     // tabs/react is in HIDDEN_VARIANTS: no document, and no react folder
@@ -197,7 +197,7 @@ test('golden: hidden variants, vue/svelte, listings, advisory, and index are all
     assert.ok(keys.every((key) => !key.startsWith('manifests-index/')));
     for (const [key, content] of outputs) {
         assert.ok(!content.includes('Source files'), `${key} carries a file listing`);
-        assert.ok(!content.includes('API note'), `${key} carries the deleted advisory`);
+        assert.ok(!content.includes('API note'), `${key} carries an API note`);
     }
 });
 

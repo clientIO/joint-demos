@@ -1,4 +1,4 @@
-// Pure transform seam for Demo Manifests (joint-mcp#27, v4 layout: #44/#45):
+// Pure transform seam for Demo Manifests:
 // one demo's variants in, one Manifest markdown per emitted variant out.
 // No filesystem access — the golden-fixture test drives this via
 // generateManifests().
@@ -153,12 +153,11 @@ function yaml(value) {
     return JSON.stringify(value);
 }
 
-// The imperative react variants (spec joint-mcp#44): they build on
-// @joint/plus inside React rather than @joint/react*, so they are hidden
-// from discovery — no manifest document, no Variants-line mention. Their
-// Demo Snapshot sources stay in R2 and get_demo_code still serves them.
-// Deliberately an explicit demo/variant-dir list, not a package predicate:
-// all future react demos will use @joint/react.
+// The imperative react variants: they build on @joint/plus inside React
+// rather than @joint/react*, so they are hidden from discovery — no
+// manifest document, no Variants-line mention. Their Demo Snapshot sources
+// stay in R2 and get_demo_code serves them. An explicit demo/variant-dir
+// list, not a package predicate.
 export const HIDDEN_VARIANTS = new Set([
     'chatbot/react-ts',
     'chatbot/react-redux-ts',
@@ -169,7 +168,7 @@ export const HIDDEN_VARIANTS = new Set([
 ]);
 
 // Canonical variant folders that get manifest documents, in emission (and
-// Variants-line) order. Vue/svelte are deferred — see spec joint-mcp#44.
+// Variants-line) order. Vue and svelte variants emit no manifests.
 const EMITTED_VARIANTS = ['js', 'ts', 'react', 'angular'];
 
 // One Manifest per emitted variant, keyed <variant>/<demo>.md so the

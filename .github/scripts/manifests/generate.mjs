@@ -2,7 +2,7 @@
 // variant (a demo is any top-level dir with a root README.md; its variants
 // are the direct subdirs containing a package.json). Enumeration mirrors
 // build-demos.sh: skip dot-dirs, node_modules, _site. demos.config.json
-// skip flags are build-only and intentionally not honored.
+// skip flags are build-only and not honored here.
 
 import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
