@@ -3,7 +3,6 @@ import { ui, format } from '@joint/plus';
 import { toBPMN } from '@joint/format-bpmn-export';
 import { bpmnExportOptions } from '../shapes/factories';
 import { toolbarToolNames, openFileDropdownToolNames, openFileDropdownTools } from '../configs/toolbar-config';
-import { fontsStyleSheet } from '../configs/font-style-sheet';
 import { XMLFileImporter, JSONFileImporter } from '../import';
 
 export default class ToolbarActionsController extends Controller {
@@ -63,9 +62,9 @@ function onPrintClick(context) {
     format.print(paper, { grid: true });
 }
 
-async function onSavePNGClick(context) {
+function onSavePNGClick(context) {
     const { paper } = context;
-    
+
     paper.hideTools();
     format.toPNG(paper, (dataURL) => {
         new ui.Lightbox({
@@ -78,9 +77,9 @@ async function onSavePNGClick(context) {
         paper.showTools();
     }, {
         padding: 10,
-        useComputedStyles: false,
+        useComputedStyles: 'full',
         grid: true,
-        stylesheet: await fontsStyleSheet()
+        embedFonts: true
     });
 }
 

@@ -3,7 +3,6 @@ import { type dia, ui, format } from '@joint/plus';
 import { toBPMN } from '@joint/format-bpmn-export';
 import { bpmnExportOptions } from '../shapes/factories';
 import { toolbarToolNames, openFileDropdownToolNames, openFileDropdownTools } from '../configs/toolbar-config';
-import { fontsStyleSheet } from '../configs/font-style-sheet';
 import { XMLFileImporter, JSONFileImporter } from '../import';
 
 type ToolbarActionsControllerArgs = {
@@ -70,7 +69,7 @@ function onPrintClick(context: ToolbarActionsControllerArgs) {
     format.print(paper, { grid: true });
 }
 
-async function onSavePNGClick(context: ToolbarActionsControllerArgs) {
+function onSavePNGClick(context: ToolbarActionsControllerArgs) {
     const { paper } = context;
 
     paper.hideTools();
@@ -85,9 +84,9 @@ async function onSavePNGClick(context: ToolbarActionsControllerArgs) {
         paper.showTools();
     }, {
         padding: 10,
-        useComputedStyles: false,
+        useComputedStyles: 'full',
         grid: true,
-        stylesheet: await fontsStyleSheet()
+        embedFonts: true
     });
 }
 
