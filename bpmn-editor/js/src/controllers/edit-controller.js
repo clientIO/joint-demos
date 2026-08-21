@@ -232,9 +232,7 @@ function prepareLabelEditor(context, cellView) {
     const wrapperStyles = { ...labelEditorWrapperStyles, ...cell.getLabelEditorStyles(paper) };
     
     // Apply global wrapper styles and styles from the shape
-    for (const [key, value] of Object.entries(wrapperStyles)) {
-        editableWrapper.style[key] = value;
-    }
+    Object.assign(editableWrapper.style, wrapperStyles);
     
     const contentEditableDiv = document.createElement('div');
     contentEditableDiv.contentEditable = 'true';
