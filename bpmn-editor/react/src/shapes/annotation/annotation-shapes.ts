@@ -15,7 +15,7 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
     public readonly labelPath = 'label/text';
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: AnnotationShapeTypes.ANNOTATION,
             shapeType: ShapeTypes.ANNOTATION,
             attrs: {
@@ -31,7 +31,8 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
                     text: 'Annotation'
                 }
             }
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     copyFrom(element: dia.Element): void {
@@ -129,10 +130,11 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
 export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements AppLink {
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.ANNOTATION,
             type: AnnotationShapeTypes.LINK
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     copyFrom(link: dia.Link): void {

@@ -1,10 +1,26 @@
-import type { Ref } from 'react';
+import { useEffect, useRef } from 'react';
+import { usePaperScroller, useGraphHistory } from '@joint/react-plus';
+import { setupFileImport } from '../import';
 
-// Drop overlay shown while a file is dragged over the paper —
-// `setupFileImport` toggles its `active` class.
-export function FileImportOverlay({ ref }: { ref: Ref<HTMLDivElement> }) {
+// Drop overlay shown while a file is dragged over the paper. Owns the
+// drag-and-drop file import: `setupFileImport` attaches the drag listeners
+// and toggles the overlay's `active` class.
+export function FileImportOverlay() {
+
+    const overlayRef = useRef<HTMLDivElement | null>(null);
+
+    const { paperScroller } = usePaperScroller();
+    const { commandManager } = useGraphHistory();
+
+    useEffect(() => {
+        const overlayEl = overlayRef.current;
+        if (!paperScroller || !overlayEl) return;
+
+        return setupFileImport(paperScroller, commandManager, overlayEl);
+    }, [paperScroller, commandManager]);
+
     return (
-        <div ref={ref} className="file-import-overlay">
+        <div ref={overlayRef} className="file-import-overlay">
             <div className="file-import-overlay-content">
                 <svg
                     className="drop-icon"

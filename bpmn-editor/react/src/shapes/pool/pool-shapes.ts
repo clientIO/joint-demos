@@ -52,7 +52,7 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implemen
     labelPath = 'headerText/text';
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.POOL,
             type: PoolShapeTypes.HORIZONTAL_POOL,
             size: DEFAULT_HORIZONTAL_POOL_SIZE,
@@ -72,7 +72,8 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implemen
             },
             padding: HORIZONTAL_POOL_PADDING,
             ...poolAttributes,
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     // Not used
@@ -140,7 +141,7 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements A
     labelPath = 'headerText/text';
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.POOL,
             type: PoolShapeTypes.VERTICAL_POOL,
             size: DEFAULT_VERTICAL_POOL_SIZE,
@@ -160,7 +161,8 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements A
             },
             padding: VERTICAL_POOL_PADDING,
             ...poolAttributes,
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     // Not used
@@ -229,12 +231,13 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
     omitDefaultHaloHandles = true;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.SWIMLANE,
             type: PoolShapeTypes.HORIZONTAL_SWIMLANE,
+            // Intentionally partial: the height comes from the inherited defaults
             size: {
                 width: SWIMLANE_HEADER_SIZE
-            },
+            } as dia.Size,
             attrs: {
                 root: {
                     highlighterSelector: 'body'
@@ -248,7 +251,8 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
                 }
             },
             ...swimlaneAttributes
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     // Not used
@@ -304,12 +308,13 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
     omitDefaultHaloHandles = true;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.SWIMLANE,
             type: PoolShapeTypes.VERTICAL_SWIMLANE,
+            // Intentionally partial: the width comes from the inherited defaults
             size: {
                 height: SWIMLANE_HEADER_SIZE
-            },
+            } as dia.Size,
             attrs: {
                 root: {
                     highlighterSelector: 'body'
@@ -323,7 +328,8 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
                 }
             },
             ...swimlaneAttributes
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     // Not used

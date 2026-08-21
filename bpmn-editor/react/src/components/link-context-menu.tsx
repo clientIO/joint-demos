@@ -1,26 +1,43 @@
-import { useEffect, useRef } from 'react';
-import { Overlay } from '@joint/react-plus';
+import { useEffect, useRef, useState } from 'react';
+import { Overlay, usePaper, useSelectionCollection, useOnPaperEvents } from '@joint/react-plus';
+import { openLabelEditor } from '../editor/label-editor';
 
-import type { ContextMenuState } from '../editor/context-menu-bridge';
+import type { AppLink } from '../shapes/shapes-typing';
 
-interface LinkContextMenuProps {
-    menu: ContextMenuState | null;
-    onClose: () => void;
+interface MenuState {
+    // Local (graph) coordinates.
+    x: number;
+    y: number;
+    link: AppLink;
 }
 
-// Context menu rendered at a graph coordinate via the Overlay component.
-export function LinkContextMenu({ menu, onClose }: LinkContextMenuProps) {
+// Context menu of a link, opened on right-click. Offers adding/editing the
+// link label (handled by the edit interactions via the event bus).
+export function LinkContextMenu() {
 
+    const [menu, setMenu] = useState<MenuState | null>(null);
     const menuRef = useRef<HTMLDivElement | null>(null);
+
+    const { paper } = usePaper();
+    const selection = useSelectionCollection();
+
+    useOnPaperEvents({
+        onLinkContextMenu: ({ paper, model, event }) => {
+            const { x, y } = paper.clientToLocalPoint(event.clientX!, event.clientY!);
+            setMenu({ x, y, link: model as AppLink });
+        },
+        onCellPointerDown: () => setMenu(null),
+        onBlankPointerDown: () => setMenu(null)
+    });
 
     // Close on Escape or any pointerdown outside the menu.
     useEffect(() => {
         if (!menu) return;
         const onPointerDown = (evt: PointerEvent) => {
-            if (!menuRef.current?.contains(evt.target as Node)) onClose();
+            if (!menuRef.current?.contains(evt.target as Node)) setMenu(null);
         };
         const onKeyDown = (evt: KeyboardEvent) => {
-            if (evt.key === 'Escape') onClose();
+            if (evt.key === 'Escape') setMenu(null);
         };
         document.addEventListener('pointerdown', onPointerDown);
         document.addEventListener('keydown', onKeyDown);
@@ -28,23 +45,23 @@ export function LinkContextMenu({ menu, onClose }: LinkContextMenuProps) {
             document.removeEventListener('pointerdown', onPointerDown);
             document.removeEventListener('keydown', onKeyDown);
         };
-    }, [menu, onClose]);
+    }, [menu]);
 
     if (!menu) return null;
+
+    const onEditLabel = () => {
+        setMenu(null);
+        if (!paper) return;
+        const linkView = paper.findViewByModel(menu.link);
+        if (linkView) openLabelEditor(paper, selection, linkView);
+    };
 
     return (
         <Overlay x={menu.x} y={menu.y}>
             <div ref={menuRef} className="context-menu">
-                {menu.items.map((item) => (
-                    <button
-                        type="button"
-                        key={item.action}
-                        className="context-menu-item"
-                        onClick={() => menu.onAction(item.action)}
-                    >
-                        {item.label}
-                    </button>
-                ))}
+                <button type="button" className="context-menu-item" onClick={onEditLabel}>
+                    {menu.link.hasLabels() ? 'Edit Label' : 'Add Label'}
+                </button>
             </div>
         </Overlay>
     );

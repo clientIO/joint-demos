@@ -2,11 +2,11 @@ import { dia, shapes } from '@joint/plus';
 import { ShapeTypes, type AppElement, type AppShape } from '../shapes/shapes-typing';
 import { BPMNLinkView } from '../shapes/placeholder/placeholder-shapes';
 import { LabelElementView } from '../shapes/shape-view';
-import { canElementExistOutsidePool, getBoundaryPoint } from '../utils';
+import { canElementExistOutsidePool, getBoundaryPoint, getSwimlaneParent } from '../utils';
 import { MAIN_COLOR } from '../configs/theme';
 import { graph } from './core';
 
-import type { g } from '@joint/plus';
+import type { CanConnectOptions, ConnectionStrategy, InteractionsOptions, ValidateEmbedding, ValidateUnembedding } from '@joint/react-plus';
 
 // The highlighting config is passed via the dedicated `<Paper highlighting>` prop.
 export const HIGHLIGHTING: dia.Paper.Options['highlighting'] = {
@@ -46,11 +46,94 @@ export const bpmnInteractivity = ({ model }: { model: dia.Cell }): dia.CellView.
     };
 };
 
+// Built-in <Diagram> interactions: wheel panning, pinch/ctrl-wheel zoom, pan
+// cursor, click-to-select and the shift-drag region. The generic keyboard,
+// clipboard and history shortcuts are off — the app binds its own
+// (BPMN-specific swimlane-aware delete, zoom clamping, undo/redo).
+export const DIAGRAM_INTERACTIONS: InteractionsOptions = {
+    keyboard: false,
+    clipboard: false,
+    commandManager: false,
+    // When the region gesture starts on a swimlane, select only elements
+    // inside that swimlane, excluding everything else.
+    selectionRegion: ({ event, paper }) => {
+        const view = paper.findView(event.target as HTMLElement);
+        const origin = view?.model;
+
+        if (!origin || !shapes.bpmn2.Swimlane.isSwimlane(origin)) return {};
+
+        return {
+            filter: ({ model }: { model: dia.Cell }) => {
+                // Never select pools or swimlanes if the region started on a pool or swimlane
+                if (shapes.bpmn2.CompositePool.isPool(model) ||
+                    shapes.bpmn2.Swimlane.isSwimlane(model)) return false;
+
+                const parent = getSwimlaneParent(model);
+                // Cell is not part of any pool
+                if (!parent) return false;
+                return parent.id === origin.id;
+            }
+        };
+    }
+};
+
+// Connection validation is delegated entirely to the shape classes — the
+// built-in rules are switched off so they don't get in the way (e.g.
+// annotation links may attach to other links).
+export const bpmnValidateConnection: CanConnectOptions = {
+    allowSelfLoops: true,
+    allowLinkToLink: true,
+    linkLimit: 'none',
+    allowRootConnection: true,
+    validate: ({ source, target }) => (source.model as AppShape).validateConnection(target.model)
+};
+
+// Converts the drop coordinates into a fixed anchor: a boundary point for
+// elements, the closest point along the line for links.
+export const bpmnConnectionStrategy: ConnectionStrategy = ({ end, model, dropPoint, paper }) => {
+
+    if (model.isElement()) {
+        const { x, y } = getBoundaryPoint(model as AppElement, dropPoint);
+
+        end.anchor = {
+            name: 'topLeft',
+            args: {
+                dx: x,
+                dy: y
+            }
+        };
+    } else {
+        const linkView = paper.findViewByModel(model) as dia.LinkView;
+
+        end.anchor = {
+            name: 'connectionLength',
+            args: {
+                length: linkView.getClosestPointLength(dropPoint)
+            }
+        };
+    }
+
+    return end;
+};
+
+export const bpmnValidateEmbedding: ValidateEmbedding = ({ child, parent, paper }) => {
+    return (child.model as AppElement).validateEmbedding(parent.model, paper.model === graph);
+};
+
+export const bpmnValidateUnembedding: ValidateUnembedding = ({ child }) => {
+    const isPoolPresent = graph.getElements().some(element => element.get('shapeType') === ShapeTypes.POOL);
+
+    const element = child.model as AppElement;
+
+    // If there is a pool present, only allow unembedding of elements that are valid outside of pools
+    if (isPoolPresent && !canElementExistOutsidePool(element) && !shapes.bpmn2.Swimlane.isSwimlane(element)) return false;
+
+    return !(element.validateUnembedding) || element.validateUnembedding();
+};
+
+// Options without a react counterpart, passed through the `<Paper options>`
+// escape hatch (raw JointJS signatures).
 export const PAPER_NATIVE_OPTIONS: Partial<dia.Paper.Options> = {
-    width: 2000,
-    height: 2000,
-    drawGrid: true,
-    background: { color: '#FDFDFD' },
     findParentBy: (elementView: dia.ElementView, evt: dia.Event) => {
         const parentView = elementView.getTargetParentView(evt);
         // Enable easier snapping for boundary elements by bbox
@@ -59,81 +142,12 @@ export const PAPER_NATIVE_OPTIONS: Partial<dia.Paper.Options> = {
 
         return graph.findElementsUnderElement(elementView.model, { searchBy });
     },
-    defaultAnchor: (endView: dia.ElementView, _endMagnet: SVGElement, anchorReference: g.Point | SVGElement, _args: object) => {
-        let reference = anchorReference;
-
-        if (reference instanceof SVGElement) {
-            const refBBox = reference.getBoundingClientRect();
-            const cx = refBBox.x + refBBox.width / 2;
-            const cy = refBBox.y + refBBox.height / 2;
-
-            reference = endView.paper!.clientToLocalPoint({ x: cx, y: cy });
-        }
-
-        const bbox = endView.model.getBBox();
-        const closestSide = bbox.sideNearestToPoint(reference);
-
-        switch (closestSide) {
-            case 'top':
-                return bbox.topMiddle();
-            case 'right':
-                return bbox.rightMiddle();
-            case 'bottom':
-                return bbox.bottomMiddle();
-            case 'left':
-                return bbox.leftMiddle();
-        }
-    },
-    connectionStrategy: function(end, view, _, coords) {
-
-        const { model } = view;
-
-        if (model.isElement()) {
-            const { x, y } = getBoundaryPoint(view.model as AppElement, coords);
-
-            end.anchor = {
-                name: 'topLeft',
-                args: {
-                    dx: x,
-                    dy: y
-                }
-            };
-        } else {
-            end.anchor = {
-                name: 'connectionLength',
-                args: {
-                    length: (view as dia.LinkView).getClosestPointLength(coords)
-                }
-            };
-        }
-
-        return end;
-    },
-    elementView: LabelElementView as typeof dia.ElementView,
-    linkView: BPMNLinkView as typeof dia.LinkView,
-    validateConnection: (sourceView, _, targetView) => {
-        const source = sourceView.model;
-        const target = targetView.model;
-
-        return (source as AppShape).validateConnection(target);
-    },
-    allowLink: (cellView) => {
+    // Anchor links to the middle of the element side nearest the other end.
+    defaultAnchor: { name: 'midSide', args: { useModelGeometry: true }},
+    elementView: LabelElementView,
+    linkView: BPMNLinkView,
+    allowLink: ({ model }) => {
         // Link has source and target elements
-        return !!(cellView.model.source().id) && !!(cellView.model.target().id);
-    },
-    validateEmbedding: (childView, parentView) => {
-        const child = childView.model as AppElement;
-
-        return child.validateEmbedding(parentView.model, childView?.paper?.model === graph);
-    },
-    validateUnembedding: (childView) => {
-        const isPoolPresent = graph.getElements().some(element => element.get('shapeType') === ShapeTypes.POOL);
-
-        const child = childView.model as AppElement;
-
-        // If there is a pool present, only allow unembedding of elements that are valid outside of pools
-        if (isPoolPresent && !canElementExistOutsidePool(child) && !shapes.bpmn2.Swimlane.isSwimlane(child)) return false;
-
-        return !(child.validateUnembedding) || child.validateUnembedding();
+        return !!(model.source().id) && !!(model.target().id);
     }
 };

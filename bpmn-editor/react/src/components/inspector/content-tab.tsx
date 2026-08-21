@@ -1,8 +1,9 @@
+import { useCells, useSelectionCollection } from '@joint/react-plus';
 import { getShapeConstructorByType } from '../../utils';
-import { eventBus, EventBusEvents } from '../../event-bus';
-import { useCellVersion } from './use-cell-version';
+import { graph } from '../../editor/core';
+import { replaceShape } from '../../editor/replace-shape';
 
-import type { AppElement, AppLink, Marker, MarkerNames } from '../../shapes/shapes-typing';
+import type { AppElement, AppLink, AppShape, Marker, MarkerNames } from '../../shapes/shapes-typing';
 
 function MarkersSection({ shape }: { shape: AppElement }) {
     const markers = shape.getMarkers!();
@@ -37,15 +38,17 @@ function MarkersSection({ shape }: { shape: AppElement }) {
 }
 
 function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
+    const selection = useSelectionCollection();
     const shapeTypes = shape.getShapeList();
 
     const morphTo = (type: string) => {
         const shapeConstructor = getShapeConstructorByType(type);
         const newShape = new shapeConstructor({ id: shape.id });
 
-        // EditController picks this up, swaps the cell in the graph and
-        // re-selects the new shape, which re-opens the inspector for it.
-        eventBus.trigger(EventBusEvents.GRAPH_REPLACE_CELL, shape, newShape);
+        replaceShape(graph, shape as unknown as AppShape, newShape as unknown as AppShape);
+
+        // Re-select the new shape, which re-opens the inspector for it.
+        selection.collection.reset([newShape]);
     };
 
     return (
@@ -74,7 +77,7 @@ function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
 
 export function ContentTab({ cell }: { cell: AppElement | AppLink }) {
     // Re-render on marker changes (including undo/redo).
-    useCellVersion(cell);
+    useCells(cell.id);
 
     const hasMarkers = cell.isElement() && !!cell.getMarkers && cell.getMarkers().length > 0;
     const hasShapes = cell.getShapeList().length > 0;

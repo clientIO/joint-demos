@@ -14,7 +14,7 @@ export class Group extends shapes.bpmn2.Group implements AppElement {
     public readonly labelPath = 'label/text';
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: GroupShapeTypes.GROUP,
             shapeType: ShapeTypes.GROUP,
             size: {
@@ -27,7 +27,8 @@ export class Group extends shapes.bpmn2.Group implements AppElement {
                     text: 'Group'
                 }
             }
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     copyFrom(element: dia.Element): void {

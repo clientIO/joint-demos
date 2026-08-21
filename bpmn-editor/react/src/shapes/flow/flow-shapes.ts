@@ -28,9 +28,10 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
     };
 
     defaults() {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.FLOW
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     constructor(...args: ConstructorParameters<typeof shapes.bpmn2.Flow>) {
@@ -117,14 +118,15 @@ export class Sequence extends Flow {
     static icon = flowIconClasses.SEQUENCE;
 
     defaults() {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: FlowShapeTypes.SEQUENCE,
             attrs: {
                 line: {
                     flowType: 'sequence'
                 }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -134,14 +136,15 @@ export class Default extends Flow {
     static icon = flowIconClasses.DEFAULT;
 
     defaults() {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: FlowShapeTypes.DEFAULT,
             attrs: {
                 line: {
                     flowType: 'default'
                 }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -151,14 +154,15 @@ export class Conditional extends Flow {
     static icon = flowIconClasses.CONDITIONAL;
 
     defaults() {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: FlowShapeTypes.CONDITIONAL,
             attrs: {
                 line: {
                     flowType: 'conditional'
                 }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -167,14 +171,15 @@ export class Message extends Flow {
     static label = FlowLabels['flow.Message'];
 
     defaults() {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: FlowShapeTypes.MESSAGE,
             attrs: {
                 line: {
                     flowType: 'message'
                 }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     getShapeList(): string[] {

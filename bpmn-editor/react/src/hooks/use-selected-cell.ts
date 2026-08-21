@@ -1,24 +1,14 @@
-import { useCallback, useSyncExternalStore } from 'react';
-import { useSelectionCollection } from '@joint/react-plus';
+import { useCells, useSelectionCollection } from '@joint/react-plus';
+import { graph } from '../editor/core';
 
 import type { dia } from '@joint/plus';
 
 // The single selected cell, or `null` when nothing or multiple cells are
-// selected. Derived reactively from the selection collection.
+// selected.
 export function useSelectedCell(): dia.Cell | null {
     const { collection } = useSelectionCollection();
 
-    const subscribe = useCallback((onChange: () => void) => {
-        collection.on('add remove reset', onChange);
-        return () => {
-            collection.off('add remove reset', onChange);
-        };
-    }, [collection]);
-
-    const getSnapshot = useCallback(
-        () => (collection.length === 1 ? collection.first()! : null),
-        [collection]
+    return useCells(collection, (cells) =>
+        cells.length !== 1 ? null : graph.getCell(cells[0].id) ?? null
     );
-
-    return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }

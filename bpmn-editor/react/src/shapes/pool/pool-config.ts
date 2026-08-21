@@ -1,6 +1,6 @@
 import { inspectorOptions } from '../shared-config';
 
-import type { shapes } from '@joint/plus';
+import type { dia, shapes } from '@joint/plus';
 
 export enum PoolShapeTypes {
     HORIZONTAL_POOL = 'pool.HorizontalPool',
@@ -32,13 +32,13 @@ export const VERTICAL_POOL_PADDING = {
     top: 30
 };
 
-export const poolAttributes: Partial<shapes.bpmn2.CompositePool.Attributes<shapes.bpmn2.CompositePool.Selectors>> = {
+export const poolAttributes: Partial<shapes.bpmn2.CompositePool.Attributes<dia.Cell.Selectors>> = {
     headerTextMargin: 5,
     contentMargin: LANE_CONTENT_MARGIN,
     minimumLaneSize: MIN_LANE_SIZE
 };
 
-export const swimlaneAttributes: Partial<shapes.bpmn2.Swimlane.Attributes<shapes.bpmn2.Swimlane.Selectors>> = {
+export const swimlaneAttributes: Partial<shapes.bpmn2.Swimlane.Attributes<dia.Cell.Selectors>> = {
     headerSize: SWIMLANE_HEADER_SIZE,
     headerTextMargin: 5,
     contentMargin: LANE_CONTENT_MARGIN,

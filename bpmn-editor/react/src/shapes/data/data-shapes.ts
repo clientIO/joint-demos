@@ -22,7 +22,7 @@ abstract class Data extends shapes.bpmn2.DataObject implements AppElement {
     public readonly labelSelector = 'labelGroup';
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.DATA_OBJECT,
             markers: [],
             attrs: {
@@ -40,7 +40,8 @@ abstract class Data extends shapes.bpmn2.DataObject implements AppElement {
                 width: 40,
                 height: 50
             }
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     preinitialize(...args: Parameters<shapes.bpmn2.DataObject['preinitialize']>): void {
@@ -174,14 +175,15 @@ export class DataObject extends Data {
     static icon = dataIconClasses.DATA_OBJECT;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: DataShapeTypes.DATA_OBJECT,
             attrs: {
                 label: {
                     text: 'Data Object'
                 }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     getShapeList(): string[] {
@@ -198,7 +200,7 @@ export class DataInput extends Data {
     static icon = dataIconClasses.DATA_INPUT;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: DataShapeTypes.DATA_INPUT,
             attrs: {
                 dataTypeIcon: {
@@ -208,7 +210,8 @@ export class DataInput extends Data {
                     text: 'Data Input'
                 }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     getShapeList(): string[] {
@@ -225,7 +228,7 @@ export class DataOutput extends Data {
     static icon = dataIconClasses.DATA_OUTPUT;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: DataShapeTypes.DATA_OUTPUT,
             attrs: {
                 dataTypeIcon: {
@@ -235,7 +238,8 @@ export class DataOutput extends Data {
                     text: 'Data Output'
                 }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     getShapeList(): string[] {
@@ -258,7 +262,7 @@ export class DataStore extends shapes.bpmn2.DataStore implements AppElement {
     static icon = dataIconClasses.DATA_STORE;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: DataShapeTypes.DATA_STORE,
             shapeType: ShapeTypes.DATA_STORE,
             attrs: {
@@ -272,7 +276,8 @@ export class DataStore extends shapes.bpmn2.DataStore implements AppElement {
                 width: 50,
                 height: 50
             }
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     preinitialize(...args: Parameters<shapes.bpmn2.DataStore['preinitialize']>): void {
@@ -364,10 +369,11 @@ export class DataAssociation extends shapes.bpmn2.DataAssociation implements App
     static label = DataLabels['data.DataAssociation'];
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: DataShapeTypes.DATA_ASSOCIATION,
             shapeType: ShapeTypes.DATA_ASSOCIATION
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     copyFrom(link: dia.Link): void {

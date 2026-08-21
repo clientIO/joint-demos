@@ -1,11 +1,8 @@
-import { useMemo, useState } from 'react';
 import {
     Diagram,
     Paper,
     PaperScroller,
     Snaplines,
-    Stencil,
-    type StencilApi,
 } from '@joint/react-plus';
 import { shapes } from '@joint/plus';
 import { graph } from './editor/core';
@@ -13,26 +10,29 @@ import {
     HIGHLIGHTING,
     PAPER_NATIVE_OPTIONS,
     bpmnInteractivity,
+    bpmnValidateConnection,
+    bpmnConnectionStrategy,
+    bpmnValidateEmbedding,
+    bpmnValidateUnembedding,
+    DIAGRAM_INTERACTIONS,
 } from './editor/paper-options';
 import { cellNamespace } from './shapes';
 import { IntermediateBoundary } from './shapes/event/event-shapes';
 import { ZOOM_SETTINGS } from './configs/navigator-config';
-import { EditorBootstrap } from './components/editor-bootstrap';
+import { EditorBehavior } from './components/editor-behavior';
 import { BpmnHalo } from './components/bpmn-halo';
+import { BpmnFreeTransform } from './components/bpmn-free-transform';
 import { BpmnSelection } from './components/bpmn-selection';
 import { LinkContextMenu } from './components/link-context-menu';
+import { LinkToolsBehavior } from './components/link-tools-behavior';
 import { TipProvider } from './components/ui/tip';
 import { BpmnToolbar } from './components/toolbar/bpmn-toolbar';
-import { BpmnPalette } from './components/stencil/bpmn-palette';
+import { BpmnStencil } from './components/stencil/bpmn-stencil';
 import { InspectorPanel } from './components/inspector/inspector-panel';
 import { NavigatorPanel } from './components/navigator/navigator-panel';
 import { FileImportOverlay } from './components/file-import-overlay';
 
 import type { dia } from '@joint/plus';
-import type {
-    ContextMenuLike,
-    ContextMenuState,
-} from './editor/context-menu-bridge';
 
 // Do not snap pools, swimlanes and boundary events
 function bpmnCanSnap({ model }: { model: dia.Element }) {
@@ -44,36 +44,15 @@ function bpmnCanSnap({ model }: { model: dia.Element }) {
 }
 
 export function App() {
-    // Held in state (set via callback refs) so EditorBootstrap re-runs its
-    // setup effect once these instances become available.
-    const [stencil, setStencil] = useState<StencilApi['stencil'] | null>(null);
-    const [overlayEl, setOverlayEl] = useState<HTMLDivElement | null>(null);
-
-    const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(
-        null,
-    );
-
-    // The context-menu bridge the controllers call into; forwards to React
-    // state that drives <LinkContextMenu>.
-    const contextMenuBridge = useMemo<ContextMenuLike>(
-        () => ({
-            open: (state) => setContextMenu(state),
-            close: () => setContextMenu(null),
-        }),
-        [],
-    );
-
     return (
         <TipProvider>
-            <Diagram graph={graph} interactions={false} history>
+            <Diagram graph={graph} interactions={DIAGRAM_INTERACTIONS} history>
                 <div id='app'>
                     <div className='app-toolbar'>
                         <BpmnToolbar />
                     </div>
                     <div className='app-body'>
-                        <Stencil ref={setStencil} className='stencil-container'>
-                            <BpmnPalette />
-                        </Stencil>
+                        <BpmnStencil />
                         <div className='paper-container'>
                             <PaperScroller
                                 style={{ width: '100%', height: '100%' }}
@@ -83,6 +62,8 @@ export function App() {
                             >
                                 <Paper
                                     gridSize={10}
+                                    drawGrid
+                                    background={{ color: '#FDFDFD' }}
                                     snapLinks
                                     embeddingMode
                                     markAvailable
@@ -90,25 +71,24 @@ export function App() {
                                     labelsLayer
                                     interactive={bpmnInteractivity}
                                     highlighting={HIGHLIGHTING}
+                                    validateConnection={bpmnValidateConnection}
+                                    connectionStrategy={bpmnConnectionStrategy}
+                                    validateEmbedding={bpmnValidateEmbedding}
+                                    validateUnembedding={bpmnValidateUnembedding}
                                     cellViewNamespace={cellNamespace}
                                     options={PAPER_NATIVE_OPTIONS}
                                 >
                                     <Snaplines canSnap={bpmnCanSnap} />
                                     <BpmnSelection />
                                     <BpmnHalo />
-                                    <LinkContextMenu
-                                        menu={contextMenu}
-                                        onClose={() => setContextMenu(null)}
-                                    />
-                                    <EditorBootstrap
-                                        stencil={stencil}
-                                        overlayEl={overlayEl}
-                                        contextMenuBridge={contextMenuBridge}
-                                    />
+                                    <BpmnFreeTransform />
+                                    <LinkContextMenu />
+                                    <LinkToolsBehavior />
+                                    <EditorBehavior />
                                 </Paper>
                             </PaperScroller>
                             <NavigatorPanel />
-                            <FileImportOverlay ref={setOverlayEl} />
+                            <FileImportOverlay />
                         </div>
                         <InspectorPanel />
                     </div>

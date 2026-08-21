@@ -1,0 +1,11 @@
+.navigator-container {
+    position: absolute;
+    width: 318px;
+    bottom: 14px;
+    right: 14px;
+    z-index: 1;
+    border-radius: var(--jj-border-radius-small);
+    border: 1px solid var(--jj-border-primary);
+    background-color: var(--jj-bg-primary);
+    color: var(--jj-text-secondary);
+}

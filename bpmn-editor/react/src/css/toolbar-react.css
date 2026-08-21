@@ -1,0 +1,141 @@
+/* The app toolbar is a plain React component (components/toolbar/). */
+.bpmn-toolbar {
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 54px;
+    padding: 0 16px;
+    background-color: var(--jj-bg-primary);
+    border-bottom: 1px solid var(--jj-border-primary);
+    color: var(--jj-text-secondary);
+
+    .toolbar-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .toolbar-button {
+        box-sizing: border-box;
+        height: 32px;
+        cursor: pointer;
+        color: inherit;
+        border-radius: var(--jj-border-radius-small);
+        transition-duration: 0.2s;
+        transition-timing-function: ease-in-out;
+        transition-property: background-color, border-color;
+        font-family: 'Open Sans', sans-serif;
+
+        &:hover:not(:disabled) {
+            border-color: var(--jj-border-hover);
+            background-color: var(--jj-bg-hover);
+        }
+
+        &:disabled {
+            filter: opacity(0.5);
+            cursor: initial;
+        }
+    }
+
+    .toolbar-icon-button {
+        background: transparent;
+        border: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 32px;
+    }
+
+    .toolbar-open-file-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 0 8px;
+        color: inherit;
+        outline: none;
+        background: transparent;
+        border: 1px solid var(--jj-border-button);
+    }
+
+    .toolbar-separator {
+        width: 0;
+        height: 32px;
+        border-right: 1px solid var(--jj-border-tertiary);
+    }
+
+    .toolbar-label {
+        margin-right: 8px;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 17.7px;
+        text-align: center;
+    }
+
+    .toolbar-save-button {
+        justify-content: center;
+        padding: 0 4px;
+        min-width: 48px;
+        border: 1px solid var(--jj-border-save-button);
+        background-color: var(--jj-bg-secondary);
+        color: var(--jj-text-secondary);
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 19px;
+        text-align: center;
+    }
+}
+
+/* File dropdown menu (Radix DropdownMenu, portaled to the body). */
+.file-dropdown-menu {
+    z-index: 100;
+    box-sizing: border-box;
+    min-width: 148px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1px;
+    background-color: var(--jj-bg-primary);
+    border: 1px solid var(--jj-border-secondary);
+    border-radius: 8px;
+    box-shadow:
+        0 10px 24px rgba(0, 0, 0, 0.08),
+        0 2px 6px rgba(0, 0, 0, 0.06);
+    animation: popover-in 0.15s ease;
+    font-family: 'Open Sans', sans-serif;
+
+    .file-dropdown-item {
+        border-radius: 5px;
+        display: flex;
+        height: 32px;
+        padding: 0 12px;
+        align-items: center;
+        cursor: pointer;
+        outline: none;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--jj-text-secondary);
+        transition: background-color 0.12s ease;
+
+        &:hover,
+        &[data-highlighted] {
+            background-color: var(--jj-bg-hover);
+        }
+    }
+}
+
+@keyframes popover-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}

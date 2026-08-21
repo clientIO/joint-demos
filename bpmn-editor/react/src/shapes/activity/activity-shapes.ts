@@ -19,7 +19,7 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
     public readonly labelPath = 'label/text';
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.ACTIVITY,
             markers: [] as MarkerNames[],
             attrs: {
@@ -38,7 +38,8 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
                     }
                 }
             }
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     initialize(...args: Parameters<shapes.bpmn2.Activity['initialize']>): void {
@@ -249,9 +250,10 @@ export class Task extends Activity {
     static icon = activityIconClasses.TASK;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: ActivityShapeTypes.TASK
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -261,12 +263,13 @@ export class Send extends Activity {
     static icon = activityIconClasses.SEND;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: ActivityShapeTypes.SEND,
             attrs: {
                 icon: { iconType: 'send' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -276,12 +279,13 @@ export class BusinessRule extends Activity {
     static icon = activityIconClasses.BUSINESS_RULE;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: ActivityShapeTypes.BUSINESS_RULE,
             attrs: {
                 icon: { iconType: 'business-rule' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -291,12 +295,13 @@ export class Receive extends Activity {
     static icon = activityIconClasses.RECEIVE;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: ActivityShapeTypes.RECEIVE,
             attrs: {
                 icon: { iconType: 'receive' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -306,12 +311,13 @@ export class Service extends Activity {
     static icon = activityIconClasses.SERVICE;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: ActivityShapeTypes.SERVICE,
             attrs: {
                 icon: { iconType: 'service' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -321,12 +327,13 @@ export class User extends Activity {
     static icon = activityIconClasses.USER;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: ActivityShapeTypes.USER,
             attrs: {
                 icon: { iconType: 'user' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
 }
@@ -337,12 +344,13 @@ export class Manual extends Activity {
     static icon = activityIconClasses.MANUAL;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: ActivityShapeTypes.MANUAL,
             attrs: {
                 icon: { iconType: 'manual' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -352,12 +360,13 @@ export class Script extends Activity {
     static icon = activityIconClasses.SCRIPT;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: ActivityShapeTypes.SCRIPT,
             attrs: {
                 icon: { iconType: 'script' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -367,14 +376,15 @@ export class CallActivity extends Activity {
     static icon = activityIconClasses.CALL_ACTIVITY;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: ActivityShapeTypes.CALL_ACTIVITY,
             attrs: {
                 border: { borderType: 'thick' },
                 markers: { iconTypes: [MarkerNames.SUB_PROCESS] }
             },
             markers: [MarkerNames.SUB_PROCESS]
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     validateMarkers(markers: MarkerNames[], prevMarkers: MarkerNames[]): MarkerNames[] {
@@ -427,13 +437,14 @@ export class SubProcess extends Activity {
     static icon = activityIconClasses.SUB_PROCESS;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: ActivityShapeTypes.SUB_PROCESS,
             attrs: {
                 markers: { iconTypes: [MarkerNames.SUB_PROCESS] }
             },
             markers: [MarkerNames.SUB_PROCESS]
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     validateMarkers(markers: MarkerNames[], prevMarkers: MarkerNames[]): MarkerNames[] {
@@ -485,14 +496,15 @@ export class EventSubProcess extends Activity {
     static icon = activityIconClasses.EVENT_SUB_PROCESS;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: ActivityShapeTypes.EVENT_SUB_PROCESS,
             attrs: {
                 markers: { iconTypes: [MarkerNames.SUB_PROCESS] },
                 border: { borderStyle: 'dotted' }
             },
             markers: [MarkerNames.SUB_PROCESS]
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     validateMarkers(markers: MarkerNames[], prevMarkers: MarkerNames[]): MarkerNames[] {

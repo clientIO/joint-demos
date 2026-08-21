@@ -20,7 +20,7 @@ abstract class Gateway extends shapes.bpmn2.Gateway implements AppElement {
     public readonly labelSelector = 'labelGroup';
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.GATEWAY,
             attrs: {
                 label: {
@@ -40,7 +40,8 @@ abstract class Gateway extends shapes.bpmn2.Gateway implements AppElement {
                 width: 50,
                 height: 50
             }
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     preinitialize(...args: Parameters<dia.Element['preinitialize']>) {
@@ -183,12 +184,13 @@ export class Exclusive extends Gateway {
     static icon = gatewayIconClasses.EXCLUSIVE;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: GatewayShapeTypes.EXCLUSIVE,
             attrs: {
                 icon: { iconType: 'exclusive' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -198,12 +200,13 @@ export class Inclusive extends Gateway {
     static icon = gatewayIconClasses.INCLUSIVE;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: GatewayShapeTypes.INCLUSIVE,
             attrs: {
                 icon: { iconType: 'inclusive' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -213,12 +216,13 @@ export class EventBased extends Gateway {
     static icon = gatewayIconClasses.EVENT_BASED;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: GatewayShapeTypes.EVENT_BASED,
             attrs: {
                 icon: { iconType: 'event' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -228,12 +232,13 @@ export class Parallel extends Gateway {
     static icon = gatewayIconClasses.PARALLEL;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: GatewayShapeTypes.PARALLEL,
             attrs: {
                 icon: { iconType: 'parallel' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -243,12 +248,13 @@ export class Complex extends Gateway {
     static icon = gatewayIconClasses.COMPLEX;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: GatewayShapeTypes.COMPLEX,
             attrs: {
                 icon: { iconType: 'complex' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 

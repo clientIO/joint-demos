@@ -3,6 +3,7 @@ import * as Slider from '@radix-ui/react-slider';
 import { Navigator, usePaperScroller, usePaperScrollerViewport } from '@joint/react-plus';
 import { Scan, Expand, Shrink, Map } from 'lucide-react';
 import { ZOOM_SETTINGS } from '../../configs/navigator-config';
+import { MAIN_COLOR } from '../../configs/theme';
 import { Tip } from '../ui/tip';
 
 import type { ReactNode } from 'react';
@@ -61,6 +62,11 @@ export function NavigatorPanel() {
                     style={{ width: 318, height: 130 }}
                     showLinks={false}
                     padding={10}
+                    elementStyle={() => ({
+                        fill: MAIN_COLOR,
+                        fillOpacity: 0.25,
+                        stroke: 'none'
+                    })}
                 />
             </div>
             <div className="navigator-toolbar">

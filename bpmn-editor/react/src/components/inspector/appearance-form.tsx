@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import * as Select from '@radix-ui/react-select';
 import { ChevronDown, Check } from 'lucide-react';
-import { useCellVersion } from './use-cell-version';
+import { useCells } from '@joint/react-plus';
 
 import type { FormEvent } from 'react';
+import type { CellRecord, Computed } from '@joint/react-plus';
 import type { AppElement, AppLink } from '../../shapes/shapes-typing';
 
 type SelectOption = string | number | { value: string | number; content: string };
@@ -25,6 +26,10 @@ interface FieldLeaf {
 }
 
 type Cell = AppElement | AppLink;
+
+// The cell's reactive record: a new snapshot on every model change (attribute
+// updates, undo/redo, ...) — used as an effect dependency to resync fields.
+type CellSnapshot = Computed<CellRecord> | undefined;
 
 function isFieldSpec(value: unknown): value is FieldSpec {
     return !!value && typeof value === 'object'
@@ -69,7 +74,7 @@ function readValue(cell: Cell, leaf: FieldLeaf): string {
     return String(value);
 }
 
-function ColorField({ cell, leaf, version }: { cell: Cell; leaf: FieldLeaf; version: number }) {
+function ColorField({ cell, leaf, snapshot }: { cell: Cell; leaf: FieldLeaf; snapshot: CellSnapshot }) {
     const [value, setValue] = useState(() => readValue(cell, leaf));
     const inputRef = useRef<HTMLInputElement | null>(null);
     // The value at the start of the current preview interaction — the commit
@@ -85,7 +90,7 @@ function ColorField({ cell, leaf, version }: { cell: Cell; leaf: FieldLeaf; vers
             originalRef.current = modelValue;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [cell, leaf.path, version]);
+    }, [cell, leaf.path, snapshot]);
 
     const commit = (finalValue: string) => {
         // Restore the pre-preview value silently, then apply the final value
@@ -145,13 +150,13 @@ function optionLabel(option: SelectOption): string {
     return option.content.replace(/<[^>]*>/g, '') || String(option.value);
 }
 
-function SelectBoxField({ cell, leaf, version }: { cell: Cell; leaf: FieldLeaf; version: number }) {
+function SelectBoxField({ cell, leaf, snapshot }: { cell: Cell; leaf: FieldLeaf; snapshot: CellSnapshot }) {
     const [value, setValue] = useState(() => readValue(cell, leaf));
 
     useEffect(() => {
         setValue(readValue(cell, leaf));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [cell, leaf.path, version]);
+    }, [cell, leaf.path, snapshot]);
 
     const onValueChange = (selected: string) => {
         const option = leaf.spec.options?.find((opt) => optionValue(opt) === selected);
@@ -195,7 +200,7 @@ function SelectBoxField({ cell, leaf, version }: { cell: Cell; leaf: FieldLeaf; 
 }
 
 export function AppearanceForm({ cell }: { cell: Cell }) {
-    const version = useCellVersion(cell);
+    const snapshot = useCells(cell.id);
 
     const { groups, inputs } = cell.getAppearanceConfig();
     const leaves = collectLeaves(cell, inputs, []);
@@ -219,8 +224,8 @@ export function AppearanceForm({ cell }: { cell: Cell }) {
                         )}
                         {groupLeaves.map((leaf) => (
                             leaf.spec.type === 'color'
-                                ? <ColorField key={leaf.path} cell={cell} leaf={leaf} version={version} />
-                                : <SelectBoxField key={leaf.path} cell={cell} leaf={leaf} version={version} />
+                                ? <ColorField key={leaf.path} cell={cell} leaf={leaf} snapshot={snapshot} />
+                                : <SelectBoxField key={leaf.path} cell={cell} leaf={leaf} snapshot={snapshot} />
                         ))}
                     </div>
                 );

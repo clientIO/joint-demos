@@ -22,7 +22,7 @@ export abstract class Event extends shapes.bpmn2.Event implements AppElement {
     public readonly labelSelector = 'labelGroup';
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.EVENT,
             attrs: {
                 label: {
@@ -38,7 +38,8 @@ export abstract class Event extends shapes.bpmn2.Event implements AppElement {
                 },
                 labelBody: defaultAttrs.labelBody
             }
-        }, super.defaults);
+        };
+        return util.defaultsDeep(attributes, super.defaults);
     }
 
     preinitialize(...args: Parameters<shapes.bpmn2.Event['preinitialize']>): void {
@@ -146,9 +147,10 @@ export class Start extends Event {
     static icon = eventIconClasses.START;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.START
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     getShapeList(): string[] {
@@ -202,12 +204,13 @@ export class MessageStart extends Start {
     static icon = eventIconClasses.MESSAGE_START;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.MESSAGE_START,
             attrs: {
                 icon: { iconType: 'message1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -217,12 +220,13 @@ export class TimerStart extends Start {
     static icon = eventIconClasses.TIMER_START;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.TIMER_START,
             attrs: {
                 icon: { iconType: 'timer1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -232,12 +236,13 @@ export class ConditionalStart extends Start {
     static icon = eventIconClasses.CONDITIONAL_START;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.CONDITIONAL_START,
             attrs: {
                 icon: { iconType: 'conditional1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -247,12 +252,13 @@ export class SignalStart extends Start {
     static icon = eventIconClasses.SIGNAL_START;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.SIGNAL_START,
             attrs: {
                 icon: { iconType: 'signal1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -264,12 +270,13 @@ export abstract class IntermediateCatching extends Event {
     static icon = eventIconClasses.INTERMEDIATE_CATCHING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.INTERMEDIATE_CATCHING,
             attrs: {
                 border: { borderType: 'double' }
             },
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     getShapeList(): string[] {
@@ -328,12 +335,13 @@ export class MessageIntermediateCatching extends IntermediateCatching {
     static icon = eventIconClasses.MESSAGE_INTERMEDIATE_CATCHING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.MESSAGE_INTERMEDIATE_CATCHING,
             attrs: {
                 icon: { iconType: 'message1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -343,12 +351,13 @@ export class TimerIntermediateCatching extends IntermediateCatching {
     static icon = eventIconClasses.TIMER_INTERMEDIATE_CATCHING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.TIMER_INTERMEDIATE_CATCHING,
             attrs: {
                 icon: { iconType: 'timer1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -358,12 +367,13 @@ export class ConditionalIntermediateCatching extends IntermediateCatching {
     static icon = eventIconClasses.CONDITIONAL_INTERMEDIATE_CATCHING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.CONDITIONAL_INTERMEDIATE_CATCHING,
             attrs: {
                 icon: { iconType: 'conditional1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -373,12 +383,13 @@ export class LinkIntermediateCatching extends IntermediateCatching {
     static icon = eventIconClasses.LINK_INTERMEDIATE_CATCHING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.LINK_INTERMEDIATE_CATCHING,
             attrs: {
                 icon: { iconType: 'link1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -388,12 +399,13 @@ export class SignalIntermediateCatching extends IntermediateCatching {
     static icon = eventIconClasses.SIGNAL_INTERMEDIATE_CATCHING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.SIGNAL_INTERMEDIATE_CATCHING,
             attrs: {
                 icon: { iconType: 'signal1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -402,12 +414,13 @@ export class SignalIntermediateCatching extends IntermediateCatching {
 export class IntermediateBoundary extends Event {
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.INTERMEDIATE_BOUNDARY,
             attrs: {
                 border: { borderType: 'double' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     getShapeList(): string[] {
@@ -474,12 +487,13 @@ export class MessageIntermediateBoundary extends IntermediateBoundary {
     static icon = eventIconClasses.MESSAGE_INTERMEDIATE_BOUNDARY;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.MESSAGE_INTERMEDIATE_BOUNDARY,
             attrs: {
                 icon: { iconType: 'message1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -489,12 +503,13 @@ export class TimerIntermediateBoundary extends IntermediateBoundary {
     static icon = eventIconClasses.TIMER_INTERMEDIATE_BOUNDARY;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.TIMER_INTERMEDIATE_BOUNDARY,
             attrs: {
                 icon: { iconType: 'timer1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -504,12 +519,13 @@ export class ConditionalIntermediateBoundary extends IntermediateBoundary {
     static icon = eventIconClasses.CONDITIONAL_INTERMEDIATE_BOUNDARY;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.CONDITIONAL_INTERMEDIATE_BOUNDARY,
             attrs: {
                 icon: { iconType: 'conditional1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -519,12 +535,13 @@ export class SignalIntermediateBoundary extends IntermediateBoundary {
     static icon = eventIconClasses.SIGNAL_INTERMEDIATE_BOUNDARY;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.SIGNAL_INTERMEDIATE_BOUNDARY,
             attrs: {
                 icon: { iconType: 'signal1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -534,12 +551,13 @@ export class ErrorIntermediateBoundary extends IntermediateBoundary {
     static icon = eventIconClasses.ERROR_INTERMEDIATE_BOUNDARY;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.ERROR_INTERMEDIATE_BOUNDARY,
             attrs: {
                 icon: { iconType: 'error1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -549,12 +567,13 @@ export class EscalationIntermediateBoundary extends IntermediateBoundary {
     static icon = eventIconClasses.ESCALATION_INTERMEDIATE_BOUNDARY;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.ESCALATION_INTERMEDIATE_BOUNDARY,
             attrs: {
                 icon: { iconType: 'escalation1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -564,12 +583,13 @@ export class CompensationIntermediateBoundary extends IntermediateBoundary {
     static icon = eventIconClasses.COMPENSATION_INTERMEDIATE_BOUNDARY;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.COMPENSATION_INTERMEDIATE_BOUNDARY,
             attrs: {
                 icon: { iconType: 'compensation1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     validateConnection(targetModel?: dia.Cell): boolean {
@@ -598,12 +618,13 @@ export class CancelIntermediateBoundary extends IntermediateBoundary {
     static icon = eventIconClasses.CANCEL_INTERMEDIATE_BOUNDARY;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.CANCEL_INTERMEDIATE_BOUNDARY,
             attrs: {
                 icon: { iconType: 'cancel1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -612,14 +633,15 @@ export class CancelIntermediateBoundary extends IntermediateBoundary {
 abstract class IntermediateBoundaryNonInterrupting extends IntermediateBoundary {
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             attrs: {
                 border: {
                     borderType: 'double',
                     borderStyle: 'dashed'
                 }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -629,12 +651,13 @@ export class MessageIntermediateBoundaryNonInterrupting extends IntermediateBoun
     static icon = eventIconClasses.MESSAGE_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.MESSAGE_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING,
             attrs: {
                 icon: { iconType: 'message1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -644,12 +667,13 @@ export class TimerIntermediateBoundaryNonInterrupting extends IntermediateBounda
     static icon = eventIconClasses.TIMER_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.TIMER_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING,
             attrs: {
                 icon: { iconType: 'timer1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -659,12 +683,13 @@ export class ConditionalIntermediateBoundaryNonInterrupting extends Intermediate
     static icon = eventIconClasses.CONDITIONAL_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.CONDITIONAL_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING,
             attrs: {
                 icon: { iconType: 'conditional1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -674,12 +699,13 @@ export class SignalIntermediateBoundaryNonInterrupting extends IntermediateBound
     static icon = eventIconClasses.SIGNAL_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.SIGNAL_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING,
             attrs: {
                 icon: { iconType: 'signal1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -689,12 +715,13 @@ export class EscalationIntermediateBoundaryNonInterrupting extends IntermediateB
     static icon = eventIconClasses.ESCALATION_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.ESCALATION_INTERMEDIATE_BOUNDARY_NON_INTERRUPTING,
             attrs: {
                 icon: { iconType: 'escalation1' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -706,12 +733,13 @@ export class IntermediateThrowing extends Event {
     static icon = eventIconClasses.INTERMEDIATE_THROWING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.INTERMEDIATE_THROWING,
             attrs: {
                 border: { borderType: 'double' }
             },
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     getShapeList(): string[] {
@@ -788,12 +816,13 @@ export class MessageIntermediateThrowing extends IntermediateThrowing {
     static icon = eventIconClasses.MESSAGE_INTERMEDIATE_THROWING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.MESSAGE_INTERMEDIATE_THROWING,
             attrs: {
                 icon: { iconType: 'message2' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     validateConnection(targetModel?: dia.Cell): boolean {
@@ -841,12 +870,13 @@ export class LinkIntermediateThrowing extends IntermediateThrowing {
     static icon = eventIconClasses.LINK_INTERMEDIATE_THROWING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.LINK_INTERMEDIATE_THROWING,
             attrs: {
                 icon: { iconType: 'link2' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     validateConnection(_?: dia.Cell): boolean {
@@ -860,12 +890,13 @@ export class SignalIntermediateThrowing extends IntermediateThrowing {
     static icon = eventIconClasses.SIGNAL_INTERMEDIATE_THROWING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.SIGNAL_INTERMEDIATE_THROWING,
             attrs: {
                 icon: { iconType: 'signal2' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -875,12 +906,13 @@ export class EscalationIntermediateThrowing extends IntermediateThrowing {
     static icon = eventIconClasses.ESCALATION_INTERMEDIATE_THROWING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.ESCALATION_INTERMEDIATE_THROWING,
             attrs: {
                 icon: { iconType: 'escalation2' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -890,12 +922,13 @@ export class CompensationIntermediateThrowing extends IntermediateThrowing {
     static icon = eventIconClasses.COMPENSATION_INTERMEDIATE_THROWING;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.COMPENSATION_INTERMEDIATE_THROWING,
             attrs: {
                 icon: { iconType: 'compensation2' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -907,12 +940,13 @@ export class End extends Event {
     static icon = eventIconClasses.END;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.END,
             attrs: {
                 border: { borderType: 'thick' }
             },
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     getShapeList(): string[] {
@@ -976,12 +1010,13 @@ export class MessageEnd extends End {
     static icon = eventIconClasses.MESSAGE_END;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.MESSAGE_END,
             attrs: {
                 icon: { iconType: 'message2' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 }
 
@@ -991,12 +1026,13 @@ export class SignalEnd extends End {
     static icon = eventIconClasses.SIGNAL_END;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.SIGNAL_END,
             attrs: {
                 icon: { iconType: 'signal2' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     validateConnection(targetModel?: dia.Cell): boolean {
@@ -1010,12 +1046,13 @@ export class ErrorEnd extends End {
     static icon = eventIconClasses.ERROR_END;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.ERROR_END,
             attrs: {
                 icon: { iconType: 'error2' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     validateConnection(targetModel?: dia.Cell): boolean {
@@ -1029,12 +1066,13 @@ export class EscalationEnd extends End {
     static icon = eventIconClasses.ESCALATION_END;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.ESCALATION_END,
             attrs: {
                 icon: { iconType: 'escalation2' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     validateConnection(targetModel?: dia.Cell): boolean {
@@ -1048,12 +1086,13 @@ export class TerminationEnd extends End {
     static icon = eventIconClasses.TERMINATION_END;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.TERMINATION_END,
             attrs: {
                 icon: { iconType: 'termination2' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     validateConnection(targetModel?: dia.Cell): boolean {
@@ -1067,12 +1106,13 @@ export class CompensationEnd extends End {
     static icon = eventIconClasses.COMPENSATION_END;
 
     defaults(): dia.Element.Attributes {
-        return util.defaultsDeep({
+        const attributes: dia.Element.Attributes = {
             type: EventShapeTypes.COMPENSATION_END,
             attrs: {
                 icon: { iconType: 'compensation2' }
             }
-        }, super.defaults());
+        };
+        return util.defaultsDeep(attributes, super.defaults());
     }
 
     validateConnection(targetModel?: dia.Cell): boolean {

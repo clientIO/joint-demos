@@ -1,0 +1,9 @@
+/* Snaplines (react component) — accent color and thickness. */
+.jj-snaplines {
+    --jj-snaplines-color: var(--jj-selector);
+    --jj-snaplines-width: 2px;
+
+    .snapline {
+        opacity: 0.3;
+    }
+}
