@@ -1,0 +1,16 @@
+.joint-free-transform {
+    border: none;
+
+    .resize {
+        &.nw,
+        &.ne,
+        &.se,
+        &.sw {
+            // Variable used internally by ui.FreeTransform
+            --jj-handle-size: 7px;
+
+            background-color: var(--jj-bg-free-transform-handle);
+            border-radius: 50% !important;
+        }
+    }
+}

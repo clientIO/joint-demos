@@ -1,0 +1,106 @@
+@use 'mixins' as *;
+
+button.joint-widget {
+    box-sizing: border-box;
+    height: 32px;
+    cursor: pointer;
+}
+
+.joint-widget {
+    border-radius: var(--jj-border-radius-small);
+    transition-duration: 0.2s;
+    transition-timing-function: ease-in-out;
+    transition-property: background-color, border-color;
+    font-family: 'Open Sans', sans-serif;
+
+    &:hover:not([data-type="separator"]):not(label):not([data-type="zoomSlider"]):not(:disabled) {
+        border-color: var(--jj-border-hover);
+        background-color: var(--jj-bg-hover);
+    }
+
+    &[data-type="separator"] {
+        width: 0;
+        border-right: 1px solid var(--jj-border-tertiary);
+    }
+
+    &[data-type="undo"],
+    &[data-type="redo"] {
+        background: transparent;
+        border: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 32px;
+        height: 32px;
+
+        &::before {
+            max-height: 18px;
+        }
+    }
+
+    &[data-type="undo"] {
+
+        &::before {
+            content: url(../assets/toolbar/icon-undo.svg);
+        }
+    }
+
+    &[data-type="redo"] {
+
+        &::before {
+            content: url(../assets/toolbar/icon-redo.svg);
+        }
+    }
+
+    & input[type="range"] {
+        margin-right: 8px;
+        @include range-widget;
+    }
+
+    &:disabled {
+        filter: opacity(0.5);
+        cursor: initial;
+    }
+}
+
+// color-picker-widget
+::-webkit-color-swatch-wrapper {
+    padding: 0;
+    width: 24px;
+    height: 24px;
+}
+
+::-webkit-color-swatch{
+    border: 1px solid var(--jj-border-inspector-field);
+    border-radius: 50%;
+}
+
+::-moz-color-swatch,
+::-moz-focus-inner{
+    border: 0;
+}
+
+::-moz-focus-inner{
+    padding: 0;
+}
+
+.joint-select-box-options {
+    $inspector-vertical-padding: 8px;
+    $field-vertical-padding: 10px;
+    $vertical-padding: $inspector-vertical-padding + $field-vertical-padding;
+    width: calc(100% - 2 * #{$vertical-padding});
+
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--jj-bg-tertiary);
+    text-transform: capitalize;
+    transform: translate(-1px, -1px);
+    border: 1px solid var(--jj-border-inspector-field);
+    border-radius: var(--jj-border-radius-small);
+    background: var(--jj-bg-select-box);
+
+    .select-box-option.selected::after {
+        @include dropdown-icon;
+    }
+}

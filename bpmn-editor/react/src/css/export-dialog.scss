@@ -1,0 +1,117 @@
+// The PNG export preview dialog (Radix Dialog).
+.export-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.45);
+    animation: dialog-fade-in 0.15s ease;
+
+    @keyframes dialog-fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+}
+
+.export-dialog {
+    position: fixed;
+    z-index: 1001;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    max-width: min(880px, calc(100vw - 64px));
+    max-height: calc(100vh - 64px);
+    background: var(--jj-bg-primary);
+    border-radius: 12px;
+    box-shadow:
+        0 24px 48px rgba(0, 0, 0, 0.18),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    font-family: 'Open Sans', sans-serif;
+    animation: dialog-pop-in 0.18s ease;
+
+    @keyframes dialog-pop-in {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.96);
+        }
+        to {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    .export-dialog-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--jj-border-primary);
+
+        h2 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--jj-text-primary);
+        }
+
+        .export-dialog-close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            color: var(--jj-text-secondary);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: var(--jj-border-radius-small);
+            transition: background-color 0.2s ease-in-out;
+
+            &:hover {
+                background-color: var(--jj-bg-hover);
+            }
+        }
+    }
+
+    .export-dialog-body {
+        padding: 16px;
+        overflow: auto;
+        background: var(--jj-bg-secondary);
+
+        img {
+            display: block;
+            max-width: 100%;
+            border: 1px solid var(--jj-border-secondary);
+            background: #FFFFFF;
+        }
+    }
+
+    .export-dialog-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: 12px 16px;
+        border-top: 1px solid var(--jj-border-primary);
+
+        .export-dialog-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            padding: 0 16px;
+            border: 1px solid var(--jj-border-save-button);
+            border-radius: var(--jj-border-radius-small);
+            background-color: var(--jj-bg-secondary);
+            color: var(--jj-text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+
+            &:hover {
+                border-color: var(--jj-border-hover);
+                background-color: var(--jj-bg-hover);
+            }
+        }
+    }
+}

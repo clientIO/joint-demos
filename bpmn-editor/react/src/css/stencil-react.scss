@@ -1,0 +1,38 @@
+// Styles for the React-built stencil palette.
+.stencil-palette {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 100%;
+    padding: 8px 0;
+    box-sizing: border-box;
+
+    .stencil-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: none;
+        border-radius: 4px;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.15s ease-in-out;
+        touch-action: none;
+
+        &:hover {
+            background-color: var(--jj-bg-secondary, #f0f0f0);
+        }
+
+        .stencil-item-icon {
+            font-family: 'JJ BPMN Icons';
+            font-size: 32px;
+            line-height: 1;
+            color: #191919;
+            pointer-events: none;
+            user-select: none;
+        }
+    }
+}
