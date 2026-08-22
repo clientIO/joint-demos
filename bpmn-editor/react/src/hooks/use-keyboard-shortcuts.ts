@@ -1,8 +1,9 @@
-import { shapes } from '@joint/plus';
+import type { shapes } from '@joint/plus';
 import { usePaper, usePaperScroller, useGraphHistory, useSelectionCollection, useOnKeyboardEvents } from '@joint/react-plus';
-import { ZOOM_SETTINGS } from '../configs/navigator-config';
+import { ZOOM_SETTINGS } from '../configs/paper-config';
 
 import type { dia, ui } from '@joint/plus';
+import { isSwimlane } from '../utils';
 
 type KeyboardContext = {
     graph: dia.Graph;
@@ -49,8 +50,8 @@ function onDelete(context: KeyboardContext, evt: dia.Event) {
     const selectedCells = selection.collection.toArray();
 
     // Separate swimlanes from other cells
-    const swimlanes = selectedCells.filter(cell => shapes.bpmn2.Swimlane.isSwimlane(cell)) as shapes.bpmn2.Swimlane[];
-    const regularCells = selectedCells.filter(cell => !shapes.bpmn2.Swimlane.isSwimlane(cell));
+    const swimlanes = selectedCells.filter(cell => isSwimlane(cell)) as shapes.bpmn2.Swimlane[];
+    const regularCells = selectedCells.filter(cell => !isSwimlane(cell));
 
     // Handle swimlane deletion with special rules
     handleSwimlanesDeletion(graph, swimlanes);

@@ -45,7 +45,10 @@ export interface Marker {
 }
 
 export interface AppShape extends dia.Cell {
-    copyFrom: (shape: AppShape) => void;
+    // Method syntax on purpose: parameters check bivariantly, so the
+    // element/link interfaces (whose `copyFrom` takes the concrete cell type)
+    // stay assignable to AppShape.
+    copyFrom(shape: dia.Cell): void;
     getShapeList: () => string[];
     validateConnection: (targetModel?: dia.Cell) => boolean;
     getLabelEditorStyles?: (paper: dia.Paper) => Partial<CSSStyleDeclaration>;
@@ -62,7 +65,7 @@ export interface AppElement extends dia.Element {
     readonly labelSelector?: string;
     // False by default
     readonly omitDefaultHaloHandles?: boolean;
-    copyFrom: (element: dia.Element) => void;
+    copyFrom(element: dia.Element): void;
     getShapeList: () => string[];
     getAppearanceConfig: () => AppearanceConfig;
     getHaloHandles?: () => HaloHandle[];
@@ -82,7 +85,7 @@ export interface AppElement extends dia.Element {
 export interface AppLink extends dia.Link {
     getShapeList: () => string[];
     getLinkTools: () => dia.ToolView[];
-    copyFrom: (link: dia.Link) => void;
+    copyFrom(link: dia.Link): void;
     getAppearanceConfig: () => AppearanceConfig;
     validateConnection: (targetModel?: dia.Cell) => boolean;
     getLabelEditorStyles?: (paper: dia.Paper) => Partial<CSSStyleDeclaration>;

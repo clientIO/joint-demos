@@ -4,7 +4,7 @@ import { annotationAppearanceConfig, annotationLinkAppearanceConfig, AnnotationS
 import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { handles } from '../../configs/halo-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
-import { getPoolParent } from '../../utils';
+import { getPoolParent, isSwimlane } from '../../utils';
 
 import type { dia } from '@joint/plus';
 import type { AppElement, AppLink } from '../shapes-typing';
@@ -81,7 +81,7 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
     }
 
     validateEmbedding(parent: dia.Element): boolean {
-        return parent.get('shapeType') === ShapeTypes.SWIMLANE;
+        return isSwimlane(parent);
     }
 
     getLabelEditorStyles(paper: dia.Paper): Partial<CSSStyleDeclaration> {

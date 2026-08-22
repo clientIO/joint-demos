@@ -1,6 +1,8 @@
-import { dia, shapes, util } from '@joint/plus';
+import type { shapes } from '@joint/plus';
+import { dia, util } from '@joint/plus';
 import { PlaceholderAttributes, type BPMNLinkAttributes, PlaceholderShapeTypes } from './placeholder-config';
 import type { AppLink, LinkType } from '../shapes-typing';
+import { isPool } from '../../utils';
 
 export class BPMNLinkView extends dia.LinkView<AppLink> {
 
@@ -72,7 +74,7 @@ export class BPMNLinkView extends dia.LinkView<AppLink> {
 
         for (const id of markedKeys) {
             const cell = paper.model.getCell(id);
-            if (!cell || !shapes.bpmn2.CompositePool.isPool(cell)) continue;
+            if (!cell || !isPool(cell)) continue;
 
             const lanes = (cell as shapes.bpmn2.CompositePool).getSwimlanes();
             for (const lane of lanes) {

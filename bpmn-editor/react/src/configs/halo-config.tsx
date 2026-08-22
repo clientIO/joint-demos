@@ -7,7 +7,6 @@ import { annotationIconClasses, AnnotationShapeTypes } from '../shapes/annotatio
 import { flowIconClasses } from '../shapes/flow/flow-config';
 import { PlaceholderAttributes, PlaceholderShapeTypes } from '../shapes/placeholder/placeholder-config';
 import { Sequence } from '../shapes/flow/flow-shapes';
-import { getShapeConstructorByType } from '../utils';
 
 import type { ui, shapes } from '@joint/plus';
 import type { HaloHandle } from '@joint/react-plus';
@@ -93,7 +92,7 @@ function makeConnectHandle(name: string, iconClass: string, elementType: string)
             fork: true
         },
         hideOnDrag: true,
-        makeElement: () => new (getShapeConstructorByType(elementType))() as AppElement,
+        makeElement: ({ graph }) => new (graph.getTypeConstructor(elementType)!)() as AppElement,
         makeLink: makePlaceholderLink
     };
 }

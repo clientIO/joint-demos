@@ -2,10 +2,7 @@ import {
     Diagram,
     Paper,
     PaperScroller,
-    Snaplines,
 } from '@joint/react-plus';
-import { shapes } from '@joint/plus';
-import { graph } from './editor/core';
 import {
     HIGHLIGHTING,
     PAPER_NATIVE_OPTIONS,
@@ -15,11 +12,11 @@ import {
     bpmnValidateEmbedding,
     bpmnValidateUnembedding,
     DIAGRAM_INTERACTIONS,
-} from './editor/paper-options';
+    ZOOM_SETTINGS,
+} from './configs/paper-config';
 import { cellNamespace } from './shapes';
-import { IntermediateBoundary } from './shapes/event/event-shapes';
-import { ZOOM_SETTINGS } from './configs/navigator-config';
 import { EditorBehavior } from './components/editor-behavior';
+import { BpmnSnaplines } from './components/bpmn-snaplines';
 import { BpmnHalo } from './components/bpmn-halo';
 import { BpmnFreeTransform } from './components/bpmn-free-transform';
 import { BpmnSelection } from './components/bpmn-selection';
@@ -32,21 +29,11 @@ import { InspectorPanel } from './components/inspector/inspector-panel';
 import { NavigatorPanel } from './components/navigator/navigator-panel';
 import { FileImportOverlay } from './components/file-import-overlay';
 
-import type { dia } from '@joint/plus';
-
-// Do not snap pools, swimlanes and boundary events
-function bpmnCanSnap({ model }: { model: dia.Element }) {
-    return (
-        !shapes.bpmn2.Swimlane.isSwimlane(model) &&
-        !shapes.bpmn2.CompositePool.isPool(model) &&
-        !(model instanceof IntermediateBoundary)
-    );
-}
 
 export function App() {
     return (
         <TipProvider>
-            <Diagram graph={graph} interactions={DIAGRAM_INTERACTIONS} history>
+            <Diagram cellNamespace={cellNamespace} interactions={DIAGRAM_INTERACTIONS} history>
                 <div id='app'>
                     <div className='app-toolbar'>
                         <BpmnToolbar />
@@ -68,6 +55,7 @@ export function App() {
                                     embeddingMode
                                     markAvailable
                                     clickThreshold={10}
+                                    moveThreshold={10}
                                     labelsLayer
                                     interactive={bpmnInteractivity}
                                     highlighting={HIGHLIGHTING}
@@ -78,7 +66,7 @@ export function App() {
                                     cellViewNamespace={cellNamespace}
                                     options={PAPER_NATIVE_OPTIONS}
                                 >
-                                    <Snaplines canSnap={bpmnCanSnap} />
+                                    <BpmnSnaplines />
                                     <BpmnSelection />
                                     <BpmnHalo />
                                     <BpmnFreeTransform />

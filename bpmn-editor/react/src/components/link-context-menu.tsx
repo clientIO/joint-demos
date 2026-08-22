@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Overlay, usePaper, useSelectionCollection, useOnPaperEvents } from '@joint/react-plus';
-import { openLabelEditor } from '../editor/label-editor';
+import { openLabelEditor } from '../actions/label-editor';
 
 import type { AppLink } from '../shapes/shapes-typing';
 

@@ -1,8 +1,7 @@
 import { useRef } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { usePaperScroller, useGraphHistory } from '@joint/react-plus';
+import { useGraph, usePaperScroller, useGraphHistory } from '@joint/react-plus';
 import { FileText, ChevronDown } from 'lucide-react';
-import { graph } from '../../editor/core';
 import { JSONFileImporter, XMLFileImporter } from '../../import';
 import { Tip } from '../ui/tip';
 
@@ -14,16 +13,17 @@ export function FileDropdown() {
     const xmlInputRef = useRef<HTMLInputElement | null>(null);
 
     const { paperScroller } = usePaperScroller();
+    const { graph } = useGraph();
     const { commandManager } = useGraphHistory();
 
-    const importJSON = async (evt: ChangeEvent<HTMLInputElement>) => {
+    const importJSON = async(evt: ChangeEvent<HTMLInputElement>) => {
         const file = evt.target.files?.[0];
         evt.target.value = '';
         if (!file || !paperScroller) return;
         await new JSONFileImporter(paperScroller).import(file, graph);
     };
 
-    const importXML = async (evt: ChangeEvent<HTMLInputElement>) => {
+    const importXML = async(evt: ChangeEvent<HTMLInputElement>) => {
         const file = evt.target.files?.[0];
         evt.target.value = '';
         if (!file || !paperScroller) return;

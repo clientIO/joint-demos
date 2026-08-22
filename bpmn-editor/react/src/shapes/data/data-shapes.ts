@@ -7,6 +7,7 @@ import { defaultAttrs, labelEditorWrapperStyles, markerClasses } from '../shared
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
+import { isSwimlane } from '../../utils';
 
 import type { dia } from '@joint/plus';
 import type { AppElement, AppLink, Marker } from '../shapes-typing';
@@ -134,7 +135,7 @@ abstract class Data extends shapes.bpmn2.DataObject implements AppElement {
     }
 
     validateEmbedding(parent: dia.Element): boolean {
-        return parent.get('shapeType') === ShapeTypes.SWIMLANE;
+        return isSwimlane(parent);
     }
 
     getLabelEditorStyles(paper: dia.Paper): Partial<CSSStyleDeclaration> {
@@ -327,7 +328,7 @@ export class DataStore extends shapes.bpmn2.DataStore implements AppElement {
     }
 
     validateEmbedding(parent: dia.Element): boolean {
-        return parent.get('shapeType') === ShapeTypes.SWIMLANE;
+        return isSwimlane(parent);
     }
 
     getLabelEditorStyles(paper: dia.Paper): Partial<CSSStyleDeclaration> {

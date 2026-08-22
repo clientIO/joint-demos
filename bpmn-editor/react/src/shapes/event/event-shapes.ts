@@ -8,7 +8,7 @@ import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { PoolShapeTypes } from '../pool/pool-config';
 import { handles } from '../../configs/halo-config';
-import { getPoolParent, isPoolShared } from '../../utils';
+import { getPoolParent, isPoolShared, isSwimlane, isActivity } from '../../utils';
 
 import type { dia } from '@joint/plus';
 import type { AppElement } from '../shapes-typing';
@@ -104,7 +104,7 @@ export abstract class Event extends shapes.bpmn2.Event implements AppElement {
     }
 
     validateEmbedding(parent: dia.Element): boolean {
-        return parent.get('shapeType') === ShapeTypes.SWIMLANE;
+        return isSwimlane(parent);
     }
 
     getLabelEditorStyles(paper: dia.Paper): Partial<CSSStyleDeclaration> {
@@ -444,7 +444,7 @@ export class IntermediateBoundary extends Event {
     }
 
     validateEmbedding(parent: dia.Element): boolean {
-        return parent.get('shapeType') === ShapeTypes.ACTIVITY && parent.get('type') !== ActivityShapeTypes.EVENT_SUB_PROCESS;
+        return isActivity(parent) && parent.get('type') !== ActivityShapeTypes.EVENT_SUB_PROCESS;
     }
 
     validateUnembedding(): boolean {
@@ -764,10 +764,10 @@ export class IntermediateThrowing extends Event {
 
     validateEmbedding(parent: dia.Element, inGraph?: boolean): boolean {
 
-        if (inGraph && parent.get('shapeType') === ShapeTypes.SWIMLANE) return true;
+        if (inGraph && isSwimlane(parent)) return true;
 
         return !inGraph &&
-            (parent.get('shapeType') === ShapeTypes.SWIMLANE || parent.get('shapeType') === ShapeTypes.ACTIVITY) &&
+            (isSwimlane(parent) || isActivity(parent)) &&
             parent.get('type') !== ActivityShapeTypes.EVENT_SUB_PROCESS;
     }
 

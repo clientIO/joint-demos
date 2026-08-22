@@ -1,7 +1,5 @@
-import { useCells, useSelectionCollection } from '@joint/react-plus';
-import { getShapeConstructorByType } from '../../utils';
-import { graph } from '../../editor/core';
-import { replaceShape } from '../../editor/replace-shape';
+import { useCells, useGraph, useSelectionCollection } from '@joint/react-plus';
+import { replaceShape } from '../../actions/replace-shape';
 
 import type { AppElement, AppLink, AppShape, Marker, MarkerNames } from '../../shapes/shapes-typing';
 
@@ -38,14 +36,15 @@ function MarkersSection({ shape }: { shape: AppElement }) {
 }
 
 function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
+    const { graph } = useGraph();
     const selection = useSelectionCollection();
     const shapeTypes = shape.getShapeList();
 
     const morphTo = (type: string) => {
-        const shapeConstructor = getShapeConstructorByType(type);
+        const shapeConstructor = graph.getTypeConstructor(type)!;
         const newShape = new shapeConstructor({ id: shape.id });
 
-        replaceShape(graph, shape as unknown as AppShape, newShape as unknown as AppShape);
+        replaceShape(graph, shape, newShape as AppShape);
 
         // Re-select the new shape, which re-opens the inspector for it.
         selection.collection.reset([newShape]);
@@ -56,7 +55,7 @@ function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
             <h3 className="content-label">Available shapes</h3>
             <div className="joint-select-button-group">
                 {shapeTypes.map((type) => {
-                    const shapeConstructor = getShapeConstructorByType(type);
+                    const shapeConstructor = graph.getTypeConstructor(type)!;
                     const { label, icon } = shapeConstructor as unknown as { label?: string; icon?: string };
                     return (
                         <button

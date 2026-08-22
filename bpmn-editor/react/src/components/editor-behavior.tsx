@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
-import { usePaper, usePaperScroller, useGraphHistory } from '@joint/react-plus';
-import { graph } from '../editor/core';
-import { ZOOM_SETTINGS } from '../configs/navigator-config';
+import { useGraph, usePaper, usePaperScroller, useGraphHistory } from '@joint/react-plus';
+import { ZOOM_SETTINGS } from '../configs/paper-config';
 import { useViewInteractions } from '../hooks/use-view-interactions';
 import { useEditInteractions } from '../hooks/use-edit-interactions';
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
@@ -11,6 +10,7 @@ import carWashProcess from '../data/car-wash-process.json';
 // interactions and loads the initial diagram.
 export function EditorBehavior() {
 
+    const { graph } = useGraph();
     const { paper } = usePaper();
     const { paperScroller, zoomToFit } = usePaperScroller();
     const { commandManager } = useGraphHistory();
@@ -34,7 +34,7 @@ export function EditorBehavior() {
         const fitContent = () => zoomToFit({ minScale: ZOOM_SETTINGS.min, maxScale: 1, contentMargin: 60 });
         fitContent();
         paper.once('render:done', fitContent);
-    }, [paper, paperScroller, zoomToFit, commandManager]);
+    }, [graph, paper, paperScroller, zoomToFit, commandManager]);
 
     return null;
 }

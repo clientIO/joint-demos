@@ -8,7 +8,7 @@ import { defaultAttrs, markerClasses } from '../shared-config';
 import { PoolShapeTypes } from '../pool/pool-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
-import { isPoolShared, getPoolParent } from '../../utils';
+import { isPoolShared, getPoolParent, isSwimlane } from '../../utils';
 
 import type { dia } from '@joint/plus';
 import type { AppElement, Marker } from '../shapes-typing';
@@ -210,7 +210,7 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
     }
 
     validateEmbedding(parent: dia.Element): boolean {
-        return parent.get('shapeType') === ShapeTypes.SWIMLANE;
+        return isSwimlane(parent);
     }
 
     getLabelEditorStyles(paper: dia.Paper): Partial<CSSStyleDeclaration> {

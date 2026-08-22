@@ -44,9 +44,9 @@ export function openLabelEditor(paper: dia.Paper, selection: Selection, cellView
     selection.collection.reset([cellView.model]);
 
     if (cell.isLink()) {
-        editLinkLabel(editableWrapper, contentEditableDiv, cell as unknown as AppLink, paper);
+        editLinkLabel(editableWrapper, contentEditableDiv, cell as AppLink, paper);
     } else {
-        editElementLabel(editableWrapper, contentEditableDiv, cell as unknown as AppElement, paper);
+        editElementLabel(editableWrapper, contentEditableDiv, cell as AppElement, paper);
     }
 
     // Select all text in the editable area

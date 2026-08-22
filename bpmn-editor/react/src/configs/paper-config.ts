@@ -1,12 +1,20 @@
-import { dia, shapes } from '@joint/plus';
-import { ShapeTypes, type AppElement, type AppShape } from '../shapes/shapes-typing';
+import type { shapes } from '@joint/plus';
+import { dia } from '@joint/plus';
+import { type AppElement, type AppShape } from '../shapes/shapes-typing';
 import { BPMNLinkView } from '../shapes/placeholder/placeholder-shapes';
 import { LabelElementView } from '../shapes/shape-view';
-import { canElementExistOutsidePool, getBoundaryPoint, getSwimlaneParent } from '../utils';
-import { MAIN_COLOR } from '../configs/theme';
-import { graph } from './core';
+import { IntermediateBoundary } from '../shapes/event/event-shapes';
+import { canElementExistOutsidePool, getClosestElementBoundaryPoint, getSwimlaneParent, isSwimlane, isPool } from '../utils';
+import { MAIN_COLOR } from './theme';
 
-import type { CanConnectOptions, ConnectionStrategy, InteractionsOptions, ValidateEmbedding, ValidateUnembedding } from '@joint/react-plus';
+import type { CanConnectOptions, ConnectionStrategy, InteractionsOptions, SnaplinesCanSnap, ValidateEmbedding, ValidateUnembedding } from '@joint/react-plus';
+
+// The paper zoom bounds: used by the paper scroller, the keyboard zoom
+// shortcuts, the fit-to-screen action and the zoom slider.
+export const ZOOM_SETTINGS = {
+    min: 0.2,
+    max: 2
+};
 
 // The highlighting config is passed via the dedicated `<Paper highlighting>` prop.
 export const HIGHLIGHTING: dia.Paper.Options['highlighting'] = {
@@ -31,11 +39,11 @@ export const HIGHLIGHTING: dia.Paper.Options['highlighting'] = {
 // clobber an `interactive` set through the `options` escape hatch.
 export const bpmnInteractivity = ({ model }: { model: dia.Cell }): dia.CellView.InteractivityOptions => {
     // Prevent swimlane move to pool/show ghost
-    const isSwimlane = shapes.bpmn2.Swimlane.isSwimlane(model);
+    const isLane = isSwimlane(model);
 
     let stopDelegation = true;
 
-    if (isSwimlane) {
+    if (isLane) {
         const pool = model.getParentCell() as shapes.bpmn2.CompositePool;
         stopDelegation = pool.getSwimlanes().length > 1;
     }
@@ -60,13 +68,13 @@ export const DIAGRAM_INTERACTIONS: InteractionsOptions = {
         const view = paper.findView(event.target as HTMLElement);
         const origin = view?.model;
 
-        if (!origin || !shapes.bpmn2.Swimlane.isSwimlane(origin)) return {};
+        if (!origin || !isSwimlane(origin)) return {};
 
         return {
             filter: ({ model }: { model: dia.Cell }) => {
                 // Never select pools or swimlanes if the region started on a pool or swimlane
-                if (shapes.bpmn2.CompositePool.isPool(model) ||
-                    shapes.bpmn2.Swimlane.isSwimlane(model)) return false;
+                if (isPool(model) ||
+                    isSwimlane(model)) return false;
 
                 const parent = getSwimlaneParent(model);
                 // Cell is not part of any pool
@@ -93,7 +101,7 @@ export const bpmnValidateConnection: CanConnectOptions = {
 export const bpmnConnectionStrategy: ConnectionStrategy = ({ end, model, dropPoint, paper }) => {
 
     if (model.isElement()) {
-        const { x, y } = getBoundaryPoint(model as AppElement, dropPoint);
+        const { x, y } = getClosestElementBoundaryPoint(model as AppElement, dropPoint);
 
         end.anchor = {
             name: 'topLeft',
@@ -116,17 +124,30 @@ export const bpmnConnectionStrategy: ConnectionStrategy = ({ end, model, dropPoi
     return end;
 };
 
-export const bpmnValidateEmbedding: ValidateEmbedding = ({ child, parent, paper }) => {
-    return (child.model as AppElement).validateEmbedding(parent.model, paper.model === graph);
+// Do not snap pools, swimlanes and boundary events
+export const bpmnCanSnap: SnaplinesCanSnap = ({ model }) => {
+    return (
+        !isSwimlane(model) &&
+        !isPool(model) &&
+        !(model instanceof IntermediateBoundary)
+    );
 };
 
-export const bpmnValidateUnembedding: ValidateUnembedding = ({ child }) => {
-    const isPoolPresent = graph.getElements().some(element => element.get('shapeType') === ShapeTypes.POOL);
+export const bpmnValidateEmbedding: ValidateEmbedding = ({ child, parent, graph }) => {
+    // `graph` is the child view's graph: during a stencil drag it is the drag
+    // paper's graph, so comparing it with the parent's graph tells whether the
+    // child is already part of the diagram.
+    const inGraph = graph === parent.model.graph;
+    return (child.model as AppElement).validateEmbedding(parent.model, inGraph);
+};
+
+export const bpmnValidateUnembedding: ValidateUnembedding = ({ child, graph }) => {
+    const isPoolPresent = graph.getElements().some(isPool);
 
     const element = child.model as AppElement;
 
     // If there is a pool present, only allow unembedding of elements that are valid outside of pools
-    if (isPoolPresent && !canElementExistOutsidePool(element) && !shapes.bpmn2.Swimlane.isSwimlane(element)) return false;
+    if (isPoolPresent && !canElementExistOutsidePool(element) && !isSwimlane(element)) return false;
 
     return !(element.validateUnembedding) || element.validateUnembedding();
 };
@@ -134,13 +155,14 @@ export const bpmnValidateUnembedding: ValidateUnembedding = ({ child }) => {
 // Options without a react counterpart, passed through the `<Paper options>`
 // escape hatch (raw JointJS signatures).
 export const PAPER_NATIVE_OPTIONS: Partial<dia.Paper.Options> = {
-    findParentBy: (elementView: dia.ElementView, evt: dia.Event) => {
+    // Called by the paper with the paper's graph as `this`.
+    findParentBy: function(this: dia.Graph, elementView: dia.ElementView, evt: dia.Event) {
         const parentView = elementView.getTargetParentView(evt);
         // Enable easier snapping for boundary elements by bbox
-        const useBBox = !parentView || (parentView && !shapes.bpmn2.Swimlane.isSwimlane(parentView.model));
+        const useBBox = !parentView || (parentView && !isSwimlane(parentView.model));
         const searchBy = useBBox ? 'bbox' : 'center';
 
-        return graph.findElementsUnderElement(elementView.model, { searchBy });
+        return this.findElementsUnderElement(elementView.model, { searchBy });
     },
     // Anchor links to the middle of the element side nearest the other end.
     defaultAnchor: { name: 'midSide', args: { useModelGeometry: true }},

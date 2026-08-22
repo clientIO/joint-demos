@@ -25,6 +25,10 @@ const LINK_CONNECTIONS: Record<LinkType, AppLinkConstructor> = {
     [FlowShapeTypes.CONDITIONAL]: Conditional
 };
 
+/**
+ * The link type appropriate for the link's current endpoints (message flow
+ * between pools, data association, annotation link, sequence flow otherwise).
+ */
 export function resolveDefaultLinkType(link: AppLink): LinkType {
 
     const source = link.getSourceElement();
@@ -55,6 +59,10 @@ export function resolveDefaultLinkType(link: AppLink): LinkType {
     return FlowShapeTypes.SEQUENCE;
 }
 
+/**
+ * A replacement link of the type matching the link's endpoints (same id), or
+ * the link itself when it is already of the correct type.
+ */
 export function prepareLinkReplacement(link: AppLink): AppLink {
 
     const linkType = resolveDefaultLinkType(link);
@@ -76,6 +84,10 @@ export function prepareLinkReplacement(link: AppLink): AppLink {
     return newLink;
 }
 
+/**
+ * Validates the cell's connections: invalid links are removed, valid ones are
+ * replaced with the link type matching their endpoints.
+ */
 export function validateAndReplaceConnections(cell: dia.Cell, graph: dia.Graph) {
 
     const links = graph.getConnectedLinks(cell);

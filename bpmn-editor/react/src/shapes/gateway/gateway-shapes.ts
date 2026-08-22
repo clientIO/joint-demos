@@ -6,7 +6,7 @@ import { EventShapeTypes } from '../event/event-config';
 import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
-import { isPoolShared } from '../../utils';
+import { isPoolShared, isSwimlane } from '../../utils';
 
 import type { dia } from '@joint/plus';
 import type { AppElement } from '../shapes-typing';
@@ -132,7 +132,7 @@ abstract class Gateway extends shapes.bpmn2.Gateway implements AppElement {
     }
 
     validateEmbedding(parent: dia.Element): boolean {
-        return parent.get('shapeType') === ShapeTypes.SWIMLANE;
+        return isSwimlane(parent);
     }
 
     getLabelEditorStyles(paper: dia.Paper): Partial<CSSStyleDeclaration> {

@@ -1,5 +1,7 @@
-import { dia, shapes } from '@joint/plus';
+import type { shapes } from '@joint/plus';
+import { dia } from '@joint/plus';
 import { MAIN_COLOR } from '../configs/theme';
+import { isPool } from '../utils';
 
 export const SwimlanePreview = dia.HighlighterView.extend({
 
@@ -14,7 +16,7 @@ export const SwimlanePreview = dia.HighlighterView.extend({
     highlight(elementView: dia.ElementView, _node: SVGElement) {
         const { index = 0 } = this.options;
         const pool = elementView.model as shapes.bpmn2.CompositePool;
-        if (!shapes.bpmn2.CompositePool.isPool(pool)) {
+        if (!isPool(pool)) {
             throw new Error('SwimlanePreview can be added only to a CompositePool.');
         }
 

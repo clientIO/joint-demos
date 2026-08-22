@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import { Navigator, usePaperScroller, usePaperScrollerViewport } from '@joint/react-plus';
 import { Scan, Expand, Shrink, Map } from 'lucide-react';
-import { ZOOM_SETTINGS } from '../../configs/navigator-config';
+import { ZOOM_SETTINGS } from '../../configs/paper-config';
 import { MAIN_COLOR } from '../../configs/theme';
 import { Tip } from '../ui/tip';
 

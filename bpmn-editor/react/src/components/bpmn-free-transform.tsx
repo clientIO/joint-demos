@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
-import { shapes, ui } from '@joint/plus';
+import { ui } from '@joint/plus';
 import { FreeTransform, usePaper } from '@joint/react-plus';
 import { useSelectedCell } from '../hooks/use-selected-cell';
 
 import type { dia } from '@joint/plus';
 import type { AppElement } from '../shapes/shapes-typing';
+import { isSwimlane, isPool } from '../utils';
 
 const FREE_TRANSFORM_OPTIONS = {
     allowRotation: false,
@@ -26,7 +27,7 @@ export function BpmnFreeTransform() {
         : null;
 
     const isBPMNShape = !!element
-        && (shapes.bpmn2.CompositePool.isPool(element) || shapes.bpmn2.Swimlane.isSwimlane(element));
+        && (isPool(element) || isSwimlane(element));
 
     useEffect(() => {
         if (!paper || !element || !isBPMNShape) return;

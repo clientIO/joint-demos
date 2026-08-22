@@ -1,21 +1,21 @@
 import { useState } from 'react';
-import { usePaper, useGraphHistory, useGraphHistoryStack } from '@joint/react-plus';
+import { useGraph, usePaper, useGraphHistory, useGraphHistoryStack } from '@joint/react-plus';
 import { Undo2, Redo2, Printer } from 'lucide-react';
-import { graph } from '../../editor/core';
-import { printDiagram, exportPNG, downloadJSON, downloadXML } from '../../editor/toolbar-actions';
+import { printDiagram, exportPNG, downloadJSON, downloadXML } from '../../actions/export-actions';
 import { FileDropdown } from './file-dropdown';
 import { ExportDialog } from './export-dialog';
 import { Tip } from '../ui/tip';
 
 export function BpmnToolbar() {
 
+    const { graph } = useGraph();
     const { paper } = usePaper();
     const { undo, redo } = useGraphHistory();
     const { canUndo, canRedo } = useGraphHistoryStack();
 
     const [exportedPNG, setExportedPNG] = useState<string | null>(null);
 
-    const onSavePNG = async () => {
+    const onSavePNG = async() => {
         if (!paper) return;
         setExportedPNG(await exportPNG(paper));
     };

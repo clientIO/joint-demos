@@ -1,11 +1,11 @@
-import { shapes, V, g } from '@joint/plus';
+import { V, g } from '@joint/plus';
 import { type HorizontalPool, HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes';
 import { DEFAULT_HORIZONTAL_POOL_SIZE, DEFAULT_VERTICAL_POOL_SIZE, SWIMLANE_HEADER_SIZE } from '../shapes/pool/pool-config';
-import { ShapeTypes } from '../shapes/shapes-typing';
 import { MAIN_COLOR } from '../configs/theme';
 
 import type { dia } from '@joint/plus';
 import type { VerticalPool } from '../shapes/pool/pool-shapes';
+import { isSwimlane, isPool, isGroup } from '../utils';
 
 type PoolPreviewEventData = {
     node: SVGElement;
@@ -23,7 +23,7 @@ export function onPoolDragStart(paper: dia.Paper, poolView: dia.ElementView, evt
     // Elements that are required to be encapsulated by the pool
     const elements = graph.getElements();
     // Graph includes some elements and there are no pools in the graph
-    const boundaryCheckRequired = elements.length > 0 && elements.every((element) => !shapes.bpmn2.CompositePool.isPool(element));
+    const boundaryCheckRequired = elements.length > 0 && elements.every((element) => !isPool(element));
 
     if (!boundaryCheckRequired) return;
 
@@ -227,7 +227,7 @@ function constructPoolPreview(pool: HorizontalPool | VerticalPool, poolDimension
 }
 
 function isPoolBoundaryRequired(element: dia.Element) {
-    return !(shapes.bpmn2.CompositePool.isPool(element) || shapes.bpmn2.Swimlane.isSwimlane(element) || element.get('shapeType') === ShapeTypes.GROUP);
+    return !(isPool(element) || isSwimlane(element) || isGroup(element));
 }
 
 function ensurePoolDragBoundary(encapsulatedBoundary: g.Rect, poolDimensions: g.Rect): { x: number, y: number } {

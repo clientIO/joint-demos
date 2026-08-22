@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
-import { dia, shapes, ui, highlighters } from '@joint/plus';
+import { dia, ui, highlighters } from '@joint/plus';
 import { Selection, getSelectionDefaultHandle } from '@joint/react-plus';
 import { MAIN_COLOR } from '../configs/theme';
+import { isSwimlane } from '../utils';
 
 // The selection: rotate/resize handles on the wrapper (shown for multi-cell
 // selections) and a mask highlighter frame around each selected cell.
@@ -21,7 +22,7 @@ export function BpmnSelection() {
                 }
             };
 
-            if (shapes.bpmn2.Swimlane.isSwimlane(cell)) {
+            if (isSwimlane(cell)) {
                 defaultOptions.layer = dia.Paper.Layers.FRONT;
             }
 

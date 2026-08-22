@@ -1,7 +1,6 @@
-import { shapes } from '@joint/plus';
 import { useSelectionCollection, useOnPaperEvents } from '@joint/react-plus';
-import { openLabelEditor, closeLabelEditor } from '../editor/label-editor';
-import { prepareLinkReplacement } from '../utils';
+import { openLabelEditor, closeLabelEditor } from '../actions/label-editor';
+import { prepareLinkReplacement, isSwimlane } from '../utils';
 import { onSwimlaneDrag, onSwimlaneDragEnd, onSwimlaneDragStart } from '../dnd/swimlanes';
 import { onElementDrag, onElementDragEnd, onElementDragStart } from '../dnd/elements';
 
@@ -26,7 +25,7 @@ export function useEditInteractions() {
         onElementPointerDown: ({ paper, view: elementView, event, x, y }) => {
             const { model } = elementView;
 
-            if (shapes.bpmn2.Swimlane.isSwimlane(model)) {
+            if (isSwimlane(model)) {
                 if (event.shiftKey) {
                     // Enable selecting inside the pool with `shift`
                     elementView.setInteractivity(false);
@@ -45,7 +44,7 @@ export function useEditInteractions() {
         onElementPointerMove: ({ paper, view: elementView, event, x, y }) => {
             const { model } = elementView;
 
-            if (shapes.bpmn2.Swimlane.isSwimlane(model)) {
+            if (isSwimlane(model)) {
                 if (elementView.eventData(event)?.preventDrop) return;
 
                 onSwimlaneDrag(paper, elementView, event, x, y);
@@ -57,7 +56,7 @@ export function useEditInteractions() {
         onElementPointerUp: ({ paper, view: elementView, event, x, y }) => {
             const { model } = elementView;
 
-            if (shapes.bpmn2.Swimlane.isSwimlane(model)) {
+            if (isSwimlane(model)) {
                 if (elementView.eventData(event)?.preventDrop) return;
 
                 onSwimlaneDragEnd(paper, elementView, event, x, y);

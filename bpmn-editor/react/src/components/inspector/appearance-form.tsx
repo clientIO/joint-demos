@@ -89,7 +89,6 @@ function ColorField({ cell, leaf, snapshot }: { cell: Cell; leaf: FieldLeaf; sna
         if (syncedRef.current) {
             originalRef.current = modelValue;
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cell, leaf.path, snapshot]);
 
     const commit = (finalValue: string) => {
@@ -109,7 +108,6 @@ function ColorField({ cell, leaf, snapshot }: { cell: Cell; leaf: FieldLeaf; sna
                 commit(readValue(cell, leaf));
             }
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cell, leaf.path]);
 
     const onInput = (evt: FormEvent<HTMLInputElement>) => {
@@ -129,7 +127,6 @@ function ColorField({ cell, leaf, snapshot }: { cell: Cell; leaf: FieldLeaf; sna
         const onNativeChange = () => commit(input.value);
         input.addEventListener('change', onNativeChange);
         return () => input.removeEventListener('change', onNativeChange);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cell, leaf.path]);
 
     return (
@@ -155,7 +152,6 @@ function SelectBoxField({ cell, leaf, snapshot }: { cell: Cell; leaf: FieldLeaf;
 
     useEffect(() => {
         setValue(readValue(cell, leaf));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cell, leaf.path, snapshot]);
 
     const onValueChange = (selected: string) => {

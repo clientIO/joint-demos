@@ -1,11 +1,17 @@
-import { shapes } from '@joint/plus';
+import type { shapes } from '@joint/plus';
 import { SubProcess, EventSubProcess } from '../shapes/activity/activity-shapes';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes';
 
 import type { dia, ui } from '@joint/plus';
 import type { HorizontalPool, VerticalPool } from '../shapes/pool/pool-shapes';
+import { isPool } from './elements';
 
+/**
+ * Loads imported cells into the graph, normalizing the structure (unembeds
+ * sub-process children, gives empty pools a swimlane, brings boundary events
+ * to front), resets the undo history and centers the content.
+ */
 export function importBPMN(paperScroller: ui.PaperScroller, commandManager: dia.CommandManager, cells: dia.Cell[]): void {
     const paper = paperScroller.options.paper;
     const graph = paper.model;
@@ -37,7 +43,7 @@ export function importBPMN(paperScroller: ui.PaperScroller, commandManager: dia.
     graph.resetCells(processedCells);
 
     // Second pass: handle pools and swimlanes
-    const pools = processedCells.filter((cell) => shapes.bpmn2.CompositePool.isPool(cell)) as (HorizontalPool | VerticalPool)[];
+    const pools = processedCells.filter((cell) => isPool(cell)) as (HorizontalPool | VerticalPool)[];
 
     pools.forEach((pool) => {
         if ((pool as shapes.bpmn2.CompositePool).getSwimlanes().length === 0) {

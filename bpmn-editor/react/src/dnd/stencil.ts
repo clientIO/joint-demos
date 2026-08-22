@@ -1,5 +1,4 @@
-import { shapes } from '@joint/plus';
-import { setStencilEvent } from '../utils';
+import { setStencilEvent, isSwimlane, isPool } from '../utils';
 import { onSwimlaneDragStart, onSwimlaneDrag, onSwimlaneDragEnd, dropSwimlane } from './swimlanes';
 import { onElementDragStart, onElementDrag, onElementDragEnd, dropElement } from './elements';
 import { onPoolDragStart, onPoolDrag, onPoolDrop, onPoolDragEnd } from './pools';
@@ -16,9 +15,9 @@ export function onStencilElementDragStart({ model, event, dropArea, paper, dragP
 
     setStencilEvent(event, true);
 
-    if (shapes.bpmn2.Swimlane.isSwimlane(model)) {
+    if (isSwimlane(model)) {
         onSwimlaneDragStart(paper, cloneView, event, x, y);
-    } else if (shapes.bpmn2.CompositePool.isPool(model)) {
+    } else if (isPool(model)) {
         onPoolDragStart(paper, cloneView, event, x, y);
     } else {
         onElementDragStart(paper, cloneView, event, x, y);
@@ -29,9 +28,9 @@ export function onStencilElementDrag({ model, event, dropArea, paper, dragPaper 
     const cloneView = dragPaper.findViewByModel(model) as dia.ElementView;
     const { x, y } = dropArea.center();
 
-    if (shapes.bpmn2.Swimlane.isSwimlane(model)) {
+    if (isSwimlane(model)) {
         onSwimlaneDrag(paper, cloneView, event, x, y);
-    } else if (shapes.bpmn2.CompositePool.isPool(model)) {
+    } else if (isPool(model)) {
         onPoolDrag(paper, cloneView, event, x, y);
     } else {
         onElementDrag(paper, cloneView, event, dropArea.x, dropArea.y);
@@ -42,9 +41,9 @@ export function onStencilElementDragEnd({ model, event, dropArea, paper, dragPap
     const cloneView = dragPaper.findViewByModel(model) as dia.ElementView;
     const { x, y } = dropArea.center();
 
-    if (shapes.bpmn2.Swimlane.isSwimlane(model)) {
+    if (isSwimlane(model)) {
         onSwimlaneDragEnd(paper, cloneView, event, x, y);
-    } else if (shapes.bpmn2.CompositePool.isPool(model)) {
+    } else if (isPool(model)) {
         onPoolDragEnd(paper, cloneView, event, x, y);
     } else {
         onElementDragEnd(paper, cloneView, event, x, y);
@@ -56,11 +55,11 @@ export function onStencilElementDragEnd({ model, event, dropArea, paper, dragPap
 export function dropStencilElement({ model, event, x, y, paper }: StencilDropParams): dia.Element | undefined {
     const elementView = paper.findViewByModel(model) as dia.ElementView;
 
-    if (shapes.bpmn2.Swimlane.isSwimlane(model)) {
+    if (isSwimlane(model)) {
         return dropSwimlane(paper, elementView, event, x, y);
     }
 
-    if (shapes.bpmn2.CompositePool.isPool(model)) {
+    if (isPool(model)) {
         onPoolDrop(paper, elementView, event, x, y);
         return model;
     }

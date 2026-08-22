@@ -1,11 +1,10 @@
-import { dia, shapes } from '@joint/plus';
+import { dia } from '@joint/plus';
 import { useSelectionCollection, useOnPaperEvents } from '@joint/react-plus';
-import { ShapeTypes } from '../shapes/shapes-typing';
 import { addEffect, removeEffect, EffectType } from '../effects';
-import { isForkEvent, getPoolParent, resolveDefaultLinkType } from '../utils';
+import { isForkEvent, getPoolParent, resolveDefaultLinkType, isSwimlane, isPool, isActivity } from '../utils';
 import { PlaceholderShapeTypes } from '../shapes/placeholder/placeholder-config';
 
-import type { ui } from '@joint/plus';
+import type { ui , shapes } from '@joint/plus';
 import type { AppElement, AppLink } from '../shapes/shapes-typing';
 import type { BPMNLinkView } from '../shapes/placeholder/placeholder-shapes';
 
@@ -32,12 +31,12 @@ export function useViewInteractions() {
 
             const { model } = cellView;
 
-            if (shapes.bpmn2.Swimlane.isSwimlane(model)) {
+            if (isSwimlane(model)) {
                 addEffect(cellView, EffectType.TargetSwimlaneEmbed);
                 return;
             }
 
-            if (model.get('shapeType') === ShapeTypes.ACTIVITY) {
+            if (isActivity(model)) {
                 addEffect(cellView, EffectType.ActivityBoundaryEmbed);
             }
         },
@@ -47,12 +46,12 @@ export function useViewInteractions() {
 
             const { model, paper } = cellView;
 
-            if (shapes.bpmn2.Swimlane.isSwimlane(model)) {
+            if (isSwimlane(model)) {
                 removeEffect(paper!, EffectType.TargetSwimlaneEmbed);
                 return;
             }
 
-            if (model.get('shapeType') === ShapeTypes.ACTIVITY) {
+            if (isActivity(model)) {
                 removeEffect(paper!, EffectType.ActivityBoundaryEmbed);
             }
         },
@@ -159,7 +158,7 @@ function onLinkPointerMove(paper: dia.Paper, linkView: dia.LinkView, evt: dia.Ev
     const secondaryElement = (isHoveredElementSource ? linkView.model.getTargetCell() : linkView.model.getSourceCell()) as AppElement;
 
     // If hovering a swimlane, validate its parent pool
-    if (shapes.bpmn2.Swimlane.isSwimlane(hoveredElement)) {
+    if (isSwimlane(hoveredElement)) {
         hoveredElement = hoveredElement.getParentCell() as AppElement;
         hoveredView = hoveredElement.findView(paper) as dia.ElementView;
     }
@@ -173,8 +172,8 @@ function onLinkPointerMove(paper: dia.Paper, linkView: dia.LinkView, evt: dia.Ev
     // Else add the invalid effect
     addEffect(hoveredView, EffectType.MarkUnavailable, { applyAll: true });
 
-    if (shapes.bpmn2.CompositePool.isPool(hoveredElement)) {
-        (hoveredElement as unknown as shapes.bpmn2.CompositePool).getSwimlanes().forEach(swimlane => {
+    if (isPool(hoveredElement)) {
+        hoveredElement.getSwimlanes().forEach(swimlane => {
             addEffect(swimlane.findView(paper) as dia.ElementView, EffectType.MarkUnavailable);
         });
     }

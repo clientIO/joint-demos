@@ -1,6 +1,6 @@
-import { shapes } from '@joint/plus';
+import type { shapes } from '@joint/plus';
 import { EffectType, addEffect, removeEffect } from '../effects';
-import { isStencilEvent } from '../utils';
+import { isStencilEvent, isPool } from '../utils';
 import { showGhostOnNextInteraction } from '../effects/ghost';
 import { HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes';
 
@@ -63,7 +63,7 @@ export function onSwimlaneDrag(paper: dia.Paper, elementView: dia.ElementView, e
         });
 
     // Find the `poolView` that is the top-most pool under the cursor.
-    const poolView = viewInArea.find((view) => shapes.bpmn2.CompositePool.isPool(view.model));
+    const poolView = viewInArea.find((view) => isPool(view.model));
 
     if (!poolView) {
         evt.data.poolView = null;
