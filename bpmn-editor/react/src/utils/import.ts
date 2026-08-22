@@ -3,21 +3,18 @@ import { SubProcess, EventSubProcess } from '../shapes/activity/activity-shapes'
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes';
 
-import type { dia, ui } from '@joint/plus';
+import type { dia } from '@joint/plus';
 import type { HorizontalPool, VerticalPool } from '../shapes/pool/pool-shapes';
 import { isPool } from './elements';
 
 /**
  * Loads imported cells into the graph, normalizing the structure (unembeds
  * sub-process children, gives empty pools a swimlane, brings boundary events
- * to front), resets the undo history and centers the content.
+ * to front).
  */
-export function importBPMN(paperScroller: ui.PaperScroller, commandManager: dia.CommandManager, cells: dia.Cell[]): void {
-    const paper = paperScroller.options.paper;
-    const graph = paper.model;
+export function importBPMN(graph: dia.Graph, cells: dia.Cell[]): void {
     const batchName = 'import-bpmn';
 
-    paper.freeze();
     graph.startBatch(batchName);
 
     // Process cells before adding them to the graph
@@ -73,9 +70,4 @@ export function importBPMN(paperScroller: ui.PaperScroller, commandManager: dia.
     boundaryCells.forEach((cell) => cell.toFront());
 
     graph.stopBatch(batchName);
-    commandManager.reset();
-    paper.unfreeze();
-
-    // Center the content in the viewport
-    paperScroller.centerContent({ useModelGeometry: true });
 }

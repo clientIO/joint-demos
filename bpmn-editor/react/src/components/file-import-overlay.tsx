@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { usePaperScroller, useGraphHistory } from '@joint/react-plus';
-import { setupFileImport } from '../import';
+import { setupFileImport } from '../actions/import-actions';
 
 // Drop overlay shown while a file is dragged over the paper. Owns the
 // drag-and-drop file import: `setupFileImport` attaches the drag listeners
