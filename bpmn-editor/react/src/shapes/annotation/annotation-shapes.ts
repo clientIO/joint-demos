@@ -20,7 +20,7 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
             shapeType: ShapeTypes.ANNOTATION,
             attrs: {
                 border: {
-                    stroke: 'var(--jj-palette-outline)'
+                    stroke: 'var(--bpmn-palette-outline)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,

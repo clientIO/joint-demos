@@ -8,7 +8,7 @@ import { isPoolShared } from '.';
 import type { dia } from '@joint/plus';
 import type { AppLink, AppShape, LinkType } from '../shapes/shapes-typing';
 
-const DEFAULT_LINK_STROKE = 'var(--jj-link)';
+const DEFAULT_LINK_STROKE = 'var(--bpmn-link)';
 
 /**
  * The link type appropriate for the link's current endpoints (message flow

@@ -12,7 +12,7 @@ export const SwimlanePreview = dia.HighlighterView.extend({
 
     attributes: {
         fill: 'none',
-        stroke: 'var(--jj-selector)',
+        stroke: 'var(--bpmn-selector)',
         strokeWidth: 3,
     },
 

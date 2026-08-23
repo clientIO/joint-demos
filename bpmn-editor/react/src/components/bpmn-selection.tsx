@@ -18,7 +18,7 @@ export function BpmnSelection() {
             const defaultOptions: dia.HighlighterView.Options = {
                 padding: 2,
                 attrs: {
-                    stroke: 'var(--jj-selector)',
+                    stroke: 'var(--bpmn-selector)',
                     strokeWidth: 2,
                 }
             };
@@ -36,7 +36,7 @@ export function BpmnSelection() {
             wrapper={{
                 margin: 8,
                 style: {
-                    border: '1px solid var(--jj-selector)'
+                    border: '1px solid var(--bpmn-selector)'
                 },
                 handles: []
             }}

@@ -22,7 +22,7 @@ export const HIGHLIGHTING: dia.Paper.Options['highlighting'] = {
         options: {
             padding: 0,
             attrs: {
-                stroke: 'var(--jj-selector)',
+                stroke: 'var(--bpmn-selector)',
                 strokeWidth: 3
             }
         }

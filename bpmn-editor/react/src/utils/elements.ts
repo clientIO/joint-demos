@@ -55,6 +55,13 @@ export function isEvent(cell: dia.Cell): boolean {
 }
 
 /**
+ * Whether the element is a gateway.
+ */
+export function isGateway(cell: dia.Cell): boolean {
+    return cell.get('shapeType') === ShapeTypes.GATEWAY;
+}
+
+/**
  * Whether the element is a group.
  */
 export function isGroup(cell: dia.Cell): boolean {

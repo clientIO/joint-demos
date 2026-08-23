@@ -2,34 +2,34 @@
    (`markAvailable`) — see the availability highlighters in `paper-config`. */
 
 .joint-element.available-cell *:not(text):not(tspan) {
-    stroke: var(--jj-selector);
+    stroke: var(--bpmn-selector);
 }
 
 .joint-element.available-cell tspan {
-    fill: var(--jj-selector);
+    fill: var(--bpmn-selector);
 }
 
 .joint-link.available-cell > path[joint-selector="line"] {
-    stroke: var(--jj-selector);
+    stroke: var(--bpmn-selector);
 }
 
 /* The swimlane a dragged lane came from / would land in. */
 .highlighter-swimlane-target [joint-selector="body"] {
-    fill: var(--jj-accent-primary);
+    fill: var(--bpmn-accent-primary);
     transition: fill 0.4s;
 }
 
 .highlighter-swimlane-source [joint-selector="body"] {
-    fill: var(--jj-accent-primary);
+    fill: var(--bpmn-accent-primary);
 }
 
 /* Invalid drop target (e.g. a swimlane dragged outside of any pool). */
 .highlighter-error [joint-selector="body"] {
-    stroke: var(--jj-error);
+    stroke: var(--bpmn-error);
 }
 
 .highlighter-error text {
-    fill: var(--jj-error);
+    fill: var(--bpmn-error);
 }
 
 /* The MarkUnavailable effect: cells a link cannot connect to. */

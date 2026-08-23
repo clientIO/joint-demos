@@ -3,10 +3,10 @@
     z-index: 2000;
     pointer-events: none;
     padding: 5px 10px;
-    background: var(--jj-bg-tooltip);
+    background: var(--bpmn-bg-tooltip);
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    color: var(--jj-text-tooltip);
+    color: var(--bpmn-text-tooltip);
     font-family: 'Open Sans', sans-serif;
     font-weight: 500;
     font-size: 12px;
@@ -17,7 +17,7 @@
 }
 
 .tooltip-arrow {
-    fill: var(--jj-bg-tooltip);
+    fill: var(--bpmn-bg-tooltip);
 }
 
 @keyframes tooltip-fade-in {

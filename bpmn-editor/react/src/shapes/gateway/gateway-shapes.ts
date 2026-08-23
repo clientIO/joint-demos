@@ -24,8 +24,8 @@ abstract class Gateway extends shapes.bpmn2.Gateway implements AppElement {
             shapeType: ShapeTypes.GATEWAY,
             attrs: {
                 body: {
-                    fill: 'var(--jj-palette-surface)',
-                    stroke: 'var(--jj-palette-outline)'
+                    fill: 'var(--bpmn-palette-surface)',
+                    stroke: 'var(--bpmn-palette-outline)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,

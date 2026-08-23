@@ -59,7 +59,7 @@ export function BpmnEditor() {
                                 <Paper
                                     gridSize={10}
                                     drawGrid
-                                    background={{ color: 'var(--jj-paper-background)' }}
+                                    background={{ color: 'var(--bpmn-paper-background)' }}
                                     snapLinks
                                     embeddingMode
                                     markAvailable

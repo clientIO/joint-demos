@@ -5,6 +5,6 @@
     .bpmn-tools,
     .horizontal-swimlane-tools,
     .vertical-swimlane-tools {
-        background-color: var(--jj-bg-halo);
+        background-color: var(--bpmn-bg-halo);
     }
 }

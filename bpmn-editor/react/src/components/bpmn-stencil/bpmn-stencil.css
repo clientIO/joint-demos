@@ -6,9 +6,9 @@
     top: 50%;
     transform: translateY(-50%);
     left: 1px;
-    border-radius: var(--jj-border-radius-small);
-    border: 1px solid var(--jj-border-secondary);
-    background-color: var(--jj-bg-primary);
+    border-radius: var(--bpmn-border-radius-small);
+    border: 1px solid var(--bpmn-border-secondary);
+    background-color: var(--bpmn-bg-primary);
 }
 
 /* TODO: remove — the stencil drag-preview styling is fixed upstream on */
@@ -45,15 +45,15 @@
         height: 40px;
         padding: 0;
         border: 1px solid transparent;
-        border-radius: var(--jj-border-radius-medium);
+        border-radius: var(--bpmn-border-radius-medium);
         background: transparent;
         cursor: pointer;
         transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
         touch-action: none;
 
         &:hover {
-            border-color: var(--jj-selector);
-            background-color: var(--jj-accent-primary);
+            border-color: var(--bpmn-selector);
+            background-color: var(--bpmn-accent-primary);
 
             .stencil-item-icon {
                 transform: scale(1.08);
@@ -64,7 +64,7 @@
             font-family: 'JJ BPMN Icons';
             font-size: 32px;
             line-height: 1;
-            color: var(--jj-text-secondary);
+            color: var(--bpmn-text-secondary);
             pointer-events: none;
             user-select: none;
             transition: transform 0.15s ease-in-out;

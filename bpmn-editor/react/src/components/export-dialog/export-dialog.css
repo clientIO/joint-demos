@@ -18,7 +18,7 @@
     flex-direction: column;
     max-width: min(880px, calc(100vw - 64px));
     max-height: calc(100vh - 64px);
-    background: var(--jj-bg-primary);
+    background: var(--bpmn-bg-primary);
     border-radius: 12px;
     box-shadow:
         0 24px 48px rgba(0, 0, 0, 0.18),
@@ -33,13 +33,13 @@
         align-items: center;
         justify-content: space-between;
         padding: 12px 16px;
-        border-bottom: 1px solid var(--jj-border-primary);
+        border-bottom: 1px solid var(--bpmn-border-primary);
 
         h2 {
             margin: 0;
             font-size: 14px;
             font-weight: 600;
-            color: var(--jj-text-primary);
+            color: var(--bpmn-text-primary);
         }
 
         .export-dialog-close {
@@ -48,14 +48,14 @@
             justify-content: center;
             border: none;
             background: transparent;
-            color: var(--jj-text-secondary);
+            color: var(--bpmn-text-secondary);
             cursor: pointer;
             padding: 6px;
-            border-radius: var(--jj-border-radius-small);
+            border-radius: var(--bpmn-border-radius-small);
             transition: background-color 0.2s ease-in-out;
 
             &:hover {
-                background-color: var(--jj-bg-hover);
+                background-color: var(--bpmn-bg-hover);
             }
         }
     }
@@ -68,7 +68,7 @@
         justify-content: center;
         padding: 16px;
         overflow: hidden;
-        background: var(--jj-bg-secondary);
+        background: var(--bpmn-bg-secondary);
 
         img {
             box-sizing: border-box;
@@ -76,8 +76,8 @@
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-            border: 1px solid var(--jj-border-secondary);
-            background: var(--jj-bg-primary);
+            border: 1px solid var(--bpmn-border-secondary);
+            background: var(--bpmn-bg-primary);
         }
     }
 
@@ -85,7 +85,7 @@
         display: flex;
         justify-content: flex-end;
         padding: 12px 16px;
-        border-top: 1px solid var(--jj-border-primary);
+        border-top: 1px solid var(--bpmn-border-primary);
 
         .export-dialog-download {
             display: inline-flex;
@@ -93,18 +93,18 @@
             gap: 6px;
             height: 32px;
             padding: 0 16px;
-            border: 1px solid var(--jj-border-save-button);
-            border-radius: var(--jj-border-radius-small);
-            background-color: var(--jj-bg-secondary);
-            color: var(--jj-text-secondary);
+            border: 1px solid var(--bpmn-border-save-button);
+            border-radius: var(--bpmn-border-radius-small);
+            background-color: var(--bpmn-bg-secondary);
+            color: var(--bpmn-text-secondary);
             font-size: 14px;
             font-weight: 600;
             text-decoration: none;
             transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
 
             &:hover {
-                border-color: var(--jj-border-hover);
-                background-color: var(--jj-bg-hover);
+                border-color: var(--bpmn-border-hover);
+                background-color: var(--bpmn-bg-hover);
             }
         }
     }

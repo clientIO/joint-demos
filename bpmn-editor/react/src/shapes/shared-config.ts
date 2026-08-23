@@ -4,12 +4,12 @@ import type { AppearanceSelectOption } from './shapes-typing';
 const FONT_FAMILY = 'Open Sans';
 const FONT_SIZE = 12;
 const FONT_WEIGHT = 'normal';
-const TEXT_FILL = 'var(--jj-palette-ink)';
+const TEXT_FILL = 'var(--bpmn-palette-ink)';
 
 export const defaultAttrs = {
     labelBody: {
         ref: 'label',
-        fill: 'var(--jj-palette-surface)',
+        fill: 'var(--bpmn-palette-surface)',
         stroke: 'none',
         strokeWidth: 1,
         width: 'calc(w + 10)',

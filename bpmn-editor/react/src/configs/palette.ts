@@ -8,14 +8,14 @@ export interface PaletteColor {
 }
 
 export const PALETTE: PaletteColor[] = [
-    { label: 'Surface', value: 'var(--jj-palette-surface)' },
-    { label: 'Ink', value: 'var(--jj-palette-ink)' },
-    { label: 'Blue', value: 'var(--jj-palette-blue)' },
-    { label: 'Soft Blue', value: 'var(--jj-palette-blue-soft)' },
-    { label: 'Green', value: 'var(--jj-palette-green)' },
-    { label: 'Soft Green', value: 'var(--jj-palette-green-soft)' },
-    { label: 'Success', value: 'var(--jj-palette-success)' },
-    { label: 'Danger', value: 'var(--jj-palette-danger)' },
-    { label: 'Warning', value: 'var(--jj-palette-warning)' },
-    { label: 'Accent', value: 'var(--jj-palette-accent)' }
+    { label: 'Surface', value: 'var(--bpmn-palette-surface)' },
+    { label: 'Ink', value: 'var(--bpmn-palette-ink)' },
+    { label: 'Blue', value: 'var(--bpmn-palette-blue)' },
+    { label: 'Soft Blue', value: 'var(--bpmn-palette-blue-soft)' },
+    { label: 'Green', value: 'var(--bpmn-palette-green)' },
+    { label: 'Soft Green', value: 'var(--bpmn-palette-green-soft)' },
+    { label: 'Success', value: 'var(--bpmn-palette-success)' },
+    { label: 'Danger', value: 'var(--bpmn-palette-danger)' },
+    { label: 'Warning', value: 'var(--bpmn-palette-warning)' },
+    { label: 'Accent', value: 'var(--bpmn-palette-accent)' }
 ];

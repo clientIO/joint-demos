@@ -6,7 +6,7 @@ const BPMNSourceArrowhead = linkTools.SourceArrowhead.extend({
     attributes: {
         rx: 6,
         ry: 6,
-        fill: 'var(--jj-selector)',
+        fill: 'var(--bpmn-selector)',
         stroke: null
     }
 });
@@ -17,7 +17,7 @@ const BPMNTargetArrowhead = linkTools.TargetArrowhead.extend({
     attributes: {
         rx: 6,
         ry: 6,
-        fill: 'var(--jj-selector)',
+        fill: 'var(--bpmn-selector)',
         stroke: null
     }
 });

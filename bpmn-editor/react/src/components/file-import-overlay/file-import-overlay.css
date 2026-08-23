@@ -18,9 +18,9 @@
         padding: 48px 64px;
         max-width: 340px;
         text-align: center;
-        background: var(--jj-bg-secondary);
-        border: 2px dashed var(--jj-selector);
-        border-radius: var(--jj-border-radius-medium);
+        background: var(--bpmn-bg-secondary);
+        border: 2px dashed var(--bpmn-selector);
+        border-radius: var(--bpmn-border-radius-medium);
         transition: transform .15s ease;
         transform: scale(.92);
     }
@@ -37,17 +37,17 @@
         margin: 12px 0 4px;
         font-size: 1.2rem;
         font-weight: 600;
-        color: var(--jj-text-primary);
+        color: var(--bpmn-text-primary);
     }
 
     .subline {
         margin: 0;
         font-size: .85rem;
-        color: var(--jj-text-secondary);
+        color: var(--bpmn-text-secondary);
     }
 
     .drop-icon {
-        color: var(--jj-selector);
+        color: var(--bpmn-selector);
         width: 36px;
         height: 36px;
         stroke: currentColor;

@@ -32,7 +32,7 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
             shapeType: ShapeTypes.FLOW,
             attrs: {
                 line: {
-                    stroke: 'var(--jj-palette-outline)'
+                    stroke: 'var(--bpmn-palette-outline)'
                 }
             }
         };

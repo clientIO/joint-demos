@@ -3,7 +3,7 @@ import * as Slider from '@radix-ui/react-slider';
 import { Navigator as NavigatorMinimap, usePaperScroller, usePaperScrollerViewport } from '@joint/react-plus';
 import { Scan, Expand, Shrink, Map } from 'lucide-react';
 import { ZOOM_SETTINGS } from '../../configs/paper-config';
-import { isPool, isSwimlane } from '../../utils';
+import { isEvent, isGateway, isPool, isSwimlane } from '../../utils';
 import { Tip } from '../tooltip/tooltip';
 
 import type { ReactNode } from 'react';
@@ -70,19 +70,30 @@ export function Navigator() {
                     style={{ width: 318, height: 130 }}
                     showLinks={false}
                     padding={10}
-                    elementStyle={({ model }) => (
-                        isPool(model) || isSwimlane(model)
-                            ? {
+                    elementStyle={({ model, width, height }) => {
+                        if (isPool(model) || isSwimlane(model)) {
+                            return {
                                 // Containers render as outlines
                                 fill: 'transparent',
-                                stroke: 'var(--jj-navigator-element-view)'
-                            }
-                            : {
-                                fill: 'var(--jj-navigator-element-view)',
-                                fillOpacity: 0.4,
-                                stroke: 'none'
-                            }
-                    )}
+                                stroke: 'var(--bpmn-navigator-element-color)'
+                            };
+                        }
+                        const style = {
+                            fill: 'var(--bpmn-navigator-element-color)',
+                            fillOpacity: 0.4,
+                            stroke: 'none'
+                        };
+                        // Mirror the shape geometry: events are circles,
+                        // gateways rhombi (`d` overrides the default rect).
+                        if (isEvent(model)) {
+                            const [rx, ry] = [width / 2, height / 2];
+                            return { ...style, d: `M 0 ${ry} A ${rx} ${ry} 0 1 0 ${width} ${ry} A ${rx} ${ry} 0 1 0 0 ${ry} Z` };
+                        }
+                        if (isGateway(model)) {
+                            return { ...style, d: `M ${width / 2} 0 L ${width} ${height / 2} L ${width / 2} ${height} L 0 ${height / 2} Z` };
+                        }
+                        return style;
+                    }}
                 />
             </div>
             <div className="navigator-toolbar">

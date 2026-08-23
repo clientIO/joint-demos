@@ -28,10 +28,10 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
                     containerSelector: 'background'
                 },
                 background: {
-                    fill: 'var(--jj-palette-surface)'
+                    fill: 'var(--bpmn-palette-surface)'
                 },
                 border: {
-                    stroke: 'var(--jj-palette-outline)'
+                    stroke: 'var(--bpmn-palette-outline)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,

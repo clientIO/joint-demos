@@ -6,7 +6,7 @@ import type { dia } from '@joint/plus';
 import type { VerticalPool } from '../shapes/pool/pool-shapes';
 import { isSwimlane, isPool, isGroup, type EditorEvent } from '../utils';
 
-const PREVIEW_STROKE = 'var(--jj-selector)';
+const PREVIEW_STROKE = 'var(--bpmn-selector)';
 const PREVIEW_STROKE_WIDTH = 2;
 const PREVIEW_FILL = '#FFFFFF';
 

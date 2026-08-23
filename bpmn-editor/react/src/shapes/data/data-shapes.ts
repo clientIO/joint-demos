@@ -28,8 +28,8 @@ abstract class Data extends shapes.bpmn2.DataObject implements AppElement {
             markers: [],
             attrs: {
                 body: {
-                    fill: 'var(--jj-palette-surface)',
-                    stroke: 'var(--jj-palette-outline)'
+                    fill: 'var(--bpmn-palette-surface)',
+                    stroke: 'var(--bpmn-palette-outline)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,

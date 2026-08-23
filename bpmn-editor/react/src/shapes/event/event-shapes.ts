@@ -26,10 +26,10 @@ export abstract class Event extends shapes.bpmn2.Event implements AppElement {
             shapeType: ShapeTypes.EVENT,
             attrs: {
                 background: {
-                    fill: 'var(--jj-palette-surface)'
+                    fill: 'var(--bpmn-palette-surface)'
                 },
                 border: {
-                    stroke: 'var(--jj-palette-outline)'
+                    stroke: 'var(--bpmn-palette-outline)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,

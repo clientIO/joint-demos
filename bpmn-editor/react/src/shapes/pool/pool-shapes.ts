@@ -64,12 +64,12 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implemen
                     magnetSelector: 'body'
                 },
                 header: {
-                    fill: 'var(--jj-palette-surface)',
-                    stroke: 'var(--jj-palette-outline)'
+                    fill: 'var(--bpmn-palette-surface)',
+                    stroke: 'var(--bpmn-palette-outline)'
                 },
                 body: {
-                    fill: 'var(--jj-palette-surface)',
-                    stroke: 'var(--jj-palette-outline)'
+                    fill: 'var(--bpmn-palette-surface)',
+                    stroke: 'var(--bpmn-palette-outline)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
@@ -161,12 +161,12 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements A
                     magnetSelector: 'body'
                 },
                 header: {
-                    fill: 'var(--jj-palette-surface)',
-                    stroke: 'var(--jj-palette-outline)'
+                    fill: 'var(--bpmn-palette-surface)',
+                    stroke: 'var(--bpmn-palette-outline)'
                 },
                 body: {
-                    fill: 'var(--jj-palette-surface)',
-                    stroke: 'var(--jj-palette-outline)'
+                    fill: 'var(--bpmn-palette-surface)',
+                    stroke: 'var(--bpmn-palette-outline)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
@@ -263,8 +263,8 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
                     fill: 'transparent'
                 },
                 body: {
-                    fill: 'var(--jj-palette-surface)',
-                    stroke: 'var(--jj-palette-outline)'
+                    fill: 'var(--bpmn-palette-surface)',
+                    stroke: 'var(--bpmn-palette-outline)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
@@ -346,8 +346,8 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
                     fill: 'transparent'
                 },
                 body: {
-                    fill: 'var(--jj-palette-surface)',
-                    stroke: 'var(--jj-palette-outline)'
+                    fill: 'var(--bpmn-palette-surface)',
+                    stroke: 'var(--bpmn-palette-outline)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,

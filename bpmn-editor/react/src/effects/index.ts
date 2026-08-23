@@ -80,7 +80,7 @@ export function addEffect(cellView: dia.CellView, effectType: EffectTypes, optio
             highlighters.mask.add(cellView, 'background', EffectType.ActivityBoundaryEmbed, {
                 padding: 0,
                 attrs: {
-                    stroke: 'var(--jj-selector)',
+                    stroke: 'var(--bpmn-selector)',
                     strokeWidth: 3
                 }
             });
@@ -99,7 +99,7 @@ export function addEffect(cellView: dia.CellView, effectType: EffectTypes, optio
                 highlighters.mask.add(cellView, selector, `${EffectType.MarkUnavailable}-mask`, {
                     padding: 0,
                     attrs: {
-                        stroke: 'var(--jj-error)',
+                        stroke: 'var(--bpmn-error)',
                         strokeWidth: 2
                     }
                 });

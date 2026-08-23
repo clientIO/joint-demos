@@ -7,9 +7,9 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    border-color: var(--jj-selector);
+    border-color: var(--bpmn-selector);
     border-style: solid;
-    background-color: var(--jj-palette-surface);
+    background-color: var(--bpmn-palette-surface);
     line-height: 1;
     text-align: center;
 
