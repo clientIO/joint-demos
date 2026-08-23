@@ -1,4 +1,5 @@
 import { inspectorOptions } from '../shared-config';
+import type { AppearanceConfig } from '../shapes-typing';
 
 export const AnnotationLabels = {
     'annotation.Annotation': 'Annotation',
@@ -14,81 +15,29 @@ export const annotationIconClasses = {
     ANNOTATION: 'jj-bpmn-icon-text-annotation'
 };
 
-export const annotationAppearanceConfig = {
-    groups: {
-        style: {
-            label: 'Style',
-            index: 1
-        },
-        text: {
-            label: 'Text',
-            index: 2
-        }
+export const annotationAppearanceConfig: AppearanceConfig = [
+    {
+        label: 'Style',
+        fields: [
+            { type: 'color', path: 'attrs/border/stroke', label: 'Outline' }
+        ]
     },
-    inputs: {
-        attrs: {
-            border: {
-                stroke: {
-                    type: 'color',
-                    label: 'Outline',
-                    group: 'style',
-                    index: 2
-                }
-            },
-            label: {
-                fontFamily: {
-                    type: 'select-box',
-                    label: 'Font style',
-                    group: 'text',
-                    index: 1,
-                    options: inspectorOptions.fontFamily
-                },
-                fontSize: {
-                    type: 'select-box',
-                    label: 'Size',
-                    group: 'text',
-                    index: 2,
-                    options: inspectorOptions.fontSize
-                },
-                fontWeight: {
-                    type: 'select-box',
-                    label: 'Font thickness',
-                    group: 'text',
-                    index: 3,
-                    options: inspectorOptions.fontWeight
-                },
-                fill: {
-                    type: 'color',
-                    label: 'Color',
-                    group: 'text',
-                    index: 4
-                }
-            }
-        }
+    {
+        label: 'Text',
+        fields: [
+            { type: 'select-box', path: 'attrs/label/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
+            { type: 'select-box', path: 'attrs/label/fontSize', label: 'Size', options: inspectorOptions.fontSize },
+            { type: 'select-box', path: 'attrs/label/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
+            { type: 'color', path: 'attrs/label/fill', label: 'Color' }
+        ]
     }
-};
+];
 
-export const annotationLinkAppearanceConfig = {
-    groups: {
-        style: {
-            label: 'Style',
-            index: 1
-        },
-        label: {
-            label: 'Label',
-            index: 2
-        }
-    },
-    inputs: {
-        attrs: {
-            line: {
-                stroke: {
-                    type: 'color',
-                    label: 'Color',
-                    group: 'style',
-                    index: 1
-                }
-            }
-        }
+export const annotationLinkAppearanceConfig: AppearanceConfig = [
+    {
+        label: 'Style',
+        fields: [
+            { type: 'color', path: 'attrs/line/stroke', label: 'Color' }
+        ]
     }
-};
+];

@@ -1,6 +1,5 @@
 import type { shapes } from '@joint/plus';
 import { dia } from '@joint/plus';
-import { MAIN_COLOR } from '../configs/theme';
 import { isPool } from '../utils';
 
 export const SwimlanePreview = dia.HighlighterView.extend({
@@ -9,7 +8,7 @@ export const SwimlanePreview = dia.HighlighterView.extend({
 
     attributes: {
         'fill': 'none',
-        'stroke': MAIN_COLOR,
+        'stroke': 'var(--jj-selector)',
         'stroke-width': 3,
     },
 

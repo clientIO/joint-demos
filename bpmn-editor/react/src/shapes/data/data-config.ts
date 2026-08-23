@@ -1,4 +1,5 @@
 import { inspectorOptions } from '../shared-config';
+import type { AppearanceConfig } from '../shapes-typing';
 
 export const DataLabels =  {
     'data.DataStore': 'Data Store',
@@ -23,157 +24,51 @@ export const dataIconClasses = {
     DATA_OUTPUT: 'jj-bpmn-icon-data-output'
 };
 
-export const dataObjectAppearanceConfig = {
-    groups: {
-        style: {
-            label: 'Style',
-            index: 1
-        },
-        text: {
-            label: 'Text',
-            index: 2
-        }
+export const dataObjectAppearanceConfig: AppearanceConfig = [
+    {
+        label: 'Style',
+        fields: [
+            { type: 'color', path: 'attrs/body/fill', label: 'Fill' },
+            { type: 'color', path: 'attrs/body/stroke', label: 'Outline' }
+        ]
     },
-    inputs: {
-        attrs: {
-            body: {
-                fill: {
-                    type: 'color',
-                    label: 'Fill',
-                    group: 'style',
-                    index: 1
-                },
-                stroke: {
-                    type: 'color',
-                    label: 'Outline',
-                    group: 'style',
-                    index: 2
-                }
-            },
-            label: {
-                fontFamily: {
-                    type: 'select-box',
-                    label: 'Font style',
-                    group: 'text',
-                    index: 1,
-                    options: inspectorOptions.fontFamily
-                },
-                fontSize: {
-                    type: 'select-box',
-                    label: 'Size',
-                    group: 'text',
-                    index: 2,
-                    options: inspectorOptions.fontSize
-                },
-                fontWeight: {
-                    type: 'select-box',
-                    label: 'Font thickness',
-                    group: 'text',
-                    index: 3,
-                    options: inspectorOptions.fontWeight
-                },
-                fill: {
-                    type: 'color',
-                    label: 'Color',
-                    group: 'text',
-                    index: 4
-                }
-            }
-        }
+    {
+        label: 'Text',
+        fields: [
+            { type: 'select-box', path: 'attrs/label/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
+            { type: 'select-box', path: 'attrs/label/fontSize', label: 'Size', options: inspectorOptions.fontSize },
+            { type: 'select-box', path: 'attrs/label/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
+            { type: 'color', path: 'attrs/label/fill', label: 'Color' }
+        ]
     }
-};
+];
 
-export const dataStoreAppearanceConfig = {
-    groups: {
-        style: {
-            label: 'Style',
-            index: 1
-        },
-        text: {
-            label: 'Text',
-            index: 2
-        }
+export const dataStoreAppearanceConfig: AppearanceConfig = [
+    {
+        label: 'Style',
+        fields: [
+            { type: 'color', path: 'attrs/top/fill', label: 'Top fill' },
+            { type: 'color', path: 'attrs/top/stroke', label: 'Top outline' },
+            { type: 'color', path: 'attrs/body/fill', label: 'Body fill' },
+            { type: 'color', path: 'attrs/body/stroke', label: 'Body outline' }
+        ]
     },
-    inputs: {
-        attrs: {
-            top: {
-                fill: {
-                    type: 'color',
-                    label: 'Top fill',
-                    group: 'style',
-                    index: 1
-                },
-                stroke: {
-                    type: 'color',
-                    label: 'Top outline',
-                    group: 'style',
-                    index: 2
-                }
-            },
-            body: {
-                fill: {
-                    type: 'color',
-                    label: 'Body fill',
-                    group: 'style',
-                    index: 3
-                },
-                stroke: {
-                    type: 'color',
-                    label: 'Body outline',
-                    group: 'style',
-                    index: 4
-                }
-            },
-            label: {
-                fontFamily: {
-                    type: 'select-box',
-                    label: 'Font style',
-                    group: 'text',
-                    index: 1,
-                    options: inspectorOptions.fontFamily
-                },
-                fontSize: {
-                    type: 'select-box',
-                    label: 'Size',
-                    group: 'text',
-                    index: 2,
-                    options: inspectorOptions.fontSize
-                },
-                fontWeight: {
-                    type: 'select-box',
-                    label: 'Font thickness',
-                    group: 'text',
-                    index: 3,
-                    options: inspectorOptions.fontWeight
-                },
-                fill: {
-                    type: 'color',
-                    label: 'Color',
-                    group: 'text',
-                    index: 4
-                }
-            }
-        }
+    {
+        label: 'Text',
+        fields: [
+            { type: 'select-box', path: 'attrs/label/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
+            { type: 'select-box', path: 'attrs/label/fontSize', label: 'Size', options: inspectorOptions.fontSize },
+            { type: 'select-box', path: 'attrs/label/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
+            { type: 'color', path: 'attrs/label/fill', label: 'Color' }
+        ]
     }
-};
+];
 
-export const dataAssociationAppearanceConfig = {
-    groups: {
-        style: {
-            label: 'Style',
-            index: 1
-        }
-    },
-    inputs: {
-        attrs: {
-            line: {
-                stroke: {
-                    type: 'color',
-                    label: 'Color',
-                    group: 'style',
-                    index: 1
-                }
-            }
-        }
+export const dataAssociationAppearanceConfig: AppearanceConfig = [
+    {
+        label: 'Style',
+        fields: [
+            { type: 'color', path: 'attrs/line/stroke', label: 'Color' }
+        ]
     }
-};
+];

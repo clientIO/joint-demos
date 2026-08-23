@@ -1,4 +1,5 @@
 import type { MarkerNames } from './shapes-typing';
+import type { AppearanceSelectOption } from './shapes-typing';
 
 const FONT_FAMILY = 'Open Sans';
 const FONT_SIZE = 12;
@@ -40,22 +41,22 @@ export const defaultAttrs = {
     }
 };
 
-export const inspectorOptions = {
+export const inspectorOptions: Record<string, AppearanceSelectOption[]> = {
     fontFamily: [
-        { value: 'Open Sans', content: '<span style="font-family: Open Sans">Open Sans</span>' },
-        { value: 'DM Sans', content: '<span style="font-family: DM Sans">DM Sans</span>' },
-        { value: 'Roboto Flex', content: '<span style="font-family: Roboto Flex">Roboto Flex</span>' }
+        { value: 'Open Sans', label: 'Open Sans' },
+        { value: 'DM Sans', label: 'DM Sans' },
+        { value: 'Roboto Flex', label: 'Roboto Flex' }
     ],
     fontSize: [
-        8,
-        10,
-        12,
-        14
+        { value: 8, label: '8' },
+        { value: 10, label: '10' },
+        { value: 12, label: '12' },
+        { value: 14, label: '14' }
     ],
     fontWeight: [
-        { value: '300', content: '<span style="font-weight: 300">Light</span>' },
-        { value: 'normal', content: '<span style="font-weight: Normal">Normal</span>' },
-        { value: 'bold', content: '<span style="font-weight: Bolder">Bold</span>' }
+        { value: '300', label: 'Light' },
+        { value: 'normal', label: 'Normal' },
+        { value: 'bold', label: 'Bold' }
     ]
 };
 

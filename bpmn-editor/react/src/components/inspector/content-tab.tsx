@@ -18,7 +18,7 @@ function MarkersSection({ shape }: { shape: AppElement }) {
     return (
         <>
             <h3 className="content-label">Available markers</h3>
-            <div className="joint-select-button-group">
+            <div className="select-button-group">
                 {markers.map((marker) => (
                     <button
                         type="button"
@@ -53,7 +53,7 @@ function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
     return (
         <>
             <h3 className="content-label">Available shapes</h3>
-            <div className="joint-select-button-group">
+            <div className="select-button-group">
                 {shapeTypes.map((type) => {
                     const shapeConstructor = graph.getTypeConstructor(type)!;
                     const { label, icon } = shapeConstructor as unknown as { label?: string; icon?: string };

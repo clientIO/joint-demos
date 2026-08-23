@@ -1,11 +1,10 @@
 import type { shapes } from '@joint/plus';
 import { dia } from '@joint/plus';
 import { type AppElement, type AppShape } from '../shapes/shapes-typing';
-import { BPMNLinkView } from '../shapes/placeholder/placeholder-shapes';
+import { AppLinkView } from '../shapes/link-view';
 import { LabelElementView } from '../shapes/shape-view';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { canElementExistOutsidePool, getClosestElementBoundaryPoint, getSwimlaneParent, isSwimlane, isPool } from '../utils';
-import { MAIN_COLOR } from './theme';
 
 import type { CanConnectOptions, ConnectionStrategy, InteractionsOptions, SnaplinesCanSnap, ValidateEmbedding, ValidateUnembedding } from '@joint/react-plus';
 
@@ -23,7 +22,7 @@ export const HIGHLIGHTING: dia.Paper.Options['highlighting'] = {
         options: {
             padding: 0,
             attrs: {
-                stroke: MAIN_COLOR,
+                stroke: 'var(--jj-selector)',
                 strokeWidth: 3
             }
         }
@@ -68,6 +67,8 @@ export const DIAGRAM_INTERACTIONS: InteractionsOptions = {
         const view = paper.findView(event.target as HTMLElement);
         const origin = view?.model;
 
+        // Blank area and elements: default region. Swimlanes: rubber-band
+        // scoped to the lane's own elements.
         if (!origin || !isSwimlane(origin)) return {};
 
         return {
@@ -167,7 +168,7 @@ export const PAPER_NATIVE_OPTIONS: Partial<dia.Paper.Options> = {
     // Anchor links to the middle of the element side nearest the other end.
     defaultAnchor: { name: 'midSide', args: { useModelGeometry: true }},
     elementView: LabelElementView,
-    linkView: BPMNLinkView,
+    linkView: AppLinkView,
     allowLink: ({ model }) => {
         // Link has source and target elements
         return !!(model.source().id) && !!(model.target().id);

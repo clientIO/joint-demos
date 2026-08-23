@@ -1,0 +1,13 @@
+/* The MarkAvailable effect: highlights the cells a link can connect to. */
+
+.joint-element.available-cell *:not(text):not(tspan) {
+    stroke: var(--jj-selector);
+}
+
+.joint-element.available-cell tspan {
+    fill: var(--jj-selector);
+}
+
+.joint-link.available-cell > path[joint-selector="line"] {
+    stroke: var(--jj-selector);
+}

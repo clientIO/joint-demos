@@ -1,0 +1,10 @@
+/* Backdrop of the handle groups defined in `configs/halo-config.tsx`. */
+.jj-halo {
+
+    .action-tools,
+    .bpmn-tools,
+    .horizontal-swimlane-tools,
+    .vertical-swimlane-tools {
+        background-color: var(--jj-bg-halo);
+    }
+}

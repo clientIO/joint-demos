@@ -10,7 +10,7 @@ export interface StencilPaletteItem {
     icon: string;
 }
 
-// The palette is plain React (see components/stencil/bpmn-palette.tsx):
+// The palette is plain React (see components/bpmn-stencil/bpmn-palette.tsx):
 // each item renders its icon with the "JJ BPMN Icons" font and starts a
 // stencil drag with the real shape constructor resolved from `type`.
 export const stencilPaletteItems: StencilPaletteItem[] = [

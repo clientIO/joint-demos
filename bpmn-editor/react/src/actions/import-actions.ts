@@ -1,6 +1,7 @@
 import { fromBPMN } from '@joint/format-bpmn-import';
 import { bpmnImportOptions } from '../shapes/factories';
 import { importBPMN } from '../utils';
+import { ZOOM_SETTINGS } from '../configs/paper-config';
 
 import type { ui } from '@joint/plus';
 import type { dia } from '@joint/plus';
@@ -8,7 +9,7 @@ import type { dia } from '@joint/plus';
 /**
  * Replaces the diagram with the file's content (BPMN XML or JSON), resets
  * the undo history (undoing into the previous diagram makes no sense) and
- * centers the content in the viewport. Unsupported or invalid files are
+ * fits the diagram into the viewport. Unsupported or invalid files are
  * reported and skipped.
  */
 export async function importFile(paperScroller: ui.PaperScroller, commandManager: dia.CommandManager, file: File): Promise<void> {
@@ -40,7 +41,18 @@ export async function importFile(paperScroller: ui.PaperScroller, commandManager
     }
 
     commandManager.reset();
-    paperScroller.centerContent({ useModelGeometry: true });
+
+    // Fit the new diagram into the viewport (up to 100% zoom). Mirrors the
+    // react `zoomToFit` helper, which is not available outside components.
+    const contentArea = graph.getBBox();
+    if (contentArea) {
+        paperScroller.zoomToRect(contentArea.inflate(60), {
+            minScale: ZOOM_SETTINGS.min,
+            maxScale: 1,
+            verticalAlign: 'middle',
+            horizontalAlign: 'middle'
+        });
+    }
 }
 
 /**

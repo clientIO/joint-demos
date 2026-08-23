@@ -1,18 +1,43 @@
+import { useEffect } from 'react';
 import { dia } from '@joint/plus';
 import { useSelectionCollection, useOnPaperEvents } from '@joint/react-plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
 import { isForkEvent, getPoolParent, resolveDefaultLinkType, isSwimlane, isPool, isActivity } from '../utils';
-import { PlaceholderShapeTypes } from '../shapes/placeholder/placeholder-config';
+import { PlaceholderShapeTypes } from '../shapes/link-config';
 
-import type { ui , shapes } from '@joint/plus';
 import type { AppElement, AppLink } from '../shapes/shapes-typing';
-import type { BPMNLinkView } from '../shapes/placeholder/placeholder-shapes';
+import type { AppLinkView } from '../shapes/link-view';
 
 // Viewing interactions: panning, selection semantics, embedding highlights,
 // link snap styling and invalid-target effects.
 export function useViewInteractions() {
 
     const selection = useSelectionCollection();
+    const { collection } = selection;
+
+    // The built-in `ctrl`/`cmd`+click toggles cells in the selection. Keep
+    // the cherry-picking scoped: only elements, and never mix elements from
+    // different pools (or a pool with global elements).
+    useEffect(() => {
+        const scopeOf = (cell: dia.Cell) => getPoolParent(cell)?.id ?? null;
+
+        const onAdd = (model: dia.Cell) => {
+            if (!model.isElement()) {
+                collection.remove(model);
+                return;
+            }
+            const scope = scopeOf(model);
+            const outOfScope = collection.filter((cell) => scopeOf(cell) !== scope);
+            if (outOfScope.length > 0) {
+                collection.remove(outOfScope);
+            }
+        };
+
+        collection.on('add', onAdd);
+        return () => {
+            collection.off('add', onAdd);
+        };
+    }, [collection]);
 
     useOnPaperEvents({
 
@@ -23,7 +48,6 @@ export function useViewInteractions() {
             }
         },
 
-        onCellPointerClick: ({ model, event }) => onCellPointerClick(selection, model, event),
 
         // Embedding highlights have no dedicated React handler — raw events.
         'cell:highlight': (cellView: dia.CellView, _node: SVGElement, options: dia.CellView.EventHighlightOptions) => {
@@ -58,11 +82,11 @@ export function useViewInteractions() {
 
         onLinkSnapConnect: ({ view }) => {
             const linkType = resolveDefaultLinkType(view.model as AppLink);
-            (view as BPMNLinkView).changeStyle(linkType);
+            (view as AppLinkView).changeStyle(linkType);
         },
 
         onLinkSnapDisconnect: ({ view }) => {
-            (view as BPMNLinkView).changeStyle(PlaceholderShapeTypes.LINK);
+            (view as AppLinkView).changeStyle(PlaceholderShapeTypes.LINK);
         },
 
         onLinkPointerMove: ({ paper, view, event, x, y }) => onLinkPointerMove(paper, view, event, x, y),
@@ -72,73 +96,6 @@ export function useViewInteractions() {
         }
     });
 
-}
-
-// Standard non-Shift click behavior:
-// If the element is already the only selected one, clicking it again without Shift does nothing.
-// Otherwise, select only this model. With Shift, cherry-pick elements within
-// one pool (or globally), never mixing the two scopes.
-function onCellPointerClick(selection: Pick<ui.Selection, 'collection'>, model: dia.Cell, event: dia.Event) {
-    if (!event.shiftKey) {
-        if (selection.collection.has(model) && selection.collection.length === 1) {
-            return;
-        }
-        selection.collection.reset([model]);
-        return;
-    }
-
-    // Ensure we are only cherry picking elements
-    if (!model.isElement()) {
-        return;
-    }
-
-    const clickedItemPool = getPoolParent(model);
-
-    let currentSelectionContextPool: shapes.bpmn2.CompositePool | null = null;
-    let isCurrentSelectionGlobal = false;
-    let isCurrentSelectionPoolBased = false;
-
-    if (selection.collection.length > 0) {
-        const firstSelected = selection.collection.first();
-        if (firstSelected) {
-            currentSelectionContextPool = getPoolParent(firstSelected);
-            if (currentSelectionContextPool) {
-                isCurrentSelectionPoolBased = true;
-            } else {
-                isCurrentSelectionGlobal = true;
-            }
-        }
-    }
-
-    let needsReset = false;
-    // Only consider resetting if there's an existing selection
-    if (selection.collection.length > 0) {
-        if (isCurrentSelectionPoolBased) {
-            // Current selection is from a specific pool
-            if (!clickedItemPool) { // Clicked item is global
-                needsReset = true;
-            } else if (clickedItemPool.id !== currentSelectionContextPool!.id) {
-                // Clicked item is in a different pool
-                needsReset = true;
-            }
-        } else if (isCurrentSelectionGlobal) {
-            // Current selection is global
-            if (clickedItemPool) {
-                // Clicked item is in a pool
-                needsReset = true;
-            }
-        }
-    }
-
-    if (needsReset) {
-        selection.collection.reset([]);
-    }
-
-    if (selection.collection.has(model)) {
-        selection.collection.remove(model);
-    } else {
-        selection.collection.add(model);
-    }
 }
 
 function onLinkPointerMove(paper: dia.Paper, linkView: dia.LinkView, evt: dia.Event, x: number, y: number) {

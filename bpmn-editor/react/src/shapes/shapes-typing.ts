@@ -1,6 +1,6 @@
 import type { dia, g } from '@joint/plus';
 import type { HaloHandle } from '@joint/react-plus';
-import type { PlaceholderShapeTypes } from './placeholder/placeholder-config';
+import type { PlaceholderShapeTypes } from './link-config';
 import type { AnnotationShapeTypes } from './annotation/annotation-config';
 import type { DataShapeTypes } from './data/data-config';
 import type { FlowShapeTypes } from './flow/flow-config';
@@ -54,10 +54,39 @@ export interface AppShape extends dia.Cell {
     getLabelEditorStyles?: (paper: dia.Paper) => Partial<CSSStyleDeclaration>;
 }
 
-interface AppearanceConfig {
-    groups: Record<string, { label: string, index: number }>;
-    inputs: Record<string, Record<string, unknown>>;
+export interface AppearanceSelectOption {
+    value: string | number;
+    label: string;
 }
+
+interface AppearanceFieldBase {
+    /** Slash-separated cell property path (`attrs/label/fill`, `labels/0/attrs/body/fill`). */
+    path: string;
+    label: string;
+    /** Shown when the cell has no value at `path`. */
+    defaultValue?: string | number;
+}
+
+export interface AppearanceColorField extends AppearanceFieldBase {
+    type: 'color';
+}
+
+export interface AppearanceSelectBoxField extends AppearanceFieldBase {
+    type: 'select-box';
+    options: AppearanceSelectOption[];
+}
+
+export type AppearanceField = AppearanceColorField | AppearanceSelectBoxField;
+
+export interface AppearanceGroup {
+    label?: string;
+    /** The group renders only while the predicate holds (defaults to always). */
+    visibleWhen?: (cell: dia.Cell) => boolean;
+    fields: AppearanceField[];
+}
+
+/** The Appearance inspector tab: groups render in array order. */
+export type AppearanceConfig = AppearanceGroup[];
 
 export interface AppElement extends dia.Element {
     readonly isResizable: boolean;

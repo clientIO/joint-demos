@@ -1,7 +1,7 @@
 import { dia, highlighters } from '@joint/plus';
 import { ShadowEffect } from './shadow-effect';
 import { SwimlanePreview } from './swimlane-preview';
-import { ERROR_COLOR, MAIN_COLOR } from '../configs/theme';
+import './effects.css';
 
 export const EffectType = {
     Shadow: 'shadow',
@@ -66,7 +66,7 @@ export function addEffect(cellView: dia.CellView, effectType: EffectTypes, optio
             highlighters.mask.add(cellView, 'background', EffectType.ActivityBoundaryEmbed, {
                 padding: 0,
                 attrs: {
-                    stroke: MAIN_COLOR,
+                    stroke: 'var(--jj-selector)',
                     strokeWidth: 3
                 }
             });
@@ -85,7 +85,7 @@ export function addEffect(cellView: dia.CellView, effectType: EffectTypes, optio
                 highlighters.mask.add(cellView, selector, `${EffectType.MarkUnavailable}-mask`, {
                     padding: 0,
                     attrs: {
-                        stroke: ERROR_COLOR,
+                        stroke: 'var(--jj-error)',
                         strokeWidth: 2
                     }
                 });

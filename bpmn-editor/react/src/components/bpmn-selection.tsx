@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { dia, ui, highlighters } from '@joint/plus';
-import { Selection, getSelectionDefaultHandle } from '@joint/react-plus';
-import { MAIN_COLOR } from '../configs/theme';
+import { Selection } from '@joint/react-plus';
 import { isSwimlane } from '../utils';
 
 // The selection: rotate/resize handles on the wrapper (shown for multi-cell
@@ -10,19 +9,19 @@ export function BpmnSelection() {
 
     const frames = useMemo(() => new ui.HighlighterSelectionFrameList({
         highlighter: highlighters.mask,
-        selector(cell, _frameList) {
-            return cell.isElement() ? cell.attr(['root', 'highlighterSelector']) : null;
+        selector(model) {
+            return model.isElement() ? model.attr(['root', 'highlighterSelector']) : null;
         },
-        options: (cell, _frameList) => {
+        options: (model) => {
             const defaultOptions: dia.HighlighterView.Options = {
                 padding: 2,
                 attrs: {
-                    stroke: MAIN_COLOR,
+                    stroke: 'var(--jj-selector)',
                     strokeWidth: 2,
                 }
             };
 
-            if (isSwimlane(cell)) {
+            if (isSwimlane(model)) {
                 defaultOptions.layer = dia.Paper.Layers.FRONT;
             }
 
@@ -32,26 +31,12 @@ export function BpmnSelection() {
 
     return (
         <Selection
-            options={{
-                boxContent: null,
-                useModelGeometry: true,
-                allowCellInteraction: true
-            }}
             wrapper={{
                 margin: 8,
                 style: {
-                    border: `1px solid ${MAIN_COLOR}`
+                    border: '1px solid var(--jj-selector)'
                 },
-                handles: [
-                    {
-                        ...getSelectionDefaultHandle('rotate'),
-                        group: ui.Selection.HandlePosition.SW
-                    },
-                    {
-                        ...getSelectionDefaultHandle('resize'),
-                        group: ui.Selection.HandlePosition.SE
-                    }
-                ]
+                handles: []
             }}
             frames={frames}
         />

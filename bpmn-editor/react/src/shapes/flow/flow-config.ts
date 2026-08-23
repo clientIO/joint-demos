@@ -1,4 +1,5 @@
 import { defaultAttrs, inspectorOptions } from '../shared-config';
+import type { AppearanceConfig } from '../shapes-typing';
 
 export const FlowLabels = {
     'flow.Sequence': 'Sequence Flow',
@@ -20,85 +21,24 @@ export const flowIconClasses = {
     CONDITIONAL: 'jj-bpmn-icon-condition-flow'
 };
 
-export const flowAppearanceConfig = {
-    groups: {
-        style: {
-            label: 'Style',
-            index: 1
-        },
-        label: {
-            label: 'Label',
-            index: 2
-        }
+export const flowAppearanceConfig: AppearanceConfig = [
+    {
+        label: 'Style',
+        fields: [
+            { type: 'color', path: 'attrs/line/stroke', label: 'Color' }
+        ]
     },
-    inputs: {
-        attrs: {
-            line: {
-                stroke: {
-                    type: 'color',
-                    label: 'Color',
-                    group: 'style',
-                    index: 1
-                }
-            }
-        },
-        labels: {
-            0: {
-                type: 'object',
-                group: 'label',
-                when: { ne: { 'labels/0': null }},
-                properties: {
-                    attrs: {
-                        body: {
-                            fill: {
-                                type: 'color',
-                                label: 'Background',
-                                group: 'label',
-                                defaultValue: defaultAttrs.labelBody.fill,
-                                index: 1
-                            },
-                            stroke: {
-                                type: 'color',
-                                label: 'Outline',
-                                group: 'label',
-                                defaultValue: defaultAttrs.labelBody.stroke,
-                                index: 2
-                            }
-                        },
-                        label: {
-                            fontFamily: {
-                                type: 'select-box',
-                                label: 'Font style',
-                                group: 'text',
-                                index: 3,
-                                defaultValue: defaultAttrs.linkLabel.fontFamily,
-                                options: inspectorOptions.fontFamily
-                            },
-                            fontSize: {
-                                type: 'select-box',
-                                label: 'Size',
-                                group: 'text',
-                                index: 4,
-                                defaultValue: defaultAttrs.linkLabel.fontSize,
-                                options: inspectorOptions.fontSize
-                            },
-                            fontWeight: {
-                                type: 'select-box',
-                                label: 'Font thickness',
-                                group: 'text',
-                                index: 5,
-                                defaultValue: defaultAttrs.linkLabel.fontWeight,
-                                options: inspectorOptions.fontWeight
-                            },
-                            fill: {
-                                type: 'color',
-                                label: 'Text Color',
-                                index: 6
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    {
+        label: 'Label',
+        // The label styles only make sense once the link has a label
+        visibleWhen: (cell) => cell.prop('labels/0') != null,
+        fields: [
+            { type: 'color', path: 'labels/0/attrs/body/fill', label: 'Background', defaultValue: defaultAttrs.labelBody.fill },
+            { type: 'color', path: 'labels/0/attrs/body/stroke', label: 'Outline', defaultValue: defaultAttrs.labelBody.stroke },
+            { type: 'select-box', path: 'labels/0/attrs/label/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily, defaultValue: defaultAttrs.linkLabel.fontFamily },
+            { type: 'select-box', path: 'labels/0/attrs/label/fontSize', label: 'Size', options: inspectorOptions.fontSize, defaultValue: defaultAttrs.linkLabel.fontSize },
+            { type: 'select-box', path: 'labels/0/attrs/label/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight, defaultValue: defaultAttrs.linkLabel.fontWeight },
+            { type: 'color', path: 'labels/0/attrs/label/fill', label: 'Text Color' }
+        ]
     }
-};
+];

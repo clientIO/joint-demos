@@ -1,0 +1,61 @@
+.file-import-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1000;
+    opacity: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(2px);
+    transition: opacity .15s ease;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .file-import-overlay-content {
+        font-family: 'Open Sans', sans-serif;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        pointer-events: none;
+        padding: 48px 64px;
+        max-width: 340px;
+        text-align: center;
+        background: var(--jj-bg-secondary);
+        border: 2px dashed var(--jj-selector);
+        border-radius: var(--jj-border-radius-medium);
+        transition: transform .15s ease;
+        transform: scale(.92);
+    }
+
+    &.active {
+        opacity: 1;
+    }
+
+    &.active .file-import-overlay-content {
+        transform: scale(1);
+    }
+
+    .headline {
+        margin: 12px 0 4px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--jj-text-primary);
+    }
+
+    .subline {
+        margin: 0;
+        font-size: .85rem;
+        color: var(--jj-text-secondary);
+    }
+
+    .drop-icon {
+        color: var(--jj-selector);
+        width: 36px;
+        height: 36px;
+        stroke: currentColor;
+        animation: bob 1s infinite ease-in-out;
+    }
+}
+
+@keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+}

@@ -3,7 +3,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { usePaperScroller, useGraphHistory } from '@joint/react-plus';
 import { FileText, ChevronDown } from 'lucide-react';
 import { importFile } from '../../actions/import-actions';
-import { Tip } from '../ui/tip';
+import { Tip } from '../tooltip/tooltip';
 
 import type { ChangeEvent } from 'react';
 

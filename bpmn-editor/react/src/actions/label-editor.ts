@@ -3,6 +3,7 @@ import { labelEditorWrapperStyles } from '../shapes/shared-config';
 import type { dia, ui } from '@joint/plus';
 import type { AppShape, AppElement, AppLink } from '../shapes/shapes-typing';
 import type { LabelElementView } from '../shapes/shape-view';
+import './label-editor.css';
 
 type Selection = Pick<ui.Selection, 'collection'>;
 

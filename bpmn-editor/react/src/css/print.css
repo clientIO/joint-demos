@@ -1,5 +1,6 @@
-/* Print styles required by `format.print()`: the app is hidden and only the
-   print area (a temporary clone of the paper appended to `<body>`) is shown. */
+/* TODO: remove — print styles required by `format.print()` (the app is
+   hidden and only the print area is shown) are not part of the react-plus
+   stylesheet yet. */
 
 .printarea {
     position: relative;

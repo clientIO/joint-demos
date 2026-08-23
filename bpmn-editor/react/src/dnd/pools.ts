@@ -1,7 +1,6 @@
 import { V, g } from '@joint/plus';
 import { type HorizontalPool, HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes';
 import { DEFAULT_HORIZONTAL_POOL_SIZE, DEFAULT_VERTICAL_POOL_SIZE, SWIMLANE_HEADER_SIZE } from '../shapes/pool/pool-config';
-import { MAIN_COLOR } from '../configs/theme';
 
 import type { dia } from '@joint/plus';
 import type { VerticalPool } from '../shapes/pool/pool-shapes';
@@ -13,7 +12,7 @@ type PoolPreviewEventData = {
     poolDimensions: g.Rect;
 }
 
-const PREVIEW_STROKE = MAIN_COLOR;
+const PREVIEW_STROKE = 'var(--jj-selector)';
 const PREVIEW_STROKE_WIDTH = 2;
 const PREVIEW_FILL = '#FFFFFF';
 

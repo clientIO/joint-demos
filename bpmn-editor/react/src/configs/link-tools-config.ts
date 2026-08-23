@@ -1,5 +1,4 @@
 import { linkTools, util } from '@joint/plus';
-import { MAIN_COLOR } from './theme';
 
 const BPMNSourceArrowhead = linkTools.SourceArrowhead.extend({
     name: 'bpmn-source-arrowhead',
@@ -7,7 +6,7 @@ const BPMNSourceArrowhead = linkTools.SourceArrowhead.extend({
     attributes: {
         rx: 6,
         ry: 6,
-        fill: MAIN_COLOR,
+        fill: 'var(--jj-selector)',
         stroke: null
     }
 });
@@ -18,7 +17,7 @@ const BPMNTargetArrowhead = linkTools.TargetArrowhead.extend({
     attributes: {
         rx: 6,
         ry: 6,
-        fill: MAIN_COLOR,
+        fill: 'var(--jj-selector)',
         stroke: null
     }
 });

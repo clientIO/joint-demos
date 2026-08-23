@@ -6,6 +6,25 @@
     --jj-selector: #5540E1;
     --jj-error: #ed2637;
 
+    /* Halo (react-plus variables) */
+    --jj-halo-handle-width: 20px;
+    --jj-halo-handle-height: 20px;
+    --jj-halo-handle-font-size: 20px;
+
+    /* Free transform (react-plus variables) */
+    --jj-ft-border-width: 0px;
+    --jj-ft-handle-size: 7px;
+    --jj-ft-handle-radius: 50%;
+    --jj-ft-handle-background: var(--jj-bg-free-transform-handle);
+
+    /* Rubber-band selection region (react-plus variables) */
+    --jj-selection-region-fill: var(--jj-selector);
+    --jj-selection-region-border-color: var(--jj-selector);
+
+    /* Snaplines (react-plus variables) */
+    --jj-snaplines-color: color-mix(in srgb, var(--jj-selector) 30%, transparent);
+    --jj-snaplines-width: 2px;
+
     /* Background */
     --jj-bg-slider-thumb: var(--jj-selector);
     --jj-bg-free-transform-handle: var(--jj-selector);

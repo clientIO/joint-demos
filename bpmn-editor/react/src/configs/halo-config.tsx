@@ -5,7 +5,7 @@ import { gatewayIconClasses, GatewayShapeTypes } from '../shapes/gateway/gateway
 import { activityIconClasses, ActivityShapeTypes } from '../shapes/activity/activity-config';
 import { annotationIconClasses, AnnotationShapeTypes } from '../shapes/annotation/annotation-config';
 import { flowIconClasses } from '../shapes/flow/flow-config';
-import { PlaceholderAttributes, PlaceholderShapeTypes } from '../shapes/placeholder/placeholder-config';
+import { linkTypeStyles, PlaceholderShapeTypes } from '../shapes/link-config';
 import { Sequence } from '../shapes/flow/flow-shapes';
 
 import type { ui, shapes } from '@joint/plus';
@@ -69,7 +69,7 @@ type HandleType =
 // The link created when dragging from a `link`/`fork` handle — a dashed
 // placeholder that is replaced with the resolved flow type on connect.
 function makePlaceholderLink() {
-    const { attrs, router } = PlaceholderAttributes[PlaceholderShapeTypes.LINK];
+    const { attrs, router } = linkTypeStyles[PlaceholderShapeTypes.LINK];
 
     const link = new Sequence();
 

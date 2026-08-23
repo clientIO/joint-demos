@@ -1,0 +1,27 @@
+.label-editor-wrapper {
+
+    position: absolute;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-color: var(--jj-selector);
+    border-style: solid;
+    background-color: white;
+    line-height: 1;
+    text-align: center;
+
+    .label-editor {
+        text-align: inherit;
+        width: 100%;
+        min-width: 1px;
+        outline: none;
+        resize: none;
+        line-height: inherit;
+        overflow-wrap: anywhere;
+        overflow-y: wrap;
+        cursor: text;
+    }
+}

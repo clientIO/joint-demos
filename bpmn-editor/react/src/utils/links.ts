@@ -1,5 +1,5 @@
 import { ShapeTypes } from '../shapes/shapes-typing';
-import { PlaceholderShapeTypes } from '../shapes/placeholder/placeholder-config';
+import { PlaceholderShapeTypes } from '../shapes/link-config';
 import { DataShapeTypes } from '../shapes/data/data-config';
 import { AnnotationShapeTypes } from '../shapes/annotation/annotation-config';
 import { FlowShapeTypes } from '../shapes/flow/flow-config';

@@ -1,6 +1,7 @@
 import { inspectorOptions } from '../shared-config';
 
 import type { dia, shapes } from '@joint/plus';
+import type { AppearanceConfig } from '../shapes-typing';
 
 export enum PoolShapeTypes {
     HORIZONTAL_POOL = 'pool.HorizontalPool',
@@ -44,126 +45,45 @@ export const swimlaneAttributes: Partial<shapes.bpmn2.Swimlane.Attributes<dia.Ce
     contentMargin: LANE_CONTENT_MARGIN,
 };
 
-export const poolAppearanceConfig = {
-    groups: {
-        header: {
-            label: 'Header Style',
-            index: 1
-        },
-        body: {
-            label: 'Body Style',
-            index: 2
-        },
-        text: {
-            label: 'Text',
-            index: 3
-        }
+export const poolAppearanceConfig: AppearanceConfig = [
+    {
+        label: 'Header Style',
+        fields: [
+            { type: 'color', path: 'attrs/header/fill', label: 'Fill' },
+            { type: 'color', path: 'attrs/header/stroke', label: 'Outline' }
+        ]
     },
-    inputs: {
-        attrs: {
-            header: {
-                fill: {
-                    type: 'color',
-                    label: 'Fill',
-                    group: 'header',
-                    index: 1
-                },
-                stroke: {
-                    type: 'color',
-                    label: 'Outline',
-                    group: 'header',
-                    index: 2
-                }
-            },
-            body: {
-                fill: {
-                    type: 'color',
-                    label: 'Fill',
-                    group: 'body',
-                    index: 1
-                },
-                stroke: {
-                    type: 'color',
-                    label: 'Outline',
-                    group: 'body',
-                    index: 2
-                }
-            },
-            headerText: {
-                fontFamily: {
-                    type: 'select-box',
-                    label: 'Font style',
-                    group: 'text',
-                    index: 1,
-                    options: inspectorOptions.fontFamily
-                },
-                fontWeight: {
-                    type: 'select-box',
-                    label: 'Font Thickness',
-                    group: 'text',
-                    index: 2,
-                    options: inspectorOptions.fontWeight
-                },
-                fill: {
-                    type: 'color',
-                    label: 'Color',
-                    group: 'text',
-                    index: 3
-                }
-            }
-        }
+    {
+        label: 'Body Style',
+        fields: [
+            { type: 'color', path: 'attrs/body/fill', label: 'Fill' },
+            { type: 'color', path: 'attrs/body/stroke', label: 'Outline' }
+        ]
+    },
+    {
+        label: 'Text',
+        fields: [
+            { type: 'select-box', path: 'attrs/headerText/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
+            { type: 'select-box', path: 'attrs/headerText/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
+            { type: 'color', path: 'attrs/headerText/fill', label: 'Color' }
+        ]
     }
-};
+];
 
-export const swimlaneAppearanceConfig = {
-    groups: {
-        body: {
-            label: 'Body Style',
-            index: 1
-        },
-        text: {
-            label: 'Text',
-            index: 2
-        }
+export const swimlaneAppearanceConfig: AppearanceConfig = [
+    {
+        label: 'Body Style',
+        fields: [
+            { type: 'color', path: 'attrs/body/fill', label: 'Fill' },
+            { type: 'color', path: 'attrs/body/stroke', label: 'Outline' }
+        ]
     },
-    inputs: {
-        attrs: {
-            body: {
-                fill: {
-                    type: 'color',
-                    label: 'Fill',
-                    group: 'body',
-                    index: 1
-                },
-                stroke: {
-                    type: 'color',
-                    label: 'Outline',
-                    group: 'body',
-                    index: 2
-                }
-            },
-            headerText: {
-                fontFamily: {
-                    type: 'select-box',
-                    label: 'Font style',
-                    group: 'text',
-                    index: 1,
-                    options: inspectorOptions.fontFamily
-                },
-                fontWeight: {
-                    type: 'select-box',
-                    label: 'Font Thickness',
-                    group: 'text',
-                    index: 2,
-                    options: inspectorOptions.fontWeight
-                },
-                fill: {
-                    type: 'color',
-                    label: 'Color',
-                    group: 'text',
-                    index: 3
-                }
-            }
-        }
+    {
+        label: 'Text',
+        fields: [
+            { type: 'select-box', path: 'attrs/headerText/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
+            { type: 'select-box', path: 'attrs/headerText/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
+            { type: 'color', path: 'attrs/headerText/fill', label: 'Color' }
+        ]
     }
-};
+];

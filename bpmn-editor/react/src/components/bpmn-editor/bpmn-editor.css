@@ -1,0 +1,36 @@
+/* The editor fills its container (which must have a definite height). */
+.bpmn-editor {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    .paper-scroller-background > .joint-paper {
+        border: 1px solid #E2E2E2;
+    }
+
+    .app-toolbar {
+        min-height: 54px;
+    }
+
+    .app-body {
+        display: flex;
+        flex: 1 auto;
+        overflow: hidden;
+        position: relative;
+
+        .paper-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+
+            .joint-paper-scroller[data-cursor="crosshair"] .joint-cell {
+                cursor: crosshair;
+            }
+        }
+    }
+}
