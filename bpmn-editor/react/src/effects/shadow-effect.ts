@@ -22,10 +22,10 @@ export const ShadowEffect = dia.HighlighterView.extend({
 
             if (borderPath && borderPath instanceof SVGElement) {
                 // Create a clone of the border for the shadow
-                const shadowPath = V(borderPath).clone();
+                const shadowPathVEl = V(borderPath).clone();
 
                 // Apply shadow styling
-                shadowPath.attr({
+                shadowPathVEl.attr({
                     stroke: 'black',
                     strokeWidth: 2,
                     transform: `translate(${offset}, ${offset})`,
@@ -33,7 +33,7 @@ export const ShadowEffect = dia.HighlighterView.extend({
                     filter: `blur(${blur}px)`
                 });
 
-                this.vel.append(shadowPath);
+                this.vel.append(shadowPathVEl);
                 cellView.el.prepend(this.el);
                 return;
             }
@@ -42,7 +42,7 @@ export const ShadowEffect = dia.HighlighterView.extend({
         // Standard SVG filter approach for non-annotation elements
         const filterId = `shadow-filter-${cellModel.id}`;
 
-        const filter = V('filter').attr({
+        const filterVEl = V('filter').attr({
             id: filterId,
             x: '-50%',
             y: '-50%',
@@ -50,7 +50,7 @@ export const ShadowEffect = dia.HighlighterView.extend({
             height: '200%'
         });
 
-        filter.append([
+        filterVEl.append([
             V('feDropShadow').attr({
                 dx: offset,
                 dy: offset,
@@ -60,13 +60,13 @@ export const ShadowEffect = dia.HighlighterView.extend({
             })
         ]);
 
-        this.vel.append(filter);
+        this.vel.append(filterVEl);
 
         // Clone the node and apply the filter
-        const nodeClone = V(node).clone();
-        nodeClone.attr('filter', `url(#${filterId})`);
+        const nodeCloneVEl = V(node).clone();
+        nodeCloneVEl.attr('filter', `url(#${filterId})`);
 
-        this.vel.append(nodeClone);
+        this.vel.append(nodeCloneVEl);
         cellView.el.prepend(this.el);
     }
 });

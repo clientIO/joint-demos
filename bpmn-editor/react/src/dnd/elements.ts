@@ -8,10 +8,17 @@ import { setBoundarySnapActive } from './boundary-snap';
 import type { shapes } from '@joint/plus';
 import type { AppElement } from '../shapes/shapes-typing';
 
+/**
+ * Adds a drop shadow to the dragged element.
+ */
 export function onElementDragStart(_paper: dia.Paper, elementView: dia.ElementView, _evt: EditorEvent, _x: number, _y: number) {
     addEffect(elementView, EffectType.Shadow);
 }
 
+/**
+ * Snaps a dragged event to the border of the activity under the pointer
+ * (becoming a boundary event) and suppresses the snaplines while it does.
+ */
 export function onElementDrag(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number = 0, y: number = 0) {
 
     const targetParentView = elementView.getTargetParentView(evt);
@@ -29,6 +36,11 @@ export function onElementDrag(paper: dia.Paper, elementView: dia.ElementView, ev
     elementView.model.position(snappedPoint.x - x, snappedPoint.y - y);
 }
 
+/**
+ * Cleans the drag effects up; for in-diagram drags also grows the pool to
+ * contain the element and re-validates its connections when the parent
+ * changed (or the element was forked from the halo).
+ */
 export function onElementDragEnd(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, _x: number, _y: number) {
     removeEffect(paper, EffectType.Shadow);
     setBoundarySnapActive(false);
@@ -51,12 +63,17 @@ export function onElementDragEnd(paper: dia.Paper, elementView: dia.ElementView,
     }
 }
 
+/**
+ * Grows the pool of the swimlane the element was dropped into, if needed.
+ */
 export function onElementSwimlaneDrop(_paper: dia.Paper, elementView: dia.ElementView, _evt: EditorEvent, _x: number, _y: number) {
     checkElementOverlaps(elementView.model);
 }
 
-// Finalizes an element dropped from the stencil and returns the model to
-// select (the dropped element, or its boundary-event replacement).
+/**
+ * Finalizes an element dropped from the stencil and returns the model to
+ * select (the dropped element, or its boundary-event replacement).
+ */
 export function dropElement(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number, y: number): dia.Element {
 
     // All diagram elements are app shapes.

@@ -27,7 +27,22 @@ export const HIGHLIGHTING: dia.Paper.Options['highlighting'] = {
             }
         }
     },
-    // Handled separately in ViewController
+    // The `highlighting` option replaces the react paper's defaults, so the
+    // magnet availability highlighters (`markAvailable`) must be declared
+    // here too — see `effects.css` for their styling.
+    [dia.CellView.Highlighting.MAGNET_AVAILABILITY]: {
+        name: 'addClass',
+        options: {
+            className: 'available-magnet'
+        }
+    },
+    [dia.CellView.Highlighting.ELEMENT_AVAILABILITY]: {
+        name: 'addClass',
+        options: {
+            className: 'available-cell'
+        }
+    },
+    // Embedding highlights are handled by the view interactions (effects).
     [dia.CellView.Highlighting.EMBEDDING]: false
 };
 

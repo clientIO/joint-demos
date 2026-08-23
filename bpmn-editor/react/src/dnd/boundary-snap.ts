@@ -5,6 +5,10 @@ import type { ui } from '@joint/plus';
 // the border snapping.
 let snaplines: ui.Snaplines | null = null;
 
+/**
+ * Registers the snaplines instance to suppress. Returns an unregister
+ * function.
+ */
 export function registerSnaplines(instance: ui.Snaplines): () => void {
     snaplines = instance;
     return () => {
@@ -12,6 +16,10 @@ export function registerSnaplines(instance: ui.Snaplines): () => void {
     };
 }
 
+/**
+ * Turns the snaplines off while the border snapping is active (and back on
+ * when it ends).
+ */
 export function setBoundarySnapActive(active: boolean): void {
     if (!snaplines) return;
 

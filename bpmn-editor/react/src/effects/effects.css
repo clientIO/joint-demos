@@ -1,4 +1,5 @@
-/* The MarkAvailable effect: highlights the cells a link can connect to. */
+/* Highlights the cells a link can connect to while being dragged
+   (`markAvailable`) — see the availability highlighters in `paper-config`. */
 
 .joint-element.available-cell *:not(text):not(tspan) {
     stroke: var(--jj-selector);

@@ -10,6 +10,10 @@ const PREVIEW_STROKE = 'var(--jj-selector)';
 const PREVIEW_STROKE_WIDTH = 2;
 const PREVIEW_FILL = '#FFFFFF';
 
+/**
+ * Replaces the dragged pool clone with a lightweight preview rectangle
+ * sized to fit the diagram content (the pool must contain everything).
+ */
 export function onPoolDragStart(paper: dia.Paper, poolView: dia.ElementView, evt: EditorEvent, _x: number, _y: number) {
 
     const graph = paper.model;
@@ -59,6 +63,10 @@ export function onPoolDragStart(paper: dia.Paper, poolView: dia.ElementView, evt
     pool.remove();
 }
 
+/**
+ * Moves the pool preview with the pointer, constrained so the pool would
+ * still contain the diagram content, and remembers the drop position.
+ */
 export function onPoolDrag(paper: dia.Paper, _poolView: dia.ElementView, evt: EditorEvent, _x: number, _y: number) {
 
     const poolPreview = evt.data.poolPreview;
@@ -93,6 +101,9 @@ export function onPoolDrag(paper: dia.Paper, _poolView: dia.ElementView, evt: Ed
     node.setAttribute('transform', `translate(${x}, ${y})`);
 }
 
+/**
+ * Removes the pool preview.
+ */
 export function onPoolDragEnd(_paper: dia.Paper, _poolView: dia.ElementView, evt: EditorEvent, _x: number, _y: number) {
 
     if (!evt.data.poolPreview) return;
@@ -102,6 +113,10 @@ export function onPoolDragEnd(_paper: dia.Paper, _poolView: dia.ElementView, evt
     node.remove();
 }
 
+/**
+ * Places the dropped pool at the constrained preview position and embeds
+ * the diagram content into it.
+ */
 export function onPoolDrop(paper: dia.Paper, poolView: dia.ElementView, evt: EditorEvent, _x: number, _y: number) {
 
     const pool = poolView.model as HorizontalPool | VerticalPool;

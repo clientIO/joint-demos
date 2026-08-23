@@ -9,6 +9,9 @@ import type { StencilDragParams, StencilDropParams } from '@joint/react-plus';
 // Stencil drag-and-drop pipeline: routes each drag phase to the pool,
 // swimlane or plain-element handlers.
 
+/**
+ * Starts the drag of a stencil clone.
+ */
 export function onStencilElementDragStart({ model, event, dropArea, paper, dragPaper }: StencilDragParams) {
     const cloneView = dragPaper.findViewByModel(model) as dia.ElementView;
     const { x, y } = dropArea.center();
@@ -24,6 +27,9 @@ export function onStencilElementDragStart({ model, event, dropArea, paper, dragP
     }
 }
 
+/**
+ * Updates the drag preview of a stencil clone.
+ */
 export function onStencilElementDrag({ model, event, dropArea, paper, dragPaper }: StencilDragParams) {
     const cloneView = dragPaper.findViewByModel(model) as dia.ElementView;
     const { x, y } = dropArea.center();
@@ -37,6 +43,9 @@ export function onStencilElementDrag({ model, event, dropArea, paper, dragPaper 
     }
 }
 
+/**
+ * Cleans up when the drag of a stencil clone ends.
+ */
 export function onStencilElementDragEnd({ model, event, dropArea, paper, dragPaper }: StencilDragParams) {
     const cloneView = dragPaper.findViewByModel(model) as dia.ElementView;
     const { x, y } = dropArea.center();
@@ -50,8 +59,10 @@ export function onStencilElementDragEnd({ model, event, dropArea, paper, dragPap
     }
 }
 
-// Finalizes the drop and returns the model to select, if any (the dropped
-// model may be replaced or removed during the drop).
+/**
+ * Finalizes the drop and returns the model to select, if any (the dropped
+ * model may be replaced or removed during the drop).
+ */
 export function dropStencilElement({ model, event, x, y, paper }: StencilDropParams): dia.Element | undefined {
     const elementView = paper.findViewByModel(model) as dia.ElementView;
 

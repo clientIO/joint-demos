@@ -6,6 +6,10 @@ import { HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes
 
 import type { dia } from '@joint/plus';
 
+/**
+ * Highlights the source swimlane; in-diagram drags don't move the lane
+ * itself — a drag ghost is shown instead.
+ */
 export function onSwimlaneDragStart(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number, y: number) {
 
     if (!isStencilEvent(evt)) {
@@ -25,6 +29,11 @@ export function onSwimlaneDragStart(paper: dia.Paper, elementView: dia.ElementVi
     addEffect(elementView, EffectType.SourceSwimlane);
 }
 
+/**
+ * Tracks the pool under the dragged swimlane: highlights the insertion
+ * preview (or the whole pool when empty) and marks incompatible or missing
+ * drop targets as invalid.
+ */
 export function onSwimlaneDrag(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number, y: number) {
 
     if (!isStencilEvent(evt) && !canMoveSwimlane(elementView.model as shapes.bpmn2.Swimlane)) {
@@ -97,6 +106,10 @@ export function onSwimlaneDrag(paper: dia.Paper, elementView: dia.ElementView, e
     }
 }
 
+/**
+ * Cleans the drag effects up; for in-diagram drags moves the swimlane into
+ * the pool it was dropped on.
+ */
 export function onSwimlaneDragEnd(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number, y: number) {
     removeEffect(paper, EffectType.TargetPool);
     removeEffect(paper, EffectType.SourceSwimlane);
@@ -111,9 +124,11 @@ export function onSwimlaneDragEnd(paper: dia.Paper, elementView: dia.ElementView
     checkSwimlaneDrop(elementView.model as shapes.bpmn2.Swimlane, evt.data.poolView?.model ?? null, x, y);
 }
 
-// Finalizes a swimlane dropped from the stencil and returns the model to
-// select: the swimlane, its orientation-compatible replacement, or nothing
-// when the swimlane was dropped outside of a pool and removed.
+/**
+ * Finalizes a swimlane dropped from the stencil and returns the model to
+ * select: the swimlane, its orientation-compatible replacement, or nothing
+ * when the swimlane was dropped outside of a pool and removed.
+ */
 export function dropSwimlane(_paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number, y: number): dia.Element | undefined {
     // The swimlane is dropped from the stencil. It's already added into the target paper.
     return checkSwimlaneDrop(elementView.model as shapes.bpmn2.Swimlane, evt.data.poolView?.model ?? null, x, y);
