@@ -1,4 +1,7 @@
 :root {
+    /* Native UI (scrollbars, inputs) follows the theme. */
+    color-scheme: light;
+
     --jj-border-radius-small: 4px;
     --jj-border-radius-medium: 6px;
     --jj-border-radius-large: 8px;
@@ -11,19 +14,20 @@
        diagram re-colors with the theme. Also the swatches of the inspector
        color picker (see `configs/palette.ts`). */
     --jj-palette-surface: #FFFFFF;
-    --jj-palette-ink: #2A2F3A;
-    --jj-palette-outline: #2A2F3A;
-    --jj-palette-blue: #BFDBFE;
-    --jj-palette-blue-soft: #EFF6FF;
-    --jj-palette-green: #BBF7D0;
-    --jj-palette-green-soft: #F0FDF4;
-    --jj-palette-success: #22C55E;
-    --jj-palette-danger: #EF4444;
-    --jj-palette-warning: #F59E0B;
+    --jj-palette-ink: #333333;
+    --jj-palette-outline: #333333;
+    --jj-palette-blue: #D6EAF8;
+    --jj-palette-blue-soft: #F5FAFC;
+    --jj-palette-green: #D7E8BA;
+    --jj-palette-green-soft: #F7FAF1;
+    --jj-palette-success: #4CAF50;
+    --jj-palette-danger: #F44336;
+    --jj-palette-warning: #FFC107;
     --jj-palette-accent: #5540E1;
 
     /* Paper */
-    --jj-paper-background: #FDFDFD;
+    --jj-paper-background: #FFFFFF;
+    --jj-paper-grid-color: #AAAAAA;
 
     /* Halo (react-plus variables) */
     --jj-halo-handle-width: 20px;
@@ -89,20 +93,23 @@
 
 /* Dark theme: the chrome tokens and the diagram palette flip together. */
 :root[data-theme='dark'] {
-    --jj-palette-surface: #2F3644;
-    --jj-palette-ink: #DCE2EC;
-    --jj-palette-outline: #5C687D;
-    --jj-palette-blue: #3E4C7A;
-    --jj-palette-blue-soft: #1E222E;
-    --jj-palette-green: #2F5D57;
-    --jj-palette-green-soft: #1E2824;
-    --jj-palette-success: #3FBF6F;
-    --jj-palette-danger: #E36A60;
-    --jj-palette-warning: #DFA32E;
-    --jj-palette-accent: #8B7CF6;
+    color-scheme: dark;
+
+    --jj-palette-surface: #24262A;
+    --jj-palette-ink: #E6E7E9;
+    --jj-palette-outline: #DFE1E4;
+    --jj-palette-blue: #2E4B60;
+    --jj-palette-blue-soft: #161F27;
+    --jj-palette-green: #46592B;
+    --jj-palette-green-soft: #191E11;
+    --jj-palette-success: #66BB6A;
+    --jj-palette-danger: #EF5350;
+    --jj-palette-warning: #FFC93E;
+    --jj-palette-accent: #8F86FF;
 
     --jj-selector: #8B7CF6;
-    --jj-paper-background: #15181F;
+    --jj-paper-background: #141518;
+    --jj-paper-grid-color: #26282D;
 
     --jj-bg-slider-track: #333B4A;
     --jj-bg-hover: #333B4A;
