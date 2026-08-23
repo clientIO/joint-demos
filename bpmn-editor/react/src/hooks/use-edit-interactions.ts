@@ -22,6 +22,10 @@ export function useEditInteractions() {
 
         onBlankPointerDown: () => closeLabelEditor(),
 
+        // The editor is positioned for the current zoom level — save and
+        // close it when the paper scale changes.
+        onScale: () => closeLabelEditor(),
+
         onElementPointerDown: ({ paper, view: elementView, event, x, y }) => {
             const { model } = elementView;
 

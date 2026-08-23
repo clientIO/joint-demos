@@ -29,6 +29,8 @@ export function LinkContextMenu() {
 
     useOnPaperEvents({
         onLinkContextMenu: ({ paper, model, event }) => {
+            // Annotation links have no label and can't be commented on.
+            if (model instanceof AnnotationLink) return;
             const { x, y } = paper.clientToLocalPoint(event.clientX!, event.clientY!);
             setMenu({ x, y, link: model as AppLink });
         },
