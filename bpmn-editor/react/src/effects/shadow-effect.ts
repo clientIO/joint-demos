@@ -1,5 +1,8 @@
 import { dia, V } from '@joint/plus';
 
+/**
+ * A drop-shadow highlighter shown under a dragged element.
+ */
 export const ShadowEffect = dia.HighlighterView.extend({
     tagName: 'g',
     className: 'shadow-effect',
@@ -37,7 +40,7 @@ export const ShadowEffect = dia.HighlighterView.extend({
         }
 
         // Standard SVG filter approach for non-annotation elements
-        const filterId = `shadow-filter-${cellView.model.id}`;
+        const filterId = `shadow-filter-${cellModel.id}`;
 
         const filter = V('filter').attr({
             id: filterId,
@@ -52,8 +55,8 @@ export const ShadowEffect = dia.HighlighterView.extend({
                 dx: offset,
                 dy: offset,
                 stdDeviation: blur,
-                'flood-opacity': opacity,
-                'flood-color': 'black'
+                floodOpacity: opacity,
+                floodColor: 'black'
             })
         ]);
 

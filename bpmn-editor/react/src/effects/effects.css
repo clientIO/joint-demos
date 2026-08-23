@@ -11,3 +11,33 @@
 .joint-link.available-cell > path[joint-selector="line"] {
     stroke: var(--jj-selector);
 }
+
+/* The swimlane a dragged lane came from / would land in. */
+.highlighter-swimlane-target [joint-selector="body"] {
+    fill: var(--jj-accent-primary);
+    transition: fill 0.4s;
+}
+
+.highlighter-swimlane-source [joint-selector="body"] {
+    fill: var(--jj-accent-primary);
+}
+
+/* Invalid drop target (e.g. a swimlane dragged outside of any pool). */
+.highlighter-error [joint-selector="body"] {
+    stroke: var(--jj-error);
+}
+
+.highlighter-error text {
+    fill: var(--jj-error);
+}
+
+/* The MarkUnavailable effect: cells a link cannot connect to. */
+.highlighter-invalid {
+    opacity: 0.5;
+}
+
+/* Explicitly reduce the swimlane stroke opacity to avoid the double stroke
+   effect for opaque pools + swimlanes. */
+[data-type$="Swimlane"].highlighter-invalid > [joint-selector="body"] {
+    stroke-opacity: 0.5;
+}

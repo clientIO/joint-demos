@@ -1,5 +1,6 @@
 import { type dia, shapes, g } from '@joint/plus';
 import { ShapeTypes, type AppElement } from '../shapes/shapes-typing';
+import type { HorizontalPool, VerticalPool } from '../shapes/pool/pool-shapes';
 
 /**
  * Whether the dragged element is an event over an activity, i.e. it should
@@ -35,7 +36,7 @@ export function isSwimlane(cell: dia.Cell): cell is shapes.bpmn2.Swimlane {
 /**
  * Whether the element is a pool.
  */
-export function isPool(cell: dia.Cell): cell is shapes.bpmn2.CompositePool {
+export function isPool(cell: dia.Cell): cell is HorizontalPool | VerticalPool {
     return shapes.bpmn2.CompositePool.isPool(cell);
 }
 

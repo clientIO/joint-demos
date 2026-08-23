@@ -1,6 +1,6 @@
 import { type dia } from '@joint/plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
-import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentBoundary, isPool, isSwimlane } from '../utils';
+import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentBoundary, isPool, isSwimlane, type EditorEvent } from '../utils';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { replaceShape } from '../actions/replace-shape';
 import { setBoundarySnapActive } from './boundary-snap';
@@ -8,11 +8,11 @@ import { setBoundarySnapActive } from './boundary-snap';
 import type { shapes } from '@joint/plus';
 import type { AppElement } from '../shapes/shapes-typing';
 
-export function onElementDragStart(_paper: dia.Paper, elementView: dia.ElementView, _evt: dia.Event, _x: number, _y: number) {
+export function onElementDragStart(_paper: dia.Paper, elementView: dia.ElementView, _evt: EditorEvent, _x: number, _y: number) {
     addEffect(elementView, EffectType.Shadow);
 }
 
-export function onElementDrag(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, x: number = 0, y: number = 0) {
+export function onElementDrag(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number = 0, y: number = 0) {
 
     const targetParentView = elementView.getTargetParentView(evt);
 
@@ -29,7 +29,7 @@ export function onElementDrag(paper: dia.Paper, elementView: dia.ElementView, ev
     elementView.model.position(snappedPoint.x - x, snappedPoint.y - y);
 }
 
-export function onElementDragEnd(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, _x: number, _y: number) {
+export function onElementDragEnd(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, _x: number, _y: number) {
     removeEffect(paper, EffectType.Shadow);
     setBoundarySnapActive(false);
 
@@ -51,13 +51,13 @@ export function onElementDragEnd(paper: dia.Paper, elementView: dia.ElementView,
     }
 }
 
-export function onElementSwimlaneDrop(_paper: dia.Paper, elementView: dia.ElementView, _evt: dia.Event, _x: number, _y: number) {
+export function onElementSwimlaneDrop(_paper: dia.Paper, elementView: dia.ElementView, _evt: EditorEvent, _x: number, _y: number) {
     checkElementOverlaps(elementView.model);
 }
 
 // Finalizes an element dropped from the stencil and returns the model to
 // select (the dropped element, or its boundary-event replacement).
-export function dropElement(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, x: number, y: number): dia.Element {
+export function dropElement(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number, y: number): dia.Element {
 
     // All diagram elements are app shapes.
     const model = elementView.model as AppElement;

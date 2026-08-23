@@ -4,19 +4,13 @@ import { DEFAULT_HORIZONTAL_POOL_SIZE, DEFAULT_VERTICAL_POOL_SIZE, SWIMLANE_HEAD
 
 import type { dia } from '@joint/plus';
 import type { VerticalPool } from '../shapes/pool/pool-shapes';
-import { isSwimlane, isPool, isGroup } from '../utils';
-
-type PoolPreviewEventData = {
-    node: SVGElement;
-    graphBBox: g.Rect | null;
-    poolDimensions: g.Rect;
-}
+import { isSwimlane, isPool, isGroup, type EditorEvent } from '../utils';
 
 const PREVIEW_STROKE = 'var(--jj-selector)';
 const PREVIEW_STROKE_WIDTH = 2;
 const PREVIEW_FILL = '#FFFFFF';
 
-export function onPoolDragStart(paper: dia.Paper, poolView: dia.ElementView, evt: dia.Event, _x: number, _y: number) {
+export function onPoolDragStart(paper: dia.Paper, poolView: dia.ElementView, evt: EditorEvent, _x: number, _y: number) {
 
     const graph = paper.model;
     // Elements that are required to be encapsulated by the pool
@@ -57,7 +51,7 @@ export function onPoolDragStart(paper: dia.Paper, poolView: dia.ElementView, evt
 
     evt.data.poolPreview = {
         node,
-        graphBBox,
+        graphBBox: graphBBox ?? null,
         poolDimensions,
     };
 
@@ -65,9 +59,9 @@ export function onPoolDragStart(paper: dia.Paper, poolView: dia.ElementView, evt
     pool.remove();
 }
 
-export function onPoolDrag(paper: dia.Paper, _poolView: dia.ElementView, evt: dia.Event, _x: number, _y: number) {
+export function onPoolDrag(paper: dia.Paper, _poolView: dia.ElementView, evt: EditorEvent, _x: number, _y: number) {
 
-    const poolPreview = evt.data.poolPreview as PoolPreviewEventData | undefined;
+    const poolPreview = evt.data.poolPreview;
 
     // Pool preview is not available
     if (!poolPreview) return;
@@ -99,16 +93,16 @@ export function onPoolDrag(paper: dia.Paper, _poolView: dia.ElementView, evt: di
     node.setAttribute('transform', `translate(${x}, ${y})`);
 }
 
-export function onPoolDragEnd(_paper: dia.Paper, _poolView: dia.ElementView, evt: dia.Event, _x: number, _y: number) {
+export function onPoolDragEnd(_paper: dia.Paper, _poolView: dia.ElementView, evt: EditorEvent, _x: number, _y: number) {
 
     if (!evt.data.poolPreview) return;
 
     // Remove the pool preview when the drag ends
-    const { node } = evt.data.poolPreview as PoolPreviewEventData;
+    const { node } = evt.data.poolPreview!;
     node.remove();
 }
 
-export function onPoolDrop(paper: dia.Paper, poolView: dia.ElementView, evt: dia.Event, _x: number, _y: number) {
+export function onPoolDrop(paper: dia.Paper, poolView: dia.ElementView, evt: EditorEvent, _x: number, _y: number) {
 
     const pool = poolView.model as HorizontalPool | VerticalPool;
     // When the user drops a new pool on the paper, we add a new swimlane to it.

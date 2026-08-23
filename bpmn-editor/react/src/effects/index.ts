@@ -3,14 +3,25 @@ import { ShadowEffect } from './shadow-effect';
 import { SwimlanePreview } from './swimlane-preview';
 import './effects.css';
 
+/**
+ * Visual effects applied to cell views during interactions.
+ */
 export const EffectType = {
+    /** Drop shadow under a dragged element. */
     Shadow: 'shadow',
+    /** Highlights the swimlane a dragged lane comes from. */
     SourceSwimlane: 'source-swimlane',
+    /** Highlights an empty pool a dragged lane would land in. */
     TargetPool: 'target-pool',
+    /** Preview of where a dragged lane would be inserted into a pool. */
     PreviewSwimlane: 'preview-swimlane',
+    /** Marks an invalid drop (red outline). */
     Error: 'error',
+    /** Highlights an activity's border while an event snaps to it. */
     ActivityBoundaryEmbed: 'activity-boundary-embed',
+    /** Highlights the swimlane an element would embed into. */
     TargetSwimlaneEmbed: 'target-swimlane-embed',
+    /** Dims the cells a dragged link cannot connect to. */
     MarkUnavailable: 'mark-unavailable',
 } as const;
 
@@ -21,6 +32,9 @@ interface AddEffectOptions {
     applyAll?: boolean;
 }
 
+/**
+ * Applies the effect to the cell view.
+ */
 export function addEffect(cellView: dia.CellView, effectType: EffectTypes, options?: AddEffectOptions) {
     const cell = cellView.model;
     switch (effectType) {
@@ -99,6 +113,9 @@ export function addEffect(cellView: dia.CellView, effectType: EffectTypes, optio
     }
 }
 
+/**
+ * Removes all highlighters of the effect from the paper.
+ */
 export function removeEffect(paper: dia.Paper, effectType: EffectTypes) {
     switch (effectType) {
         case EffectType.Shadow: {

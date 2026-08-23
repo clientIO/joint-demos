@@ -58,9 +58,9 @@ export const bpmnInteractivity = ({ model }: { model: dia.Cell }): dia.CellView.
 // clipboard and history shortcuts are off — the app binds its own
 // (BPMN-specific swimlane-aware delete, zoom clamping, undo/redo).
 export const DIAGRAM_INTERACTIONS: InteractionsOptions = {
+    // The built-in shortcuts are all-or-nothing (its `delete` is not
+    // swimlane-aware) — the app binds its own in `<KeyboardShortcuts>`.
     keyboard: false,
-    clipboard: false,
-    commandManager: false,
     // When the region gesture starts on a swimlane, select only elements
     // inside that swimlane, excluding everything else.
     selectionRegion: ({ event, paper }) => {

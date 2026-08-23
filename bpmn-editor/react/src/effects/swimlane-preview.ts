@@ -2,14 +2,18 @@ import type { shapes } from '@joint/plus';
 import { dia } from '@joint/plus';
 import { isPool } from '../utils';
 
+/**
+ * A highlighter drawing the insertion preview of a swimlane dragged over
+ * a pool.
+ */
 export const SwimlanePreview = dia.HighlighterView.extend({
 
     tagName: 'path',
 
     attributes: {
-        'fill': 'none',
-        'stroke': 'var(--jj-selector)',
-        'stroke-width': 3,
+        fill: 'none',
+        stroke: 'var(--jj-selector)',
+        strokeWidth: 3,
     },
 
     highlight(elementView: dia.ElementView, _node: SVGElement) {
@@ -40,7 +44,7 @@ export const SwimlanePreview = dia.HighlighterView.extend({
             }
             const width = poolBBox.width - paddingLeft - paddingRight;
             this.vel.attr({
-                'd': `M 0 0 l -20 -10 m 20 10 l -20 10 m 20 -10 H ${width} l 20 -10 m -20 10 l 20 10`,
+                d: `M 0 0 l -20 -10 m 20 10 l -20 10 m 20 -10 H ${width} l 20 -10 m -20 10 l 20 10`,
                 transform: `translate(${x}, ${y})`
             });
         } else {
@@ -53,7 +57,7 @@ export const SwimlanePreview = dia.HighlighterView.extend({
             }
             const height = poolBBox.height - paddingTop - paddingBottom;
             this.vel.attr({
-                'd': `M 0 0 l -10 -20 m 10 20 l 10 -20 m -10 20 V ${height} l -10 20 m 10 -20 l 10 20`,
+                d: `M 0 0 l -10 -20 m 10 20 l 10 -20 m -10 20 V ${height} l -10 20 m 10 -20 l 10 20`,
                 transform: `translate(${x}, ${y})`
             });
         }

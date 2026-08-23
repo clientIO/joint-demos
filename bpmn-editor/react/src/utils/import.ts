@@ -1,10 +1,8 @@
-import type { shapes } from '@joint/plus';
 import { SubProcess, EventSubProcess } from '../shapes/activity/activity-shapes';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes';
 
 import type { dia } from '@joint/plus';
-import type { HorizontalPool, VerticalPool } from '../shapes/pool/pool-shapes';
 import { isPool } from './elements';
 
 /**
@@ -40,10 +38,10 @@ export function importBPMN(graph: dia.Graph, cells: dia.Cell[]): void {
     graph.resetCells(processedCells);
 
     // Second pass: handle pools and swimlanes
-    const pools = processedCells.filter((cell) => isPool(cell)) as (HorizontalPool | VerticalPool)[];
+    const pools = processedCells.filter(isPool);
 
     pools.forEach((pool) => {
-        if ((pool as shapes.bpmn2.CompositePool).getSwimlanes().length === 0) {
+        if (pool.getSwimlanes().length === 0) {
             const attrs = {
                 // Set the header text to an empty string to avoid the default 'Lane' text
                 headerText: {
