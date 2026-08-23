@@ -8,7 +8,7 @@ import { isSwimlane, isPool, isGroup, type EditorEvent } from '../utils';
 
 const PREVIEW_STROKE = 'var(--bpmn-selector)';
 const PREVIEW_STROKE_WIDTH = 2;
-const PREVIEW_FILL = '#FFFFFF';
+const PREVIEW_FILL = 'var(--bpmn-palette-surface)';
 
 /**
  * Replaces the dragged pool clone with a lightweight preview rectangle
