@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { g } from '@joint/plus';
 import { Overlay, usePaper, useSelectionCollection, useOnPaperEvents } from '@joint/react-plus';
 import { openLabelEditor } from '../../actions/label-editor';
+import { Annotation, AnnotationLink } from '../../shapes/annotation/annotation-shapes';
 
+import type { dia } from '@joint/plus';
 import type { AppLink } from '../../shapes/shapes-typing';
 import './link-context-menu.css';
 
@@ -12,8 +15,8 @@ interface MenuState {
     link: AppLink;
 }
 
-// Context menu of a link, opened on right-click. Offers adding/editing the
-// link label (handled by the edit interactions via the event bus).
+// Context menu of a link, opened on right-click: add/edit the link label,
+// attach a comment to the link.
 export function LinkContextMenu() {
 
     const [menu, setMenu] = useState<MenuState | null>(null);
@@ -57,11 +60,52 @@ export function LinkContextMenu() {
         if (linkView) openLabelEditor(paper, selection, linkView);
     };
 
+    const onAddComment = () => {
+        setMenu(null);
+        if (!paper) return;
+
+        const { link, x, y } = menu;
+        const linkView = paper.findViewByModel(link) as dia.LinkView;
+        if (!linkView) return;
+
+        const graph = paper.model;
+        const batchName = 'add-comment';
+
+        graph.startBatch(batchName);
+
+        const annotation = new Annotation({ position: { x: x + 40, y: y - 120 } });
+        const annotationLink = new AnnotationLink({
+            source: { id: annotation.id },
+            // Pin the connection to the right-clicked point of the link.
+            target: {
+                id: link.id,
+                anchor: {
+                    name: 'connectionLength',
+                    args: { length: linkView.getClosestPointLength(new g.Point(x, y)) }
+                }
+            }
+        });
+        graph.addCells([annotation, annotationLink]);
+
+        graph.stopBatch(batchName);
+
+        // Select the comment and let the user type it right away (the view
+        // renders asynchronously).
+        selection.collection.reset([annotation]);
+        paper.once('render:done', () => {
+            const annotationView = paper.findViewByModel(annotation);
+            if (annotationView) openLabelEditor(paper, selection, annotationView);
+        });
+    };
+
     return (
         <Overlay x={menu.x} y={menu.y}>
             <div ref={menuRef} className="context-menu">
                 <button type="button" className="context-menu-item" onClick={onEditLabel}>
                     {menu.link.hasLabels() ? 'Edit Label' : 'Add Label'}
+                </button>
+                <button type="button" className="context-menu-item" onClick={onAddComment}>
+                    Add Comment
                 </button>
             </div>
         </Overlay>

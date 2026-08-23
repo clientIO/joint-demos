@@ -99,11 +99,18 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
         const height = bbox.height - strokeWidth;
         const width = bbox.width - strokeWidth;
 
-        const { x, y } = bbox.center();
+        // The editor covers the whole shape; the label starts `refX` from the
+        // left edge — indent the editor text the same way (minus the border).
+        const labelOffset = (this.attr(['label', 'refX']) ?? 0) - borderWidth;
+        const { x } = bbox;
+        const y = bbox.center().y;
 
         return {
-            padding: `${verticalPadding}px ${horizontalPadding}px`,
-            transform: `${V.matrixToTransformString(paper.matrix().translate(x, y))} translate(-50%, -50%)`,
+            padding: `${verticalPadding}px ${horizontalPadding}px ${verticalPadding}px ${labelOffset}px`,
+            // The editor is anchored to the left edge — the paper scale must
+            // apply from the top-left corner, not the default center.
+            transformOrigin: '0 0',
+            transform: `${V.matrixToTransformString(paper.matrix().translate(x, y))} translate(0, -50%)`,
             fontSize: `${labelAttrs.fontSize}px`,
             fontFamily: labelAttrs.fontFamily,
             fontWeight: labelAttrs.fontWeight,
