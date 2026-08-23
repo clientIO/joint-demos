@@ -3,6 +3,9 @@ import { replaceShape } from '../../actions/replace-shape';
 
 import type { AppElement, AppLink, AppShape, Marker, MarkerNames } from '../../shapes/shapes-typing';
 
+/**
+ * Multi-select buttons toggling the shape's markers.
+ */
 function MarkersSection({ shape }: { shape: AppElement }) {
     const markers = shape.getMarkers!();
     const selectedMarkers: MarkerNames[] = shape.get('markers') ?? [];
@@ -35,6 +38,9 @@ function MarkersSection({ shape }: { shape: AppElement }) {
     );
 }
 
+/**
+ * Buttons morphing the cell into a related shape type (same id).
+ */
 function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
     const { graph } = useGraph();
     const selection = useSelectionCollection();
@@ -74,6 +80,9 @@ function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
     );
 }
 
+/**
+ * The Content inspector tab: marker toggles and shape morphing.
+ */
 export function ContentTab({ cell }: { cell: AppElement | AppLink }) {
     // Re-render on marker changes (including undo/redo).
     useCells(cell.id);

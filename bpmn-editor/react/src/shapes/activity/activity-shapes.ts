@@ -21,6 +21,7 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
     defaults(): dia.Element.Attributes {
         const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.ACTIVITY,
+            size: { width: 100, height: 80 },
             markers: [] as MarkerNames[],
             attrs: {
                 root: {

@@ -3,8 +3,10 @@ import { dia, ui, highlighters } from '@joint/plus';
 import { Selection } from '@joint/react-plus';
 import { isSwimlane } from '../utils';
 
-// The selection: rotate/resize handles on the wrapper (shown for multi-cell
-// selections) and a mask highlighter frame around each selected cell.
+/**
+ * The selection: rotate/resize handles on the wrapper (shown for multi-cell
+ * selections) and a mask highlighter frame around each selected cell.
+ */
 export function BpmnSelection() {
 
     const frames = useMemo(() => new ui.HighlighterSelectionFrameList({

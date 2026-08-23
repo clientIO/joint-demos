@@ -8,6 +8,9 @@ import { Tip } from '../tooltip/tooltip';
 import type { ReactNode } from 'react';
 import './navigator.css';
 
+/**
+ * A tooltipped toolbar icon button.
+ */
 function IconButton({ icon, tooltip, active, onClick }: {
     icon: ReactNode;
     tooltip: string;
@@ -27,6 +30,10 @@ function IconButton({ icon, tooltip, active, onClick }: {
     );
 }
 
+/**
+ * The minimap panel: fit-to-screen, fullscreen toggle, zoom slider and the
+ * minimap visibility toggle.
+ */
 export function Navigator() {
 
     const { zoomToFit, setZoom } = usePaperScroller();

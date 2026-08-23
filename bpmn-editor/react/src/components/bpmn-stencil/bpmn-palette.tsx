@@ -4,6 +4,9 @@ import { Tip } from '../tooltip/tooltip';
 
 import type { PointerEvent } from 'react';
 
+/**
+ * One palette button rendering the shape icon (icon font).
+ */
 function PaletteItem({ type, icon }: StencilPaletteItem) {
     const { graph } = useGraph();
     const { startCellDrag } = useStencil();
@@ -29,6 +32,10 @@ function PaletteItem({ type, icon }: StencilPaletteItem) {
     );
 }
 
+/**
+ * The stencil buttons — pointer-down starts a stencil drag with a freshly
+ * constructed shape.
+ */
 export function BpmnPalette() {
     return (
         <div className="stencil-palette">

@@ -15,8 +15,10 @@ interface MenuState {
     link: AppLink;
 }
 
-// Context menu of a link, opened on right-click: add/edit the link label,
-// attach a comment to the link.
+/**
+ * Context menu of a link, opened on right-click: add/edit the link label,
+ * attach a comment to the link.
+ */
 export function LinkContextMenu() {
 
     const [menu, setMenu] = useState<MenuState | null>(null);
@@ -73,7 +75,7 @@ export function LinkContextMenu() {
 
         graph.startBatch(batchName);
 
-        const annotation = new Annotation({ position: { x: x + 40, y: y - 120 } });
+        const annotation = new Annotation({ position: { x: x + 40, y: y - 120 }});
         const annotationLink = new AnnotationLink({
             source: { id: annotation.id },
             // Pin the connection to the right-clicked point of the link.

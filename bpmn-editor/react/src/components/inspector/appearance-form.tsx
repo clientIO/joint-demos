@@ -13,11 +13,18 @@ type Cell = AppElement | AppLink;
 // updates, undo/redo, ...) — used as an effect dependency to resync fields.
 type CellSnapshot = Computed<CellRecord> | undefined;
 
+/**
+ * The cell's current value at the field's path (or the field default).
+ */
 function readValue(cell: Cell, field: { path: string; defaultValue?: string | number }): string {
     const value = cell.prop(field.path) ?? field.defaultValue ?? '';
     return String(value);
 }
 
+/**
+ * Color field: live-previews while picking (skipping the undo stack) and
+ * commits the final value as a single undoable command.
+ */
 function ColorField({ cell, field, snapshot }: { cell: Cell; field: AppearanceColorField; snapshot: CellSnapshot }) {
     const [value, setValue] = useState(() => readValue(cell, field));
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -81,6 +88,9 @@ function ColorField({ cell, field, snapshot }: { cell: Cell; field: AppearanceCo
     );
 }
 
+/**
+ * Select-box field preserving the original option value type.
+ */
 function SelectBoxField({ cell, field, snapshot }: { cell: Cell; field: AppearanceSelectBoxField; snapshot: CellSnapshot }) {
     const [value, setValue] = useState(() => readValue(cell, field));
 
@@ -124,6 +134,9 @@ function SelectBoxField({ cell, field, snapshot }: { cell: Cell; field: Appearan
     );
 }
 
+/**
+ * The Appearance inspector tab, rendered from the shape's appearance config.
+ */
 export function AppearanceForm({ cell }: { cell: Cell }) {
     const snapshot = useCells(cell.id);
 

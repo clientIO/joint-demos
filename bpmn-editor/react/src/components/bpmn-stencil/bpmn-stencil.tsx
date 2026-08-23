@@ -8,8 +8,10 @@ import {
     dropStencilElement
 } from '../../dnd/stencil';
 
-// The shape palette with the drag-and-drop pipeline (pool/swimlane previews,
-// boundary-event snapping, selecting the dropped element).
+/**
+ * The shape palette with the drag-and-drop pipeline (pool/swimlane previews,
+ * boundary-event snapping, selecting the dropped element).
+ */
 export function BpmnStencil() {
 
     const { collection: selectionCollection } = useSelectionCollection();

@@ -5,8 +5,10 @@ import { useSelectedCell } from '../hooks/use-selected-cell';
 
 import type { AppLink } from '../shapes/shapes-typing';
 
-// Renders nothing. Shows the link tools (vertices, arrowheads, remove
-// buttons) on the selected link.
+/**
+ * Renders nothing. Shows the link tools (vertices, arrowheads, remove
+ * buttons) on the selected link.
+ */
 export function LinkTools() {
 
     const { paper } = usePaper();

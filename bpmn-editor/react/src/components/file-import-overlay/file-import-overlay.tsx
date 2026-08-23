@@ -3,9 +3,11 @@ import { usePaperScroller, useGraphHistory } from '@joint/react-plus';
 import { setupFileImport } from '../../actions/import-actions';
 import './file-import-overlay.css';
 
-// Drop overlay shown while a file is dragged over the paper. Owns the
-// drag-and-drop file import: `setupFileImport` attaches the drag listeners
-// and toggles the overlay's `active` class.
+/**
+ * Drop overlay shown while a file is dragged over the paper. Owns the
+ * drag-and-drop file import: `setupFileImport` attaches the drag listeners
+ * and toggles the overlay's `active` class.
+ */
 export function FileImportOverlay() {
 
     const overlayRef = useRef<HTMLDivElement | null>(null);

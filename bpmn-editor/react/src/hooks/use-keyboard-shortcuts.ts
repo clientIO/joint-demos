@@ -1,5 +1,6 @@
 import type { shapes } from '@joint/plus';
 import { usePaper, usePaperScroller, useGraphHistory, useSelectionCollection, useOnKeyboardEvents } from '@joint/react-plus';
+import { printDiagram } from '../actions/export-actions';
 import { ZOOM_SETTINGS } from '../configs/paper-config';
 
 import type { dia, ui } from '@joint/plus';
@@ -32,8 +33,11 @@ export function useKeyboardShortcuts() {
     useOnKeyboardEvents({
         'delete backspace': (evt: dia.Event) => onDelete(ctx(), evt),
         'ctrl+z command+z': (evt: dia.Event) => onUndo(ctx(), evt),
-        'ctrl+y command+y': (evt: dia.Event) => onRedo(ctx(), evt),
+        'ctrl+y command+y shift+ctrl+z shift+command+z': (evt: dia.Event) => onRedo(ctx(), evt),
         'ctrl+a command+a': (evt: dia.Event) => onSelectAll(ctx(), evt),
+        // Print the diagram instead of the browser's page print — that is
+        // what printing means in a diagram editor.
+        'ctrl+p command+p': (evt: dia.Event) => onPrint(ctx(), evt),
         'ctrl+plus command+plus': (evt: dia.Event) => onZoomIn(ctx(), evt),
         'ctrl+minus command+minus': (evt: dia.Event) => onZoomOut(ctx(), evt),
         'escape': () => onEscape(ctx()),
@@ -89,6 +93,11 @@ function onZoomOut(context: KeyboardContext, evt: dia.Event) {
     evt.preventDefault();
     const { paperScroller } = context;
     paperScroller.zoom(-0.2, { min: ZOOM_SETTINGS.min, grid: 0.2 });
+}
+
+function onPrint(context: KeyboardContext, evt: dia.Event) {
+    evt.preventDefault();
+    printDiagram(context.paper);
 }
 
 function onEscape(context: KeyboardContext) {

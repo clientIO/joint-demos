@@ -3,7 +3,9 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import type { ReactNode } from 'react';
 import './tooltip.css';
 
-// App-wide tooltip provider (mount once at the root).
+/**
+ * App-wide tooltip provider (mount once at the root).
+ */
 export function TipProvider({ children }: { children: ReactNode }) {
     return (
         <Tooltip.Provider delayDuration={250} skipDelayDuration={300}>
@@ -18,7 +20,9 @@ interface TipProps {
     children: ReactNode;
 }
 
-// Tooltip wrapper: `children` must be a single focusable element.
+/**
+ * Tooltip wrapper: `children` must be a single focusable element.
+ */
 export function Tip({ label, side = 'top', children }: TipProps) {
     return (
         <Tooltip.Root>

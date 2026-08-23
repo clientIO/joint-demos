@@ -13,10 +13,12 @@ const FREE_TRANSFORM_OPTIONS = {
     padding: 4
 } as const;
 
-// Resize handles for the selected element. Plain elements use the react
-// FreeTransform component; pools and swimlanes need `ui.BPMNFreeTransform`
-// (pool/lane-aware resizing), which has no react component — it is managed
-// imperatively with the same selection-derived lifecycle.
+/**
+ * Resize handles for the selected element. Plain elements use the react
+ * FreeTransform component; pools and swimlanes need `ui.BPMNFreeTransform`
+ * (pool/lane-aware resizing), which has no react component — it is managed
+ * imperatively with the same selection-derived lifecycle.
+ */
 export function BpmnFreeTransform() {
 
     const { paper } = usePaper();

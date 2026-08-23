@@ -3,8 +3,10 @@ import { useGraph, usePaperScroller, useGraphHistory } from '@joint/react-plus';
 import { importFile } from '../../actions/import-actions';
 import carWashProcess from './car-wash-process.json';
 
-// Renders nothing. Loads the example diagram into the empty graph via the
-// regular file-import pipeline (which also fits it into the viewport).
+/**
+ * Renders nothing. Loads the example diagram into the empty graph via the
+ * regular file-import pipeline (which also fits it into the viewport).
+ */
 export function ExampleDiagram() {
 
     const { graph } = useGraph();

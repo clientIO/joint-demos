@@ -15,6 +15,10 @@ const HALO_OPTIONS: HaloOptions = {
     loopLinkWidth: Infinity
 };
 
+/**
+ * Halo around the single selected element: the default remove/unlink handles
+ * plus the shape's own connect handles.
+ */
 export function BpmnHalo() {
 
     const selected = useSelectedCell();

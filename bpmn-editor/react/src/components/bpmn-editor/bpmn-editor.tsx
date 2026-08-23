@@ -22,7 +22,6 @@ import {
     ZOOM_SETTINGS,
 } from '../../configs/paper-config';
 import { cellNamespace } from '../../shapes';
-// The whole BPMN editor: embeddable, it fills its container.
 import { ViewInteractions } from '../view-interactions';
 import { KeyboardShortcuts } from '../keyboard-shortcuts';
 import { EditInteractions } from '../edit-interactions';
@@ -36,6 +35,10 @@ import { Navigator } from '../navigator/navigator';
 import { FileImportOverlay } from '../file-import-overlay/file-import-overlay';
 
 
+/**
+ * The whole BPMN editor — embeddable, it fills its container (which must
+ * have a definite size).
+ */
 export function BpmnEditor() {
     return (
         <TipProvider>

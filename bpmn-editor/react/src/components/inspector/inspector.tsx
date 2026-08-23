@@ -8,6 +8,9 @@ import './inspector.css';
 
 type InspectorView = 'CONTENT' | 'APPEARANCE';
 
+/**
+ * Whether the cell has any content to show (markers or shape morphing).
+ */
 function canAccessContentView(cell: AppElement | AppLink | null): boolean {
     if (!cell) return false;
     const hasMarkers = cell.isElement() && !!cell.getMarkers && cell.getMarkers().length > 0;
@@ -15,6 +18,10 @@ function canAccessContentView(cell: AppElement | AppLink | null): boolean {
     return hasMarkers || hasShapes;
 }
 
+/**
+ * The inspector panel for the selected cell: a Content tab (markers, shape
+ * morphing) and an Appearance tab, with an empty-state placeholder.
+ */
 export function Inspector() {
 
     // The inspector shows the single selected cell.

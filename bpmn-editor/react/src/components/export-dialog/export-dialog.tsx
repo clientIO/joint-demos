@@ -7,7 +7,9 @@ interface ExportDialogProps {
     onClose: () => void;
 }
 
-// Preview dialog for the exported PNG with a download action.
+/**
+ * Preview dialog for the exported PNG with a download action.
+ */
 export function ExportDialog({ dataUrl, onClose }: ExportDialogProps) {
     return (
         <Dialog.Root open onOpenChange={(open) => !open && onClose()}>

@@ -1,29 +1,14 @@
 import { ShapeTypes } from '../shapes/shapes-typing';
-import { PlaceholderShapeTypes } from '../shapes/link-config';
+import { PlaceholderShapeTypes, linkTypeConstructors } from '../shapes/link-config';
 import { DataShapeTypes } from '../shapes/data/data-config';
 import { AnnotationShapeTypes } from '../shapes/annotation/annotation-config';
 import { FlowShapeTypes } from '../shapes/flow/flow-config';
-import { AnnotationLink } from '../shapes/annotation/annotation-shapes';
-import { DataAssociation } from '../shapes/data/data-shapes';
-import { Conditional, Default, Message, Sequence } from '../shapes/flow/flow-shapes';
 import { isPoolShared } from '.';
 
-import type { dia, shapes } from '@joint/plus';
+import type { dia } from '@joint/plus';
 import type { AppLink, AppShape, LinkType } from '../shapes/shapes-typing';
 
-const DEFAULT_LINK_STROKE = '#333';
-
-type AppLinkConstructor = new (...args: ConstructorParameters<typeof shapes.bpmn2.Flow>) => AppLink;
-
-const LINK_CONNECTIONS: Record<LinkType, AppLinkConstructor> = {
-    [PlaceholderShapeTypes.LINK]: Sequence,
-    [AnnotationShapeTypes.LINK]: AnnotationLink,
-    [DataShapeTypes.DATA_ASSOCIATION]: DataAssociation,
-    [FlowShapeTypes.SEQUENCE]: Sequence,
-    [FlowShapeTypes.MESSAGE]: Message,
-    [FlowShapeTypes.DEFAULT]: Default,
-    [FlowShapeTypes.CONDITIONAL]: Conditional
-};
+const DEFAULT_LINK_STROKE = 'var(--jj-link)';
 
 /**
  * The link type appropriate for the link's current endpoints (message flow
@@ -79,7 +64,7 @@ export function prepareLinkReplacement(link: AppLink): AppLink {
         link.unset('replace');
     }
 
-    const newLink = new LINK_CONNECTIONS[linkType]({ id: link.id });
+    const newLink = new linkTypeConstructors[linkType]({ id: link.id });
     newLink.copyFrom(link);
     return newLink;
 }

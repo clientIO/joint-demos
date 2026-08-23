@@ -7,6 +7,9 @@ import { Tip } from '../tooltip/tooltip';
 
 import type { ChangeEvent } from 'react';
 
+/**
+ * Dropdown for loading a diagram from a JSON or BPMN XML file.
+ */
 export function FileDropdown() {
 
     const jsonInputRef = useRef<HTMLInputElement | null>(null);

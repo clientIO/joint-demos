@@ -7,6 +7,10 @@ import { ExportDialog } from '../export-dialog/export-dialog';
 import { Tip } from '../tooltip/tooltip';
 import './toolbar.css';
 
+/**
+ * The app toolbar: file loading, undo/redo, print and the PNG/JSON/XML
+ * exports.
+ */
 export function Toolbar() {
 
     const { graph } = useGraph();
