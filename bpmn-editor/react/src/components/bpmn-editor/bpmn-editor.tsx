@@ -17,7 +17,6 @@ import {
     bpmnValidateConnection,
     bpmnConnectionStrategy,
     bpmnValidateEmbedding,
-    bpmnValidateUnembedding,
     DIAGRAM_INTERACTIONS,
     ZOOM_SETTINGS,
 } from '../../configs/paper-config';
@@ -71,7 +70,6 @@ export function BpmnEditor() {
                                     validateConnection={bpmnValidateConnection}
                                     connectionStrategy={bpmnConnectionStrategy}
                                     validateEmbedding={bpmnValidateEmbedding}
-                                    validateUnembedding={bpmnValidateUnembedding}
                                     cellViewNamespace={cellNamespace}
                                     options={PAPER_NATIVE_OPTIONS}
                                 >

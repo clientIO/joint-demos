@@ -6,7 +6,7 @@ import { LabelElementView } from '../shapes/shape-view';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { canElementExistOutsidePool, getClosestElementBoundaryPoint, getSwimlaneParent, isSwimlane, isPool } from '../utils';
 
-import type { CanConnectOptions, ConnectionStrategy, InteractionsOptions, SnaplinesCanSnap, ValidateEmbedding, ValidateUnembedding } from '@joint/react-plus';
+import type { CanConnectOptions, ConnectionStrategy, InteractionsOptions, SnaplinesCanSnap, ValidateEmbedding } from '@joint/react-plus';
 
 // The paper zoom bounds: used by the paper scroller, the keyboard zoom
 // shortcuts, the fit-to-screen action and the zoom slider.
@@ -157,20 +157,23 @@ export const bpmnValidateEmbedding: ValidateEmbedding = ({ child, parent, graph 
     return (child.model as AppElement).validateEmbedding(parent.model, inGraph);
 };
 
-export const bpmnValidateUnembedding: ValidateUnembedding = ({ child, graph }) => {
-    const isPoolPresent = graph.getElements().some(isPool);
-
-    const element = child.model as AppElement;
-
-    // If there is a pool present, only allow unembedding of elements that are valid outside of pools
-    if (isPoolPresent && !canElementExistOutsidePool(element) && !isSwimlane(element)) return false;
-
-    return !(element.validateUnembedding) || element.validateUnembedding();
-};
-
 // Options without a react counterpart, passed through the `<Paper options>`
 // escape hatch (raw JointJS signatures).
 export const PAPER_NATIVE_OPTIONS: Partial<dia.Paper.Options> = {
+    // Passed as a native option, not the `validateUnembedding` prop: the
+    // react wrapper reads the graph from the element view's paper, which
+    // during a stencil drop is the drag paper — the pool check must run
+    // against the diagram graph (`this` is always the drop-target paper).
+    validateUnembedding: function(this: dia.Paper, elementView: dia.ElementView) {
+        const isPoolPresent = this.model.getElements().some(isPool);
+
+        const element = elementView.model as AppElement;
+
+        // If there is a pool present, only allow unembedding of elements that are valid outside of pools
+        if (isPoolPresent && !canElementExistOutsidePool(element) && !isSwimlane(element)) return false;
+
+        return !(element.validateUnembedding) || element.validateUnembedding();
+    },
     // Called by the paper with the paper's graph as `this`.
     findParentBy: function(this: dia.Graph, elementView: dia.ElementView, evt: dia.Event) {
         const parentView = elementView.getTargetParentView(evt);
