@@ -59,7 +59,7 @@
             font-family: 'JJ BPMN Icons';
             font-size: 32px;
             line-height: 1;
-            color: #191919;
+            color: var(--jj-text-secondary);
             pointer-events: none;
             user-select: none;
         }

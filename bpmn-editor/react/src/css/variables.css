@@ -5,7 +5,25 @@
 
     --jj-selector: #5540E1;
     --jj-error: #ed2637;
-    --jj-link: #333333;
+    --jj-link: var(--jj-palette-outline);
+
+    /* Diagram color palette — shapes reference these variables, so the
+       diagram re-colors with the theme. Also the swatches of the inspector
+       color picker (see `configs/palette.ts`). */
+    --jj-palette-surface: #FFFFFF;
+    --jj-palette-ink: #2A2F3A;
+    --jj-palette-outline: #2A2F3A;
+    --jj-palette-blue: #BFDBFE;
+    --jj-palette-blue-soft: #EFF6FF;
+    --jj-palette-green: #BBF7D0;
+    --jj-palette-green-soft: #F0FDF4;
+    --jj-palette-success: #22C55E;
+    --jj-palette-danger: #EF4444;
+    --jj-palette-warning: #F59E0B;
+    --jj-palette-accent: #5540E1;
+
+    /* Paper */
+    --jj-paper-background: #FDFDFD;
 
     /* Halo (react-plus variables) */
     --jj-halo-handle-width: 20px;
@@ -67,4 +85,63 @@
     /* Accent */
     --jj-accent-primary: #F5F3FD;
     --jj-navigator-element-view: #8DA9D3;
+}
+
+/* Dark theme: the chrome tokens and the diagram palette flip together. */
+:root[data-theme='dark'] {
+    --jj-palette-surface: #2F3644;
+    --jj-palette-ink: #DCE2EC;
+    --jj-palette-outline: #5C687D;
+    --jj-palette-blue: #3E4C7A;
+    --jj-palette-blue-soft: #1E222E;
+    --jj-palette-green: #2F5D57;
+    --jj-palette-green-soft: #1E2824;
+    --jj-palette-success: #3FBF6F;
+    --jj-palette-danger: #E36A60;
+    --jj-palette-warning: #DFA32E;
+    --jj-palette-accent: #8B7CF6;
+
+    --jj-selector: #8B7CF6;
+    --jj-paper-background: #15181F;
+
+    --jj-bg-slider-track: #333B4A;
+    --jj-bg-hover: #333B4A;
+    --jj-bg-tooltip: #262C38;
+    --jj-bg-halo: rgba(30, 34, 43, 0.7);
+    --jj-bg-inspector: #1F242E;
+    --jj-bg-inspector-button: #1F242E;
+    --jj-bg-select-box: #1F242E;
+    --jj-bg-primary: #1F242E;
+    --jj-bg-secondary: #262C38;
+    --jj-bg-tertiary: #9CA6B5;
+    --jj-bg-quaternary: #3A4150;
+
+    --jj-border-free-transform: #566175;
+    --jj-border-navigator-view: #E4E6EB;
+    --jj-border-button: #E4E6EB;
+    --jj-border-save-button: #9CA6B5;
+    --jj-border-inspector-divider: #2E3542;
+    --jj-border-inspector-field: #3A4150;
+    --jj-border-primary: #3A4150;
+    --jj-border-secondary: #3A4150;
+    --jj-border-tertiary: #333B4A;
+
+    --jj-text-tooltip: #D9DEE7;
+    --jj-text-inspector-button: #6B7280;
+    --jj-text-inspector-button-active: #E4E6EB;
+    --jj-text-inspector-button-hover: #C4CBD6;
+    --jj-text-inspector-label: #8A919E;
+    --jj-text-inspector-empty: #7A8494;
+    --jj-text-primary: #C4CBD6;
+    --jj-text-secondary: #C4CBD6;
+    --jj-text-tertiary: #9CA6B5;
+
+    --jj-accent-primary: #2E2A55;
+
+    /* React-plus widget variables */
+    --jj-halo-handle-color: #C4CBD6;
+    --jj-nav-background: #232833;
+    --jj-nav-element-color: #333B4A;
+    --jj-nav-element-border-color: #566175;
+    --jj-navigator-element-view: #566175;
 }

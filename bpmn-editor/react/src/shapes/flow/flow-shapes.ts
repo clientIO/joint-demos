@@ -29,7 +29,12 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
 
     defaults() {
         const attributes: dia.Element.Attributes = {
-            shapeType: ShapeTypes.FLOW
+            shapeType: ShapeTypes.FLOW,
+            attrs: {
+                line: {
+                    stroke: 'var(--jj-palette-outline)'
+                }
+            }
         };
         return util.defaultsDeep(attributes, super.defaults);
     }

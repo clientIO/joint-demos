@@ -25,6 +25,12 @@ export abstract class Event extends shapes.bpmn2.Event implements AppElement {
         const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.EVENT,
             attrs: {
+                background: {
+                    fill: 'var(--jj-palette-surface)'
+                },
+                border: {
+                    stroke: 'var(--jj-palette-outline)'
+                },
                 label: {
                     ...defaultAttrs.shapeLabel,
                     text: 'Event',

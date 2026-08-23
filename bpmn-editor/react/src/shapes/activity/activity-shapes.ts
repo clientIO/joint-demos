@@ -27,6 +27,12 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
                 root: {
                     containerSelector: 'background'
                 },
+                background: {
+                    fill: 'var(--jj-palette-surface)'
+                },
+                border: {
+                    stroke: 'var(--jj-palette-outline)'
+                },
                 label: {
                     ...defaultAttrs.shapeLabel,
                     textVerticalAnchor: 'middle',

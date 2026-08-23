@@ -9,7 +9,7 @@
     overflow: hidden;
     border-color: var(--jj-selector);
     border-style: solid;
-    background-color: white;
+    background-color: var(--jj-palette-surface);
     line-height: 1;
     text-align: center;
 

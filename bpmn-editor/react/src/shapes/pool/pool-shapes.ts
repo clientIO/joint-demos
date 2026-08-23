@@ -62,7 +62,12 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implemen
                     magnetSelector: 'body'
                 },
                 header: {
-                    fill: '#FFFFFF'
+                    fill: 'var(--jj-palette-surface)',
+                    stroke: 'var(--jj-palette-outline)'
+                },
+                body: {
+                    fill: 'var(--jj-palette-surface)',
+                    stroke: 'var(--jj-palette-outline)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
@@ -151,7 +156,12 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements A
                     magnetSelector: 'body'
                 },
                 header: {
-                    fill: '#FFFFFF'
+                    fill: 'var(--jj-palette-surface)',
+                    stroke: 'var(--jj-palette-outline)'
+                },
+                body: {
+                    fill: 'var(--jj-palette-surface)',
+                    stroke: 'var(--jj-palette-outline)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
@@ -245,6 +255,10 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
                 header: {
                     fill: 'transparent'
                 },
+                body: {
+                    fill: 'var(--jj-palette-surface)',
+                    stroke: 'var(--jj-palette-outline)'
+                },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
                     text: 'Lane'
@@ -321,6 +335,10 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
                 },
                 header: {
                     fill: 'transparent'
+                },
+                body: {
+                    fill: 'var(--jj-palette-surface)',
+                    stroke: 'var(--jj-palette-outline)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,

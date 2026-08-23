@@ -126,7 +126,7 @@
     transition-property: max-height, transform, padding;
     box-sizing: border-box;
     overflow: hidden;
-    background-color: #FAFAFB;
+    background-color: var(--jj-bg-secondary);
     border-top-left-radius: var(--jj-border-radius-small);
     border-top-right-radius: var(--jj-border-radius-small);
 

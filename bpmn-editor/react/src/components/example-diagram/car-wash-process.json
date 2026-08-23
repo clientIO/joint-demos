@@ -9,7 +9,7 @@
             },
             "attrs": {
                 "header": {
-                    "fill": "#d6eaf8"
+                    "fill": "var(--jj-palette-blue)"
                 },
                 "headerText": {
                     "text": "Customer"
@@ -45,7 +45,7 @@
                     "text": ""
                 },
                 "body": {
-                    "fill": "#f5fafc"
+                    "fill": "var(--jj-palette-blue-soft)"
                 }
             },
             "headerSize": 30,
@@ -84,7 +84,7 @@
                     "text": "Which wash program?"
                 },
                 "body": {
-                    "fill": "#ffc107"
+                    "fill": "var(--jj-palette-warning)"
                 }
             },
             "shapeType": "gateway",
@@ -108,7 +108,7 @@
                     "text": ""
                 },
                 "background": {
-                    "fill": "#f44336"
+                    "fill": "var(--jj-palette-danger)"
                 }
             },
             "shapeType": "event",
@@ -225,7 +225,7 @@
                     "text": ""
                 },
                 "background": {
-                    "fill": "#4caf50"
+                    "fill": "var(--jj-palette-success)"
                 }
             },
             "size": {
@@ -268,7 +268,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "#333",
+                    "stroke": "var(--jj-palette-outline)",
                     "sourceMarker": null,
                     "targetMarker": {
                         "type": "path",
@@ -314,7 +314,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "#333",
+                    "stroke": "var(--jj-palette-outline)",
                     "sourceMarker": null,
                     "targetMarker": {
                         "type": "path",
@@ -353,7 +353,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "#333"
+                    "stroke": "var(--jj-palette-outline)"
                 }
             },
             "shapeType": "flow",
@@ -386,7 +386,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "#333"
+                    "stroke": "var(--jj-palette-outline)"
                 }
             },
             "shapeType": "flow",
@@ -471,7 +471,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "#333",
+                    "stroke": "var(--jj-palette-outline)",
                     "sourceMarker": null,
                     "targetMarker": {
                         "type": "path",
@@ -515,7 +515,7 @@
             },
             "attrs": {
                 "header": {
-                    "fill": "#d7e8ba"
+                    "fill": "var(--jj-palette-green)"
                 },
                 "headerText": {
                     "text": "Car Wash Machine"
@@ -551,7 +551,7 @@
                     "text": ""
                 },
                 "body": {
-                    "fill": "#f7faf1"
+                    "fill": "var(--jj-palette-green-soft)"
                 }
             },
             "headerSize": 30,
@@ -636,7 +636,7 @@
                     "text": "Which wash program?"
                 },
                 "body": {
-                    "fill": "#ffc107"
+                    "fill": "var(--jj-palette-warning)"
                 }
             },
             "shapeType": "gateway",
@@ -749,7 +749,7 @@
             "type": "flow.Message",
             "attrs": {
                 "line": {
-                    "stroke": "#333"
+                    "stroke": "var(--jj-palette-outline)"
                 }
             },
             "shapeType": "flow",
@@ -781,7 +781,7 @@
             "type": "flow.Message",
             "attrs": {
                 "line": {
-                    "stroke": "#333"
+                    "stroke": "var(--jj-palette-outline)"
                 }
             },
             "shapeType": "flow",
@@ -857,19 +857,19 @@
             "type": "flow.Message",
             "attrs": {
                 "line": {
-                    "stroke": "#333",
+                    "stroke": "var(--jj-palette-outline)",
                     "sourceMarker": {
                         "type": "circle",
                         "cx": 5,
                         "r": 5,
                         "strokeWidth": 2,
-                        "fill": "#FFFFFF"
+                        "fill": "var(--jj-palette-surface)"
                     },
                     "targetMarker": {
                         "type": "path",
                         "d": "M 12 -5 0 0 12 5 z",
                         "strokeWidth": 2,
-                        "fill": "#FFFFFF"
+                        "fill": "var(--jj-palette-surface)"
                     },
                     "strokeDasharray": "5,2"
                 }
@@ -908,7 +908,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "#333"
+                    "stroke": "var(--jj-palette-outline)"
                 }
             },
             "shapeType": "flow",
@@ -941,7 +941,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "#333"
+                    "stroke": "var(--jj-palette-outline)"
                 }
             },
             "shapeType": "flow",
@@ -974,7 +974,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "#333"
+                    "stroke": "var(--jj-palette-outline)"
                 }
             },
             "shapeType": "flow",
@@ -1007,7 +1007,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "#333"
+                    "stroke": "var(--jj-palette-outline)"
                 }
             },
             "shapeType": "flow",
@@ -1084,7 +1084,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "#333"
+                    "stroke": "var(--jj-palette-outline)"
                 }
             },
             "shapeType": "flow",

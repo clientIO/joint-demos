@@ -100,30 +100,42 @@
 
             .color-field {
                 box-sizing: border-box;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                width: 50%;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                margin: 8px 0;
 
                 label {
                     margin: 0;
-                    order: 2;
+                    order: 1;
+                    color: var(--jj-text-inspector-label);
+                    font-size: 11px;
                 }
 
-                input[type="color"] {
-                    order: 1;
-                    appearance: none;
-                    background: none;
-                    width: 32px;
-                    height: 32px;
-                    cursor: pointer;
-                    padding: 0;
-                    border: 1px solid var(--jj-border-inspector-field);
-                    border-radius: var(--jj-border-radius-small);
-                    overflow: hidden;
+                .swatches {
+                    order: 2;
                     display: flex;
-                    align-items: center;
-                    justify-content: center;
+                    flex-wrap: wrap;
+                    gap: 6px;
+                }
+
+                .swatch {
+                    width: 22px;
+                    height: 22px;
+                    padding: 0;
+                    cursor: pointer;
+                    border: 1px solid var(--jj-border-inspector-field);
+                    border-radius: 50%;
+                    transition: transform 0.1s ease, box-shadow 0.1s ease;
+
+                    &:hover {
+                        transform: scale(1.12);
+                    }
+
+                    &.selected {
+                        border-color: var(--jj-selector);
+                        box-shadow: 0 0 0 2px color-mix(in srgb, var(--jj-selector) 35%, transparent);
+                    }
                 }
             }
         }
@@ -160,6 +172,7 @@
         border-radius: var(--jj-border-radius-small);
         border: 1px solid transparent;
         background: transparent;
+        color: var(--jj-text-secondary);
         cursor: pointer;
         transition-property: border-color, background-color;
         transition-duration: 0.15s;

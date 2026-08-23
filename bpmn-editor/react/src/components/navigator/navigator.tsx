@@ -3,6 +3,7 @@ import * as Slider from '@radix-ui/react-slider';
 import { Navigator as NavigatorMinimap, usePaperScroller, usePaperScrollerViewport } from '@joint/react-plus';
 import { Scan, Expand, Shrink, Map } from 'lucide-react';
 import { ZOOM_SETTINGS } from '../../configs/paper-config';
+import { isPool, isSwimlane } from '../../utils';
 import { Tip } from '../tooltip/tooltip';
 
 import type { ReactNode } from 'react';
@@ -69,11 +70,19 @@ export function Navigator() {
                     style={{ width: 318, height: 130 }}
                     showLinks={false}
                     padding={10}
-                    elementStyle={() => ({
-                        fill: 'var(--jj-selector)',
-                        fillOpacity: 0.25,
-                        stroke: 'none'
-                    })}
+                    elementStyle={({ model }) => (
+                        isPool(model) || isSwimlane(model)
+                            ? {
+                                // Containers render as outlines
+                                fill: 'transparent',
+                                stroke: 'var(--jj-navigator-element-view)'
+                            }
+                            : {
+                                fill: 'var(--jj-navigator-element-view)',
+                                fillOpacity: 0.4,
+                                stroke: 'none'
+                            }
+                    )}
                 />
             </div>
             <div className="navigator-toolbar">

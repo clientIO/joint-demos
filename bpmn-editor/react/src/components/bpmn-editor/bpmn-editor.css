@@ -9,9 +9,6 @@
     min-width: 0;
     min-height: 0;
 
-    .paper-scroller-background > .joint-paper {
-        border: 1px solid #E2E2E2;
-    }
 
     .app-toolbar {
         min-height: 54px;
@@ -28,9 +25,22 @@
             overflow: hidden;
             position: relative;
 
-            .joint-paper-scroller[data-cursor="crosshair"] .joint-cell {
+            .jj-paper-scroller[data-cursor="crosshair"] .joint-cell {
                 cursor: crosshair;
             }
         }
     }
+}
+
+/* The bpmn2 icons and markers are monochrome #333 images — the color is
+   baked into their data-URIs, so it cannot follow the CSS variables.
+   Approximate the ink color in the dark theme with a filter.
+   TODO: remove when the icons support external coloring (context-fill). */
+:root[data-theme='dark'] .bpmn-editor image[data-icon-type] {
+    filter: invert(0.82);
+}
+
+/* Keep the gateway icons dark — they sit on the warning-colored body. */
+:root[data-theme='dark'] .bpmn-editor [data-type^='gateway'] image[data-icon-type] {
+    filter: none;
 }

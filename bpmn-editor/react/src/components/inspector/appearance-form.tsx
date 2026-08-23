@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Select from '@radix-ui/react-select';
 import { ChevronDown, Check } from 'lucide-react';
 import { useCells } from '@joint/react-plus';
+import { PALETTE } from '../../configs/palette';
 
-import type { FormEvent } from 'react';
 import type { CellRecord, Computed } from '@joint/react-plus';
 import type { AppElement, AppLink, AppearanceColorField, AppearanceSelectBoxField } from '../../shapes/shapes-typing';
 
@@ -22,67 +22,38 @@ function readValue(cell: Cell, field: { path: string; defaultValue?: string | nu
 }
 
 /**
- * Color field: live-previews while picking (skipping the undo stack) and
- * commits the final value as a single undoable command.
+ * Color field: a row of theme palette swatches (each value is a CSS
+ * variable, so the diagram re-colors with the theme).
  */
 function ColorField({ cell, field, snapshot }: { cell: Cell; field: AppearanceColorField; snapshot: CellSnapshot }) {
     const [value, setValue] = useState(() => readValue(cell, field));
-    const inputRef = useRef<HTMLInputElement | null>(null);
-    // The value at the start of the current preview interaction — the commit
-    // rewrites original -> final as a single undoable command.
-    const originalRef = useRef(value);
-    const syncedRef = useRef(true);
 
     // Sync from the model on external changes (undo/redo, shape morph).
     useEffect(() => {
-        const modelValue = readValue(cell, field);
-        setValue(modelValue);
-        if (syncedRef.current) {
-            originalRef.current = modelValue;
-        }
+        setValue(readValue(cell, field));
     }, [cell, field.path, snapshot]);
 
-    const commit = (finalValue: string) => {
-        // Restore the pre-preview value silently, then apply the final value
-        // as one regular (undoable) command.
-        cell.prop(field.path, originalRef.current, { skipHistory: true });
-        cell.prop(field.path, finalValue);
-        originalRef.current = finalValue;
-        syncedRef.current = true;
+    const onPick = (color: string) => {
+        setValue(color);
+        cell.prop(field.path, color);
     };
-
-    // Flush an unfinished preview when the field unmounts (selection change,
-    // tab switch) so the pending value is committed as an undoable change.
-    useEffect(() => {
-        return () => {
-            if (!syncedRef.current) {
-                commit(readValue(cell, field));
-            }
-        };
-    }, [cell, field.path]);
-
-    const onInput = (evt: FormEvent<HTMLInputElement>) => {
-        const newValue = (evt.target as HTMLInputElement).value;
-        setValue(newValue);
-        // Live preview — not recorded on the undo stack.
-        cell.prop(field.path, newValue, { skipHistory: true });
-        syncedRef.current = false;
-    };
-
-    // The commit must run on the native `change` event (fired once when the
-    // color picker closes). React's synthetic `onChange` fires on every
-    // `input` event, which would record an undo entry per preview tick.
-    useEffect(() => {
-        const input = inputRef.current;
-        if (!input) return;
-        const onNativeChange = () => commit(input.value);
-        input.addEventListener('change', onNativeChange);
-        return () => input.removeEventListener('change', onNativeChange);
-    }, [cell, field.path]);
 
     return (
         <div className="field color-field">
-            <input ref={inputRef} type="color" value={value} onChange={onInput} />
+            <div className="swatches" role="radiogroup" aria-label={field.label}>
+                {PALETTE.map((color) => (
+                    <button
+                        key={color.value}
+                        type="button"
+                        role="radio"
+                        aria-checked={value === color.value}
+                        title={color.label}
+                        className={`swatch${value === color.value ? ' selected' : ''}`}
+                        style={{ backgroundColor: color.value }}
+                        onClick={() => onPick(color.value)}
+                    />
+                ))}
+            </div>
             <label>{field.label}</label>
         </div>
     );

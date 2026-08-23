@@ -23,6 +23,10 @@ abstract class Gateway extends shapes.bpmn2.Gateway implements AppElement {
         const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.GATEWAY,
             attrs: {
+                body: {
+                    fill: 'var(--jj-palette-surface)',
+                    stroke: 'var(--jj-palette-outline)'
+                },
                 label: {
                     ...defaultAttrs.shapeLabel,
                     refDy: null,

@@ -22,6 +22,9 @@ export class Group extends shapes.bpmn2.Group implements AppElement {
                 height: 300
             },
             attrs: {
+                body: {
+                    stroke: 'var(--jj-palette-outline)'
+                },
                 label: {
                     ...defaultAttrs.shapeLabel,
                     text: 'Group'

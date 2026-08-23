@@ -77,13 +77,13 @@ export const linkTypeStyles: Record<LinkType, LinkStyle> = {
                     cx: 5,
                     r: 5,
                     strokeWidth: 2,
-                    fill: '#FFFFFF'
+                    fill: 'var(--jj-palette-surface)'
                 },
                 targetMarker: {
                     type: 'path',
                     d: 'M 12 -5 0 0 12 5 z',
                     strokeWidth: 2,
-                    fill: '#FFFFFF'
+                    fill: 'var(--jj-palette-surface)'
                 }
             }
         }
@@ -110,7 +110,7 @@ export const linkTypeStyles: Record<LinkType, LinkStyle> = {
                 sourceMarker: {
                     d: 'M 0 0 9 -5 18 0 9 5 Z',
                     strokeWidth: 2,
-                    fill: '#FFFFFF'
+                    fill: 'var(--jj-palette-surface)'
                 },
                 targetMarker: {
                     type: 'path',
