@@ -1,6 +1,6 @@
 import { type dia } from '@joint/plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
-import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentPath } from '../utils';
+import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentBoundary, type EditorEvent } from '../utils';
 import { ShapeTypes } from '../shapes/shapes-typing';
 import { setBoundarySnapActive } from './boundary-snap';
 
@@ -8,11 +8,18 @@ import type { ui } from '@joint/plus';
 
 import type { shapes } from '@joint/plus';
 
-export function onElementDragStart(_paper: dia.Paper, elementView: dia.ElementView, _evt: dia.Event, _x: number, _y: number) {
+/**
+ * Adds a drop shadow to the dragged element.
+ */
+export function onElementDragStart(_paper: dia.Paper, elementView: dia.ElementView, _evt: EditorEvent, _x: number, _y: number) {
     addEffect(elementView, EffectType.Shadow);
 }
 
-export function onElementDrag(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, x: number = 0, y: number = 0, snaplines?: ui.Snaplines) {
+/**
+ * Snaps a dragged event to the border of the activity under the pointer
+ * (becoming a boundary event) and suppresses the snaplines while it does.
+ */
+export function onElementDrag(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number = 0, y: number = 0, snaplines?: ui.Snaplines) {
 
     const targetParentView = elementView.getTargetParentView(evt);
 
@@ -26,14 +33,17 @@ export function onElementDrag(paper: dia.Paper, elementView: dia.ElementView, ev
     const { clientX = 0, clientY = 0 } = evt;
     const { x: localX, y: localY } = paper.clientToLocalPoint(clientX, clientY);
 
-    const snappedPoint = snapToParentPath(elementView, targetParentView as dia.ElementView, localX, localY);
-
-    if (!snappedPoint) return;
+    const snappedPoint = snapToParentBoundary(elementView.model, targetParentView.model as dia.Element, localX, localY);
 
     elementView.model.position(snappedPoint.x - x, snappedPoint.y - y);
 }
 
-export function onElementDragEnd(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, _x: number, _y: number, snaplines?: ui.Snaplines) {
+/**
+ * Cleans the drag effects up; for in-diagram drags also grows the pool to
+ * contain the element and re-validates its connections when the parent
+ * changed (or the element was forked from the halo).
+ */
+export function onElementDragEnd(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, _x: number, _y: number, snaplines?: ui.Snaplines) {
     removeEffect(paper, EffectType.Shadow);
     setBoundarySnapActive(snaplines, false);
 
@@ -55,7 +65,10 @@ export function onElementDragEnd(paper: dia.Paper, elementView: dia.ElementView,
     }
 }
 
-export function onElementSwimlaneDrop(_paper: dia.Paper, elementView: dia.ElementView, _evt: dia.Event, _x: number, _y: number) {
+/**
+ * Grows the pool of the swimlane the element was dropped into, if needed.
+ */
+export function onElementSwimlaneDrop(_paper: dia.Paper, elementView: dia.ElementView, _evt: EditorEvent, _x: number, _y: number) {
     checkElementOverlaps(elementView.model);
 }
 

@@ -8,7 +8,7 @@ import { BPMNLinkView } from '../shapes/placeholder/placeholder-shapes';
 import { LabelElementView } from '../shapes/shape-view';
 import { cellNamespace } from '../shapes';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
-import { canElementExistOutsidePool, getBoundaryPoint } from '../utils';
+import { canElementExistOutsidePool, getClosestElementBoundaryPoint } from '../utils';
 import { MAIN_COLOR } from '../configs/theme';
 
 import type ToolbarService from './toolbar-service';
@@ -116,7 +116,7 @@ export default class MainService {
                 const { model } = view;
 
                 if (model.isElement()) {
-                    const { x, y } = getBoundaryPoint(view.model as AppElement, coords);
+                    const { x, y } = getClosestElementBoundaryPoint(view.model as AppElement, coords);
 
                     end.anchor = {
                         name: 'topLeft',

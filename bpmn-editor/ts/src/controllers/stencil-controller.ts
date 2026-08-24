@@ -1,6 +1,6 @@
 import Controller from '../controller';
 import { type dia, shapes, type ui, type g } from '@joint/plus';
-import { snapToParentPath, isBoundaryEvent, setStencilEvent } from '../utils';
+import { snapToParentBoundary, isBoundaryEvent, setStencilEvent } from '../utils';
 import { eventBus, EventBusEvents } from '../event-bus';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { onSwimlaneDragStart, onSwimlaneDrag, onSwimlaneDragEnd, onSwimlaneDrop } from '../events/swimlanes';
@@ -97,7 +97,7 @@ function onElementDrop(context: StencilControllerArgs, elementView: dia.ElementV
         return model;
     }
 
-    const snappedPoint = snapToParentPath(elementView, parentView as dia.ElementView, x, y);
+    const snappedPoint = snapToParentBoundary(elementView.model, parentView.model as dia.Element, x, y);
 
     elementView.model.position(snappedPoint.x, snappedPoint.y);
 
