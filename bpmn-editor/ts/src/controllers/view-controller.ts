@@ -98,10 +98,13 @@ function onCellPointerClick(context: ViewControllerArgs, cellView: dia.CellView,
     const { keyboard, selection } = context;
     const { model } = cellView;
 
-    // Standard non-Shift click behavior:
-    // If the element is already the only selected one, clicking it again without Shift does nothing.
-    // Otherwise, select only this model.
-    if (!keyboard.isActive('shift', evt)) {
+    // `ctrl`/`cmd`+click cherry-picks cells into the selection.
+    const isCherryPick = keyboard.isActive('ctrl', evt) || keyboard.isActive('command', evt);
+
+    // Standard click behavior:
+    // If the element is already the only selected one, clicking it again does
+    // nothing. Otherwise, select only this model.
+    if (!isCherryPick) {
         if (selection.collection.has(model) && selection.collection.length === 1) {
             return;
         }
