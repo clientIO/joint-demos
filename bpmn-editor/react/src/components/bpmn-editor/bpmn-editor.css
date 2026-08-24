@@ -1,0 +1,56 @@
+/* The editor fills its container (which must have a definite height). */
+.bpmn-editor {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+
+
+    .app-toolbar {
+        min-height: 54px;
+    }
+
+    .app-body {
+        display: flex;
+        flex: 1 auto;
+        overflow: hidden;
+        position: relative;
+
+        .paper-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+
+            .jj-paper-scroller[data-cursor="crosshair"] .joint-cell {
+                cursor: crosshair;
+            }
+
+            /* No focus ring on cells: focus and selection are bound both
+               ways, so the selection highlighter is the focus indicator.
+               Plain `:focus` included — after a window refocus browsers
+               treat the restored focus as keyboard-driven and would draw
+               the default ring on the selected cell. */
+            .joint-cell:focus,
+            .joint-cell:focus-visible {
+                outline: none;
+            }
+        }
+    }
+}
+
+/* The bpmn2 icons and markers are monochrome #333 images — the color is
+   baked into their data-URIs, so it cannot follow the CSS variables.
+   Approximate the ink color in the dark theme with a filter.
+   TODO: remove when the icons support external coloring (context-fill). */
+:root[data-theme='dark'] .bpmn-editor image[data-icon-type] {
+    filter: invert(0.82);
+}
+
+/* Keep the gateway icons dark — they sit on the warning-colored body. */
+:root[data-theme='dark'] .bpmn-editor [data-type^='gateway'] image[data-icon-type] {
+    filter: none;
+}

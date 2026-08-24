@@ -1,5 +1,5 @@
 import { ui } from '@joint/plus';
-import { constructMarkerContent, getShapeConstructorByType } from '../utils';
+import { constructMarkerContent } from '../utils';
 import { eventBus, EventBusEvents } from '../event-bus';
 
 import type { AppElement, AppLink } from '../shapes/shapes-typing';
@@ -118,7 +118,7 @@ export default class InspectorService {
 
         if (shapes.length > 0) {
             const availableShapes = shapes.map((shape) => {
-                const shapeConstructor = getShapeConstructorByType(shape);
+                const shapeConstructor = this.currentShape!.graph.getTypeConstructor(shape)!;
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const { label, icon } = <any>shapeConstructor;
 
@@ -144,7 +144,7 @@ export default class InspectorService {
             });
 
             shapeButtonGroup.once('option:select', (option) => {
-                const shapeConstructor = getShapeConstructorByType(option.value);
+                const shapeConstructor = shape.graph.getTypeConstructor<AppElement | AppLink>(option.value)!;
                 const newShape = new shapeConstructor({ id: shape.id });
 
                 eventBus.trigger(EventBusEvents.GRAPH_REPLACE_CELL, shape, newShape);

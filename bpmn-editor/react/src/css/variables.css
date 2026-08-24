@@ -1,0 +1,152 @@
+:root {
+    /* Native UI (scrollbars, inputs) follows the theme. */
+    color-scheme: light;
+
+    --bpmn-border-radius-small: 4px;
+    --bpmn-border-radius-medium: 6px;
+    --bpmn-border-radius-large: 8px;
+
+    --bpmn-selector: #5540E1;
+    --bpmn-error: #ed2637;
+    --bpmn-link: var(--bpmn-palette-outline);
+
+    /* Diagram color palette — shapes reference these variables, so the
+       diagram re-colors with the theme. Also the swatches of the inspector
+       color picker (see `configs/palette.ts`). */
+    --bpmn-palette-surface: #FFFFFF;
+    --bpmn-palette-ink: #333333;
+    --bpmn-palette-outline: #333333;
+    --bpmn-palette-blue: #D6EAF8;
+    --bpmn-palette-blue-soft: #F5FAFC;
+    --bpmn-palette-green: #D7E8BA;
+    --bpmn-palette-green-soft: #F7FAF1;
+    --bpmn-palette-success: #4CAF50;
+    --bpmn-palette-danger: #F44336;
+    --bpmn-palette-warning: #FFC107;
+    --bpmn-palette-accent: #5540E1;
+
+    /* Paper */
+    --bpmn-paper-background: #FFFFFF;
+    --jj-paper-grid-color: #AAAAAA;
+
+    /* Halo (react-plus variables) */
+    --jj-halo-handle-width: 20px;
+    --jj-halo-handle-height: 20px;
+    --jj-halo-handle-font-size: 20px;
+
+    /* Free transform (react-plus variables) */
+    --jj-ft-border-width: 0px;
+    --jj-ft-handle-size: 10px;
+    --jj-ft-handle-radius: 50%;
+    --jj-ft-handle-background: var(--bpmn-bg-free-transform-handle);
+
+    /* Rubber-band selection region (react-plus variables) */
+    --jj-selection-region-fill: var(--bpmn-selector);
+    --jj-selection-region-border-color: var(--bpmn-selector);
+
+    /* Snaplines (react-plus variables) */
+    --jj-snaplines-color: color-mix(in srgb, var(--bpmn-selector) 30%, transparent);
+    --jj-snaplines-width: 2px;
+
+    /* Background */
+    --bpmn-bg-slider-thumb: var(--bpmn-selector);
+    --bpmn-bg-free-transform-handle: var(--bpmn-selector);
+    --bpmn-bg-slider-track: #F5F3FD;
+    --bpmn-bg-hover: #F5F3FD;
+    --bpmn-bg-tooltip: #FFFFFF;
+    --bpmn-bg-halo: rgba(255, 255, 255, 0.7);
+    --bpmn-bg-inspector: #FFFFFF;
+    --bpmn-bg-inspector-button: #FFFFFF;
+    --bpmn-bg-select-box: #FFFFFF;
+    --bpmn-bg-primary: #FFFFFF;
+    --bpmn-bg-secondary: #F3F4F6;
+    --bpmn-bg-tertiary: #4B5563;
+    --bpmn-bg-quaternary: #D1D5DB;
+
+    /* Border */
+    --bpmn-border-hover: var(--bpmn-selector);
+    --bpmn-border-free-transform: #9CA3AF;
+    --bpmn-border-button: #000000;
+    --bpmn-border-save-button: #4B5563;
+    --bpmn-border-inspector-divider: #EBEDEF;
+    --bpmn-border-inspector-field: #D1D5DB;
+    --bpmn-border-primary: #D1D1D1;
+    --bpmn-border-secondary: #D1D5DB;
+    --bpmn-border-tertiary: #E0E6EA;
+
+    /* Text */
+    --bpmn-text-tooltip: #374151;
+    --bpmn-text-inspector-button: #9CA3AF;
+    --bpmn-text-inspector-button-active: #374151;
+    --bpmn-text-inspector-button-hover: #4B5563;
+    --bpmn-text-inspector-label: #8A919E;
+    --bpmn-text-inspector-empty: #7A8494;
+    --bpmn-text-primary: #575C70;
+    --bpmn-text-secondary: #4B5563;
+    --bpmn-text-tertiary: #6B7280;
+
+    /* Accent */
+    --bpmn-accent-primary: #F5F3FD;
+    --bpmn-navigator-element-color: #8DA9D3;
+}
+
+/* Dark theme: the chrome tokens and the diagram palette flip together. */
+:root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --bpmn-palette-surface: #24262A;
+    --bpmn-palette-ink: #E6E7E9;
+    --bpmn-palette-outline: #DFE1E4;
+    --bpmn-palette-blue: #35566F;
+    --bpmn-palette-blue-soft: #191F27;
+    --bpmn-palette-green: #5C7345;
+    --bpmn-palette-green-soft: #1D221A;
+    --bpmn-palette-success: #66BB6A;
+    --bpmn-palette-danger: #EF5350;
+    --bpmn-palette-warning: #FFC93E;
+    --bpmn-palette-accent: #8F86FF;
+
+    --bpmn-selector: #8B7CF6;
+    --bpmn-paper-background: #141518;
+    --jj-paper-grid-color: #26282D;
+
+    --bpmn-bg-slider-track: #333B4A;
+    --bpmn-bg-hover: #333B4A;
+    --bpmn-bg-tooltip: #262C38;
+    --bpmn-bg-halo: rgba(30, 34, 43, 0.7);
+    --bpmn-bg-inspector: #1F242E;
+    --bpmn-bg-inspector-button: #1F242E;
+    --bpmn-bg-select-box: #1F242E;
+    --bpmn-bg-primary: #1F242E;
+    --bpmn-bg-secondary: #262C38;
+    --bpmn-bg-tertiary: #9CA6B5;
+    --bpmn-bg-quaternary: #3A4150;
+
+    --bpmn-border-free-transform: #566175;
+    --bpmn-border-button: #E4E6EB;
+    --bpmn-border-save-button: #9CA6B5;
+    --bpmn-border-inspector-divider: #2E3542;
+    --bpmn-border-inspector-field: #3A4150;
+    --bpmn-border-primary: #3A4150;
+    --bpmn-border-secondary: #3A4150;
+    --bpmn-border-tertiary: #333B4A;
+
+    --bpmn-text-tooltip: #D9DEE7;
+    --bpmn-text-inspector-button: #6B7280;
+    --bpmn-text-inspector-button-active: #E4E6EB;
+    --bpmn-text-inspector-button-hover: #C4CBD6;
+    --bpmn-text-inspector-label: #8A919E;
+    --bpmn-text-inspector-empty: #7A8494;
+    --bpmn-text-primary: #C4CBD6;
+    --bpmn-text-secondary: #C4CBD6;
+    --bpmn-text-tertiary: #9CA6B5;
+
+    --bpmn-accent-primary: #2E2A55;
+
+    /* React-plus widget variables */
+    --jj-halo-handle-color: #C4CBD6;
+    --jj-nav-background: #232833;
+    --jj-nav-element-color: #333B4A;
+    --jj-nav-element-border-color: #566175;
+    --bpmn-navigator-element-color: #566175;
+}

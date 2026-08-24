@@ -3,6 +3,9 @@
     "bpmn-camunda-integration": {
       "skip": true
     },
+    "bpmn-editor": {
+      "variant": "react"
+    },
     "chatbot": {
       "variant": "vue-ts"
     },

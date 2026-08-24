@@ -1,6 +1,5 @@
 import { ui } from '@joint/plus';
 import { stencilShapes } from '../configs/stencil-config';
-import { getShapeConstructorByType } from '../utils';
 import StencilController from '../controllers/stencil-controller';
 import { StencilHoverHighlighter } from '../configs/stencil-config';
 
@@ -14,6 +13,7 @@ export default class StencilService {
     constructor(private readonly stencilElement: HTMLDivElement) { }
 
     create(paperScroller: ui.PaperScroller, selection: ui.Selection, snaplines: ui.Snaplines) {
+        const graph = paperScroller.options.paper.model;
         const stencil = this.stencil = new ui.Stencil({
             cellCursor: 'pointer',
             el: this.stencilElement,
@@ -31,7 +31,7 @@ export default class StencilService {
             scaleClones: true,
             dragStartClone: (cell: dia.Cell) => {
                 const type: string = cell.get('dropType');
-                const shape = getShapeConstructorByType(type);
+                const shape = graph.getTypeConstructor(type)!;
 
                 return new shape();
             }
@@ -45,8 +45,10 @@ export default class StencilService {
             .getGraph()
             .getElements()
             .forEach((el) => {
+                const view = el.findView(stencil.getPaper());
+
                 StencilHoverHighlighter.add(
-                    el.findView(stencil.getPaper()),
+                    view,
                     'root',
                     'stencil-highlight',
                     {
@@ -54,6 +56,15 @@ export default class StencilService {
                         padding: 4
                     }
                 );
+
+                // Tooltip with the shape name (the global `ui.Tooltip`
+                // targets `[data-tooltip]`).
+                const shapeConstructor = graph.getTypeConstructor(el.get('dropType'))!;
+                const { label } = shapeConstructor as unknown as { label?: string };
+                if (label) {
+                    view.el.dataset.tooltip = label;
+                    view.el.dataset.tooltipPosition = 'right';
+                }
             });
 
         this.stencilController = new StencilController({ stencil, paper: paperScroller.options.paper, selection });

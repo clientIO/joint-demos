@@ -6,9 +6,14 @@ import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
 
 import type { dia } from '@joint/plus';
-import type { AppLink } from '../shapes-typing';
+import type { AppLink, LinkContextMenuAction } from '../shapes-typing';
 
 abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
+
+    // The shape name (set by each concrete subclass). Typing the constructor
+    // makes the static reachable from instance methods (`defaults()`).
+    declare static label: string;
+    declare ['constructor']: typeof Flow;
 
     defaultLabel = {
         attrs: {
@@ -29,7 +34,14 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
 
     defaults() {
         return util.defaultsDeep({
-            shapeType: ShapeTypes.FLOW
+            shapeType: ShapeTypes.FLOW,
+            attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: this.constructor.label
+                }
+            }
         }, super.defaults);
     }
 
@@ -54,6 +66,10 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
         ];
 
         return shapes.filter((shape) => shape !== this.get('type'));
+    }
+
+    getContextMenuActions(): LinkContextMenuAction[] {
+        return ['edit-label', 'add-comment'];
     }
 
     getLinkTools() {

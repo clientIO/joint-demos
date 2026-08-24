@@ -1,6 +1,6 @@
 import { shapes, util, V, type g } from '@joint/plus';
 import { ShapeTypes } from '../shapes-typing';
-import { groupAppearanceConfig, GroupShapeTypes } from './group-config';
+import { groupAppearanceConfig, GroupLabels, GroupShapeTypes } from './group-config';
 import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
@@ -9,6 +9,8 @@ import type { dia } from '@joint/plus';
 import type { AppElement } from '../shapes-typing';
 
 export class Group extends shapes.bpmn2.Group implements AppElement {
+
+    static label = GroupLabels['group.Group'];
 
     public readonly isResizable = true;
     public readonly labelPath = 'label/text';
@@ -22,6 +24,11 @@ export class Group extends shapes.bpmn2.Group implements AppElement {
                 height: 300
             },
             attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: Group.label
+                },
                 label: {
                     ...defaultAttrs.shapeLabel,
                     text: 'Group'

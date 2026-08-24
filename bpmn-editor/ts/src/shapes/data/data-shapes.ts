@@ -9,13 +9,18 @@ import { handles } from '../../configs/halo-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
 
 import type { dia } from '@joint/plus';
-import type { AppElement, AppLink, Marker } from '../shapes-typing';
+import type { AppElement, AppLink, Marker, LinkContextMenuAction } from '../shapes-typing';
 
 const LABEL_Y_OFFSET = 14;
 
 // DataObject
 
 abstract class Data extends shapes.bpmn2.DataObject implements AppElement {
+
+    // The shape name (set by each concrete subclass). Typing the constructor
+    // makes the static reachable from instance methods (`defaults()`).
+    declare static label: string;
+    declare ['constructor']: typeof Data;
 
     public readonly isResizable = false;
     public readonly labelPath = 'label/text';
@@ -26,6 +31,11 @@ abstract class Data extends shapes.bpmn2.DataObject implements AppElement {
             shapeType: ShapeTypes.DATA_OBJECT,
             markers: [],
             attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: this.constructor.label
+                },
                 label: {
                     ...defaultAttrs.shapeLabel,
                     refX: null,
@@ -262,6 +272,11 @@ export class DataStore extends shapes.bpmn2.DataStore implements AppElement {
             type: DataShapeTypes.DATA_STORE,
             shapeType: ShapeTypes.DATA_STORE,
             attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: DataStore.label
+                },
                 label: {
                     ...defaultAttrs.shapeLabel,
                     text: 'Data Store'
@@ -366,7 +381,14 @@ export class DataAssociation extends shapes.bpmn2.DataAssociation implements App
     defaults(): dia.Element.Attributes {
         return util.defaultsDeep({
             type: DataShapeTypes.DATA_ASSOCIATION,
-            shapeType: ShapeTypes.DATA_ASSOCIATION
+            shapeType: ShapeTypes.DATA_ASSOCIATION,
+            attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: DataAssociation.label
+                }
+            }
         }, super.defaults);
     }
 
@@ -374,6 +396,11 @@ export class DataAssociation extends shapes.bpmn2.DataAssociation implements App
         this.source(link.source());
         this.target(link.target());
         this.vertices(link.vertices());
+    }
+
+    getContextMenuActions(): LinkContextMenuAction[] {
+        // Data associations have no label
+        return ['add-comment'];
     }
 
     getShapeList(): string[] {

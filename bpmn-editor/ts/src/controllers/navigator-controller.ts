@@ -1,5 +1,5 @@
 import Controller from '../controller';
-import { ZOOM_SETTINGS } from '../configs/navigator-config';
+import { fitDiagramToViewport } from '../utils';
 import type NavigatorService from '../services/navigator-service';
 
 type NavigatorControllerArgs = {
@@ -50,12 +50,9 @@ function toggleFullscreen(context: NavigatorControllerArgs) {
 function fitToScreen(context: NavigatorControllerArgs) {
     const { navigatorService } = context;
 
-    navigatorService.paperScroller?.zoomToFit({
-        useModelGeometry: true,
-        padding: 20,
-        minScale: ZOOM_SETTINGS.min,
-        maxScale: ZOOM_SETTINGS.max
-    });
+    if (navigatorService.paperScroller) {
+        fitDiagramToViewport(navigatorService.paperScroller);
+    }
 }
 
 function toggleMinimap(context: NavigatorControllerArgs) {

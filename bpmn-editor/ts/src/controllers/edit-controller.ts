@@ -2,8 +2,9 @@ import Controller from '../controller';
 import { eventBus, EventBusEvents } from '../event-bus';
 import { labelEditorWrapperStyles } from '../shapes/shared-config';
 import { prepareLinkReplacement, validateAndReplaceConnections } from '../utils';
-import { type AppShape, type AppElement, type AppLink } from '../shapes/shapes-typing';
-import { type dia, shapes, ui } from '@joint/plus';
+import { type AppShape, type AppElement, type AppLink, type LinkContextMenuAction } from '../shapes/shapes-typing';
+import { type dia, g, shapes, ui } from '@joint/plus';
+import { Annotation, AnnotationLink } from '../shapes/annotation/annotation-shapes';
 import { onSwimlaneDrag, onSwimlaneDragEnd, onSwimlaneDragStart } from '../events/swimlanes';
 import { onElementDrag, onElementDragEnd, onElementDragStart } from '../events/elements';
 
@@ -22,6 +23,7 @@ type EditControllerArgs = {
     linkToolsService: LinkToolsService;
     freeTransformService: FreeTransformService;
     keyboard: ui.Keyboard;
+    snaplines: ui.Snaplines;
 }
 
 export default class EditController extends Controller<EditControllerArgs> {
@@ -36,16 +38,37 @@ export default class EditController extends Controller<EditControllerArgs> {
                 this.labelEditor = onElementPointerDblClick(context, elementView);
             },
             'link:contextmenu': (context, linkView, evt) => {
+                const link = linkView.model as AppLink;
+                // The link decides what its context menu offers.
+                if (link.getContextMenuActions().length === 0) return;
+
                 const contextToolbar = onLinkContextMenu(context, linkView, evt);
                 contextToolbar.once('action:edit-label', () => {
                     this.labelEditor = prepareLabelEditor(context, linkView);
                     ui.ContextToolbar.close();
+                });
+                contextToolbar.once('action:add-comment', () => {
+                    ui.ContextToolbar.close();
+                    const annotation = onAddComment(context, linkView, evt);
+                    // Let the user type the comment right away (the view
+                    // renders asynchronously).
+                    context.paper.once('render:done', () => {
+                        const annotationView = context.paper.findViewByModel(annotation);
+                        if (annotationView) {
+                            this.labelEditor = prepareLabelEditor(context, annotationView);
+                        }
+                    });
                 });
             },
             'cell:pointerdown': (_context, _cellView, _evt, _x, _y) => {
                 this.removeLabelEditor();
             },
             'blank:pointerdown': (_context, _evt, _x, _y) => {
+                this.removeLabelEditor();
+            },
+            // The editor is positioned for the current zoom level — save and
+            // close it when the paper scale changes.
+            'scale': () => {
                 this.removeLabelEditor();
             },
             'element:pointerdown': (context, elementView: dia.ElementView, evt: dia.Event, x, y) => {
@@ -76,7 +99,7 @@ export default class EditController extends Controller<EditControllerArgs> {
 
                     onSwimlaneDrag(paper, elementView, evt, x, y);
                 } else {
-                    onElementDrag(paper, elementView, evt, 0, 0);
+                    onElementDrag(paper, elementView, evt, 0, 0, context.snaplines);
                 }
             },
             'element:pointerup': (context, elementView, evt, x, y) => {
@@ -88,7 +111,7 @@ export default class EditController extends Controller<EditControllerArgs> {
 
                     onSwimlaneDragEnd(paper, elementView, evt, x, y);
                 } else {
-                    onElementDragEnd(paper, elementView, evt, x, y);
+                    onElementDragEnd(paper, elementView, evt, x, y, context.snaplines);
                 }
             },
             'link:connect': onLinkConnect
@@ -118,7 +141,18 @@ function onElementPointerDblClick(context: EditControllerArgs, elementView: dia.
     return prepareLabelEditor(context, elementView);
 }
 
+function constructContextMenuTool(action: LinkContextMenuAction, link: AppLink) {
+    switch (action) {
+        case 'edit-label':
+            return { action, content: link.hasLabels() ? 'Edit Label' : 'Add Label' };
+        case 'add-comment':
+            return { action, content: 'Add Comment' };
+    }
+}
+
 function onLinkContextMenu(context: EditControllerArgs, linkView: dia.LinkView, evt: dia.Event) {
+
+    const link = linkView.model as AppLink;
 
     const contextToolbar = new ui.ContextToolbar({
         vertical: true,
@@ -127,15 +161,39 @@ function onLinkContextMenu(context: EditControllerArgs, linkView: dia.LinkView, 
             y: evt.clientY
         },
         root: context.paper.el,
-        tools: [
-            {
-                action: 'edit-label',
-                content: !linkView.model.hasLabels() ? 'Add Label' : 'Edit Label',
-            }
-        ]
+        tools: link.getContextMenuActions().map((action) => constructContextMenuTool(action, link))
     });
     contextToolbar.render();
     return contextToolbar;
+}
+
+function onAddComment(context: EditControllerArgs, linkView: dia.LinkView, evt: dia.Event) {
+    const { graph, paper, selection } = context;
+    const link = linkView.model;
+    const { x, y } = paper.clientToLocalPoint(evt.clientX!, evt.clientY!);
+
+    const batchName = 'add-comment';
+    graph.startBatch(batchName);
+
+    const annotation = new Annotation({ position: { x: x + 40, y: y - 120 }});
+    const annotationLink = new AnnotationLink({
+        source: { id: annotation.id },
+        // Pin the connection to the right-clicked point of the link.
+        target: {
+            id: link.id,
+            anchor: {
+                name: 'connectionLength',
+                args: { length: linkView.getClosestPointLength(new g.Point(x, y)) }
+            }
+        }
+    });
+    graph.addCells([annotation, annotationLink]);
+
+    graph.stopBatch(batchName);
+
+    // Select the comment so the inspector opens for it.
+    selection.collection.reset([annotation]);
+    return annotation;
 }
 
 function onLinkConnect(context: EditControllerArgs, linkView: dia.LinkView) {
@@ -240,9 +298,7 @@ function prepareLabelEditor(context: EditControllerArgs, cellView: dia.CellView)
     const wrapperStyles = { ...labelEditorWrapperStyles, ...cell.getLabelEditorStyles(paper) };
 
     // Apply global wrapper styles and styles from the shape
-    for (const [key, value] of Object.entries(wrapperStyles)) {
-        editableWrapper.style.setProperty(key, value as string);
-    }
+    Object.assign(editableWrapper.style, wrapperStyles);
 
     const contentEditableDiv = document.createElement('div');
     contentEditableDiv.contentEditable = 'true';

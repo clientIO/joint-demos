@@ -1,6 +1,6 @@
 import { shapes, util, V } from '@joint/plus';
 import { ShapeTypes } from '../shapes-typing';
-import { PoolShapeTypes, DEFAULT_HORIZONTAL_POOL_SIZE, poolAttributes, swimlaneAttributes, poolAppearanceConfig, swimlaneAppearanceConfig, HORIZONTAL_POOL_PADDING, VERTICAL_POOL_PADDING, SWIMLANE_HEADER_SIZE, DEFAULT_VERTICAL_POOL_SIZE } from './pool-config';
+import { PoolLabels, PoolShapeTypes, DEFAULT_HORIZONTAL_POOL_SIZE, poolAttributes, swimlaneAttributes, poolAppearanceConfig, swimlaneAppearanceConfig, HORIZONTAL_POOL_PADDING, VERTICAL_POOL_PADDING, SWIMLANE_HEADER_SIZE, DEFAULT_VERTICAL_POOL_SIZE } from './pool-config';
 import { handles } from '../../configs/halo-config';
 import { defaultAttrs } from '../shared-config';
 import { ActivityShapeTypes } from '../activity/activity-config';
@@ -48,6 +48,8 @@ function getRotatedEditorStyles(element: HeaderedShape, paper: dia.Paper): Parti
 
 export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implements AppElement {
 
+    static label = PoolLabels['pool.HorizontalPool'];
+
     isResizable = true;
     labelPath = 'headerText/text';
 
@@ -59,7 +61,10 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implemen
             attrs: {
                 root: {
                     highlighterSelector: 'body',
-                    magnetSelector: 'body'
+                    magnetSelector: 'body',
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: HorizontalPool.label
                 },
                 header: {
                     fill: '#FFFFFF'
@@ -136,6 +141,8 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implemen
 }
 
 export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements AppElement {
+
+    static label = PoolLabels['pool.VerticalPool'];
     isResizable = true;
     labelPath = 'headerText/text';
 
@@ -147,7 +154,10 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements A
             attrs: {
                 root: {
                     highlighterSelector: 'body',
-                    magnetSelector: 'body'
+                    magnetSelector: 'body',
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: VerticalPool.label
                 },
                 header: {
                     fill: '#FFFFFF'
@@ -224,6 +234,8 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements A
 }
 export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implements AppElement {
 
+    static label = PoolLabels['pool.HorizontalSwimlane'];
+
     isResizable = true;
     labelPath = 'headerText/text';
     omitDefaultHaloHandles = true;
@@ -237,7 +249,10 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
             },
             attrs: {
                 root: {
-                    highlighterSelector: 'body'
+                    highlighterSelector: 'body',
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: HorizontalSwimlane.label
                 },
                 header: {
                     fill: 'transparent'
@@ -299,6 +314,8 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
 
 export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements AppElement {
 
+    static label = PoolLabels['pool.VerticalSwimlane'];
+
     isResizable = true;
     labelPath = 'headerText/text';
     omitDefaultHaloHandles = true;
@@ -312,7 +329,10 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
             },
             attrs: {
                 root: {
-                    highlighterSelector: 'body'
+                    highlighterSelector: 'body',
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: VerticalSwimlane.label
                 },
                 header: {
                     fill: 'transparent'

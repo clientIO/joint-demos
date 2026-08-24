@@ -8,10 +8,9 @@ import { BPMNLinkView } from '../shapes/placeholder/placeholder-shapes';
 import { LabelElementView } from '../shapes/shape-view';
 import { cellNamespace } from '../shapes';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
-import { canElementExistOutsidePool, getBoundaryPoint } from '../utils';
+import { canElementExistOutsidePool, getClosestElementBoundaryPoint } from '../utils';
 import { MAIN_COLOR } from '../configs/theme';
 
-import type { g } from '@joint/plus';
 import type ToolbarService from './toolbar-service';
 import type StencilService from './stencil-service';
 import type NavigatorService from './navigator-service';
@@ -110,37 +109,14 @@ export default class MainService {
                 // Handled separately in ViewController
                 [dia.CellView.Highlighting.EMBEDDING]: false
             },
-            defaultAnchor: (endView: dia.ElementView, endMagnet: SVGElement, anchorReference: g.Point | SVGElement, _args: object) => {
-                let reference = anchorReference;
-
-                if (reference instanceof SVGElement) {
-                    const refBBox = reference.getBoundingClientRect();
-                    const cx = refBBox.x + refBBox.width / 2;
-                    const cy = refBBox.y + refBBox.height / 2;
-
-                    reference = this.paper.clientToLocalPoint({ x: cx, y: cy });
-                }
-
-                const bbox = endView.model.getBBox();
-                const closestSide = bbox.sideNearestToPoint(reference);
-
-                switch (closestSide) {
-                    case 'top':
-                        return bbox.topMiddle();
-                    case 'right':
-                        return bbox.rightMiddle();
-                    case 'bottom':
-                        return bbox.bottomMiddle();
-                    case 'left':
-                        return bbox.leftMiddle();
-                }
-            },
+            // Anchor links to the middle of the element side nearest the other end.
+            defaultAnchor: { name: 'midSide', args: { useModelGeometry: true }},
             connectionStrategy: function(end, view, _, coords) {
 
                 const { model } = view;
 
                 if (model.isElement()) {
-                    const { x, y } = getBoundaryPoint(view.model as AppElement, coords);
+                    const { x, y } = getClosestElementBoundaryPoint(view.model as AppElement, coords);
 
                     end.anchor = {
                         name: 'topLeft',
@@ -306,7 +282,8 @@ export default class MainService {
             inspectorService: this.secondaryServices.inspectorService,
             linkToolsService: this.secondaryServices.linkToolsService,
             freeTransformService: this.secondaryServices.freeTransformService,
-            keyboard: this.keyboard
+            keyboard: this.keyboard,
+            snaplines: this.snaplines
         });
 
         this.keyboardController = new KeyboardController({

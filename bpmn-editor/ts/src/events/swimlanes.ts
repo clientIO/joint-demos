@@ -1,12 +1,15 @@
 import { shapes } from '@joint/plus';
 import { EffectType, addEffect, removeEffect } from '../effects';
-import { isStencilEvent } from '../utils';
+import { isStencilEvent, type EditorEvent } from '../utils';
 import { showGhostOnNextInteraction } from '../effects/ghost';
 import { HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes';
 
 import type { dia } from '@joint/plus';
 
-export function onSwimlaneDragStart(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, _x: number, _y: number) {
+/**
+ * Starts the swimlane drag (ghost for in-pool reordering).
+ */
+export function onSwimlaneDragStart(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, _x: number, _y: number) {
 
     if (!isStencilEvent(evt)) {
 
@@ -25,7 +28,10 @@ export function onSwimlaneDragStart(paper: dia.Paper, elementView: dia.ElementVi
     addEffect(elementView, EffectType.SourceSwimlane);
 }
 
-export function onSwimlaneDrag(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, x: number, y: number) {
+/**
+ * Tracks the pool under the dragged swimlane and previews the insertion.
+ */
+export function onSwimlaneDrag(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number, y: number) {
 
     if (!isStencilEvent(evt) && !canMoveSwimlane(elementView.model as shapes.bpmn2.Swimlane)) {
         elementView.preventDefaultInteraction(evt);
@@ -82,7 +88,7 @@ export function onSwimlaneDrag(paper: dia.Paper, elementView: dia.ElementView, e
         return;
     }
 
-    evt.data.poolView = poolView;
+    evt.data.poolView = poolView as dia.ElementView<shapes.bpmn2.CompositePool>;
     removeInvalidEffect();
 
     const swimlanes = pool.getSwimlanes();
@@ -97,7 +103,10 @@ export function onSwimlaneDrag(paper: dia.Paper, elementView: dia.ElementView, e
     }
 }
 
-export function onSwimlaneDragEnd(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, x: number, y: number) {
+/**
+ * Cleans the previews up and drops the swimlane into the tracked pool.
+ */
+export function onSwimlaneDragEnd(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number, y: number) {
     removeEffect(paper, EffectType.TargetPool);
     removeEffect(paper, EffectType.SourceSwimlane);
     removeEffect(paper, EffectType.PreviewSwimlane);
@@ -108,12 +117,15 @@ export function onSwimlaneDragEnd(paper: dia.Paper, elementView: dia.ElementView
 
     // The swimlane comes from the same paper and the drag has ended.
     // See if the swimlane has been dropped on a pool.
-    checkSwimlaneDrop(elementView.model as shapes.bpmn2.Swimlane, evt.data.poolView?.model, x, y);
+    checkSwimlaneDrop(elementView.model as shapes.bpmn2.Swimlane, evt.data.poolView?.model ?? null, x, y);
 }
 
-export function onSwimlaneDrop(_paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, x: number, y: number) {
+/**
+ * Drops a stencil swimlane into the tracked pool.
+ */
+export function onSwimlaneDrop(_paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number, y: number) {
     // The swimlane is dropped from the stencil. It's already added into the target paper.
-    return checkSwimlaneDrop(elementView.model as shapes.bpmn2.Swimlane, evt.data.poolView?.model, x, y);
+    return checkSwimlaneDrop(elementView.model as shapes.bpmn2.Swimlane, evt.data.poolView?.model ?? null, x, y);
 }
 
 // Helpers

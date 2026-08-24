@@ -15,16 +15,25 @@ import type { AppElement, Marker } from '../shapes-typing';
 
 export abstract class Activity extends shapes.bpmn2.Activity implements AppElement {
 
+    // The shape name (set by each concrete subclass). Typing the constructor
+    // makes the static reachable from instance methods (`defaults()`).
+    declare static label: string;
+    declare ['constructor']: typeof Activity;
+
     public readonly isResizable = false;
     public readonly labelPath = 'label/text';
 
     defaults(): dia.Element.Attributes {
         return util.defaultsDeep({
             shapeType: ShapeTypes.ACTIVITY,
+            size: { width: 100, height: 80 },
             markers: [] as MarkerNames[],
             attrs: {
                 root: {
-                    containerSelector: 'background'
+                    containerSelector: 'background',
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: this.constructor.label
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,
@@ -536,6 +545,12 @@ export class EventSubProcess extends Activity {
             { name: MarkerNames.COMPENSATION, index: 3, cssClass: markerClasses.COMPENSATION },
             { name: MarkerNames.LOOP, index: 4, cssClass: markerClasses.LOOP }
         ];
+    }
+
+    getHaloHandles() {
+        // An event sub-process is self-contained: it accepts no connections
+        // (see validateConnection), so it offers no connect/link handles.
+        return [];
     }
 
     validateConnection(_?: dia.Cell): boolean {

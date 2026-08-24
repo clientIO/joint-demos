@@ -1,6 +1,6 @@
 import Controller from '../controller';
 import { type dia, shapes, type ui, type g } from '@joint/plus';
-import { snapToParentPath, isBoundaryEvent, setStencilEvent } from '../utils';
+import { snapToParentBoundary, isBoundaryEvent, setStencilEvent } from '../utils';
 import { eventBus, EventBusEvents } from '../event-bus';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { onSwimlaneDragStart, onSwimlaneDrag, onSwimlaneDragEnd, onSwimlaneDrop } from '../events/swimlanes';
@@ -35,7 +35,7 @@ export default class StencilController extends Controller<StencilControllerArgs>
                 }
             },
             'element:drag': (context: StencilControllerArgs, cloneView: dia.ElementView, evt: dia.Event, dropArea: g.Rect) => {
-                const { paper } = context;
+                const { paper, stencil } = context;
                 const { model } = cloneView;
                 const { x, y } = dropArea.center();
 
@@ -44,11 +44,11 @@ export default class StencilController extends Controller<StencilControllerArgs>
                 } else if (shapes.bpmn2.CompositePool.isPool(model)) {
                     onPoolDrag(paper, cloneView, evt, x, y);
                 } else {
-                    onElementDrag(paper, cloneView, evt, dropArea.x, dropArea.y);
+                    onElementDrag(paper, cloneView, evt, dropArea.x, dropArea.y, stencil.options.snaplines);
                 }
             },
             'element:dragend': (context: StencilControllerArgs, cloneView: dia.ElementView, evt: dia.Event, dropArea: g.Rect) => {
-                const { paper } = context;
+                const { paper, stencil } = context;
                 const { model } = cloneView;
                 const { x, y } = dropArea.center();
 
@@ -57,7 +57,7 @@ export default class StencilController extends Controller<StencilControllerArgs>
                 } else if (shapes.bpmn2.CompositePool.isPool(model)) {
                     onPoolDragEnd(paper, cloneView, evt, x, y);
                 } else {
-                    onElementDragEnd(paper, cloneView, evt, x, y);
+                    onElementDragEnd(paper, cloneView, evt, x, y, stencil.options.snaplines);
                 }
             },
             'element:drop': (context: StencilControllerArgs, elementView: dia.ElementView, evt: dia.Event, x: number, y: number) => {
@@ -97,7 +97,7 @@ function onElementDrop(context: StencilControllerArgs, elementView: dia.ElementV
         return model;
     }
 
-    const snappedPoint = snapToParentPath(elementView, parentView as dia.ElementView, x, y);
+    const snappedPoint = snapToParentBoundary(elementView.model, parentView.model as dia.Element, x, y);
 
     elementView.model.position(snappedPoint.x, snappedPoint.y);
 

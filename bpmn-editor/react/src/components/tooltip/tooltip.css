@@ -1,0 +1,26 @@
+/* Global tooltip (Radix Tooltip, see tip.tsx). */
+.tooltip {
+    z-index: 2000;
+    pointer-events: none;
+    padding: 5px 10px;
+    background: var(--bpmn-bg-tooltip);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: var(--bpmn-text-tooltip);
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 16px;
+    white-space: nowrap;
+    animation: tooltip-fade-in 0.12s ease;
+
+}
+
+.tooltip-arrow {
+    fill: var(--bpmn-bg-tooltip);
+}
+
+@keyframes tooltip-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

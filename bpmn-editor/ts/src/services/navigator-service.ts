@@ -1,6 +1,7 @@
 import { dia, ui, util } from '@joint/plus';
 import { ZOOM_SETTINGS } from '../configs/navigator-config';
 import NavigatorController from '../controllers/navigator-controller';
+import { isEvent, isGateway } from '../utils';
 
 const baseUrl = 'assets/navigator';
 
@@ -33,7 +34,7 @@ const UpdateFlags = {
 
 const NavigatorElementView = dia.ElementView.extend({
     body: null,
-    markup: util.svg/* xml */`<rect @selector="body" />`,
+    markup: util.svg/* xml */`<path @selector="body" />`,
     // updates run on view initialization
     initFlag: [UpdateFlags.Render, UpdateFlags.Update, UpdateFlags.Transform],
     // updates run when the model attribute changes
@@ -57,10 +58,19 @@ const NavigatorElementView = dia.ElementView.extend({
     },
     update: function() {
         const { model, body } = this;
-        // shape
+        // Mirror the shape geometry: events are circles, gateways rhombi,
+        // everything else a rectangle.
         const { width, height } = model.size();
-        body.setAttribute('width', width.toString());
-        body.setAttribute('height', height.toString());
+        let d;
+        if (isEvent(model)) {
+            const [rx, ry] = [width / 2, height / 2];
+            d = `M 0 ${ry} A ${rx} ${ry} 0 1 0 ${width} ${ry} A ${rx} ${ry} 0 1 0 0 ${ry} Z`;
+        } else if (isGateway(model)) {
+            d = `M ${width / 2} 0 L ${width} ${height / 2} L ${width / 2} ${height} L 0 ${height / 2} Z`;
+        } else {
+            d = `M 0 0 H ${width} V ${height} H 0 Z`;
+        }
+        body.setAttribute('d', d);
     }
 });
 

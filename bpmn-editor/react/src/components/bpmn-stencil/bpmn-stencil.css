@@ -1,0 +1,73 @@
+.stencil-container {
+    position: absolute;
+    z-index: 1;
+    width: 48px;
+    height: 528px;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 1px;
+    border-radius: var(--bpmn-border-radius-small);
+    border: 1px solid var(--bpmn-border-secondary);
+    background-color: var(--bpmn-bg-primary);
+}
+
+/* TODO: remove — the stencil drag-preview styling is fixed upstream on */
+/* master; drop this rule once the next @joint/react-plus release ships. */
+.stencil-paper-drag[popover] {
+    margin: 0;
+    border: none;
+    padding: 0;
+    background: transparent;
+    overflow: visible;
+    display: inline-block;
+    pointer-events: none;
+
+    * {
+        pointer-events: none;
+    }
+}
+
+/* Styles for the React-built stencil palette. */
+.stencil-palette {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 100%;
+    padding: 8px 0;
+    box-sizing: border-box;
+
+    .stencil-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid transparent;
+        border-radius: var(--bpmn-border-radius-medium);
+        background: transparent;
+        cursor: pointer;
+        transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+        touch-action: none;
+
+        &:hover {
+            border-color: var(--bpmn-selector);
+            background-color: var(--bpmn-accent-primary);
+
+            .stencil-item-icon {
+                transform: scale(1.08);
+            }
+        }
+
+        .stencil-item-icon {
+            font-family: 'JJ BPMN Icons';
+            font-size: 32px;
+            line-height: 1;
+            color: var(--bpmn-text-secondary);
+            pointer-events: none;
+            user-select: none;
+            transition: transform 0.15s ease-in-out;
+        }
+    }
+}

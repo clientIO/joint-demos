@@ -1,15 +1,17 @@
 import { type g, shapes, util, V } from '@joint/plus';
 import { ShapeTypes } from '../shapes-typing';
-import { annotationAppearanceConfig, annotationLinkAppearanceConfig, AnnotationShapeTypes } from './annotation-config';
+import { annotationAppearanceConfig, annotationLinkAppearanceConfig, AnnotationLabels, AnnotationShapeTypes } from './annotation-config';
 import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { handles } from '../../configs/halo-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
 import { getPoolParent } from '../../utils';
 
 import type { dia } from '@joint/plus';
-import type { AppElement, AppLink } from '../shapes-typing';
+import type { AppElement, AppLink, LinkContextMenuAction } from '../shapes-typing';
 
 export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
+
+    static label = AnnotationLabels['annotation.Annotation'];
 
     public readonly isResizable = true;
     public readonly labelPath = 'label/text';
@@ -19,6 +21,11 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
             type: AnnotationShapeTypes.ANNOTATION,
             shapeType: ShapeTypes.ANNOTATION,
             attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: Annotation.label
+                },
                 label: {
                     ...defaultAttrs.shapeLabel,
                     refDy: null,
@@ -98,11 +105,18 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
         const height = bbox.height - strokeWidth;
         const width = bbox.width - strokeWidth;
 
-        const { x, y } = bbox.center();
+        // The editor covers the whole shape; the label starts `refX` from the
+        // left edge — indent the editor text the same way (minus the border).
+        const labelOffset = (this.attr(['label', 'refX']) ?? 0) - borderWidth;
+        const { x } = bbox;
+        const y = bbox.center().y;
 
         return {
-            padding: `${verticalPadding}px ${horizontalPadding}px`,
-            transform: `${V.matrixToTransformString(paper.matrix().translate(x, y))} translate(-50%, -50%)`,
+            padding: `${verticalPadding}px ${horizontalPadding}px ${verticalPadding}px ${labelOffset}px`,
+            // The editor is anchored to the left edge — the paper scale must
+            // apply from the top-left corner, not the default center.
+            transformOrigin: '0 0',
+            transform: `${V.matrixToTransformString(paper.matrix().translate(x, y))} translate(0, -50%)`,
             fontSize: `${labelAttrs.fontSize}px`,
             fontFamily: labelAttrs.fontFamily,
             fontWeight: labelAttrs.fontWeight,
@@ -128,10 +142,19 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
 
 export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements AppLink {
 
+    static label = AnnotationLabels['annotation.AnnotationLink'];
+
     defaults(): dia.Element.Attributes {
         return util.defaultsDeep({
             shapeType: ShapeTypes.ANNOTATION,
-            type: AnnotationShapeTypes.LINK
+            type: AnnotationShapeTypes.LINK,
+            attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: AnnotationLink.label
+                }
+            }
         }, super.defaults);
     }
 
@@ -140,6 +163,11 @@ export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements AppLi
         this.source(link.source());
         this.target(link.target());
         this.vertices(link.vertices());
+    }
+
+    getContextMenuActions(): LinkContextMenuAction[] {
+        // Annotation links have no label and can't be commented on
+        return [];
     }
 
     getShapeList(): string[] {

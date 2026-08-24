@@ -1,6 +1,5 @@
 import { ui } from '@joint/plus';
 import { GroupNames, groups } from '../configs/halo-config';
-import { getShapeConstructorByType } from '../utils';
 import { Sequence } from '../shapes/flow/flow-shapes';
 import { PlaceholderAttributes, PlaceholderShapeTypes } from '../shapes/placeholder/placeholder-config';
 
@@ -21,6 +20,13 @@ export default class HaloService {
             groups,
             smallThreshold: 0,
             tinyThreshold: 0,
+            // Disable the loop-link routing (there is no dedicated option for
+            // it): when a link is dropped back on its source element, the halo
+            // would add two vertices to route it around the element's side.
+            // Our links are anchored to fixed boundary points, so the extra
+            // vertices are unnecessary — an Infinity loop width makes the
+            // vertices land out of reach.
+            loopLinkWidth: Infinity,
             makeLink: () => {
 
                 const { attrs, router } = PlaceholderAttributes[PlaceholderShapeTypes.LINK];
@@ -36,7 +42,7 @@ export default class HaloService {
             makeElement: ({ data }) => {
 
                 const { elementType } = data;
-                const ElementConstructor = getShapeConstructorByType(elementType);
+                const ElementConstructor = cellView.paper!.model.getTypeConstructor(elementType)!;
                 const element = new ElementConstructor() as AppElement;
 
                 return element;

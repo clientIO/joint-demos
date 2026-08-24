@@ -16,6 +16,13 @@ body {
         border: 1px solid #E2E2E2;
     }
 
+    /* No focus ring on cells: focus and selection are bound both ways, so
+       the selection highlighter is the focus indicator. */
+    .joint-cell:focus,
+    .joint-cell:focus-visible {
+        outline: none;
+    }
+
     .file-import-overlay {
         position: absolute;
         inset: 0;

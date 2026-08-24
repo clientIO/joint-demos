@@ -1,0 +1,35 @@
+/* Context menu rendered by <LinkContextMenu> via the Overlay component. */
+.context-menu {
+    box-sizing: border-box;
+    min-width: 116px;
+    padding: 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background-color: var(--bpmn-bg-primary);
+    border: 1px solid var(--bpmn-border-secondary);
+    border-radius: var(--bpmn-border-radius-small);
+    box-shadow: 0px 4px 6px 0px #0000000D;
+    animation: fadeIn 0.3s ease;
+    font-family: 'Open Sans', sans-serif;
+
+    .context-menu-item {
+        background-color: transparent;
+        border: none;
+        border-radius: var(--bpmn-border-radius-small);
+        display: flex;
+        height: 28px;
+        width: 100%;
+        padding: 0 12px;
+        align-items: center;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 400;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+            background-color: var(--bpmn-bg-hover);
+        }
+    }
+}

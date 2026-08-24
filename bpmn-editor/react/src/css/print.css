@@ -1,0 +1,50 @@
+/* TODO: remove — print styles required by `format.print()` (the app is
+   hidden and only the print area is shown) are not part of the react-plus
+   stylesheet yet. */
+
+.printarea {
+    position: relative;
+
+    &.print-ready {
+        display: none;
+    }
+
+    &.preview {
+        overflow: hidden !important;
+        background: #fff !important;
+    }
+}
+
+@media print {
+
+    html,
+    html > body.joint-print {
+        position: relative !important;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    html > body.joint-print > * {
+        display: none !important;
+    }
+
+    html > body.joint-print > .printarea {
+        display: block !important;
+    }
+
+    .printarea {
+        page-break-after: always;
+        left: 0 !important;
+        top: 0 !important;
+        overflow: hidden !important;
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+
+        &.print-ready {
+            display: none;
+        }
+    }
+}

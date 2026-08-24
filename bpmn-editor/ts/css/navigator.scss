@@ -93,19 +93,22 @@
     .joint-paper {
         box-shadow: none;
 
-        .joint-cell {
-            & > rect {
+        /* Scoped to element views: the link views also render (unstyled)
+           `path` nodes. */
+        .joint-element {
+            & > path {
                 fill-opacity: 0.4;
                 fill: var(--jj-navigator-element-view);
             }
 
-            &[data-type$="Swimlane"] > rect {
+            /* Containers render as outlines only. The minimap is heavily
+               zoomed out — keep the outline at 1px regardless of the scale. */
+            &[data-type$="Swimlane"] > path,
+            &[data-type$="Pool"] > path {
                 fill: transparent;
                 stroke: var(--jj-navigator-element-view);
-            }
-
-            &[data-type$="Pool"] > rect {
-                stroke: var(--jj-navigator-element-view);
+                stroke-width: 1;
+                vector-effect: non-scaling-stroke;
             }
         }
     }

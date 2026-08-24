@@ -6,6 +6,10 @@ import { HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes
 import type { dia, ui } from '@joint/plus';
 import type { HorizontalPool, VerticalPool } from '../shapes/pool/pool-shapes';
 
+/**
+ * Replaces the diagram with the imported cells, resets the undo history and
+ * fits the content into the viewport.
+ */
 export function importBPMN(paperScroller: ui.PaperScroller, commandManager: dia.CommandManager, cells: dia.Cell[]): void {
     const paper = paperScroller.options.paper;
     const graph = paper.model;

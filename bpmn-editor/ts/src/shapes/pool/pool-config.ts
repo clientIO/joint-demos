@@ -2,6 +2,13 @@ import { inspectorOptions } from '../shared-config';
 
 import type { shapes } from '@joint/plus';
 
+export const PoolLabels = {
+    'pool.HorizontalPool': 'Horizontal Pool',
+    'pool.VerticalPool': 'Vertical Pool',
+    'pool.HorizontalSwimlane': 'Horizontal Lane',
+    'pool.VerticalSwimlane': 'Vertical Lane'
+};
+
 export enum PoolShapeTypes {
     HORIZONTAL_POOL = 'pool.HorizontalPool',
     VERTICAL_POOL = 'pool.VerticalPool',
