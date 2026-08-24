@@ -21,8 +21,20 @@ type ViewControllerArgs = {
 
 export default class ViewController extends Controller<ViewControllerArgs> {
 
+    // Bound so the DOM listener can be removed in `stopListening()`.
+    private onCellFocusIn = (evt: FocusEvent) => onCellFocusIn(this.context, evt);
+
     startListening() {
-        const { paper } = this.context;
+        const { paper, selection } = this.context;
+
+        // Accessibility: the cells are focusable (see the shape defaults) —
+        // keyboard focus selects the cell and selecting a single cell moves
+        // the focus to it, so the tab order continues from the selection.
+        paper.el.addEventListener('focusin', this.onCellFocusIn);
+
+        this.listenTo(selection.collection, {
+            'add reset': onSelectionFocus
+        });
 
         this.listenTo(paper, {
             'blank:pointerdown': onPaperBlankPointerDown,
@@ -39,6 +51,37 @@ export default class ViewController extends Controller<ViewControllerArgs> {
             'link:pointermove': onLinkPointerMove,
             'link:pointerup': onLinkPointerUp
         });
+    }
+
+    stopListening() {
+        this.context.paper.el.removeEventListener('focusin', this.onCellFocusIn);
+        super.stopListening();
+    }
+}
+
+// Accessibility handlers
+
+// Keyboard focus selects the cell (`:focus-visible` excludes pointer focus,
+// so clicks keep their own selection semantics).
+function onCellFocusIn(context: ViewControllerArgs, evt: FocusEvent) {
+    const { paper, selection } = context;
+
+    const target = evt.target as SVGElement;
+    if (!target.matches(':focus-visible')) return;
+
+    const view = paper.findView(target);
+    if (view) selection.collection.reset([view.model]);
+}
+
+// Selecting a single cell moves the focus to it.
+function onSelectionFocus(context: ViewControllerArgs) {
+    const { paper, selection } = context;
+
+    if (selection.collection.length !== 1) return;
+
+    const el = selection.collection.first().findView(paper)?.el;
+    if (el && document.activeElement !== el) {
+        el.focus({ preventScroll: true });
     }
 }
 

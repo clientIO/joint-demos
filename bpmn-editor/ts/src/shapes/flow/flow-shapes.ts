@@ -10,6 +10,11 @@ import type { AppLink, LinkContextMenuAction } from '../shapes-typing';
 
 abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
 
+    // The shape name (set by each concrete subclass). Typing the constructor
+    // makes the static reachable from instance methods (`defaults()`).
+    declare static label: string;
+    declare ['constructor']: typeof Flow;
+
     defaultLabel = {
         attrs: {
             body: defaultAttrs.labelBody,
@@ -29,7 +34,14 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
 
     defaults() {
         return util.defaultsDeep({
-            shapeType: ShapeTypes.FLOW
+            shapeType: ShapeTypes.FLOW,
+            attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: this.constructor.label
+                }
+            }
         }, super.defaults);
     }
 

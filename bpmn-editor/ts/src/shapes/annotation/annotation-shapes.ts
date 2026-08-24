@@ -21,6 +21,11 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
             type: AnnotationShapeTypes.ANNOTATION,
             shapeType: ShapeTypes.ANNOTATION,
             attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: Annotation.label
+                },
                 label: {
                     ...defaultAttrs.shapeLabel,
                     refDy: null,
@@ -142,7 +147,14 @@ export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements AppLi
     defaults(): dia.Element.Attributes {
         return util.defaultsDeep({
             shapeType: ShapeTypes.ANNOTATION,
-            type: AnnotationShapeTypes.LINK
+            type: AnnotationShapeTypes.LINK,
+            attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: AnnotationLink.label
+                }
+            }
         }, super.defaults);
     }
 
