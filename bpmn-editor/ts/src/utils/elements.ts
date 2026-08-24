@@ -48,6 +48,30 @@ export function getSwimlaneParent(element?: dia.Cell): shapes.bpmn2.Swimlane | n
     return ancestors.find((ancestor) => ancestor.get('shapeType') === ShapeTypes.SWIMLANE) as shapes.bpmn2.Swimlane;
 }
 
+export function isPool(cell: dia.Cell): cell is shapes.bpmn2.CompositePool {
+    return cell.get('shapeType') === ShapeTypes.POOL;
+}
+
+export function isSwimlane(cell: dia.Cell): cell is shapes.bpmn2.Swimlane {
+    return cell.get('shapeType') === ShapeTypes.SWIMLANE;
+}
+
+export function isActivity(cell: dia.Cell): boolean {
+    return cell.get('shapeType') === ShapeTypes.ACTIVITY;
+}
+
+export function isEvent(cell: dia.Cell): boolean {
+    return cell.get('shapeType') === ShapeTypes.EVENT;
+}
+
+export function isGateway(cell: dia.Cell): boolean {
+    return cell.get('shapeType') === ShapeTypes.GATEWAY;
+}
+
+export function isGroup(cell: dia.Cell): boolean {
+    return cell.get('shapeType') === ShapeTypes.GROUP;
+}
+
 export function canElementExistOutsidePool(element: dia.Cell) {
     return [
         ShapeTypes.DATA_OBJECT,

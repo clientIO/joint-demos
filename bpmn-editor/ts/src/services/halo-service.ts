@@ -1,6 +1,5 @@
 import { ui } from '@joint/plus';
 import { GroupNames, groups } from '../configs/halo-config';
-import { getShapeConstructorByType } from '../utils';
 import { Sequence } from '../shapes/flow/flow-shapes';
 import { PlaceholderAttributes, PlaceholderShapeTypes } from '../shapes/placeholder/placeholder-config';
 
@@ -43,7 +42,7 @@ export default class HaloService {
             makeElement: ({ data }) => {
 
                 const { elementType } = data;
-                const ElementConstructor = getShapeConstructorByType(elementType);
+                const ElementConstructor = cellView.paper!.model.getTypeConstructor(elementType)!;
                 const element = new ElementConstructor() as AppElement;
 
                 return element;

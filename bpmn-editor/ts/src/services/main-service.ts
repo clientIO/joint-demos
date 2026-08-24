@@ -282,7 +282,8 @@ export default class MainService {
             inspectorService: this.secondaryServices.inspectorService,
             linkToolsService: this.secondaryServices.linkToolsService,
             freeTransformService: this.secondaryServices.freeTransformService,
-            keyboard: this.keyboard
+            keyboard: this.keyboard,
+            snaplines: this.snaplines
         });
 
         this.keyboardController = new KeyboardController({

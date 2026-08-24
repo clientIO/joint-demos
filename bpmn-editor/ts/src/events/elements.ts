@@ -2,6 +2,9 @@ import { type dia } from '@joint/plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
 import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentPath } from '../utils';
 import { ShapeTypes } from '../shapes/shapes-typing';
+import { setBoundarySnapActive } from './boundary-snap';
+
+import type { ui } from '@joint/plus';
 
 import type { shapes } from '@joint/plus';
 
@@ -9,11 +12,16 @@ export function onElementDragStart(_paper: dia.Paper, elementView: dia.ElementVi
     addEffect(elementView, EffectType.Shadow);
 }
 
-export function onElementDrag(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, x: number = 0, y: number = 0) {
+export function onElementDrag(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, x: number = 0, y: number = 0, snaplines?: ui.Snaplines) {
 
     const targetParentView = elementView.getTargetParentView(evt);
 
-    if (!isBoundaryEvent(elementView, targetParentView) || !targetParentView) return;
+    // Suppress the snaplines while snapping to an activity border, so they
+    // don't fight the border snapping.
+    const overActivityBorder = !!targetParentView && !!isBoundaryEvent(elementView, targetParentView);
+    setBoundarySnapActive(snaplines, overActivityBorder);
+
+    if (!overActivityBorder) return;
 
     const { clientX = 0, clientY = 0 } = evt;
     const { x: localX, y: localY } = paper.clientToLocalPoint(clientX, clientY);
@@ -25,8 +33,9 @@ export function onElementDrag(paper: dia.Paper, elementView: dia.ElementView, ev
     elementView.model.position(snappedPoint.x - x, snappedPoint.y - y);
 }
 
-export function onElementDragEnd(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, _x: number, _y: number) {
+export function onElementDragEnd(paper: dia.Paper, elementView: dia.ElementView, evt: dia.Event, _x: number, _y: number, snaplines?: ui.Snaplines) {
     removeEffect(paper, EffectType.Shadow);
+    setBoundarySnapActive(snaplines, false);
 
     const element = elementView.model;
 

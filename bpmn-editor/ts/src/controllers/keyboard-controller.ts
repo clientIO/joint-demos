@@ -1,5 +1,5 @@
 import Controller from '../controller';
-import { shapes } from '@joint/plus';
+import { format, shapes } from '@joint/plus';
 import { ZOOM_SETTINGS } from '../configs/navigator-config';
 
 import type { dia, ui } from '@joint/plus';
@@ -22,7 +22,8 @@ export default class KeyboardController extends Controller<KeyboardControllerArg
         this.listenTo(keyboard, {
             'delete backspace': onDelete,
             'ctrl+z command+z': onUndo,
-            'ctrl+y command+y': onRedo,
+            'ctrl+y command+y shift+ctrl+z shift+command+z': onRedo,
+            'ctrl+p command+p': onPrint,
             'ctrl+a command+a': onSelectAll,
             'ctrl+plus command+plus': onZoomIn,
             'ctrl+minus command+minus': onZoomOut,
@@ -62,6 +63,12 @@ function onRedo(context: KeyboardControllerArgs, evt: dia.Event) {
     const { commandManager, selection } = context;
     commandManager.redo();
     selection.collection.reset([]);
+}
+
+function onPrint(context: KeyboardControllerArgs, evt: dia.Event) {
+    evt.preventDefault();
+    const { paper } = context;
+    format.print(paper, { grid: true });
 }
 
 function onSelectAll(context: KeyboardControllerArgs, evt: dia.Event) {

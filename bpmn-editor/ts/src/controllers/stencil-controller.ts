@@ -35,7 +35,7 @@ export default class StencilController extends Controller<StencilControllerArgs>
                 }
             },
             'element:drag': (context: StencilControllerArgs, cloneView: dia.ElementView, evt: dia.Event, dropArea: g.Rect) => {
-                const { paper } = context;
+                const { paper, stencil } = context;
                 const { model } = cloneView;
                 const { x, y } = dropArea.center();
 
@@ -44,11 +44,11 @@ export default class StencilController extends Controller<StencilControllerArgs>
                 } else if (shapes.bpmn2.CompositePool.isPool(model)) {
                     onPoolDrag(paper, cloneView, evt, x, y);
                 } else {
-                    onElementDrag(paper, cloneView, evt, dropArea.x, dropArea.y);
+                    onElementDrag(paper, cloneView, evt, dropArea.x, dropArea.y, stencil.options.snaplines);
                 }
             },
             'element:dragend': (context: StencilControllerArgs, cloneView: dia.ElementView, evt: dia.Event, dropArea: g.Rect) => {
-                const { paper } = context;
+                const { paper, stencil } = context;
                 const { model } = cloneView;
                 const { x, y } = dropArea.center();
 
@@ -57,7 +57,7 @@ export default class StencilController extends Controller<StencilControllerArgs>
                 } else if (shapes.bpmn2.CompositePool.isPool(model)) {
                     onPoolDragEnd(paper, cloneView, evt, x, y);
                 } else {
-                    onElementDragEnd(paper, cloneView, evt, x, y);
+                    onElementDragEnd(paper, cloneView, evt, x, y, stencil.options.snaplines);
                 }
             },
             'element:drop': (context: StencilControllerArgs, elementView: dia.ElementView, evt: dia.Event, x: number, y: number) => {
