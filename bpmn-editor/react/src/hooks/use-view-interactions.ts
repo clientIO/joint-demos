@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { dia } from '@joint/plus';
-import { usePaper, useSelectionCollection, useOnPaperEvents } from '@joint/react-plus';
+import { useSelectionCollection, useOnPaperEvents } from '@joint/react-plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
 import { isForkEvent, getPoolParent, resolveDefaultLinkType, isSwimlane, isPool, isActivity } from '../utils';
 import { PlaceholderShapeTypes } from '../shapes/link-config';
@@ -14,7 +14,6 @@ export function useViewInteractions() {
 
     const selection = useSelectionCollection();
     const { collection } = selection;
-    const { paper } = usePaper();
 
     // The built-in `ctrl`/`cmd`+click toggles cells in the selection. Keep
     // the cherry-picking scoped: only elements, and never mix elements from
@@ -41,21 +40,6 @@ export function useViewInteractions() {
     }, [collection]);
 
     useOnPaperEvents({
-
-        // The react paper keeps a link hidden until its end views are ready,
-        // but for link-to-link connections the readiness check never resolves
-        // (it only looks the end up among the elements) — unhide such links
-        // once their end views exist.
-        // TODO: remove when fixed upstream.
-        'render:done': () => {
-            if (!paper) return;
-            for (const link of paper.model.getLinks()) {
-                const view = link.findView(paper);
-                if (view?.el.style.visibility === 'hidden') {
-                    view.el.style.visibility = '';
-                }
-            }
-        },
 
         onCellPointerUp: ({ model, event }) => {
             if (isForkEvent(event) && model.graph) {
