@@ -15,6 +15,11 @@ import type { AppElement, Marker } from '../shapes-typing';
 
 export abstract class Activity extends shapes.bpmn2.Activity implements AppElement {
 
+    // The shape name (set by each concrete subclass). Typing the constructor
+    // makes the static reachable from instance methods (\`defaults()\`).
+    declare static label: string;
+    declare ['constructor']: typeof Activity;
+
     public readonly isResizable = false;
     public readonly labelPath = 'label/text';
 
@@ -25,7 +30,10 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
             markers: [] as MarkerNames[],
             attrs: {
                 root: {
-                    containerSelector: 'background'
+                    containerSelector: 'background',
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: this.constructor.label
                 },
                 background: {
                     fill: 'var(--bpmn-palette-surface)'

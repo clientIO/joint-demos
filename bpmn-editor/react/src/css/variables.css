@@ -36,7 +36,7 @@
 
     /* Free transform (react-plus variables) */
     --jj-ft-border-width: 0px;
-    --jj-ft-handle-size: 7px;
+    --jj-ft-handle-size: 10px;
     --jj-ft-handle-radius: 50%;
     --jj-ft-handle-background: var(--bpmn-bg-free-transform-handle);
 

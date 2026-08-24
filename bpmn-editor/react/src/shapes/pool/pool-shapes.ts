@@ -61,7 +61,10 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implemen
             attrs: {
                 root: {
                     highlighterSelector: 'body',
-                    magnetSelector: 'body'
+                    magnetSelector: 'body',
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: HorizontalPool.label
                 },
                 header: {
                     fill: 'var(--bpmn-palette-surface)',
@@ -158,7 +161,10 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements A
             attrs: {
                 root: {
                     highlighterSelector: 'body',
-                    magnetSelector: 'body'
+                    magnetSelector: 'body',
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: VerticalPool.label
                 },
                 header: {
                     fill: 'var(--bpmn-palette-surface)',
@@ -257,7 +263,10 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
             } as dia.Size,
             attrs: {
                 root: {
-                    highlighterSelector: 'body'
+                    highlighterSelector: 'body',
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: HorizontalSwimlane.label
                 },
                 header: {
                     fill: 'transparent'
@@ -340,7 +349,10 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
             } as dia.Size,
             attrs: {
                 root: {
-                    highlighterSelector: 'body'
+                    highlighterSelector: 'body',
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: VerticalSwimlane.label
                 },
                 header: {
                     fill: 'transparent'

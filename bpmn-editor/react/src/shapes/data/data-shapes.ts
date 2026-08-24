@@ -18,6 +18,11 @@ const LABEL_Y_OFFSET = 14;
 
 abstract class Data extends shapes.bpmn2.DataObject implements AppElement {
 
+    // The shape name (set by each concrete subclass). Typing the constructor
+    // makes the static reachable from instance methods (\`defaults()\`).
+    declare static label: string;
+    declare ['constructor']: typeof Data;
+
     public readonly isResizable = false;
     public readonly labelPath = 'label/text';
     public readonly labelSelector = 'labelGroup';
@@ -27,6 +32,11 @@ abstract class Data extends shapes.bpmn2.DataObject implements AppElement {
             shapeType: ShapeTypes.DATA_OBJECT,
             markers: [],
             attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: this.constructor.label
+                },
                 body: {
                     fill: 'var(--bpmn-palette-surface)',
                     stroke: 'var(--bpmn-palette-outline)'
@@ -271,6 +281,11 @@ export class DataStore extends shapes.bpmn2.DataStore implements AppElement {
             type: DataShapeTypes.DATA_STORE,
             shapeType: ShapeTypes.DATA_STORE,
             attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: DataStore.label
+                },
                 label: {
                     ...defaultAttrs.shapeLabel,
                     text: 'Data Store'
@@ -376,7 +391,14 @@ export class DataAssociation extends shapes.bpmn2.DataAssociation implements App
     defaults(): dia.Element.Attributes {
         const attributes: dia.Element.Attributes = {
             type: DataShapeTypes.DATA_ASSOCIATION,
-            shapeType: ShapeTypes.DATA_ASSOCIATION
+            shapeType: ShapeTypes.DATA_ASSOCIATION,
+            attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: DataAssociation.label
+                }
+            }
         };
         return util.defaultsDeep(attributes, super.defaults);
     }

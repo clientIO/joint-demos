@@ -17,6 +17,11 @@ const LABEL_Y_OFFSET = 14;
 
 export abstract class Event extends shapes.bpmn2.Event implements AppElement {
 
+    // The shape name (set by each concrete subclass). Typing the constructor
+    // makes the static reachable from instance methods (\`defaults()\`).
+    declare static label: string;
+    declare ['constructor']: typeof Event;
+
     public readonly isResizable = false;
     public readonly labelPath = 'label/text';
     public readonly labelSelector = 'labelGroup';
@@ -25,6 +30,11 @@ export abstract class Event extends shapes.bpmn2.Event implements AppElement {
         const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.EVENT,
             attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: this.constructor.label
+                },
                 background: {
                     fill: 'var(--bpmn-palette-surface)'
                 },

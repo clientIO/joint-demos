@@ -1,6 +1,6 @@
 import { type g, shapes, util, V } from '@joint/plus';
 import { ShapeTypes } from '../shapes-typing';
-import { annotationAppearanceConfig, annotationLinkAppearanceConfig, AnnotationShapeTypes } from './annotation-config';
+import { annotationAppearanceConfig, annotationLinkAppearanceConfig, AnnotationLabels, AnnotationShapeTypes } from './annotation-config';
 import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { handles } from '../../configs/halo-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
@@ -11,6 +11,8 @@ import type { AppElement, AppLink } from '../shapes-typing';
 
 export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
 
+    static label = AnnotationLabels['annotation.Annotation'];
+
     public readonly isResizable = true;
     public readonly labelPath = 'label/text';
 
@@ -19,6 +21,11 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
             type: AnnotationShapeTypes.ANNOTATION,
             shapeType: ShapeTypes.ANNOTATION,
             attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: Annotation.label
+                },
                 border: {
                     stroke: 'var(--bpmn-palette-outline)'
                 },
@@ -139,10 +146,19 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
 
 export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements AppLink {
 
+    static label = AnnotationLabels['annotation.AnnotationLink'];
+
     defaults(): dia.Element.Attributes {
         const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.ANNOTATION,
-            type: AnnotationShapeTypes.LINK
+            type: AnnotationShapeTypes.LINK,
+            attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: AnnotationLink.label
+                }
+            }
         };
         return util.defaultsDeep(attributes, super.defaults);
     }

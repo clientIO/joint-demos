@@ -15,6 +15,11 @@ const LABEL_Y_OFFSET = 14;
 
 abstract class Gateway extends shapes.bpmn2.Gateway implements AppElement {
 
+    // The shape name (set by each concrete subclass). Typing the constructor
+    // makes the static reachable from instance methods (\`defaults()\`).
+    declare static label: string;
+    declare ['constructor']: typeof Gateway;
+
     public readonly isResizable = false;
     public readonly labelPath = 'label/text';
     public readonly labelSelector = 'labelGroup';
@@ -23,6 +28,11 @@ abstract class Gateway extends shapes.bpmn2.Gateway implements AppElement {
         const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.GATEWAY,
             attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: this.constructor.label
+                },
                 body: {
                     fill: 'var(--bpmn-palette-surface)',
                     stroke: 'var(--bpmn-palette-outline)'

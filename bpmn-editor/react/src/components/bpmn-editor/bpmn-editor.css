@@ -28,6 +28,12 @@
             .jj-paper-scroller[data-cursor="crosshair"] .joint-cell {
                 cursor: crosshair;
             }
+
+            /* No focus ring on cells: focus and selection are bound both
+               ways, so the selection highlighter is the focus indicator. */
+            .joint-cell:focus-visible {
+                outline: none;
+            }
         }
     }
 }

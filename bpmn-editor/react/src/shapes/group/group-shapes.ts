@@ -24,6 +24,11 @@ export class Group extends shapes.bpmn2.Group implements AppElement {
                 height: 300
             },
             attrs: {
+                root: {
+                    tabindex: 0,
+                    role: 'graphics-symbol',
+                    ariaLabel: Group.label
+                },
                 body: {
                     stroke: 'var(--bpmn-palette-outline)'
                 },
