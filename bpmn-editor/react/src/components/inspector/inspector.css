@@ -192,7 +192,8 @@
             }
         }
 
-        &.selected {
+        /* Pressed state of the marker toggles (Radix ToggleGroup). */
+        &[data-state='on'] {
             background-color: var(--bpmn-accent-primary);
         }
 

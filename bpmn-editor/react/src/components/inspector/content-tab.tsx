@@ -1,39 +1,39 @@
+import * as ToggleGroup from '@radix-ui/react-toggle-group';
+import * as Toolbar from '@radix-ui/react-toolbar';
 import { useCells, useGraph, useSelectionCollection } from '@joint/react-plus';
 import { replaceShape } from '../../actions/replace-shape';
 
-import type { AppElement, AppLink, AppShape, Marker, MarkerNames } from '../../shapes/shapes-typing';
+import type { AppElement, AppLink, AppShape, MarkerNames } from '../../shapes/shapes-typing';
 
 /**
- * Multi-select buttons toggling the shape's markers.
+ * Multi-select toggles for the shape's markers (Radix ToggleGroup: roving
+ * focus, arrow-key navigation and pressed states out of the box).
  */
 function MarkersSection({ shape }: { shape: AppElement }) {
     const markers = shape.getMarkers!();
     const selectedMarkers: MarkerNames[] = shape.get('markers') ?? [];
 
-    const toggleMarker = (marker: Marker) => {
-        const isSelected = selectedMarkers.includes(marker.name);
-        const newMarkers = isSelected
-            ? selectedMarkers.filter((name) => name !== marker.name)
-            : [...selectedMarkers, marker.name];
-        shape.setMarkers!(newMarkers);
-    };
-
     return (
         <>
             <h3 className="content-label">Available markers</h3>
-            <div className="select-button-group">
+            <ToggleGroup.Root
+                type="multiple"
+                className="select-button-group"
+                aria-label="Available markers"
+                value={selectedMarkers}
+                onValueChange={(values) => shape.setMarkers!(values as MarkerNames[])}
+            >
                 {markers.map((marker) => (
-                    <button
-                        type="button"
+                    <ToggleGroup.Item
                         key={marker.name}
-                        className={`select-button-group-button${selectedMarkers.includes(marker.name) ? ' selected' : ''}`}
-                        onClick={() => toggleMarker(marker)}
+                        value={marker.name}
+                        className="select-button-group-button"
                     >
                         <span className={marker.cssClass} />
                         <span>{marker.name}</span>
-                    </button>
+                    </ToggleGroup.Item>
                 ))}
-            </div>
+            </ToggleGroup.Root>
         </>
     );
 }
@@ -59,23 +59,28 @@ function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
     return (
         <>
             <h3 className="content-label">Available shapes</h3>
-            <div className="select-button-group">
+            {/* Radix Toolbar: one-shot action buttons with roving focus and
+                arrow-key navigation (same keyboard UX as the marker toggles). */}
+            <Toolbar.Root
+                orientation="vertical"
+                className="select-button-group"
+                aria-label="Available shapes"
+            >
                 {shapeTypes.map((type) => {
                     const shapeConstructor = graph.getTypeConstructor(type)!;
                     const { label, icon } = shapeConstructor as unknown as { label?: string; icon?: string };
                     return (
-                        <button
-                            type="button"
+                        <Toolbar.Button
                             key={type}
                             className="select-button-group-button"
                             onClick={() => morphTo(type)}
                         >
                             <span className={icon} />
                             <span>{label ?? type}</span>
-                        </button>
+                        </Toolbar.Button>
                     );
                 })}
-            </div>
+            </Toolbar.Root>
         </>
     );
 }
