@@ -1,6 +1,6 @@
 {
     "name": "@joint/demo-bpmn-editor-react",
-    "version": "4.3.1",
+    "version": "4.3.2",
     "type": "module",
     "private": true,
     "scripts": {
@@ -11,10 +11,10 @@
         "test": "npm run typecheck"
     },
     "dependencies": {
-        "@joint/format-bpmn-export": "4.3.1",
-        "@joint/format-bpmn-import": "4.3.1",
-        "@joint/plus": "4.3.1",
-        "@joint/react-plus": "^4.3.1",
+        "@joint/format-bpmn-export": "4.3.2",
+        "@joint/format-bpmn-import": "4.3.2",
+        "@joint/plus": "4.3.2",
+        "@joint/react-plus": "4.3.2",
         "@radix-ui/react-dialog": "^1.1.23",
         "@radix-ui/react-dropdown-menu": "^2.1.24",
         "@radix-ui/react-select": "^2.3.7",
