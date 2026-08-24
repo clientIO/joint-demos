@@ -30,7 +30,11 @@
             }
 
             /* No focus ring on cells: focus and selection are bound both
-               ways, so the selection highlighter is the focus indicator. */
+               ways, so the selection highlighter is the focus indicator.
+               Plain `:focus` included — after a window refocus browsers
+               treat the restored focus as keyboard-driven and would draw
+               the default ring on the selected cell. */
+            .joint-cell:focus,
             .joint-cell:focus-visible {
                 outline: none;
             }
