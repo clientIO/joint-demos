@@ -9,7 +9,7 @@ import { handles } from '../../configs/halo-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
 
 import type { dia } from '@joint/plus';
-import type { AppElement, AppLink, Marker } from '../shapes-typing';
+import type { AppElement, AppLink, Marker, LinkContextMenuAction } from '../shapes-typing';
 
 const LABEL_Y_OFFSET = 14;
 
@@ -374,6 +374,11 @@ export class DataAssociation extends shapes.bpmn2.DataAssociation implements App
         this.source(link.source());
         this.target(link.target());
         this.vertices(link.vertices());
+    }
+
+    getContextMenuActions(): LinkContextMenuAction[] {
+        // Data associations have no label
+        return ['add-comment'];
     }
 
     getShapeList(): string[] {

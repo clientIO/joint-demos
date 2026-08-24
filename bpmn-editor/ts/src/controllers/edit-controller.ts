@@ -2,7 +2,7 @@ import Controller from '../controller';
 import { eventBus, EventBusEvents } from '../event-bus';
 import { labelEditorWrapperStyles } from '../shapes/shared-config';
 import { prepareLinkReplacement, validateAndReplaceConnections } from '../utils';
-import { type AppShape, type AppElement, type AppLink } from '../shapes/shapes-typing';
+import { type AppShape, type AppElement, type AppLink, type LinkContextMenuAction } from '../shapes/shapes-typing';
 import { type dia, g, shapes, ui } from '@joint/plus';
 import { Annotation, AnnotationLink } from '../shapes/annotation/annotation-shapes';
 import { onSwimlaneDrag, onSwimlaneDragEnd, onSwimlaneDragStart } from '../events/swimlanes';
@@ -38,8 +38,9 @@ export default class EditController extends Controller<EditControllerArgs> {
                 this.labelEditor = onElementPointerDblClick(context, elementView);
             },
             'link:contextmenu': (context, linkView, evt) => {
-                // Annotation links have no label and can't be commented on.
-                if (linkView.model instanceof AnnotationLink) return;
+                const link = linkView.model as AppLink;
+                // The link decides what its context menu offers.
+                if (link.getContextMenuActions().length === 0) return;
 
                 const contextToolbar = onLinkContextMenu(context, linkView, evt);
                 contextToolbar.once('action:edit-label', () => {
@@ -140,7 +141,18 @@ function onElementPointerDblClick(context: EditControllerArgs, elementView: dia.
     return prepareLabelEditor(context, elementView);
 }
 
+function constructContextMenuTool(action: LinkContextMenuAction, link: AppLink) {
+    switch (action) {
+        case 'edit-label':
+            return { action, content: link.hasLabels() ? 'Edit Label' : 'Add Label' };
+        case 'add-comment':
+            return { action, content: 'Add Comment' };
+    }
+}
+
 function onLinkContextMenu(context: EditControllerArgs, linkView: dia.LinkView, evt: dia.Event) {
+
+    const link = linkView.model as AppLink;
 
     const contextToolbar = new ui.ContextToolbar({
         vertical: true,
@@ -149,16 +161,7 @@ function onLinkContextMenu(context: EditControllerArgs, linkView: dia.LinkView, 
             y: evt.clientY
         },
         root: context.paper.el,
-        tools: [
-            {
-                action: 'edit-label',
-                content: !linkView.model.hasLabels() ? 'Add Label' : 'Edit Label',
-            },
-            {
-                action: 'add-comment',
-                content: 'Add Comment',
-            }
-        ]
+        tools: link.getContextMenuActions().map((action) => constructContextMenuTool(action, link))
     });
     contextToolbar.render();
     return contextToolbar;

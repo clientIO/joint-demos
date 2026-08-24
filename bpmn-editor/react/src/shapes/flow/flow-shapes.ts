@@ -6,7 +6,7 @@ import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
 
 import type { dia } from '@joint/plus';
-import type { AppLink } from '../shapes-typing';
+import type { AppLink, LinkContextMenuAction } from '../shapes-typing';
 
 abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
 
@@ -70,6 +70,10 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
         ];
 
         return shapes.filter((shape) => shape !== this.get('type'));
+    }
+
+    getContextMenuActions(): LinkContextMenuAction[] {
+        return ['edit-label', 'add-comment'];
     }
 
     getLinkTools() {

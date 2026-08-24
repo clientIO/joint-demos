@@ -5,7 +5,7 @@ import { openLabelEditor } from '../../actions/label-editor';
 import { Annotation, AnnotationLink } from '../../shapes/annotation/annotation-shapes';
 
 import type { dia } from '@joint/plus';
-import type { AppLink } from '../../shapes/shapes-typing';
+import type { AppLink, LinkContextMenuAction } from '../../shapes/shapes-typing';
 import './link-context-menu.css';
 
 interface MenuState {
@@ -29,10 +29,11 @@ export function LinkContextMenu() {
 
     useOnPaperEvents({
         onLinkContextMenu: ({ paper, model, event }) => {
-            // Annotation links have no label and can't be commented on.
-            if (model instanceof AnnotationLink) return;
+            const link = model as AppLink;
+            // The link decides what its context menu offers.
+            if (link.getContextMenuActions().length === 0) return;
             const { x, y } = paper.clientToLocalPoint(event.clientX!, event.clientY!);
-            setMenu({ x, y, link: model as AppLink });
+            setMenu({ x, y, link });
         },
         onCellPointerDown: () => setMenu(null),
         onBlankPointerDown: () => setMenu(null)
@@ -102,15 +103,28 @@ export function LinkContextMenu() {
         });
     };
 
+    const menuItems: Record<LinkContextMenuAction, { content: string; onClick: () => void }> = {
+        'edit-label': {
+            content: menu.link.hasLabels() ? 'Edit Label' : 'Add Label',
+            onClick: onEditLabel
+        },
+        'add-comment': {
+            content: 'Add Comment',
+            onClick: onAddComment
+        }
+    };
+
     return (
         <Overlay x={menu.x} y={menu.y}>
             <div ref={menuRef} className="context-menu">
-                <button type="button" className="context-menu-item" onClick={onEditLabel}>
-                    {menu.link.hasLabels() ? 'Edit Label' : 'Add Label'}
-                </button>
-                <button type="button" className="context-menu-item" onClick={onAddComment}>
-                    Add Comment
-                </button>
+                {menu.link.getContextMenuActions().map((action) => {
+                    const { content, onClick } = menuItems[action];
+                    return (
+                        <button key={action} type="button" className="context-menu-item" onClick={onClick}>
+                            {content}
+                        </button>
+                    );
+                })}
             </div>
         </Overlay>
     );

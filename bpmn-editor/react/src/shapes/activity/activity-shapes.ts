@@ -565,6 +565,12 @@ export class EventSubProcess extends Activity {
         ];
     }
 
+    getHaloHandles() {
+        // An event sub-process is self-contained: it accepts no connections
+        // (see validateConnection), so it offers no connect/link handles.
+        return [];
+    }
+
     validateConnection(_?: dia.Cell): boolean {
         return false;
     }

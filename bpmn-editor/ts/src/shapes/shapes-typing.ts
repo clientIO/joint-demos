@@ -78,8 +78,12 @@ export interface AppElement extends dia.Element {
     getMinimalSize?: () => { width: number, height: number };
 }
 
+/** The actions a link offers in its context menu. */
+export type LinkContextMenuAction = 'edit-label' | 'add-comment';
+
 export interface AppLink extends dia.Link {
     getShapeList: () => string[];
+    getContextMenuActions: () => LinkContextMenuAction[];
     getLinkTools: () => dia.ToolView[];
     copyFrom: (link: dia.Link) => void;
     getAppearanceConfig: () => AppearanceConfig;

@@ -7,7 +7,7 @@ import { constructLinkTools } from '../../configs/link-tools-config';
 import { getPoolParent, isSwimlane } from '../../utils';
 
 import type { dia } from '@joint/plus';
-import type { AppElement, AppLink } from '../shapes-typing';
+import type { AppElement, AppLink, LinkContextMenuAction } from '../shapes-typing';
 
 export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
 
@@ -168,6 +168,11 @@ export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements AppLi
         this.source(link.source());
         this.target(link.target());
         this.vertices(link.vertices());
+    }
+
+    getContextMenuActions(): LinkContextMenuAction[] {
+        // Annotation links have no label and can't be commented on
+        return [];
     }
 
     getShapeList(): string[] {
