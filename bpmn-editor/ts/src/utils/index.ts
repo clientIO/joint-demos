@@ -17,6 +17,7 @@ export function constructMarkerContent(marker: Marker) {
 }
 
 export * from './elements';
+export * from './fit-diagram';
 export * from './events';
 export * from './links';
 export * from './import';

@@ -3,6 +3,7 @@ import * as Slider from '@radix-ui/react-slider';
 import { Navigator as NavigatorMinimap, usePaperScroller, usePaperScrollerViewport } from '@joint/react-plus';
 import { Scan, Expand, Shrink, Map } from 'lucide-react';
 import { ZOOM_SETTINGS } from '../../configs/paper-config';
+import { fitDiagramToViewport } from '../../actions/fit-diagram';
 import { isEvent, isGateway, isPool, isSwimlane } from '../../utils';
 import { Tip } from '../tooltip/tooltip';
 
@@ -37,7 +38,7 @@ function IconButton({ icon, tooltip, active, onClick }: {
  */
 export function Navigator() {
 
-    const { zoomToFit, setZoom } = usePaperScroller();
+    const { paperScroller, setZoom } = usePaperScroller();
     const { zoom } = usePaperScrollerViewport();
 
     const [isMinimapVisible, setIsMinimapVisible] = useState(true);
@@ -100,7 +101,7 @@ export function Navigator() {
                 <IconButton
                     icon={<Scan size={18} />}
                     tooltip="Fit to screen"
-                    onClick={() => zoomToFit({ maxScale: 1, contentMargin: 60 })}
+                    onClick={() => paperScroller && fitDiagramToViewport(paperScroller)}
                 />
                 <IconButton
                     icon={isFullscreen ? <Shrink size={18} /> : <Expand size={18} />}

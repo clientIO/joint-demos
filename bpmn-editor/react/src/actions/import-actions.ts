@@ -1,7 +1,7 @@
 import { fromBPMN } from '@joint/format-bpmn-import';
 import { bpmnImportOptions } from '../shapes/factories';
 import { importBPMN } from '../utils';
-import { ZOOM_SETTINGS } from '../configs/paper-config';
+import { fitDiagramToViewport } from './fit-diagram';
 
 import type { ui } from '@joint/plus';
 import type { dia } from '@joint/plus';
@@ -42,17 +42,7 @@ export async function importFile(paperScroller: ui.PaperScroller, commandManager
 
     commandManager.reset();
 
-    // Fit the new diagram into the viewport (up to 100% zoom). Mirrors the
-    // react `zoomToFit` helper, which is not available outside components.
-    const contentArea = graph.getBBox();
-    if (contentArea) {
-        paperScroller.zoomToRect(contentArea.inflate(60), {
-            minScale: ZOOM_SETTINGS.min,
-            maxScale: 1,
-            verticalAlign: 'middle',
-            horizontalAlign: 'middle'
-        });
-    }
+    fitDiagramToViewport(paperScroller);
 }
 
 /**
