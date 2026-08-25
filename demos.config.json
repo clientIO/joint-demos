@@ -26,6 +26,9 @@
     "ai-workflow-builder": {
       "variant": "react"
     },
+    "data-modeling": {
+      "variant": "react"
+    },
     "mermaid-editor": {
       "variant": "react",
       "viewport": {
