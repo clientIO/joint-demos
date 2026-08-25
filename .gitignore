@@ -9,3 +9,4 @@ screenshot-diff-results
 .packages
 .angular
 .claude/settings.local.json
+.DS_Store

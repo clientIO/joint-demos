@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary meta -->
+    <title>Data Modeling — Visual Tables, Relations &amp; SQL | JointJS React</title>
+    <meta
+      name="description"
+      content="A data-modeling app to design SQL database schemas as an ERD, run real SQL in the browser (SQLite + Postgres), import existing SQL, and export dialect-correct DDL. Built with @joint/react-plus (JointJS)."
+    />
+    <meta
+      name="keywords"
+      content="data modeling, ERD, entity relationship diagram, SQL schema designer, database diagram, SQLite, Postgres, SQL in the browser, DDL export, JointJS, @joint/react-plus, diagramming"
+    />
+    <meta name="author" content="JointJS" />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://www.jointjs.com/" />
+
+    <!-- Theme color — warm-graphite dark canvas (.dark --background) / warm off-white light. -->
+    <meta name="theme-color" content="#161311" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fcfaf7" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#161311" />
+    <meta name="color-scheme" content="dark light" />
+
+    <!-- Apply the OS colour scheme before first paint. Without this a theme hook
+         adds `.dark` in an effect (post-paint) → a flash of the light theme. -->
+    <script>
+      try {
+        if (matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (_) {}
+    </script>
+
+    <!-- First-paint skeleton: a static header bar + canvas surface that paints on
+         HTML parse (before the JS bundle runs), so FCP/Speed-Index don't wait for
+         the app to boot. Matches the app's real header height + theme background so
+         React swapping it out causes no layout shift. Removed when #root renders. -->
+    <style>
+      #boot { position: fixed; inset: 0; display: flex; flex-direction: column; background: #fcfaf7; }
+      html.dark #boot { background: #161311; }
+      #boot-bar { height: 48px; flex: none; border-bottom: 1px solid #e7e1d7; display: flex; align-items: center; gap: 8px; padding: 0 12px; }
+      html.dark #boot-bar { border-color: #2a2521; }
+      #boot-logo { width: 22px; height: 22px; border-radius: 6px; background: #e0534a; }
+      #boot-title { width: 108px; height: 12px; border-radius: 4px; background: #d9d2c7; }
+      html.dark #boot-title { background: #33302b; }
+      #boot-canvas { flex: 1; }
+    </style>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="JointJS React" />
+    <meta property="og:title" content="Data Modeling · JointJS+ React" />
+    <meta
+      property="og:description"
+      content="Design SQL database schemas as an ERD, run real SQL in the browser (SQLite + Postgres), import existing SQL, and export dialect-correct DDL. Built with @joint/react-plus (JointJS)."
+    />
+    <meta property="og:url" content="https://www.jointjs.com/" />
+    <meta property="og:image" content="/favicon.svg" />
+    <meta property="og:image:alt" content="JointJS Data Modeling — an ERD schema designer built with JointJS" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Data Modeling · JointJS+ React" />
+    <meta
+      name="twitter:description"
+      content="Design SQL database schemas as an ERD, run real SQL in the browser (SQLite + Postgres), import existing SQL, and export dialect-correct DDL. Built with @joint/react-plus (JointJS)."
+    />
+    <meta name="twitter:image" content="/favicon.svg" />
+    <meta name="twitter:image:alt" content="JointJS Data Modeling — an ERD schema designer built with JointJS" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "JointJS Data Modeling",
+        "description": "A data-modeling app to design SQL database schemas as an ERD, run real SQL in the browser (SQLite + Postgres), import existing SQL, and export dialect-correct DDL. Built with @joint/react-plus (JointJS).",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web",
+        "url": "https://www.jointjs.com/",
+        "image": "/favicon.svg",
+        "author": {
+          "@type": "Organization",
+          "name": "JointJS",
+          "url": "https://www.jointjs.com/"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root">
+      <div id="boot" aria-hidden="true">
+        <div id="boot-bar">
+          <div id="boot-logo"></div>
+          <div id="boot-title"></div>
+        </div>
+        <div id="boot-canvas"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

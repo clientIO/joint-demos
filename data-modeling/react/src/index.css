@@ -1,0 +1,732 @@
+@import "tailwindcss";
+@import "@joint/react-plus/styles.css" layer(components);
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================================
+   WARM GRAPHITE — data-modeling (ERD) design tokens.
+   Register: product. Aesthetic: near-black warm graphite canvas (hue 70, NOT
+   blue), tactile table cards, one clay/coral accent, crow's-foot links as hero.
+   Every color is OKLCH. Neutrals are tinted toward the warm brand hue (70)
+   at low chroma (0.004–0.012). Chroma is pulled down as L approaches 0/1.
+   Full reference + WCAG notes live in DESIGN.md.
+   ============================================================================ */
+
+/* LIGHT — a warm off-white paper, never generic SaaS cream. */
+:root {
+  /* Pin native UI (scrollbars, form controls) so they match the active theme. */
+  color-scheme: light;
+
+  --radius: 0.625rem;
+
+  --background: oklch(0.985 0.004 70);
+  --foreground: oklch(0.24 0.012 70);
+  --card: oklch(0.995 0.0015 70);
+  --card-foreground: oklch(0.24 0.012 70);
+  --popover: oklch(0.995 0.0015 70);
+  --popover-foreground: oklch(0.24 0.012 70);
+
+  /* Clay/coral accent (hue 45). Deep enough that near-white text clears AA. */
+  --primary: oklch(0.55 0.145 45);
+  --primary-foreground: oklch(0.99 0.008 45);
+
+  --secondary: oklch(0.96 0.005 70);
+  --secondary-foreground: oklch(0.3 0.012 70);
+  --muted: oklch(0.96 0.005 70);
+  /* Darkened until it clears WCAG AAA (>=7:1) even at 11px on white cards. */
+  --muted-foreground: oklch(0.45 0.014 70);
+  /* SQL editor syntax tokens — DARK here (light card), so keyword/string/number/
+     function all clear WCAG AA (>=4.5:1) on the near-white --card. */
+  --sql-keyword: oklch(0.52 0.17 42);
+  --sql-string: oklch(0.48 0.15 152);
+  --sql-number: oklch(0.48 0.16 255);
+  --sql-function: oklch(0.5 0.18 300);
+  --accent: oklch(0.95 0.006 70);
+  --accent-foreground: oklch(0.3 0.012 70);
+  --destructive: oklch(0.55 0.19 28);
+  --destructive-foreground: oklch(0.99 0.01 28);
+
+  --border: oklch(0.9 0.006 70);
+  --input: oklch(0.9 0.006 70);
+  --ring: oklch(0.55 0.145 45);
+
+  /* Canvas is a touch warmer/greyer than the shell so cards float above it. */
+  --canvas: oklch(0.965 0.006 70);
+
+  /* Group container: a near-white panel + a clearly darker border so groups read
+     on the cream canvas (--secondary is nearly the canvas color in light mode). */
+  --group-fill: oklch(0.99 0.0015 70);
+  --group-stroke: oklch(0.84 0.008 70);
+
+  /* Column-type semantics — small, distinct hues used only as chips/dots. */
+  --type-pk: oklch(0.6 0.14 80); /* primary key   — gold, the "key" */
+  --type-fk: oklch(0.54 0.16 295); /* foreign key   — violet */
+  --type-index: oklch(0.53 0.12 215); /* index         — muted teal-blue */
+  --type-plain: oklch(0.52 0.012 70); /* plain column  — neutral */
+
+  --status-success: oklch(0.54 0.13 150);
+  --status-error: oklch(0.55 0.19 28);
+  --status-running: oklch(0.62 0.13 75);
+
+  /* Relationship wire — a precise structural line, not a neon glow. */
+  --link-line-rest: oklch(0.62 0.014 70);
+  --link-line-active: oklch(0.4 0.012 70);
+
+  /* Sticky-note paper — a warm amber surface (hue ~80, the key-gold family) with
+     its OWN dark ink so prose stays AAA-readable on the note in both themes. */
+  --note-surface: oklch(0.935 0.05 85);
+  --note-foreground: oklch(0.31 0.035 60);
+  --note-border: oklch(0.86 0.065 82);
+
+  /* Layered card elevation — soft + warm, tuned per theme (see node-elevation). */
+  --node-shadow:
+    0 1px 1px -0.5px color-mix(in oklch, oklch(0.2 0.02 70) 12%, transparent),
+    0 2px 4px -1px color-mix(in oklch, oklch(0.2 0.02 70) 10%, transparent),
+    0 8px 20px -8px color-mix(in oklch, oklch(0.2 0.02 70) 16%, transparent);
+  --node-shadow-lift:
+    0 2px 3px -1px color-mix(in oklch, oklch(0.2 0.02 70) 14%, transparent),
+    0 10px 26px -8px color-mix(in oklch, oklch(0.2 0.02 70) 22%, transparent);
+
+  /* Restrained warm ambiance behind the canvas (accent, very low alpha). */
+  --canvas-glow:
+    radial-gradient(
+      60% 52% at 82% 4%,
+      color-mix(in oklch, var(--primary) 7%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      58% 58% at 6% 96%,
+      color-mix(in oklch, var(--type-pk) 6%, transparent),
+      transparent 60%
+    );
+
+  /* JointJS bridge — grid, ports, selection on-brand in this theme. */
+  --jj-paper-grid-color: oklch(0.87 0.008 70);
+  /* Paper + scroller fill follow the themed canvas token (dark in dark mode). */
+  --jj-paper-color: var(--canvas);
+  --jj-paper-scroller-background: var(--canvas);
+  /* Minimap (Navigator) background follows the canvas token too — its default is a
+     light surface, which read wrong on the dark canvas. `var(--canvas)` resolves
+     per theme, so this one declaration covers dark + light. */
+  --jj-nav-background: var(--canvas);
+  --jj-nav-viewport-fill-color: color-mix(
+    in oklch,
+    var(--primary) 14%,
+    transparent
+  );
+  --jj-port-border-color: var(--border);
+  --jj-selection-wrapper-color: var(--primary);
+  --jj-selection-wrapper-width: 1.5px;
+  --jj-selection-wrapper-radius: var(--radius);
+  --jj-selection-handle-color: var(--primary);
+  --jj-selection-selected-element-border-color: var(--primary);
+  --jj-selection-selected-link-color: var(--primary);
+  --jj-link-width: 1.5px;
+  /* Hide the FreeTransform resize FRAME border (keep the resize handles): groups and
+     notes are resizable, but the frame's own 1.5px border sat right next to our coral
+     selection ring and read as a DOUBLE border. The coral ring is now the single
+     frame; the handles ride on it. */
+  --jj-ft-border-color: transparent;
+
+  /* Retheme react-plus's built-in magnet/port/link highlight vars so whatever it
+     paints natively (port dots, availability, the live connecting wire) matches
+     the warm-graphite + coral identity. Our own `stroke` highlighters (below)
+     layer on top; these keep the fallbacks on-brand. */
+  --jj-color-valid: var(--status-success);
+  --jj-highlighter-connecting-color: var(--primary);
+  --jj-highlighter-embedding-color: var(--primary);
+  --jj-box-available-border-color: var(--status-success);
+  --jj-port-available-color: color-mix(
+    in oklch,
+    var(--primary) 22%,
+    var(--card)
+  );
+  --jj-port-available-border-color: var(--primary);
+  --jj-port-connecting-color: var(--status-success);
+  --jj-port-connecting-border-color: var(--status-success);
+  --jj-link-hover-color: var(--link-line-active);
+  --jj-link-connecting-color: var(--primary);
+  --jj-link-connecting-dash: 7 5;
+}
+
+/* DARK (default) — near-black warm graphite. */
+.dark {
+  color-scheme: dark;
+
+  --background: oklch(0.19 0.006 70);
+  --foreground: oklch(0.95 0.005 70);
+  --card: oklch(0.23 0.008 70);
+  --card-foreground: oklch(0.95 0.005 70);
+  --popover: oklch(0.235 0.008 70);
+  --popover-foreground: oklch(0.95 0.005 70);
+
+  /* Lifted clay so it glows on graphite; dark text sits on it for contrast. */
+  --primary: oklch(0.72 0.14 48);
+  --primary-foreground: oklch(0.21 0.02 48);
+
+  --secondary: oklch(0.27 0.009 70);
+  --secondary-foreground: oklch(0.9 0.006 70);
+  --muted: oklch(0.27 0.009 70);
+  /* Brightened until it clears WCAG AAA (>=7:1) even at 11px on dark cards. */
+  --muted-foreground: oklch(0.73 0.013 70);
+  /* SQL editor syntax tokens — BRIGHT here (dark card) for AA contrast; keyword keeps
+     the coral --primary, which is already bright on the near-black --card. */
+  --sql-keyword: var(--primary);
+  --sql-string: oklch(0.72 0.15 152);
+  --sql-number: oklch(0.72 0.15 255);
+  --sql-function: oklch(0.74 0.16 300);
+  --accent: oklch(0.3 0.011 70);
+  --accent-foreground: oklch(0.94 0.006 70);
+  --destructive: oklch(0.7 0.16 28);
+  --destructive-foreground: oklch(0.98 0.01 28);
+
+  --border: oklch(0.3 0.011 70);
+  --input: oklch(0.28 0.011 70);
+  --ring: oklch(0.72 0.14 48);
+
+  /* Canvas is the deepest warm graphite so raised cards read as tactile. */
+  --canvas: oklch(0.165 0.006 70);
+
+  /* Group panel sits between canvas (0.165) and card (0.23) so it reads as a
+     distinct raised region in dark mode, with a lighter border. */
+  --group-fill: oklch(0.215 0.007 70);
+  --group-stroke: oklch(0.36 0.011 70);
+
+  --type-pk: oklch(0.78 0.13 80);
+  --type-fk: oklch(0.72 0.15 295);
+  --type-index: oklch(0.7 0.12 215);
+  --type-plain: oklch(0.68 0.013 70);
+
+  --status-success: oklch(0.72 0.12 150);
+  --status-error: oklch(0.7 0.16 28);
+  --status-running: oklch(0.76 0.12 75);
+
+  --link-line-rest: oklch(0.52 0.014 70);
+  --link-line-active: oklch(0.74 0.012 70);
+
+  /* A dimmer warm paper on graphite, with warm-light ink — still reads as a
+     sticky, never a glaring yellow patch. */
+  --note-surface: oklch(0.34 0.038 78);
+  --note-foreground: oklch(0.93 0.022 88);
+  --note-border: oklch(0.44 0.05 78);
+
+  /* Deeper, darker shadow so cards read as tactile above the near-black canvas. */
+  --node-shadow:
+    0 1px 2px -0.5px color-mix(in oklch, black 40%, transparent),
+    0 3px 6px -2px color-mix(in oklch, black 34%, transparent),
+    0 10px 24px -8px color-mix(in oklch, black 48%, transparent);
+  --node-shadow-lift:
+    0 3px 5px -1px color-mix(in oklch, black 46%, transparent),
+    0 14px 32px -8px color-mix(in oklch, black 58%, transparent);
+
+  --canvas-glow:
+    radial-gradient(
+      62% 54% at 82% 4%,
+      color-mix(in oklch, var(--primary) 6%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      58% 60% at 6% 96%,
+      color-mix(in oklch, var(--type-pk) 5%, transparent),
+      transparent 60%
+    );
+
+  --jj-paper-grid-color: oklch(0.3 0.009 70);
+
+  /* Dark-theme highlight vars (light values live in :root; kept in sync here). */
+  --jj-color-valid: var(--status-success);
+  --jj-highlighter-connecting-color: var(--primary);
+  --jj-highlighter-embedding-color: var(--primary);
+  --jj-box-available-border-color: var(--status-success);
+  --jj-port-available-color: color-mix(
+    in oklch,
+    var(--primary) 26%,
+    var(--card)
+  );
+  --jj-port-available-border-color: var(--primary);
+  --jj-port-connecting-color: var(--status-success);
+  --jj-port-connecting-border-color: var(--status-success);
+  --jj-link-hover-color: var(--link-line-active);
+  --jj-link-connecting-color: var(--primary);
+  --jj-link-connecting-dash: 7 5;
+  /* Snaplines: the 1px coral default reads fine on the light canvas but is too faint
+     on the near-black dark canvas. Brighten the coral and thicken the line so the
+     alignment guide stays legible while dragging in dark mode (light keeps the default). */
+  --jj-snaplines-color: oklch(0.82 0.17 48);
+  --jj-snaplines-width: 1.5px;
+}
+
+/* Expose semantic tokens to Tailwind utilities (`bg-card`, `text-muted-foreground`,
+   `border-border`, `ring-ring`, `text-type-pk`, …). Every alias resolves here. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-canvas: var(--canvas);
+
+  --color-note: var(--note-surface);
+  --color-note-foreground: var(--note-foreground);
+  --color-note-border: var(--note-border);
+
+  --color-type-pk: var(--type-pk);
+  --color-type-fk: var(--type-fk);
+  --color-type-index: var(--type-index);
+  --color-type-plain: var(--type-plain);
+  --color-status-success: var(--status-success);
+  --color-status-error: var(--status-error);
+  --color-status-running: var(--status-running);
+
+  /* Radius scale — no arbitrary values, use the token. */
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", "Menlo",
+    monospace;
+
+  --animate-rise: rise 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-card-in: card-in 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-row-in: row-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-toast-in: toast-in 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* Mobile inspector bottom sheet: slides up from the bottom edge. */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+}
+
+/* A column row sliding + fading in — usable when a column is added to a table. */
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* Announcer slide/fade-in (a11y live-region toast). */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.97);
+  }
+}
+
+/* Radix enter/exit primitives (dialog, dropdown, select, tooltip). Hand-rolled
+   equivalent of tailwindcss-animate so we add no dependency: the `enter`/`exit`
+   keyframes read per-utility custom props set by the modifier utilities below,
+   and `duration-200` feeds `--tw-duration`. Applied as `data-[state=open]:animate-in`
+   etc. The keyframe fallbacks (`, 1`, `, 0`) mean an unset prop is a no-op, so no
+   `initial` reset is needed and cascade order between modifiers never matters. */
+@keyframes enter {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: translate3d(
+        var(--tw-enter-translate-x, 0),
+        var(--tw-enter-translate-y, 0),
+        0
+      )
+      scale3d(
+        var(--tw-enter-scale, 1),
+        var(--tw-enter-scale, 1),
+        var(--tw-enter-scale, 1)
+      );
+  }
+}
+@keyframes exit {
+  to {
+    opacity: var(--tw-exit-opacity, 1);
+    transform: translate3d(
+        var(--tw-exit-translate-x, 0),
+        var(--tw-exit-translate-y, 0),
+        0
+      )
+      scale3d(
+        var(--tw-exit-scale, 1),
+        var(--tw-exit-scale, 1),
+        var(--tw-exit-scale, 1)
+      );
+  }
+}
+
+/* Soft warm ambiance painted behind the diagram. */
+@utility canvas-glow {
+  background-image: var(--canvas-glow);
+}
+
+/* Tactile card elevation — soft, layered, warm; the exact stack is theme-tuned
+   via `--node-shadow` (see :root / .dark) so light stays airy and dark reads
+   deep. */
+@utility node-elevation {
+  box-shadow: var(--node-shadow);
+}
+
+/* Gentle hover lift for a floating card: rises a hair and its shadow deepens.
+   Motion is eased + tiny; the global reduced-motion kill-switch neutralizes the
+   transition. */
+@utility node-lift {
+  transition:
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--node-shadow-lift);
+  }
+}
+
+/* ONE ring per node — the single "you are here / what just happened" indicator on a
+   table or note card. Selection and the membership flash drive the SAME outline and
+   only change its COLOUR, so a node never shows two concentric borders:
+     selected, or focused inside → primary
+     joined a group             → success (green)
+     left a group               → error (red)
+   The flash attribute is removed after FLASH_MS (use-containment-embedding), so the
+   ring simply eases back to the selected colour — or disappears if the node isn't
+   selected. (Groups are excluded on purpose: they are SVG, so joint's own
+   `.jj-selection` wrapper already draws their accent border.)
+
+   WHY an attribute rule and not an @utility: a utility's border-color/box-shadow
+   lose the Tailwind ordering battle to `node-elevation` (which also sets box-shadow)
+   and to the surface utilities, so the ring silently never painted. This attribute
+   pair is (0,2,0), which beats every single-class utility on the card — including
+   the notes' `outline-none`.
+   WHY outline and not box-shadow: nothing else on the card sets `outline`, so it
+   can't be overridden; it renders inside the <foreignObject> the cards live in
+   (Apple WebKit drops box-shadow there); and it leaves the elevation shadow intact.
+   :focus-within means focusing ANY control inside a node rings the whole node, so
+   you always know which node you're editing. */
+[data-node-card][data-selected],
+[data-node-card]:focus-within,
+[data-node-card][data-flash] {
+  /* OUTLINE ONLY — deliberately not also recolouring `border-color`: the card's own
+     1px border plus this outline rendered as TWO concentric coral lines. */
+  outline: 2px solid var(--node-ring, var(--color-primary));
+  outline-offset: 2px;
+  transition: outline-color 200ms ease-out;
+}
+/* When an actionable element INSIDE the card is focused, the card's own outline turns
+   DASHED so it reads as the container boundary, distinct from the SOLID focus ring on the
+   focused control — the two no longer look like the same conflicting outline (matches the
+   dashed group outline). A plain selection (no inner focus) keeps the solid outline. */
+[data-node-card]:focus-within {
+  outline-style: dashed;
+}
+[data-node-card][data-flash="added"] {
+  --node-ring: var(--status-success);
+}
+[data-node-card][data-flash="removed"] {
+  --node-ring: var(--status-error);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-node-card][data-selected],
+  [data-node-card]:focus-within,
+  [data-node-card][data-flash] {
+    transition: none;
+  }
+}
+
+/* Marching-ants flow for a hover-highlighted relationship link: the dashes travel
+   along the path (source -> target) so you can read WHERE the relationship goes. The
+   dash pattern (6 4 -> a 10px cycle) comes with the stroke from .rel-hover above;
+   this only supplies the motion. Offset -10 = EXACTLY one dash+gap cycle, so the loop
+   is perfectly seamless (a non-multiple made it visibly jump). */
+/* Hover-related relationship wires: the renderer writes the `rel-hover` class
+   through the library's LinkStyle.className (skipHistory), and this rule paints
+   it — thin coral dash with marching-ants motion, dropped under reduced motion.
+   Same-element class beats the react-plus theme's .jj-link-line rules. */
+.jj-link-line.rel-hover {
+  stroke: var(--primary);
+  stroke-width: 1.5px;
+  stroke-dasharray: 6 4;
+  animation: rel-dash-flow 0.7s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jj-link-line.rel-hover {
+    animation: none;
+  }
+}
+
+@keyframes rel-dash-flow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+/* Search panel entrance — opacity only (no transform), so it never fights the panel's
+   responsive centering transform (-translate-x-1/2 on mobile). */
+@keyframes search-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Radix enter/exit utilities (see the `enter`/`exit` keyframes above). */
+@utility animate-in {
+  animation-name: enter;
+  animation-duration: var(--tw-duration, 150ms);
+}
+@utility animate-out {
+  animation-name: exit;
+  animation-duration: var(--tw-duration, 150ms);
+}
+@utility fade-in-0 {
+  --tw-enter-opacity: 0;
+}
+@utility fade-out-0 {
+  --tw-exit-opacity: 0;
+}
+@utility zoom-in-95 {
+  --tw-enter-scale: 0.95;
+}
+@utility zoom-out-95 {
+  --tw-exit-scale: 0.95;
+}
+@utility slide-in-from-top-2 {
+  --tw-enter-translate-y: -0.5rem;
+}
+@utility slide-in-from-bottom-2 {
+  --tw-enter-translate-y: 0.5rem;
+}
+@utility slide-in-from-left-2 {
+  --tw-enter-translate-x: -0.5rem;
+}
+@utility slide-in-from-right-2 {
+  --tw-enter-translate-x: 0.5rem;
+}
+
+/* Slider knob — plain CSS on the Radix data-slots (Tailwind v4 won't emit these
+   reliably under the hover/group variants the primitive needs). Neutral at rest,
+   accent on hover/focus, with a soft focus halo. */
+[data-slot="slider-range"] {
+  background-color: color-mix(
+    in oklch,
+    var(--muted-foreground) 40%,
+    transparent
+  );
+}
+[data-slot="slider-thumb"] {
+  border-color: var(--muted-foreground);
+  box-shadow: 0 1px 2px -1px color-mix(in oklch, black 24%, transparent);
+  transform: scale(0.72);
+  transition:
+    box-shadow 0.15s ease-out,
+    border-color 0.15s ease-out,
+    transform 0.15s ease-out;
+}
+[data-slot="slider"]:hover [data-slot="slider-thumb"] {
+  border-color: var(--color-primary);
+  transform: scale(1);
+  box-shadow:
+    0 0 0 5px color-mix(in oklch, var(--color-primary) 15%, transparent),
+    0 1px 2px -1px color-mix(in oklch, black 24%, transparent);
+}
+[data-slot="slider-thumb"]:active,
+[data-slot="slider-thumb"]:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow:
+    0 0 0 2px var(--color-card),
+    0 0 0 3.5px var(--color-primary),
+    0 0 0 7px color-mix(in oklch, var(--color-primary) 18%, transparent);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Shell owns scrolling; stop mobile rubber-band / chaining to the page. */
+    overscroll-behavior: none;
+    overflow: hidden;
+    /* No page pinch-zoom; canvas opts back in (touch-none) so pinch zooms the diagram. */
+    touch-action: pan-x pan-y;
+  }
+  /* Every real <button> is clickable — show the pointer cursor (Tailwind's reset
+     drops it). Drag-handle divs set their own cursor and are unaffected. */
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+  /* Tactile press: every enabled <button> dips a hair when pressed, so the whole
+     app (toolbar toggles, segmented controls, card + inspector controls, dialogs,
+     swatch chips) shares one consistent "active" affordance on top of its existing
+     hover/focus/disabled states. A discrete transform (no animation) gated to
+     no-preference so reduced-motion users get none; kept in @layer base so a
+     control with its own transform utility (e.g. the swatch `hover:scale-110`)
+     still wins. Drag handles are <div role="button">, so they're unaffected. */
+  @media (prefers-reduced-motion: no-preference) {
+    button:not(:disabled):active {
+      transform: scale(0.97);
+    }
+  }
+}
+
+/* Honor the OS "reduce motion" setting app-wide in one place. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Relationship wire color by state, uniform across every link. crow's-foot
+   markers inherit the stroke, so this themes the hero relationships too. Round
+   caps + eased width give the wires a cleaner, more refined finish; hover/select
+   brightens and thickens a touch so the active relationship reads first. */
+.jj-link-line {
+  stroke: var(--link-line-rest);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition:
+    stroke 0.15s ease-out,
+    stroke-width 0.15s ease-out;
+}
+.joint-link:hover .jj-link-line,
+.joint-link.jj-is-selected .jj-link-line {
+  stroke: var(--link-line-active);
+  stroke-width: calc(var(--jj-link-width) + 0.5px);
+}
+.joint-link:focus,
+.joint-link:focus-visible {
+  outline: none;
+}
+
+/* Ports / column magnets — small + subtle at rest, accent on hover/focus. The
+   demo's magnets are the whole HTML column row; native jj ports (if present)
+   read as quiet dots that warm to the accent on interaction. */
+.jj-port {
+  cursor: pointer;
+  outline: none;
+}
+.jj-port-dot {
+  fill: var(--muted-foreground);
+  transition:
+    fill 120ms ease-out,
+    opacity 120ms ease-out;
+}
+.jj-port:hover .jj-port-dot {
+  fill: var(--primary);
+}
+.jj-port:focus-visible .jj-port-hit {
+  stroke: var(--ring);
+  stroke-width: 2;
+}
+
+/* Link-drag feedback drawn by the `stroke` highlighters wired in paper-config.ts
+   (CONNECT_HIGHLIGHTING). Colour lives HERE — SVG presentation attrs can't resolve
+   `var()`, so the config only carries geometry and each state is keyed by
+   `data-jj-highlight`. The path is a closed rounded rect, so `fill` tints the
+   enclosed area faintly. */
+.joint-highlight-stroke {
+  transition: opacity 0.15s ease-out;
+}
+/* Group drop target while dragging a table onto it. NOT a joint highlighter — the
+   `data-embed-target` attribute is toggled on the group's joint node by
+   useContainmentEmbedding (the sole embedder), and here we override its border rect
+   (the last <rect> in the group markup) with a dashed coral outline. CSS beats the
+   React-set `stroke` presentation attribute, so it wins in both selected + tinted
+   states. */
+[data-embed-target] rect:last-of-type {
+  stroke: var(--primary);
+  stroke-width: 2.5;
+  stroke-dasharray: 7 5;
+  stroke-linejoin: round;
+}
+/* Every column a dragged link COULD connect to — a quiet dashed accent hint. */
+.joint-highlight-stroke[data-jj-highlight="available"] {
+  stroke: color-mix(in oklch, var(--primary) 70%, transparent);
+  fill: none;
+}
+/* The column the link is snapping to — a valid-connection accent in status
+   green, with a faint green wash. */
+.joint-highlight-stroke[data-jj-highlight="valid"] {
+  stroke: var(--status-success);
+  fill: color-mix(in oklch, var(--status-success) 12%, transparent);
+}
+
+/* WebKit fails to paint <foreignObject> subtrees that use box-shadow or
+   backdrop-filter. Table cards render inside foreignObject, so strip those
+   on Apple WebKit (the class is set in main.tsx via IS_APPLE_WEBKIT). NOTE: we
+   deliberately do NOT strip `outline` here — every in-canvas control shows focus
+   via a Tailwind ring (box-shadow, killed above) with `outline-none`, so an
+   outline is the only focus/selection cue WebKit can still paint (see below). */
+.is-apple-webkit foreignObject * {
+  position: static !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Restore keyboard focus visibility on Apple WebKit. Since the ring (box-shadow) is
+   stripped inside foreignObject, paint an OUTLINE instead — WebKit renders outlines
+   in foreignObject correctly. Covers every focusable in-card control (WCAG 2.4.7).
+   The selected/focused NODE ring needs no WebKit special case: it is outline-based
+   for every browser (see [data-node-card][data-selected] above). */
+.is-apple-webkit foreignObject :focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Give PaperScroller's "fit to screen" move a soft eased curve. */
+.transition-in-progress {
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* Draw-to-create rubber band — the react-plus region view the capture layer's
+   press starts (an SVG shape mounted in the paper). Same coral dashed look the
+   old hand-drawn overlay preview had. */
+.jj-selection-region {
+  stroke: var(--primary);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+  fill: color-mix(in oklch, var(--primary) 12%, transparent);
+}
