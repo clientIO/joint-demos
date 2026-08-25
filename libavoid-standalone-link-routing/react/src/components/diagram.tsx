@@ -2,7 +2,6 @@ import {
     Diagram,
     Paper,
     PaperScroller,
-    linkRoutingOrthogonal,
     linkRoutingStraight,
     usePaper,
     usePaperScroller,
@@ -14,7 +13,7 @@ import type {
 } from '@joint/react-plus';
 import { useEffect } from 'react';
 import type { FlowCell } from '@/data/cells';
-import { CORNER_RADIUS, FALLBACK_MARGIN } from '@/routing/settings';
+import { CORNER_RADIUS } from '@/routing/settings';
 import { useAvoidRouter } from '@/routing/use-avoid-router';
 import type { RoutingStatus } from '@/routing/use-avoid-router';
 import { CANVAS_COLOR } from '@/theme';
@@ -55,55 +54,44 @@ const INTERACTIONS: InteractionsOptions = { selection: false };
 const SPATIAL_INDEX: SpatialIndexOptions = { isQuadTreeLazy: true };
 
 /**
- * The paper's own link routing, for every link Libavoid has not answered for.
- *
- * A link is drawn with this until its route arrives, and stays with it when
- * Libavoid cannot find a usable route at all — the worker replies with a `null`
- * router in that case, which is what hands the link back here. A routed link
- * carries `router: 'normal'` instead, so its Libavoid vertices are drawn as they
- * came; the preset's connector is what rounds their corners.
+ * The paper's own link routing: draw a link straight through its vertices,
+ * rounding the corners. The vertices themselves come from the router service —
+ * Libavoid's route once it lands, the service's interim `rightAngle` fallback
+ * while it is still computing — so no paper-side router may reinterpret them.
+ * No link is ever painted without them: the graph stays empty until the
+ * router service is ready (see `useAvoidRouter`).
  */
-const LINK_ROUTING = {
-    ...linkRoutingOrthogonal({
-        cornerRadius: CORNER_RADIUS,
-        margin: FALLBACK_MARGIN,
-    }),
-    /*
-     * The one part of the orthogonal preset this diagram cannot take: it ends a
-     * connected link on its anchor, and here that anchor is the point Libavoid
-     * routed to — the centre of a port. The arrowhead would be drawn from there
-     * inwards, underneath the port it points at.
-     *
-     * The straight preset's connection point stops the line where it meets the
-     * element and backs it off by the length of the arrowhead, which is what
-     * leaves the arrow in the open where it can be seen.
-     */
-    defaultConnectionPoint: linkRoutingStraight().defaultConnectionPoint,
-};
+const LINK_ROUTING = linkRoutingStraight({
+    cornerType: 'cubic',
+    cornerRadius: CORNER_RADIUS,
+});
 
 interface CanvasProps {
+    readonly cells: readonly FlowCell[];
     readonly onStatusChange: (status: RoutingStatus) => void;
 }
 
-function Canvas({ onStatusChange }: CanvasProps) {
+function Canvas({ cells, onStatusChange }: CanvasProps) {
     const { paper } = usePaper();
     const { zoomToFit } = usePaperScroller();
-    const status = useAvoidRouter();
+    const status = useAvoidRouter(cells);
 
     // The routing status is raised to the app so the toolbar can show it
     // outside the canvas.
     useEffect(() => onStatusChange(status), [onStatusChange, status]);
 
     /*
-     * Framed once, as soon as the paper exists. The nodes are already where
-     * they will stay, and a Libavoid route stays close enough to them that the
-     * content box barely moves once the routes land — not worth a second fit
-     * that would overrule whatever the user has zoomed to in the meantime.
+     * Framed once, as soon as the hook has seeded the graph (the graph is
+     * empty until the router service is ready — see `useAvoidRouter`). The
+     * nodes are already where they will stay, and a Libavoid route stays close
+     * enough to them that the content box barely moves once the routes land —
+     * not worth a second fit that would overrule whatever the user has zoomed
+     * to in the meantime.
      */
     useEffect(() => {
-        if (!paper) return;
+        if (!paper || !status.ready) return;
         zoomToFit(FIT_OPTIONS);
-    }, [paper, zoomToFit]);
+    }, [paper, status.ready, zoomToFit]);
 
     return (
         <div className="canvas-stage">
@@ -151,19 +139,19 @@ export interface FlowDiagramProps {
 /**
  * The canvas.
  *
- * Uncontrolled on purpose: `initialCells` seeds the graph and the graph owns
- * everything after that — the router writes routes onto the link models, and
- * `@joint/react-plus` follows along. Routing several hundred links never
- * touches React state.
+ * Uncontrolled on purpose: the graph owns everything — the router writes
+ * routes onto the link models, and `@joint/react-plus` follows along. Routing
+ * several hundred links never touches React state. The cells are seeded by
+ * `useAvoidRouter` once the router service is ready (see the hook), which is
+ * why they are handed to `<Canvas>` rather than to `initialCells`.
  */
 export function FlowDiagram({ cells, onStatusChange }: FlowDiagramProps) {
     return (
         <Diagram
-            initialCells={cells}
             interactions={INTERACTIONS}
             spatialIndex={SPATIAL_INDEX}
         >
-            <Canvas onStatusChange={onStatusChange} />
+            <Canvas cells={cells} onStatusChange={onStatusChange} />
         </Diagram>
     );
 }
