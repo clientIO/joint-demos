@@ -81,11 +81,12 @@ export function useAvoidRouter(): RoutingStatus {
                 setStatus((previous) =>
                     previous.isRouting ? previous : { ...previous, isRouting: true });
             });
-            // One handler for both closing events. The combined form is
-            // untyped (the service's event map types single names only),
-            // hence the explicit parameter type.
-            routerService.on('link:routed link:routing:cancelled', (link: dia.Link) => {
-                setLinkAwaiting(link, false);
+            // One handler for both cycle-closing events, via the object form —
+            // the only multi-event form the service's typed event map accepts.
+            const unmarkAwaiting = (link: dia.Link) => setLinkAwaiting(link, false);
+            routerService.on({
+                'link:routed': unmarkAwaiting,
+                'link:routing:cancelled': unmarkAwaiting,
             });
             // Fired when no link is owed a route any more — the end of a pass.
             routerService.on('idle', () => {
