@@ -2,9 +2,9 @@ import { useGraph } from '@joint/react-plus';
 import { initAvoidRouter } from '@joint/router-avoid';
 import type { RouterService } from '@joint/router-avoid';
 import type { dia } from '@joint/plus';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import wasmUrl from 'libavoid-wasm?url';
-import { setLinkAwaiting } from './awaiting';
+import { AWAITING_CLASS } from './awaiting';
 import { IDEAL_NUDGING_DISTANCE, SHAPE_BUFFER_DISTANCE } from './settings';
 
 /** What the router is doing, for the status readout. */
@@ -41,7 +41,19 @@ export interface RoutingStatus {
  * with no pending debounce or stale Libavoid shape from the graph before it.
  */
 export function useAvoidRouter(): RoutingStatus {
-    const { graph } = useGraph();
+    const { graph, setCell } = useGraph();
+
+    /*
+     * Toggles the pending-route look the React way: an updater over the link's
+     * record, so the class goes through the same `style.className` mapping the
+     * records in `cells.ts` use (and composes with the link's own line class,
+     * instead of a raw `attr()` write having to repeat it).
+     */
+    const setLinkAwaiting = useCallback((link: dia.Link, awaiting: boolean) =>
+        setCell(link.id, (previous) => ({
+            ...previous,
+            style: { ...previous.style, className: awaiting ? AWAITING_CLASS : '' },
+        })), [setCell]);
     const [status, setStatus] = useState<RoutingStatus>({
         isRouting: true,
         durationMs: null,
@@ -112,7 +124,7 @@ export function useAvoidRouter(): RoutingStatus {
             disposed = true;
             service?.destroy();
         };
-    }, [graph]);
+    }, [graph, setLinkAwaiting]);
 
     return status;
 }
