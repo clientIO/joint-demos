@@ -23,7 +23,9 @@ export function FileImportOverlay() {
     }, [paperScroller, commandManager]);
 
     return (
-        <div ref={overlayRef} className="file-import-overlay">
+        // aria-hidden: the overlay idles at opacity 0 (still in the tree) and
+        // only appears during a pointer file-drag — a purely visual affordance.
+        <div ref={overlayRef} className="file-import-overlay" aria-hidden="true">
             <div className="file-import-overlay-content">
                 <svg
                     className="drop-icon"

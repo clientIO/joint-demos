@@ -314,6 +314,9 @@
 
         &[data-highlighted] {
             background-color: var(--bpmn-bg-hover);
+            /* The tint alone is too faint as a keyboard cue (WCAG 1.4.11). */
+            outline: 2px solid var(--bpmn-selector);
+            outline-offset: -2px;
         }
     }
 }

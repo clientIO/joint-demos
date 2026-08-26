@@ -134,6 +134,20 @@ export function dropSwimlane(_paper: dia.Paper, elementView: dia.ElementView, ev
     return checkSwimlaneDrop(elementView.model as shapes.bpmn2.Swimlane, evt.data.poolView?.model ?? null, x, y);
 }
 
+/**
+ * Keyboard counterpart of the swimlane drop: a lane only exists inside a
+ * pool, so insert a new lane (matching the pool's orientation) into the
+ * given pool. Returns the inserted lane.
+ */
+export function insertSwimlaneIntoPool(pool: shapes.bpmn2.CompositePool): shapes.bpmn2.Swimlane {
+
+    const swimlane = pool.isHorizontal() ? new HorizontalSwimlane() : new VerticalSwimlane();
+
+    pool.addSwimlane(swimlane);
+
+    return swimlane;
+}
+
 // Helpers
 
 function canMoveSwimlane(swimlane: shapes.bpmn2.Swimlane) {

@@ -15,7 +15,7 @@ function MarkersSection({ shape }: { shape: AppElement }) {
 
     return (
         <>
-            <h3 className="content-label">Available markers</h3>
+            <h2 className="content-label">Available markers</h2>
             <ToggleGroup.Root
                 type="multiple"
                 className="select-button-group"
@@ -29,7 +29,9 @@ function MarkersSection({ shape }: { shape: AppElement }) {
                         value={marker.name}
                         className="select-button-group-button"
                     >
-                        <span className={marker.cssClass} />
+                        {/* Icon-font glyph (PUA codepoint) — hidden so it
+                            does not pollute the accessible name. */}
+                        <span className={marker.cssClass} aria-hidden="true" />
                         <span>{marker.name}</span>
                     </ToggleGroup.Item>
                 ))}
@@ -58,7 +60,7 @@ function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
 
     return (
         <>
-            <h3 className="content-label">Available shapes</h3>
+            <h2 className="content-label">Available shapes</h2>
             {/* Radix Toolbar: one-shot action buttons with roving focus and
                 arrow-key navigation (same keyboard UX as the marker toggles). */}
             <Toolbar.Root
@@ -75,7 +77,7 @@ function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
                             className="select-button-group-button"
                             onClick={() => morphTo(type)}
                         >
-                            <span className={icon} />
+                            <span className={icon} aria-hidden="true" />
                             <span>{label ?? type}</span>
                         </Toolbar.Button>
                     );

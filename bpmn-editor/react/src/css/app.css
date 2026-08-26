@@ -10,3 +10,23 @@ body {
     width: 100%;
     height: 100%;
 }
+
+/* Visually hidden, still read by assistive technology. */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* The pan/scroll canvas is keyboard-focusable (see CanvasAccessibility) —
+   give it a visible focus ring drawn inside the scroller bounds. */
+.jj-paper-scroller:focus-visible {
+    outline: 2px solid var(--bpmn-selector);
+    outline-offset: -2px;
+}

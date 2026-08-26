@@ -47,6 +47,7 @@ function ColorField({ cell, field, snapshot }: { cell: Cell; field: AppearanceCo
                         type="button"
                         role="radio"
                         aria-checked={value === color.value}
+                        aria-label={color.label}
                         title={color.label}
                         className={`swatch${value === color.value ? ' selected' : ''}`}
                         style={{ backgroundColor: color.value }}
@@ -118,7 +119,7 @@ export function AppearanceForm({ cell }: { cell: Cell }) {
 
                 return (
                     <div key={group.label ?? index} className="group" data-name={group.label}>
-                        {group.label && <h3 className="group-label">{group.label}</h3>}
+                        {group.label && <h2 className="group-label">{group.label}</h2>}
                         {group.fields.map((field) => (
                             field.type === 'color'
                                 ? <ColorField key={field.path} cell={cell} field={field} snapshot={snapshot} />

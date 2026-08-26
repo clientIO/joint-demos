@@ -74,13 +74,14 @@
     --bpmn-border-secondary: #D1D5DB;
     --bpmn-border-tertiary: #E0E6EA;
 
-    /* Text */
+    /* Text — the muted greys clear WCAG AA 4.5:1 on their backgrounds
+       (inspector/toolbar surfaces are white in the light theme). */
     --bpmn-text-tooltip: #374151;
-    --bpmn-text-inspector-button: #9CA3AF;
+    --bpmn-text-inspector-button: #6B7280;
     --bpmn-text-inspector-button-active: #374151;
     --bpmn-text-inspector-button-hover: #4B5563;
-    --bpmn-text-inspector-label: #8A919E;
-    --bpmn-text-inspector-empty: #7A8494;
+    --bpmn-text-inspector-label: #667085;
+    --bpmn-text-inspector-empty: #667085;
     --bpmn-text-primary: #575C70;
     --bpmn-text-secondary: #4B5563;
     --bpmn-text-tertiary: #6B7280;
@@ -132,11 +133,11 @@
     --bpmn-border-tertiary: #333B4A;
 
     --bpmn-text-tooltip: #D9DEE7;
-    --bpmn-text-inspector-button: #6B7280;
+    --bpmn-text-inspector-button: #98A2B3;
     --bpmn-text-inspector-button-active: #E4E6EB;
     --bpmn-text-inspector-button-hover: #C4CBD6;
-    --bpmn-text-inspector-label: #8A919E;
-    --bpmn-text-inspector-empty: #7A8494;
+    --bpmn-text-inspector-label: #98A2B3;
+    --bpmn-text-inspector-empty: #98A2B3;
     --bpmn-text-primary: #C4CBD6;
     --bpmn-text-secondary: #C4CBD6;
     --bpmn-text-tertiary: #9CA6B5;

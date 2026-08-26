@@ -34,11 +34,12 @@ export function Inspector() {
     const effectiveView: InspectorView = view === 'CONTENT' && canContent ? 'CONTENT' : 'APPEARANCE';
 
     return (
-        <div className="inspector-container">
-            <div className="inspector-controls">
+        <aside className="inspector-container" aria-label="Inspector">
+            <div className="inspector-controls" role="group" aria-label="Inspector view">
                 <button
                     type="button"
                     className={`inspector-content-button${cell && effectiveView === 'CONTENT' ? ' active' : ''}`}
+                    aria-pressed={!!cell && effectiveView === 'CONTENT'}
                     disabled={!canContent}
                     onClick={() => setView('CONTENT')}
                 >
@@ -47,6 +48,7 @@ export function Inspector() {
                 <button
                     type="button"
                     className={`inspector-appearance-button${cell && effectiveView === 'APPEARANCE' ? ' active' : ''}`}
+                    aria-pressed={!!cell && effectiveView === 'APPEARANCE'}
                     disabled={!cell}
                     onClick={() => setView('APPEARANCE')}
                 >
@@ -63,6 +65,6 @@ export function Inspector() {
                 {cell && effectiveView === 'CONTENT' && <ContentTab key={String(cell.id)} cell={cell} />}
                 {cell && effectiveView === 'APPEARANCE' && <AppearanceForm key={String(cell.id)} cell={cell} />}
             </div>
-        </div>
+        </aside>
     );
 }

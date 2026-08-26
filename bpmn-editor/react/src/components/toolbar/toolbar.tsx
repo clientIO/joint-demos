@@ -43,6 +43,7 @@ export function Toolbar() {
                     <button
                         type="button"
                         className="toolbar-button toolbar-icon-button"
+                        aria-label="Undo"
                         disabled={!canUndo}
                         onClick={undo}
                     >
@@ -53,6 +54,7 @@ export function Toolbar() {
                     <button
                         type="button"
                         className="toolbar-button toolbar-icon-button"
+                        aria-label="Redo"
                         disabled={!canRedo}
                         onClick={redo}
                     >
@@ -64,24 +66,32 @@ export function Toolbar() {
                     <button
                         type="button"
                         className="toolbar-button toolbar-icon-button"
+                        aria-label="Print"
                         onClick={() => paper && printDiagram(paper)}
                     >
                         <Printer size={18} />
                     </button>
                 </Tip>
                 <div className="toolbar-separator" />
-                <Tip label={isDark ? 'Light theme' : 'Dark theme'} side="bottom">
+                {/* The toggle keeps ONE name ("Dark theme") — the on/off
+                    state is aria-pressed. A name that flips with the state
+                    breaks voice-control targeting (WCAG 2.5.3). */}
+                <Tip label="Dark theme" side="bottom">
                     <button
                         type="button"
                         className="toolbar-button toolbar-icon-button"
+                        aria-label="Dark theme"
+                        aria-pressed={isDark}
                         onClick={toggleTheme}
                     >
                         {isDark ? <Sun size={18} /> : <Moon size={18} />}
                     </button>
                 </Tip>
             </div>
-            <div className="toolbar-group toolbar-group-right">
-                <span className="toolbar-label">Save as:</span>
+            {/* The visible "Save as:" prefix reaches AT through the group
+                label, so each button announces as e.g. "PNG, Save as, group". */}
+            <div className="toolbar-group toolbar-group-right" role="group" aria-label="Save as">
+                <span className="toolbar-label" aria-hidden="true">Save as:</span>
                 <button
                     type="button"
                     className="toolbar-button toolbar-save-button"
