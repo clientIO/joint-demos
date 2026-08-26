@@ -12,6 +12,11 @@ export interface RoutingStatus {
     readonly isRouting: boolean;
     /** How long the last completed routing pass took, in ms. */
     readonly durationMs: number | null;
+    /**
+     * `true` once the router service is running — from that point on, every
+     * link in the graph carries at least the service's interim route.
+     */
+    readonly ready: boolean;
 }
 
 /**
@@ -36,7 +41,11 @@ export interface RoutingStatus {
  */
 export function useAvoidRouter(): RoutingStatus {
     const { graph } = useGraph();
-    const [status, setStatus] = useState<RoutingStatus>({ isRouting: true, durationMs: null });
+    const [status, setStatus] = useState<RoutingStatus>({
+        isRouting: true,
+        durationMs: null,
+        ready: false,
+    });
 
     useEffect(() => {
         let service: RouterService | null = null;
@@ -82,6 +91,7 @@ export function useAvoidRouter(): RoutingStatus {
                 const elapsed = startedAt === null ? null : performance.now() - startedAt;
                 startedAt = null;
                 setStatus((previous) => ({
+                    ...previous,
                     isRouting: false,
                     durationMs: elapsed ?? previous.durationMs,
                 }));
@@ -89,8 +99,11 @@ export function useAvoidRouter(): RoutingStatus {
 
             // Not auto-started: `start()` syncs every cell the graph already
             // holds — the graph is fully seeded by the time this effect runs —
-            // and begins listening for changes.
+            // and begins listening for changes. It also applies the interim
+            // route to every link synchronously, which is what `ready` vouches
+            // for: from here on, no link is routeless.
             routerService.start();
+            setStatus((previous) => ({ ...previous, ready: true }));
         });
 
         return () => {

@@ -80,15 +80,26 @@ function Canvas({ onStatusChange }: CanvasProps) {
     useEffect(() => onStatusChange(status), [onStatusChange, status]);
 
     /*
-     * Framed once, as soon as the paper exists. The nodes are already where
-     * they will stay, and a Libavoid route stays close enough to them that the
-     * content box barely moves once the routes land — not worth a second fit
-     * that would overrule whatever the user has zoomed to in the meantime.
+     * Frozen until the router service is running: before that, no link carries
+     * a route, and the paper would paint them as bare straight lines for the
+     * moment the package's worker needs to boot and load the wasm binary. Once
+     * `ready` flips, every link already holds at least the interim orthogonal
+     * route, so the first thing ever painted is a routed diagram.
+     *
+     * The fit runs once, on that same flip. The nodes are already where they
+     * will stay, and a Libavoid route stays close enough to them that the
+     * content box barely moves once the real routes land — not worth a second
+     * fit that would overrule whatever the user has zoomed to in the meantime.
      */
     useEffect(() => {
         if (!paper) return;
-        zoomToFit(FIT_OPTIONS);
-    }, [paper, zoomToFit]);
+        if (status.ready) {
+            paper.unfreeze();
+            zoomToFit(FIT_OPTIONS);
+        } else {
+            paper.freeze();
+        }
+    }, [paper, status.ready, zoomToFit]);
 
     return (
         <div className="canvas-stage">
@@ -117,8 +128,6 @@ function Canvas({ onStatusChange }: CanvasProps) {
                     gridSize={10}
                     drawGrid={false}
                     snapLinks={{ radius: 30 }}
-                    linkPinning={false}
-                    overflow
                     linkRouting={LINK_ROUTING}
                     moveThreshold={10}
                 />
