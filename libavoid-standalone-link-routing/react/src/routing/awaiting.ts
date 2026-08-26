@@ -34,5 +34,5 @@ export const AWAITING_CLASS = 'awaiting-update';
  * (`ConnEnd` assertion). A single-path `attr()` write triggers none of that.
  */
 export function setLinkAwaiting(link: dia.Link, awaiting: boolean): void {
-    link.attr('line/class', awaiting ? `${LINE_CLASS} ${AWAITING_CLASS}` : LINE_CLASS);
+    link.prop('attrs/line/class', awaiting ? `${LINE_CLASS} ${AWAITING_CLASS}` : LINE_CLASS);
 }
