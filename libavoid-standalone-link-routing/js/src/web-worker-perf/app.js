@@ -91,12 +91,7 @@ export const init = async() => {
         if (linkView) markAwaiting(linkView);
     });
 
-    routerService.on('link:routed', (link) => {
-        const linkView = link.findView(paper);
-        if (linkView) unmarkAwaiting(linkView);
-    });
-
-    routerService.on('link:routing:cancelled', (link) => {
+    routerService.on('link:routed link:routing:cancelled', (link) => {
         const linkView = link.findView(paper);
         if (linkView) unmarkAwaiting(linkView);
     });

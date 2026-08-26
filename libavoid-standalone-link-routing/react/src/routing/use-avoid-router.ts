@@ -1,6 +1,7 @@
 import { useGraph } from '@joint/react-plus';
 import { initAvoidRouter } from '@joint/router-avoid';
 import type { RouterService } from '@joint/router-avoid';
+import type { dia } from '@joint/plus';
 import { useEffect, useState } from 'react';
 import wasmUrl from 'libavoid-wasm?url';
 import { setLinkAwaiting } from './awaiting';
@@ -80,10 +81,10 @@ export function useAvoidRouter(): RoutingStatus {
                 setStatus((previous) =>
                     previous.isRouting ? previous : { ...previous, isRouting: true });
             });
-            routerService.on('link:routed', (link) => {
-                setLinkAwaiting(link, false);
-            });
-            routerService.on('link:routing:cancelled', (link) => {
+            // One handler for both closing events. The combined form is
+            // untyped (the service's event map types single names only),
+            // hence the explicit parameter type.
+            routerService.on('link:routed link:routing:cancelled', (link: dia.Link) => {
                 setLinkAwaiting(link, false);
             });
             // Fired when no link is owed a route any more — the end of a pass.
