@@ -1,10 +1,8 @@
 import { useGraph } from '@joint/react-plus';
 import { initAvoidRouter } from '@joint/router-avoid';
 import type { RouterService } from '@joint/router-avoid';
-import type { dia } from '@joint/plus';
 import { useEffect, useState } from 'react';
 import wasmUrl from 'libavoid-wasm?url';
-import type { FlowCell } from '@/data/cells';
 import { setLinkAwaiting } from './awaiting';
 import { IDEAL_NUDGING_DISTANCE, SHAPE_BUFFER_DISTANCE } from './settings';
 
@@ -14,8 +12,6 @@ export interface RoutingStatus {
     readonly isRouting: boolean;
     /** How long the last completed routing pass took, in ms. */
     readonly durationMs: number | null;
-    /** `true` once the graph is seeded and the router service is running. */
-    readonly ready: boolean;
 }
 
 /**
@@ -28,13 +24,6 @@ export interface RoutingStatus {
  * What is left here is wiring the service's events to this app's UI — the
  * awaiting-update style on the links and the timing readout in the toolbar.
  *
- * The hook also owns seeding the graph: `initAvoidRouter` resolves only after
- * the worker has booted and loaded the wasm binary, and a link rendered before
- * then would be a bare straight line — nothing has written a route yet. So the
- * graph stays empty until the service is ready, and the cells go in right
- * before `start()`, in the same synchronous tick: by the time the paper draws
- * them, every link already carries the service's interim orthogonal route.
- *
  * Everything still goes through the JointJS graph rather than through React
  * state: the service sets geometry on the link models directly, and
  * `@joint/react-plus` is subscribed to the graph, so the canvas follows
@@ -45,13 +34,9 @@ export interface RoutingStatus {
  * `destroy()` terminates the worker, and the next mount starts a fresh one
  * with no pending debounce or stale Libavoid shape from the graph before it.
  */
-export function useAvoidRouter(cells: readonly FlowCell[]): RoutingStatus {
+export function useAvoidRouter(): RoutingStatus {
     const { graph } = useGraph();
-    const [status, setStatus] = useState<RoutingStatus>({
-        isRouting: true,
-        durationMs: null,
-        ready: false,
-    });
+    const [status, setStatus] = useState<RoutingStatus>({ isRouting: true, durationMs: null });
 
     useEffect(() => {
         let service: RouterService | null = null;
@@ -97,27 +82,22 @@ export function useAvoidRouter(cells: readonly FlowCell[]): RoutingStatus {
                 const elapsed = startedAt === null ? null : performance.now() - startedAt;
                 startedAt = null;
                 setStatus((previous) => ({
-                    ...previous,
                     isRouting: false,
                     durationMs: elapsed ?? previous.durationMs,
                 }));
             });
 
-            // Seed and start back to back: `start()` syncs every cell the
-            // graph holds and applies the interim routes synchronously, so
-            // the links are never painted routeless.
-            // The cast: `FlowCell` leaves `id` optional (the graph assigns
-            // one), which the stricter `fromJSON` cell type does not model.
-            graph.fromJSON({ cells: cells as unknown as dia.Cell.JSON[] });
+            // Not auto-started: `start()` syncs every cell the graph already
+            // holds — the graph is fully seeded by the time this effect runs —
+            // and begins listening for changes.
             routerService.start();
-            setStatus((previous) => ({ ...previous, ready: true }));
         });
 
         return () => {
             disposed = true;
             service?.destroy();
         };
-    }, [graph, cells]);
+    }, [graph]);
 
     return status;
 }

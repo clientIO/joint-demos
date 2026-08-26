@@ -140,13 +140,9 @@ and writes each route Libavoid computes straight back onto its link model.
 single route passing through a React render.
 
 What is left in the demo is one hook, `src/routing/use-avoid-router.ts`: it
-calls `initAvoidRouter(graph, ...)`, wires up the service's events, seeds the
-graph and calls `start()`. The seeding is deliberately deferred: the service
-only exists once its worker has booted and loaded the wasm binary, and a link
-rendered before then would be a bare straight line. Filling the graph right
-before `start()` — in the same synchronous tick — means every link already
-carries the service's interim orthogonal route by the time it is first drawn.
-The events drive the two pieces of UI the package does not know about:
+calls `initAvoidRouter(graph, ...)`, wires up the service's events, and calls
+`start()`. The events drive the two pieces of UI the package does not know
+about:
 
 - `link:routing` / `link:routed` / `link:routing:cancelled` toggle the
   awaiting-update style on each link (`src/routing/awaiting.ts`) — a link is
