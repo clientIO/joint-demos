@@ -1,13 +1,18 @@
+import { linkStyleLine } from '@joint/react-plus';
 import type { dia } from '@joint/plus';
-
-/**
- * The class `@joint/react` puts on every link's visible line. Writing the
- * `class` attribute replaces it wholesale, so it has to be repeated here.
- */
-const LINE_CLASS = 'jj-link-line';
 
 /** Added while the router still owes the link a route; styled in `index.css`. */
 export const AWAITING_CLASS = 'awaiting-update';
+
+/*
+ * The full `class` values for the link's visible line, derived through
+ * `linkStyleLine` — the same preset that expands the records' `style.className`
+ * — so the library's own line class never has to be repeated here. Writing the
+ * `class` attribute replaces it wholesale, which is why the toggle needs both
+ * complete strings.
+ */
+const AWAITING_LINE_CLASS = linkStyleLine({ className: AWAITING_CLASS }).class as string;
+const DEFAULT_LINE_CLASS = linkStyleLine().class as string;
 
 /**
  * Marks a link as waiting for its route, or clears the mark.
@@ -34,5 +39,5 @@ export const AWAITING_CLASS = 'awaiting-update';
  * (`ConnEnd` assertion). A single-path `attr()` write triggers none of that.
  */
 export function setLinkAwaiting(link: dia.Link, awaiting: boolean): void {
-    link.prop('attrs/line/class', awaiting ? `${LINE_CLASS} ${AWAITING_CLASS}` : LINE_CLASS);
+    link.prop('attrs/line/class', awaiting ? AWAITING_LINE_CLASS : DEFAULT_LINE_CLASS);
 }
