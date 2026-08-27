@@ -5,6 +5,7 @@ import {
     usePaperScroller,
     useSelectionCollection,
 } from '@joint/react-plus';
+import type { CellId } from '@joint/react-plus';
 import { useEffect, useRef } from 'react';
 import { connectionPoints } from '@joint/plus';
 import { CANVAS_COLOR, GRID_COLOR } from '@/theme';
@@ -30,7 +31,7 @@ export interface IndexCanvasProps {
     /** Cell to select right after mount — a cross-diagram jump from the tree. */
     readonly initialCellId: string | null;
     /** A cell (or blank space, `null`) was clicked; the selection is already written. */
-    readonly onCellClick: (cellId: string | null) => void;
+    readonly onCellClick: (cellId: CellId | null) => void;
 }
 
 /**
@@ -83,7 +84,7 @@ export function IndexCanvas({ initialCellId, onCellClick }: IndexCanvasProps) {
                 options={{ defaultConnectionPoint: CONNECTION_POINT }}
                 onCellPointerClick={({ model }) => {
                     selectCells([model.id]);
-                    onCellClick(String(model.id));
+                    onCellClick(model.id);
                 }}
                 onBlankPointerClick={() => {
                     selectCells([]);

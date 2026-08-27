@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Diagram } from '@joint/react-plus';
-import type { InteractionsOptions } from '@joint/react-plus';
+import type { CellId, InteractionsOptions } from '@joint/react-plus';
 import { useSimpleTreeViewApiRef } from '@mui/x-tree-view/hooks';
 import { DiagramTree } from '@/components/diagram-tree';
 import { IndexCanvas } from '@/components/diagram';
@@ -57,7 +57,7 @@ export function App() {
      * continues from the clicked cell. A blank click clears focus instead —
      * the original demo's behaviour.
      */
-    const handleCanvasClick = useCallback((cellId: string | null) => {
+    const handleCanvasClick = useCallback((cellId: CellId | null) => {
         if (cellId === null) {
             (document.activeElement as HTMLElement | null)?.blur();
             return;

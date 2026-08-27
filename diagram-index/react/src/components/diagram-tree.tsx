@@ -42,7 +42,7 @@ export function DiagramTree({
 }: DiagramTreeProps) {
     const { collection, selectCells } = useSelectionCollection();
     const selectedCellId = useCells(collection, (cells) =>
-        (cells.length === 0 ? null : String(cells[0].id)));
+        (cells.length === 0 ? null : cells[0].id));
 
     const selectedItemId = selectedCellId === null
         ? activeDiagramId

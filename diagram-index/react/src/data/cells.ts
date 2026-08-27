@@ -1,3 +1,4 @@
+import type { CellId } from '@joint/react-plus';
 import { TreeData } from './tree-data';
 import type { IndexCell, IndexElement, IndexLink, SourceDiagram } from './tree-data';
 
@@ -8,7 +9,8 @@ export type { IndexCell, IndexElement, IndexLink, NodeData, NodeKind } from './t
  * character neither id scheme uses. A bare diagram id is the diagram's own
  * (root) tree item.
  */
-export function toItemId(diagramId: string, cellId?: string): string {
+export function toItemId(diagramId: string, cellId?: CellId): string {
+    // Cell ids are `string | number` in JointJS; the composite is always a string.
     return cellId === undefined ? diagramId : `${diagramId}:${cellId}`;
 }
 
@@ -32,7 +34,7 @@ export interface DiagramSource extends SourceDiagram {
 function toLeaf(diagramId: string, cell: IndexCell): TreeLeaf {
     const isElement = cell.type === 'element';
     return {
-        itemId: toItemId(diagramId, String(cell.id)),
+        itemId: toItemId(diagramId, cell.id),
         isElement,
         label: isElement
             ? ((cell as IndexElement).data.label || `Element (${cell.id})`)
