@@ -38,7 +38,7 @@ export default defineConfig({
         dedupe: ['react', 'react-dom', '@joint/react', '@joint/core'],
     },
     optimizeDeps: {
-        include: ['@joint/core', '@joint/plus', '@joint/react', '@joint/react/internal'],
+        include: ['@joint/core', '@joint/plus', '@joint/react'],
         // The package spawns its worker with `new Worker(new URL(...))`
         // relative to its own module; prebundling would flatten that module
         // away, so in dev it has to be served from source.
