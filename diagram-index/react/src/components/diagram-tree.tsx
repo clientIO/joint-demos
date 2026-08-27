@@ -26,8 +26,8 @@ export interface DiagramTreeProps {
  * and focusing an item of the active diagram writes straight back into it —
  * no selection state of the tree's own.
  *
- * Selection deliberately rides item *focus*, not item clicks — the behaviour
- * the original demo had: walking the tree with the arrow keys moves the
+ * Selection deliberately rides item *focus*, not item clicks — matching the
+ * demo's other variants: walking the tree with the arrow keys moves the
  * selection (and switches diagrams when crossing into the other subtree), and
  * a mouse click selects because it also focuses. The canvas drives the tree
  * through the same door: `apiRef.current.focusItem(...)` in `app.tsx`.

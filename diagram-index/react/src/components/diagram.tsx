@@ -48,8 +48,7 @@ export function IndexCanvas({ initialCellId, onCellClick }: IndexCanvasProps) {
     const { paperScroller } = usePaperScroller();
     const { selectCells } = useSelectionCollection();
 
-    // Frame the diagram once per mount at zoom 1 (the old
-    // `scroller.render().centerContent(...)`).
+    // Frame the diagram once per mount at zoom 1.
     useEffect(() => {
         if (!paper || !paperScroller) return;
         paperScroller.centerContent({ useModelGeometry: true });

@@ -53,10 +53,8 @@ function Shape({ kind, width, height, rx, ...svgProps }: ShapeProps) {
                 />
             );
         case 'parallelogram':
-            // Was: M 20 0 H calc(w) L calc(w-20) calc(h) H 0 Z
             return <path {...svgProps} d={`M 20 0 H ${width} L ${width - 20} ${height} H 0 Z`} />;
         case 'diamond':
-            // Was: M 0 calc(0.5*h) calc(0.5*w) 0 calc(w) calc(0.5*h) calc(0.5*w) calc(h) Z
             return (
                 <path
                     {...svgProps}
@@ -76,8 +74,7 @@ function Shape({ kind, width, height, rx, ...svgProps }: ShapeProps) {
  *
  * The selection halo is rendered here too: while the node is selected, an
  * extra copy of the outline with a fat stroke is mounted as the first child,
- * so it paints behind the body — the same read the old `highlighters.mask`
- * on the BACK layer gave.
+ * so it paints behind the body.
  */
 export function RenderNode({ kind, label, rx }: NodeData) {
     const { width, height } = useCell(selectElementSize);

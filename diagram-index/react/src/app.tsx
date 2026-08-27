@@ -54,8 +54,7 @@ export function App() {
     /*
      * A canvas click already wrote the selection; what is left is the tree:
      * reveal the leaf and move DOM focus onto it, so keyboard navigation
-     * continues from the clicked cell. A blank click clears focus instead —
-     * the original demo's behaviour.
+     * continues from the clicked cell. A blank click clears focus instead.
      */
     const handleCanvasClick = useCallback((cellId: CellId | null) => {
         if (cellId === null) {
