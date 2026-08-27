@@ -1,6 +1,41 @@
 # JointJS+: Diagram Index (React) <a href="https://www.jointjs.com/jointjs-plus"><img src="../jointjs-plus-badge.svg" alt="JointJS+" width="123" align="right" /></a>
 
-This is a React version of the Diagram Index demo that allows the user to display multiple JointJS diagrams while navigating each cell of a certain diagram via a TreeView component. Thus you or your customers can get a better overview of all elements contained in your diagrams, and work in a more organized way.
+This is a React version of the Diagram Index demo: multiple JointJS diagrams
+navigated from an MUI X tree view, with a two-way selection sync between the
+tree and the canvas. Thus you or your customers can get a better overview of
+all elements contained in your diagrams, and work in a more organized way.
+
+Built with [`@joint/react-plus`](https://www.jointjs.com/react): the saved
+JointJS diagrams are converted into declarative cell records and rendered by
+React components — no shape classes, no imperative paper wiring.
+
+## What this demo shows
+
+- **Declarative cells from saved JSON** — the diagrams are kept as exported
+  JointJS JSON (`src/data/tree-data.ts`) and converted into
+  `ElementRecord`/`LinkRecord` records at module load (`src/data/cells.ts`).
+  Link fidelity is preserved through the record's native `EndJSON`: static
+  `vertices`, labels, and the two parallel links of Process 2 held apart by
+  `center` anchors with `dy: ±10`.
+- **React-rendered nodes** — the four flowchart outlines (rectangle,
+  parallelogram, diamond, ellipse) are one small SVG component
+  (`src/components/render-node.tsx`) reading its fixed geometry off the model
+  (`useCell(selectElementSize)`); nothing is measured out of the DOM.
+- **Two-way tree ↔ canvas selection with React state as the single source of
+  truth** (`src/app.tsx`). The tree is a controlled MUI X `SimpleTreeView`;
+  selection rides item *focus*, so walking the tree with the arrow keys moves
+  the canvas selection, and crossing into the other diagram's subtree switches
+  the canvas. A canvas click selects and focuses the tree item through the
+  tree view's `apiRef` — no DOM queries.
+- **CSS-only selection halo** — `<Selection wrapper={false}>` toggles the
+  `jj-is-selected` class; the green glow is a fat-stroke sibling outline on
+  elements and the link's built-in wrapper path on links, styled in
+  `src/index.css`.
+- **One `<Diagram>` per diagram** — switching diagrams remounts
+  `<Diagram key={diagramId} initialCells={...}>`; the graph stays uncontrolled
+  and view-only (`interactive={false}`, built-in selection interactions off),
+  while `<PaperScroller>` provides blank-drag panning, wheel scrolling and
+  pinch zoom.
 
 ## How to download this demo
 
@@ -42,5 +77,5 @@ npm install
 And then start the application with:
 
 ```bash
-npm run start
+npm run dev
 ```
