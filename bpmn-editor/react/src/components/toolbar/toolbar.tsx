@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useGraph, usePaper, useGraphHistory, useGraphHistoryStack } from '@joint/react-plus';
-import { Undo2, Redo2, Printer, Sun, Moon } from 'lucide-react';
+import { Undo2, Redo2, Printer, Sun, Moon, Keyboard } from 'lucide-react';
 import { printDiagram, exportPNG, downloadJSON, downloadXML } from '../../actions/export-actions';
 import { FileDropdown } from './file-dropdown';
 import { ExportDialog } from '../export-dialog/export-dialog';
+import { ShortcutsDialog } from '../shortcuts-dialog/shortcuts-dialog';
 import { Tip } from '../tooltip/tooltip';
 import './toolbar.css';
 
@@ -20,6 +21,7 @@ export function Toolbar() {
 
     const [exportedPNG, setExportedPNG] = useState<string | null>(null);
     const [isDark, setIsDark] = useState(false);
+    const [showShortcuts, setShowShortcuts] = useState(false);
 
     const toggleTheme = () => {
         const dark = !isDark;
@@ -72,6 +74,17 @@ export function Toolbar() {
                         <Printer size={18} />
                     </button>
                 </Tip>
+                <Tip label="Keyboard shortcuts" side="bottom">
+                    <button
+                        type="button"
+                        className="toolbar-button toolbar-icon-button"
+                        aria-label="Keyboard shortcuts"
+                        aria-haspopup="dialog"
+                        onClick={() => setShowShortcuts(true)}
+                    >
+                        <Keyboard size={18} />
+                    </button>
+                </Tip>
                 <div className="toolbar-separator" />
                 {/* The toggle keeps ONE name ("Dark theme") — the on/off
                     state is aria-pressed. A name that flips with the state
@@ -116,6 +129,9 @@ export function Toolbar() {
             </div>
             {exportedPNG && (
                 <ExportDialog dataUrl={exportedPNG} onClose={() => setExportedPNG(null)} />
+            )}
+            {showShortcuts && (
+                <ShortcutsDialog onClose={() => setShowShortcuts(false)} />
             )}
         </div>
     );
