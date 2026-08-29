@@ -7,6 +7,10 @@ import './label-editor.css';
 
 type Selection = Pick<ui.Selection, 'collection'>;
 
+// Shared with the blur handlers: the text is written to the cell when the
+// editor loses focus, unless the edit was cancelled with Escape.
+type EditorState = { cancelled: boolean };
+
 // The single open label editor (one at a time by design).
 let currentEditor: HTMLDivElement | null = null;
 
@@ -44,10 +48,16 @@ export function openLabelEditor(paper: dia.Paper, selection: Selection, cellView
     // Keep the cell selected so the inspector stays open during the edit.
     selection.collection.reset([cellView.model]);
 
+    const state: EditorState = { cancelled: false };
+
+    // Where the focus goes when the editor is closed with the keyboard —
+    // the canvas for a keyboard-started edit, so the shortcuts keep working.
+    const opener = document.activeElement as HTMLElement | null;
+
     if (cell.isLink()) {
-        editLinkLabel(editableWrapper, contentEditableDiv, cell as AppLink, paper);
+        editLinkLabel(editableWrapper, contentEditableDiv, cell as AppLink, paper, state);
     } else {
-        editElementLabel(editableWrapper, contentEditableDiv, cell as AppElement, paper);
+        editElementLabel(editableWrapper, contentEditableDiv, cell as AppElement, paper, state);
     }
 
     // Select all text in the editable area
@@ -78,21 +88,33 @@ export function openLabelEditor(paper: dia.Paper, selection: Selection, cellView
     // Enable saving on Enter (without shift), cancel on Escape
     contentEditableDiv.addEventListener('keydown', (evt) => {
 
-        const isEnter = evt.key === 'Enter';
+        const isEnter = evt.key === 'Enter' && !evt.shiftKey;
+        const isEscape = evt.key === 'Escape';
 
-        if (evt.key === 'Escape' || (isEnter && !evt.shiftKey)) {
-            if (isEnter) {
-                evt.preventDefault();
-            }
-            contentEditableDiv.blur();
-            selection.collection.reset([cell]);
+        if (!isEnter && !isEscape) return;
+
+        if (isEnter) {
+            evt.preventDefault();
         }
+        // The app shortcuts are bound on `document` and the editor is gone
+        // by the time the event gets there — without this the Enter closing
+        // the editor would reopen it, and the Escape would clear the
+        // selection.
+        evt.stopPropagation();
+
+        // Escape discards the edit: the text is only written on blur.
+        state.cancelled = isEscape;
+
+        contentEditableDiv.blur();
+        selection.collection.reset([cell]);
+        currentEditor = null;
+        opener?.focus();
     });
 
     currentEditor = editableWrapper;
 }
 
-function editLinkLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElement, link: AppLink, paper: dia.Paper) {
+function editLinkLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElement, link: AppLink, paper: dia.Paper, state: EditorState) {
 
     const label = link.label(0)?.attrs?.label?.text;
     editable.innerText = label ?? '';
@@ -108,21 +130,25 @@ function editLinkLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElement, 
 
     editable.addEventListener('blur', () => {
 
-        // Remove line breaks
-        const parsedText = editable.innerText.trim().replace(/<br>/, '');
+        // Escape discards the edit — the link keeps the label it had.
+        if (!state.cancelled) {
 
-        if (parsedText !== '') {
+            // Remove line breaks
+            const parsedText = editable.innerText.trim().replace(/<br>/, '');
 
-            link.label(0, {
-                attrs: {
-                    label: {
-                        text: parsedText
+            if (parsedText !== '') {
+
+                link.label(0, {
+                    attrs: {
+                        label: {
+                            text: parsedText
+                        }
                     }
-                }
-            });
+                });
 
-        } else {
-            link.removeLabel(0);
+            } else {
+                link.removeLabel(0);
+            }
         }
 
         // Show the labels
@@ -134,7 +160,7 @@ function editLinkLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElement, 
     });
 }
 
-function editElementLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElement, element: AppElement, paper: dia.Paper) {
+function editElementLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElement, element: AppElement, paper: dia.Paper, state: EditorState) {
 
     const labelPath = element.labelPath;
 
@@ -150,7 +176,10 @@ function editElementLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElemen
 
     editable.addEventListener('blur', () => {
 
-        element.attr(labelPath, editable.innerText.trim());
+        // Escape discards the edit — the original label stays untouched.
+        if (!state.cancelled) {
+            element.attr(labelPath, editable.innerText.trim());
+        }
         labelElementView.setLabelNodeDisplay(true);
 
         editorWrapper.remove();

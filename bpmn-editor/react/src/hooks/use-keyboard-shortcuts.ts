@@ -1,6 +1,7 @@
 import type { shapes } from '@joint/plus';
 import { usePaper, usePaperScroller, useGraphHistory, useSelectionCollection, useOnKeyboardEvents } from '@joint/react-plus';
 import { printDiagram } from '../actions/export-actions';
+import { openLabelEditor } from '../actions/label-editor';
 import { ZOOM_SETTINGS } from '../configs/paper-config';
 
 import type { dia, ui } from '@joint/plus';
@@ -45,14 +46,32 @@ export function useKeyboardShortcuts() {
         'down': (evt: dia.Event) => onMoveSelection(ctx(), evt, 0, 1),
         'left': (evt: dia.Event) => onMoveSelection(ctx(), evt, -1, 0),
         'right': (evt: dia.Event) => onMoveSelection(ctx(), evt, 1, 0),
+        // Rename the selected cell without the pointer: `F2` is the platform
+        // convention, `enter` matches the other diagram editors.
+        'enter F2': (evt: dia.Event) => onEditLabel(ctx(), evt),
         'keydown:shift': () => paperScroller?.setCursor('crosshair'),
         'keyup:shift': () => paperScroller?.setCursor('grab')
     });
 }
 
+// The keyboard is bound on `document`, so the canvas shortcuts would fire
+// while another part of the app has the focus — `enter` on a stencil item
+// drops a shape, the arrow keys move the toolbar's roving focus and
+// `backspace` would delete the selection from anywhere. The keys that act
+// on the diagram only apply when the focus is on the canvas (or nowhere).
+// Text fields are already filtered out by `ui.Keyboard` itself.
+function isCanvasFocused(context: KeyboardContext, evt: dia.Event) {
+    const target = evt.target as Node | null;
+    if (!target) return false;
+    if (target === document.body) return true;
+    const canvas = context.paperScroller.el;
+    return target === canvas || canvas.contains(target);
+}
+
 // Keyboard event handlers
 
 function onDelete(context: KeyboardContext, evt: dia.Event) {
+    if (!isCanvasFocused(context, evt)) return;
     evt.preventDefault();
     const { graph, selection } = context;
     const selectedCells = selection.collection.toArray();
@@ -110,6 +129,8 @@ function onPrint(context: KeyboardContext, evt: dia.Event) {
  * activity's border; pools grow to keep containing the moved elements.
  */
 function onMoveSelection(context: KeyboardContext, evt: dia.Event, dx: number, dy: number) {
+    if (!isCanvasFocused(context, evt)) return;
+
     const { graph, paper, selection } = context;
 
     const elements = selection.collection.toArray()
@@ -148,6 +169,28 @@ function onMoveSelection(context: KeyboardContext, evt: dia.Event, dx: number, d
     });
 
     graph.stopBatch('keyboard-move');
+}
+
+/**
+ * Opens the inline label editor over the single selected cell — the
+ * keyboard equivalent of double-clicking it. Cells without a label (the
+ * shape decides) are left alone.
+ */
+function onEditLabel(context: KeyboardContext, evt: dia.Event) {
+    if (!isCanvasFocused(context, evt)) return;
+
+    const { paper, selection } = context;
+
+    const cells = selection.collection.toArray();
+    if (cells.length !== 1) return;
+
+    const view = paper.findViewByModel(cells[0]);
+    if (!view) return;
+
+    // Enter would otherwise be re-dispatched to the editor it just opened.
+    evt.preventDefault();
+
+    openLabelEditor(paper, selection, view);
 }
 
 function onEscape(context: KeyboardContext) {
