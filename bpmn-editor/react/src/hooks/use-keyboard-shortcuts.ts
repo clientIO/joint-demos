@@ -1,5 +1,5 @@
-import type { shapes } from '@joint/plus';
-import { usePaper, usePaperScroller, useGraphHistory, useSelectionCollection, useOnKeyboardEvents } from '@joint/react-plus';
+import { util, type shapes } from '@joint/plus';
+import { usePaper, usePaperScroller, useGraphHistory, useSelectionCollection, useOnKeyboardEvents, useClipboard, type ClipboardApi } from '@joint/react-plus';
 import { printDiagram } from '../actions/export-actions';
 import { openLabelEditor } from '../actions/label-editor';
 import { insertSwimlaneIntoPool } from '../dnd/swimlanes';
@@ -14,7 +14,19 @@ type KeyboardContext = {
     paperScroller: ui.PaperScroller;
     selection: Pick<ui.Selection, 'collection'>;
     commandManager: dia.CommandManager;
+    clipboard: ClipboardApi;
 };
+
+// Where a copied cell was embedded, remembered on the copy so the paste can
+// put the clone back into the same parent. `util.cloneCells()` only keeps
+// the embedding of parents that were copied too, so a task copied out of a
+// swimlane would otherwise paste loose onto the canvas.
+const COPIED_FROM_PARENT = 'copiedFromParent';
+// The cell the copy was taken from, so a pasted lane can go in below it.
+const COPIED_FROM = 'copiedFrom';
+
+// How far a pasted copy lands from its original, in grid steps.
+const PASTE_OFFSET_STEPS = 3;
 
 // Keyboard shortcuts, bound to the keyboard owned by `<Diagram>`.
 export function useKeyboardShortcuts() {
@@ -23,13 +35,15 @@ export function useKeyboardShortcuts() {
     const { paperScroller } = usePaperScroller();
     const { commandManager } = useGraphHistory();
     const selection = useSelectionCollection();
+    const clipboard = useClipboard();
 
     const ctx = (): KeyboardContext => ({
         graph: paper!.model,
         paper: paper!,
         paperScroller: paperScroller!,
         selection,
-        commandManager
+        commandManager,
+        clipboard
     });
 
     useOnKeyboardEvents({
@@ -37,6 +51,9 @@ export function useKeyboardShortcuts() {
         'ctrl+z command+z': (evt: dia.Event) => onUndo(ctx(), evt),
         'ctrl+y command+y shift+ctrl+z shift+command+z': (evt: dia.Event) => onRedo(ctx(), evt),
         'ctrl+a command+a': (evt: dia.Event) => onSelectAll(ctx(), evt),
+        'ctrl+c command+c': (evt: dia.Event) => onCopy(ctx(), evt),
+        'ctrl+x command+x': (evt: dia.Event) => onCut(ctx(), evt),
+        'ctrl+v command+v': (evt: dia.Event) => onPaste(ctx(), evt),
         // Print the diagram instead of the browser's page print — that is
         // what printing means in a diagram editor.
         'ctrl+p command+p': (evt: dia.Event) => onPrint(ctx(), evt),
@@ -112,6 +129,136 @@ function onSelectAll(context: KeyboardContext, evt: dia.Event) {
     evt.preventDefault();
     const { graph, selection } = context;
     selection.collection.reset(graph.getElements());
+}
+
+/**
+ * Copy options that record, on each clone, the parent its original was
+ * embedded in — unless that parent is being copied too, in which case the
+ * clone keeps the embedding on its own.
+ */
+function rememberParents(graph: dia.Graph) {
+    return {
+        // Copy what is embedded too: a lane brings its shapes, a pool brings
+        // its lanes and their shapes, an activity brings its boundary events.
+        deep: true,
+        cloneCells: (cells: dia.Cell[]) => {
+            const clones = util.cloneCells(cells);
+
+            Object.entries(clones).forEach(([originalId, clone]) => {
+                clone.set(COPIED_FROM, originalId);
+
+                const parent = graph.getCell(originalId)?.getParentCell();
+                if (parent && !clones[parent.id]) {
+                    clone.set(COPIED_FROM_PARENT, parent.id);
+                }
+            });
+
+            return Object.values(clones);
+        }
+    };
+}
+
+/**
+ * The part of the selection the clipboard handles. Pools and lanes are left
+ * out: a lane is not free-standing, and duplicating one means
+ * `pool.addSwimlane()` (which places it in the stack and lays the pool out
+ * again) rather than cloning a cell — a pasted clone lands embedded but
+ * unpositioned, on top of the lane it was copied from. `cmd+enter` adds
+ * lanes; removing them has its own rules in `onDelete`.
+ */
+function onCopy(context: KeyboardContext, evt: dia.Event) {
+    if (!isCanvasFocused(context, evt)) return;
+
+    const { graph, selection, clipboard } = context;
+    const cells = selection.collection.toArray();
+    if (cells.length === 0) return;
+
+    evt.preventDefault();
+    clipboard.copyCells(cells, rememberParents(graph));
+}
+
+function onCut(context: KeyboardContext, evt: dia.Event) {
+    if (!isCanvasFocused(context, evt)) return;
+
+    const { graph, selection, clipboard } = context;
+    const selected = selection.collection.toArray();
+    if (selected.length === 0) return;
+
+    evt.preventDefault();
+
+    // A lane can be copied but not cut: removing one has rules of its own
+    // (a pool must keep a lane — see `onDelete`). Copying is still what the
+    // user asked for, so the clipboard is filled either way.
+    const cells = selected.filter((cell) => !isSwimlane(cell));
+
+    if (cells.length === 0) {
+        clipboard.copyCells(selected, rememberParents(graph));
+        return;
+    }
+
+    clipboard.cutCells(cells, rememberParents(graph));
+    selection.collection.reset([]);
+}
+
+/**
+ * Pastes the clipboard one grid step off the original and restores the
+ * embedding, so a copy of a task in a swimlane lands in that swimlane
+ * rather than loose on the canvas. The pool grows to fit the copies.
+ */
+function onPaste(context: KeyboardContext, evt: dia.Event) {
+    if (!isCanvasFocused(context, evt)) return;
+
+    const { graph, paper, selection, clipboard } = context;
+    if (clipboard.isClipboardEmpty()) return;
+
+    evt.preventDefault();
+
+    const step = gridStep(paper);
+    const batchName = 'paste';
+
+    graph.startBatch(batchName);
+
+    // Offset in whole grid steps, so the copy stays snapped to the grid and
+    // still sits clear enough of the original to grab.
+    const offset = step * PASTE_OFFSET_STEPS;
+    const pasted = clipboard.pasteCells({ translate: { dx: offset, dy: offset }});
+
+    pasted.forEach((cell) => {
+        const parentId = cell.get(COPIED_FROM_PARENT);
+        const originalId = cell.get(COPIED_FROM);
+        cell.unset(COPIED_FROM_PARENT);
+        cell.unset(COPIED_FROM);
+
+        // No recorded parent: either the copy was taken from the canvas, or
+        // its parent came along with it (a pool brings its own lanes).
+        if (!parentId) return;
+
+        // The parent may be gone by now — the copy outlives the cells it
+        // was taken from.
+        const parent = graph.getCell(parentId);
+        if (!parent) return;
+
+        if (isSwimlane(cell) && isPool(parent)) {
+            // A lane belongs to the pool's stack, so it is inserted rather
+            // than embedded — that lays the pool out again and moves the
+            // lane's own shapes with it. It goes in below the lane it was
+            // copied from, or last when that one is gone.
+            const lanes = parent.getSwimlanes();
+            const original = originalId ? graph.getCell(originalId) : null;
+            const index = original && isSwimlane(original) ? lanes.indexOf(original) + 1 : lanes.length;
+
+            parent.addSwimlane(cell as shapes.bpmn2.Swimlane, index);
+            return;
+        }
+
+        parent.embed(cell);
+
+        if (cell.isElement()) adjustPoolToContainElement(cell as dia.Element);
+    });
+
+    graph.stopBatch(batchName);
+
+    selection.collection.reset(pasted.filter((cell) => cell.isElement()));
 }
 
 function onZoomIn(context: KeyboardContext, evt: dia.Event) {

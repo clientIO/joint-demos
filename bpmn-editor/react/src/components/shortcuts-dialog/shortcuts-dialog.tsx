@@ -36,7 +36,10 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
             { keys: ['Enter'], or: ['F2'], action: 'Rename the selected shape' },
             { keys: ['Shift', 'Enter'], action: 'Line break while renaming' },
             { keys: ['Esc'], action: 'Discard the rename' },
-            { keys: [MOD, 'Enter'], action: 'Add a lane after the selected lane, or at the end of the selected pool' }
+            { keys: [MOD, 'Enter'], action: 'Add a lane after the selected lane, or at the end of the selected pool' },
+            { keys: [MOD, 'C'], action: 'Copy the selection' },
+            { keys: [MOD, 'X'], action: 'Cut the selection' },
+            { keys: [MOD, 'V'], action: 'Paste — a shape returns to its lane, a lane or pool is copied with its contents' }
         ]
     },
     {

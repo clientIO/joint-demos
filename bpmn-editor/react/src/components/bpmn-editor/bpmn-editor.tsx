@@ -66,7 +66,7 @@ function CanvasAccessibility() {
 export function BpmnEditor() {
     return (
         <TipProvider>
-            <Diagram cellNamespace={cellNamespace} interactions={DIAGRAM_INTERACTIONS} history>
+            <Diagram cellNamespace={cellNamespace} interactions={DIAGRAM_INTERACTIONS} history clipboard>
                 <div className='bpmn-editor'>
                     <header className='app-toolbar'>
                         <Toolbar />
