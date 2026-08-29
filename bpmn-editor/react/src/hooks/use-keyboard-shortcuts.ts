@@ -4,7 +4,7 @@ import { printDiagram } from '../actions/export-actions';
 import { ZOOM_SETTINGS } from '../configs/paper-config';
 
 import type { dia, ui } from '@joint/plus';
-import { isSwimlane } from '../utils';
+import { adjustPoolToContainElement, isActivity, isEvent, isSwimlane, snapToParentBoundary } from '../utils';
 
 type KeyboardContext = {
     graph: dia.Graph;
@@ -41,6 +41,10 @@ export function useKeyboardShortcuts() {
         'ctrl+plus command+plus': (evt: dia.Event) => onZoomIn(ctx(), evt),
         'ctrl+minus command+minus': (evt: dia.Event) => onZoomOut(ctx(), evt),
         'escape': () => onEscape(ctx()),
+        'up': (evt: dia.Event) => onMoveSelection(ctx(), evt, 0, -1),
+        'down': (evt: dia.Event) => onMoveSelection(ctx(), evt, 0, 1),
+        'left': (evt: dia.Event) => onMoveSelection(ctx(), evt, -1, 0),
+        'right': (evt: dia.Event) => onMoveSelection(ctx(), evt, 1, 0),
         'keydown:shift': () => paperScroller?.setCursor('crosshair'),
         'keyup:shift': () => paperScroller?.setCursor('grab')
     });
@@ -98,6 +102,52 @@ function onZoomOut(context: KeyboardContext, evt: dia.Event) {
 function onPrint(context: KeyboardContext, evt: dia.Event) {
     evt.preventDefault();
     printDiagram(context.paper);
+}
+
+/**
+ * Moves the selected elements by one grid step in the given direction.
+ * Swimlanes cannot be moved; boundary events stay snapped to their
+ * activity's border; pools grow to keep containing the moved elements.
+ */
+function onMoveSelection(context: KeyboardContext, evt: dia.Event, dx: number, dy: number) {
+    const { graph, paper, selection } = context;
+
+    const elements = selection.collection.toArray()
+        .filter((cell): cell is dia.Element => cell.isElement() && !isSwimlane(cell));
+
+    // `translate()` moves embedded cells too — skip elements whose ancestor
+    // is also selected, so they are not translated twice.
+    const selectedIds = new Set(elements.map((element) => element.id));
+    const movedElements = elements.filter(
+        (element) => !element.getAncestors().some((ancestor) => selectedIds.has(ancestor.id))
+    );
+
+    if (movedElements.length === 0) return;
+
+    // Consume the key press only when it moves something — otherwise leave
+    // it to the paper scroller (arrow keys scroll the canvas).
+    evt.preventDefault();
+
+    const step = paper.options.gridSize || 10;
+
+    graph.startBatch('keyboard-move');
+
+    movedElements.forEach((element) => {
+        element.translate(dx * step, dy * step);
+
+        // A boundary event slides along its activity's border instead of
+        // moving freely.
+        const parent = element.getParentCell();
+        if (parent && parent.isElement() && isActivity(parent) && isEvent(element)) {
+            const center = element.getBBox().center();
+            const { x, y } = snapToParentBoundary(element, parent, center.x, center.y);
+            element.position(x, y);
+        }
+
+        adjustPoolToContainElement(element);
+    });
+
+    graph.stopBatch('keyboard-move');
 }
 
 function onEscape(context: KeyboardContext) {

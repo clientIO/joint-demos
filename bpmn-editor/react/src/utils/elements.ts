@@ -27,6 +27,18 @@ export function snapToParentBoundary(child: dia.Element, parent: dia.Element, x:
 }
 
 /**
+ * Grows the pool of the element's swimlane so the lane still contains the
+ * element. No-op for elements that are not embedded in a swimlane.
+ */
+export function adjustPoolToContainElement(element: dia.Element) {
+    const lane = element.getParentCell();
+    if (!lane || !isSwimlane(lane)) return;
+    const pool = lane.getParentCell();
+    if (!pool || !isPool(pool)) return;
+    (pool as shapes.bpmn2.CompositePool).adjustToContainElements(lane);
+}
+
+/**
  * Whether the element is a pool swimlane.
  */
 export function isSwimlane(cell: dia.Cell): cell is shapes.bpmn2.Swimlane {
