@@ -37,10 +37,20 @@ function PaletteItem({ type, icon }: StencilPaletteItem) {
         const shape = new shapeConstructor();
         if (!shape.isElement()) return;
 
+        // Placing a pool or a lane touches several cells — the pool, its
+        // mandatory first lane, the content it wraps, the lanes the pool
+        // lays out again — so it goes in one batch and undoes in one step,
+        // as the pointer drop already does (the stencil batches that one).
+        const batchName = 'stencil-keyboard-drop';
+
         if (isSwimlane(shape)) {
             const pool = graph.getElements().find(isPool);
             if (!pool) return;
+
+            graph.startBatch(batchName);
             const swimlane = insertSwimlaneIntoPool(pool);
+            graph.stopBatch(batchName);
+
             selectionCollection.reset([swimlane]);
             return;
         }
@@ -50,12 +60,15 @@ function PaletteItem({ type, icon }: StencilPaletteItem) {
         const x = (center?.x ?? width / 2) - width / 2;
         const y = (center?.y ?? height / 2) - height / 2;
 
+        graph.startBatch(batchName);
         if (isPool(shape)) {
             dropPoolAt(graph, shape, x, y);
         } else {
             shape.position(x, y);
             graph.addCell(shape);
         }
+        graph.stopBatch(batchName);
+
         selectionCollection.reset([shape]);
     };
 
