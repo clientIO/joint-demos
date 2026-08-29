@@ -192,14 +192,16 @@ function onMoveSelection(context: KeyboardContext, evt: dia.Event, dx: number, d
  * across the other axis, so only the arrows running across the lane
  * change its size: down/up for a horizontal lane, right/left for a
  * vertical one. The pool lays the remaining lanes out again and grows
- * with them. Returns whether the lane was resized.
+ * with them. Returns whether the arrow acted on the lane.
  */
 function resizeSwimlane(context: KeyboardContext, lane: shapes.bpmn2.Swimlane, dx: number, dy: number): boolean {
 
     const pool = lane.getParentCell();
     if (!pool || !isPool(pool)) return false;
 
-    const isHorizontal = lane.isHorizontal();
+    // A lane is always laid out along its pool, and the free transform keys
+    // its constraints off the pool too.
+    const isHorizontal = pool.isHorizontal();
 
     // The arrows along the lane leave it alone.
     const direction = isHorizontal ? dy : dx;
@@ -207,16 +209,52 @@ function resizeSwimlane(context: KeyboardContext, lane: shapes.bpmn2.Swimlane, d
 
     const { width, height } = lane.size();
     const size = isHorizontal ? height : width;
-    const nextSize = Math.max(pool.getMinimumLaneSize(), size + direction * gridStep(context.paper));
+    const nextSize = Math.max(
+        getMinimumSwimlaneSize(pool, lane, isHorizontal),
+        size + direction * gridStep(context.paper)
+    );
 
-    if (nextSize === size) return false;
-
-    const batchName = 'keyboard-resize';
-    context.graph.startBatch(batchName);
-    pool.changeSwimlaneSize(lane, isHorizontal ? 'bottom' : 'right', nextSize);
-    context.graph.stopBatch(batchName);
+    // The arrow still belongs to the lane once it is down to its minimum —
+    // consume it either way, so hitting the limit does not start scrolling
+    // the canvas instead.
+    if (nextSize !== size) {
+        const batchName = 'keyboard-resize';
+        context.graph.startBatch(batchName);
+        pool.changeSwimlaneSize(lane, isHorizontal ? 'bottom' : 'right', nextSize);
+        context.graph.stopBatch(batchName);
+    }
 
     return true;
+}
+
+/**
+ * How far the lane can shrink from the border the arrows move — its bottom
+ * in a horizontal pool, its right in a vertical one.
+ *
+ * The library has no public method for this: it lives in
+ * `ui.BPMNFreeTransform`'s internal `swimlaneMinSize()`, which is not part
+ * of the widget's typed API and cannot be reached without a widget. This
+ * mirrors that method for these two borders, from the public pool and lane
+ * methods it is built on, so the keyboard stops exactly where dragging the
+ * same border stops.
+ */
+function getMinimumSwimlaneSize(pool: shapes.bpmn2.CompositePool, lane: shapes.bpmn2.Swimlane, isHorizontal: boolean) {
+
+    const padding = pool.getSwimlanePadding();
+    const elementsBBox = lane.getElementsBBox();
+
+    // An empty lane bottoms out at the pool's minimum lane size.
+    if (!elementsBBox) {
+        const start = (isHorizontal ? padding.top : padding.left) ?? 0;
+        return start + pool.getMinimumLaneSize();
+    }
+
+    // Otherwise the lane keeps its top-left corner, so the content (with
+    // its margin) has to fit between that corner and the moving border.
+    const content = elementsBBox.inflate(lane.getContentMargin());
+    const { x, y } = lane.getBBox();
+
+    return isHorizontal ? content.y + content.height - y : content.x + content.width - x;
 }
 
 /**
