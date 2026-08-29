@@ -5,7 +5,7 @@ import { openLabelEditor } from '../actions/label-editor';
 import { ZOOM_SETTINGS } from '../configs/paper-config';
 
 import type { dia, ui } from '@joint/plus';
-import { adjustPoolToContainElement, isActivity, isEvent, isSwimlane, snapToParentBoundary } from '../utils';
+import { adjustPoolToContainElement, isActivity, isEvent, isPool, isSwimlane, snapToParentBoundary } from '../utils';
 
 type KeyboardContext = {
     graph: dia.Graph;
@@ -68,6 +68,11 @@ function isCanvasFocused(context: KeyboardContext, evt: dia.Event) {
     return target === canvas || canvas.contains(target);
 }
 
+// How far one arrow key press moves or resizes.
+function gridStep(paper: dia.Paper) {
+    return paper.options.gridSize || 10;
+}
+
 // Keyboard event handlers
 
 function onDelete(context: KeyboardContext, evt: dia.Event) {
@@ -125,15 +130,25 @@ function onPrint(context: KeyboardContext, evt: dia.Event) {
 
 /**
  * Moves the selected elements by one grid step in the given direction.
- * Swimlanes cannot be moved; boundary events stay snapped to their
- * activity's border; pools grow to keep containing the moved elements.
+ * Swimlanes cannot be moved — a single selected lane is resized instead;
+ * boundary events stay snapped to their activity's border; pools grow to
+ * keep containing the moved elements.
  */
 function onMoveSelection(context: KeyboardContext, evt: dia.Event, dx: number, dy: number) {
     if (!isCanvasFocused(context, evt)) return;
 
     const { graph, paper, selection } = context;
 
-    const elements = selection.collection.toArray()
+    const selectedCells = selection.collection.toArray();
+
+    if (selectedCells.length === 1 && isSwimlane(selectedCells[0])) {
+        if (resizeSwimlane(context, selectedCells[0], dx, dy)) {
+            evt.preventDefault();
+        }
+        return;
+    }
+
+    const elements = selectedCells
         .filter((cell): cell is dia.Element => cell.isElement() && !isSwimlane(cell));
 
     // `translate()` moves embedded cells too — skip elements whose ancestor
@@ -149,7 +164,7 @@ function onMoveSelection(context: KeyboardContext, evt: dia.Event, dx: number, d
     // it to the paper scroller (arrow keys scroll the canvas).
     evt.preventDefault();
 
-    const step = paper.options.gridSize || 10;
+    const step = gridStep(paper);
 
     graph.startBatch('keyboard-move');
 
@@ -169,6 +184,39 @@ function onMoveSelection(context: KeyboardContext, evt: dia.Event, dx: number, d
     });
 
     graph.stopBatch('keyboard-move');
+}
+
+/**
+ * Resizes the swimlane by one grid step, the keyboard equivalent of
+ * dragging its bottom (or right) border. A lane always spans its pool
+ * across the other axis, so only the arrows running across the lane
+ * change its size: down/up for a horizontal lane, right/left for a
+ * vertical one. The pool lays the remaining lanes out again and grows
+ * with them. Returns whether the lane was resized.
+ */
+function resizeSwimlane(context: KeyboardContext, lane: shapes.bpmn2.Swimlane, dx: number, dy: number): boolean {
+
+    const pool = lane.getParentCell();
+    if (!pool || !isPool(pool)) return false;
+
+    const isHorizontal = lane.isHorizontal();
+
+    // The arrows along the lane leave it alone.
+    const direction = isHorizontal ? dy : dx;
+    if (direction === 0) return false;
+
+    const { width, height } = lane.size();
+    const size = isHorizontal ? height : width;
+    const nextSize = Math.max(pool.getMinimumLaneSize(), size + direction * gridStep(context.paper));
+
+    if (nextSize === size) return false;
+
+    const batchName = 'keyboard-resize';
+    context.graph.startBatch(batchName);
+    pool.changeSwimlaneSize(lane, isHorizontal ? 'bottom' : 'right', nextSize);
+    context.graph.stopBatch(batchName);
+
+    return true;
 }
 
 /**
