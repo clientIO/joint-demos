@@ -1,6 +1,6 @@
 import { type dia, shapes, g } from '@joint/plus';
 import { ShapeTypes, type AppElement } from '../shapes/shapes-typing';
-import type { HorizontalPool, VerticalPool } from '../shapes/pool/pool-shapes';
+import type { AppPool, AppSwimlane } from '../shapes/pool/pool-shapes';
 
 /**
  * Whether the dragged element is an event over an activity, i.e. it should
@@ -41,14 +41,14 @@ export function adjustPoolToContainElement(element: dia.Element) {
 /**
  * Whether the element is a pool swimlane.
  */
-export function isSwimlane(cell: dia.Cell): cell is shapes.bpmn2.Swimlane {
+export function isSwimlane(cell: dia.Cell): cell is AppSwimlane {
     return shapes.bpmn2.Swimlane.isSwimlane(cell);
 }
 
 /**
  * Whether the element is a pool.
  */
-export function isPool(cell: dia.Cell): cell is HorizontalPool | VerticalPool {
+export function isPool(cell: dia.Cell): cell is AppPool {
     return shapes.bpmn2.CompositePool.isPool(cell);
 }
 
@@ -90,7 +90,7 @@ export function isPoolShared(element1: dia.Cell, element2: dia.Cell) {
 /**
  * The pool the element is embedded in, or `null`.
  */
-export function getPoolParent(element?: dia.Cell): shapes.bpmn2.CompositePool | null {
+export function getPoolParent(element?: dia.Cell): AppPool | null {
 
     if (!element) return null;
 
@@ -102,7 +102,7 @@ export function getPoolParent(element?: dia.Cell): shapes.bpmn2.CompositePool | 
 /**
  * The swimlane the element is embedded in, or `null`.
  */
-export function getSwimlaneParent(element?: dia.Cell): shapes.bpmn2.Swimlane | null {
+export function getSwimlaneParent(element?: dia.Cell): AppSwimlane | null {
 
     if (!element) return null;
 

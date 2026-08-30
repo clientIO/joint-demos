@@ -53,6 +53,11 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implemen
     isResizable = true;
     labelPath = 'headerText/text';
 
+    /** The pool's name, as shown in its header. */
+    getLabelText(): string {
+        return this.attr(this.labelPath) || '';
+    }
+
     defaults(): dia.Element.Attributes {
         const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.POOL,
@@ -153,6 +158,11 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements A
     isResizable = true;
     labelPath = 'headerText/text';
 
+    /** The pool's name, as shown in its header. */
+    getLabelText(): string {
+        return this.attr(this.labelPath) || '';
+    }
+
     defaults(): dia.Element.Attributes {
         const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.POOL,
@@ -251,6 +261,16 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
 
     isResizable = true;
     labelPath = 'headerText/text';
+
+    /**
+     * The lane's name, or its pool's when the lane has none — lanes are
+     * commonly left unnamed, with the pool carrying the participant name.
+     */
+    getLabelText(): string {
+        const pool = this.getParentCell() as AppPool | null;
+        return this.attr(this.labelPath) || pool?.getLabelText?.() || '';
+    }
+
     omitDefaultHaloHandles = true;
 
     defaults(): dia.Element.Attributes {
@@ -337,6 +357,16 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
 
     isResizable = true;
     labelPath = 'headerText/text';
+
+    /**
+     * The lane's name, or its pool's when the lane has none — lanes are
+     * commonly left unnamed, with the pool carrying the participant name.
+     */
+    getLabelText(): string {
+        const pool = this.getParentCell() as AppPool | null;
+        return this.attr(this.labelPath) || pool?.getLabelText?.() || '';
+    }
+
     omitDefaultHaloHandles = true;
 
     defaults(): dia.Element.Attributes {
@@ -421,3 +451,8 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
 export const pool = {
     HorizontalPool, VerticalPool, HorizontalSwimlane, VerticalSwimlane
 };
+
+/** The app's pool classes — what `isPool()` narrows to. */
+export type AppPool = HorizontalPool | VerticalPool;
+/** The app's swimlane classes — what `isSwimlane()` narrows to. */
+export type AppSwimlane = HorizontalSwimlane | VerticalSwimlane;
