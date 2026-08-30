@@ -36,7 +36,10 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
             { keys: ['Enter'], or: ['F2'], action: 'Rename the selected shape' },
             { keys: ['Shift', 'Enter'], action: 'Line break while renaming' },
             { keys: ['Esc'], action: 'Discard the rename' },
-            { keys: [MOD, 'Enter'], action: 'Add a lane after the selected lane, or at the end of the selected pool' },
+            { keys: [MOD, 'Enter'], action: 'Add: a connected shape, a shape in a lane, or a lane in a pool' },
+            { keys: [MOD, '↑'], or: [MOD, '↓'], action: 'Add a connected shape above or below' },
+            { keys: [MOD, '←'], or: [MOD, '→'], action: 'Add a connected shape to the left or right' },
+            { keys: ['Shift', MOD, 'Enter'], action: 'Link to another shape or pool — from a lane, add a lane after it' },
             { keys: [MOD, 'C'], action: 'Copy the selection' },
             { keys: [MOD, 'X'], action: 'Cut the selection' },
             { keys: [MOD, 'V'], action: 'Paste — a shape returns to its lane, a lane or pool is copied with its contents' }
@@ -56,6 +59,12 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
             { keys: ['↑', '↓'], action: 'Aim at the previous or next lane — for a lane, the insertion point between them' },
             { keys: ['←', '→'], action: 'Aim at the previous or next pool' },
             { keys: ['Enter'], or: ['Space'], action: 'Add the palette shape where the highlight shows' }
+        ]
+    },
+    {
+        title: 'Help',
+        shortcuts: [
+            { keys: ['F1'], action: 'Show this list' }
         ]
     },
     {

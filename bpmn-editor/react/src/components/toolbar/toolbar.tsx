@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGraph, usePaper, useGraphHistory, useGraphHistoryStack } from '@joint/react-plus';
+import { useGraph, usePaper, useGraphHistory, useGraphHistoryStack, useOnKeyboardEvents } from '@joint/react-plus';
 import { Undo2, Redo2, Printer, Sun, Moon, Keyboard } from 'lucide-react';
 import { printDiagram, exportPNG, downloadJSON, downloadXML } from '../../actions/export-actions';
 import { FileDropdown } from './file-dropdown';
@@ -30,6 +30,14 @@ export function Toolbar() {
         // because parts of the UI render in portals outside of the editor.
         document.documentElement.dataset.theme = dark ? 'dark' : '';
     };
+
+    // `F1` is the platform's help key, and the shortcut list is the help.
+    useOnKeyboardEvents({
+        'F1': (evt) => {
+            evt.preventDefault();
+            setShowShortcuts(true);
+        }
+    });
 
     const onSavePNG = async() => {
         if (!paper) return;
