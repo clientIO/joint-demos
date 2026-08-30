@@ -61,10 +61,16 @@ export function useKeyboardShortcuts() {
         'ctrl+plus command+plus': (evt: dia.Event) => onZoomIn(ctx(), evt),
         'ctrl+minus command+minus': (evt: dia.Event) => onZoomOut(ctx(), evt),
         'escape': () => onEscape(ctx()),
-        'shift+up': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, -1),
-        'shift+down': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, 1),
-        'shift+left': (evt: dia.Event) => onResizeSelection(ctx(), evt, -1, 0),
-        'shift+right': (evt: dia.Event) => onResizeSelection(ctx(), evt, 1, 0),
+        'shift+up': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, -1, 'far'),
+        'shift+down': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, 1, 'far'),
+        'shift+left': (evt: dia.Event) => onResizeSelection(ctx(), evt, -1, 0, 'far'),
+        'shift+right': (evt: dia.Event) => onResizeSelection(ctx(), evt, 1, 0, 'far'),
+        // `alt` moves the near border instead — the one the far-border keys
+        // cannot reach, so a lane can grow upwards and a pool leftwards.
+        'alt+shift+up': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, -1, 'near'),
+        'alt+shift+down': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, 1, 'near'),
+        'alt+shift+left': (evt: dia.Event) => onResizeSelection(ctx(), evt, -1, 0, 'near'),
+        'alt+shift+right': (evt: dia.Event) => onResizeSelection(ctx(), evt, 1, 0, 'near'),
         'up': (evt: dia.Event) => onMoveSelection(ctx(), evt, 0, -1),
         'down': (evt: dia.Event) => onMoveSelection(ctx(), evt, 0, 1),
         'left': (evt: dia.Event) => onMoveSelection(ctx(), evt, -1, 0),
@@ -90,6 +96,9 @@ function isCanvasFocused(context: KeyboardContext, evt: dia.Event) {
     const canvas = context.paperScroller.el;
     return target === canvas || canvas.contains(target);
 }
+
+/** The side of a shape a resize moves. */
+type Border = 'top' | 'bottom' | 'left' | 'right';
 
 // How far one arrow key press moves or resizes.
 function gridStep(paper: dia.Paper) {
@@ -323,11 +332,12 @@ function onMoveSelection(context: KeyboardContext, evt: dia.Event, dx: number, d
 }
 
 /**
- * Resizes the selected shape by one grid step from its far border: right
- * and down grow it, left and up shrink it. Everything the free transform
- * can resize answers to it — a pool, a lane, a group, an annotation.
+ * Resizes the selected shape by one grid step. `far` moves its right or
+ * bottom border — right and down grow it — and `near` moves the left or
+ * top one, where left and up grow it. Everything the free transform can
+ * resize answers to it: a pool, a lane, a group, a comment.
  */
-function onResizeSelection(context: KeyboardContext, evt: dia.Event, dx: number, dy: number) {
+function onResizeSelection(context: KeyboardContext, evt: dia.Event, dx: number, dy: number, edge: 'far' | 'near') {
     if (!isCanvasFocused(context, evt)) return;
 
     const cells = context.selection.collection.toArray();
@@ -338,17 +348,25 @@ function onResizeSelection(context: KeyboardContext, evt: dia.Event, dx: number,
 
     evt.preventDefault();
 
-    const step = gridStep(context.paper);
-    const batchName = 'keyboard-resize';
+    const horizontal = dx !== 0;
+    const border: Border = horizontal
+        ? (edge === 'near' ? 'left' : 'right')
+        : (edge === 'near' ? 'top' : 'bottom');
 
+    // A near border grows the shape when it moves outwards, which is the
+    // opposite arrow: `alt+shift+up` extends the top edge upwards.
+    const towards = horizontal ? dx : dy;
+    const delta = (edge === 'near' ? -towards : towards) * gridStep(context.paper);
+
+    const batchName = 'keyboard-resize';
     context.graph.startBatch(batchName);
 
     if (isSwimlane(cell)) {
-        resizeSwimlane(cell, dx * step, dy * step);
+        resizeSwimlane(cell, border, delta);
     } else if (isPool(cell)) {
-        resizePool(cell, dx * step, dy * step);
+        resizePool(cell, border, delta);
     } else {
-        resizeShape(cell as AppElement, dx * step, dy * step);
+        resizeShape(cell as AppElement, border, delta);
     }
 
     context.graph.stopBatch(batchName);
@@ -360,40 +378,39 @@ function onResizeSelection(context: KeyboardContext, evt: dia.Event, dx: number,
  * since every lane spans it. Both go through `changeSwimlaneSize()`, which
  * lays the pool out again either way.
  */
-function resizeSwimlane(lane: AppSwimlane, dx: number, dy: number) {
+function resizeSwimlane(lane: AppSwimlane, border: Border, delta: number) {
 
     const pool = lane.getParentCell();
-    if (!pool || !isPool(pool)) return;
+    if (!pool || !isPool(pool) || delta === 0) return;
 
     const { width, height } = lane.size();
+    const size = (border === 'top' || border === 'bottom') ? height : width;
+    const next = Math.max(getMinimumSwimlaneSize(pool, lane, border), size + delta);
 
-    if (dy !== 0) {
-        const next = Math.max(getMinimumSwimlaneSize(pool, lane, 'bottom'), height + dy);
-        if (next !== height) pool.changeSwimlaneSize(lane, 'bottom', next);
-    }
-
-    if (dx !== 0) {
-        const next = Math.max(getMinimumSwimlaneSize(pool, lane, 'right'), width + dx);
-        if (next !== width) pool.changeSwimlaneSize(lane, 'right', next);
-    }
+    if (next !== size) pool.changeSwimlaneSize(lane, border, next);
 }
 
-function resizePool(pool: AppPool, dx: number, dy: number) {
+function resizePool(pool: AppPool, border: Border, delta: number) {
 
     const { width, height } = pool.size();
+    const vertical = border === 'top' || border === 'bottom';
+    const size = vertical ? height : width;
+    const minimum = vertical ? pool.getMinimalHeight() : pool.getMinimalWidth();
 
-    if (dx !== 0) pool.changeSize('right', Math.max(pool.getMinimalWidth(), width + dx));
-    if (dy !== 0) pool.changeSize('bottom', Math.max(pool.getMinimalHeight(), height + dy));
+    pool.changeSize(border, Math.max(minimum, size + delta));
 }
 
-function resizeShape(element: AppElement, dx: number, dy: number) {
+function resizeShape(element: AppElement, border: Border, delta: number) {
 
     const { width, height } = element.size();
     const minimum = element.getMinimalSize?.() ?? { width: 0, height: 0 };
+    const vertical = border === 'top' || border === 'bottom';
 
     element.resize(
-        Math.max(minimum.width, width + dx),
-        Math.max(minimum.height, height + dy)
+        vertical ? width : Math.max(minimum.width, width + delta),
+        vertical ? Math.max(minimum.height, height + delta) : height,
+        // The border stays put and the opposite one moves.
+        { direction: border }
     );
 
     // A shape can outgrow the lane it sits in, exactly as it can be moved
@@ -414,27 +431,38 @@ function resizeShape(element: AppElement, dx: number, dy: number) {
  * everything the pool has to keep covering, which is what the pool's
  * minimal range reports.
  */
-function getMinimumSwimlaneSize(pool: AppPool, lane: AppSwimlane, border: 'bottom' | 'right') {
+function getMinimumSwimlaneSize(pool: AppPool, lane: AppSwimlane, border: Border) {
 
     const padding = pool.getSwimlanePadding();
     const bbox = lane.getBBox();
-    const acrossThePool = pool.isHorizontal() ? border === 'bottom' : border === 'right';
-    const fallback = ((border === 'bottom' ? padding.top : padding.left) ?? 0) + pool.getMinimumLaneSize();
+    const vertical = border === 'top' || border === 'bottom';
+    const acrossThePool = pool.isHorizontal() === vertical;
+    const fallback = ((vertical ? padding.top : padding.left) ?? 0) + pool.getMinimumLaneSize();
 
     if (acrossThePool) {
         const elementsBBox = lane.getElementsBBox();
         if (!elementsBBox) return fallback;
 
-        // The lane keeps its top-left corner, so the content (with its
-        // margin) has to fit between that corner and the moving border.
+        // The border that is not moving stays put, so the content (with its
+        // margin) has to fit between it and the one that is.
         const content = elementsBBox.inflate(lane.getContentMargin());
-        return border === 'bottom' ? content.y + content.height - bbox.y : content.x + content.width - bbox.x;
+        switch (border) {
+            case 'bottom': return content.y + content.height - bbox.y;
+            case 'top': return bbox.y + bbox.height - content.y;
+            case 'right': return content.x + content.width - bbox.x;
+            default: return bbox.x + bbox.width - content.x;
+        }
     }
 
-    const range = border === 'bottom' ? pool.getMinimalYRange() : pool.getMinimalXRange();
+    const range = vertical ? pool.getMinimalYRange() : pool.getMinimalXRange();
     if (!range) return fallback;
 
-    return range[1] - (border === 'bottom' ? bbox.y : bbox.x);
+    switch (border) {
+        case 'bottom': return range[1] - bbox.y;
+        case 'top': return bbox.y + bbox.height - range[0];
+        case 'right': return range[1] - bbox.x;
+        default: return bbox.x + bbox.width - range[0];
+    }
 }
 
 /**
