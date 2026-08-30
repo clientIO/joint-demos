@@ -25,6 +25,8 @@ import {
 import { cellNamespace } from '../../shapes';
 import { ViewInteractions } from '../view-interactions';
 import { KeyboardShortcuts } from '../keyboard-shortcuts';
+import { QuickAdd } from '../quick-add/quick-add';
+import { QuickLink } from '../quick-link/quick-link';
 import { EditInteractions } from '../edit-interactions';
 import { ExampleDiagram } from '../example-diagram/example-diagram';
 import { BpmnSelection } from '../bpmn-selection';
@@ -103,6 +105,8 @@ export function BpmnEditor() {
                                     <ViewInteractions />
                                     <EditInteractions />
                                     <KeyboardShortcuts />
+                                    <QuickAdd />
+                                    <QuickLink />
                                     <ExampleDiagram />
                                 </Paper>
                             </PaperScroller>

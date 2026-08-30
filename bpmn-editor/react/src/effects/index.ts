@@ -23,6 +23,8 @@ export const EffectType = {
     TargetSwimlaneEmbed: 'target-swimlane-embed',
     /** Dims the cells a dragged link cannot connect to. */
     MarkUnavailable: 'mark-unavailable',
+    /** Outlines the element a keyboard-drawn link would connect to. */
+    LinkTarget: 'link-target',
 } as const;
 
 type EffectTypes = typeof EffectType[keyof typeof EffectType];
@@ -92,6 +94,17 @@ export function addEffect(cellView: dia.CellView, effectType: EffectTypes, optio
             });
             break;
         }
+        case EffectType.LinkTarget: {
+            const selector = cell.attr(['root', 'highlighterSelector']);
+            highlighters.mask.add(cellView, selector || 'body', EffectType.LinkTarget, {
+                padding: 4,
+                attrs: {
+                    stroke: 'var(--bpmn-selector)',
+                    strokeWidth: 2
+                }
+            });
+            break;
+        }
         case EffectType.MarkUnavailable: {
             const selector = cell.attr(['root', 'highlighterSelector']);
 
@@ -144,6 +157,10 @@ export function removeEffect(paper: dia.Paper, effectType: EffectTypes) {
         }
         case EffectType.TargetSwimlaneEmbed: {
             highlighters.addClass.removeAll(paper, EffectType.TargetSwimlaneEmbed);
+            break;
+        }
+        case EffectType.LinkTarget: {
+            highlighters.mask.removeAll(paper, EffectType.LinkTarget);
             break;
         }
         case EffectType.MarkUnavailable: {

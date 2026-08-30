@@ -2,7 +2,6 @@ import { util, type shapes } from '@joint/plus';
 import { usePaper, usePaperScroller, useGraphHistory, useSelectionCollection, useOnKeyboardEvents, useClipboard, type ClipboardApi } from '@joint/react-plus';
 import { printDiagram } from '../actions/export-actions';
 import { openLabelEditor } from '../actions/label-editor';
-import { insertSwimlaneIntoPool } from '../dnd/swimlanes';
 import { ZOOM_SETTINGS } from '../configs/paper-config';
 
 import type { dia, ui } from '@joint/plus';
@@ -67,8 +66,6 @@ export function useKeyboardShortcuts() {
         // Rename the selected cell without the pointer: `F2` is the platform
         // convention, `enter` matches the other diagram editors.
         'enter F2': (evt: dia.Event) => onEditLabel(ctx(), evt),
-        // `enter` edits what is selected, `cmd+enter` adds a lane next to it.
-        'command+enter ctrl+enter': (evt: dia.Event) => onAddSwimlane(ctx(), evt),
         'keydown:shift': () => paperScroller?.setCursor('crosshair'),
         'keyup:shift': () => paperScroller?.setCursor('grab')
     });
@@ -158,14 +155,6 @@ function rememberParents(graph: dia.Graph) {
     };
 }
 
-/**
- * The part of the selection the clipboard handles. Pools and lanes are left
- * out: a lane is not free-standing, and duplicating one means
- * `pool.addSwimlane()` (which places it in the stack and lays the pool out
- * again) rather than cloning a cell — a pasted clone lands embedded but
- * unpositioned, on top of the lane it was copied from. `cmd+enter` adds
- * lanes; removing them has its own rules in `onDelete`.
- */
 function onCopy(context: KeyboardContext, evt: dia.Event) {
     if (!isCanvasFocused(context, evt)) return;
 
@@ -405,51 +394,6 @@ function getMinimumSwimlaneSize(pool: shapes.bpmn2.CompositePool, lane: shapes.b
     const { x, y } = lane.getBBox();
 
     return isHorizontal ? content.y + content.height - y : content.x + content.width - x;
-}
-
-/**
- * Adds a swimlane next to the selection: a selected pool gets one
- * appended, a selected lane gets a sibling right after it — the position
- * a stencil drop cannot express. The new lane is selected, so it can be
- * named straight away (`cmd+enter`, `enter`, type, `enter`).
- *
- * Anything else keeps the key: a lane only exists inside a pool, so there
- * is nothing sensible to add next to a task or a link.
- */
-function onAddSwimlane(context: KeyboardContext, evt: dia.Event) {
-    if (!isCanvasFocused(context, evt)) return;
-
-    const { graph, selection } = context;
-
-    const cells = selection.collection.toArray();
-    if (cells.length !== 1) return;
-
-    const [cell] = cells;
-
-    let pool: shapes.bpmn2.CompositePool | null = null;
-    // Left undefined for a pool — the lane is appended.
-    let index: number | undefined;
-
-    if (isPool(cell)) {
-        pool = cell;
-    } else if (isSwimlane(cell)) {
-        const parent = cell.getParentCell();
-        if (parent && isPool(parent)) {
-            pool = parent;
-            index = parent.getSwimlanes().indexOf(cell) + 1;
-        }
-    }
-
-    if (!pool) return;
-
-    evt.preventDefault();
-
-    const batchName = 'keyboard-add-swimlane';
-    graph.startBatch(batchName);
-    const swimlane = insertSwimlaneIntoPool(pool, index);
-    graph.stopBatch(batchName);
-
-    selection.collection.reset([swimlane]);
 }
 
 /**

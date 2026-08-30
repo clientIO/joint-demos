@@ -1,0 +1,54 @@
+/* The shape picker list, anchored beside the shape it was opened from. */
+.shape-picker {
+    display: flex;
+    flex-direction: column;
+    min-width: 168px;
+    padding: 4px;
+    border: 1px solid var(--bpmn-border-primary);
+    border-radius: var(--bpmn-border-radius-small);
+    background: var(--bpmn-bg-primary);
+    box-shadow:
+        0 12px 24px rgba(0, 0, 0, 0.16),
+        0 2px 6px rgba(0, 0, 0, 0.08);
+    font-family: 'Open Sans', sans-serif;
+    animation: dialog-fade-in 0.12s ease;
+
+    .shape-picker-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        border: none;
+        border-radius: var(--bpmn-border-radius-small);
+        background: transparent;
+        color: var(--bpmn-text-primary);
+        font-family: inherit;
+        font-size: 13px;
+        text-align: left;
+        white-space: nowrap;
+        cursor: pointer;
+
+        &:hover {
+            background: var(--bpmn-bg-hover);
+        }
+
+        /* The list is keyboard-first, so the focused row is the selected
+           one — it has to read as such, not as a faint focus ring. */
+        &:focus,
+        &:focus-visible {
+            outline: none;
+            background: var(--bpmn-bg-hover);
+            box-shadow: inset 0 0 0 2px var(--bpmn-selector);
+        }
+    }
+
+    .shape-picker-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        color: var(--bpmn-text-secondary);
+        font-size: 16px;
+        line-height: 1;
+    }
+}

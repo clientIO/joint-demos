@@ -88,9 +88,12 @@ function makeConnectHandle(name: string, iconClass: string, elementType: string)
         name,
         group: GroupNames.BPMNTools,
         content: <span className={iconClass} />,
-        // The `fork` flag is read by the element drag handlers (`isForkEvent`).
+        // `fork` is read by the element drag handlers (`isForkEvent`); the
+        // type lets the keyboard offer the same set without a halo — see
+        // `getConnectableTypes()`.
         data: {
-            fork: true
+            fork: true,
+            elementType
         },
         hideOnDrag: true,
         makeElement: ({ graph }) => createShape<AppElement>(graph, elementType),

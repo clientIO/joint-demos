@@ -1,7 +1,7 @@
-import { type dia, type g } from '@joint/plus';
+import { type dia, g } from '@joint/plus';
 import type { AppSwimlane } from '../shapes/pool/pool-shapes';
 import { addEffect, removeEffect, EffectType } from '../effects';
-import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentBoundary, adjustPoolToContainElement, getSwimlaneParent, isSwimlane, type EditorEvent } from '../utils';
+import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentBoundary, adjustPoolToContainElement, getSwimlaneParent, isSwimlane, isPool, type EditorEvent } from '../utils';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { replaceShape } from '../actions/replace-shape';
 import { setBoundarySnapActive } from './boundary-snap';
@@ -52,6 +52,81 @@ export function positionInSwimlane(lane: AppSwimlane, size: dia.Size, preferred:
         x: Math.min(Math.max(preferred.x - size.width / 2, bbox.x + margin), maxX),
         y: Math.min(Math.max(preferred.y - size.height / 2, bbox.y + margin), maxY)
     };
+}
+
+/**
+ * Puts a new shape into the lane, embedding it and growing the pool.
+ *
+ * `clampToLane` keeps the shape within the lane's current bounds, which is
+ * what a drop aimed at a lane wants. A neighbour added beside an existing
+ * shape passes `false`: it has a place of its own to be, and pulling it
+ * back inside would drop it on top of the shape it was added from — the
+ * pool grows to take it instead.
+ */
+export function addElementToSwimlane(
+    graph: dia.Graph,
+    lane: AppSwimlane,
+    element: dia.Element,
+    point: g.PlainPoint,
+    { clampToLane = true }: { clampToLane?: boolean } = {}
+) {
+    const size = element.size();
+    const { x, y } = clampToLane
+        ? positionInSwimlane(lane, size, point)
+        : { x: point.x - size.width / 2, y: point.y - size.height / 2 };
+
+    element.position(x, y);
+    graph.addCell(element);
+    lane.embed(element);
+    adjustPoolToContainElement(element);
+
+    return element;
+}
+
+/** Which way a new neighbour goes from the shape it is added to. */
+export type Direction = 'right' | 'left' | 'down' | 'up';
+
+/**
+ * A free spot for a new shape on the given side of `source`, sliding along
+ * the other axis until it clears whatever is already there — a fixed offset
+ * would drop it on top of the next shape in the flow.
+ */
+export function findFreeSpotBeside(
+    graph: dia.Graph,
+    source: dia.Element,
+    size: dia.Size,
+    gap: number,
+    direction: Direction = 'right'
+): g.PlainPoint {
+
+    const bbox = source.getBBox();
+    const horizontal = direction === 'left' || direction === 'right';
+
+    // Fixed on the axis the direction runs along, centred on the other.
+    let x = horizontal
+        ? (direction === 'right' ? bbox.x + bbox.width + gap : bbox.x - gap - size.width)
+        : bbox.x + (bbox.width - size.width) / 2;
+    let y = horizontal
+        ? bbox.y + (bbox.height - size.height) / 2
+        : (direction === 'down' ? bbox.y + bbox.height + gap : bbox.y - gap - size.height);
+
+    const others = graph.getElements().filter((element) => element !== source && !isSwimlane(element) && !isPool(element));
+
+    // Bounded: give up rather than loop if everything around is taken.
+    for (let attempt = 0; attempt < 20; attempt++) {
+        const candidate = new g.Rect(x, y, size.width, size.height).inflate(gap / 2);
+        if (!others.some((element) => candidate.intersect(element.getBBox()))) break;
+
+        // Slide along the axis the direction does not run along.
+        if (horizontal) {
+            y += size.height + gap;
+        } else {
+            x += size.width + gap;
+        }
+    }
+
+    // The centre, which is what the callers position from.
+    return { x: x + size.width / 2, y: y + size.height / 2 };
 }
 
 /**

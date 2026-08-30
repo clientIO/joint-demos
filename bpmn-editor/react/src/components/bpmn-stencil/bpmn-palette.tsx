@@ -333,7 +333,9 @@ function PaletteItem({ type, icon, target, targetName, onStep }: PaletteItemProp
         const shape = createShape(graph, type);
         if (!shape.isElement()) return;
 
-        const delta = STEP_KEYS[evt.key];
+        // `cmd+arrow` adds a neighbour on the canvas — the palette's plain
+        // arrows are a different thing and should not answer to it.
+        const delta = (evt.metaKey || evt.ctrlKey || evt.altKey) ? undefined : STEP_KEYS[evt.key];
 
         if (delta) {
             evt.preventDefault();
