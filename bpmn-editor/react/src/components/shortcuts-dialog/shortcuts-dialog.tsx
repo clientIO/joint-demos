@@ -53,7 +53,9 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
         title: 'Stencil',
         shortcuts: [
             { keys: ['Tab'], action: 'Move to the shape palette' },
-            { keys: ['Enter'], or: ['Space'], action: 'Add the palette shape to the canvas' }
+            { keys: ['↑', '↓'], action: 'Aim at the previous or next lane — for a lane, the insertion point between them' },
+            { keys: ['←', '→'], action: 'Aim at the previous or next pool' },
+            { keys: ['Enter'], or: ['Space'], action: 'Add the palette shape where the highlight shows' }
         ]
     },
     {

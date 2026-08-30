@@ -1,11 +1,58 @@
-import { type dia } from '@joint/plus';
+import { type dia, type g } from '@joint/plus';
+import type { AppSwimlane } from '../shapes/pool/pool-shapes';
 import { addEffect, removeEffect, EffectType } from '../effects';
-import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentBoundary, adjustPoolToContainElement, isSwimlane, type EditorEvent } from '../utils';
+import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentBoundary, adjustPoolToContainElement, getSwimlaneParent, isSwimlane, type EditorEvent } from '../utils';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { replaceShape } from '../actions/replace-shape';
 import { setBoundarySnapActive } from './boundary-snap';
 
 import type { AppElement } from '../shapes/shapes-typing';
+
+/**
+ * The lane to start aiming from when the palette takes the focus: the lane
+ * the selection is in, else the lane under the point, else the first lane.
+ * `null` only when the diagram has no lanes at all.
+ *
+ * This is a seed, not a decision — the arrows step the aim from here and
+ * the highlight shows it before anything is added. The selection comes
+ * first because it is the one thing that says where the user was working;
+ * the point (the middle of the view) is a weaker guess behind it.
+ */
+export function findDropSwimlane(graph: dia.Graph, selection: dia.Cell[], point: g.PlainPoint): AppSwimlane | null {
+
+    for (const cell of selection) {
+        const lane = isSwimlane(cell) ? cell : getSwimlaneParent(cell);
+        if (lane) return lane;
+    }
+
+    const lanes = graph.getElements().filter(isSwimlane);
+
+    return lanes.find((lane) => lane.getBBox().containsPoint(point)) ?? lanes[0] ?? null;
+}
+
+/**
+ * Where to put a shape of `size` inside the lane: as close to `preferred`
+ * as the lane allows, so it lands on screen but never outside its parent.
+ */
+export function positionInSwimlane(lane: AppSwimlane, size: dia.Size, preferred: g.PlainPoint) {
+
+    const bbox = lane.getBBox().moveAndExpand({
+        x: lane.getHeaderSize(),
+        y: 0,
+        width: -lane.getHeaderSize(),
+        height: 0
+    });
+    const margin = lane.getContentMargin();
+
+    // The lane can be smaller than the shape plus its margins.
+    const maxX = Math.max(bbox.x, bbox.x + bbox.width - size.width - margin);
+    const maxY = Math.max(bbox.y, bbox.y + bbox.height - size.height - margin);
+
+    return {
+        x: Math.min(Math.max(preferred.x - size.width / 2, bbox.x + margin), maxX),
+        y: Math.min(Math.max(preferred.y - size.height / 2, bbox.y + margin), maxY)
+    };
+}
 
 /**
  * Adds a drop shadow to the dragged element.
