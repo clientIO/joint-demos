@@ -1,3 +1,4 @@
+import { createShape } from '../shapes/create-shape';
 import { getHaloDefaultHandle } from '@joint/react-plus';
 import { Trash2, Unlink } from 'lucide-react';
 import { eventIconClasses, EventShapeTypes } from '../shapes/event/event-config';
@@ -92,7 +93,7 @@ function makeConnectHandle(name: string, iconClass: string, elementType: string)
             fork: true
         },
         hideOnDrag: true,
-        makeElement: ({ graph }) => new (graph.getTypeConstructor(elementType)!)() as AppElement,
+        makeElement: ({ graph }) => createShape<AppElement>(graph, elementType),
         makeLink: makePlaceholderLink
     };
 }

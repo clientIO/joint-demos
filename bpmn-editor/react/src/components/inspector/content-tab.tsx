@@ -1,9 +1,10 @@
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import * as Toolbar from '@radix-ui/react-toolbar';
 import { useCells, useGraph, useSelectionCollection } from '@joint/react-plus';
+import { createShape, getShapeMeta } from '../../shapes/create-shape';
 import { replaceShape } from '../../actions/replace-shape';
 
-import type { AppElement, AppLink, AppShape, MarkerNames } from '../../shapes/shapes-typing';
+import type { AppElement, AppLink, MarkerNames } from '../../shapes/shapes-typing';
 
 /**
  * Multi-select toggles for the shape's markers (Radix ToggleGroup: roving
@@ -49,10 +50,9 @@ function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
     const shapeTypes = shape.getShapeList();
 
     const morphTo = (type: string) => {
-        const shapeConstructor = graph.getTypeConstructor(type)!;
-        const newShape = new shapeConstructor({ id: shape.id });
+        const newShape = createShape(graph, type, { id: shape.id });
 
-        replaceShape(graph, shape, newShape as AppShape);
+        replaceShape(graph, shape, newShape);
 
         // Re-select the new shape, which re-opens the inspector for it.
         selection.collection.reset([newShape]);
@@ -69,8 +69,7 @@ function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
                 aria-label="Available shapes"
             >
                 {shapeTypes.map((type) => {
-                    const shapeConstructor = graph.getTypeConstructor(type)!;
-                    const { label, icon } = shapeConstructor as unknown as { label?: string; icon?: string };
+                    const { label, icon } = getShapeMeta(graph, type);
                     return (
                         <Toolbar.Button
                             key={type}
