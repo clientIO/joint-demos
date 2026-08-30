@@ -49,7 +49,8 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
         title: 'Moving and sizing',
         shortcuts: [
             { keys: ['↑', '↓', '←', '→'], action: 'Move the selection by one grid step' },
-            { keys: ['↑', '↓', '←', '→'], action: 'Resize the lane when a lane is selected' }
+            { keys: ['Shift', '→'], or: ['Shift', '↓'], action: 'Grow a pool, lane, group or comment' },
+            { keys: ['Shift', '←'], or: ['Shift', '↑'], action: 'Shrink it' }
         ]
     },
     {

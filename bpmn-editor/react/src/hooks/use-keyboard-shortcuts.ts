@@ -6,6 +6,8 @@ import { ZOOM_SETTINGS } from '../configs/paper-config';
 
 import type { dia, ui } from '@joint/plus';
 import { adjustPoolToContainElement, isActivity, isEvent, isPool, isSwimlane, snapToParentBoundary } from '../utils';
+import type { AppElement } from '../shapes/shapes-typing';
+import type { AppPool, AppSwimlane } from '../shapes/pool/pool-shapes';
 
 type KeyboardContext = {
     graph: dia.Graph;
@@ -59,6 +61,10 @@ export function useKeyboardShortcuts() {
         'ctrl+plus command+plus': (evt: dia.Event) => onZoomIn(ctx(), evt),
         'ctrl+minus command+minus': (evt: dia.Event) => onZoomOut(ctx(), evt),
         'escape': () => onEscape(ctx()),
+        'shift+up': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, -1),
+        'shift+down': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, 1),
+        'shift+left': (evt: dia.Event) => onResizeSelection(ctx(), evt, -1, 0),
+        'shift+right': (evt: dia.Event) => onResizeSelection(ctx(), evt, 1, 0),
         'up': (evt: dia.Event) => onMoveSelection(ctx(), evt, 0, -1),
         'down': (evt: dia.Event) => onMoveSelection(ctx(), evt, 0, 1),
         'left': (evt: dia.Event) => onMoveSelection(ctx(), evt, -1, 0),
@@ -269,7 +275,7 @@ function onPrint(context: KeyboardContext, evt: dia.Event) {
 
 /**
  * Moves the selected elements by one grid step in the given direction.
- * Swimlanes cannot be moved — a single selected lane is resized instead;
+ * Swimlanes cannot be moved (`shift` and the arrows resize them instead);
  * boundary events stay snapped to their activity's border; pools grow to
  * keep containing the moved elements.
  */
@@ -278,16 +284,7 @@ function onMoveSelection(context: KeyboardContext, evt: dia.Event, dx: number, d
 
     const { graph, paper, selection } = context;
 
-    const selectedCells = selection.collection.toArray();
-
-    if (selectedCells.length === 1 && isSwimlane(selectedCells[0])) {
-        if (resizeSwimlane(context, selectedCells[0], dx, dy)) {
-            evt.preventDefault();
-        }
-        return;
-    }
-
-    const elements = selectedCells
+    const elements = selection.collection.toArray()
         .filter((cell): cell is dia.Element => cell.isElement() && !isSwimlane(cell));
 
     // `translate()` moves embedded cells too — skip elements whose ancestor
@@ -326,74 +323,118 @@ function onMoveSelection(context: KeyboardContext, evt: dia.Event, dx: number, d
 }
 
 /**
- * Resizes the swimlane by one grid step, the keyboard equivalent of
- * dragging its bottom (or right) border. A lane always spans its pool
- * across the other axis, so only the arrows running across the lane
- * change its size: down/up for a horizontal lane, right/left for a
- * vertical one. The pool lays the remaining lanes out again and grows
- * with them. Returns whether the arrow acted on the lane.
+ * Resizes the selected shape by one grid step from its far border: right
+ * and down grow it, left and up shrink it. Everything the free transform
+ * can resize answers to it — a pool, a lane, a group, an annotation.
  */
-function resizeSwimlane(context: KeyboardContext, lane: shapes.bpmn2.Swimlane, dx: number, dy: number): boolean {
+function onResizeSelection(context: KeyboardContext, evt: dia.Event, dx: number, dy: number) {
+    if (!isCanvasFocused(context, evt)) return;
 
-    const pool = lane.getParentCell();
-    if (!pool || !isPool(pool)) return false;
+    const cells = context.selection.collection.toArray();
+    if (cells.length !== 1) return;
 
-    // A lane is always laid out along its pool, and the free transform keys
-    // its constraints off the pool too.
-    const isHorizontal = pool.isHorizontal();
+    const [cell] = cells;
+    if (!cell.isElement() || !(cell as AppElement).isResizable) return;
 
-    // The arrows along the lane leave it alone.
-    const direction = isHorizontal ? dy : dx;
-    if (direction === 0) return false;
+    evt.preventDefault();
 
-    const { width, height } = lane.size();
-    const size = isHorizontal ? height : width;
-    const nextSize = Math.max(
-        getMinimumSwimlaneSize(pool, lane, isHorizontal),
-        size + direction * gridStep(context.paper)
-    );
+    const step = gridStep(context.paper);
+    const batchName = 'keyboard-resize';
 
-    // The arrow still belongs to the lane once it is down to its minimum —
-    // consume it either way, so hitting the limit does not start scrolling
-    // the canvas instead.
-    if (nextSize !== size) {
-        const batchName = 'keyboard-resize';
-        context.graph.startBatch(batchName);
-        pool.changeSwimlaneSize(lane, isHorizontal ? 'bottom' : 'right', nextSize);
-        context.graph.stopBatch(batchName);
+    context.graph.startBatch(batchName);
+
+    if (isSwimlane(cell)) {
+        resizeSwimlane(cell, dx * step, dy * step);
+    } else if (isPool(cell)) {
+        resizePool(cell, dx * step, dy * step);
+    } else {
+        resizeShape(cell as AppElement, dx * step, dy * step);
     }
 
-    return true;
+    context.graph.stopBatch(batchName);
 }
 
 /**
- * How far the lane can shrink from the border the arrows move — its bottom
- * in a horizontal pool, its right in a vertical one.
+ * A lane resizes along both axes, but only one of them is its own: across
+ * the pool it is the lane's size, and along the pool it is the pool's,
+ * since every lane spans it. Both go through `changeSwimlaneSize()`, which
+ * lays the pool out again either way.
+ */
+function resizeSwimlane(lane: AppSwimlane, dx: number, dy: number) {
+
+    const pool = lane.getParentCell();
+    if (!pool || !isPool(pool)) return;
+
+    const { width, height } = lane.size();
+
+    if (dy !== 0) {
+        const next = Math.max(getMinimumSwimlaneSize(pool, lane, 'bottom'), height + dy);
+        if (next !== height) pool.changeSwimlaneSize(lane, 'bottom', next);
+    }
+
+    if (dx !== 0) {
+        const next = Math.max(getMinimumSwimlaneSize(pool, lane, 'right'), width + dx);
+        if (next !== width) pool.changeSwimlaneSize(lane, 'right', next);
+    }
+}
+
+function resizePool(pool: AppPool, dx: number, dy: number) {
+
+    const { width, height } = pool.size();
+
+    if (dx !== 0) pool.changeSize('right', Math.max(pool.getMinimalWidth(), width + dx));
+    if (dy !== 0) pool.changeSize('bottom', Math.max(pool.getMinimalHeight(), height + dy));
+}
+
+function resizeShape(element: AppElement, dx: number, dy: number) {
+
+    const { width, height } = element.size();
+    const minimum = element.getMinimalSize?.() ?? { width: 0, height: 0 };
+
+    element.resize(
+        Math.max(minimum.width, width + dx),
+        Math.max(minimum.height, height + dy)
+    );
+
+    // A shape can outgrow the lane it sits in, exactly as it can be moved
+    // out of it — the pool has to take the new size either way.
+    adjustPoolToContainElement(element);
+}
+
+/**
+ * How far the lane can shrink from the given border.
  *
  * The library has no public method for this: it lives in
  * `ui.BPMNFreeTransform`'s internal `swimlaneMinSize()`, which is not part
  * of the widget's typed API and cannot be reached without a widget. This
- * mirrors that method for these two borders, from the public pool and lane
- * methods it is built on, so the keyboard stops exactly where dragging the
- * same border stops.
+ * mirrors it from the public pool and lane methods it is built on, so the
+ * keyboard stops exactly where dragging the same border stops.
+ *
+ * Across the pool the limit is the lane's own content; along the pool it is
+ * everything the pool has to keep covering, which is what the pool's
+ * minimal range reports.
  */
-function getMinimumSwimlaneSize(pool: shapes.bpmn2.CompositePool, lane: shapes.bpmn2.Swimlane, isHorizontal: boolean) {
+function getMinimumSwimlaneSize(pool: AppPool, lane: AppSwimlane, border: 'bottom' | 'right') {
 
     const padding = pool.getSwimlanePadding();
-    const elementsBBox = lane.getElementsBBox();
+    const bbox = lane.getBBox();
+    const acrossThePool = pool.isHorizontal() ? border === 'bottom' : border === 'right';
+    const fallback = ((border === 'bottom' ? padding.top : padding.left) ?? 0) + pool.getMinimumLaneSize();
 
-    // An empty lane bottoms out at the pool's minimum lane size.
-    if (!elementsBBox) {
-        const start = (isHorizontal ? padding.top : padding.left) ?? 0;
-        return start + pool.getMinimumLaneSize();
+    if (acrossThePool) {
+        const elementsBBox = lane.getElementsBBox();
+        if (!elementsBBox) return fallback;
+
+        // The lane keeps its top-left corner, so the content (with its
+        // margin) has to fit between that corner and the moving border.
+        const content = elementsBBox.inflate(lane.getContentMargin());
+        return border === 'bottom' ? content.y + content.height - bbox.y : content.x + content.width - bbox.x;
     }
 
-    // Otherwise the lane keeps its top-left corner, so the content (with
-    // its margin) has to fit between that corner and the moving border.
-    const content = elementsBBox.inflate(lane.getContentMargin());
-    const { x, y } = lane.getBBox();
+    const range = border === 'bottom' ? pool.getMinimalYRange() : pool.getMinimalXRange();
+    if (!range) return fallback;
 
-    return isHorizontal ? content.y + content.height - y : content.x + content.width - x;
+    return range[1] - (border === 'bottom' ? bbox.y : bbox.x);
 }
 
 /**
