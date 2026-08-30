@@ -4,14 +4,15 @@ import { addEffect, removeEffect, EffectType } from '../../effects';
 import { stencilPaletteItems, type StencilPaletteItem } from '../../configs/stencil-config';
 import { dropPoolAt, findDropPool, getPoolsInOrder } from '../../dnd/pools';
 import { insertSwimlaneIntoPool } from '../../dnd/swimlanes';
-import { findDropSwimlane, positionInSwimlane } from '../../dnd/elements';
+import { addElementToSwimlane, findDropSwimlane } from '../../dnd/elements';
 import { createShape, getShapeMeta } from '../../shapes/create-shape';
-import { adjustPoolToContainElement, isPool, isSwimlane } from '../../utils';
+import { isPool, isSwimlane } from '../../utils';
 import { Tip } from '../tooltip/tooltip';
 
 import type { KeyboardEvent, PointerEvent, FocusEvent } from 'react';
 import type { dia } from '@joint/plus';
 import type { AppPool, AppSwimlane } from '../../shapes/pool/pool-shapes';
+import type { AppElement } from '../../shapes/shapes-typing';
 
 // How far one arrow key pans while a pool item has the focus — a pool lands
 // on blank paper, so there is nothing to step through.
@@ -142,10 +143,12 @@ export function BpmnPalette() {
         if (!focusedType || !target) return;
 
         const shape = createShape(graph, focusedType);
-        // A pool lands on blank paper — nothing to highlight.
+        // A pool lands on blank paper, and a group is never embedded (it may
+        // span pools by design) — neither has a lane to point at.
         if (!shape.isElement() || isPool(shape)) return;
 
         const { pool, lane } = resolve(target);
+        if (!isSwimlane(shape) && lane && !(shape as AppElement).validateEmbedding?.(lane)) return;
 
         if (target.kind === 'insert') {
             const view = pool && paper.findViewByModel(pool);
@@ -394,15 +397,12 @@ function PaletteItem({ type, icon, target, targetName, onStep }: PaletteItemProp
             dropPoolAt(graph, shape, center.x - width / 2, center.y - height / 2);
         } else if (lane && isSwimlane(lane)) {
             // Into the part of the aimed-at lane that is on screen, so the
-            // shape lands where the user is looking.
+            // shape lands where the user is looking. The helper decides
+            // whether it is embedded — a group never is.
             const laneBBox = lane.getBBox();
             const point = (laneBBox.intersect(visible) ?? laneBBox).center();
-            const { x, y } = positionInSwimlane(lane, shape.size(), point);
 
-            shape.position(x, y);
-            graph.addCell(shape);
-            lane.embed(shape);
-            adjustPoolToContainElement(shape);
+            addElementToSwimlane(graph, lane, shape, point);
         } else {
             // No lanes in the diagram at all — the shape goes on blank paper.
             shape.position(center.x - width / 2, center.y - height / 2);

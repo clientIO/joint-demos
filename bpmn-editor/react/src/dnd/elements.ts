@@ -62,6 +62,12 @@ export function positionInSwimlane(lane: AppSwimlane, size: dia.Size, preferred:
  * shape passes `false`: it has a place of its own to be, and pulling it
  * back inside would drop it on top of the shape it was added from — the
  * pool grows to take it instead.
+ *
+ * A shape that refuses the lane is placed but left loose. A group is the
+ * case that matters: in BPMN it is an artifact, not something a
+ * participant contains, and it is meant to be able to span pools and
+ * lanes — so `Group.validateEmbedding()` returns false and the pointer
+ * path never embeds one either.
  */
 export function addElementToSwimlane(
     graph: dia.Graph,
@@ -70,15 +76,21 @@ export function addElementToSwimlane(
     point: g.PlainPoint,
     { clampToLane = true }: { clampToLane?: boolean } = {}
 ) {
+    const embeds = (element as AppElement).validateEmbedding?.(lane) ?? true;
     const size = element.size();
-    const { x, y } = clampToLane
+
+    // Only a shape that goes into the lane is held to its bounds.
+    const { x, y } = (clampToLane && embeds)
         ? positionInSwimlane(lane, size, point)
         : { x: point.x - size.width / 2, y: point.y - size.height / 2 };
 
     element.position(x, y);
     graph.addCell(element);
-    lane.embed(element);
-    adjustPoolToContainElement(element);
+
+    if (embeds) {
+        lane.embed(element);
+        adjustPoolToContainElement(element);
+    }
 
     return element;
 }
