@@ -7,7 +7,18 @@ import { isSwimlane, prepareLinkReplacement } from '../../utils';
 import { ShapePicker, PickerOverlay, type PickerItem } from '../shape-picker/shape-picker';
 
 import type { dia } from '@joint/plus';
-import type { AppElement, AppLink, AppShape } from '../../shapes/shapes-typing';
+import { ShapeTypes, type AppElement, type AppLink, type AppShape } from '../../shapes/shapes-typing';
+
+// Annotations, groups and pools go after the flow shapes: an annotation or
+// a group is an artifact and a pool is the participant a shape already sits
+// in, so all three are the rarer choice — the list leads with what is
+// usually wanted.
+const TRAILING_TYPES = [ShapeTypes.ANNOTATION, ShapeTypes.GROUP, ShapeTypes.POOL];
+
+const rank = (element: AppElement) => {
+    const at = TRAILING_TYPES.indexOf(element.get('shapeType'));
+    return at === -1 ? 0 : at + 1;
+};
 
 /**
  * The shapes the source may legally connect to, in the order they read on
@@ -22,6 +33,9 @@ function getLinkTargets(graph: dia.Graph, source: AppElement): AppElement[] {
         .filter((element): element is AppElement => element !== source && !isSwimlane(element))
         .filter((element) => (source as AppShape).validateConnection(element))
         .sort((a, b) => {
+            const byKind = rank(a) - rank(b);
+            if (byKind !== 0) return byKind;
+
             const from = a.position();
             const to = b.position();
             return from.x - to.x || from.y - to.y;
