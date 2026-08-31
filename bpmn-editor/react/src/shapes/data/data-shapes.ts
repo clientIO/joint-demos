@@ -397,6 +397,12 @@ export class DataAssociation extends shapes.bpmn2.DataAssociation implements App
                     tabindex: 0,
                     role: 'graphics-symbol',
                     ariaLabel: DataAssociation.label
+                },
+                // The library paints the line `#333333`, which is invisible
+                // on a dark canvas. The sequence flows already take the
+                // theme's outline colour; this is the same line.
+                line: {
+                    stroke: 'var(--bpmn-palette-outline)'
                 }
             }
         };

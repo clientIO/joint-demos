@@ -158,6 +158,12 @@ export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements AppLi
                     tabindex: 0,
                     role: 'graphics-symbol',
                     ariaLabel: AnnotationLink.label
+                },
+                // The library paints the line `#333333`, which is invisible
+                // on a dark canvas. The sequence flows already take the
+                // theme's outline colour; this is the same line.
+                line: {
+                    stroke: 'var(--bpmn-palette-outline)'
                 }
             }
         };
