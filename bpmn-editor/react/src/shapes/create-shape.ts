@@ -1,3 +1,5 @@
+import { applyIconContrast } from '../utils';
+
 import type { dia } from '@joint/plus';
 import type { AppShape } from './shapes-typing';
 
@@ -18,7 +20,15 @@ export function createShape<T extends AppShape = AppShape>(
         throw new Error(`No shape registered for the type "${type}".`);
     }
 
-    return new Constructor(attributes) as T;
+    const shape = new Constructor(attributes) as T;
+
+    // Painted here rather than only on the graph, because the stencil clones
+    // the shape into a paper of its own to fly under the pointer — a clone
+    // this app's graph never sees, which would drag the library's dark icon
+    // across a dark canvas.
+    if (shape.isElement()) applyIconContrast(shape);
+
+    return shape;
 }
 
 /**

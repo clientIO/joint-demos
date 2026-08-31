@@ -42,15 +42,8 @@
     }
 }
 
-/* The bpmn2 icons and markers are monochrome #333 images — the color is
-   baked into their data-URIs, so it cannot follow the CSS variables.
-   Approximate the ink color in the dark theme with a filter.
-   TODO: remove when the icons support external coloring (context-fill). */
-:root[data-theme='dark'] .bpmn-editor image[data-icon-type] {
-    filter: invert(0.82);
-}
-
-/* Keep the gateway icons dark — they sit on the warning-colored body. */
-:root[data-theme='dark'] .bpmn-editor [data-type^='gateway'] image[data-icon-type] {
-    filter: none;
-}
+/* The icons and markers carry their colour baked into a data-URI, so they
+   cannot follow the CSS variables. `useShapeIconContrast` paints each one
+   from its own shape's body instead — which is why no filter is needed
+   here, and why a gateway on a coloured body keeps its dark icon while the
+   same gateway on the default body gets a light one. */
