@@ -1,6 +1,6 @@
 import { shapes, util, V } from '@joint/plus';
 import { ShapeTypes } from '../shapes-typing';
-import { PoolLabels, poolIconClasses, PoolShapeTypes, DEFAULT_HORIZONTAL_POOL_SIZE, poolAttributes, swimlaneAttributes, poolAppearanceConfig, swimlaneAppearanceConfig, HORIZONTAL_POOL_PADDING, VERTICAL_POOL_PADDING, SWIMLANE_HEADER_SIZE, DEFAULT_VERTICAL_POOL_SIZE } from './pool-config';
+import { DEFAULT_LANE_HEIGHT, DEFAULT_LANE_WIDTH, PoolLabels, poolIconClasses, PoolShapeTypes, DEFAULT_HORIZONTAL_POOL_SIZE, poolAttributes, swimlaneAttributes, poolAppearanceConfig, swimlaneAppearanceConfig, HORIZONTAL_POOL_PADDING, VERTICAL_POOL_PADDING, SWIMLANE_HEADER_SIZE, DEFAULT_VERTICAL_POOL_SIZE } from './pool-config';
 import { handles } from '../../configs/halo-config';
 import { defaultAttrs } from '../shared-config';
 import { ActivityShapeTypes } from '../activity/activity-config';
@@ -280,9 +280,11 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
         const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.SWIMLANE,
             type: PoolShapeTypes.HORIZONTAL_SWIMLANE,
-            // Intentionally partial: the height comes from the inherited defaults
+            // The width is a seed only — the pool sets it to its own. The
+            // height is what a new lane is created at.
             size: {
-                width: SWIMLANE_HEADER_SIZE
+                width: SWIMLANE_HEADER_SIZE,
+                height: DEFAULT_LANE_HEIGHT
             } as dia.Size,
             attrs: {
                 root: {
@@ -377,8 +379,11 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
             shapeType: ShapeTypes.SWIMLANE,
             type: PoolShapeTypes.VERTICAL_SWIMLANE,
             // Intentionally partial: the width comes from the inherited defaults
+            // The height is a seed only — the pool sets it to its own. The
+            // width is what a new lane is created at.
             size: {
-                height: SWIMLANE_HEADER_SIZE
+                height: SWIMLANE_HEADER_SIZE,
+                width: DEFAULT_LANE_WIDTH
             } as dia.Size,
             attrs: {
                 root: {

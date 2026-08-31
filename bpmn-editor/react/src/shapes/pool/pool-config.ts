@@ -1,4 +1,5 @@
 import { inspectorOptions } from '../shared-config';
+import { DEFAULT_ACTIVITY_SIZE } from '../activity/activity-config';
 
 import type { dia, shapes } from '@joint/plus';
 import type { AppearanceConfig } from '../shapes-typing';
@@ -28,8 +29,14 @@ export const poolIconClasses = {
 
 export const LANE_CONTENT_MARGIN = 20;
 const MIN_LANE_SIZE = 60;
-export const DEFAULT_LANE_HEIGHT = 100;
 export const SWIMLANE_HEADER_SIZE = 30;
+
+// A lane is created big enough to hold a task with the content margin clear
+// on both sides. The library's own default is 60, which a task overflows on
+// the way in — the pool then has to grow to take it, and a lane that cannot
+// hold one shape is no use as a starting size.
+export const DEFAULT_LANE_HEIGHT = DEFAULT_ACTIVITY_SIZE.height + 2 * LANE_CONTENT_MARGIN;
+export const DEFAULT_LANE_WIDTH = DEFAULT_ACTIVITY_SIZE.width + 2 * LANE_CONTENT_MARGIN;
 
 export const DEFAULT_HORIZONTAL_POOL_SIZE = {
     width: 600,
