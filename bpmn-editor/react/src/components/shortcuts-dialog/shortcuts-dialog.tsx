@@ -28,7 +28,8 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
             { keys: [MOD, 'A'], action: 'Select all' },
             { keys: ['Esc'], action: 'Clear the selection' },
             { keys: ['Delete'], action: 'Delete the selection' },
-            { keys: ['Shift'], action: 'Hold to drag a selection region' }
+            { keys: ['Shift'], action: 'Hold to drag a selection region' },
+            { keys: ['Alt', 'Enter'], action: 'Move to the inspector for the selected shape — Esc comes back' }
         ]
     },
     {
