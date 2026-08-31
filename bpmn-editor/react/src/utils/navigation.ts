@@ -54,6 +54,7 @@ export function findInDirection(
     if (!origin) return null;
 
     const skipped = new Set(from.map((cell) => cell.id));
+    const fromPool = poolOf(from[0]);
     const candidates = graph.getElements()
         .filter((element) => !skipped.has(element.id) && isNavigable(element));
 
@@ -66,7 +67,7 @@ export function findInDirection(
             const box = element.getBBox();
             if (!within(box)) return;
 
-            const rank = rankOf(box, origin, dx, dy, getPoolParent(element) === getPoolParent(from[0]));
+            const rank = rankOf(box, origin, dx, dy, getPoolParent(element) === fromPool);
             if (!bestRank || isCloser(rank, bestRank)) {
                 bestRank = rank;
                 best = element;
@@ -78,6 +79,17 @@ export function findInDirection(
 
     return closest((box) => inCone(box, origin, dx, dy))
         ?? closest((box) => isBeside(box, origin, dx, dy));
+}
+
+// A link is never embedded, so the participant it belongs to is the one its
+// source shape sits in.
+function poolOf(cell: dia.Cell) {
+
+    if (!cell.isLink()) return getPoolParent(cell);
+
+    const source = (cell as dia.Link).getSourceCell();
+
+    return source ? getPoolParent(source) : null;
 }
 
 // Whether the box's centre falls inside the 90° cone.

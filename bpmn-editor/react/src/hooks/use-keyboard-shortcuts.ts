@@ -313,7 +313,9 @@ function onNavigate(context: KeyboardContext, evt: dia.Event, dx: number, dy: nu
 
     const { graph, paperScroller, selection } = context;
 
-    const selected = selection.collection.toArray().filter((cell) => cell.isElement());
+    // Links included: a flow is a selection like any other, and an arrow
+    // from one should reach a shape rather than scroll the canvas.
+    const selected = selection.collection.toArray();
 
     // Nothing selected: the arrows are the canvas's, to scroll with.
     if (selected.length === 0) return;
