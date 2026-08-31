@@ -52,7 +52,7 @@ function label(text: string): LinkLabel {
     };
 }
 
-export const TreeData: readonly SourceDiagram[] = [{
+export const TREE_DATA: readonly SourceDiagram[] = [{
     id: 'process0',
     name: 'Process 1',
     cells: [{

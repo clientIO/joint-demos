@@ -1,5 +1,5 @@
 import type { CellId } from '@joint/react-plus';
-import { TreeData } from './tree-data';
+import { TREE_DATA } from './tree-data';
 import type { IndexCell, IndexElement, IndexLink, SourceDiagram } from './tree-data';
 
 export type { IndexCell, IndexElement, IndexLink, NodeData, NodeKind } from './tree-data';
@@ -43,7 +43,7 @@ function toLeaf(diagramId: string, cell: IndexCell): TreeLeaf {
 }
 
 /** The saved diagrams plus the tree leaves derived from their cells. */
-export const DIAGRAMS: readonly DiagramSource[] = TreeData.map((diagram) => ({
+export const DIAGRAMS: readonly DiagramSource[] = TREE_DATA.map((diagram) => ({
     ...diagram,
     leaves: diagram.cells.map((cell) => toLeaf(diagram.id, cell)),
 }));
