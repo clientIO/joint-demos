@@ -17,6 +17,15 @@ export enum PoolShapeTypes {
     VERTICAL_SWIMLANE = 'pool.VerticalSwimlane'
 }
 
+// The icons pools and lanes are shown with — the same glyphs the stencil
+// uses, as a class, so `getShapeMeta()` can hand them to anything listing
+// shapes (the link targets, the inspector).
+export const poolIconClasses = {
+    HORIZONTAL_POOL: 'jj-bpmn-icon-horizontal-pool',
+    VERTICAL_POOL: 'jj-bpmn-icon-vertical-pool',
+    HORIZONTAL_SWIMLANE: 'jj-bpmn-icon-horizontal-swimlane'
+} as const;
+
 export const LANE_CONTENT_MARGIN = 20;
 const MIN_LANE_SIZE = 60;
 export const DEFAULT_LANE_HEIGHT = 100;

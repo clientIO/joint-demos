@@ -1,6 +1,6 @@
 import { type g, shapes, util, V } from '@joint/plus';
 import { ShapeTypes } from '../shapes-typing';
-import { annotationAppearanceConfig, annotationLinkAppearanceConfig, AnnotationLabels, AnnotationShapeTypes } from './annotation-config';
+import { annotationAppearanceConfig, annotationIconClasses, annotationLinkAppearanceConfig, AnnotationLabels, AnnotationShapeTypes } from './annotation-config';
 import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { handles } from '../../configs/halo-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
@@ -12,6 +12,7 @@ import type { AppElement, AppLink, LinkContextMenuAction } from '../shapes-typin
 export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
 
     static label = AnnotationLabels['annotation.Annotation'];
+    static icon = annotationIconClasses.ANNOTATION;
 
     public readonly isResizable = true;
     public readonly labelPath = 'label/text';

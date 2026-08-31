@@ -5,6 +5,10 @@ export const GroupLabels = {
     'group.Group': 'Group'
 };
 
+export const groupIconClasses = {
+    GROUP: 'jj-bpmn-icon-group'
+} as const;
+
 export enum GroupShapeTypes {
     GROUP = 'group.Group'
 }
