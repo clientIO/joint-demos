@@ -1,13 +1,103 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/*
+ * Palette. `--highlight`, `--ink`, `--link` and the canvas colors are
+ * mirrored in `src/theme.ts` (cell records and `<Paper>` props need them as
+ * values); everything else is CSS-only.
+ */
+:root {
+    --highlight: #08B081;
+    --highlight-soft: rgb(8 176 129 / 10%);
+    --ink: #1F2933;
+    --ink-muted: #7B8794;
+    --pane-bg: #FCFDFD;
+    --pane-border: #E4E9E7;
+    --canvas-bg: #F5F7F6;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    margin: 0;
+    height: 100%;
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.app {
+    display: flex;
+    height: 100%;
+}
+
+/* ---------------------------------------------------------------- index */
+
+.tree {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    min-width: 220px;
+    height: 100%;
+    border-right: 1px solid var(--pane-border);
+    background-color: var(--pane-bg);
+}
+
+.tree-header {
+    padding: 18px 20px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+}
+
+.tree-view {
+    flex: 1;
+    overflow: auto;
+    padding: 0 10px 16px;
+}
+
+/* Every row: comfortable height, rounded, quiet hover. */
+.tree .MuiTreeItem-content {
+    border-radius: 8px;
+    padding-block: 6px;
+    font-size: 14px;
+    color: var(--ink);
+    transition: background-color 120ms ease;
+}
+
+.tree .MuiTreeItem-content:hover {
+    background-color: rgb(31 41 51 / 5%);
+}
+
+/* Diagram roots read as section titles. */
+.tree > .tree-view > .MuiTreeItem-root > .MuiTreeItem-content {
+    font-weight: 600;
+}
+
+/* Selected / focused: soft brand tint with a readable label, not a solid block. */
+.tree .MuiTreeItem-content.Mui-selected,
+.tree .MuiTreeItem-content.Mui-selected:hover,
+.tree .MuiTreeItem-content.Mui-selected.Mui-focused,
+.tree .MuiTreeItem-content.Mui-focused {
+    background-color: var(--highlight-soft);
+    color: var(--highlight);
+}
+
+.tree-leaf {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.tree-leaf-glyph {
+    font-size: 15px;
+    line-height: 1;
+    color: var(--ink-muted);
+}
+
+.Mui-selected .tree-leaf-glyph {
+    color: inherit;
 }

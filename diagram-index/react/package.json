@@ -1,47 +1,41 @@
 {
   "name": "@joint/demo-diagram-index-react",
-  "version": "0.1.0",
-  "license": "http://jointjs.com/license",
   "private": true,
-  "dependencies": {
-    "@emotion/react": "^11.10.0",
-    "@emotion/styled": "^11.8.1",
-    "@joint/plus": "4.3.1",
-    "@mui/icons-material": "^5.8.4",
-    "@mui/material": "^5.8.7",
-    "@mui/x-tree-view": "^6.17.0",
-    "@testing-library/jest-dom": "^5.16.1",
-    "@testing-library/react": "^12.0.0",
-    "@testing-library/user-event": "^14.0.0",
-    "@types/jest": "^27.0.0",
-    "@types/node": "^16.0.0",
-    "@types/react": "^17.0.40",
-    "@types/react-dom": "^17.0.11",
-    "cross-env": "^7.0.3",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "5.0.0",
-    "sass": "^1.7.0",
-    "typescript": "^4.5.2",
-    "web-vitals": "^2.1.0"
-  },
+  "version": "4.3.2",
+  "type": "module",
+  "description": "Navigates multiple JointJS diagrams from an MUI X tree view, with two-way selection sync between the tree and a @joint/react-plus canvas.",
+  "license": "http://jointjs.com/license",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "cross-env DISABLE_ESLINT_PLUGIN=true BUILD_PATH=dist react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "typecheck": "tsc -b",
+    "test": "npm run typecheck && npm run lint"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@joint/plus": "4.3.2",
+    "@joint/react-plus": "^4.3.2",
+    "@mui/icons-material": "^9.3.1",
+    "@mui/material": "^9.3.1",
+    "@mui/x-tree-view": "^9.12.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
   },
-  "homepage": "./"
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.12.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.12"
+  }
 }
