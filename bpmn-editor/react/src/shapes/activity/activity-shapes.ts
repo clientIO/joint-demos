@@ -1,5 +1,5 @@
 import { type g, shapes, util, V } from '@joint/plus';
-import { activityIconClasses, ActivityLabels, ActivityShapeTypes, activityAppearanceConfig } from './activity-config';
+import { activityIconClasses, ActivityLabels, ActivityShapeTypes, activityAppearanceConfig, DEFAULT_ACTIVITY_SIZE } from './activity-config';
 import { MarkerNames, ShapeTypes } from '../shapes-typing';
 import { DataShapeTypes } from '../data/data-config';
 import { GatewayShapeTypes } from '../gateway/gateway-config';
@@ -26,7 +26,7 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
     defaults(): dia.Element.Attributes {
         const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.ACTIVITY,
-            size: { width: 100, height: 80 },
+            size: { ...DEFAULT_ACTIVITY_SIZE },
             markers: [] as MarkerNames[],
             attrs: {
                 root: {

@@ -29,6 +29,13 @@ export enum ActivityShapeTypes {
     EVENT_SUB_PROCESS = 'activity.EventSubProcess'
 }
 
+// The size a task is created at. Exported because a lane is sized to hold
+// one (see `DEFAULT_LANE_HEIGHT`).
+export const DEFAULT_ACTIVITY_SIZE = {
+    width: 100,
+    height: 80
+};
+
 export const activityIconClasses = {
     TASK: 'jj-bpmn-icon-task',
     SEND: 'jj-bpmn-icon-send-task',
