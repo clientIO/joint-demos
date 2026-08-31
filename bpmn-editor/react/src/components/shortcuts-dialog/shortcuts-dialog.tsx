@@ -22,7 +22,8 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
     {
         title: 'Selection',
         shortcuts: [
-            { keys: ['Tab'], action: 'Move to the next shape (focusing a shape selects it)' },
+            { keys: ['↑', '↓', '←', '→'], action: 'Move to the nearest shape that way (focusing a shape selects it)' },
+            { keys: ['Tab'], action: 'Move to the next shape, pools and lanes included' },
             { keys: ['Shift', 'Tab'], action: 'Move to the previous shape' },
             { keys: [MOD, 'A'], action: 'Select all' },
             { keys: ['Esc'], action: 'Clear the selection' },
@@ -48,9 +49,9 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
     {
         title: 'Moving and sizing',
         shortcuts: [
-            { keys: ['↑', '↓', '←', '→'], action: 'Move the selection by one grid step' },
-            { keys: ['Shift', '→'], or: ['Shift', '↓'], action: 'Grow a pool, lane, group or comment (right or bottom edge)' },
-            { keys: ['Shift', '←'], or: ['Shift', '↑'], action: 'Shrink it' },
+            { keys: ['Shift', '↑', '↓', '←', '→'], action: 'Move the selection by one grid step' },
+            { keys: ['Alt', '→'], or: ['Alt', '↓'], action: 'Grow a pool, lane, group or comment (right or bottom edge)' },
+            { keys: ['Alt', '←'], or: ['Alt', '↑'], action: 'Shrink it' },
             { keys: ['Alt', 'Shift', '←'], or: ['Alt', 'Shift', '↑'], action: 'Grow it from the left or top edge instead' }
         ]
     },
@@ -76,7 +77,8 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
             { keys: ['Shift', MOD, 'Z'], action: 'Redo' },
             { keys: [MOD, '+'], action: 'Zoom in' },
             { keys: [MOD, '−'], action: 'Zoom out' },
-            { keys: [MOD, 'P'], action: 'Print the diagram' }
+            { keys: [MOD, 'P'], action: 'Print the diagram' },
+            { keys: ['↑', '↓', '←', '→'], action: 'Scroll the canvas, with nothing selected' }
         ]
     }
 ];

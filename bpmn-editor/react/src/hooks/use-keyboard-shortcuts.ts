@@ -5,7 +5,7 @@ import { openLabelEditor } from '../actions/label-editor';
 import { ZOOM_SETTINGS } from '../configs/paper-config';
 
 import type { dia, ui } from '@joint/plus';
-import { adjustPoolToContainElement, isActivity, isEvent, isPool, isSwimlane, snapToParentBoundary } from '../utils';
+import { adjustPoolToContainElement, findInDirection, isActivity, isEvent, isPool, isSwimlane, snapToParentBoundary } from '../utils';
 import type { AppElement } from '../shapes/shapes-typing';
 import type { AppPool, AppSwimlane } from '../shapes/pool/pool-shapes';
 
@@ -61,20 +61,27 @@ export function useKeyboardShortcuts() {
         'ctrl+plus command+plus': (evt: dia.Event) => onZoomIn(ctx(), evt),
         'ctrl+minus command+minus': (evt: dia.Event) => onZoomOut(ctx(), evt),
         'escape': () => onEscape(ctx()),
-        'shift+up': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, -1, 'far'),
-        'shift+down': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, 1, 'far'),
-        'shift+left': (evt: dia.Event) => onResizeSelection(ctx(), evt, -1, 0, 'far'),
-        'shift+right': (evt: dia.Event) => onResizeSelection(ctx(), evt, 1, 0, 'far'),
-        // `alt` moves the near border instead — the one the far-border keys
-        // cannot reach, so a lane can grow upwards and a pool leftwards.
+        // The bare arrows walk the diagram — the unmodified key does not
+        // change the drawing, so a stray press cannot nudge a shape and
+        // write a history entry. Moving and resizing take a modifier.
+        'up': (evt: dia.Event) => onNavigate(ctx(), evt, 0, -1),
+        'down': (evt: dia.Event) => onNavigate(ctx(), evt, 0, 1),
+        'left': (evt: dia.Event) => onNavigate(ctx(), evt, -1, 0),
+        'right': (evt: dia.Event) => onNavigate(ctx(), evt, 1, 0),
+        'shift+up': (evt: dia.Event) => onMoveSelection(ctx(), evt, 0, -1),
+        'shift+down': (evt: dia.Event) => onMoveSelection(ctx(), evt, 0, 1),
+        'shift+left': (evt: dia.Event) => onMoveSelection(ctx(), evt, -1, 0),
+        'shift+right': (evt: dia.Event) => onMoveSelection(ctx(), evt, 1, 0),
+        'alt+up': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, -1, 'far'),
+        'alt+down': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, 1, 'far'),
+        'alt+left': (evt: dia.Event) => onResizeSelection(ctx(), evt, -1, 0, 'far'),
+        'alt+right': (evt: dia.Event) => onResizeSelection(ctx(), evt, 1, 0, 'far'),
+        // `shift` moves the near border instead — the one the far-border
+        // keys cannot reach, so a lane can grow upwards and a pool leftwards.
         'alt+shift+up': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, -1, 'near'),
         'alt+shift+down': (evt: dia.Event) => onResizeSelection(ctx(), evt, 0, 1, 'near'),
         'alt+shift+left': (evt: dia.Event) => onResizeSelection(ctx(), evt, -1, 0, 'near'),
         'alt+shift+right': (evt: dia.Event) => onResizeSelection(ctx(), evt, 1, 0, 'near'),
-        'up': (evt: dia.Event) => onMoveSelection(ctx(), evt, 0, -1),
-        'down': (evt: dia.Event) => onMoveSelection(ctx(), evt, 0, 1),
-        'left': (evt: dia.Event) => onMoveSelection(ctx(), evt, -1, 0),
-        'right': (evt: dia.Event) => onMoveSelection(ctx(), evt, 1, 0),
         // Rename the selected cell without the pointer: `F2` is the platform
         // convention, `enter` matches the other diagram editors.
         'enter F2': (evt: dia.Event) => onEditLabel(ctx(), evt),
@@ -284,10 +291,50 @@ function onPrint(context: KeyboardContext, evt: dia.Event) {
 
 /**
  * Moves the selected elements by one grid step in the given direction.
- * Swimlanes cannot be moved (`shift` and the arrows resize them instead);
+ * Swimlanes cannot be moved (`alt` and the arrows resize them instead);
  * boundary events stay snapped to their activity's border; pools grow to
  * keep containing the moved elements.
  */
+/**
+ * Moves the selection to the next shape in the direction pressed — `tab`,
+ * but directional. Plain `tab` walks the cells in document order, which in
+ * a diagram is the order they were added, so it is no way to follow a flow
+ * across pools.
+ *
+ * Only with something selected. With an empty selection the canvas itself
+ * has the focus, and there the arrows scroll it — the paper scroller is an
+ * `overflow: scroll` div, so leaving the key unconsumed is what scrolls it.
+ *
+ * Selecting focuses the shape (see `useAccessibility`), so this moves the
+ * focus with it and assistive technology announces where it landed.
+ */
+function onNavigate(context: KeyboardContext, evt: dia.Event, dx: number, dy: number) {
+    if (!isCanvasFocused(context, evt)) return;
+
+    const { graph, paperScroller, selection } = context;
+
+    const selected = selection.collection.toArray().filter((cell) => cell.isElement());
+
+    // Nothing selected: the arrows are the canvas's, to scroll with.
+    if (selected.length === 0) return;
+
+    // Anything selected: the arrows are the diagram's, whether or not there
+    // is somewhere to go, so an arrow at the edge of the diagram does
+    // nothing rather than sliding the canvas out from under the selection.
+    evt.preventDefault();
+
+    const next = findInDirection(graph, selected, dx, dy);
+    if (!next) return;
+
+    selection.collection.reset([next]);
+
+    // Only where it is not already fully on screen — scrolling to something
+    // the user can see moves the whole diagram under them for nothing.
+    if (!paperScroller.isElementVisible(next, { strict: true })) {
+        paperScroller.scrollToElement(next, { animation: { duration: 120 }});
+    }
+}
+
 function onMoveSelection(context: KeyboardContext, evt: dia.Event, dx: number, dy: number) {
     if (!isCanvasFocused(context, evt)) return;
 
@@ -305,8 +352,7 @@ function onMoveSelection(context: KeyboardContext, evt: dia.Event, dx: number, d
 
     if (movedElements.length === 0) return;
 
-    // Consume the key press only when it moves something — otherwise leave
-    // it to the paper scroller (arrow keys scroll the canvas).
+    // Consume the key press only when it moves something.
     evt.preventDefault();
 
     const step = gridStep(paper);
