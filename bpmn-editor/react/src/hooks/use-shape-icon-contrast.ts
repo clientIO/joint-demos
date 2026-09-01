@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useGraph } from '@joint/react-plus';
+import { useCallback, useEffect } from 'react';
+import { useGraph, useOnGraphEvents } from '@joint/react-plus';
 import { applyIconContrast } from '../utils';
 
 import type { dia } from '@joint/plus';
@@ -27,33 +27,32 @@ export function useShapeIconContrast() {
 
     const { graph } = useGraph();
 
-    useEffect(() => {
-        const apply = (cell: dia.Cell) => {
-            if (cell.isElement()) applyIconContrast(cell, NO_HISTORY);
-        };
+    const apply = (cell: dia.Cell) => {
+        if (cell.isElement()) applyIconContrast(cell, NO_HISTORY);
+    };
 
-        const applyToAll = () => graph.getElements().forEach(apply);
+    const applyToAll = useCallback(() => {
+        graph.getElements().forEach((element) => applyIconContrast(element, NO_HISTORY));
+    }, [graph]);
 
-        applyToAll();
-
+    useOnGraphEvents({
+        add: apply,
         // A body recoloured in the inspector can want the other icon.
-        graph.on('add', apply);
-        graph.on('change:attrs', apply);
+        'change:attrs': apply,
         // Loading a diagram resets the graph rather than adding cell by cell
         // (see `utils/import`), so `add` never fires for what was opened.
-        graph.on('reset', applyToAll);
+        reset: applyToAll
+    });
 
-        // The theme is a data attribute on the document element, set by the
-        // toolbar's toggle. Watching the attribute rather than the toggle's
-        // state keeps this working however the theme comes to change.
+    // The theme is a data attribute on the document element, set by the
+    // toolbar's toggle. Watching the attribute rather than the toggle's state
+    // keeps this working however the theme comes to change.
+    useEffect(() => {
+        applyToAll();
+
         const observer = new MutationObserver(applyToAll);
         observer.observe(document.documentElement, { attributeFilter: ['data-theme'] });
 
-        return () => {
-            graph.off('add', apply);
-            graph.off('change:attrs', apply);
-            graph.off('reset', applyToAll);
-            observer.disconnect();
-        };
-    }, [graph]);
+        return () => observer.disconnect();
+    }, [applyToAll]);
 }
