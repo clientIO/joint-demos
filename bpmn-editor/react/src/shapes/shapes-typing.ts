@@ -44,10 +44,10 @@ export interface Marker {
     index?: number;
 }
 
-export interface AppShape extends dia.Cell {
+export interface BpmnShape extends dia.Cell {
     // Method syntax on purpose: parameters check bivariantly, so the
     // element/link interfaces (whose `copyFrom` takes the concrete cell type)
-    // stay assignable to AppShape.
+    // stay assignable to BpmnShape.
     copyFrom(shape: dia.Cell): void;
     getShapeList: () => string[];
     validateConnection: (targetModel?: dia.Cell) => boolean;
@@ -108,7 +108,7 @@ export interface AppearanceGroup {
 /** The Appearance inspector tab: groups render in array order. */
 export type AppearanceConfig = AppearanceGroup[];
 
-export interface AppElement extends dia.Element {
+export interface BpmnElement extends dia.Element {
     readonly isResizable: boolean;
     readonly labelPath: string;
     readonly labelSelector?: string;
@@ -134,7 +134,7 @@ export interface AppElement extends dia.Element {
 /** The actions a link offers in its context menu. */
 export type LinkContextMenuAction = 'edit-label' | 'add-comment';
 
-export interface AppLink extends dia.Link {
+export interface BpmnLink extends dia.Link {
     getShapeList: () => string[];
     getContextMenuActions: () => LinkContextMenuAction[];
     getLinkTools: () => dia.ToolView[];

@@ -6,8 +6,8 @@ import { ZOOM_SETTINGS } from '../configs/paper-config';
 
 import type { dia, ui } from '@joint/plus';
 import { adjustPoolToContainElement, findInDirection, isActivity, isEvent, isPool, isSwimlane, snapToParentBoundary } from '../utils';
-import type { AppElement } from '../shapes/shapes-typing';
-import type { AppPool, AppSwimlane } from '../shapes/pool/pool-shapes';
+import type { BpmnElement } from '../shapes/shapes-typing';
+import type { BpmnPool, BpmnSwimlane } from '../shapes/pool/pool-shapes';
 
 type KeyboardContext = {
     graph: dia.Graph;
@@ -406,7 +406,7 @@ function onResizeSelection(context: KeyboardContext, evt: dia.Event, dx: number,
     if (cells.length !== 1) return;
 
     const [cell] = cells;
-    if (!cell.isElement() || !(cell as AppElement).isResizable) return;
+    if (!cell.isElement() || !(cell as BpmnElement).isResizable) return;
 
     evt.preventDefault();
 
@@ -428,7 +428,7 @@ function onResizeSelection(context: KeyboardContext, evt: dia.Event, dx: number,
     } else if (isPool(cell)) {
         resizePool(cell, border, delta);
     } else {
-        resizeShape(cell as AppElement, border, delta);
+        resizeShape(cell as BpmnElement, border, delta);
     }
 
     context.graph.stopBatch(batchName);
@@ -440,7 +440,7 @@ function onResizeSelection(context: KeyboardContext, evt: dia.Event, dx: number,
  * since every lane spans it. Both go through `changeSwimlaneSize()`, which
  * lays the pool out again either way.
  */
-function resizeSwimlane(lane: AppSwimlane, border: Border, delta: number) {
+function resizeSwimlane(lane: BpmnSwimlane, border: Border, delta: number) {
 
     const pool = lane.getParentCell();
     if (!pool || !isPool(pool) || delta === 0) return;
@@ -452,7 +452,7 @@ function resizeSwimlane(lane: AppSwimlane, border: Border, delta: number) {
     if (next !== size) pool.changeSwimlaneSize(lane, border, next);
 }
 
-function resizePool(pool: AppPool, border: Border, delta: number) {
+function resizePool(pool: BpmnPool, border: Border, delta: number) {
 
     const { width, height } = pool.size();
     const vertical = border === 'top' || border === 'bottom';
@@ -462,7 +462,7 @@ function resizePool(pool: AppPool, border: Border, delta: number) {
     pool.changeSize(border, Math.max(minimum, size + delta));
 }
 
-function resizeShape(element: AppElement, border: Border, delta: number) {
+function resizeShape(element: BpmnElement, border: Border, delta: number) {
 
     const { width, height } = element.size();
     const minimum = element.getMinimalSize?.() ?? { width: 0, height: 0 };
@@ -493,7 +493,7 @@ function resizeShape(element: AppElement, border: Border, delta: number) {
  * everything the pool has to keep covering, which is what the pool's
  * minimal range reports.
  */
-function getMinimumSwimlaneSize(pool: AppPool, lane: AppSwimlane, border: Border) {
+function getMinimumSwimlaneSize(pool: BpmnPool, lane: BpmnSwimlane, border: Border) {
 
     const padding = pool.getSwimlanePadding();
     const bbox = lane.getBBox();

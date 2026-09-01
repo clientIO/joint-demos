@@ -8,7 +8,7 @@ import { BulkAppearanceForm } from './bulk-appearance-form';
 
 import type { KeyboardEvent } from 'react';
 import type { dia } from '@joint/plus';
-import type { AppElement, AppLink } from '../../shapes/shapes-typing';
+import type { BpmnElement, BpmnLink } from '../../shapes/shapes-typing';
 import './inspector.css';
 
 type InspectorView = 'CONTENT' | 'APPEARANCE';
@@ -16,7 +16,7 @@ type InspectorView = 'CONTENT' | 'APPEARANCE';
 /**
  * Whether the cell has any content to show (markers or shape morphing).
  */
-function canAccessContentView(cell: AppElement | AppLink | null): boolean {
+function canAccessContentView(cell: BpmnElement | BpmnLink | null): boolean {
     if (!cell) return false;
     const hasMarkers = cell.isElement() && !!cell.getMarkers && cell.getMarkers().length > 0;
     const hasShapes = cell.getShapeList().length > 0;
@@ -32,7 +32,7 @@ export function Inspector() {
     const { paper } = usePaper();
 
     // The inspector shows the single selected cell...
-    const cell = useSelectedCell() as AppElement | AppLink | null;
+    const cell = useSelectedCell() as BpmnElement | BpmnLink | null;
     // ...or, with several selected, the colours each kind has in common.
     const { elements, links } = useBulkSelection();
     const isBulk = !cell && elements.length + links.length > 1;

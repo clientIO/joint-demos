@@ -1,5 +1,5 @@
 import type { dia } from '@joint/plus';
-import type { AppearanceField, AppearanceRole, AppElement, AppLink } from '../shapes/shapes-typing';
+import type { AppearanceField, AppearanceRole, BpmnElement, BpmnLink } from '../shapes/shapes-typing';
 
 // The order the roles read in a form: the cell's own paint first, then the
 // type of its label.
@@ -26,7 +26,7 @@ export function readFieldValue(cell: dia.Cell, field: { path: string, defaultVal
  * cell saying the field does not apply to it, which is how a connector without
  * a label has no label colour or font.
  */
-export function fieldFor(cell: AppElement | AppLink, role: AppearanceRole): AppearanceField | null {
+export function fieldFor(cell: BpmnElement | BpmnLink, role: AppearanceRole): AppearanceField | null {
 
     for (const group of cell.getAppearanceConfig()) {
         if (group.visibleWhen && !group.visibleWhen(cell)) continue;
@@ -40,7 +40,7 @@ export function fieldFor(cell: AppElement | AppLink, role: AppearanceRole): Appe
 }
 
 /** The roles every one of the cells has, so a form can only offer those. */
-export function sharedRoles(cells: (AppElement | AppLink)[]): AppearanceRole[] {
+export function sharedRoles(cells: (BpmnElement | BpmnLink)[]): AppearanceRole[] {
 
     if (cells.length === 0) return [];
 
@@ -52,7 +52,7 @@ export function sharedRoles(cells: (AppElement | AppLink)[]): AppearanceRole[] {
  * which is what leaves a swatch row with nothing selected, and a select box
  * with nothing chosen.
  */
-export function sharedValue(cells: (AppElement | AppLink)[], role: AppearanceRole): string | null {
+export function sharedValue(cells: (BpmnElement | BpmnLink)[], role: AppearanceRole): string | null {
 
     let shared: string | null = null;
 

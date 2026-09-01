@@ -6,9 +6,9 @@ import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { handles } from '../../configs/halo-config';
 
 import type { dia } from '@joint/plus';
-import type { AppElement } from '../shapes-typing';
+import type { BpmnElement } from '../shapes-typing';
 
-export class Group extends shapes.bpmn2.Group implements AppElement {
+export class Group extends shapes.bpmn2.Group implements BpmnElement {
 
     static label = GroupLabels['group.Group'];
     static icon = groupIconClasses.GROUP;

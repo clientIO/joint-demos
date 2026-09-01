@@ -1,15 +1,15 @@
 import { applyIconContrast } from '../utils';
 
 import type { dia } from '@joint/plus';
-import type { AppShape } from './shapes-typing';
+import type { BpmnShape } from './shapes-typing';
 
 /**
  * Creates a shape of the given type from the graph's cell namespace — the
  * one place that turns a type string into a model.
  *
- * Callers that need a narrower type say so: `createShape<AppElement>(...)`.
+ * Callers that need a narrower type say so: `createShape<BpmnElement>(...)`.
  */
-export function createShape<T extends AppShape = AppShape>(
+export function createShape<T extends BpmnShape = BpmnShape>(
     graph: dia.Graph,
     type: string,
     attributes?: dia.Cell.Attributes

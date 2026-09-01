@@ -1,6 +1,6 @@
 import { useCells, useGraph, useSelectionCollection } from '@joint/react-plus';
 
-import type { AppElement, AppLink } from '../shapes/shapes-typing';
+import type { BpmnElement, BpmnLink } from '../shapes/shapes-typing';
 
 /**
  * The selected cells, split into the two kinds that can be edited as a group:
@@ -14,7 +14,7 @@ import type { AppElement, AppLink } from '../shapes/shapes-typing';
  * Separate from `useSelectedCell()`, which several widgets rely on returning
  * `null` for anything but a single cell.
  */
-export function useBulkSelection(): { elements: AppElement[], links: AppLink[] } {
+export function useBulkSelection(): { elements: BpmnElement[], links: BpmnLink[] } {
 
     const { graph } = useGraph();
     const { collection } = useSelectionCollection();
@@ -29,7 +29,7 @@ export function useBulkSelection(): { elements: AppElement[], links: AppLink[] }
     const cells = ids.map((id) => graph.getCell(id)).filter(Boolean);
 
     return {
-        elements: cells.filter((cell) => cell.isElement()) as AppElement[],
-        links: cells.filter((cell) => cell.isLink()) as AppLink[]
+        elements: cells.filter((cell) => cell.isElement()) as BpmnElement[],
+        links: cells.filter((cell) => cell.isLink()) as BpmnLink[]
     };
 }

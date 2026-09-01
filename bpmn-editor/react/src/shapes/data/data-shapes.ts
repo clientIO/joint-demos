@@ -10,13 +10,13 @@ import { constructLinkTools } from '../../configs/link-tools-config';
 import { isSwimlane } from '../../utils';
 
 import type { dia } from '@joint/plus';
-import type { AppElement, AppLink, Marker, LinkContextMenuAction } from '../shapes-typing';
+import type { BpmnElement, BpmnLink, Marker, LinkContextMenuAction } from '../shapes-typing';
 
 const LABEL_Y_OFFSET = 14;
 
 // DataObject
 
-abstract class Data extends shapes.bpmn2.DataObject implements AppElement {
+abstract class Data extends shapes.bpmn2.DataObject implements BpmnElement {
 
     // The shape name (set by each concrete subclass). Typing the constructor
     // makes the static reachable from instance methods (\`defaults()\`).
@@ -267,7 +267,7 @@ export class DataOutput extends Data {
 
 // Store
 
-export class DataStore extends shapes.bpmn2.DataStore implements AppElement {
+export class DataStore extends shapes.bpmn2.DataStore implements BpmnElement {
 
     public readonly isResizable = false;
     public readonly labelPath = 'label/text';
@@ -384,7 +384,7 @@ export class DataStore extends shapes.bpmn2.DataStore implements AppElement {
 
 // Association
 
-export class DataAssociation extends shapes.bpmn2.DataAssociation implements AppLink {
+export class DataAssociation extends shapes.bpmn2.DataAssociation implements BpmnLink {
 
     static label = DataLabels['data.DataAssociation'];
 

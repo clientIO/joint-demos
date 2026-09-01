@@ -1,7 +1,7 @@
 import { labelEditorWrapperStyles } from '../shapes/shared-config';
 
 import type { dia, ui } from '@joint/plus';
-import type { AppShape, AppElement, AppLink } from '../shapes/shapes-typing';
+import type { BpmnShape, BpmnElement, BpmnLink } from '../shapes/shapes-typing';
 import type { LabelElementView } from '../shapes/shape-view';
 import './label-editor.css';
 
@@ -27,7 +27,7 @@ export function closeLabelEditor() {
 // Opens an inline label editor over the cell.
 export function openLabelEditor(paper: dia.Paper, selection: Selection, cellView: dia.CellView) {
 
-    const cell = cellView.model as AppShape;
+    const cell = cellView.model as BpmnShape;
 
     if (!cell.getLabelEditorStyles) return;
 
@@ -55,9 +55,9 @@ export function openLabelEditor(paper: dia.Paper, selection: Selection, cellView
     const opener = document.activeElement as HTMLElement | null;
 
     if (cell.isLink()) {
-        editLinkLabel(editableWrapper, contentEditableDiv, cell as AppLink, paper, state);
+        editLinkLabel(editableWrapper, contentEditableDiv, cell as BpmnLink, paper, state);
     } else {
-        editElementLabel(editableWrapper, contentEditableDiv, cell as AppElement, paper, state);
+        editElementLabel(editableWrapper, contentEditableDiv, cell as BpmnElement, paper, state);
     }
 
     // Select all text in the editable area
@@ -121,7 +121,7 @@ export function openLabelEditor(paper: dia.Paper, selection: Selection, cellView
     currentEditor = editableWrapper;
 }
 
-function editLinkLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElement, link: AppLink, paper: dia.Paper, state: EditorState) {
+function editLinkLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElement, link: BpmnLink, paper: dia.Paper, state: EditorState) {
 
     const label = link.label(0)?.attrs?.label?.text;
     editable.innerText = label ?? '';
@@ -167,7 +167,7 @@ function editLinkLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElement, 
     });
 }
 
-function editElementLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElement, element: AppElement, paper: dia.Paper, state: EditorState) {
+function editElementLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElement, element: BpmnElement, paper: dia.Paper, state: EditorState) {
 
     const labelPath = element.labelPath;
 

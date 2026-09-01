@@ -7,7 +7,7 @@ import { isSwimlane, prepareLinkReplacement } from '../../utils';
 import { ShapePicker, PickerOverlay, type PickerItem } from '../shape-picker/shape-picker';
 
 import type { dia } from '@joint/plus';
-import { ShapeTypes, type AppElement, type AppLink, type AppShape } from '../../shapes/shapes-typing';
+import { ShapeTypes, type BpmnElement, type BpmnLink, type BpmnShape } from '../../shapes/shapes-typing';
 
 // Annotations, groups and pools go after the flow shapes: an annotation or
 // a group is an artifact and a pool is the participant a shape already sits
@@ -15,7 +15,7 @@ import { ShapeTypes, type AppElement, type AppLink, type AppShape } from '../../
 // usually wanted.
 const TRAILING_TYPES = [ShapeTypes.ANNOTATION, ShapeTypes.GROUP, ShapeTypes.POOL];
 
-const rank = (element: AppElement) => {
+const rank = (element: BpmnElement) => {
     const at = TRAILING_TYPES.indexOf(element.get('shapeType'));
     return at === -1 ? 0 : at + 1;
 };
@@ -26,12 +26,12 @@ const rank = (element: AppElement) => {
  * the pointer path enforces through `bpmnValidateConnection`, so the
  * keyboard cannot draw a link the mouse would refuse.
  */
-function getLinkTargets(graph: dia.Graph, source: AppElement): AppElement[] {
+function getLinkTargets(graph: dia.Graph, source: BpmnElement): BpmnElement[] {
     return graph.getElements()
         // Pools are valid ends — a message flow runs between participants.
         // Lanes are not: their `validateConnection()` refuses outright.
-        .filter((element): element is AppElement => element !== source && !isSwimlane(element))
-        .filter((element) => (source as AppShape).validateConnection(element))
+        .filter((element): element is BpmnElement => element !== source && !isSwimlane(element))
+        .filter((element) => (source as BpmnShape).validateConnection(element))
         .sort((a, b) => {
             const byKind = rank(a) - rank(b);
             if (byKind !== 0) return byKind;
@@ -44,7 +44,7 @@ function getLinkTargets(graph: dia.Graph, source: AppElement): AppElement[] {
 
 // A shape reads as its own name where it has one, and as its kind where it
 // does not — "Pays 15" rather than "Task", but "Task" rather than nothing.
-function describe(graph: dia.Graph, element: AppElement): string {
+function describe(graph: dia.Graph, element: BpmnElement): string {
     const named = element.attr(element.labelPath);
     const kind = getShapeMeta(graph, element.get('type')).label;
     return (typeof named === 'string' && named.trim()) ? named.trim() : kind;
@@ -64,7 +64,7 @@ export function QuickLink() {
     const { paperScroller } = usePaperScroller();
     const selection = useSelectionCollection();
 
-    const [linking, setLinking] = useState<{ source: AppElement, targets: AppElement[], anchor: DOMRect } | null>(null);
+    const [linking, setLinking] = useState<{ source: BpmnElement, targets: BpmnElement[], anchor: DOMRect } | null>(null);
     const [preview, setPreview] = useState<dia.Cell.ID | null>(null);
 
     const stop = () => {
@@ -85,14 +85,14 @@ export function QuickLink() {
             const [cell] = cells;
             if (!cell.isElement() || isSwimlane(cell)) return;
 
-            const targets = getLinkTargets(graph, cell as AppElement);
+            const targets = getLinkTargets(graph, cell as BpmnElement);
             if (targets.length === 0) return;
 
             const anchor = paper?.findViewByModel(cell)?.el.getBoundingClientRect();
             if (!anchor) return;
 
             evt.preventDefault();
-            setLinking({ source: cell as AppElement, targets, anchor });
+            setLinking({ source: cell as BpmnElement, targets, anchor });
         }
     });
 
@@ -107,7 +107,7 @@ export function QuickLink() {
         };
 
         const onRemove = (cell: dia.Cell) => {
-            if (cell === linking.source || linking.targets.includes(cell as AppElement)) stop();
+            if (cell === linking.source || linking.targets.includes(cell as BpmnElement)) stop();
         };
 
         document.addEventListener('pointerdown', onPointerDown, true);
@@ -152,7 +152,7 @@ export function QuickLink() {
 
         // The type follows from the endpoints — a sequence flow inside a
         // pool, a message flow between two.
-        const resolved = prepareLinkReplacement(link as AppLink);
+        const resolved = prepareLinkReplacement(link as BpmnLink);
         if (resolved !== link) graph.syncCells([resolved], { async: false });
 
         graph.stopBatch(batchName);

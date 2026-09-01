@@ -9,7 +9,7 @@ import { getPoolParent } from '../../utils';
 import { EventShapeTypes } from '../event/event-config';
 
 import type { dia, g } from '@joint/plus';
-import type { AppElement } from '../shapes-typing';
+import type { BpmnElement } from '../shapes-typing';
 
 type HeaderedShape = HorizontalPool | VerticalPool | HorizontalSwimlane | VerticalSwimlane;
 
@@ -46,7 +46,7 @@ function getRotatedEditorStyles(element: HeaderedShape, paper: dia.Paper): Parti
     };
 }
 
-export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implements AppElement {
+export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implements BpmnElement {
 
     static label = PoolLabels['pool.HorizontalPool'];
     static icon = poolIconClasses.HORIZONTAL_POOL;
@@ -152,7 +152,7 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implemen
     }
 }
 
-export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements AppElement {
+export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements BpmnElement {
 
     static label = PoolLabels['pool.VerticalPool'];
     static icon = poolIconClasses.VERTICAL_POOL;
@@ -257,7 +257,7 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements A
         this.setStackingOrder();
     }
 }
-export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implements AppElement {
+export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implements BpmnElement {
 
     static label = PoolLabels['pool.HorizontalSwimlane'];
     static icon = poolIconClasses.HORIZONTAL_SWIMLANE;
@@ -270,7 +270,7 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
      * commonly left unnamed, with the pool carrying the participant name.
      */
     getLabelText(): string {
-        const pool = this.getParentCell() as AppPool | null;
+        const pool = this.getParentCell() as BpmnPool | null;
         return this.attr(this.labelPath) || pool?.getLabelText?.() || '';
     }
 
@@ -356,7 +356,7 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
     }
 }
 
-export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements AppElement {
+export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements BpmnElement {
 
     static label = PoolLabels['pool.VerticalSwimlane'];
 
@@ -368,7 +368,7 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
      * commonly left unnamed, with the pool carrying the participant name.
      */
     getLabelText(): string {
-        const pool = this.getParentCell() as AppPool | null;
+        const pool = this.getParentCell() as BpmnPool | null;
         return this.attr(this.labelPath) || pool?.getLabelText?.() || '';
     }
 
@@ -461,6 +461,6 @@ export const pool = {
 };
 
 /** The app's pool classes — what `isPool()` narrows to. */
-export type AppPool = HorizontalPool | VerticalPool;
+export type BpmnPool = HorizontalPool | VerticalPool;
 /** The app's swimlane classes — what `isSwimlane()` narrows to. */
-export type AppSwimlane = HorizontalSwimlane | VerticalSwimlane;
+export type BpmnSwimlane = HorizontalSwimlane | VerticalSwimlane;

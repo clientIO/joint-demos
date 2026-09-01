@@ -3,7 +3,7 @@ import { type HorizontalPool, HorizontalSwimlane, VerticalSwimlane } from '../sh
 import { DEFAULT_HORIZONTAL_POOL_SIZE, DEFAULT_VERTICAL_POOL_SIZE, SWIMLANE_HEADER_SIZE } from '../shapes/pool/pool-config';
 
 import type { dia } from '@joint/plus';
-import type { VerticalPool, AppPool } from '../shapes/pool/pool-shapes';
+import type { VerticalPool, BpmnPool } from '../shapes/pool/pool-shapes';
 import { isSwimlane, isPool, isGroup, getPoolParent, type EditorEvent } from '../utils';
 
 const PREVIEW_STROKE = 'var(--bpmn-selector)';
@@ -15,7 +15,7 @@ const PREVIEW_FILL = 'var(--bpmn-palette-surface)';
  * top to bottom), so stepping through them with the keyboard follows what
  * the eye sees rather than the order they were added in.
  */
-export function getPoolsInOrder(graph: dia.Graph): AppPool[] {
+export function getPoolsInOrder(graph: dia.Graph): BpmnPool[] {
     return graph.getElements()
         .filter(isPool)
         .sort((a, b) => {
@@ -33,7 +33,7 @@ export function getPoolsInOrder(graph: dia.Graph): AppPool[] {
  * Like its counterpart this only seeds the aim — the arrows step it from
  * here, and the insertion preview shows where a lane would land.
  */
-export function findDropPool(graph: dia.Graph, selection: dia.Cell[], point: g.PlainPoint): AppPool | null {
+export function findDropPool(graph: dia.Graph, selection: dia.Cell[], point: g.PlainPoint): BpmnPool | null {
 
     for (const cell of selection) {
         const pool = isPool(cell) ? cell : getPoolParent(cell);

@@ -11,7 +11,7 @@ import { Tip } from '../tooltip/tooltip';
 
 import type { KeyboardEvent, PointerEvent, FocusEvent } from 'react';
 import type { dia } from '@joint/plus';
-import type { AppElement, AppShape } from '../../shapes/shapes-typing';
+import type { BpmnElement, BpmnShape } from '../../shapes/shapes-typing';
 
 // How far the pointer travels before a press becomes a drag. Without it a
 // plain click builds a drag clone and throws it away on release, so a click and
@@ -34,12 +34,12 @@ const PAN_KEYS: Record<string, { x: number, y: number }> = {
  * a group is never embedded — it is an artifact and may span pools by
  * design — so neither points at a lane.
  */
-function aimsAtSomething(graph: dia.Graph, shape: AppShape) {
+function aimsAtSomething(graph: dia.Graph, shape: BpmnShape) {
     if (!shape.isElement() || isPool(shape)) return false;
     if (isSwimlane(shape)) return true;
 
     const lane = graph.getElements().find(isSwimlane);
-    return !lane || (shape as AppElement).validateEmbedding?.(lane) !== false;
+    return !lane || (shape as BpmnElement).validateEmbedding?.(lane) !== false;
 }
 
 /**

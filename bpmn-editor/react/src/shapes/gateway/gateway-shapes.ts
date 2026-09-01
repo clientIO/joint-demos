@@ -9,11 +9,11 @@ import { handles } from '../../configs/halo-config';
 import { isPoolShared, isSwimlane } from '../../utils';
 
 import type { dia } from '@joint/plus';
-import type { AppElement } from '../shapes-typing';
+import type { BpmnElement } from '../shapes-typing';
 
 const LABEL_Y_OFFSET = 14;
 
-abstract class Gateway extends shapes.bpmn2.Gateway implements AppElement {
+abstract class Gateway extends shapes.bpmn2.Gateway implements BpmnElement {
 
     // The shape name (set by each concrete subclass). Typing the constructor
     // makes the static reachable from instance methods (\`defaults()\`).

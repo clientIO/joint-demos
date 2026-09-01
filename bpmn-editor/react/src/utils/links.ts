@@ -6,7 +6,7 @@ import { FlowShapeTypes } from '../shapes/flow/flow-config';
 import { isPoolShared } from '.';
 
 import type { dia } from '@joint/plus';
-import type { AppLink, AppShape, LinkType } from '../shapes/shapes-typing';
+import type { BpmnLink, BpmnShape, LinkType } from '../shapes/shapes-typing';
 
 const DEFAULT_LINK_STROKE = 'var(--bpmn-link)';
 
@@ -14,7 +14,7 @@ const DEFAULT_LINK_STROKE = 'var(--bpmn-link)';
  * The link type appropriate for the link's current endpoints (message flow
  * between pools, data association, annotation link, sequence flow otherwise).
  */
-export function resolveDefaultLinkType(link: AppLink): LinkType {
+export function resolveDefaultLinkType(link: BpmnLink): LinkType {
 
     const source = link.getSourceElement();
     const target = link.getTargetElement();
@@ -48,7 +48,7 @@ export function resolveDefaultLinkType(link: AppLink): LinkType {
  * A replacement link of the type matching the link's endpoints (same id), or
  * the link itself when it is already of the correct type.
  */
-export function prepareLinkReplacement(link: AppLink): AppLink {
+export function prepareLinkReplacement(link: BpmnLink): BpmnLink {
 
     const linkType = resolveDefaultLinkType(link);
 
@@ -76,15 +76,15 @@ export function prepareLinkReplacement(link: AppLink): AppLink {
 export function validateAndReplaceConnections(cell: dia.Cell, graph: dia.Graph) {
 
     const links = graph.getConnectedLinks(cell);
-    const replacements: AppLink[] = [];
+    const replacements: BpmnLink[] = [];
 
     links.forEach((link) => {
-        const source = link.getSourceCell() as AppShape;
-        const target = link.getTargetCell() as AppShape;
+        const source = link.getSourceCell() as BpmnShape;
+        const target = link.getTargetCell() as BpmnShape;
 
         // If connection is valid, replace the placeholder link
         if (source.validateConnection(target)) {
-            const replacement = prepareLinkReplacement(link as AppLink);
+            const replacement = prepareLinkReplacement(link as BpmnLink);
             if (replacement !== link) {
                 replacements.push(replacement);
             }

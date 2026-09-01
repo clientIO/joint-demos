@@ -11,9 +11,9 @@ import { handles } from '../../configs/halo-config';
 import { isPoolShared, getPoolParent, isSwimlane } from '../../utils';
 
 import type { dia } from '@joint/plus';
-import type { AppElement, Marker } from '../shapes-typing';
+import type { BpmnElement, Marker } from '../shapes-typing';
 
-export abstract class Activity extends shapes.bpmn2.Activity implements AppElement {
+export abstract class Activity extends shapes.bpmn2.Activity implements BpmnElement {
 
     // The shape name (set by each concrete subclass). Typing the constructor
     // makes the static reachable from instance methods (\`defaults()\`).

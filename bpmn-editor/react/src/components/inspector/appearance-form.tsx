@@ -6,9 +6,9 @@ import { PALETTE } from '../../configs/palette';
 import { readFieldValue } from '../../utils';
 
 import type { CellRecord, Computed } from '@joint/react-plus';
-import type { AppElement, AppLink, AppearanceColorField, AppearanceSelectBoxField, AppearanceSelectOption } from '../../shapes/shapes-typing';
+import type { BpmnElement, BpmnLink, AppearanceColorField, AppearanceSelectBoxField, AppearanceSelectOption } from '../../shapes/shapes-typing';
 
-type Cell = AppElement | AppLink;
+type Cell = BpmnElement | BpmnLink;
 
 // The cell's reactive record: a new snapshot on every model change (attribute
 // updates, undo/redo, ...) — used as an effect dependency to resync fields.

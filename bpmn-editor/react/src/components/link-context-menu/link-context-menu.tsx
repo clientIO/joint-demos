@@ -5,14 +5,14 @@ import { openLabelEditor } from '../../actions/label-editor';
 import { Annotation, AnnotationLink } from '../../shapes/annotation/annotation-shapes';
 
 import type { dia } from '@joint/plus';
-import type { AppLink, LinkContextMenuAction } from '../../shapes/shapes-typing';
+import type { BpmnLink, LinkContextMenuAction } from '../../shapes/shapes-typing';
 import './link-context-menu.css';
 
 interface MenuState {
     // Local (graph) coordinates.
     x: number;
     y: number;
-    link: AppLink;
+    link: BpmnLink;
 }
 
 /**
@@ -29,7 +29,7 @@ export function LinkContextMenu() {
 
     useOnPaperEvents({
         onLinkContextMenu: ({ paper, model, event }) => {
-            const link = model as AppLink;
+            const link = model as BpmnLink;
             // The link decides what its context menu offers.
             if (link.getContextMenuActions().length === 0) return;
             const { x, y } = paper.clientToLocalPoint(event.clientX!, event.clientY!);

@@ -11,7 +11,7 @@ import { Sequence } from '../shapes/flow/flow-shapes';
 
 import type { ui, shapes } from '@joint/plus';
 import type { HaloHandle } from '@joint/react-plus';
-import type { AppElement } from '../shapes/shapes-typing';
+import type { BpmnElement } from '../shapes/shapes-typing';
 
 export const GroupNames = {
     ActionTools: 'action-tools',
@@ -96,7 +96,7 @@ function makeConnectHandle(name: string, iconClass: string, elementType: string)
             elementType
         },
         hideOnDrag: true,
-        makeElement: ({ graph }) => createShape<AppElement>(graph, elementType),
+        makeElement: ({ graph }) => createShape<BpmnElement>(graph, elementType),
         makeLink: makePlaceholderLink
     };
 }

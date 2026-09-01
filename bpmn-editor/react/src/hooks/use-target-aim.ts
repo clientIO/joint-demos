@@ -6,7 +6,7 @@ import { findDropSwimlane } from '../dnd/elements';
 import { isPool, isSwimlane } from '../utils';
 
 import type { dia } from '@joint/plus';
-import type { AppPool, AppSwimlane } from '../shapes/pool/pool-shapes';
+import type { BpmnPool, BpmnSwimlane } from '../shapes/pool/pool-shapes';
 
 /**
  * What is being aimed at: a lane, for something that goes *into* one, or a
@@ -37,10 +37,10 @@ export const isAimKey = (key: string) => key in STEP_KEYS;
 
 // `getSwimlanes()` is typed with the library's own lane class; the guard
 // narrows it to the app's subclass, which carries `getLabelText()`.
-const lanesOf = (pool: AppPool): AppSwimlane[] => pool.getSwimlanes().filter(isSwimlane);
+const lanesOf = (pool: BpmnPool): BpmnSwimlane[] => pool.getSwimlanes().filter(isSwimlane);
 
 /** Every place a lane can go: before each lane, and after the last. */
-const insertPositions = (pools: AppPool[]) =>
+const insertPositions = (pools: BpmnPool[]) =>
     pools.flatMap((pool) =>
         Array.from({ length: lanesOf(pool).length + 1 }, (_, index) => ({ pool, index })));
 
@@ -221,7 +221,7 @@ export function useTargetAim() {
     };
 }
 
-function describe(aim: Aim | null, pool: AppPool | null, lane: AppSwimlane | null) {
+function describe(aim: Aim | null, pool: BpmnPool | null, lane: BpmnSwimlane | null) {
     if (!aim) return null;
 
     if (aim.kind === 'insert') {
@@ -238,7 +238,7 @@ function describe(aim: Aim | null, pool: AppPool | null, lane: AppSwimlane | nul
 
 // Aiming at a lane: one continuous run through every lane in the diagram,
 // with the pool step skipping to the top of the next pool.
-function stepLane(pools: AppPool[], pool: AppPool | null, lane: AppSwimlane | null, delta: { pools: number, lanes: number }) {
+function stepLane(pools: BpmnPool[], pool: BpmnPool | null, lane: BpmnSwimlane | null, delta: { pools: number, lanes: number }) {
     let nextPool = pool ?? pools[0];
     let nextLane = lane;
 
@@ -266,7 +266,7 @@ function stepLane(pools: AppPool[], pool: AppPool | null, lane: AppSwimlane | nu
 
 // Aiming between lanes: the same run, but over the gaps — before each lane
 // and after the last one, across every pool.
-function stepInsert(current: Aim & { kind: 'insert' }, pools: AppPool[], pool: AppPool | null, delta: { pools: number, lanes: number }) {
+function stepInsert(current: Aim & { kind: 'insert' }, pools: BpmnPool[], pool: BpmnPool | null, delta: { pools: number, lanes: number }) {
     let nextPool = pool ?? pools[0];
     let index = current.index;
 

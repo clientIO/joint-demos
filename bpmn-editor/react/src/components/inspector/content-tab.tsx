@@ -4,13 +4,13 @@ import { useCells, useGraph, useSelectionCollection } from '@joint/react-plus';
 import { createShape, getShapeMeta } from '../../shapes/create-shape';
 import { replaceShape } from '../../actions/replace-shape';
 
-import type { AppElement, AppLink, MarkerNames } from '../../shapes/shapes-typing';
+import type { BpmnElement, BpmnLink, MarkerNames } from '../../shapes/shapes-typing';
 
 /**
  * Multi-select toggles for the shape's markers (Radix ToggleGroup: roving
  * focus, arrow-key navigation and pressed states out of the box).
  */
-function MarkersSection({ shape }: { shape: AppElement }) {
+function MarkersSection({ shape }: { shape: BpmnElement }) {
     const markers = shape.getMarkers!();
     const selectedMarkers: MarkerNames[] = shape.get('markers') ?? [];
 
@@ -44,7 +44,7 @@ function MarkersSection({ shape }: { shape: AppElement }) {
 /**
  * Buttons morphing the cell into a related shape type (same id).
  */
-function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
+function ShapesSection({ shape }: { shape: BpmnElement | BpmnLink }) {
     const { graph } = useGraph();
     const selection = useSelectionCollection();
     const shapeTypes = shape.getShapeList();
@@ -89,7 +89,7 @@ function ShapesSection({ shape }: { shape: AppElement | AppLink }) {
 /**
  * The Content inspector tab: marker toggles and shape morphing.
  */
-export function ContentTab({ cell }: { cell: AppElement | AppLink }) {
+export function ContentTab({ cell }: { cell: BpmnElement | BpmnLink }) {
     // Re-render on marker changes (including undo/redo).
     useCells(cell.id);
 
@@ -98,7 +98,7 @@ export function ContentTab({ cell }: { cell: AppElement | AppLink }) {
 
     return (
         <div className="inspector-content-wrapper">
-            {hasMarkers && <MarkersSection shape={cell as AppElement} />}
+            {hasMarkers && <MarkersSection shape={cell as BpmnElement} />}
             {hasShapes && <ShapesSection shape={cell} />}
         </div>
     );

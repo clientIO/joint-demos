@@ -6,7 +6,7 @@ import { DataAssociation } from './data/data-shapes';
 import { Conditional, Default, Message, Sequence } from './flow/flow-shapes';
 
 import type { dia, shapes } from '@joint/plus';
-import type { AppLink, LinkType } from './shapes-typing';
+import type { BpmnLink, LinkType } from './shapes-typing';
 
 export enum PlaceholderShapeTypes {
     LINK = 'placeholder.Link'
@@ -121,10 +121,10 @@ export const linkTypeStyles: Record<LinkType, LinkStyle> = {
     }
 };
 
-type AppLinkConstructor = new (...args: ConstructorParameters<typeof shapes.bpmn2.Flow>) => AppLink;
+type BpmnLinkConstructor = new (...args: ConstructorParameters<typeof shapes.bpmn2.Flow>) => BpmnLink;
 
 /** The link shape constructor of each link type. */
-export const linkTypeConstructors: Record<LinkType, AppLinkConstructor> = {
+export const linkTypeConstructors: Record<LinkType, BpmnLinkConstructor> = {
     [PlaceholderShapeTypes.LINK]: Sequence,
     [AnnotationShapeTypes.LINK]: AnnotationLink,
     [DataShapeTypes.DATA_ASSOCIATION]: DataAssociation,

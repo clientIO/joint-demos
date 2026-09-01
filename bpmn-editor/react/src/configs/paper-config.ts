@@ -1,7 +1,7 @@
 import type { shapes } from '@joint/plus';
 import { dia } from '@joint/plus';
-import { type AppElement, type AppShape } from '../shapes/shapes-typing';
-import { AppLinkView } from '../shapes/link-view';
+import { type BpmnElement, type BpmnShape } from '../shapes/shapes-typing';
+import { BpmnLinkView } from '../shapes/link-view';
 import { LabelElementView } from '../shapes/shape-view';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { canElementExistOutsidePool, getClosestElementBoundaryPoint, getSwimlaneParent, isSwimlane, isPool } from '../utils';
@@ -109,7 +109,7 @@ export const bpmnValidateConnection: CanConnectOptions = {
     allowLinkToLink: true,
     linkLimit: 'none',
     allowRootConnection: true,
-    validate: ({ source, target }) => (source.model as AppShape).validateConnection(target.model)
+    validate: ({ source, target }) => (source.model as BpmnShape).validateConnection(target.model)
 };
 
 // Converts the drop coordinates into a fixed anchor: a boundary point for
@@ -117,7 +117,7 @@ export const bpmnValidateConnection: CanConnectOptions = {
 export const bpmnConnectionStrategy: ConnectionStrategy = ({ end, model, dropPoint, paper }) => {
 
     if (model.isElement()) {
-        const { x, y } = getClosestElementBoundaryPoint(model as AppElement, dropPoint);
+        const { x, y } = getClosestElementBoundaryPoint(model as BpmnElement, dropPoint);
 
         end.anchor = {
             name: 'topLeft',
@@ -154,7 +154,7 @@ export const bpmnValidateEmbedding: ValidateEmbedding = ({ child, parent, graph 
     // paper's graph, so comparing it with the parent's graph tells whether the
     // child is already part of the diagram.
     const inGraph = graph === parent.model.graph;
-    return (child.model as AppElement).validateEmbedding(parent.model, inGraph);
+    return (child.model as BpmnElement).validateEmbedding(parent.model, inGraph);
 };
 
 // Options without a react counterpart, passed through the `<Paper options>`
@@ -167,7 +167,7 @@ export const PAPER_NATIVE_OPTIONS: Partial<dia.Paper.Options> = {
     validateUnembedding: function(this: dia.Paper, elementView: dia.ElementView) {
         const isPoolPresent = this.model.getElements().some(isPool);
 
-        const element = elementView.model as AppElement;
+        const element = elementView.model as BpmnElement;
 
         // If there is a pool present, only allow unembedding of elements that are valid outside of pools
         if (isPoolPresent && !canElementExistOutsidePool(element) && !isSwimlane(element)) return false;
@@ -186,7 +186,7 @@ export const PAPER_NATIVE_OPTIONS: Partial<dia.Paper.Options> = {
     // Anchor links to the middle of the element side nearest the other end.
     defaultAnchor: { name: 'midSide', args: { useModelGeometry: true }},
     elementView: LabelElementView,
-    linkView: AppLinkView,
+    linkView: BpmnLinkView,
     allowLink: ({ model }) => {
         // Link has source and target elements
         return !!(model.source().id) && !!(model.target().id);

@@ -5,8 +5,8 @@ import { addEffect, removeEffect, EffectType } from '../effects';
 import { isForkEvent, getPoolParent, resolveDefaultLinkType, isSwimlane, isPool, isActivity } from '../utils';
 import { PlaceholderShapeTypes } from '../shapes/link-config';
 
-import type { AppElement, AppLink } from '../shapes/shapes-typing';
-import type { AppLinkView } from '../shapes/link-view';
+import type { BpmnElement, BpmnLink } from '../shapes/shapes-typing';
+import type { BpmnLinkView } from '../shapes/link-view';
 
 // Viewing interactions: panning, selection semantics, embedding highlights,
 // link snap styling and invalid-target effects.
@@ -82,12 +82,12 @@ export function useViewInteractions() {
         },
 
         onLinkSnapConnect: ({ view }) => {
-            const linkType = resolveDefaultLinkType(view.model as AppLink);
-            (view as AppLinkView).changeStyle(linkType);
+            const linkType = resolveDefaultLinkType(view.model as BpmnLink);
+            (view as BpmnLinkView).changeStyle(linkType);
         },
 
         onLinkSnapDisconnect: ({ view }) => {
-            (view as AppLinkView).changeStyle(PlaceholderShapeTypes.LINK);
+            (view as BpmnLinkView).changeStyle(PlaceholderShapeTypes.LINK);
         },
 
         onLinkPointerMove: ({ paper, view, event, x, y }) => onLinkPointerMove(paper, view, event, x, y),
@@ -112,12 +112,12 @@ function onLinkPointerMove(paper: dia.Paper, linkView: dia.LinkView, evt: dia.Ev
     const movingArrowhead = linkView.eventData(evt).arrowhead as 'source' | 'target';
     const isHoveredElementSource = movingArrowhead === 'source';
 
-    let hoveredElement = hoveredView.model as AppElement;
-    const secondaryElement = (isHoveredElementSource ? linkView.model.getTargetCell() : linkView.model.getSourceCell()) as AppElement;
+    let hoveredElement = hoveredView.model as BpmnElement;
+    const secondaryElement = (isHoveredElementSource ? linkView.model.getTargetCell() : linkView.model.getSourceCell()) as BpmnElement;
 
     // If hovering a swimlane, validate its parent pool
     if (isSwimlane(hoveredElement)) {
-        hoveredElement = hoveredElement.getParentCell() as AppElement;
+        hoveredElement = hoveredElement.getParentCell() as BpmnElement;
         hoveredView = hoveredElement.findView(paper) as dia.ElementView;
     }
 

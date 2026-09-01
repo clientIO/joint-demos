@@ -1,6 +1,6 @@
 import { type dia, shapes, g } from '@joint/plus';
-import { ShapeTypes, type AppElement } from '../shapes/shapes-typing';
-import type { AppPool, AppSwimlane } from '../shapes/pool/pool-shapes';
+import { ShapeTypes, type BpmnElement } from '../shapes/shapes-typing';
+import type { BpmnPool, BpmnSwimlane } from '../shapes/pool/pool-shapes';
 
 /**
  * Whether the dragged element is an event over an activity, i.e. it should
@@ -41,14 +41,14 @@ export function adjustPoolToContainElement(element: dia.Element) {
 /**
  * Whether the element is a pool swimlane.
  */
-export function isSwimlane(cell: dia.Cell): cell is AppSwimlane {
+export function isSwimlane(cell: dia.Cell): cell is BpmnSwimlane {
     return shapes.bpmn2.Swimlane.isSwimlane(cell);
 }
 
 /**
  * Whether the element is a pool.
  */
-export function isPool(cell: dia.Cell): cell is AppPool {
+export function isPool(cell: dia.Cell): cell is BpmnPool {
     return shapes.bpmn2.CompositePool.isPool(cell);
 }
 
@@ -90,7 +90,7 @@ export function isPoolShared(element1: dia.Cell, element2: dia.Cell) {
 /**
  * The pool the element is embedded in, or `null`.
  */
-export function getPoolParent(element?: dia.Cell): AppPool | null {
+export function getPoolParent(element?: dia.Cell): BpmnPool | null {
 
     if (!element) return null;
 
@@ -102,7 +102,7 @@ export function getPoolParent(element?: dia.Cell): AppPool | null {
 /**
  * The swimlane the element is embedded in, or `null`.
  */
-export function getSwimlaneParent(element?: dia.Cell): AppSwimlane | null {
+export function getSwimlaneParent(element?: dia.Cell): BpmnSwimlane | null {
 
     if (!element) return null;
 
@@ -129,7 +129,7 @@ export function canElementExistOutsidePool(element: dia.Cell) {
  * The point on the element's boundary closest to `coords` (both relative to
  * the element's unrotated bbox), snapped to a side midpoint within the radius.
  */
-export function getClosestElementBoundaryPoint(element: AppElement, coords: g.PlainPoint, snapRadius = 20) {
+export function getClosestElementBoundaryPoint(element: BpmnElement, coords: g.PlainPoint, snapRadius = 20) {
     const point = new g.Point(coords);
     const bbox = element.getBBox();
     const angle = element.angle();

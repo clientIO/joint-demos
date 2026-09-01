@@ -1,12 +1,12 @@
 import { type dia, g } from '@joint/plus';
-import type { AppSwimlane } from '../shapes/pool/pool-shapes';
+import type { BpmnSwimlane } from '../shapes/pool/pool-shapes';
 import { addEffect, removeEffect, EffectType } from '../effects';
 import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentBoundary, adjustPoolToContainElement, getSwimlaneParent, isSwimlane, isPool, type EditorEvent } from '../utils';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { replaceShape } from '../actions/replace-shape';
 import { setBoundarySnapActive } from './boundary-snap';
 
-import type { AppElement } from '../shapes/shapes-typing';
+import type { BpmnElement } from '../shapes/shapes-typing';
 
 /**
  * The lane to start aiming from when the palette takes the focus: the lane
@@ -18,7 +18,7 @@ import type { AppElement } from '../shapes/shapes-typing';
  * first because it is the one thing that says where the user was working;
  * the point (the middle of the view) is a weaker guess behind it.
  */
-export function findDropSwimlane(graph: dia.Graph, selection: dia.Cell[], point: g.PlainPoint): AppSwimlane | null {
+export function findDropSwimlane(graph: dia.Graph, selection: dia.Cell[], point: g.PlainPoint): BpmnSwimlane | null {
 
     for (const cell of selection) {
         const lane = isSwimlane(cell) ? cell : getSwimlaneParent(cell);
@@ -34,7 +34,7 @@ export function findDropSwimlane(graph: dia.Graph, selection: dia.Cell[], point:
  * Where to put a shape of `size` inside the lane: as close to `preferred`
  * as the lane allows, so it lands on screen but never outside its parent.
  */
-export function positionInSwimlane(lane: AppSwimlane, size: dia.Size, preferred: g.PlainPoint) {
+export function positionInSwimlane(lane: BpmnSwimlane, size: dia.Size, preferred: g.PlainPoint) {
 
     const bbox = lane.getBBox().moveAndExpand({
         x: lane.getHeaderSize(),
@@ -71,12 +71,12 @@ export function positionInSwimlane(lane: AppSwimlane, size: dia.Size, preferred:
  */
 export function addElementToSwimlane(
     graph: dia.Graph,
-    lane: AppSwimlane,
+    lane: BpmnSwimlane,
     element: dia.Element,
     point: g.PlainPoint,
     { clampToLane = true }: { clampToLane?: boolean } = {}
 ) {
-    const embeds = (element as AppElement).validateEmbedding?.(lane) ?? true;
+    const embeds = (element as BpmnElement).validateEmbedding?.(lane) ?? true;
     const size = element.size();
 
     // Only a shape that goes into the lane is held to its bounds.
@@ -210,8 +210,8 @@ export function onElementSwimlaneDrop(_paper: dia.Paper, elementView: dia.Elemen
 export function dropElement(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number, y: number): dia.Element {
 
     // All diagram elements are app shapes.
-    const model = elementView.model as AppElement;
-    const parentModel = model.getParentCell() as AppElement | undefined;
+    const model = elementView.model as BpmnElement;
+    const parentModel = model.getParentCell() as BpmnElement | undefined;
     if (!parentModel || parentModel.isLink()) return model;
     const parentView = parentModel.findView(paper);
     if (!parentView) return model;

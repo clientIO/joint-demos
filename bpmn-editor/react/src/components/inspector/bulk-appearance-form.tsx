@@ -3,7 +3,7 @@ import { setAppearanceOnCells } from '../../actions/set-appearance';
 import { fieldFor, sharedRoles, sharedValue } from '../../utils';
 import { AppearanceSelect, ColorSwatches } from './appearance-form';
 
-import type { AppearanceRole, AppElement, AppLink } from '../../shapes/shapes-typing';
+import type { AppearanceRole, BpmnElement, BpmnLink } from '../../shapes/shapes-typing';
 
 // What each role is called, per kind. The single-cell fields say "Fill",
 // "Outline" and "Color", which read oddly once they stand for a task's
@@ -33,7 +33,7 @@ const countOf = (count: number, one: string, many: string) => `${count} ${count 
  * offering the colours everything in it has, and painting all of them when one
  * is picked.
  */
-export function BulkAppearanceForm({ elements, links }: { elements: AppElement[], links: AppLink[] }) {
+export function BulkAppearanceForm({ elements, links }: { elements: BpmnElement[], links: BpmnLink[] }) {
 
     const { graph } = useGraph();
 
@@ -67,7 +67,7 @@ export function BulkAppearanceForm({ elements, links }: { elements: AppElement[]
  * selection of shapes alone looks as it did before connectors joined in.
  */
 function BulkSection({ cells, labels, summary, onPick }: {
-    cells: (AppElement | AppLink)[];
+    cells: (BpmnElement | BpmnLink)[];
     labels: Partial<Record<AppearanceRole, string>>;
     summary: string;
     onPick: (role: AppearanceRole, color: string) => void;

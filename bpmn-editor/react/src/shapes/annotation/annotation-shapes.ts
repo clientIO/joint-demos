@@ -7,9 +7,9 @@ import { constructLinkTools } from '../../configs/link-tools-config';
 import { getPoolParent, isSwimlane } from '../../utils';
 
 import type { dia } from '@joint/plus';
-import type { AppElement, AppLink, LinkContextMenuAction } from '../shapes-typing';
+import type { BpmnElement, BpmnLink, LinkContextMenuAction } from '../shapes-typing';
 
-export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
+export class Annotation extends shapes.bpmn2.Annotation implements BpmnElement {
 
     static label = AnnotationLabels['annotation.Annotation'];
     static icon = annotationIconClasses.ANNOTATION;
@@ -145,7 +145,7 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
     }
 }
 
-export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements AppLink {
+export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements BpmnLink {
 
     static label = AnnotationLabels['annotation.AnnotationLink'];
 

@@ -1,7 +1,7 @@
 import { fieldFor } from '../utils';
 
 import type { dia } from '@joint/plus';
-import type { AppearanceRole, AppElement, AppLink } from '../shapes/shapes-typing';
+import type { AppearanceRole, BpmnElement, BpmnLink } from '../shapes/shapes-typing';
 
 /**
  * Sets one role across several cells, each at its own path — a task's fill
@@ -12,7 +12,7 @@ import type { AppearanceRole, AppElement, AppLink } from '../shapes/shapes-typin
  * cell. Cells with nothing for the role are skipped, which is how a group (no
  * fill) sits harmlessly in a selection.
  */
-export function setAppearanceOnCells(graph: dia.Graph, cells: (AppElement | AppLink)[], role: AppearanceRole, value: string) {
+export function setAppearanceOnCells(graph: dia.Graph, cells: (BpmnElement | BpmnLink)[], role: AppearanceRole, value: string) {
 
     const batchName = 'set-appearance';
 

@@ -10,7 +10,7 @@ import { getPoolParent, getSwimlaneParent, isPool, isSwimlane, prepareLinkReplac
 
 import type { dia, g } from '@joint/plus';
 import type { HaloHandle } from '@joint/react-plus';
-import type { AppElement, AppLink } from '../../shapes/shapes-typing';
+import type { BpmnElement, BpmnLink } from '../../shapes/shapes-typing';
 
 // The gap left between a shape and the one it was added from.
 const CONNECT_GAP = 60;
@@ -39,7 +39,7 @@ function getPlaceableTypes(graph: dia.Graph): PickerItem[] {
 // Adding from an element: exactly what the halo offers it. The shapes
 // curate these per type — an end event connects to nothing, so it offers
 // nothing — which is the same list `validateConnection` would accept.
-function getConnectableTypes(graph: dia.Graph, element: AppElement): PickerItem[] {
+function getConnectableTypes(graph: dia.Graph, element: BpmnElement): PickerItem[] {
     const handles: HaloHandle[] = element.getHaloHandles?.() ?? [];
 
     return handles
@@ -126,7 +126,7 @@ export function QuickAdd() {
 
             const items = isSwimlane(cell)
                 ? getPlaceableTypes(graph)
-                : getConnectableTypes(graph, cell as AppElement);
+                : getConnectableTypes(graph, cell as BpmnElement);
 
             if (items.length === 0) return;
 
@@ -178,7 +178,7 @@ export function QuickAdd() {
         const cell = selected();
         if (!cell || !cell.isElement() || isPool(cell) || isSwimlane(cell)) return;
 
-        const items = getConnectableTypes(graph, cell as AppElement);
+        const items = getConnectableTypes(graph, cell as BpmnElement);
         if (items.length === 0) return;
 
         const anchor = anchorOf(cell);
@@ -229,7 +229,7 @@ export function QuickAdd() {
         setPicker(null);
         if (!source || !source.isElement()) return;
 
-        const shape = createShape<AppElement>(graph, type);
+        const shape = createShape<BpmnElement>(graph, type);
         const batchName = 'quick-add';
 
         graph.startBatch(batchName);
@@ -256,7 +256,7 @@ export function QuickAdd() {
             const link = new Sequence({ source: { id: source.id }, target: { id: shape.id }});
             graph.addCell(link);
 
-            const resolved = prepareLinkReplacement(link as AppLink);
+            const resolved = prepareLinkReplacement(link as BpmnLink);
             if (resolved !== link) graph.syncCells([resolved], { async: false });
         }
 
