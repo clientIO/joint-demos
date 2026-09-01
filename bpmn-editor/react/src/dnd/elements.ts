@@ -122,7 +122,18 @@ export function findFreeSpotBeside(
         ? bbox.y + (bbox.height - size.height) / 2
         : (direction === 'down' ? bbox.y + bbox.height + gap : bbox.y - gap - size.height);
 
-    const others = graph.getElements().filter((element) => element !== source && !isSwimlane(element) && !isPool(element));
+    // Only what shares the source's lane can be in the way: the neighbour is
+    // embedded in that lane, and the lane grows to hold it, so nothing there
+    // ends up overlapped. Counting another lane's shapes slid the neighbour
+    // past empty space — and where the spot falls outside the lane, another
+    // pool's shapes cannot be avoided by sliding anyway, since the pool
+    // occupies that ground whatever we do. A source outside every lane is
+    // measured against the other loose shapes.
+    const lane = getSwimlaneParent(source);
+    const others = graph.getElements().filter((element) => element !== source
+        && !isSwimlane(element)
+        && !isPool(element)
+        && getSwimlaneParent(element) === lane);
 
     // Bounded: give up rather than loop if everything around is taken.
     for (let attempt = 0; attempt < 20; attempt++) {
