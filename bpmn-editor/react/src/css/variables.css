@@ -25,8 +25,8 @@
        user picks from are the palette itself: a border painted with anything
        outside them would show as unset in the inspector.
 
-       `outline` is what the borders used before, kept for a diagram saved
-       with it.
+       `outline` is declared but unused by the shapes: a diagram saved before
+       the borders moved to `ink` still references it.
 
        The two tints are near-identical in lightness (1.02:1) and separate
        by hue alone, so they are not what tells two pools apart — the header
@@ -50,9 +50,9 @@
     --bpmn-paper-background: #F4F6F8;
     --jj-paper-grid-color: #DCE1E8;
 
-    /* The accessibility check's pass state. Chrome, not diagram: it used to
-       borrow the palette's green, which tied a fixed meaning to a colour
-       free to be repainted. */
+    /* The accessibility check's pass state. Its own colour rather than the
+       palette's green, so a fixed meaning does not ride on a colour the
+       diagram is free to repaint. */
     --bpmn-ok: #2FA36B;
 
     /* Halo (react-plus variables) */

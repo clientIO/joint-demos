@@ -197,10 +197,11 @@ function editElementLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElemen
  * Makes an element editable as plain text.
  *
  * `plaintext-only` is the browser doing the work — it strips formatting from
- * anything pasted or dropped — but it is not everywhere yet (Firefox only
- * from 136), and assigning a value the browser does not know throws. Hence
- * the fallback to a plain editable, which the paste and drop handlers keep
- * to text themselves.
+ * anything pasted or dropped — but not every browser knows the value, and the
+ * HTML spec has the `contentEditable` setter throw a `SyntaxError` for one it
+ * does not. (The content attribute is the other way round: an unknown value
+ * there is simply invalid and falls back to inheriting.) Hence the fallback to
+ * a plain editable, which the paste and drop handlers keep to text themselves.
  */
 function setPlainTextEditable(element: HTMLElement) {
     try {

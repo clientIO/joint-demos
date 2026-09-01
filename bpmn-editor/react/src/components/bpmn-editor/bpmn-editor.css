@@ -41,9 +41,3 @@
         }
     }
 }
-
-/* The icons and markers carry their colour baked into a data-URI, so they
-   cannot follow the CSS variables. `useShapeIconContrast` paints each one
-   from its own shape's body instead — which is why no filter is needed
-   here, and why a gateway on a coloured body keeps its dark icon while the
-   same gateway on the default body gets a light one. */
