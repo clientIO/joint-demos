@@ -3,6 +3,8 @@ import { usePaper, useOnKeyboardEvents } from '@joint/react-plus';
 import { ContentTab } from './content-tab';
 import { AppearanceForm } from './appearance-form';
 import { useSelectedCell } from '../../hooks/use-selected-cell';
+import { useSelectedElements } from '../../hooks/use-selected-elements';
+import { BulkAppearanceForm } from './bulk-appearance-form';
 
 import type { KeyboardEvent } from 'react';
 import type { dia } from '@joint/plus';
@@ -29,8 +31,11 @@ export function Inspector() {
 
     const { paper } = usePaper();
 
-    // The inspector shows the single selected cell.
+    // The inspector shows the single selected cell...
     const cell = useSelectedCell() as AppElement | AppLink | null;
+    // ...or, with several selected, the colours they have in common.
+    const { elements, selected } = useSelectedElements();
+    const isBulk = !cell && elements.length > 0 && selected > 1;
 
     const [view, setView] = useState<InspectorView>('CONTENT');
     const panelRef = useRef<HTMLElement>(null);
@@ -40,7 +45,7 @@ export function Inspector() {
     // whatever is selected, which is what this panel is.
     useOnKeyboardEvents({
         'alt+enter': (evt: dia.Event) => {
-            if (!cell) return;
+            if (!cell && !isBulk) return;
             evt.preventDefault();
             // The panel itself, not its first control: focusing the region
             // is what makes assistive technology announce where the focus
@@ -52,14 +57,16 @@ export function Inspector() {
     // And back again. The canvas reads `escape` as "select nothing", which
     // is not what it means in here, so it stops at the panel.
     const onKeyDown = (evt: KeyboardEvent<HTMLElement>) => {
-        if (evt.key !== 'Escape' || !cell) return;
+        const target = cell ?? (isBulk ? elements[0] : null);
+        if (evt.key !== 'Escape' || !target) return;
 
         evt.stopPropagation();
 
-        const cellView = paper?.findViewByModel(cell);
+        const cellView = paper?.findViewByModel(target);
         (cellView?.el as SVGElement | undefined)?.focus?.();
     };
 
+    const hasTarget = !!cell || isBulk;
     const canContent = canAccessContentView(cell);
     // Fall back to the appearance view for shapes with no markers/alternatives.
     const effectiveView: InspectorView = view === 'CONTENT' && canContent ? 'CONTENT' : 'APPEARANCE';
@@ -85,21 +92,28 @@ export function Inspector() {
                 </button>
                 <button
                     type="button"
-                    className={`inspector-appearance-button${cell && effectiveView === 'APPEARANCE' ? ' active' : ''}`}
-                    aria-pressed={!!cell && effectiveView === 'APPEARANCE'}
-                    disabled={!cell}
+                    className={`inspector-appearance-button${hasTarget && effectiveView === 'APPEARANCE' ? ' active' : ''}`}
+                    aria-pressed={hasTarget && effectiveView === 'APPEARANCE'}
+                    disabled={!hasTarget}
                     onClick={() => setView('APPEARANCE')}
                 >
                     Appearance
                 </button>
             </div>
             <div className="inspector">
-                {!cell && (
+                {!cell && !isBulk && (
                     <div className="inspector-empty">
                         <div className="inspector-empty-icon" />
-                        <span>Start by selecting an element or link</span>
+                        <span>
+                            {selected > 1
+                                // Several cells, none of them editable together:
+                                // all pools, or a shape and a link.
+                                ? 'These shapes are edited one at a time'
+                                : 'Start by selecting an element or link'}
+                        </span>
                     </div>
                 )}
+                {isBulk && <BulkAppearanceForm elements={elements} selected={selected} />}
                 {cell && effectiveView === 'CONTENT' && <ContentTab key={String(cell.id)} cell={cell} />}
                 {cell && effectiveView === 'APPEARANCE' && <AppearanceForm key={String(cell.id)} cell={cell} />}
             </div>

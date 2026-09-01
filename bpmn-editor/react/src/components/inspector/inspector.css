@@ -98,6 +98,26 @@
                 }
             }
 
+            /* What the form is acting on. Not a section heading — those are
+               `.group-label`, uppercase — just a quiet line above the fields,
+               on the 8px rhythm the groups use. */
+            .bulk-summary {
+                margin: 8px 0;
+                color: var(--bpmn-text-inspector-label);
+                font-family: 'Open Sans', sans-serif;
+                font-size: 12px;
+                line-height: 16.3px;
+            }
+
+            .bulk-note,
+            .bulk-empty {
+                margin: -4px 0 8px;
+                color: var(--bpmn-text-inspector-empty);
+                font-family: 'Open Sans', sans-serif;
+                font-size: 11px;
+                line-height: 15px;
+            }
+
             .color-field {
                 box-sizing: border-box;
                 display: flex;

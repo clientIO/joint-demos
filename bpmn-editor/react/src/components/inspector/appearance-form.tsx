@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import * as Select from '@radix-ui/react-select';
 import { ChevronDown, Check } from 'lucide-react';
 import { useCells } from '@joint/react-plus';
 import { PALETTE } from '../../configs/palette';
+import { readFieldValue } from '../../utils';
 
 import type { CellRecord, Computed } from '@joint/react-plus';
 import type { AppElement, AppLink, AppearanceColorField, AppearanceSelectBoxField } from '../../shapes/shapes-typing';
@@ -14,33 +15,29 @@ type Cell = AppElement | AppLink;
 type CellSnapshot = Computed<CellRecord> | undefined;
 
 /**
- * The cell's current value at the field's path (or the field default).
+ * A row of theme palette swatches (each value is a CSS variable, so the diagram
+ * re-colors with the theme).
+ *
+ * `value` is `null` where there is no one value to show — several shapes are
+ * selected and they disagree — and then no swatch reads as selected, which is
+ * the whole of the visual answer. An empty radio group is silent though, so
+ * `hint` says why for assistive tech.
  */
-function readValue(cell: Cell, field: { path: string; defaultValue?: string | number }): string {
-    const value = cell.prop(field.path) ?? field.defaultValue ?? '';
-    return String(value);
-}
-
-/**
- * Color field: a row of theme palette swatches (each value is a CSS
- * variable, so the diagram re-colors with the theme).
- */
-function ColorField({ cell, field, snapshot }: { cell: Cell; field: AppearanceColorField; snapshot: CellSnapshot }) {
-    const [value, setValue] = useState(() => readValue(cell, field));
-
-    // Sync from the model on external changes (undo/redo, shape morph).
-    useEffect(() => {
-        setValue(readValue(cell, field));
-    }, [cell, field.path, snapshot]);
-
-    const onPick = (color: string) => {
-        setValue(color);
-        cell.prop(field.path, color);
-    };
+export function ColorSwatches({ label, value, hint, onPick }: {
+    label: string;
+    value: string | null;
+    hint?: string;
+    onPick: (color: string) => void;
+}) {
+    // `aria-checked="mixed"` is not available to `role="radio"` — only
+    // checkboxes and tree items have it — so the mixed state is conveyed by
+    // leaving every radio unchecked and describing the group.
+    const id = useId();
+    const hintId = hint ? `swatches-hint-${id}` : undefined;
 
     return (
         <div className="field color-field">
-            <div className="swatches" role="radiogroup" aria-label={field.label}>
+            <div className="swatches" role="radiogroup" aria-label={label} aria-describedby={hintId}>
                 {PALETTE.map((color) => (
                     <button
                         key={color.value}
@@ -55,19 +52,39 @@ function ColorField({ cell, field, snapshot }: { cell: Cell; field: AppearanceCo
                     />
                 ))}
             </div>
-            <label>{field.label}</label>
+            <label>{label}</label>
+            {hint && <span id={hintId} className="sr-only">{hint}</span>}
         </div>
     );
+}
+
+/**
+ * Color field for a single cell.
+ */
+function ColorField({ cell, field, snapshot }: { cell: Cell; field: AppearanceColorField; snapshot: CellSnapshot }) {
+    const [value, setValue] = useState(() => readFieldValue(cell, field));
+
+    // Sync from the model on external changes (undo/redo, shape morph).
+    useEffect(() => {
+        setValue(readFieldValue(cell, field));
+    }, [cell, field.path, snapshot]);
+
+    const onPick = (color: string) => {
+        setValue(color);
+        cell.prop(field.path, color);
+    };
+
+    return <ColorSwatches label={field.label} value={value} onPick={onPick} />;
 }
 
 /**
  * Select-box field preserving the original option value type.
  */
 function SelectBoxField({ cell, field, snapshot }: { cell: Cell; field: AppearanceSelectBoxField; snapshot: CellSnapshot }) {
-    const [value, setValue] = useState(() => readValue(cell, field));
+    const [value, setValue] = useState(() => readFieldValue(cell, field));
 
     useEffect(() => {
-        setValue(readValue(cell, field));
+        setValue(readFieldValue(cell, field));
     }, [cell, field.path, snapshot]);
 
     const onValueChange = (selected: string) => {
