@@ -68,15 +68,20 @@ export const swimlaneAttributes: Partial<shapes.bpmn2.Swimlane.Attributes<dia.Ce
     contentMargin: LANE_CONTENT_MARGIN,
 };
 
+// A pool always has at least one lane — one is created with it and the last
+// one cannot be removed — so its lanes cover its body and the header is the
+// only part of the pool anyone sees. The header therefore carries the roles,
+// which is what lets a pool be recoloured beside a lane or an ordinary shape.
 export const poolAppearanceConfig: AppearanceConfig = [
     {
         label: 'Header Style',
         fields: [
-            { type: 'color', path: 'attrs/header/fill', label: 'Fill' },
-            { type: 'color', path: 'attrs/header/stroke', label: 'Outline' }
+            { type: 'color', role: 'fill', path: 'attrs/header/fill', label: 'Fill' },
+            { type: 'color', role: 'outline', path: 'attrs/header/stroke', label: 'Outline' }
         ]
     },
     {
+        // No roles: behind the lanes, so nothing shows.
         label: 'Body Style',
         fields: [
             { type: 'color', path: 'attrs/body/fill', label: 'Fill' },
@@ -88,7 +93,7 @@ export const poolAppearanceConfig: AppearanceConfig = [
         fields: [
             { type: 'select-box', path: 'attrs/headerText/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
             { type: 'select-box', path: 'attrs/headerText/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
-            { type: 'color', path: 'attrs/headerText/fill', label: 'Color' }
+            { type: 'color', role: 'text', path: 'attrs/headerText/fill', label: 'Color' }
         ]
     }
 ];
@@ -97,8 +102,8 @@ export const swimlaneAppearanceConfig: AppearanceConfig = [
     {
         label: 'Body Style',
         fields: [
-            { type: 'color', path: 'attrs/body/fill', label: 'Fill' },
-            { type: 'color', path: 'attrs/body/stroke', label: 'Outline' }
+            { type: 'color', role: 'fill', path: 'attrs/body/fill', label: 'Fill' },
+            { type: 'color', role: 'outline', path: 'attrs/body/stroke', label: 'Outline' }
         ]
     },
     {
@@ -106,7 +111,7 @@ export const swimlaneAppearanceConfig: AppearanceConfig = [
         fields: [
             { type: 'select-box', path: 'attrs/headerText/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
             { type: 'select-box', path: 'attrs/headerText/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
-            { type: 'color', path: 'attrs/headerText/fill', label: 'Color' }
+            { type: 'color', role: 'text', path: 'attrs/headerText/fill', label: 'Color' }
         ]
     }
 ];

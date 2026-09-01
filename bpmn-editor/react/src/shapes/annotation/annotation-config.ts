@@ -19,7 +19,7 @@ export const annotationAppearanceConfig: AppearanceConfig = [
     {
         label: 'Style',
         fields: [
-            { type: 'color', path: 'attrs/border/stroke', label: 'Outline' }
+            { type: 'color', role: 'outline', path: 'attrs/border/stroke', label: 'Outline' }
         ]
     },
     {
@@ -28,11 +28,13 @@ export const annotationAppearanceConfig: AppearanceConfig = [
             { type: 'select-box', path: 'attrs/label/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
             { type: 'select-box', path: 'attrs/label/fontSize', label: 'Size', options: inspectorOptions.fontSize },
             { type: 'select-box', path: 'attrs/label/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
-            { type: 'color', path: 'attrs/label/fill', label: 'Color' }
+            { type: 'color', role: 'text', path: 'attrs/label/fill', label: 'Color' }
         ]
     }
 ];
 
+// No roles: a link is edited on its own. It has a line where an element
+// has a fill, and its label colour only exists once it has a label.
 export const annotationLinkAppearanceConfig: AppearanceConfig = [
     {
         label: 'Style',

@@ -67,8 +67,18 @@ interface AppearanceFieldBase {
     defaultValue?: string | number;
 }
 
+/**
+ * What a colour field paints. The same role lives at a different path from one
+ * shape family to the next — a task's fill is `attrs/background/fill` where a
+ * gateway's is `attrs/body/fill` — so a form spanning several selected shapes
+ * pairs their fields up by this rather than by path.
+ */
+export type AppearanceRole = 'fill' | 'outline' | 'text';
+
 export interface AppearanceColorField extends AppearanceFieldBase {
     type: 'color';
+    /** Left out where the field has no counterpart on other shapes. */
+    role?: AppearanceRole;
 }
 
 export interface AppearanceSelectBoxField extends AppearanceFieldBase {

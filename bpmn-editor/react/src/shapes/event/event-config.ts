@@ -149,8 +149,8 @@ export const eventAppearanceConfig: AppearanceConfig = [
     {
         label: 'Style',
         fields: [
-            { type: 'color', path: 'attrs/background/fill', label: 'Fill' },
-            { type: 'color', path: 'attrs/border/stroke', label: 'Outline' }
+            { type: 'color', role: 'fill', path: 'attrs/background/fill', label: 'Fill' },
+            { type: 'color', role: 'outline', path: 'attrs/border/stroke', label: 'Outline' }
         ]
     },
     {
@@ -159,7 +159,7 @@ export const eventAppearanceConfig: AppearanceConfig = [
             { type: 'select-box', path: 'attrs/label/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
             { type: 'select-box', path: 'attrs/label/fontSize', label: 'Size', options: inspectorOptions.fontSize },
             { type: 'select-box', path: 'attrs/label/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
-            { type: 'color', path: 'attrs/label/fill', label: 'Color' }
+            { type: 'color', role: 'text', path: 'attrs/label/fill', label: 'Color' }
         ]
     }
 ];

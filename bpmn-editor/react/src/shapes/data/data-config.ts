@@ -28,8 +28,8 @@ export const dataObjectAppearanceConfig: AppearanceConfig = [
     {
         label: 'Style',
         fields: [
-            { type: 'color', path: 'attrs/body/fill', label: 'Fill' },
-            { type: 'color', path: 'attrs/body/stroke', label: 'Outline' }
+            { type: 'color', role: 'fill', path: 'attrs/body/fill', label: 'Fill' },
+            { type: 'color', role: 'outline', path: 'attrs/body/stroke', label: 'Outline' }
         ]
     },
     {
@@ -38,7 +38,7 @@ export const dataObjectAppearanceConfig: AppearanceConfig = [
             { type: 'select-box', path: 'attrs/label/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
             { type: 'select-box', path: 'attrs/label/fontSize', label: 'Size', options: inspectorOptions.fontSize },
             { type: 'select-box', path: 'attrs/label/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
-            { type: 'color', path: 'attrs/label/fill', label: 'Color' }
+            { type: 'color', role: 'text', path: 'attrs/label/fill', label: 'Color' }
         ]
     }
 ];
@@ -47,10 +47,12 @@ export const dataStoreAppearanceConfig: AppearanceConfig = [
     {
         label: 'Style',
         fields: [
+            // The cap has no counterpart on any other shape, so it carries
+            // no role and stays out of a multi-shape form.
             { type: 'color', path: 'attrs/top/fill', label: 'Top fill' },
             { type: 'color', path: 'attrs/top/stroke', label: 'Top outline' },
-            { type: 'color', path: 'attrs/body/fill', label: 'Body fill' },
-            { type: 'color', path: 'attrs/body/stroke', label: 'Body outline' }
+            { type: 'color', role: 'fill', path: 'attrs/body/fill', label: 'Body fill' },
+            { type: 'color', role: 'outline', path: 'attrs/body/stroke', label: 'Body outline' }
         ]
     },
     {
@@ -59,11 +61,13 @@ export const dataStoreAppearanceConfig: AppearanceConfig = [
             { type: 'select-box', path: 'attrs/label/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
             { type: 'select-box', path: 'attrs/label/fontSize', label: 'Size', options: inspectorOptions.fontSize },
             { type: 'select-box', path: 'attrs/label/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
-            { type: 'color', path: 'attrs/label/fill', label: 'Color' }
+            { type: 'color', role: 'text', path: 'attrs/label/fill', label: 'Color' }
         ]
     }
 ];
 
+// No roles: a link is edited on its own. It has a line where an element
+// has a fill, and its label colour only exists once it has a label.
 export const dataAssociationAppearanceConfig: AppearanceConfig = [
     {
         label: 'Style',

@@ -21,6 +21,8 @@ export const flowIconClasses = {
     CONDITIONAL: 'jj-bpmn-icon-condition-flow'
 };
 
+// No roles: a link is edited on its own. It has a line where an element
+// has a fill, and its label colour only exists once it has a label.
 export const flowAppearanceConfig: AppearanceConfig = [
     {
         label: 'Style',
