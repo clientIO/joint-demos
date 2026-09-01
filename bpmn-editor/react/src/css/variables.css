@@ -93,6 +93,15 @@
     --bpmn-text-secondary: #4B5563;
     --bpmn-text-tertiary: #6B7280;
 
+    /* Embedding highlight — the lane an element is about to be dropped into,
+       and the lane a drag started from. Mixed from two tokens that both flip
+       with the theme, so one definition serves both. `accent-primary` used
+       to do this job and could not: at #F5F3FD it sat 1.02:1 against a soft
+       blue lane, which is no highlight at all. The target is the stronger of
+       the two — during a lane drag both are on screen at once. */
+    --bpmn-highlight-embed-target: color-mix(in srgb, var(--bpmn-selector) 26%, var(--bpmn-palette-surface));
+    --bpmn-highlight-embed-source: color-mix(in srgb, var(--bpmn-selector) 12%, var(--bpmn-palette-surface));
+
     /* Accent */
     --bpmn-accent-primary: #F5F3FD;
     --bpmn-navigator-element-color: #8DA9D3;

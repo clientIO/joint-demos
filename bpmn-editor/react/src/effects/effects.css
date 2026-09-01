@@ -15,12 +15,12 @@
 
 /* The swimlane a dragged lane came from / would land in. */
 .highlighter-swimlane-target [joint-selector="body"] {
-    fill: var(--bpmn-accent-primary);
+    fill: var(--bpmn-highlight-embed-target);
     transition: fill 0.4s;
 }
 
 .highlighter-swimlane-source [joint-selector="body"] {
-    fill: var(--bpmn-accent-primary);
+    fill: var(--bpmn-highlight-embed-source);
 }
 
 /* Invalid drop target (e.g. a swimlane dragged outside of any pool). */
