@@ -14,27 +14,41 @@
        diagram re-colors with the theme. Also the swatches of the inspector
        color picker (see `configs/palette.ts`).
 
-       `ink` on `surface`, on `blue` and on `green` carries the 12px shape
-       labels, so each clears WCAG AA 4.5:1; `outline` draws every shape
-       border and every link, so it clears 3:1 on both `surface` and the
-       paper. A fill is not held to 3:1 against the paper — a shape's
+       The names are roles, not colours: `tint-a`/`tint-b` are the two
+       participants and `start`/`end`/`decision` the shapes that carry a
+       meaning, so a repaint is free to move the hues without the names
+       going stale or steering the next choice back to a blue and a green.
+
+       `ink` on `surface` and on either tint carries the 12px shape labels,
+       so each clears WCAG AA 4.5:1; `outline` draws every shape border and
+       every link, so it clears 3:1 on both `surface` and the paper.
+
+       The two tints are near-identical in lightness (1.02:1) and separate
+       by hue alone, so they are not what tells two pools apart — the header
+       text is. Worth keeping in mind if a diagram ever leans on the tint to
+       carry meaning. A fill is not held to 3:1 against the paper — a shape's
        boundary is its stroke, and a pale yellow gateway is inherent to
        BPMN. */
     --bpmn-palette-surface: #FFFFFF;
     --bpmn-palette-ink: #1E2430;
     --bpmn-palette-outline: #475061;
-    --bpmn-palette-blue: #D2E6FA;
-    --bpmn-palette-blue-soft: #F0F7FE;
-    --bpmn-palette-green: #D2EBDA;
-    --bpmn-palette-green-soft: #F0F9F3;
-    --bpmn-palette-success: #2FA36B;
-    --bpmn-palette-danger: #E04B4F;
-    --bpmn-palette-warning: #F2B33D;
+    --bpmn-palette-tint-a: #D2E6FA;
+    --bpmn-palette-tint-a-soft: #F0F7FE;
+    --bpmn-palette-tint-b: #D2EBDA;
+    --bpmn-palette-tint-b-soft: #F0F9F3;
+    --bpmn-palette-start: #2FA36B;
+    --bpmn-palette-end: #E04B4F;
+    --bpmn-palette-decision: #F2B33D;
     --bpmn-palette-accent: #6A5AE0;
 
     /* Paper — tinted, so a shape's own surface reads as sitting on it. */
     --bpmn-paper-background: #F4F6F8;
     --jj-paper-grid-color: #DCE1E8;
+
+    /* The accessibility check's pass state. Chrome, not diagram: it used to
+       borrow the palette's green, which tied a fixed meaning to a colour
+       free to be repainted. */
+    --bpmn-ok: #2FA36B;
 
     /* Halo (react-plus variables) */
     --jj-halo-handle-width: 20px;
@@ -114,18 +128,20 @@
     --bpmn-palette-surface: #1A1E26;
     --bpmn-palette-ink: #E7EAF0;
     --bpmn-palette-outline: #C2CAD8;
-    --bpmn-palette-blue: #29486A;
-    --bpmn-palette-blue-soft: #151A22;
-    --bpmn-palette-green: #33513F;
-    --bpmn-palette-green-soft: #141A17;
-    --bpmn-palette-success: #3FBE7D;
-    --bpmn-palette-danger: #F05B5F;
-    --bpmn-palette-warning: #F5C05A;
+    --bpmn-palette-tint-a: #29486A;
+    --bpmn-palette-tint-a-soft: #151A22;
+    --bpmn-palette-tint-b: #33513F;
+    --bpmn-palette-tint-b-soft: #141A17;
+    --bpmn-palette-start: #3FBE7D;
+    --bpmn-palette-end: #F05B5F;
+    --bpmn-palette-decision: #F5C05A;
     --bpmn-palette-accent: #9C8CFF;
 
     --bpmn-selector: #8B7CF6;
     --bpmn-paper-background: #0F1218;
     --jj-paper-grid-color: #1F242E;
+
+    --bpmn-ok: #3FBE7D;
 
     --bpmn-bg-slider-track: #333B4A;
     --bpmn-bg-hover: #333B4A;

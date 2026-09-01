@@ -9,7 +9,7 @@
             },
             "attrs": {
                 "header": {
-                    "fill": "var(--bpmn-palette-blue)"
+                    "fill": "var(--bpmn-palette-tint-a)"
                 },
                 "headerText": {
                     "text": "Customer"
@@ -45,7 +45,7 @@
                     "text": ""
                 },
                 "body": {
-                    "fill": "var(--bpmn-palette-blue-soft)"
+                    "fill": "var(--bpmn-palette-tint-a-soft)"
                 }
             },
             "headerSize": 30,
@@ -84,7 +84,7 @@
                     "text": "Which wash program?"
                 },
                 "body": {
-                    "fill": "var(--bpmn-palette-warning)"
+                    "fill": "var(--bpmn-palette-decision)"
                 }
             },
             "shapeType": "gateway",
@@ -108,7 +108,7 @@
                     "text": ""
                 },
                 "background": {
-                    "fill": "var(--bpmn-palette-danger)"
+                    "fill": "var(--bpmn-palette-end)"
                 }
             },
             "shapeType": "event",
@@ -225,7 +225,7 @@
                     "text": ""
                 },
                 "background": {
-                    "fill": "var(--bpmn-palette-success)"
+                    "fill": "var(--bpmn-palette-start)"
                 }
             },
             "size": {
@@ -515,7 +515,7 @@
             },
             "attrs": {
                 "header": {
-                    "fill": "var(--bpmn-palette-green)"
+                    "fill": "var(--bpmn-palette-tint-b)"
                 },
                 "headerText": {
                     "text": "Car Wash Machine"
@@ -551,7 +551,7 @@
                     "text": ""
                 },
                 "body": {
-                    "fill": "var(--bpmn-palette-green-soft)"
+                    "fill": "var(--bpmn-palette-tint-b-soft)"
                 }
             },
             "headerSize": 30,
@@ -636,7 +636,7 @@
                     "text": "Which wash program?"
                 },
                 "body": {
-                    "fill": "var(--bpmn-palette-warning)"
+                    "fill": "var(--bpmn-palette-decision)"
                 }
             },
             "shapeType": "gateway",

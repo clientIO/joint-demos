@@ -48,7 +48,7 @@
         position: absolute;
         inset: 0;
         border-radius: 9999px;
-        background-color: var(--bpmn-palette-success);
+        background-color: var(--bpmn-ok);
         opacity: 0.75;
         animation: accessibility-check-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
     }
@@ -59,7 +59,7 @@
         width: 8px;
         height: 8px;
         border-radius: 9999px;
-        background-color: var(--bpmn-palette-success);
+        background-color: var(--bpmn-ok);
     }
 
     .accessibility-check-icon {
