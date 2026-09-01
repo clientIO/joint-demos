@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { dia, ui, highlighters } from '@joint/plus';
-import { Selection } from '@joint/react-plus';
-import { isSwimlane } from '../utils';
+import { Selection, useCells, useGraph, useSelectionCollection } from '@joint/react-plus';
+import { getPoolParent, isSwimlane } from '../utils';
 
 // The class a selected cell carries, so a stylesheet can reach it. Named as
 // the library names it, since that is what a reader will look for.
@@ -55,6 +55,24 @@ class BpmnSelectionFrameList extends ui.HighlighterSelectionFrameList {
  */
 export function BpmnSelection() {
 
+    const { graph } = useGraph();
+    const { collection } = useSelectionCollection();
+
+    // Shapes from different participants can be selected together — that is
+    // how they are recoloured in one go — but dragging them together would
+    // take each out of its own lane to keep the formation, and a lane is
+    // defined by what sits in it. So the selection stands and the translate
+    // is withheld; a shape still drags on its own.
+    const ids = useCells(collection, (cells) => cells.map((cell) => cell.id));
+    const spansPools = useMemo(() => {
+        const pools = new Set(ids
+            .map((id) => graph.getCell(id))
+            .filter((cell) => cell?.isElement())
+            .map((cell) => getPoolParent(cell)?.id ?? null));
+
+        return pools.size > 1;
+    }, [graph, ids]);
+
     const frames = useMemo(() => new BpmnSelectionFrameList({
         highlighter: highlighters.mask,
         selector(model: dia.Cell) {
@@ -79,6 +97,7 @@ export function BpmnSelection() {
 
     return (
         <Selection
+            allowTranslate={!spansPools}
             wrapper={{
                 margin: 8,
                 style: {

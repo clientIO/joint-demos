@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
 import { dia } from '@joint/plus';
 import { useSelectionCollection, useOnPaperEvents } from '@joint/react-plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
-import { isForkEvent, getPoolParent, resolveDefaultLinkType, isSwimlane, isPool, isActivity } from '../utils';
+import { isForkEvent, resolveDefaultLinkType, isSwimlane, isPool, isActivity } from '../utils';
 import { PlaceholderShapeTypes } from '../shapes/link-config';
 
 import type { BpmnElement, BpmnLink } from '../shapes/shapes-typing';
@@ -13,32 +12,6 @@ import type { BpmnLinkView } from '../shapes/link-view';
 export function useViewInteractions() {
 
     const selection = useSelectionCollection();
-    const { collection } = selection;
-
-    // The built-in `ctrl`/`cmd`+click toggles cells in the selection. Shapes
-    // are kept to one pool at a time, so a selection never mixes elements from
-    // different participants (or a pool with global elements). Connectors are
-    // not scoped: a message flow crosses pools by definition, and the
-    // inspector edits them as their own group.
-    useEffect(() => {
-        const scopeOf = (cell: dia.Cell) => getPoolParent(cell)?.id ?? null;
-
-        const onAdd = (model: dia.Cell) => {
-            if (!model.isElement()) return;
-
-            const scope = scopeOf(model);
-            const outOfScope = collection.filter((cell) => cell.isElement() && scopeOf(cell) !== scope);
-            if (outOfScope.length > 0) {
-                collection.remove(outOfScope);
-            }
-        };
-
-        collection.on('add', onAdd);
-
-        return () => {
-            collection.off('add', onAdd);
-        };
-    }, [collection]);
 
     useOnPaperEvents({
 
