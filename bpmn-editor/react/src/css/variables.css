@@ -8,7 +8,7 @@
 
     --bpmn-selector: #5540E1;
     --bpmn-error: #ed2637;
-    --bpmn-link: var(--bpmn-palette-outline);
+    --bpmn-link: var(--bpmn-palette-ink);
 
     /* Diagram color palette — shapes reference these variables, so the
        diagram re-colors with the theme. Also the swatches of the inspector
@@ -19,9 +19,14 @@
        meaning, so a repaint is free to move the hues without the names
        going stale or steering the next choice back to a blue and a green.
 
-       `ink` on `surface` and on either tint carries the 12px shape labels,
-       so each clears WCAG AA 4.5:1; `outline` draws every shape border and
-       every link, so it clears 3:1 on both `surface` and the paper.
+       `ink` carries the 12px shape labels and draws every shape border and
+       every link, so it clears WCAG AA 4.5:1 on `surface` and on either tint,
+       and 3:1 on the paper. It is one colour for both because the swatches a
+       user picks from are the palette itself: a border painted with anything
+       outside them would show as unset in the inspector.
+
+       `outline` is what the borders used before, kept for a diagram saved
+       with it.
 
        The two tints are near-identical in lightness (1.02:1) and separate
        by hue alone, so they are not what tells two pools apart — the header

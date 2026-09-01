@@ -39,7 +39,7 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
                     fill: 'var(--bpmn-palette-surface)'
                 },
                 border: {
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,

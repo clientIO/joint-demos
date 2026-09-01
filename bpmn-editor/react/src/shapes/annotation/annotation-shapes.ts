@@ -28,7 +28,7 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
                     ariaLabel: Annotation.label
                 },
                 border: {
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,
@@ -163,7 +163,7 @@ export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements AppLi
                 // on a dark canvas. The sequence flows already take the
                 // theme's outline colour; this is the same line.
                 line: {
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 }
             }
         };

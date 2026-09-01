@@ -39,7 +39,7 @@ abstract class Data extends shapes.bpmn2.DataObject implements AppElement {
                 },
                 body: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,
@@ -402,7 +402,7 @@ export class DataAssociation extends shapes.bpmn2.DataAssociation implements App
                 // on a dark canvas. The sequence flows already take the
                 // theme's outline colour; this is the same line.
                 line: {
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 }
             }
         };

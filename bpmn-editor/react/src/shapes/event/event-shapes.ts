@@ -39,7 +39,7 @@ export abstract class Event extends shapes.bpmn2.Event implements AppElement {
                     fill: 'var(--bpmn-palette-surface)'
                 },
                 border: {
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,

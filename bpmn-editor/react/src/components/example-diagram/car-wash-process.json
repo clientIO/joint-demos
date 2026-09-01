@@ -268,7 +268,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)",
+                    "stroke": "var(--bpmn-palette-ink)",
                     "sourceMarker": null,
                     "targetMarker": {
                         "type": "path",
@@ -314,7 +314,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)",
+                    "stroke": "var(--bpmn-palette-ink)",
                     "sourceMarker": null,
                     "targetMarker": {
                         "type": "path",
@@ -353,7 +353,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)"
+                    "stroke": "var(--bpmn-palette-ink)"
                 }
             },
             "shapeType": "flow",
@@ -386,7 +386,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)"
+                    "stroke": "var(--bpmn-palette-ink)"
                 }
             },
             "shapeType": "flow",
@@ -471,7 +471,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)",
+                    "stroke": "var(--bpmn-palette-ink)",
                     "sourceMarker": null,
                     "targetMarker": {
                         "type": "path",
@@ -749,7 +749,7 @@
             "type": "flow.Message",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)"
+                    "stroke": "var(--bpmn-palette-ink)"
                 }
             },
             "shapeType": "flow",
@@ -781,7 +781,7 @@
             "type": "flow.Message",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)"
+                    "stroke": "var(--bpmn-palette-ink)"
                 }
             },
             "shapeType": "flow",
@@ -857,7 +857,7 @@
             "type": "flow.Message",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)",
+                    "stroke": "var(--bpmn-palette-ink)",
                     "sourceMarker": {
                         "type": "circle",
                         "cx": 5,
@@ -908,7 +908,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)"
+                    "stroke": "var(--bpmn-palette-ink)"
                 }
             },
             "shapeType": "flow",
@@ -941,7 +941,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)"
+                    "stroke": "var(--bpmn-palette-ink)"
                 }
             },
             "shapeType": "flow",
@@ -974,7 +974,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)"
+                    "stroke": "var(--bpmn-palette-ink)"
                 }
             },
             "shapeType": "flow",
@@ -1007,7 +1007,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)"
+                    "stroke": "var(--bpmn-palette-ink)"
                 }
             },
             "shapeType": "flow",
@@ -1084,7 +1084,7 @@
             "type": "flow.Sequence",
             "attrs": {
                 "line": {
-                    "stroke": "var(--bpmn-palette-outline)"
+                    "stroke": "var(--bpmn-palette-ink)"
                 }
             },
             "shapeType": "flow",

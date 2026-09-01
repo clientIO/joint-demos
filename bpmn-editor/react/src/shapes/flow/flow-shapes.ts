@@ -42,7 +42,7 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
                     ariaLabel: this.constructor.label
                 },
                 line: {
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 }
             }
         };

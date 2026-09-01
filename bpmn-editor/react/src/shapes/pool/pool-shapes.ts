@@ -74,11 +74,11 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implemen
                 },
                 header: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 body: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
@@ -180,11 +180,11 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements A
                 },
                 header: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 body: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
@@ -298,7 +298,7 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
                 },
                 body: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
@@ -397,7 +397,7 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
                 },
                 body: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,

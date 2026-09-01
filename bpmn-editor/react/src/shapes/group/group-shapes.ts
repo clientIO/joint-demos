@@ -31,7 +31,7 @@ export class Group extends shapes.bpmn2.Group implements AppElement {
                     ariaLabel: Group.label
                 },
                 body: {
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,
