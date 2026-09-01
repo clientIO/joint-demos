@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
-import { useGraph, useGraphHistory } from '@joint/react-plus';
+import { useGraph } from '@joint/react-plus';
 import { applyIconContrast } from '../utils';
 
 import type { dia } from '@joint/plus';
 
-// Marks the changes this hook makes, so they stay out of the undo stack —
-// recolouring an icon is a consequence of the theme, not an edit.
-const ICON_CONTRAST = 'iconContrast';
+// Keeps the recolouring off the undo stack — an icon following the theme is a
+// consequence of an edit, not one itself. `<Diagram history>` reads this from
+// the change options and skips the command.
+const NO_HISTORY = { skipHistory: true };
 
 /**
  * Keeps a shape's icon readable against its own body as the theme changes.
@@ -25,36 +26,10 @@ const ICON_CONTRAST = 'iconContrast';
 export function useShapeIconContrast() {
 
     const { graph } = useGraph();
-    const { commandManager } = useGraphHistory();
-
-    // Recolouring is not an edit, so it must not land on the undo stack.
-    // `cmdBeforeAdd` is the command manager's own veto; anything already
-    // installed there keeps its say.
-    useEffect(() => {
-        if (!commandManager) return;
-
-        const existing = commandManager.get('cmdBeforeAdd');
-
-        const veto = (eventName: string, ...eventArgs: unknown[]) => {
-            // The command manager calls this with (name, cell, graph, options).
-            const options = eventArgs[2] as { [ICON_CONTRAST]?: boolean } | undefined;
-            if (options?.[ICON_CONTRAST]) return false;
-
-            return existing ? existing(eventName, ...eventArgs) : true;
-        };
-
-        commandManager.set('cmdBeforeAdd', veto);
-
-        return () => {
-            commandManager.set('cmdBeforeAdd', existing ?? undefined);
-        };
-    }, [commandManager]);
 
     useEffect(() => {
-        if (!graph) return;
-
         const apply = (cell: dia.Cell) => {
-            if (cell.isElement()) applyIconContrast(cell, { [ICON_CONTRAST]: true });
+            if (cell.isElement()) applyIconContrast(cell, NO_HISTORY);
         };
 
         const applyToAll = () => graph.getElements().forEach(apply);
