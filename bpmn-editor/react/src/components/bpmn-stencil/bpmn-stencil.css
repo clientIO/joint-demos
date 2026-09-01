@@ -60,6 +60,14 @@
             }
         }
 
+        /* The keyboard ring. Left to the browser it was a hairline default —
+           the only control here without the app's own indicator (WCAG 2.4.7),
+           and the palette is where a keyboard user starts. */
+        &:focus-visible {
+            outline: 2px solid var(--bpmn-selector);
+            outline-offset: -2px;
+        }
+
         .stencil-item-icon {
             font-family: 'JJ BPMN Icons';
             font-size: 32px;

@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useGraph, usePaperScroller, useSelectionCollection, useStencil } from '@joint/react-plus';
 import { stencilPaletteItems, type StencilPaletteItem } from '../../configs/stencil-config';
 import { dropPoolAt } from '../../dnd/pools';
@@ -11,6 +12,12 @@ import { Tip } from '../tooltip/tooltip';
 import type { KeyboardEvent, PointerEvent, FocusEvent } from 'react';
 import type { dia } from '@joint/plus';
 import type { AppElement, AppShape } from '../../shapes/shapes-typing';
+
+// How far the pointer travels before a press becomes a drag. Without it a
+// plain click builds a drag clone and throws it away on release, so a click and
+// a drag are the same gesture — and the stencil's own `dragThreshold` has no
+// say here, since this palette starts the drag itself.
+const DRAG_THRESHOLD = 5;
 
 // How far one arrow key pans while a pool item has the focus — a pool lands
 // on blank paper, so there is nothing to step through.
@@ -48,10 +55,9 @@ export function BpmnPalette() {
     const { collection: selectionCollection } = useSelectionCollection();
     const aim = useTargetAim();
 
-    const onFocus = (evt: FocusEvent<HTMLDivElement>) => {
-        const type = evt.target.dataset.shapeType;
-        if (!type) return;
-
+    // Aims at where the shape would land. Nothing to do where the shape has
+    // nowhere to aim — a pool lands on blank paper.
+    const beginAim = (type: string) => {
         const shape = createShape(graph, type);
 
         if (!aimsAtSomething(graph, shape)) {
@@ -61,6 +67,20 @@ export function BpmnPalette() {
 
         const kind: AimKind = isSwimlane(shape) ? 'insert' : 'lane';
         aim.begin(kind);
+    };
+
+    const onFocus = (evt: FocusEvent<HTMLDivElement>) => {
+        const type = evt.target.dataset.shapeType;
+        if (!type) return;
+
+        // Only for a keyboard focus. A click leaves no focus ring, so aiming
+        // from one would highlight a lane with nothing to say why — and the
+        // pointer has the drag for this, with its own highlighting. The
+        // keyboard path picks the aim up on the first key instead (`onKeyDown`
+        // below), so clicking then pressing an arrow still works.
+        if (!evt.target.matches(':focus-visible')) return;
+
+        beginAim(type);
     };
 
     const onBlur = (evt: FocusEvent<HTMLDivElement>) => {
@@ -80,6 +100,7 @@ export function BpmnPalette() {
                     target={target}
                     targetName={aim.name}
                     onStep={aim.step}
+                    onBeginAim={beginAim}
                     selection={selectionCollection}
                 />
             ))}
@@ -91,13 +112,14 @@ interface PaletteItemProps extends StencilPaletteItem {
     target: ReturnType<typeof useTargetAim>['target'];
     targetName: string | null;
     onStep: (key: string) => boolean;
+    onBeginAim: (type: string) => void;
     selection: ReturnType<typeof useSelectionCollection>['collection'];
 }
 
 /**
  * One palette button rendering the shape icon (icon font).
  */
-function PaletteItem({ type, icon, target, targetName, onStep, selection: selectionCollection }: PaletteItemProps) {
+function PaletteItem({ type, icon, target, targetName, onStep, onBeginAim, selection: selectionCollection }: PaletteItemProps) {
 
     const { graph } = useGraph();
     const { startCellDrag } = useStencil();
@@ -105,8 +127,33 @@ function PaletteItem({ type, icon, target, targetName, onStep, selection: select
 
     const { label } = getShapeMeta(graph, type);
 
-    const onPointerDown = (evt: PointerEvent) => {
+    // The press is held until the pointer has moved far enough to mean it,
+    // which leaves a click as nothing more than a click.
+    const pressedAt = useRef<{ x: number, y: number, pointerId: number } | null>(null);
+
+    const onPointerDown = (evt: PointerEvent<HTMLButtonElement>) => {
+        pressedAt.current = { x: evt.clientX, y: evt.clientY, pointerId: evt.pointerId };
+        evt.currentTarget.setPointerCapture(evt.pointerId);
+    };
+
+    const onPointerMove = (evt: PointerEvent<HTMLButtonElement>) => {
+        const pressed = pressedAt.current;
+        if (!pressed || pressed.pointerId !== evt.pointerId) return;
+
+        const travelled = Math.max(Math.abs(evt.clientX - pressed.x), Math.abs(evt.clientY - pressed.y));
+        if (travelled < DRAG_THRESHOLD) return;
+
+        pressedAt.current = null;
+        // The drag takes the pointer from here.
+        evt.currentTarget.releasePointerCapture(evt.pointerId);
         startCellDrag(createShape(graph, type), evt);
+    };
+
+    const onPointerUp = (evt: PointerEvent<HTMLButtonElement>) => {
+        pressedAt.current = null;
+        if (evt.currentTarget.hasPointerCapture(evt.pointerId)) {
+            evt.currentTarget.releasePointerCapture(evt.pointerId);
+        }
     };
 
     // Keyboard alternative to the pointer drag (WCAG 2.1.1): the arrows aim
@@ -120,6 +167,13 @@ function PaletteItem({ type, icon, target, targetName, onStep, selection: select
         // `cmd+arrow` adds a neighbour on the canvas — the palette's plain
         // arrows are a different thing and should not answer to it.
         const modified = evt.metaKey || evt.ctrlKey || evt.altKey;
+
+        // Focus alone no longer starts the aim, since a click gives no ring to
+        // explain it. The first key does: whether the button was reached by
+        // `tab` or by clicking it, this is where the keyboard takes over.
+        if (!modified && (isAimKey(evt.key) || evt.key === 'Enter' || evt.key === ' ')) {
+            if (!target) onBeginAim(type);
+        }
 
         if (!modified && isAimKey(evt.key)) {
             evt.preventDefault();
@@ -206,6 +260,9 @@ function PaletteItem({ type, icon, target, targetName, onStep, selection: select
                 // it is announced with the button on focus.
                 aria-describedby={targetName ? `stencil-target-${type}` : undefined}
                 onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={onPointerUp}
+                onPointerCancel={onPointerUp}
                 onKeyDown={onKeyDown}
             >
                 <span className="stencil-item-icon" aria-hidden="true">{icon}</span>
