@@ -35,7 +35,7 @@ export function adjustPoolToContainElement(element: dia.Element) {
     if (!lane || !isSwimlane(lane)) return;
     const pool = lane.getParentCell();
     if (!pool || !isPool(pool)) return;
-    (pool as shapes.bpmn2.CompositePool).adjustToContainElements(lane);
+    pool.adjustToContainElements(lane);
 }
 
 /**
