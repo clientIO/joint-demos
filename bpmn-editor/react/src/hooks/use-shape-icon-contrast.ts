@@ -64,6 +64,9 @@ export function useShapeIconContrast() {
         // A body recoloured in the inspector can want the other icon.
         graph.on('add', apply);
         graph.on('change:attrs', apply);
+        // Loading a diagram resets the graph rather than adding cell by cell
+        // (see `utils/import`), so `add` never fires for what was opened.
+        graph.on('reset', applyToAll);
 
         // The theme is a data attribute on the document element, set by the
         // toolbar's toggle. Watching the attribute rather than the toggle's
@@ -74,6 +77,7 @@ export function useShapeIconContrast() {
         return () => {
             graph.off('add', apply);
             graph.off('change:attrs', apply);
+            graph.off('reset', applyToAll);
             observer.disconnect();
         };
     }, [graph]);
