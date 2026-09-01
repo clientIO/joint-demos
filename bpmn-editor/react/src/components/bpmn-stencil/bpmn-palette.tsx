@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { useGraph, usePaperScroller, useSelectionCollection, useStencil } from '@joint/react-plus';
 import { stencilPaletteItems, type StencilPaletteItem } from '../../configs/stencil-config';
 import { dropPoolAt } from '../../dnd/pools';
@@ -12,12 +11,6 @@ import { Tip } from '../tooltip/tooltip';
 import type { KeyboardEvent, PointerEvent, FocusEvent } from 'react';
 import type { dia } from '@joint/plus';
 import type { BpmnElement, BpmnShape } from '../../shapes/shapes-typing';
-
-// How far the pointer travels before a press becomes a drag. Without it a
-// plain click builds a drag clone and throws it away on release, so a click and
-// a drag are the same gesture — and the stencil's own `dragThreshold` has no
-// say here, since this palette starts the drag itself.
-const DRAG_THRESHOLD = 5;
 
 // How far one arrow key pans while a pool item has the focus — a pool lands
 // on blank paper, so there is nothing to step through.
@@ -127,33 +120,8 @@ function PaletteItem({ type, icon, target, targetName, onStep, onBeginAim, selec
 
     const { label } = getShapeMeta(graph, type);
 
-    // The press is held until the pointer has moved far enough to mean it,
-    // which leaves a click as nothing more than a click.
-    const pressedAt = useRef<{ x: number, y: number, pointerId: number } | null>(null);
-
-    const onPointerDown = (evt: PointerEvent<HTMLButtonElement>) => {
-        pressedAt.current = { x: evt.clientX, y: evt.clientY, pointerId: evt.pointerId };
-        evt.currentTarget.setPointerCapture(evt.pointerId);
-    };
-
-    const onPointerMove = (evt: PointerEvent<HTMLButtonElement>) => {
-        const pressed = pressedAt.current;
-        if (!pressed || pressed.pointerId !== evt.pointerId) return;
-
-        const travelled = Math.max(Math.abs(evt.clientX - pressed.x), Math.abs(evt.clientY - pressed.y));
-        if (travelled < DRAG_THRESHOLD) return;
-
-        pressedAt.current = null;
-        // The drag takes the pointer from here.
-        evt.currentTarget.releasePointerCapture(evt.pointerId);
+    const onPointerDown = (evt: PointerEvent) => {
         startCellDrag(createShape(graph, type), evt);
-    };
-
-    const onPointerUp = (evt: PointerEvent<HTMLButtonElement>) => {
-        pressedAt.current = null;
-        if (evt.currentTarget.hasPointerCapture(evt.pointerId)) {
-            evt.currentTarget.releasePointerCapture(evt.pointerId);
-        }
     };
 
     // Keyboard alternative to the pointer drag (WCAG 2.1.1): the arrows aim
@@ -260,9 +228,6 @@ function PaletteItem({ type, icon, target, targetName, onStep, onBeginAim, selec
                 // it is announced with the button on focus.
                 aria-describedby={targetName ? `stencil-target-${type}` : undefined}
                 onPointerDown={onPointerDown}
-                onPointerMove={onPointerMove}
-                onPointerUp={onPointerUp}
-                onPointerCancel={onPointerUp}
                 onKeyDown={onKeyDown}
             >
                 <span className="stencil-item-icon" aria-hidden="true">{icon}</span>
