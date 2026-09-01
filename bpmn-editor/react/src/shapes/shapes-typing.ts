@@ -65,26 +65,36 @@ interface AppearanceFieldBase {
     label: string;
     /** Shown when the cell has no value at `path`. */
     defaultValue?: string | number;
+    /** Left out where the field has no counterpart on other cells. */
+    role?: AppearanceRole;
 }
-
-/**
- * What a colour field paints. The same role lives at a different path from one
- * shape family to the next — a task's fill is `attrs/background/fill` where a
- * gateway's is `attrs/body/fill` — so a form spanning several selected shapes
- * pairs their fields up by this rather than by path.
- */
-export type AppearanceRole = 'fill' | 'outline' | 'text';
 
 export interface AppearanceColorField extends AppearanceFieldBase {
     type: 'color';
-    /** Left out where the field has no counterpart on other shapes. */
-    role?: AppearanceRole;
 }
 
 export interface AppearanceSelectBoxField extends AppearanceFieldBase {
     type: 'select-box';
     options: AppearanceSelectOption[];
 }
+
+/**
+ * What a field controls. The same role lives at a different path from one shape
+ * family to the next — a task's fill is `attrs/background/fill` where a
+ * gateway's is `attrs/body/fill`, and a pool names its label through
+ * `attrs/headerText` where everything else uses `attrs/label` — so a form
+ * spanning several selected cells pairs their fields up by this rather than by
+ * path.
+ *
+ * At most one field per role per config: the first match in group order wins.
+ */
+export type AppearanceRole =
+    | 'fill'
+    | 'outline'
+    | 'text'
+    | 'font-family'
+    | 'font-size'
+    | 'font-weight';
 
 export type AppearanceField = AppearanceColorField | AppearanceSelectBoxField;
 

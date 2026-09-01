@@ -3,7 +3,7 @@ import { usePaper, useOnKeyboardEvents } from '@joint/react-plus';
 import { ContentTab } from './content-tab';
 import { AppearanceForm } from './appearance-form';
 import { useSelectedCell } from '../../hooks/use-selected-cell';
-import { useSelectedElements } from '../../hooks/use-selected-elements';
+import { useBulkSelection } from '../../hooks/use-bulk-selection';
 import { BulkAppearanceForm } from './bulk-appearance-form';
 
 import type { KeyboardEvent } from 'react';
@@ -33,9 +33,9 @@ export function Inspector() {
 
     // The inspector shows the single selected cell...
     const cell = useSelectedCell() as AppElement | AppLink | null;
-    // ...or, with several selected, the colours they have in common.
-    const { elements, selected } = useSelectedElements();
-    const isBulk = !cell && elements.length > 0 && selected > 1;
+    // ...or, with several selected, the colours each kind has in common.
+    const { elements, links } = useBulkSelection();
+    const isBulk = !cell && elements.length + links.length > 1;
 
     const [view, setView] = useState<InspectorView>('CONTENT');
     const panelRef = useRef<HTMLElement>(null);
@@ -57,7 +57,7 @@ export function Inspector() {
     // And back again. The canvas reads `escape` as "select nothing", which
     // is not what it means in here, so it stops at the panel.
     const onKeyDown = (evt: KeyboardEvent<HTMLElement>) => {
-        const target = cell ?? (isBulk ? elements[0] : null);
+        const target = cell ?? (isBulk ? elements[0] ?? links[0] : null);
         if (evt.key !== 'Escape' || !target) return;
 
         evt.stopPropagation();
@@ -104,16 +104,10 @@ export function Inspector() {
                 {!cell && !isBulk && (
                     <div className="inspector-empty">
                         <div className="inspector-empty-icon" />
-                        <span>
-                            {selected > 1
-                                // Several cells, none of them editable together:
-                                // all pools, or a shape and a link.
-                                ? 'These shapes are edited one at a time'
-                                : 'Start by selecting an element or link'}
-                        </span>
+                        <span>Start by selecting an element or link</span>
                     </div>
                 )}
-                {isBulk && <BulkAppearanceForm elements={elements} selected={selected} />}
+                {isBulk && <BulkAppearanceForm elements={elements} links={links} />}
                 {cell && effectiveView === 'CONTENT' && <ContentTab key={String(cell.id)} cell={cell} />}
                 {cell && effectiveView === 'APPEARANCE' && <AppearanceForm key={String(cell.id)} cell={cell} />}
             </div>

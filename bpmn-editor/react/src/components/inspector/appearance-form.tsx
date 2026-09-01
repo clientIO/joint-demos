@@ -6,7 +6,7 @@ import { PALETTE } from '../../configs/palette';
 import { readFieldValue } from '../../utils';
 
 import type { CellRecord, Computed } from '@joint/react-plus';
-import type { AppElement, AppLink, AppearanceColorField, AppearanceSelectBoxField } from '../../shapes/shapes-typing';
+import type { AppElement, AppLink, AppearanceColorField, AppearanceSelectBoxField, AppearanceSelectOption } from '../../shapes/shapes-typing';
 
 type Cell = AppElement | AppLink;
 
@@ -78,7 +78,55 @@ function ColorField({ cell, field, snapshot }: { cell: Cell; field: AppearanceCo
 }
 
 /**
- * Select-box field preserving the original option value type.
+ * A select box.
+ *
+ * `value` is `null` where there is no one value to show — several cells are
+ * selected and they disagree — and then it reads as a dash rather than an empty
+ * box, which would look like a control that failed to load. A dash says nothing
+ * to a screen reader though, so `hint` says why for anything listening.
+ */
+export function AppearanceSelect({ label, value, options, hint, onPick }: {
+    label: string;
+    value: string | null;
+    options: AppearanceSelectOption[];
+    hint?: string;
+    onPick: (value: string) => void;
+}) {
+    const id = useId();
+    const hintId = hint ? `select-hint-${id}` : undefined;
+
+    return (
+        <div className="field select-box-field">
+            <label>{label}</label>
+            {hint && <span id={hintId} className="sr-only">{hint}</span>}
+            <Select.Root value={value ?? undefined} onValueChange={onPick}>
+                <Select.Trigger className="select-box-trigger" aria-label={label} aria-describedby={hintId}>
+                    <Select.Value placeholder="--" />
+                    <Select.Icon>
+                        <ChevronDown size={14} />
+                    </Select.Icon>
+                </Select.Trigger>
+                <Select.Portal>
+                    <Select.Content className="select-box-content" position="popper" sideOffset={4}>
+                        <Select.Viewport>
+                            {options.map((option) => (
+                                <Select.Item key={String(option.value)} value={String(option.value)} className="select-box-item">
+                                    <Select.ItemText>{option.label}</Select.ItemText>
+                                    <Select.ItemIndicator>
+                                        <Check size={13} />
+                                    </Select.ItemIndicator>
+                                </Select.Item>
+                            ))}
+                        </Select.Viewport>
+                    </Select.Content>
+                </Select.Portal>
+            </Select.Root>
+        </div>
+    );
+}
+
+/**
+ * Select-box field for a single cell, preserving the option's own value type.
  */
 function SelectBoxField({ cell, field, snapshot }: { cell: Cell; field: AppearanceSelectBoxField; snapshot: CellSnapshot }) {
     const [value, setValue] = useState(() => readFieldValue(cell, field));
@@ -95,31 +143,12 @@ function SelectBoxField({ cell, field, snapshot }: { cell: Cell; field: Appearan
     };
 
     return (
-        <div className="field select-box-field">
-            <label>{field.label}</label>
-            <Select.Root value={value} onValueChange={onValueChange}>
-                <Select.Trigger className="select-box-trigger" aria-label={field.label}>
-                    <Select.Value />
-                    <Select.Icon>
-                        <ChevronDown size={14} />
-                    </Select.Icon>
-                </Select.Trigger>
-                <Select.Portal>
-                    <Select.Content className="select-box-content" position="popper" sideOffset={4}>
-                        <Select.Viewport>
-                            {field.options.map((option) => (
-                                <Select.Item key={String(option.value)} value={String(option.value)} className="select-box-item">
-                                    <Select.ItemText>{option.label}</Select.ItemText>
-                                    <Select.ItemIndicator>
-                                        <Check size={13} />
-                                    </Select.ItemIndicator>
-                                </Select.Item>
-                            ))}
-                        </Select.Viewport>
-                    </Select.Content>
-                </Select.Portal>
-            </Select.Root>
-        </div>
+        <AppearanceSelect
+            label={field.label}
+            value={value}
+            options={field.options}
+            onPick={onValueChange}
+        />
     );
 }
 

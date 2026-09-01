@@ -91,8 +91,8 @@ export const poolAppearanceConfig: AppearanceConfig = [
     {
         label: 'Text',
         fields: [
-            { type: 'select-box', path: 'attrs/headerText/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
-            { type: 'select-box', path: 'attrs/headerText/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
+            { type: 'select-box', role: 'font-family', path: 'attrs/headerText/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
+            { type: 'select-box', role: 'font-weight', path: 'attrs/headerText/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
             { type: 'color', role: 'text', path: 'attrs/headerText/fill', label: 'Color' }
         ]
     }
@@ -109,8 +109,8 @@ export const swimlaneAppearanceConfig: AppearanceConfig = [
     {
         label: 'Text',
         fields: [
-            { type: 'select-box', path: 'attrs/headerText/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
-            { type: 'select-box', path: 'attrs/headerText/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
+            { type: 'select-box', role: 'font-family', path: 'attrs/headerText/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily },
+            { type: 'select-box', role: 'font-weight', path: 'attrs/headerText/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight },
             { type: 'color', role: 'text', path: 'attrs/headerText/fill', label: 'Color' }
         ]
     }

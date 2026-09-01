@@ -1,8 +1,9 @@
 import type { dia } from '@joint/plus';
-import type { AppearanceColorField, AppearanceRole, AppElement, AppLink } from '../shapes/shapes-typing';
+import type { AppearanceField, AppearanceRole, AppElement, AppLink } from '../shapes/shapes-typing';
 
-// The order the roles read in a form, from the shape's body outwards.
-const ROLE_ORDER: AppearanceRole[] = ['fill', 'outline', 'text'];
+// The order the roles read in a form: the cell's own paint first, then the
+// type of its label.
+const ROLE_ORDER: AppearanceRole[] = ['fill', 'outline', 'text', 'font-family', 'font-size', 'font-weight'];
 
 /**
  * The cell's current value at a field's path, or the field's default.
@@ -17,21 +18,20 @@ export function readFieldValue(cell: dia.Cell, field: { path: string, defaultVal
 }
 
 /**
- * The colour field this shape paints the given role with, or `null` where it
- * has none — a group and a comment have no fill, and a data store's cap has no
- * role at all.
+ * The field this cell controls the given role with, or `null` where it has
+ * none — a group and a comment have no fill, a pool exposes no label size, and
+ * a data store's cap has no role at all.
  *
- * A field inside a group the shape hides does not count: `visibleWhen` is the
- * shape saying the field does not apply to it.
+ * A field inside a group the cell hides does not count: `visibleWhen` is the
+ * cell saying the field does not apply to it, which is how a connector without
+ * a label has no label colour or font.
  */
-export function colorFieldFor(cell: AppElement | AppLink, role: AppearanceRole): AppearanceColorField | null {
+export function fieldFor(cell: AppElement | AppLink, role: AppearanceRole): AppearanceField | null {
 
     for (const group of cell.getAppearanceConfig()) {
         if (group.visibleWhen && !group.visibleWhen(cell)) continue;
 
-        const field = group.fields.find(
-            (candidate): candidate is AppearanceColorField => candidate.type === 'color' && candidate.role === role
-        );
+        const field = group.fields.find((candidate) => candidate.role === role);
 
         if (field) return field;
     }
@@ -39,24 +39,25 @@ export function colorFieldFor(cell: AppElement | AppLink, role: AppearanceRole):
     return null;
 }
 
-/** The roles every one of the shapes has, so a form can only offer those. */
+/** The roles every one of the cells has, so a form can only offer those. */
 export function sharedRoles(cells: (AppElement | AppLink)[]): AppearanceRole[] {
 
     if (cells.length === 0) return [];
 
-    return ROLE_ORDER.filter((role) => cells.every((cell) => colorFieldFor(cell, role)));
+    return ROLE_ORDER.filter((role) => cells.every((cell) => fieldFor(cell, role)));
 }
 
 /**
- * What the shapes agree this role is painted with, or `null` where they
- * disagree — which is what leaves a swatch row with nothing selected.
+ * The value the cells agree this role has, or `null` where they disagree —
+ * which is what leaves a swatch row with nothing selected, and a select box
+ * with nothing chosen.
  */
 export function sharedValue(cells: (AppElement | AppLink)[], role: AppearanceRole): string | null {
 
     let shared: string | null = null;
 
     for (const cell of cells) {
-        const field = colorFieldFor(cell, role);
+        const field = fieldFor(cell, role);
         if (!field) return null;
 
         const value = readFieldValue(cell, field);

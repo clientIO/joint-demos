@@ -15,32 +15,16 @@ export function useViewInteractions() {
     const selection = useSelectionCollection();
     const { collection } = selection;
 
-    // The built-in `ctrl`/`cmd`+click toggles cells in the selection. Keep
-    // the cherry-picking scoped: only elements, and never mix elements from
-    // different pools (or a pool with global elements).
+    // The built-in `ctrl`/`cmd`+click toggles cells in the selection. Shapes
+    // are kept to one pool at a time, so a selection never mixes elements from
+    // different participants (or a pool with global elements). Connectors are
+    // not scoped: a message flow crosses pools by definition, and the
+    // inspector edits them as their own group.
     useEffect(() => {
         const scopeOf = (cell: dia.Cell) => getPoolParent(cell)?.id ?? null;
 
-        // Elements and links are never selected together: there is nothing
-        // they could be edited by at once, a link having a line where an
-        // element has a fill. Dropping a link on the way *in* is not enough —
-        // a link clicked on its own arrives through `reset`, never through
-        // this handler, so picking a shape afterwards would leave the mix
-        // standing. The elements win, as they do when a link is added last.
-        const unmix = () => {
-            const links = collection.filter((cell) => !cell.isElement());
-            if (links.length === 0 || links.length === collection.length) return;
-
-            collection.remove(links);
-        };
-
         const onAdd = (model: dia.Cell) => {
-            if (!model.isElement()) {
-                collection.remove(model);
-                return;
-            }
-
-            unmix();
+            if (!model.isElement()) return;
 
             const scope = scopeOf(model);
             const outOfScope = collection.filter((cell) => cell.isElement() && scopeOf(cell) !== scope);
@@ -50,12 +34,9 @@ export function useViewInteractions() {
         };
 
         collection.on('add', onAdd);
-        // A region drag replaces the whole selection at once.
-        collection.on('reset', unmix);
 
         return () => {
             collection.off('add', onAdd);
-            collection.off('reset', unmix);
         };
     }, [collection]);
 

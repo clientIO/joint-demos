@@ -144,10 +144,24 @@ function onRedo(context: KeyboardContext, evt: dia.Event) {
     selection.collection.reset([]);
 }
 
+/**
+ * Selects the shapes; pressed again with all of them already selected, takes
+ * the connectors as well.
+ *
+ * Two stages because recolouring or deleting "everything" usually means the
+ * shapes — the connectors follow their ends and are rarely the thing being
+ * aimed at — while a second press is there when they are.
+ */
 function onSelectAll(context: KeyboardContext, evt: dia.Event) {
     evt.preventDefault();
     const { graph, selection } = context;
-    selection.collection.reset(graph.getElements());
+
+    const elements = graph.getElements();
+    const selected = selection.collection.toArray();
+    const everyElementSelected = elements.length > 0
+        && elements.every((element) => selected.includes(element));
+
+    selection.collection.reset(everyElementSelected ? graph.getCells() : elements);
 }
 
 /**
