@@ -25,6 +25,18 @@
             overflow: hidden;
             position: relative;
 
+            /* The focus ring for the canvas. It sits on this container, which
+               does not scroll, and as an overlay rather than an outline so it
+               paints above the sheet — the scroller's own background would
+               otherwise cover it. */
+            &:has(.jj-paper-scroller:focus-visible)::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border: 2px solid var(--bpmn-selector);
+                pointer-events: none;
+            }
+
             .jj-paper-scroller[data-cursor="crosshair"] .joint-cell {
                 cursor: crosshair;
             }

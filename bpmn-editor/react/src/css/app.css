@@ -24,9 +24,11 @@ body {
     border: 0;
 }
 
-/* The pan/scroll canvas is keyboard-focusable (see CanvasAccessibility) —
-   give it a visible focus ring drawn inside the scroller bounds. */
+/* The pan/scroll canvas is keyboard-focusable (see CanvasAccessibility), and
+   its ring is drawn by its container — see `bpmn-editor.css`. An outline on
+   the scroller itself is painted over by its own background, which is a
+   positioned child the size of the whole sheet, leaving the ring visible only
+   where that background happens not to reach. */
 .jj-paper-scroller:focus-visible {
-    outline: 2px solid var(--bpmn-selector);
-    outline-offset: -2px;
+    outline: none;
 }
