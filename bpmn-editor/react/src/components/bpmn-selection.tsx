@@ -3,9 +3,12 @@ import { dia, ui, highlighters } from '@joint/plus';
 import { Selection, useCells, useGraph, useSelectionCollection } from '@joint/react-plus';
 import { getPoolParent, isSwimlane } from '../utils';
 
-// The class a selected cell carries, so a stylesheet can reach it. Named as
-// the library names it, since that is what a reader will look for.
-const SELECTED_CLASS = 'jj-is-selected';
+// The class a selected cell carries, so a stylesheet can reach it. Ours, not
+// the library's `jj-is-selected`: this code applies it, and the two rules the
+// library ships for its own name target react-rendered cells (`jj-box`,
+// `jj-link-line`) that this app does not use. Named as the other classes
+// applied through `highlighters.addClass` are (see `effects.css`).
+const SELECTED_CLASS = 'highlighter-selected';
 
 /**
  * The selection frames: a mask highlighter hugging each selected shape, and

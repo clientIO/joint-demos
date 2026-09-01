@@ -26,8 +26,11 @@
 /* A selected connector. The selection frames mask a shape's body and a
    connector has none, so the class carries the highlight: the wrapper path is
    invisible and 10px wide, which makes it a halo along the line while the line
-   keeps its own colour. */
-.jj-is-selected [joint-selector="wrapper"] {
+   keeps its own colour.
+
+   Scoped to links on purpose: a group has a `wrapper` node of its own, and
+   without `.joint-link` it wore this halo as a thick band inside its border. */
+.joint-link.highlighter-selected [joint-selector="wrapper"] {
     stroke: color-mix(in srgb, var(--bpmn-selector) 40%, transparent);
 }
 
