@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { usePaper, useOnKeyboardEvents } from '@joint/react-plus';
 import { ContentTab } from './content-tab';
 import { AppearanceForm } from './appearance-form';
+import { focusCell } from '../../utils';
 import { useSelectedCell } from '../../hooks/use-selected-cell';
 import { useBulkSelection } from '../../hooks/use-bulk-selection';
 import { BulkAppearanceForm } from './bulk-appearance-form';
@@ -62,8 +63,7 @@ export function Inspector() {
 
         evt.stopPropagation();
 
-        const cellView = paper?.findViewByModel(target);
-        (cellView?.el as SVGElement | undefined)?.focus?.();
+        focusCell(paper, target);
     };
 
     const hasTarget = !!cell || isBulk;

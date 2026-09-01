@@ -6,7 +6,7 @@ import { ShapePicker, PickerOverlay, type PickerItem } from '../shape-picker/sha
 import { insertSwimlaneIntoPool } from '../../dnd/swimlanes';
 import { createShape, getShapeMeta } from '../../shapes/create-shape';
 import { Sequence } from '../../shapes/flow/flow-shapes';
-import { getPoolParent, getSwimlaneParent, isPool, isSwimlane, prepareLinkReplacement } from '../../utils';
+import { getPoolParent, getSwimlaneParent, isPool, isSwimlane, prepareLinkReplacement, focusCell } from '../../utils';
 
 import type { dia, g } from '@joint/plus';
 import type { HaloHandle } from '@joint/react-plus';
@@ -278,8 +278,7 @@ export function QuickAdd() {
                 onCancel={() => {
                     setPicker(null);
                     // Back to the shape the list was opened from.
-                    const view = paper.findViewByModel(picker.cell);
-                    (view?.el as SVGElement | undefined)?.focus?.();
+                    focusCell(paper, picker.cell);
                 }}
             />
         </PickerOverlay>

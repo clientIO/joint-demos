@@ -39,6 +39,19 @@ export function adjustPoolToContainElement(element: dia.Element) {
 }
 
 /**
+ * Moves the focus to the cell's view.
+ *
+ * The keyboard paths hand the focus back to the shape they were opened from —
+ * a picker, the inspector, the label editor — and any of them may be closing
+ * because the cell went away, so a missing paper or view is not an error.
+ */
+export function focusCell(paper: dia.Paper | null | undefined, cell: dia.Cell | null | undefined, options?: FocusOptions) {
+    if (!paper || !cell) return;
+
+    paper.findViewByModel(cell)?.el.focus(options);
+}
+
+/**
  * Whether the element is a pool swimlane.
  */
 export function isSwimlane(cell: dia.Cell): cell is BpmnSwimlane {

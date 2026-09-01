@@ -3,7 +3,7 @@ import { useGraph, usePaper, usePaperScroller, useSelectionCollection, useOnKeyb
 import { addEffect, removeEffect, EffectType } from '../../effects';
 import { getShapeMeta } from '../../shapes/create-shape';
 import { Sequence } from '../../shapes/flow/flow-shapes';
-import { isSwimlane, prepareLinkReplacement } from '../../utils';
+import { isSwimlane, prepareLinkReplacement, focusCell } from '../../utils';
 import { ShapePicker, PickerOverlay, type PickerItem } from '../shape-picker/shape-picker';
 
 import type { dia } from '@joint/plus';
@@ -178,8 +178,7 @@ export function QuickLink() {
                 onCancel={() => {
                     stop();
                     // Back to the shape the list was opened from.
-                    const view = paper.findViewByModel(linking.source);
-                    (view?.el as SVGElement | undefined)?.focus?.();
+                    focusCell(paper, linking.source);
                 }}
             />
         </PickerOverlay>
