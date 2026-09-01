@@ -40,7 +40,7 @@ export function openLabelEditor(paper: dia.Paper, selection: Selection, cellView
     Object.assign(editableWrapper.style, wrapperStyles);
 
     const contentEditableDiv = document.createElement('div');
-    contentEditableDiv.contentEditable = 'true';
+    setPlainTextEditable(contentEditableDiv);
     contentEditableDiv.classList.add('label-editor');
 
     editableWrapper.appendChild(contentEditableDiv);
@@ -84,6 +84,13 @@ export function openLabelEditor(paper: dia.Paper, selection: Selection, cellView
     contentEditableDiv.addEventListener('mousedown', (evt) => {
         evt.stopPropagation();
     });
+
+    // A label is text, so what arrives has to be text. The editor saves
+    // `innerText` either way, but rich content would style the box while
+    // typing with fonts and weights the shape will not keep — the editor
+    // would stop showing what the label is going to look like.
+    contentEditableDiv.addEventListener('paste', insertAsPlainText);
+    contentEditableDiv.addEventListener('drop', insertAsPlainText);
 
     // Enable saving on Enter (without shift), cancel on Escape
     contentEditableDiv.addEventListener('keydown', (evt) => {
@@ -134,7 +141,7 @@ function editLinkLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElement, 
         if (!state.cancelled) {
 
             // Remove line breaks
-            const parsedText = editable.innerText.trim().replace(/<br>/, '');
+            const parsedText = editable.innerText.trim();
 
             if (parsedText !== '') {
 
@@ -184,4 +191,35 @@ function editElementLabel(editorWrapper: HTMLDivElement, editable: HTMLDivElemen
 
         editorWrapper.remove();
     });
+}
+
+/**
+ * Makes an element editable as plain text.
+ *
+ * `plaintext-only` is the browser doing the work — it strips formatting from
+ * anything pasted or dropped — but it is not everywhere yet (Firefox only
+ * from 136), and assigning a value the browser does not know throws. Hence
+ * the fallback to a plain editable, which the paste and drop handlers keep
+ * to text themselves.
+ */
+function setPlainTextEditable(element: HTMLElement) {
+    try {
+        element.contentEditable = 'plaintext-only';
+    } catch {
+        element.contentEditable = 'true';
+    }
+}
+
+// Inserts what was pasted or dropped as text, losing any markup with it.
+function insertAsPlainText(evt: ClipboardEvent | DragEvent) {
+
+    const data = evt instanceof DragEvent ? evt.dataTransfer : evt.clipboardData;
+    const text = data?.getData('text/plain');
+    if (text == null) return;
+
+    evt.preventDefault();
+
+    // `insertText` keeps the caret and the undo history of the field, which
+    // rebuilding the content by hand would both lose.
+    document.execCommand('insertText', false, text);
 }
