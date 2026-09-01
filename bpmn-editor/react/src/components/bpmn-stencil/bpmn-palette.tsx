@@ -49,7 +49,7 @@ export function BpmnPalette() {
     const aim = useTargetAim();
 
     const onFocus = (evt: FocusEvent<HTMLDivElement>) => {
-        const type = (evt.target as HTMLElement).dataset?.shapeType;
+        const type = evt.target.dataset.shapeType;
         if (!type) return;
 
         const shape = createShape(graph, type);
@@ -65,7 +65,7 @@ export function BpmnPalette() {
 
     const onBlur = (evt: FocusEvent<HTMLDivElement>) => {
         // Tabbing between the palette's own buttons keeps the aim.
-        if (evt.currentTarget.contains(evt.relatedTarget as Node | null)) return;
+        if (evt.currentTarget.contains(evt.relatedTarget)) return;
         aim.end();
     };
 
