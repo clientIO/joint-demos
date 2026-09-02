@@ -117,7 +117,17 @@ export function ShortcutsDialog({ onClose }: ShortcutsDialogProps) {
                             </button>
                         </Dialog.Close>
                     </div>
-                    <div className="shortcuts-dialog-body">
+                    {/* The list scrolls when the window is short, so it takes the
+                        focus itself: a scrollable region a keyboard cannot reach
+                        holds content a keyboard user cannot see. Labelled by the
+                        dialog's own heading, and a group rather than a region so
+                        it is not announced as a landmark inside a dialog. */}
+                    <div
+                        className="shortcuts-dialog-body"
+                        tabIndex={0}
+                        role="group"
+                        aria-label="Keyboard shortcuts"
+                    >
                         {SHORTCUT_GROUPS.map((group) => (
                             <section key={group.title} className="shortcuts-group">
                                 <h3>{group.title}</h3>

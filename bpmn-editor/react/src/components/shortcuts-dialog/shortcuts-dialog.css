@@ -66,6 +66,13 @@
         /* Two columns where there is room; the groups stay unbroken. */
         columns: 2;
         column-gap: 28px;
+
+        /* The list takes the focus so it can be scrolled by keyboard, so it
+           says where the focus is, inset like the palette's ring. */
+        &:focus-visible {
+            outline: 2px solid var(--bpmn-selector);
+            outline-offset: -2px;
+        }
     }
 
     .shortcuts-group {
