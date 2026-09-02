@@ -44,10 +44,10 @@ export interface Marker {
     index?: number;
 }
 
-export interface AppShape extends dia.Cell {
+export interface BpmnShape extends dia.Cell {
     // Method syntax on purpose: parameters check bivariantly, so the
     // element/link interfaces (whose `copyFrom` takes the concrete cell type)
-    // stay assignable to AppShape.
+    // stay assignable to BpmnShape.
     copyFrom(shape: dia.Cell): void;
     getShapeList: () => string[];
     validateConnection: (targetModel?: dia.Cell) => boolean;
@@ -65,6 +65,8 @@ interface AppearanceFieldBase {
     label: string;
     /** Shown when the cell has no value at `path`. */
     defaultValue?: string | number;
+    /** Left out where the field has no counterpart on other cells. */
+    role?: AppearanceRole;
 }
 
 export interface AppearanceColorField extends AppearanceFieldBase {
@@ -75,6 +77,24 @@ export interface AppearanceSelectBoxField extends AppearanceFieldBase {
     type: 'select-box';
     options: AppearanceSelectOption[];
 }
+
+/**
+ * What a field controls. The same role lives at a different path from one shape
+ * family to the next — a task's fill is `attrs/background/fill` where a
+ * gateway's is `attrs/body/fill`, and a pool names its label through
+ * `attrs/headerText` where everything else uses `attrs/label` — so a form
+ * spanning several selected cells pairs their fields up by this rather than by
+ * path.
+ *
+ * At most one field per role per config: the first match in group order wins.
+ */
+export type AppearanceRole =
+    | 'fill'
+    | 'outline'
+    | 'text'
+    | 'font-family'
+    | 'font-size'
+    | 'font-weight';
 
 export type AppearanceField = AppearanceColorField | AppearanceSelectBoxField;
 
@@ -88,7 +108,7 @@ export interface AppearanceGroup {
 /** The Appearance inspector tab: groups render in array order. */
 export type AppearanceConfig = AppearanceGroup[];
 
-export interface AppElement extends dia.Element {
+export interface BpmnElement extends dia.Element {
     readonly isResizable: boolean;
     readonly labelPath: string;
     readonly labelSelector?: string;
@@ -114,7 +134,7 @@ export interface AppElement extends dia.Element {
 /** The actions a link offers in its context menu. */
 export type LinkContextMenuAction = 'edit-label' | 'add-comment';
 
-export interface AppLink extends dia.Link {
+export interface BpmnLink extends dia.Link {
     getShapeList: () => string[];
     getContextMenuActions: () => LinkContextMenuAction[];
     getLinkTools: () => dia.ToolView[];

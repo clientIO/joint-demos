@@ -4,7 +4,7 @@ import { FreeTransform, usePaper } from '@joint/react-plus';
 import { useSelectedCell } from '../hooks/use-selected-cell';
 
 import type { dia } from '@joint/plus';
-import type { AppElement } from '../shapes/shapes-typing';
+import type { BpmnElement } from '../shapes/shapes-typing';
 import { isSwimlane, isPool } from '../utils';
 
 const FREE_TRANSFORM_OPTIONS = {
@@ -24,8 +24,8 @@ export function BpmnFreeTransform() {
     const { paper } = usePaper();
     const selected = useSelectedCell();
 
-    const element = selected?.isElement() && (selected as AppElement).isResizable
-        ? selected as AppElement
+    const element = selected?.isElement() && (selected as BpmnElement).isResizable
+        ? selected as BpmnElement
         : null;
 
     const isBPMNShape = !!element

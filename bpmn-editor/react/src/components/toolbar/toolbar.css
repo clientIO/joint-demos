@@ -56,7 +56,6 @@
         gap: 4px;
         padding: 0 8px;
         color: inherit;
-        outline: none;
         background: transparent;
         border: 1px solid var(--bpmn-border-button);
     }
@@ -90,7 +89,8 @@
     }
 }
 
-/* File dropdown menu (Radix DropdownMenu, portaled to the body). */
+/* File dropdown menu (Radix DropdownMenu, portaled into its container so
+   the open menu stays inside the toolbar landmark). */
 .file-dropdown-menu {
     z-index: 100;
     box-sizing: border-box;
@@ -125,6 +125,13 @@
         &:hover,
         &[data-highlighted] {
             background-color: var(--bpmn-bg-hover);
+        }
+
+        /* The hover tint alone is too faint as a keyboard cue (WCAG 1.4.11)
+           — outline the item that holds the roving focus. */
+        &[data-highlighted] {
+            outline: 2px solid var(--bpmn-selector);
+            outline-offset: -2px;
         }
     }
 }

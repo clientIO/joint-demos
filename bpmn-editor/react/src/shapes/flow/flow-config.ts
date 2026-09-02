@@ -25,7 +25,7 @@ export const flowAppearanceConfig: AppearanceConfig = [
     {
         label: 'Style',
         fields: [
-            { type: 'color', path: 'attrs/line/stroke', label: 'Color' }
+            { type: 'color', role: 'outline', path: 'attrs/line/stroke', label: 'Color' }
         ]
     },
     {
@@ -35,10 +35,10 @@ export const flowAppearanceConfig: AppearanceConfig = [
         fields: [
             { type: 'color', path: 'labels/0/attrs/body/fill', label: 'Background', defaultValue: defaultAttrs.labelBody.fill },
             { type: 'color', path: 'labels/0/attrs/body/stroke', label: 'Outline', defaultValue: defaultAttrs.labelBody.stroke },
-            { type: 'select-box', path: 'labels/0/attrs/label/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily, defaultValue: defaultAttrs.linkLabel.fontFamily },
-            { type: 'select-box', path: 'labels/0/attrs/label/fontSize', label: 'Size', options: inspectorOptions.fontSize, defaultValue: defaultAttrs.linkLabel.fontSize },
-            { type: 'select-box', path: 'labels/0/attrs/label/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight, defaultValue: defaultAttrs.linkLabel.fontWeight },
-            { type: 'color', path: 'labels/0/attrs/label/fill', label: 'Text Color' }
+            { type: 'select-box', role: 'font-family', path: 'labels/0/attrs/label/fontFamily', label: 'Font style', options: inspectorOptions.fontFamily, defaultValue: defaultAttrs.linkLabel.fontFamily },
+            { type: 'select-box', role: 'font-size', path: 'labels/0/attrs/label/fontSize', label: 'Size', options: inspectorOptions.fontSize, defaultValue: defaultAttrs.linkLabel.fontSize },
+            { type: 'select-box', role: 'font-weight', path: 'labels/0/attrs/label/fontWeight', label: 'Font thickness', options: inspectorOptions.fontWeight, defaultValue: defaultAttrs.linkLabel.fontWeight },
+            { type: 'color', role: 'text', path: 'labels/0/attrs/label/fill', label: 'Text Color' }
         ]
     }
 ];

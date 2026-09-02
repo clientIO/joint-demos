@@ -1,12 +1,11 @@
-import { type dia } from '@joint/plus';
+import type { dia } from '@joint/plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
-import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentBoundary, isPool, isSwimlane, type EditorEvent } from '../utils';
+import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentBoundary, adjustPoolToContainElement, isSwimlane, type EditorEvent } from '../utils';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { replaceShape } from '../actions/replace-shape';
 import { setBoundarySnapActive } from './boundary-snap';
 
-import type { shapes } from '@joint/plus';
-import type { AppElement } from '../shapes/shapes-typing';
+import type { BpmnElement } from '../shapes/shapes-typing';
 
 /**
  * Adds a drop shadow to the dragged element.
@@ -48,7 +47,7 @@ export function onElementDragEnd(paper: dia.Paper, elementView: dia.ElementView,
     const element = elementView.model;
 
     if (!isStencilEvent(evt)) {
-        checkElementOverlaps(element);
+        adjustPoolToContainElement(element);
 
         // Embedding is finalized when the element is dropped
         const newParent = element.parent();
@@ -67,7 +66,7 @@ export function onElementDragEnd(paper: dia.Paper, elementView: dia.ElementView,
  * Grows the pool of the swimlane the element was dropped into, if needed.
  */
 export function onElementSwimlaneDrop(_paper: dia.Paper, elementView: dia.ElementView, _evt: EditorEvent, _x: number, _y: number) {
-    checkElementOverlaps(elementView.model);
+    adjustPoolToContainElement(elementView.model);
 }
 
 /**
@@ -77,8 +76,8 @@ export function onElementSwimlaneDrop(_paper: dia.Paper, elementView: dia.Elemen
 export function dropElement(paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number, y: number): dia.Element {
 
     // All diagram elements are app shapes.
-    const model = elementView.model as AppElement;
-    const parentModel = model.getParentCell() as AppElement | undefined;
+    const model = elementView.model as BpmnElement;
+    const parentModel = model.getParentCell() as BpmnElement | undefined;
     if (!parentModel || parentModel.isLink()) return model;
     const parentView = parentModel.findView(paper);
     if (!parentView) return model;
@@ -100,14 +99,4 @@ export function dropElement(paper: dia.Paper, elementView: dia.ElementView, evt:
     replaceShape(paper.model, model, boundaryEvent);
 
     return boundaryEvent;
-}
-
-// Helpers
-
-function checkElementOverlaps(element: dia.Element) {
-    const lane = element.getParentCell() as shapes.bpmn2.Swimlane;
-    if (!lane) return;
-    const pool = lane.getParentCell();
-    if (!pool || !isPool(pool)) return;
-    (pool as shapes.bpmn2.CompositePool).adjustToContainElements(lane);
 }

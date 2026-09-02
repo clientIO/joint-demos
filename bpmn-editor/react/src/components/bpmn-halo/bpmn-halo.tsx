@@ -2,7 +2,7 @@ import { Halo, type HaloOptions } from '@joint/react-plus';
 import { groups, defaultHandles } from '../../configs/halo-config';
 import { useSelectedCell } from '../../hooks/use-selected-cell';
 
-import type { AppElement } from '../../shapes/shapes-typing';
+import type { BpmnElement } from '../../shapes/shapes-typing';
 import './bpmn-halo.css';
 
 const HALO_OPTIONS: HaloOptions = {
@@ -22,7 +22,7 @@ const HALO_OPTIONS: HaloOptions = {
 export function BpmnHalo() {
 
     const selected = useSelectedCell();
-    const cell = selected?.isElement() ? selected as AppElement : null;
+    const cell = selected?.isElement() ? selected as BpmnElement : null;
 
     if (!cell) return null;
 

@@ -1,0 +1,101 @@
+.accessibility-check {
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    color: #fff;
+    /* Fixed dark-coral endpoints (NOT the theme accent, which is light in the
+       dark theme and would fail white-text contrast). White text on both
+       ends: 11.8:1 / 6.4:1 — in BOTH themes. */
+    background: linear-gradient(to right, oklch(0.34 0.03 60), oklch(0.5 0.15 45));
+    box-shadow:
+        0 10px 15px -3px rgb(0 0 0 / 0.1),
+        0 4px 6px -4px rgb(0 0 0 / 0.1),
+        0 0 0 1px rgb(0 0 0 / 0.1);
+    transition: transform 0.15s ease;
+
+    &:hover {
+        transform: scale(1.02);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--bpmn-selector);
+        outline-offset: 2px;
+    }
+
+    .accessibility-check-ping {
+        position: relative;
+        display: flex;
+        width: 8px;
+        height: 8px;
+    }
+
+    .accessibility-check-ping-wave {
+        position: absolute;
+        inset: 0;
+        border-radius: 9999px;
+        background-color: var(--bpmn-ok);
+        opacity: 0.75;
+        animation: accessibility-check-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    .accessibility-check-ping-dot {
+        position: relative;
+        display: inline-flex;
+        width: 8px;
+        height: 8px;
+        border-radius: 9999px;
+        background-color: var(--bpmn-ok);
+    }
+
+    .accessibility-check-icon {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+@keyframes accessibility-check-ping {
+    75%,
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .accessibility-check {
+        transition: none;
+
+        .accessibility-check-ping-wave {
+            animation: none;
+        }
+    }
+}
+
+@media (max-width: 640px) {
+    .accessibility-check .accessibility-check-label {
+        display: none;
+    }
+}
+
+/* On short viewports the vertically-centered stencil reaches the bottom-left
+   corner — step the pill to the right so it never covers the last item. */
+@media (max-height: 640px) {
+    .accessibility-check {
+        left: 62px;
+    }
+}

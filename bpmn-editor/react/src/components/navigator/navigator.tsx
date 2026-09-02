@@ -13,10 +13,12 @@ import './navigator.css';
 /**
  * A tooltipped toolbar icon button.
  */
-function IconButton({ icon, tooltip, active, onClick }: {
+function IconButton({ icon, tooltip, active, pressed, onClick }: {
     icon: ReactNode;
     tooltip: string;
     active?: boolean;
+    /** For toggles: exposes the on/off state (`aria-pressed`) to AT. */
+    pressed?: boolean;
     onClick: () => void;
 }) {
     return (
@@ -24,6 +26,8 @@ function IconButton({ icon, tooltip, active, onClick }: {
             <button
                 type="button"
                 className={`navigator-icon-button${active ? ' active' : ''}`}
+                aria-label={tooltip}
+                aria-pressed={pressed}
                 onClick={onClick}
             >
                 {icon}
@@ -65,7 +69,9 @@ export function Navigator() {
             {/* The wrapper animates collapse/expand — the Navigator host keeps
                 a fixed size, otherwise the component refits to the animated
                 (collapsed) size and distorts the minimap. */}
-            <div className={`navigator-minimap-wrapper${isMinimapVisible ? '' : ' hidden'}`}>
+            {/* The minimap is a second, purely visual copy of the diagram —
+                hidden from AT so the content is not announced twice. */}
+            <div className={`navigator-minimap-wrapper${isMinimapVisible ? '' : ' hidden'}`} aria-hidden="true">
                 <NavigatorMinimap
                     className="navigator-minimap"
                     style={{ width: 318, height: 130 }}
@@ -106,6 +112,7 @@ export function Navigator() {
                 <IconButton
                     icon={isFullscreen ? <Shrink size={18} /> : <Expand size={18} />}
                     tooltip={isFullscreen ? 'Exit full screen' : 'Toggle full screen'}
+                    pressed={isFullscreen}
                     onClick={toggleFullscreen}
                 />
                 <div className="navigator-zoom-slider">
@@ -120,15 +127,22 @@ export function Navigator() {
                         <Slider.Track className="zoom-slider-track">
                             <Slider.Range className="zoom-slider-range" />
                         </Slider.Track>
-                        <Slider.Thumb className="zoom-slider-thumb" aria-label="Zoom" />
+                        <Slider.Thumb
+                            className="zoom-slider-thumb"
+                            aria-label="Zoom"
+                            aria-valuetext={`${zoomPercentage}%`}
+                        />
                     </Slider.Root>
-                    <output>{zoomPercentage}%</output>
+                    {/* Visual echo of the slider value — the thumb's
+                        aria-valuetext already announces it. */}
+                    <output aria-hidden="true">{zoomPercentage}%</output>
                 </div>
                 <div className="navigator-separator" />
                 <IconButton
                     icon={<Map size={18} />}
                     tooltip={isMinimapVisible ? 'Hide minimap' : 'Show minimap'}
                     active={isMinimapVisible}
+                    pressed={isMinimapVisible}
                     onClick={() => setIsMinimapVisible((visible) => !visible)}
                 />
             </div>

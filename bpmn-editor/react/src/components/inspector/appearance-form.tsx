@@ -1,52 +1,50 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import * as Select from '@radix-ui/react-select';
 import { ChevronDown, Check } from 'lucide-react';
 import { useCells } from '@joint/react-plus';
 import { PALETTE } from '../../configs/palette';
+import { readFieldValue } from '../../utils';
 
 import type { CellRecord, Computed } from '@joint/react-plus';
-import type { AppElement, AppLink, AppearanceColorField, AppearanceSelectBoxField } from '../../shapes/shapes-typing';
+import type { BpmnElement, BpmnLink, AppearanceColorField, AppearanceSelectBoxField, AppearanceSelectOption } from '../../shapes/shapes-typing';
 
-type Cell = AppElement | AppLink;
+type Cell = BpmnElement | BpmnLink;
 
 // The cell's reactive record: a new snapshot on every model change (attribute
 // updates, undo/redo, ...) — used as an effect dependency to resync fields.
 type CellSnapshot = Computed<CellRecord> | undefined;
 
 /**
- * The cell's current value at the field's path (or the field default).
+ * A row of theme palette swatches (each value is a CSS variable, so the diagram
+ * re-colors with the theme).
+ *
+ * `value` is `null` where there is no one value to show — several shapes are
+ * selected and they disagree — and then no swatch reads as selected, which is
+ * the whole of the visual answer. An empty radio group is silent though, so
+ * `hint` says why for assistive tech.
  */
-function readValue(cell: Cell, field: { path: string; defaultValue?: string | number }): string {
-    const value = cell.prop(field.path) ?? field.defaultValue ?? '';
-    return String(value);
-}
-
-/**
- * Color field: a row of theme palette swatches (each value is a CSS
- * variable, so the diagram re-colors with the theme).
- */
-function ColorField({ cell, field, snapshot }: { cell: Cell; field: AppearanceColorField; snapshot: CellSnapshot }) {
-    const [value, setValue] = useState(() => readValue(cell, field));
-
-    // Sync from the model on external changes (undo/redo, shape morph).
-    useEffect(() => {
-        setValue(readValue(cell, field));
-    }, [cell, field.path, snapshot]);
-
-    const onPick = (color: string) => {
-        setValue(color);
-        cell.prop(field.path, color);
-    };
+export function ColorSwatches({ label, value, hint, onPick }: {
+    label: string;
+    value: string | null;
+    hint?: string;
+    onPick: (color: string) => void;
+}) {
+    // `aria-checked="mixed"` is not available to `role="radio"` — only
+    // checkboxes and tree items have it — so the mixed state is conveyed by
+    // leaving every radio unchecked and describing the group.
+    const id = useId();
+    const hintId = hint ? `swatches-hint-${id}` : undefined;
 
     return (
         <div className="field color-field">
-            <div className="swatches" role="radiogroup" aria-label={field.label}>
+            <div className="swatches" role="radiogroup" aria-label={label} aria-describedby={hintId}>
                 {PALETTE.map((color) => (
                     <button
                         key={color.value}
                         type="button"
                         role="radio"
                         aria-checked={value === color.value}
+                        aria-label={color.label}
                         title={color.label}
                         className={`swatch${value === color.value ? ' selected' : ''}`}
                         style={{ backgroundColor: color.value }}
@@ -54,34 +52,56 @@ function ColorField({ cell, field, snapshot }: { cell: Cell; field: AppearanceCo
                     />
                 ))}
             </div>
-            <label>{field.label}</label>
+            <label>{label}</label>
+            {hint && <span id={hintId} className="sr-only">{hint}</span>}
         </div>
     );
 }
 
 /**
- * Select-box field preserving the original option value type.
+ * Color field for a single cell.
  */
-function SelectBoxField({ cell, field, snapshot }: { cell: Cell; field: AppearanceSelectBoxField; snapshot: CellSnapshot }) {
-    const [value, setValue] = useState(() => readValue(cell, field));
+function ColorField({ cell, field, snapshot }: { cell: Cell; field: AppearanceColorField; snapshot: CellSnapshot }) {
+    const [value, setValue] = useState(() => readFieldValue(cell, field));
 
+    // Sync from the model on external changes (undo/redo, shape morph).
     useEffect(() => {
-        setValue(readValue(cell, field));
+        setValue(readFieldValue(cell, field));
     }, [cell, field.path, snapshot]);
 
-    const onValueChange = (selected: string) => {
-        // Preserve the original option type (e.g. numeric font sizes).
-        const option = field.options.find((opt) => String(opt.value) === selected);
-        setValue(selected);
-        cell.prop(field.path, option?.value ?? selected);
+    const onPick = (color: string) => {
+        setValue(color);
+        cell.prop(field.path, color);
     };
+
+    return <ColorSwatches label={field.label} value={value} onPick={onPick} />;
+}
+
+/**
+ * A select box.
+ *
+ * `value` is `null` where there is no one value to show — several cells are
+ * selected and they disagree — and then it reads as a dash rather than an empty
+ * box, which would look like a control that failed to load. A dash says nothing
+ * to a screen reader though, so `hint` says why for anything listening.
+ */
+export function AppearanceSelect({ label, value, options, hint, onPick }: {
+    label: string;
+    value: string | null;
+    options: AppearanceSelectOption[];
+    hint?: string;
+    onPick: (value: string) => void;
+}) {
+    const id = useId();
+    const hintId = hint ? `select-hint-${id}` : undefined;
 
     return (
         <div className="field select-box-field">
-            <label>{field.label}</label>
-            <Select.Root value={value} onValueChange={onValueChange}>
-                <Select.Trigger className="select-box-trigger" aria-label={field.label}>
-                    <Select.Value />
+            <label>{label}</label>
+            {hint && <span id={hintId} className="sr-only">{hint}</span>}
+            <Select.Root value={value ?? undefined} onValueChange={onPick}>
+                <Select.Trigger className="select-box-trigger" aria-label={label} aria-describedby={hintId}>
+                    <Select.Value placeholder="--" />
                     <Select.Icon>
                         <ChevronDown size={14} />
                     </Select.Icon>
@@ -89,7 +109,7 @@ function SelectBoxField({ cell, field, snapshot }: { cell: Cell; field: Appearan
                 <Select.Portal>
                     <Select.Content className="select-box-content" position="popper" sideOffset={4}>
                         <Select.Viewport>
-                            {field.options.map((option) => (
+                            {options.map((option) => (
                                 <Select.Item key={String(option.value)} value={String(option.value)} className="select-box-item">
                                     <Select.ItemText>{option.label}</Select.ItemText>
                                     <Select.ItemIndicator>
@@ -106,6 +126,33 @@ function SelectBoxField({ cell, field, snapshot }: { cell: Cell; field: Appearan
 }
 
 /**
+ * Select-box field for a single cell, preserving the option's own value type.
+ */
+function SelectBoxField({ cell, field, snapshot }: { cell: Cell; field: AppearanceSelectBoxField; snapshot: CellSnapshot }) {
+    const [value, setValue] = useState(() => readFieldValue(cell, field));
+
+    useEffect(() => {
+        setValue(readFieldValue(cell, field));
+    }, [cell, field.path, snapshot]);
+
+    const onValueChange = (selected: string) => {
+        // Preserve the original option type (e.g. numeric font sizes).
+        const option = field.options.find((opt) => String(opt.value) === selected);
+        setValue(selected);
+        cell.prop(field.path, option?.value ?? selected);
+    };
+
+    return (
+        <AppearanceSelect
+            label={field.label}
+            value={value}
+            options={field.options}
+            onPick={onValueChange}
+        />
+    );
+}
+
+/**
  * The Appearance inspector tab, rendered from the shape's appearance config.
  */
 export function AppearanceForm({ cell }: { cell: Cell }) {
@@ -118,7 +165,7 @@ export function AppearanceForm({ cell }: { cell: Cell }) {
 
                 return (
                     <div key={group.label ?? index} className="group" data-name={group.label}>
-                        {group.label && <h3 className="group-label">{group.label}</h3>}
+                        {group.label && <h2 className="group-label">{group.label}</h2>}
                         {group.fields.map((field) => (
                             field.type === 'color'
                                 ? <ColorField key={field.path} cell={cell} field={field} snapshot={snapshot} />

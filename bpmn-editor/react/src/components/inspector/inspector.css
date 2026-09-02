@@ -98,6 +98,41 @@
                 }
             }
 
+            /* One section per kind of cell, divided as the groups are. */
+            .bulk-section {
+                padding: 8px 0;
+
+                &:not(:first-child) {
+                    border-top: 1px solid var(--bpmn-border-inspector-divider);
+                }
+            }
+
+            /* What the section is acting on. Not a section heading — those are
+               `.group-label`, uppercase — just a quiet line above the fields,
+               on the 8px rhythm the groups use. */
+            .bulk-summary {
+                margin: 0 0 8px;
+                color: var(--bpmn-text-inspector-label);
+                font-family: 'Open Sans', sans-serif;
+                font-size: 12px;
+                line-height: 16.3px;
+            }
+
+            /* The dash standing in for a value the cells disagree on reads
+               quieter than a real one. */
+            .select-box-trigger[data-placeholder] {
+                color: var(--bpmn-text-inspector-empty);
+            }
+
+            .bulk-note,
+            .bulk-empty {
+                margin: -4px 0 8px;
+                color: var(--bpmn-text-inspector-empty);
+                font-family: 'Open Sans', sans-serif;
+                font-size: 11px;
+                line-height: 15px;
+            }
+
             .color-field {
                 box-sizing: border-box;
                 display: flex;
@@ -314,6 +349,9 @@
 
         &[data-highlighted] {
             background-color: var(--bpmn-bg-hover);
+            /* The tint alone is too faint as a keyboard cue (WCAG 1.4.11). */
+            outline: 2px solid var(--bpmn-selector);
+            outline-offset: -2px;
         }
     }
 }

@@ -1,6 +1,6 @@
 import { type dia, shapes, g } from '@joint/plus';
-import { ShapeTypes, type AppElement } from '../shapes/shapes-typing';
-import type { HorizontalPool, VerticalPool } from '../shapes/pool/pool-shapes';
+import { ShapeTypes, type BpmnElement } from '../shapes/shapes-typing';
+import type { BpmnPool, BpmnSwimlane } from '../shapes/pool/pool-shapes';
 
 /**
  * Whether the dragged element is an event over an activity, i.e. it should
@@ -27,16 +27,41 @@ export function snapToParentBoundary(child: dia.Element, parent: dia.Element, x:
 }
 
 /**
+ * Grows the pool of the element's swimlane so the lane still contains the
+ * element. No-op for elements that are not embedded in a swimlane.
+ */
+export function adjustPoolToContainElement(element: dia.Element) {
+    const lane = element.getParentCell();
+    if (!lane || !isSwimlane(lane)) return;
+    const pool = lane.getParentCell();
+    if (!pool || !isPool(pool)) return;
+    pool.adjustToContainElements(lane);
+}
+
+/**
+ * Moves the focus to the cell's view.
+ *
+ * The keyboard paths hand the focus back to the shape they were opened from —
+ * a picker, the inspector, the label editor — and any of them may be closing
+ * because the cell went away, so a missing paper or view is not an error.
+ */
+export function focusCell(paper: dia.Paper | null | undefined, cell: dia.Cell | null | undefined, options?: FocusOptions) {
+    if (!paper || !cell) return;
+
+    paper.findViewByModel(cell)?.el.focus(options);
+}
+
+/**
  * Whether the element is a pool swimlane.
  */
-export function isSwimlane(cell: dia.Cell): cell is shapes.bpmn2.Swimlane {
+export function isSwimlane(cell: dia.Cell): cell is BpmnSwimlane {
     return shapes.bpmn2.Swimlane.isSwimlane(cell);
 }
 
 /**
  * Whether the element is a pool.
  */
-export function isPool(cell: dia.Cell): cell is HorizontalPool | VerticalPool {
+export function isPool(cell: dia.Cell): cell is BpmnPool {
     return shapes.bpmn2.CompositePool.isPool(cell);
 }
 
@@ -78,7 +103,7 @@ export function isPoolShared(element1: dia.Cell, element2: dia.Cell) {
 /**
  * The pool the element is embedded in, or `null`.
  */
-export function getPoolParent(element?: dia.Cell): shapes.bpmn2.CompositePool | null {
+export function getPoolParent(element?: dia.Cell): BpmnPool | null {
 
     if (!element) return null;
 
@@ -90,7 +115,7 @@ export function getPoolParent(element?: dia.Cell): shapes.bpmn2.CompositePool | 
 /**
  * The swimlane the element is embedded in, or `null`.
  */
-export function getSwimlaneParent(element?: dia.Cell): shapes.bpmn2.Swimlane | null {
+export function getSwimlaneParent(element?: dia.Cell): BpmnSwimlane | null {
 
     if (!element) return null;
 
@@ -117,7 +142,7 @@ export function canElementExistOutsidePool(element: dia.Cell) {
  * The point on the element's boundary closest to `coords` (both relative to
  * the element's unrotated bbox), snapped to a side midpoint within the radius.
  */
-export function getClosestElementBoundaryPoint(element: AppElement, coords: g.PlainPoint, snapRadius = 20) {
+export function getClosestElementBoundaryPoint(element: BpmnElement, coords: g.PlainPoint, snapRadius = 20) {
     const point = new g.Point(coords);
     const bbox = element.getBBox();
     const angle = element.angle();

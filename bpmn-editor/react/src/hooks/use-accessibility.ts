@@ -35,7 +35,14 @@ export function useAccessibility() {
         const onSelectionChange = () => {
             if (collection.length !== 1) return;
 
-            const el = collection.models[0].findView(paper)?.el;
+            const cell = collection.models[0];
+            if (!paper.model.getCell(cell.id)) return;
+
+            // A cell selected as soon as it is added — from the stencil, a
+            // paste, `cmd+enter` — has no view yet, since the paper renders
+            // asynchronously. `requireView()` renders it now, so the focus
+            // lands on the new shape instead of being dropped.
+            const el = paper.requireView(cell)?.el;
             if (el && document.activeElement !== el) {
                 el.focus({ preventScroll: true });
             }

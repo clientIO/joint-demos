@@ -8,26 +8,52 @@
 
     --bpmn-selector: #5540E1;
     --bpmn-error: #ed2637;
-    --bpmn-link: var(--bpmn-palette-outline);
+    --bpmn-link: var(--bpmn-palette-ink);
 
     /* Diagram color palette — shapes reference these variables, so the
        diagram re-colors with the theme. Also the swatches of the inspector
-       color picker (see `configs/palette.ts`). */
-    --bpmn-palette-surface: #FFFFFF;
-    --bpmn-palette-ink: #333333;
-    --bpmn-palette-outline: #333333;
-    --bpmn-palette-blue: #D6EAF8;
-    --bpmn-palette-blue-soft: #F5FAFC;
-    --bpmn-palette-green: #D7E8BA;
-    --bpmn-palette-green-soft: #F7FAF1;
-    --bpmn-palette-success: #4CAF50;
-    --bpmn-palette-danger: #F44336;
-    --bpmn-palette-warning: #FFC107;
-    --bpmn-palette-accent: #5540E1;
+       color picker (see `configs/palette.ts`).
 
-    /* Paper */
-    --bpmn-paper-background: #FFFFFF;
-    --jj-paper-grid-color: #AAAAAA;
+       The names are roles, not colours: `tint-a`/`tint-b` are the two
+       participants and `start`/`end`/`decision` the shapes that carry a
+       meaning, so a repaint is free to move the hues without the names
+       going stale or steering the next choice back to a blue and a green.
+
+       `ink` carries the 12px shape labels and draws every shape border and
+       every link, so it clears WCAG AA 4.5:1 on `surface` and on either tint,
+       and 3:1 on the paper. It is one colour for both because the swatches a
+       user picks from are the palette itself: a border painted with anything
+       outside them would show as unset in the inspector.
+
+       `outline` is declared but unused by the shapes: a diagram saved before
+       the borders moved to `ink` still references it.
+
+       The two tints are near-identical in lightness (1.02:1) and separate
+       by hue alone, so they are not what tells two pools apart — the header
+       text is. Worth keeping in mind if a diagram ever leans on the tint to
+       carry meaning. A fill is not held to 3:1 against the paper — a shape's
+       boundary is its stroke, and a pale yellow gateway is inherent to
+       BPMN. */
+    --bpmn-palette-surface: #FFFFFF;
+    --bpmn-palette-ink: #1E2430;
+    --bpmn-palette-outline: #475061;
+    --bpmn-palette-tint-a: #D2E6FA;
+    --bpmn-palette-tint-a-soft: #F0F7FE;
+    --bpmn-palette-tint-b: #D2EBDA;
+    --bpmn-palette-tint-b-soft: #F0F9F3;
+    --bpmn-palette-start: #2FA36B;
+    --bpmn-palette-end: #E04B4F;
+    --bpmn-palette-decision: #F2B33D;
+    --bpmn-palette-accent: #6A5AE0;
+
+    /* Paper — tinted, so a shape's own surface reads as sitting on it. */
+    --bpmn-paper-background: #F4F6F8;
+    --jj-paper-grid-color: #DCE1E8;
+
+    /* The accessibility check's pass state. Its own colour rather than the
+       palette's green, so a fixed meaning does not ride on a colour the
+       diagram is free to repaint. */
+    --bpmn-ok: #2FA36B;
 
     /* Halo (react-plus variables) */
     --jj-halo-handle-width: 20px;
@@ -74,16 +100,26 @@
     --bpmn-border-secondary: #D1D5DB;
     --bpmn-border-tertiary: #E0E6EA;
 
-    /* Text */
+    /* Text — the muted greys clear WCAG AA 4.5:1 on their backgrounds
+       (inspector/toolbar surfaces are white in the light theme). */
     --bpmn-text-tooltip: #374151;
-    --bpmn-text-inspector-button: #9CA3AF;
+    --bpmn-text-inspector-button: #6B7280;
     --bpmn-text-inspector-button-active: #374151;
     --bpmn-text-inspector-button-hover: #4B5563;
-    --bpmn-text-inspector-label: #8A919E;
-    --bpmn-text-inspector-empty: #7A8494;
+    --bpmn-text-inspector-label: #667085;
+    --bpmn-text-inspector-empty: #667085;
     --bpmn-text-primary: #575C70;
     --bpmn-text-secondary: #4B5563;
     --bpmn-text-tertiary: #6B7280;
+
+    /* Embedding highlight — the lane an element is about to be dropped into,
+       and the lane a drag started from. Mixed from two tokens that both flip
+       with the theme, so one definition serves both. `accent-primary` used
+       to do this job and could not: at #F5F3FD it sat 1.02:1 against a soft
+       blue lane, which is no highlight at all. The target is the stronger of
+       the two — during a lane drag both are on screen at once. */
+    --bpmn-highlight-embed-target: color-mix(in srgb, var(--bpmn-selector) 26%, var(--bpmn-palette-surface));
+    --bpmn-highlight-embed-source: color-mix(in srgb, var(--bpmn-selector) 12%, var(--bpmn-palette-surface));
 
     /* Accent */
     --bpmn-accent-primary: #F5F3FD;
@@ -94,21 +130,23 @@
 :root[data-theme='dark'] {
     color-scheme: dark;
 
-    --bpmn-palette-surface: #24262A;
-    --bpmn-palette-ink: #E6E7E9;
-    --bpmn-palette-outline: #DFE1E4;
-    --bpmn-palette-blue: #35566F;
-    --bpmn-palette-blue-soft: #191F27;
-    --bpmn-palette-green: #5C7345;
-    --bpmn-palette-green-soft: #1D221A;
-    --bpmn-palette-success: #66BB6A;
-    --bpmn-palette-danger: #EF5350;
-    --bpmn-palette-warning: #FFC93E;
-    --bpmn-palette-accent: #8F86FF;
+    --bpmn-palette-surface: #1A1E26;
+    --bpmn-palette-ink: #E7EAF0;
+    --bpmn-palette-outline: #C2CAD8;
+    --bpmn-palette-tint-a: #29486A;
+    --bpmn-palette-tint-a-soft: #151A22;
+    --bpmn-palette-tint-b: #33513F;
+    --bpmn-palette-tint-b-soft: #141A17;
+    --bpmn-palette-start: #3FBE7D;
+    --bpmn-palette-end: #F05B5F;
+    --bpmn-palette-decision: #F5C05A;
+    --bpmn-palette-accent: #9C8CFF;
 
     --bpmn-selector: #8B7CF6;
-    --bpmn-paper-background: #141518;
-    --jj-paper-grid-color: #26282D;
+    --bpmn-paper-background: #0F1218;
+    --jj-paper-grid-color: #1F242E;
+
+    --bpmn-ok: #3FBE7D;
 
     --bpmn-bg-slider-track: #333B4A;
     --bpmn-bg-hover: #333B4A;
@@ -132,11 +170,11 @@
     --bpmn-border-tertiary: #333B4A;
 
     --bpmn-text-tooltip: #D9DEE7;
-    --bpmn-text-inspector-button: #6B7280;
+    --bpmn-text-inspector-button: #98A2B3;
     --bpmn-text-inspector-button-active: #E4E6EB;
     --bpmn-text-inspector-button-hover: #C4CBD6;
-    --bpmn-text-inspector-label: #8A919E;
-    --bpmn-text-inspector-empty: #7A8494;
+    --bpmn-text-inspector-label: #98A2B3;
+    --bpmn-text-inspector-empty: #98A2B3;
     --bpmn-text-primary: #C4CBD6;
     --bpmn-text-secondary: #C4CBD6;
     --bpmn-text-tertiary: #9CA6B5;

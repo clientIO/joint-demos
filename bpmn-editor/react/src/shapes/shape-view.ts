@@ -1,7 +1,7 @@
 import { dia } from '@joint/plus';
-import { type AppElement } from './shapes-typing';
+import { type BpmnElement } from './shapes-typing';
 
-export class LabelElementView extends dia.ElementView<AppElement> {
+export class LabelElementView extends dia.ElementView<BpmnElement> {
 
     labelNode: SVGElement | null = null;
 

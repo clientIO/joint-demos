@@ -11,11 +11,11 @@ import { handles } from '../../configs/halo-config';
 import { getPoolParent, isPoolShared, isSwimlane, isActivity } from '../../utils';
 
 import type { dia } from '@joint/plus';
-import type { AppElement } from '../shapes-typing';
+import type { BpmnElement } from '../shapes-typing';
 
 const LABEL_Y_OFFSET = 14;
 
-export abstract class Event extends shapes.bpmn2.Event implements AppElement {
+export abstract class Event extends shapes.bpmn2.Event implements BpmnElement {
 
     // The shape name (set by each concrete subclass). Typing the constructor
     // makes the static reachable from instance methods (\`defaults()\`).
@@ -39,7 +39,7 @@ export abstract class Event extends shapes.bpmn2.Event implements AppElement {
                     fill: 'var(--bpmn-palette-surface)'
                 },
                 border: {
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,

@@ -3,7 +3,7 @@ import { dia } from '@joint/plus';
 import { usePaper } from '@joint/react-plus';
 import { useSelectedCell } from '../hooks/use-selected-cell';
 
-import type { AppLink } from '../shapes/shapes-typing';
+import type { BpmnLink } from '../shapes/shapes-typing';
 
 /**
  * Renders nothing. Shows the link tools (vertices, arrowheads, remove
@@ -14,7 +14,7 @@ export function LinkTools() {
     const { paper } = usePaper();
     const selected = useSelectedCell();
 
-    const link = selected?.isLink() ? selected as AppLink : null;
+    const link = selected?.isLink() ? selected as BpmnLink : null;
 
     useEffect(() => {
         if (!paper || !link) return;

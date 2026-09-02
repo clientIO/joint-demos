@@ -10,3 +10,25 @@ body {
     width: 100%;
     height: 100%;
 }
+
+/* Visually hidden, still read by assistive technology. */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* The pan/scroll canvas is keyboard-focusable (see CanvasAccessibility), and
+   its ring is drawn by its container — see `bpmn-editor.css`. An outline on
+   the scroller itself is painted over by its own background, which is a
+   positioned child the size of the whole sheet, leaving the ring visible only
+   where that background happens not to reach. */
+.jj-paper-scroller:focus-visible {
+    outline: none;
+}

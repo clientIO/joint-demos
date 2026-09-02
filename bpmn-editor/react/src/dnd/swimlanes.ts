@@ -1,10 +1,9 @@
-import type { shapes } from '@joint/plus';
 import { EffectType, addEffect, removeEffect } from '../effects';
-import { isStencilEvent, isPool, type EditorEvent } from '../utils';
+import { canMoveSwimlane, findPoolViewAtPoint, isStencilEvent, type EditorEvent } from '../utils';
 import { showGhostOnNextInteraction } from '../effects/ghost';
-import { HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes';
+import { dropSwimlaneIntoPool } from '../actions/insert-swimlane';
 
-import type { dia } from '@joint/plus';
+import type { dia, g, shapes } from '@joint/plus';
 
 /**
  * Highlights the source swimlane; in-diagram drags don't move the lane
@@ -44,66 +43,19 @@ export function onSwimlaneDrag(paper: dia.Paper, elementView: dia.ElementView, e
     removeEffect(paper, EffectType.TargetPool);
     removeEffect(paper, EffectType.PreviewSwimlane);
 
-    const ghostEl = evt.data.ghost;
-
-    const addInvalidEffect = () => {
-        if (ghostEl) {
-            ghostEl.classList.add('highlighter-error');
-        } else {
-            addEffect(elementView, EffectType.Error);
-        }
-    };
-
-    const removeInvalidEffect = () => {
-        if (ghostEl) {
-            ghostEl.classList.remove('highlighter-error');
-        } else {
-            removeEffect(elementView.paper!, EffectType.Error);
-        }
-    };
-
-    const viewInArea = paper
-        .findElementViewsAtPoint({ x, y })
-        .sort((a, b) => {
-            const bZ = b.model.get('z') ?? 0;
-            const aZ = a.model.get('z') ?? 0;
-
-            return bZ - aZ;
-        });
-
-    // Find the `poolView` that is the top-most pool under the cursor.
-    const poolView = viewInArea.find((view) => isPool(view.model));
-
-    if (!poolView) {
-        evt.data.poolView = null;
-        addInvalidEffect();
-        return;
-    }
-
     const lane = elementView.model as shapes.bpmn2.Swimlane;
-    const pool = poolView.model as shapes.bpmn2.CompositePool;
+    const poolView = findPoolViewAtPoint(paper, { x, y });
 
-    if (!isStencilEvent(evt) && !lane.isCompatibleWithPool(pool)) {
-        // Swimlane orientation is incompatible with pool orientation.
-        // If we drag a swimlane from the stencil, we can replace it with a new one on drop.
-        evt.data.poolView = null;
-        addInvalidEffect();
-        return;
-    }
+    // A lane dragged from the stencil is replaced on drop by one the pool
+    // accepts, so only an in-diagram drag can be refused for its orientation.
+    const accepted = !!poolView && (isStencilEvent(evt) || lane.isCompatibleWithPool(poolView.model));
 
-    evt.data.poolView = poolView as dia.ElementView<shapes.bpmn2.CompositePool>;
-    removeInvalidEffect();
+    evt.data.poolView = accepted ? poolView : null;
+    setInvalidDropEffect(elementView, evt.data.ghost, !accepted);
 
-    const swimlanes = pool.getSwimlanes();
-    if (swimlanes.length === 0) {
-        addEffect(poolView, EffectType.TargetPool);
-    } else {
-        const currentIndex = swimlanes.indexOf(lane);
-        const index = pool.getSwimlaneInsertIndexFromPoint({ x, y });
-        if (currentIndex === -1 || (currentIndex !== index && currentIndex !== index - 1)) {
-            addEffect(poolView, EffectType.PreviewSwimlane, { index });
-        }
-    }
+    if (!accepted) return;
+
+    previewSwimlaneInsertion(poolView, lane, { x, y });
 }
 
 /**
@@ -121,7 +73,7 @@ export function onSwimlaneDragEnd(paper: dia.Paper, elementView: dia.ElementView
 
     // The swimlane comes from the same paper and the drag has ended.
     // See if the swimlane has been dropped on a pool.
-    checkSwimlaneDrop(elementView.model as shapes.bpmn2.Swimlane, evt.data.poolView?.model ?? null, x, y);
+    dropSwimlaneIntoPool(elementView.model as shapes.bpmn2.Swimlane, evt.data.poolView?.model ?? null, x, y);
 }
 
 /**
@@ -131,44 +83,46 @@ export function onSwimlaneDragEnd(paper: dia.Paper, elementView: dia.ElementView
  */
 export function dropSwimlane(_paper: dia.Paper, elementView: dia.ElementView, evt: EditorEvent, x: number, y: number): dia.Element | undefined {
     // The swimlane is dropped from the stencil. It's already added into the target paper.
-    return checkSwimlaneDrop(elementView.model as shapes.bpmn2.Swimlane, evt.data.poolView?.model ?? null, x, y);
+    return dropSwimlaneIntoPool(elementView.model as shapes.bpmn2.Swimlane, evt.data.poolView?.model ?? null, x, y);
 }
 
-// Helpers
+// The drag ghost wears the invalid state as a class: it is a plain node, not
+// a cell view, so the effect highlighters cannot reach it.
+function setInvalidDropEffect(elementView: dia.ElementView, ghost: SVGElement | undefined, invalid: boolean) {
 
-function canMoveSwimlane(swimlane: shapes.bpmn2.Swimlane) {
-    const pool = swimlane.getParentCell() as shapes.bpmn2.CompositePool;
-    // Do not allow to remove the last swimlane from the pool.
-    return pool.getSwimlanes().length > 1;
-}
-
-function checkSwimlaneDrop(
-    swimlane: shapes.bpmn2.Swimlane,
-    pool: shapes.bpmn2.CompositePool | null,
-    x: number,
-    y: number
-) {
-    if (!pool) {
-        // The swimlane is not dropped into a pool.
-        if (!swimlane.isEmbedded()) {
-            // Remove the swimlane if it is not embedded in any pool.
-            swimlane.remove();
-        }
+    if (ghost) {
+        ghost.classList.toggle('highlighter-error', invalid);
         return;
     }
 
-    let compatibleSwimlane = swimlane;
-    if (!swimlane.isCompatibleWithPool(pool)) {
-        // Swimlane orientation is incompatible with pool orientation.
-        // Remove it and replace it with a new one.
-        swimlane.remove();
-        compatibleSwimlane = pool.isHorizontal()
-            ? new HorizontalSwimlane()
-            : new VerticalSwimlane();
+    if (invalid) {
+        addEffect(elementView, EffectType.Error);
+    } else {
+        removeEffect(elementView.paper!, EffectType.Error);
+    }
+}
+
+// Where the lane would be inserted: the whole pool while it holds no lane to
+// insert between, and the boundary otherwise — but not where the lane already
+// sits, since dropping it back is no move at all.
+function previewSwimlaneInsertion(
+    poolView: dia.ElementView<shapes.bpmn2.CompositePool>,
+    lane: shapes.bpmn2.Swimlane,
+    point: g.PlainPoint
+) {
+
+    const pool = poolView.model;
+    const swimlanes = pool.getSwimlanes();
+
+    if (swimlanes.length === 0) {
+        addEffect(poolView, EffectType.TargetPool);
+        return;
     }
 
-    const insertIndex = pool.getSwimlaneInsertIndexFromPoint({ x, y });
-    pool.addSwimlane(compatibleSwimlane, insertIndex);
+    const currentIndex = swimlanes.indexOf(lane);
+    const index = pool.getSwimlaneInsertIndexFromPoint(point);
 
-    return compatibleSwimlane;
+    if (currentIndex === -1 || (currentIndex !== index && currentIndex !== index - 1)) {
+        addEffect(poolView, EffectType.PreviewSwimlane, { index });
+    }
 }

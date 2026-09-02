@@ -1,3 +1,4 @@
+import { createShape } from '../shapes/create-shape';
 import { getHaloDefaultHandle } from '@joint/react-plus';
 import { Trash2, Unlink } from 'lucide-react';
 import { eventIconClasses, EventShapeTypes } from '../shapes/event/event-config';
@@ -10,7 +11,7 @@ import { Sequence } from '../shapes/flow/flow-shapes';
 
 import type { ui, shapes } from '@joint/plus';
 import type { HaloHandle } from '@joint/react-plus';
-import type { AppElement } from '../shapes/shapes-typing';
+import type { BpmnElement } from '../shapes/shapes-typing';
 
 export const GroupNames = {
     ActionTools: 'action-tools',
@@ -87,12 +88,15 @@ function makeConnectHandle(name: string, iconClass: string, elementType: string)
         name,
         group: GroupNames.BPMNTools,
         content: <span className={iconClass} />,
-        // The `fork` flag is read by the element drag handlers (`isForkEvent`).
+        // `fork` is read by the element drag handlers (`isForkEvent`); the
+        // type lets the keyboard offer the same set without a halo — see
+        // `getConnectableTypes()`.
         data: {
-            fork: true
+            fork: true,
+            elementType
         },
         hideOnDrag: true,
-        makeElement: ({ graph }) => new (graph.getTypeConstructor(elementType)!)() as AppElement,
+        makeElement: ({ graph }) => createShape<BpmnElement>(graph, elementType),
         makeLink: makePlaceholderLink
     };
 }

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useGraph, usePaperScroller, useGraphHistory } from '@joint/react-plus';
-import { importFile } from '../../actions/import-actions';
+import { importFile } from '../../actions/import';
 import carWashProcess from './car-wash-process.json';
 
 /**

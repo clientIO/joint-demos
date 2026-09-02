@@ -1,13 +1,13 @@
 import type { shapes } from '@joint/plus';
 import { dia, util } from '@joint/plus';
 import { linkTypeStyles, type LinkStyle, PlaceholderShapeTypes } from './link-config';
-import type { AppLink, LinkType } from './shapes-typing';
+import type { BpmnLink, LinkType } from './shapes-typing';
 import { isPool } from '../utils';
 
 // The link view used for every link in the diagram: previews the resolved
 // link type while dragging, restores the link state on an invalid drop and
 // highlights the swimlanes of available pools.
-export class AppLinkView extends dia.LinkView<AppLink> {
+export class BpmnLinkView extends dia.LinkView<BpmnLink> {
 
     private savedLinkAttributes: LinkStyle = {
         router: 'normal',

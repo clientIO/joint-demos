@@ -1,6 +1,6 @@
 import { shapes, util, V } from '@joint/plus';
 import { ShapeTypes } from '../shapes-typing';
-import { PoolLabels, PoolShapeTypes, DEFAULT_HORIZONTAL_POOL_SIZE, poolAttributes, swimlaneAttributes, poolAppearanceConfig, swimlaneAppearanceConfig, HORIZONTAL_POOL_PADDING, VERTICAL_POOL_PADDING, SWIMLANE_HEADER_SIZE, DEFAULT_VERTICAL_POOL_SIZE } from './pool-config';
+import { DEFAULT_LANE_HEIGHT, DEFAULT_LANE_WIDTH, PoolLabels, poolIconClasses, PoolShapeTypes, DEFAULT_HORIZONTAL_POOL_SIZE, poolAttributes, swimlaneAttributes, poolAppearanceConfig, swimlaneAppearanceConfig, HORIZONTAL_POOL_PADDING, VERTICAL_POOL_PADDING, SWIMLANE_HEADER_SIZE, DEFAULT_VERTICAL_POOL_SIZE } from './pool-config';
 import { handles } from '../../configs/halo-config';
 import { defaultAttrs } from '../shared-config';
 import { ActivityShapeTypes } from '../activity/activity-config';
@@ -9,7 +9,7 @@ import { getPoolParent } from '../../utils';
 import { EventShapeTypes } from '../event/event-config';
 
 import type { dia, g } from '@joint/plus';
-import type { AppElement } from '../shapes-typing';
+import type { BpmnElement } from '../shapes-typing';
 
 type HeaderedShape = HorizontalPool | VerticalPool | HorizontalSwimlane | VerticalSwimlane;
 
@@ -46,12 +46,18 @@ function getRotatedEditorStyles(element: HeaderedShape, paper: dia.Paper): Parti
     };
 }
 
-export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implements AppElement {
+export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implements BpmnElement {
 
     static label = PoolLabels['pool.HorizontalPool'];
+    static icon = poolIconClasses.HORIZONTAL_POOL;
 
     isResizable = true;
     labelPath = 'headerText/text';
+
+    /** The pool's name, as shown in its header. */
+    getLabelText(): string {
+        return this.attr(this.labelPath) || '';
+    }
 
     defaults(): dia.Element.Attributes {
         const attributes: dia.Element.Attributes = {
@@ -68,11 +74,11 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implemen
                 },
                 header: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 body: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
@@ -146,12 +152,18 @@ export class HorizontalPool extends shapes.bpmn2.HeaderedHorizontalPool implemen
     }
 }
 
-export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements AppElement {
+export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements BpmnElement {
 
     static label = PoolLabels['pool.VerticalPool'];
+    static icon = poolIconClasses.VERTICAL_POOL;
 
     isResizable = true;
     labelPath = 'headerText/text';
+
+    /** The pool's name, as shown in its header. */
+    getLabelText(): string {
+        return this.attr(this.labelPath) || '';
+    }
 
     defaults(): dia.Element.Attributes {
         const attributes: dia.Element.Attributes = {
@@ -168,11 +180,11 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements A
                 },
                 header: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 body: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
@@ -245,21 +257,34 @@ export class VerticalPool extends shapes.bpmn2.HeaderedVerticalPool implements A
         this.setStackingOrder();
     }
 }
-export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implements AppElement {
+export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implements BpmnElement {
 
     static label = PoolLabels['pool.HorizontalSwimlane'];
+    static icon = poolIconClasses.HORIZONTAL_SWIMLANE;
 
     isResizable = true;
     labelPath = 'headerText/text';
+
+    /**
+     * The lane's name, or its pool's when the lane has none — lanes are
+     * commonly left unnamed, with the pool carrying the participant name.
+     */
+    getLabelText(): string {
+        const pool = this.getParentCell() as BpmnPool | null;
+        return this.attr(this.labelPath) || pool?.getLabelText?.() || '';
+    }
+
     omitDefaultHaloHandles = true;
 
     defaults(): dia.Element.Attributes {
         const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.SWIMLANE,
             type: PoolShapeTypes.HORIZONTAL_SWIMLANE,
-            // Intentionally partial: the height comes from the inherited defaults
+            // The width is a seed only — the pool sets it to its own. The
+            // height is what a new lane is created at.
             size: {
-                width: SWIMLANE_HEADER_SIZE
+                width: SWIMLANE_HEADER_SIZE,
+                height: DEFAULT_LANE_HEIGHT
             } as dia.Size,
             attrs: {
                 root: {
@@ -273,7 +298,7 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
                 },
                 body: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
@@ -331,12 +356,22 @@ export class HorizontalSwimlane extends shapes.bpmn2.HorizontalSwimlane implemen
     }
 }
 
-export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements AppElement {
+export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements BpmnElement {
 
     static label = PoolLabels['pool.VerticalSwimlane'];
 
     isResizable = true;
     labelPath = 'headerText/text';
+
+    /**
+     * The lane's name, or its pool's when the lane has none — lanes are
+     * commonly left unnamed, with the pool carrying the participant name.
+     */
+    getLabelText(): string {
+        const pool = this.getParentCell() as BpmnPool | null;
+        return this.attr(this.labelPath) || pool?.getLabelText?.() || '';
+    }
+
     omitDefaultHaloHandles = true;
 
     defaults(): dia.Element.Attributes {
@@ -344,8 +379,11 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
             shapeType: ShapeTypes.SWIMLANE,
             type: PoolShapeTypes.VERTICAL_SWIMLANE,
             // Intentionally partial: the width comes from the inherited defaults
+            // The height is a seed only — the pool sets it to its own. The
+            // width is what a new lane is created at.
             size: {
-                height: SWIMLANE_HEADER_SIZE
+                height: SWIMLANE_HEADER_SIZE,
+                width: DEFAULT_LANE_WIDTH
             } as dia.Size,
             attrs: {
                 root: {
@@ -359,7 +397,7 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
                 },
                 body: {
                     fill: 'var(--bpmn-palette-surface)',
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 headerText: {
                     ...defaultAttrs.shapeLabel,
@@ -421,3 +459,8 @@ export class VerticalSwimlane extends shapes.bpmn2.VerticalSwimlane implements A
 export const pool = {
     HorizontalPool, VerticalPool, HorizontalSwimlane, VerticalSwimlane
 };
+
+/** The app's pool classes — what `isPool()` narrows to. */
+export type BpmnPool = HorizontalPool | VerticalPool;
+/** The app's swimlane classes — what `isSwimlane()` narrows to. */
+export type BpmnSwimlane = HorizontalSwimlane | VerticalSwimlane;

@@ -4,7 +4,7 @@ import { prepareLinkReplacement, isSwimlane } from '../utils';
 import { onSwimlaneDrag, onSwimlaneDragEnd, onSwimlaneDragStart } from '../dnd/swimlanes';
 import { onElementDrag, onElementDragEnd, onElementDragStart } from '../dnd/elements';
 
-import type { AppLink } from '../shapes/shapes-typing';
+import type { BpmnLink } from '../shapes/shapes-typing';
 
 // Editing interactions: element drag routing (swimlanes vs regular elements),
 // the inline label editor and link replacement on connect.
@@ -74,7 +74,7 @@ export function useEditInteractions() {
 
             graph.startBatch(batchName);
 
-            const replacementLink = prepareLinkReplacement(model as AppLink);
+            const replacementLink = prepareLinkReplacement(model as BpmnLink);
             graph.syncCells([replacementLink], { async: false });
 
             graph.stopBatch(batchName);

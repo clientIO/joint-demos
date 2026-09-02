@@ -6,9 +6,9 @@ import { AnnotationShapeTypes } from '../annotation/annotation-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
 
 import type { dia } from '@joint/plus';
-import type { AppLink, LinkContextMenuAction } from '../shapes-typing';
+import type { BpmnLink, LinkContextMenuAction } from '../shapes-typing';
 
-abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
+abstract class Flow extends shapes.bpmn2.Flow implements BpmnLink {
 
     // The shape name (set by each concrete subclass). Typing the constructor
     // makes the static reachable from instance methods (\`defaults()\`).
@@ -42,7 +42,7 @@ abstract class Flow extends shapes.bpmn2.Flow implements AppLink {
                     ariaLabel: this.constructor.label
                 },
                 line: {
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 }
             }
         };

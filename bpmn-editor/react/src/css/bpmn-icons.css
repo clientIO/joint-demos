@@ -317,4 +317,18 @@ span[class^="jj-bpmn-icon-"] {
     &.jj-bpmn-icon-group::before {
         content: '\e085';
     }
+
+    /* Pools and lanes */
+
+    &.jj-bpmn-icon-horizontal-pool::before {
+        content: '\e124';
+    }
+
+    &.jj-bpmn-icon-vertical-pool::before {
+        content: '\e126';
+    }
+
+    &.jj-bpmn-icon-horizontal-swimlane::before {
+        content: '\e123';
+    }
 }

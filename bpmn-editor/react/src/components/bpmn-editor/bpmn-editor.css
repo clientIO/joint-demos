@@ -25,6 +25,18 @@
             overflow: hidden;
             position: relative;
 
+            /* The focus ring for the canvas. It sits on this container, which
+               does not scroll, and as an overlay rather than an outline so it
+               paints above the sheet — the scroller's own background would
+               otherwise cover it. */
+            &:has(.jj-paper-scroller:focus-visible)::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border: 2px solid var(--bpmn-selector);
+                pointer-events: none;
+            }
+
             .jj-paper-scroller[data-cursor="crosshair"] .joint-cell {
                 cursor: crosshair;
             }
@@ -40,17 +52,4 @@
             }
         }
     }
-}
-
-/* The bpmn2 icons and markers are monochrome #333 images — the color is
-   baked into their data-URIs, so it cannot follow the CSS variables.
-   Approximate the ink color in the dark theme with a filter.
-   TODO: remove when the icons support external coloring (context-fill). */
-:root[data-theme='dark'] .bpmn-editor image[data-icon-type] {
-    filter: invert(0.82);
-}
-
-/* Keep the gateway icons dark — they sit on the warning-colored body. */
-:root[data-theme='dark'] .bpmn-editor [data-type^='gateway'] image[data-icon-type] {
-    filter: none;
 }

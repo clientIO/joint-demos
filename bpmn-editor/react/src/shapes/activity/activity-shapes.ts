@@ -1,5 +1,5 @@
 import { type g, shapes, util, V } from '@joint/plus';
-import { activityIconClasses, ActivityLabels, ActivityShapeTypes, activityAppearanceConfig } from './activity-config';
+import { activityIconClasses, ActivityLabels, ActivityShapeTypes, activityAppearanceConfig, DEFAULT_ACTIVITY_SIZE } from './activity-config';
 import { MarkerNames, ShapeTypes } from '../shapes-typing';
 import { DataShapeTypes } from '../data/data-config';
 import { GatewayShapeTypes } from '../gateway/gateway-config';
@@ -11,9 +11,9 @@ import { handles } from '../../configs/halo-config';
 import { isPoolShared, getPoolParent, isSwimlane } from '../../utils';
 
 import type { dia } from '@joint/plus';
-import type { AppElement, Marker } from '../shapes-typing';
+import type { BpmnElement, Marker } from '../shapes-typing';
 
-export abstract class Activity extends shapes.bpmn2.Activity implements AppElement {
+export abstract class Activity extends shapes.bpmn2.Activity implements BpmnElement {
 
     // The shape name (set by each concrete subclass). Typing the constructor
     // makes the static reachable from instance methods (\`defaults()\`).
@@ -26,7 +26,7 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
     defaults(): dia.Element.Attributes {
         const attributes: dia.Element.Attributes = {
             shapeType: ShapeTypes.ACTIVITY,
-            size: { width: 100, height: 80 },
+            size: { ...DEFAULT_ACTIVITY_SIZE },
             markers: [] as MarkerNames[],
             attrs: {
                 root: {
@@ -39,7 +39,7 @@ export abstract class Activity extends shapes.bpmn2.Activity implements AppEleme
                     fill: 'var(--bpmn-palette-surface)'
                 },
                 border: {
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,

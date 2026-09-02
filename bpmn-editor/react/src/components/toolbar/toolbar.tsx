@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useGraph, usePaper, useGraphHistory, useGraphHistoryStack } from '@joint/react-plus';
-import { Undo2, Redo2, Printer, Sun, Moon } from 'lucide-react';
-import { printDiagram, exportPNG, downloadJSON, downloadXML } from '../../actions/export-actions';
+import { useGraph, usePaper, useGraphHistory, useGraphHistoryStack, useOnKeyboardEvents } from '@joint/react-plus';
+import { Undo2, Redo2, Printer, Sun, Moon, Keyboard } from 'lucide-react';
+import { printDiagram, exportPNG, downloadJSON, downloadXML } from '../../actions/export';
 import { FileDropdown } from './file-dropdown';
 import { ExportDialog } from '../export-dialog/export-dialog';
+import { ShortcutsDialog } from '../shortcuts-dialog/shortcuts-dialog';
 import { Tip } from '../tooltip/tooltip';
 import './toolbar.css';
 
@@ -20,6 +21,7 @@ export function Toolbar() {
 
     const [exportedPNG, setExportedPNG] = useState<string | null>(null);
     const [isDark, setIsDark] = useState(false);
+    const [showShortcuts, setShowShortcuts] = useState(false);
 
     const toggleTheme = () => {
         const dark = !isDark;
@@ -28,6 +30,14 @@ export function Toolbar() {
         // because parts of the UI render in portals outside of the editor.
         document.documentElement.dataset.theme = dark ? 'dark' : '';
     };
+
+    // `F1` is the platform's help key, and the shortcut list is the help.
+    useOnKeyboardEvents({
+        'F1': (evt) => {
+            evt.preventDefault();
+            setShowShortcuts(true);
+        }
+    });
 
     const onSavePNG = async() => {
         if (!paper) return;
@@ -43,6 +53,7 @@ export function Toolbar() {
                     <button
                         type="button"
                         className="toolbar-button toolbar-icon-button"
+                        aria-label="Undo"
                         disabled={!canUndo}
                         onClick={undo}
                     >
@@ -53,6 +64,7 @@ export function Toolbar() {
                     <button
                         type="button"
                         className="toolbar-button toolbar-icon-button"
+                        aria-label="Redo"
                         disabled={!canRedo}
                         onClick={redo}
                     >
@@ -64,24 +76,43 @@ export function Toolbar() {
                     <button
                         type="button"
                         className="toolbar-button toolbar-icon-button"
+                        aria-label="Print"
                         onClick={() => paper && printDiagram(paper)}
                     >
                         <Printer size={18} />
                     </button>
                 </Tip>
-                <div className="toolbar-separator" />
-                <Tip label={isDark ? 'Light theme' : 'Dark theme'} side="bottom">
+                <Tip label="Keyboard shortcuts" side="bottom">
                     <button
                         type="button"
                         className="toolbar-button toolbar-icon-button"
+                        aria-label="Keyboard shortcuts"
+                        aria-haspopup="dialog"
+                        onClick={() => setShowShortcuts(true)}
+                    >
+                        <Keyboard size={18} />
+                    </button>
+                </Tip>
+                <div className="toolbar-separator" />
+                {/* The toggle keeps ONE name ("Dark theme") — the on/off
+                    state is aria-pressed. A name that flips with the state
+                    breaks voice-control targeting (WCAG 2.5.3). */}
+                <Tip label="Dark theme" side="bottom">
+                    <button
+                        type="button"
+                        className="toolbar-button toolbar-icon-button"
+                        aria-label="Dark theme"
+                        aria-pressed={isDark}
                         onClick={toggleTheme}
                     >
                         {isDark ? <Sun size={18} /> : <Moon size={18} />}
                     </button>
                 </Tip>
             </div>
-            <div className="toolbar-group toolbar-group-right">
-                <span className="toolbar-label">Save as:</span>
+            {/* The visible "Save as:" prefix reaches AT through the group
+                label, so each button announces as e.g. "PNG, Save as, group". */}
+            <div className="toolbar-group toolbar-group-right" role="group" aria-label="Save as">
+                <span className="toolbar-label" aria-hidden="true">Save as:</span>
                 <button
                     type="button"
                     className="toolbar-button toolbar-save-button"
@@ -106,6 +137,9 @@ export function Toolbar() {
             </div>
             {exportedPNG && (
                 <ExportDialog dataUrl={exportedPNG} onClose={() => setExportedPNG(null)} />
+            )}
+            {showShortcuts && (
+                <ShortcutsDialog onClose={() => setShowShortcuts(false)} />
             )}
         </div>
     );

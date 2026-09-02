@@ -1,17 +1,18 @@
 import { type g, shapes, util, V } from '@joint/plus';
 import { ShapeTypes } from '../shapes-typing';
-import { annotationAppearanceConfig, annotationLinkAppearanceConfig, AnnotationLabels, AnnotationShapeTypes } from './annotation-config';
+import { annotationAppearanceConfig, annotationIconClasses, annotationLinkAppearanceConfig, AnnotationLabels, AnnotationShapeTypes } from './annotation-config';
 import { defaultAttrs, labelEditorWrapperStyles } from '../shared-config';
 import { handles } from '../../configs/halo-config';
 import { constructLinkTools } from '../../configs/link-tools-config';
 import { getPoolParent, isSwimlane } from '../../utils';
 
 import type { dia } from '@joint/plus';
-import type { AppElement, AppLink, LinkContextMenuAction } from '../shapes-typing';
+import type { BpmnElement, BpmnLink, LinkContextMenuAction } from '../shapes-typing';
 
-export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
+export class Annotation extends shapes.bpmn2.Annotation implements BpmnElement {
 
     static label = AnnotationLabels['annotation.Annotation'];
+    static icon = annotationIconClasses.ANNOTATION;
 
     public readonly isResizable = true;
     public readonly labelPath = 'label/text';
@@ -27,7 +28,7 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
                     ariaLabel: Annotation.label
                 },
                 border: {
-                    stroke: 'var(--bpmn-palette-outline)'
+                    stroke: 'var(--bpmn-palette-ink)'
                 },
                 label: {
                     ...defaultAttrs.shapeLabel,
@@ -144,7 +145,7 @@ export class Annotation extends shapes.bpmn2.Annotation implements AppElement {
     }
 }
 
-export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements AppLink {
+export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements BpmnLink {
 
     static label = AnnotationLabels['annotation.AnnotationLink'];
 
@@ -157,6 +158,12 @@ export class AnnotationLink extends shapes.bpmn2.AnnotationLink implements AppLi
                     tabindex: 0,
                     role: 'graphics-symbol',
                     ariaLabel: AnnotationLink.label
+                },
+                // The library paints the line `#333333`, which is invisible
+                // on a dark canvas. The sequence flows already take the
+                // theme's outline colour; this is the same line.
+                line: {
+                    stroke: 'var(--bpmn-palette-ink)'
                 }
             }
         };
