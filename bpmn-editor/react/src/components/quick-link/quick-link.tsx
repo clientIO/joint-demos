@@ -3,44 +3,11 @@ import { useGraph, usePaper, usePaperScroller, useSelectionCollection, useOnKeyb
 import { addEffect, removeEffect, EffectType } from '../../effects';
 import { getShapeMeta } from '../../shapes/create-shape';
 import { Sequence } from '../../shapes/flow/flow-shapes';
-import { isSwimlane, prepareLinkReplacement, focusCell } from '../../utils';
+import { getLinkTargets, isSwimlane, prepareLinkReplacement, focusCell } from '../../utils';
 import { ShapePicker, PickerOverlay, type PickerItem } from '../shape-picker/shape-picker';
 
 import type { dia } from '@joint/plus';
-import { ShapeTypes, type BpmnElement, type BpmnLink, type BpmnShape } from '../../shapes/shapes-typing';
-
-// Annotations, groups and pools go after the flow shapes: an annotation or
-// a group is an artifact and a pool is the participant a shape already sits
-// in, so all three are the rarer choice — the list leads with what is
-// usually wanted.
-const TRAILING_TYPES = [ShapeTypes.ANNOTATION, ShapeTypes.GROUP, ShapeTypes.POOL];
-
-const rank = (element: BpmnElement) => {
-    const at = TRAILING_TYPES.indexOf(element.get('shapeType'));
-    return at === -1 ? 0 : at + 1;
-};
-
-/**
- * The shapes the source may legally connect to, in the order they read on
- * screen. The rule is the shape's own `validateConnection()` — the same one
- * the pointer path enforces through `bpmnValidateConnection`, so the
- * keyboard cannot draw a link the mouse would refuse.
- */
-function getLinkTargets(graph: dia.Graph, source: BpmnElement): BpmnElement[] {
-    return graph.getElements()
-        // Pools are valid ends — a message flow runs between participants.
-        // Lanes are not: their `validateConnection()` refuses outright.
-        .filter((element): element is BpmnElement => element !== source && !isSwimlane(element))
-        .filter((element) => (source as BpmnShape).validateConnection(element))
-        .sort((a, b) => {
-            const byKind = rank(a) - rank(b);
-            if (byKind !== 0) return byKind;
-
-            const from = a.position();
-            const to = b.position();
-            return from.x - to.x || from.y - to.y;
-        });
-}
+import type { BpmnElement, BpmnLink } from '../../shapes/shapes-typing';
 
 // A shape reads as its own name where it has one, and as its kind where it
 // does not — "Pays 15" rather than "Task", but "Task" rather than nothing.

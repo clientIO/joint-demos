@@ -3,10 +3,10 @@ import { PlaceholderShapeTypes, linkTypeConstructors } from '../shapes/link-conf
 import { DataShapeTypes } from '../shapes/data/data-config';
 import { AnnotationShapeTypes } from '../shapes/annotation/annotation-config';
 import { FlowShapeTypes } from '../shapes/flow/flow-config';
-import { isPoolShared } from '.';
+import { isPoolShared, isSwimlane } from '.';
 
 import type { dia } from '@joint/plus';
-import type { BpmnLink, BpmnShape, LinkType } from '../shapes/shapes-typing';
+import type { BpmnElement, BpmnLink, BpmnShape, LinkType } from '../shapes/shapes-typing';
 
 const DEFAULT_LINK_STROKE = 'var(--bpmn-link)';
 
@@ -95,4 +95,37 @@ export function validateAndReplaceConnections(cell: dia.Cell, graph: dia.Graph) 
     });
 
     graph.syncCells(replacements);
+}
+
+// Annotations, groups and pools go after the flow shapes: an annotation or
+// a group is an artifact and a pool is the participant a shape already sits
+// in, so all three are the rarer choice — the list leads with what is
+// usually wanted.
+const TRAILING_TYPES = [ShapeTypes.ANNOTATION, ShapeTypes.GROUP, ShapeTypes.POOL];
+
+const rank = (element: BpmnElement) => {
+    const at = TRAILING_TYPES.indexOf(element.get('shapeType'));
+    return at === -1 ? 0 : at + 1;
+};
+
+/**
+ * The shapes the source may legally connect to, in the order they read on
+ * screen. The rule is the shape's own `validateConnection()` — the same one
+ * the pointer path enforces through `bpmnValidateConnection`, so the
+ * keyboard cannot draw a link the mouse would refuse.
+ */
+export function getLinkTargets(graph: dia.Graph, source: BpmnElement): BpmnElement[] {
+    return graph.getElements()
+        // Pools are valid ends — a message flow runs between participants.
+        // Lanes are not: their `validateConnection()` refuses outright.
+        .filter((element): element is BpmnElement => element !== source && !isSwimlane(element))
+        .filter((element) => (source as BpmnShape).validateConnection(element))
+        .sort((a, b) => {
+            const byKind = rank(a) - rank(b);
+            if (byKind !== 0) return byKind;
+
+            const from = a.position();
+            const to = b.position();
+            return from.x - to.x || from.y - to.y;
+        });
 }
