@@ -51,31 +51,14 @@ export function findDropPool(graph: dia.Graph, selection: dia.Cell[], point: g.P
  */
 export function onPoolDragStart(paper: dia.Paper, poolView: dia.ElementView, evt: EditorEvent, _x: number, _y: number) {
 
-    const graph = paper.model;
-    // Elements that are required to be encapsulated by the pool
-    const elements = graph.getElements();
-    // Graph includes some elements and there are no pools in the graph
-    const boundaryCheckRequired = elements.length > 0 && elements.every((element) => !isPool(element));
-
-    if (!boundaryCheckRequired) return;
-
     const pool = poolView.model as HorizontalPool;
-    const contentMargin = pool.getContentMargin();
 
-    const poolBoundaryElements = elements.filter(isPoolBoundaryRequired);
+    const content = sizePoolToContent(paper.model, pool);
+    // Nothing to wrap: the pool is dragged at its own size and the drag needs
+    // no preview to constrain.
+    if (!content) return;
 
-    const { moveAndExpandArgs, boundary: dimensions, sizeDiff } = calculatePoolDimensions(pool);
-
-    // Inflate the graph boundary to account for the content margin and mandatory swimlane header size
-    const graphBBox = graph.getCellsBBox(poolBoundaryElements)?.inflate(contentMargin).moveAndExpand(moveAndExpandArgs);
-    const poolDimensions = new g.Rect(
-        0,
-        0,
-        Math.max(graphBBox?.width ?? 0, dimensions.width),
-        Math.max(graphBBox?.height ?? 0, dimensions.height)
-    );
-
-    pool.size(poolDimensions.width + sizeDiff.width, poolDimensions.height + sizeDiff.height);
+    const { graphBBox, poolDimensions } = content;
 
     const { node } = constructPoolPreview(pool, poolDimensions);
 
@@ -90,7 +73,7 @@ export function onPoolDragStart(paper: dia.Paper, poolView: dia.ElementView, evt
 
     evt.data.poolPreview = {
         node,
-        graphBBox: graphBBox ?? null,
+        graphBBox,
         poolDimensions,
     };
 
@@ -228,16 +211,19 @@ export function placePoolAt(
  */
 export function dropPoolAt(graph: dia.Graph, pool: HorizontalPool | VerticalPool, x: number, y: number) {
 
-    const elements = graph.getElements();
-    const wrapContent = elements.length > 0 && elements.every((element) => !isPool(element));
+    // Sized before the pool is added, so it is not counted as the pool whose
+    // presence makes the wrap unnecessary.
+    const content = sizePoolToContent(graph, pool);
 
     const swimlane = pool.isHorizontal() ? new HorizontalSwimlane() : new VerticalSwimlane();
 
     graph.addCell(pool);
     pool.addSwimlane(swimlane);
 
-    if (!wrapContent) {
-        // Pools already exist (or the graph is empty) — nothing to embed.
+    if (!content) {
+        // Nothing to wrap, so the pool lands where it was asked for. It cannot
+        // go through `placePoolAt()`: that embeds every loose element, and a
+        // second pool would take the first one's shapes with it.
         let dx = 0;
         let dy = 0;
         if (pool.isHorizontal()) {
@@ -250,11 +236,35 @@ export function dropPoolAt(graph: dia.Graph, pool: HorizontalPool | VerticalPool
         return;
     }
 
-    // First pool: size it to the diagram content (same math as the pointer
-    // drag preview) and finalize over the content's bounding box.
+    // The first pool: over the content it now holds, at the size it was given.
+    const { graphBBox } = content;
+    placePoolAt(graph, pool, swimlane, graphBBox?.x ?? x, graphBBox?.y ?? y);
+}
+
+
+// helpers
+
+/**
+ * Sizes a new pool to hold the loose diagram content, which the first pool
+ * must contain, and reports the box it has to cover. `null` where there is
+ * nothing to wrap — an empty diagram, or one that already has a pool, whose
+ * content is not the new pool's business.
+ *
+ * The pointer drag builds its preview from these dimensions and keeps the
+ * pool over the box while it moves; the keyboard drop, which has neither a
+ * preview nor a pointer, drops the pool on the box directly.
+ */
+function sizePoolToContent(graph: dia.Graph, pool: HorizontalPool | VerticalPool) {
+
+    const elements = graph.getElements();
+    if (elements.length === 0 || elements.some(isPool)) return null;
+
     const contentMargin = pool.getContentMargin();
     const poolBoundaryElements = elements.filter(isPoolBoundaryRequired);
+
     const { moveAndExpandArgs, boundary: dimensions, sizeDiff } = calculatePoolDimensions(pool);
+
+    // Inflate the graph boundary to account for the content margin and mandatory swimlane header size
     const graphBBox = graph.getCellsBBox(poolBoundaryElements)?.inflate(contentMargin).moveAndExpand(moveAndExpandArgs);
     const poolDimensions = new g.Rect(
         0,
@@ -264,10 +274,9 @@ export function dropPoolAt(graph: dia.Graph, pool: HorizontalPool | VerticalPool
     );
 
     pool.size(poolDimensions.width + sizeDiff.width, poolDimensions.height + sizeDiff.height);
-    placePoolAt(graph, pool, swimlane, graphBBox?.x ?? x, graphBBox?.y ?? y);
-}
 
-// helpers
+    return { graphBBox: graphBBox ?? null, poolDimensions };
+}
 
 function calculatePoolDimensions(pool: HorizontalPool | VerticalPool) {
 
