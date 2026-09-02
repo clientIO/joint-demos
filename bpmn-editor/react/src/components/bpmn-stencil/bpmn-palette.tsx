@@ -1,8 +1,8 @@
 import { useGraph, usePaperScroller, useSelectionCollection, useStencil } from '@joint/react-plus';
 import { stencilPaletteItems, type StencilPaletteItem } from '../../configs/stencil-config';
-import { dropPoolAt } from '../../dnd/pools';
-import { insertSwimlaneIntoPool } from '../../dnd/swimlanes';
-import { addElementToSwimlane } from '../../dnd/elements';
+import { dropPoolAt } from '../../actions/place-pool';
+import { insertSwimlaneIntoPool } from '../../actions/insert-swimlane';
+import { addElementToSwimlane } from '../../actions/add-element';
 import { createShape, getShapeMeta } from '../../shapes/create-shape';
 import { isPool, isSwimlane } from '../../utils';
 import { useTargetAim, isAimKey, type AimKind } from '../../hooks/use-target-aim';

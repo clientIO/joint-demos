@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useGraph, usePaper, usePaperScroller, useSelectionCollection, useOnKeyboardEvents } from '@joint/react-plus';
 import { stencilPaletteItems } from '../../configs/stencil-config';
-import { addElementToSwimlane } from '../../dnd/elements';
+import { addElementToSwimlane } from '../../actions/add-element';
 import { ShapePicker, PickerOverlay, type PickerItem } from '../shape-picker/shape-picker';
-import { insertSwimlaneIntoPool } from '../../dnd/swimlanes';
+import { insertSwimlaneIntoPool } from '../../actions/insert-swimlane';
 import { createShape, getShapeMeta } from '../../shapes/create-shape';
 import { Sequence } from '../../shapes/flow/flow-shapes';
 import { findFreeSpotBeside, getPoolParent, getSwimlaneParent, isPool, isSwimlane, prepareLinkReplacement, focusCell, type Direction } from '../../utils';

@@ -1,7 +1,8 @@
 import { g } from '@joint/plus';
-import { getPoolParent, getSwimlaneParent, isPool, isSwimlane } from './elements';
+import { getPoolParent, getSwimlaneParent, isGroup, isPool, isSwimlane } from './elements';
+import { DEFAULT_HORIZONTAL_POOL_SIZE, DEFAULT_VERTICAL_POOL_SIZE, SWIMLANE_HEADER_SIZE } from '../shapes/pool/pool-config';
 
-import type { dia } from '@joint/plus';
+import type { dia, shapes } from '@joint/plus';
 import type { BpmnPool, BpmnSwimlane } from '../shapes/pool/pool-shapes';
 
 export type Direction = 'right' | 'left' | 'down' | 'up';
@@ -115,4 +116,153 @@ export function findFreeSpotBeside(
 
     // The centre, which is what the callers position from.
     return { x: x + size.width / 2, y: y + size.height / 2 };
+}
+
+/**
+ * Where to put a shape of `size` inside the lane: as close to `preferred`
+ * as the lane allows, so it lands on screen but never outside its parent.
+ */
+export function getPositionInSwimlane(lane: BpmnSwimlane, size: dia.Size, preferred: g.PlainPoint) {
+
+    const bbox = lane.getBBox().moveAndExpand({
+        x: lane.getHeaderSize(),
+        y: 0,
+        width: -lane.getHeaderSize(),
+        height: 0
+    });
+    const margin = lane.getContentMargin();
+
+    // The lane can be smaller than the shape plus its margins.
+    const maxX = Math.max(bbox.x, bbox.x + bbox.width - size.width - margin);
+    const maxY = Math.max(bbox.y, bbox.y + bbox.height - size.height - margin);
+
+    return {
+        x: Math.min(Math.max(preferred.x - size.width / 2, bbox.x + margin), maxX),
+        y: Math.min(Math.max(preferred.y - size.height / 2, bbox.y + margin), maxY)
+    };
+}
+
+/**
+ * The top-most pool under the point, or `null` where there is none. Top-most
+ * by `z`: pools can overlap, and the one drawn last is the one the pointer is
+ * pointing at.
+ */
+export function findPoolViewAtPoint(paper: dia.Paper, point: g.PlainPoint): dia.ElementView<shapes.bpmn2.CompositePool> | null {
+
+    const views = paper.findElementViewsAtPoint(point)
+        .sort((a, b) => (b.model.get('z') ?? 0) - (a.model.get('z') ?? 0));
+
+    return (views.find((view) => isPool(view.model)) ?? null) as dia.ElementView<shapes.bpmn2.CompositePool> | null;
+}
+
+/**
+ * Whether the lane can leave the pool it is in: a pool must keep one.
+ */
+export function canMoveSwimlane(swimlane: shapes.bpmn2.Swimlane): boolean {
+    const pool = swimlane.getParentCell() as shapes.bpmn2.CompositePool;
+    return pool.getSwimlanes().length > 1;
+}
+
+/**
+ * Sizes a new pool to hold the loose diagram content, which the first pool
+ * must contain, and reports the box it has to cover. `null` where there is
+ * nothing to wrap — an empty diagram, or one that already has a pool, whose
+ * content is not the new pool's business.
+ *
+ * The pointer drag builds its preview from these dimensions and keeps the
+ * pool over the box while it moves; the keyboard drop, which has neither a
+ * preview nor a pointer, drops the pool on the box directly.
+ */
+export function sizePoolToContent(graph: dia.Graph, pool: BpmnPool) {
+
+    const elements = graph.getElements();
+    if (elements.length === 0 || elements.some(isPool)) return null;
+
+    const contentMargin = pool.getContentMargin();
+    const poolBoundaryElements = elements.filter(isPoolBoundaryRequired);
+
+    const { moveAndExpandArgs, boundary: dimensions, sizeDiff } = calculatePoolDimensions(pool);
+
+    // Inflate the graph boundary to account for the content margin and mandatory swimlane header size
+    const graphBBox = graph.getCellsBBox(poolBoundaryElements)?.inflate(contentMargin).moveAndExpand(moveAndExpandArgs);
+    const poolDimensions = new g.Rect(
+        0,
+        0,
+        Math.max(graphBBox?.width ?? 0, dimensions.width),
+        Math.max(graphBBox?.height ?? 0, dimensions.height)
+    );
+
+    pool.size(poolDimensions.width + sizeDiff.width, poolDimensions.height + sizeDiff.height);
+
+    return { graphBBox: graphBBox ?? null, poolDimensions };
+}
+
+export function isPoolBoundaryRequired(element: dia.Element) {
+    return !(isPool(element) || isSwimlane(element) || isGroup(element));
+}
+
+export function getClampedPoolPosition(encapsulatedBoundary: g.Rect, poolDimensions: g.Rect): { x: number, y: number } {
+
+    const maxX = encapsulatedBoundary.x + encapsulatedBoundary.width - poolDimensions.width;
+    const maxY = encapsulatedBoundary.y + encapsulatedBoundary.height - poolDimensions.height;
+
+    if (!poolDimensions.containsRect(encapsulatedBoundary)) {
+        const x = Math.min(encapsulatedBoundary.x, Math.max(poolDimensions.x, maxX));
+        const y = Math.min(encapsulatedBoundary.y, Math.max(poolDimensions.y, maxY));
+
+        // Return the capped position
+        return {
+            x,
+            y,
+        };
+    }
+
+    // Return the original position
+    return {
+        x: poolDimensions.x,
+        y: poolDimensions.y,
+    };
+}
+
+function calculatePoolDimensions(pool: BpmnPool) {
+
+    const poolHeaderSize = pool.getHeaderSize();
+    const offset = -poolHeaderSize - SWIMLANE_HEADER_SIZE;
+
+    if (pool.isHorizontal()) {
+
+        return {
+            moveAndExpandArgs: {
+                x: offset,
+                y: 0,
+                width: SWIMLANE_HEADER_SIZE,
+                height: 0
+            },
+            boundary: {
+                width: DEFAULT_HORIZONTAL_POOL_SIZE.width - poolHeaderSize,
+                height: DEFAULT_HORIZONTAL_POOL_SIZE.height,
+            },
+            sizeDiff: {
+                width: poolHeaderSize,
+                height: 0,
+            }
+        };
+    }
+
+    return {
+        moveAndExpandArgs: {
+            x: 0,
+            y: offset,
+            width: 0,
+            height: SWIMLANE_HEADER_SIZE
+        },
+        boundary: {
+            width: DEFAULT_VERTICAL_POOL_SIZE.width,
+            height: DEFAULT_VERTICAL_POOL_SIZE.height - poolHeaderSize,
+        },
+        sizeDiff: {
+            width: 0,
+            height: poolHeaderSize,
+        }
+    };
 }
