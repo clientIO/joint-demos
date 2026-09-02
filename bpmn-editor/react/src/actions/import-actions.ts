@@ -1,6 +1,9 @@
 import { fromBPMN } from '@joint/format-bpmn-import';
 import { bpmnImportOptions } from '../shapes/factories';
-import { importBPMN } from '../utils';
+import { SubProcess, EventSubProcess } from '../shapes/activity/activity-shapes';
+import { IntermediateBoundary } from '../shapes/event/event-shapes';
+import { HorizontalSwimlane, VerticalSwimlane } from '../shapes/pool/pool-shapes';
+import { isPool } from '../utils';
 import { fitDiagramToViewport } from './fit-diagram';
 
 import type { ui } from '@joint/plus';
@@ -46,53 +49,66 @@ export async function importFile(paperScroller: ui.PaperScroller, commandManager
 }
 
 /**
- * Imports a file dropped onto the paper, showing the drop overlay while a
- * file is dragged over. Returns a cleanup function.
+ * Loads imported cells into the graph, normalizing the structure (unembeds
+ * sub-process children, gives empty pools a swimlane, brings boundary events
+ * to front).
  */
-export function setupFileImport(paperScroller: ui.PaperScroller, commandManager: dia.CommandManager, overlayEl: HTMLElement): () => void {
-    const controller = new AbortController();
-    const { signal } = controller;
+function importBPMN(graph: dia.Graph, cells: dia.Cell[]): void {
+    const batchName = 'import-bpmn';
 
-    function dropHandler(evt: DragEvent) {
-        overlayEl.classList.remove('active');
-        paperScroller.unlock();
-        // Prevent default behavior (Prevent file from being opened)
-        evt.preventDefault();
+    graph.startBatch(batchName);
 
-        let file: File | undefined;
-        if (evt.dataTransfer?.items) {
-            // Use DataTransferItemList interface to access the file(s)
-            const item = Array.from(evt.dataTransfer.items).find((item) => item.kind === 'file');
-            if (item) {
-                file = item.getAsFile() ?? undefined;
-            }
-        } else if (evt.dataTransfer?.files.length) {
-            // Use DataTransfer interface to access the file(s)
-            file = evt.dataTransfer.files[0];
+    // Process cells before adding them to the graph
+    const processedCells: dia.Cell[] = [];
+
+    // First pass: process all cells (snap to grid, handle embedding)
+    for (const cell of cells) {
+
+        const parentId = cell.parent();
+        const parent = cells.find((c) => c.id === parentId);
+        const isParentSubProcess = parent instanceof SubProcess || parent instanceof EventSubProcess;
+
+        // Skip cells that are embedded into a SubProcess or EventSubProcess
+        if (isParentSubProcess && !(cell instanceof IntermediateBoundary)) {
+            parent.unembed(cell);
+            continue;
         }
 
-        if (!file) return;
-
-        importFile(paperScroller, commandManager, file);
+        processedCells.push(cell);
     }
 
-    function dragOverHandler(evt: DragEvent) {
-        overlayEl.classList.add('active');
-        // Prevent default behavior (Prevent file from being opened)
-        evt.preventDefault();
-        paperScroller.lock();
-    }
+    // Reset the graph with all processed cells at once
+    graph.resetCells(processedCells);
 
-    function dragLeaveHandler() {
-        overlayEl.classList.remove('active');
-        paperScroller.unlock();
-    }
+    // Second pass: handle pools and swimlanes
+    const pools = processedCells.filter(isPool);
 
-    // Add event listeners with the AbortSignal
-    paperScroller.el.addEventListener('drop', dropHandler, { signal });
-    paperScroller.el.addEventListener('dragover', dragOverHandler, { signal });
-    paperScroller.el.addEventListener('dragleave', dragLeaveHandler, { signal });
+    pools.forEach((pool) => {
+        if (pool.getSwimlanes().length === 0) {
+            const attrs = {
+                // Set the header text to an empty string to avoid the default 'Lane' text
+                headerText: {
+                    text: ''
+                }
+            };
 
-    // Return a cleanup function that aborts the controller
-    return () => controller.abort();
+            const swimlane = pool.isHorizontal() ? new HorizontalSwimlane({ attrs }) : new VerticalSwimlane({ attrs });
+
+            const poolBoundaryCells = pool.getEmbeddedCells();
+            pool.unembed(poolBoundaryCells);
+
+            // Add the swimlane to the pool
+            pool.addSwimlane(swimlane);
+
+            // Re-embed the boundary cells into the swimlane
+            swimlane.embed(poolBoundaryCells);
+        }
+
+        pool.afterSwimlanesEmbedded();
+    });
+
+    const boundaryCells = processedCells.filter((cell) => cell instanceof IntermediateBoundary);
+    boundaryCells.forEach((cell) => cell.toFront());
+
+    graph.stopBatch(batchName);
 }

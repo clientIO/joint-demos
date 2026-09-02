@@ -5,4 +5,3 @@ export * from './links';
 export * from './icon-contrast';
 export * from './navigation';
 export * from './pools';
-export * from './import';

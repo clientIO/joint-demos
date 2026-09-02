@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { usePaperScroller, useGraphHistory } from '@joint/react-plus';
-import { setupFileImport } from '../../actions/import-actions';
+import { importFile } from '../../actions/import-actions';
 import './file-import-overlay.css';
 
 /**
  * Drop overlay shown while a file is dragged over the paper. Owns the
- * drag-and-drop file import: `setupFileImport` attaches the drag listeners
- * and toggles the overlay's `active` class.
+ * drag-and-drop file import: it attaches the drag listeners to the scroller,
+ * toggles its own `active` class and hands the dropped file to `importFile`.
  */
 export function FileImportOverlay() {
 
@@ -19,7 +19,53 @@ export function FileImportOverlay() {
         const overlayEl = overlayRef.current;
         if (!paperScroller || !overlayEl) return;
 
-        return setupFileImport(paperScroller, commandManager, overlayEl);
+        // One signal for all three listeners, so the cleanup is a single abort.
+        const controller = new AbortController();
+        const { signal } = controller;
+
+        // The paper is locked while a file is over it: a drag that pans the
+        // diagram underneath the overlay is not what the drop is for.
+        const onDragOver = (evt: DragEvent) => {
+            overlayEl.classList.add('active');
+            // Prevent default behavior (Prevent file from being opened)
+            evt.preventDefault();
+            paperScroller.lock();
+        };
+
+        const onDragLeave = () => {
+            overlayEl.classList.remove('active');
+            paperScroller.unlock();
+        };
+
+        const onDrop = (evt: DragEvent) => {
+            overlayEl.classList.remove('active');
+            paperScroller.unlock();
+            // Prevent default behavior (Prevent file from being opened)
+            evt.preventDefault();
+
+            let file: File | undefined;
+            if (evt.dataTransfer?.items) {
+                // Use DataTransferItemList interface to access the file(s)
+                const item = Array.from(evt.dataTransfer.items).find((item) => item.kind === 'file');
+                if (item) {
+                    file = item.getAsFile() ?? undefined;
+                }
+            } else if (evt.dataTransfer?.files.length) {
+                // Use DataTransfer interface to access the file(s)
+                file = evt.dataTransfer.files[0];
+            }
+
+            if (!file) return;
+
+            importFile(paperScroller, commandManager, file);
+        };
+
+        const { el } = paperScroller;
+        el.addEventListener('drop', onDrop, { signal });
+        el.addEventListener('dragover', onDragOver, { signal });
+        el.addEventListener('dragleave', onDragLeave, { signal });
+
+        return () => controller.abort();
     }, [paperScroller, commandManager]);
 
     return (
