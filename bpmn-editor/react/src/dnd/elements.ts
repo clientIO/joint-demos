@@ -1,34 +1,12 @@
-import { type dia, g } from '@joint/plus';
+import type { dia, g } from '@joint/plus';
 import type { BpmnSwimlane } from '../shapes/pool/pool-shapes';
 import { addEffect, removeEffect, EffectType } from '../effects';
-import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentBoundary, adjustPoolToContainElement, getSwimlaneParent, isSwimlane, isPool, type EditorEvent } from '../utils';
+import { isStencilEvent, validateAndReplaceConnections, isBoundaryEvent, snapToParentBoundary, adjustPoolToContainElement, isSwimlane, type EditorEvent } from '../utils';
 import { IntermediateBoundary } from '../shapes/event/event-shapes';
 import { replaceShape } from '../actions/replace-shape';
 import { setBoundarySnapActive } from './boundary-snap';
 
 import type { BpmnElement } from '../shapes/shapes-typing';
-
-/**
- * The lane to start aiming from when the palette takes the focus: the lane
- * the selection is in, else the lane under the point, else the first lane.
- * `null` only when the diagram has no lanes at all.
- *
- * This is a seed, not a decision — the arrows step the aim from here and
- * the highlight shows it before anything is added. The selection comes
- * first because it is the one thing that says where the user was working;
- * the point (the middle of the view) is a weaker guess behind it.
- */
-export function findDropSwimlane(graph: dia.Graph, selection: dia.Cell[], point: g.PlainPoint): BpmnSwimlane | null {
-
-    for (const cell of selection) {
-        const lane = isSwimlane(cell) ? cell : getSwimlaneParent(cell);
-        if (lane) return lane;
-    }
-
-    const lanes = graph.getElements().filter(isSwimlane);
-
-    return lanes.find((lane) => lane.getBBox().containsPoint(point)) ?? lanes[0] ?? null;
-}
 
 /**
  * Where to put a shape of `size` inside the lane: as close to `preferred`
@@ -96,62 +74,6 @@ export function addElementToSwimlane(
 }
 
 /** Which way a new neighbour goes from the shape it is added to. */
-export type Direction = 'right' | 'left' | 'down' | 'up';
-
-/**
- * A free spot for a new shape on the given side of `source`, sliding along
- * the other axis until it clears whatever is already there — a fixed offset
- * would drop it on top of the next shape in the flow.
- */
-export function findFreeSpotBeside(
-    graph: dia.Graph,
-    source: dia.Element,
-    size: dia.Size,
-    gap: number,
-    direction: Direction = 'right'
-): g.PlainPoint {
-
-    const bbox = source.getBBox();
-    const horizontal = direction === 'left' || direction === 'right';
-
-    // Fixed on the axis the direction runs along, centred on the other.
-    let x = horizontal
-        ? (direction === 'right' ? bbox.x + bbox.width + gap : bbox.x - gap - size.width)
-        : bbox.x + (bbox.width - size.width) / 2;
-    let y = horizontal
-        ? bbox.y + (bbox.height - size.height) / 2
-        : (direction === 'down' ? bbox.y + bbox.height + gap : bbox.y - gap - size.height);
-
-    // Only what shares the source's lane can be in the way: the neighbour is
-    // embedded in that lane, and the lane grows to hold it, so nothing there
-    // ends up overlapped. Counting another lane's shapes slid the neighbour
-    // past empty space — and where the spot falls outside the lane, another
-    // pool's shapes cannot be avoided by sliding anyway, since the pool
-    // occupies that ground whatever we do. A source outside every lane is
-    // measured against the other loose shapes.
-    const lane = getSwimlaneParent(source);
-    const others = graph.getElements().filter((element) => element !== source
-        && !isSwimlane(element)
-        && !isPool(element)
-        && getSwimlaneParent(element) === lane);
-
-    // Bounded: give up rather than loop if everything around is taken.
-    for (let attempt = 0; attempt < 20; attempt++) {
-        const candidate = new g.Rect(x, y, size.width, size.height).inflate(gap / 2);
-        if (!others.some((element) => candidate.intersect(element.getBBox()))) break;
-
-        // Slide along the axis the direction does not run along.
-        if (horizontal) {
-            y += size.height + gap;
-        } else {
-            x += size.width + gap;
-        }
-    }
-
-    // The centre, which is what the callers position from.
-    return { x: x + size.width / 2, y: y + size.height / 2 };
-}
-
 /**
  * Adds a drop shadow to the dragged element.
  */

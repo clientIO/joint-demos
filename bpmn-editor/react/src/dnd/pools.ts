@@ -3,47 +3,12 @@ import { type HorizontalPool, HorizontalSwimlane, VerticalSwimlane } from '../sh
 import { DEFAULT_HORIZONTAL_POOL_SIZE, DEFAULT_VERTICAL_POOL_SIZE, SWIMLANE_HEADER_SIZE } from '../shapes/pool/pool-config';
 
 import type { dia } from '@joint/plus';
-import type { VerticalPool, BpmnPool } from '../shapes/pool/pool-shapes';
-import { isSwimlane, isPool, isGroup, getPoolParent, type EditorEvent } from '../utils';
+import type { VerticalPool } from '../shapes/pool/pool-shapes';
+import { isSwimlane, isPool, isGroup, type EditorEvent } from '../utils';
 
 const PREVIEW_STROKE = 'var(--bpmn-selector)';
 const PREVIEW_STROKE_WIDTH = 2;
 const PREVIEW_FILL = 'var(--bpmn-palette-surface)';
-
-/**
- * The diagram's pools in the order they read on screen (left to right, then
- * top to bottom), so stepping through them with the keyboard follows what
- * the eye sees rather than the order they were added in.
- */
-export function getPoolsInOrder(graph: dia.Graph): BpmnPool[] {
-    return graph.getElements()
-        .filter(isPool)
-        .sort((a, b) => {
-            const from = a.position();
-            const to = b.position();
-            return from.x - to.x || from.y - to.y;
-        });
-}
-
-/**
- * The pool to start aiming from, the counterpart of `findDropSwimlane()`:
- * the pool the selection is in, else the pool under the point, else the
- * first pool. `null` when the diagram has no pool.
- *
- * Like its counterpart this only seeds the aim — the arrows step it from
- * here, and the insertion preview shows where a lane would land.
- */
-export function findDropPool(graph: dia.Graph, selection: dia.Cell[], point: g.PlainPoint): BpmnPool | null {
-
-    for (const cell of selection) {
-        const pool = isPool(cell) ? cell : getPoolParent(cell);
-        if (pool) return pool;
-    }
-
-    const pools = graph.getElements().filter(isPool);
-
-    return pools.find((pool) => pool.getBBox().containsPoint(point)) ?? pools[0] ?? null;
-}
 
 /**
  * Replaces the dragged pool clone with a lightweight preview rectangle
@@ -155,7 +120,7 @@ export function onPoolDrop(paper: dia.Paper, poolView: dia.ElementView, evt: Edi
  * and its swimlane and embeds the loose diagram content (the pool must
  * contain everything). Shared by the pointer drop and the keyboard path.
  */
-export function placePoolAt(
+function placePoolAt(
     graph: dia.Graph,
     pool: HorizontalPool | VerticalPool,
     swimlane: HorizontalSwimlane | VerticalSwimlane,

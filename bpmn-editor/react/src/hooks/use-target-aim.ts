@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGraph, usePaper, usePaperScroller, useSelectionCollection } from '@joint/react-plus';
 import { addEffect, removeEffect, EffectType } from '../effects';
-import { findDropPool, getPoolsInOrder } from '../dnd/pools';
-import { findDropSwimlane } from '../dnd/elements';
-import { isPool, isSwimlane } from '../utils';
+import { findDropPool, findDropSwimlane, getPoolsInOrder, isPool, isSwimlane } from '../utils';
 
 import type { dia } from '@joint/plus';
 import type { BpmnPool, BpmnSwimlane } from '../shapes/pool/pool-shapes';

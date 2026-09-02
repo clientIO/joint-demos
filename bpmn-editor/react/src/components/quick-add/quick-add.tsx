@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useGraph, usePaper, usePaperScroller, useSelectionCollection, useOnKeyboardEvents } from '@joint/react-plus';
 import { stencilPaletteItems } from '../../configs/stencil-config';
-import { addElementToSwimlane, findFreeSpotBeside, type Direction } from '../../dnd/elements';
+import { addElementToSwimlane } from '../../dnd/elements';
 import { ShapePicker, PickerOverlay, type PickerItem } from '../shape-picker/shape-picker';
 import { insertSwimlaneIntoPool } from '../../dnd/swimlanes';
 import { createShape, getShapeMeta } from '../../shapes/create-shape';
 import { Sequence } from '../../shapes/flow/flow-shapes';
-import { getPoolParent, getSwimlaneParent, isPool, isSwimlane, prepareLinkReplacement, focusCell } from '../../utils';
+import { findFreeSpotBeside, getPoolParent, getSwimlaneParent, isPool, isSwimlane, prepareLinkReplacement, focusCell, type Direction } from '../../utils';
 
 import type { dia, g } from '@joint/plus';
 import type { HaloHandle } from '@joint/react-plus';
