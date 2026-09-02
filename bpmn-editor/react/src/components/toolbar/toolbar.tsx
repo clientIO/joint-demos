@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useGraph, usePaper, useGraphHistory, useGraphHistoryStack, useOnKeyboardEvents } from '@joint/react-plus';
 import { Undo2, Redo2, Printer, Sun, Moon, Keyboard } from 'lucide-react';
-import { printDiagram, exportPNG, downloadJSON, downloadXML } from '../../actions/export-actions';
+import { printDiagram, exportPNG, downloadJSON, downloadXML } from '../../actions/export';
 import { FileDropdown } from './file-dropdown';
 import { ExportDialog } from '../export-dialog/export-dialog';
 import { ShortcutsDialog } from '../shortcuts-dialog/shortcuts-dialog';

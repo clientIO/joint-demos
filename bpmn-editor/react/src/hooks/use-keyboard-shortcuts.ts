@@ -1,6 +1,6 @@
 import { util, type shapes } from '@joint/plus';
 import { usePaper, usePaperScroller, useGraphHistory, useSelectionCollection, useOnKeyboardEvents, useClipboard, type ClipboardApi } from '@joint/react-plus';
-import { printDiagram } from '../actions/export-actions';
+import { printDiagram } from '../actions/export';
 import { openLabelEditor } from '../actions/label-editor';
 import { ZOOM_SETTINGS } from '../configs/paper-config';
 
