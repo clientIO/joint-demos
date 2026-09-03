@@ -829,7 +829,7 @@ const BUCKET: ShapeSpec = {
                 `A ${width / 2} ${ry} 0 0 1 ${width} ${ry}`,
                 `L ${width - 12} ${height - 5}`,
                 `Q ${width - 14} ${height} ${width - 19} ${height}`,
-                `H 19`,
+                'H 19',
                 `Q 14 ${height} 12 ${height - 5}`,
                 'Z',
             ].join(' '),
