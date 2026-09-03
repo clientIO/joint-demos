@@ -180,6 +180,15 @@ function splice(source: string, from: number, to: number, insert: string): strin
  * @returns The updated source, or `null` when the node cannot be found.
  */
 export function setNodeLabel(source: string, id: CellId, label: string): string | null {
+    // A v11 `id@{ … }` block owns the label; edit it there, or the block's
+    // `label:` would override whatever a bracket splice wrote.
+    const meta = findMetaBlock(source, id);
+    if (meta) {
+        const safe = encodeBreaks(label.trim()).replaceAll('"', '\'');
+        const body = withMetaEntry(meta.body, 'label', `"${safe}"`);
+        return splice(source, meta.bodyFrom, meta.bodyTo, body);
+    }
+
     const parsed = parse(source);
     const declaration = findDeclaration(parsed, id);
     if (!declaration) return null;
@@ -203,6 +212,14 @@ export function setNodeLabel(source: string, id: CellId, label: string): string 
  * @returns The updated source, or `null` when the node cannot be found.
  */
 export function setNodeShape(source: string, id: CellId, shape: EditableShape): string | null {
+    // Same rule as the label: a `@{ … }` block's `shape:` wins over the
+    // delimiters, so the reshape has to land inside the block.
+    const meta = findMetaBlock(source, id);
+    if (meta) {
+        const body = withMetaEntry(meta.body, 'shape', META_SHAPE_NAMES[shape] ?? 'rect');
+        return splice(source, meta.bodyFrom, meta.bodyTo, body);
+    }
+
     const parsed = parse(source);
     const declaration = findDeclaration(parsed, id);
     if (!declaration) return null;
@@ -217,14 +234,123 @@ export function setNodeShape(source: string, id: CellId, shape: EditableShape): 
     return splice(source, declaration.idTo, declaration.idTo, `${open}${label}${close}`);
 }
 
-/** Rewrites the `fill` entry of a declaration list, keeping the others. */
-function withFill(declarations: string, fill: string | null): string {
-    const kept = declarations
-        .split(',')
-        .map((entry) => entry.trim())
-        .filter((entry) => entry !== '' && !/^fill\s*:/i.test(entry));
-    const next = fill === null ? kept : [`fill:${fill}`, ...kept];
+/**
+ * Rewrites one property of a declaration list, keeping the others.
+ *
+ * A comma-valued entry (`stroke-dasharray:5,5`) splits into the declaration
+ * plus bare continuation tokens; a token without a colon therefore belongs to
+ * the declaration before it and must follow its fate — kept with a kept
+ * neighbour, dropped with a removed one.
+ */
+function withProperty(declarations: string, property: string, value: string | null): string {
+    const matcher = new RegExp(`^${property}\\s*:`, 'i');
+    const kept: string[] = [];
+    let isDroppingContinuation = false;
+    for (const raw of declarations.split(',')) {
+        const entry = raw.trim();
+        if (entry === '') continue;
+        if (!entry.includes(':')) {
+            if (!isDroppingContinuation) kept.push(entry);
+            continue;
+        }
+        isDroppingContinuation = matcher.test(entry);
+        if (!isDroppingContinuation) kept.push(entry);
+    }
+    const next = value === null ? kept : [...kept, `${property}:${value}`];
     return next.join(',');
+}
+
+/** The indentation the author is already using for their statements. */
+function statementIndent(source: string): string {
+    return /^([ \t]+)\S/m.exec(source.slice(source.indexOf('\n') + 1))?.[1] ?? '    ';
+}
+
+function escapeRegExp(text: string): string {
+    return text.replaceAll(/[$()*+.?[\\\]^{|}]/g, String.raw`\$&`);
+}
+
+/** A node's v11 config block: `id@{ shape: card, label: "…" }`. */
+interface MetaBlock {
+    /** Span of the `{ … }` body, braces excluded. */
+    readonly bodyFrom: number;
+    readonly bodyTo: number;
+    readonly body: string;
+}
+
+/**
+ * Finds a node's `@{ … }` block. The Lezer grammar predates this syntax and
+ * emits error nodes for it, so `parse()` sees such a node as bare — these
+ * blocks are located by regex and edited in place instead.
+ */
+function findMetaBlock(source: string, id: CellId): MetaBlock | null {
+    const matcher = new RegExp(
+        `(?:^|[^\\w"])${escapeRegExp(String(id))}@\\{([^}]*)\\}`,
+        'm'
+    );
+    const match = matcher.exec(source);
+    if (!match) return null;
+    const bodyFrom = match.index + match[0].indexOf('{') + 1;
+    return { bodyFrom, bodyTo: bodyFrom + match[1].length, body: match[1] };
+}
+
+/** Sets one `key: value` entry inside a `@{ … }` block body. */
+function withMetaEntry(body: string, key: string, value: string): string {
+    const entry = new RegExp(`(${key}\\s*:\\s*)("[^"]*"|[^,}]*)`);
+    if (entry.test(body)) return body.replace(entry, (_, prefix: string) => `${prefix}${value}`);
+    const trimmed = body.trim();
+    return trimmed === '' ? ` ${key}: ${value} ` : ` ${trimmed}, ${key}: ${value} `;
+}
+
+/**
+ * How the toolbar's shapes are spelt inside `@{ shape: … }` — Mermaid's v11
+ * aliases for the classic delimiter shapes.
+ */
+const META_SHAPE_NAMES: Record<string, string> = {
+    squareRect: 'rect',
+    roundedRect: 'rounded',
+    stadium: 'stadium',
+    subroutine: 'subroutine',
+    cylinder: 'cylinder',
+    circle: 'circle',
+    diamond: 'diamond',
+    hexagon: 'hexagon',
+    lean_right: 'lean-r',
+};
+
+/**
+ * Set or clear one property on a node's `style` line, creating or removing the
+ * line as needed.
+ * @param source - Current Mermaid source.
+ * @param id - Node to restyle.
+ * @param property - CSS property, e.g. `fill` or `stroke-dasharray`.
+ * @param value - Property value, or `null` to drop the entry.
+ * @returns The updated source, or `null` when the node cannot be found.
+ */
+export function setNodeStyleProperty(
+    source: string,
+    id: CellId,
+    property: string,
+    value: string | null
+): string | null {
+    const parsed = parse(source);
+    if (!findDeclaration(parsed, id)) return null;
+    const name = String(id);
+    const existing = parsed.styles.find(
+        (line) => line.keyword === 'style' && line.id === name
+    );
+
+    if (existing) {
+        const rest = withProperty(source.slice(existing.textFrom, existing.textTo), property, value);
+        if (rest !== '') return splice(source, existing.textFrom, existing.textTo, ` ${rest}`);
+        // Nothing left to declare, so take the whole line with it.
+        const lineStart = source.lastIndexOf('\n', existing.textFrom) + 1;
+        const lineEnd = source.indexOf('\n', existing.textTo);
+        return splice(source, lineStart, lineEnd === -1 ? source.length : lineEnd + 1, '');
+    }
+
+    if (value === null) return source;
+    const separator = source.endsWith('\n') ? '' : '\n';
+    return `${source}${separator}${statementIndent(source)}style ${name} ${property}:${value}\n`;
 }
 
 /**
@@ -235,25 +361,75 @@ function withFill(declarations: string, fill: string | null): string {
  * @returns The updated source, or `null` when the node cannot be found.
  */
 export function setNodeFill(source: string, id: CellId, fill: string | null): string | null {
+    return setNodeStyleProperty(source, id, 'fill', fill);
+}
+
+/**
+ * Set or remove a node's hyperlink — the `click <id> "<url>"` statement.
+ *
+ * `click` lines are matched with a per-line regex rather than through the
+ * Lezer grammar: `codemirror-lang-mermaid` has no node for them, so the
+ * grammar sees only free text there.
+ * @param source - Current Mermaid source.
+ * @param id - Node to link.
+ * @param url - Target URL, or `null` to remove the link.
+ * @returns The updated source, or `null` when the node cannot be found.
+ */
+export function setNodeLink(source: string, id: CellId, url: string | null): string | null {
     const parsed = parse(source);
     if (!findDeclaration(parsed, id)) return null;
     const name = String(id);
-    const existing = parsed.styles.find(
-        (line) => line.keyword === 'style' && line.id === name
-    );
+    const line = new RegExp(`^[ \t]*click[ \t]+${escapeRegExp(name)}[ \t].*(?:\n|$)`, 'm');
+    // A raw double quote would unbalance the statement; percent-encode it, as
+    // any URL serializer would.
+    const safeUrl = url?.replaceAll('"', '%22');
 
+    const existing = line.exec(source);
     if (existing) {
-        const rest = withFill(source.slice(existing.textFrom, existing.textTo), fill);
-        if (rest !== '') return splice(source, existing.textFrom, existing.textTo, ` ${rest}`);
-        // Nothing left to declare, so take the whole line with it.
-        const lineStart = source.lastIndexOf('\n', existing.textFrom) + 1;
-        const lineEnd = source.indexOf('\n', existing.textTo);
-        return splice(source, lineStart, lineEnd === -1 ? source.length : lineEnd + 1, '');
+        if (safeUrl === undefined) {
+            return splice(source, existing.index, existing.index + existing[0].length, '');
+        }
+        // Keep an existing tooltip: only the URL between the first pair of
+        // quotes changes. A replacer function, so `$` in the URL stays literal.
+        // A `click` line with no quoted part (Mermaid's callback form) is
+        // rewritten to the URL form wholesale.
+        const replaced = /"[^"]*"/.test(existing[0])
+            ? existing[0].replace(/"[^"]*"/, () => `"${safeUrl}"`)
+            : `${statementIndent(source)}click ${name} "${safeUrl}"\n`;
+        return splice(source, existing.index, existing.index + existing[0].length, replaced);
     }
 
-    if (fill === null) return source;
+    if (safeUrl === undefined) return source;
     const separator = source.endsWith('\n') ? '' : '\n';
-    // Match the indentation the author is already using for their statements.
-    const indent = /^([ \t]+)\S/m.exec(source.slice(source.indexOf('\n') + 1))?.[1] ?? '    ';
-    return `${source}${separator}${indent}style ${name} fill:${fill}\n`;
+    return `${source}${separator}${statementIndent(source)}click ${name} "${safeUrl}"\n`;
+}
+
+/**
+ * Append a new node connected from an existing one: `parent --> stepN[…]`.
+ * @param source - Current Mermaid source.
+ * @param parentId - Node the new step hangs off.
+ * @returns The updated source, or `null` when the parent cannot be found.
+ */
+export function addChildNode(source: string, parentId: CellId): string | null {
+    const parsed = parse(source);
+    if (!findDeclaration(parsed, parentId)) return null;
+    const taken = new Set(parsed.declarations.map((declaration) => declaration.id));
+    let counter = 1;
+    while (taken.has(`step${counter}`)) counter += 1;
+    const separator = source.endsWith('\n') ? '' : '\n';
+    return `${source}${separator}${statementIndent(source)}${String(parentId)} --> step${counter}[New step]\n`;
+}
+
+/**
+ * Append an edge between two existing nodes: `a --> b`.
+ * @param source - Current Mermaid source.
+ * @param from - Source node.
+ * @param to - Target node.
+ * @returns The updated source, or `null` when either node cannot be found.
+ */
+export function addEdge(source: string, from: CellId, to: CellId): string | null {
+    const parsed = parse(source);
+    if (!findDeclaration(parsed, from) || !findDeclaration(parsed, to)) return null;
+    const separator = source.endsWith('\n') ? '' : '\n';
+    return `${source}${separator}${statementIndent(source)}${String(from)} --> ${String(to)}\n`;
 }

@@ -121,6 +121,10 @@ export function MermaidEditor({
             state: EditorState.create({
                 doc: seedRef.current,
                 extensions: [
+                    // The content element is a focusable contenteditable
+                    // region; without a name a screen reader announces it as
+                    // an anonymous edit field.
+                    EditorView.contentAttributes.of({ 'aria-label': 'Mermaid source code' }),
                     lineNumbers(),
                     history(),
                     drawSelection(),

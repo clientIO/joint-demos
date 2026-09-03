@@ -15,6 +15,9 @@
     --node-stroke: #9370db;
     --node-text: #1f2430;
     --node-detail: #9370db;
+    --group-fill: rgb(147 112 219 / 7%);
+    --group-stroke: #b9a5e4;
+    --group-title: #6b5aa0;
     --link-stroke: #333333;
     --label-fill: var(--surface-sunken);
     --label-text: #1f2430;
@@ -25,7 +28,8 @@
     --syntax-text: #0f766e;
     --syntax-arrow: #be123c;
     --syntax-comment: #94a3b8;
-    --syntax-gutter: #b6bcc7;
+    /* Quieter than body text but still 4.5:1 on the pane, per WCAG AA. */
+    --syntax-gutter: #69707e;
     --syntax-active-line: #f3f4f8;
     --syntax-selection: #dbeafe;
     --syntax-selected-line: #fff3d6;
@@ -74,6 +78,9 @@
     --node-stroke: #a78bfa;
     --node-text: #ece9fb;
     --node-detail: #a78bfa;
+    --group-fill: rgb(167 139 250 / 7%);
+    --group-stroke: #4f4677;
+    --group-title: #b6a7e8;
     --link-stroke: #b9bfd0;
     --label-fill: var(--surface-sunken);
     --label-text: #e6e7ee;
@@ -84,7 +91,8 @@
     --syntax-text: #6ee7b7;
     --syntax-arrow: #fda4af;
     --syntax-comment: #6b7280;
-    --syntax-gutter: #4b5162;
+    /* Same AA floor as the light gutter, against the dark pane. */
+    --syntax-gutter: #8b92a3;
     --syntax-active-line: #1c1e28;
     --syntax-selection: #2a3350;
     --syntax-selected-line: #35301c;
@@ -273,15 +281,34 @@ body {
     border-top: 1px solid var(--border);
 }
 
+/*
+ * No visual dim while a parse is in flight: every opacity that still read as
+ * "dimmed" put the text under the WCAG AA contrast floor on one theme or the
+ * other. `aria-busy` on the element carries the state instead.
+ */
 .editor-counts {
     font-variant-numeric: tabular-nums;
-    /* Eased so a fast parse does not read as a flicker. */
-    transition: opacity 120ms ease-out;
 }
 
-/* Only the counts dim while a parse is in flight — they are the stale part. */
-.editor-counts.is-busy {
-    opacity: 0.35;
+.editor-tools {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Styled as the footer's other quiet action, not as a primary button. */
+.editor-download {
+    padding: 0;
+    font: inherit;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.editor-download:hover {
+    color: var(--accent);
+    text-decoration: underline;
 }
 
 .editor-link {
@@ -363,6 +390,88 @@ body {
     background: var(--overlay-surface);
     border-color: var(--overlay-border);
     box-shadow: var(--overlay-shadow-sm);
+}
+
+/* -------------------------------------------------- accessibility check */
+
+.accessibility-check {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    display: inline-flex;
+    gap: 7px;
+    align-items: center;
+    padding: 7px 13px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #fdf6f2;
+    text-decoration: none;
+    background: linear-gradient(to right, oklch(0.34 0.03 60), oklch(0.5 0.15 45));
+    border-radius: 999px;
+    box-shadow: var(--overlay-shadow-sm);
+    transition: transform 120ms ease-out;
+}
+
+.accessibility-check:hover {
+    transform: scale(1.02);
+}
+
+.accessibility-check:active {
+    transform: scale(0.95);
+}
+
+.accessibility-check-ping {
+    position: relative;
+    display: inline-flex;
+    width: 8px;
+    height: 8px;
+}
+
+.accessibility-check-ping-wave {
+    position: absolute;
+    inset: 0;
+    background: #4ade80;
+    border-radius: 999px;
+    opacity: 0.75;
+    animation: accessibility-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.accessibility-check-ping-dot {
+    position: relative;
+    display: inline-flex;
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    border-radius: 999px;
+}
+
+@keyframes accessibility-ping {
+    75%,
+    100% {
+        opacity: 0;
+        transform: scale(2);
+    }
+}
+
+.accessibility-check-icon {
+    width: 14px;
+    height: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .accessibility-check {
+        transition: none;
+    }
+
+    .accessibility-check-ping-wave {
+        animation: none;
+    }
+}
+
+@media (max-width: 720px) {
+    .accessibility-check-label {
+        display: none;
+    }
 }
 
 .zoom-controls {
@@ -510,6 +619,169 @@ body {
         var(--overlay-inset);
 }
 
+/* The free-colour swatch wraps a native colour input, so the browser's own
+   picker does the work; a conic ring says "any colour" without a new icon. */
+.node-toolbar-swatch.is-custom {
+    position: relative;
+    flex: 0 0 24px;
+    overflow: hidden;
+    cursor: pointer;
+    background:
+        conic-gradient(#f87171, #facc15, #4ade80, #38bdf8, #a78bfa, #f87171);
+}
+
+.node-toolbar-swatch.is-custom input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.node-toolbar-swatch.is-custom:focus-within {
+    border-color: var(--accent);
+}
+
+/* Third row: text style, border style, link, add-step. */
+.node-toolbar-row {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+}
+
+.node-toolbar-cluster {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    padding: 2px;
+    background: var(--overlay-inset);
+    border: 1px solid var(--overlay-border);
+    border-radius: 6px;
+}
+
+/* The link/add cluster hangs at the end of the row. */
+.node-toolbar-cluster:last-child {
+    margin-left: auto;
+}
+
+.node-toolbar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 22px;
+    padding: 0 5px;
+    font: inherit;
+    font-size: 12px;
+    color: var(--text);
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.node-toolbar-toggle.is-bold {
+    font-weight: 700;
+}
+
+.node-toolbar-toggle.is-italic {
+    font-style: italic;
+}
+
+.node-toolbar-toggle:hover {
+    background: var(--overlay-chip);
+}
+
+.node-toolbar-toggle.is-active {
+    background: var(--overlay-chip);
+    box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* The border-colour control: a ring in the current stroke colour wrapping a
+   hidden native colour input, mirroring the custom fill swatch. */
+.node-toolbar-toggle.is-stroke {
+    position: relative;
+    cursor: pointer;
+}
+
+.node-toolbar-stroke-ring {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border: 3px solid;
+    border-radius: 999px;
+}
+
+.node-toolbar-toggle.is-stroke input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.node-toolbar-toggle.is-stroke:focus-within {
+    background: var(--overlay-chip);
+    box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* Two nodes selected: a single floating action over the second one. */
+.connect-bar {
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    background: var(--overlay-surface);
+    border: 1px solid var(--overlay-border);
+    border-radius: 999px;
+    box-shadow: var(--overlay-shadow);
+    cursor: pointer;
+}
+
+.connect-bar:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.node-toolbar-linkrow {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.node-toolbar-linkinput {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 7px;
+    font: inherit;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--overlay-inset);
+    border: 1px solid var(--overlay-border);
+    border-radius: 5px;
+    outline: none;
+}
+
+.node-toolbar-linkinput:focus {
+    border-color: var(--accent);
+}
+
+.node-toolbar-action {
+    padding: 4px 8px;
+    font: inherit;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--overlay-chip);
+    border: 1px solid var(--overlay-border);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.node-toolbar-action:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
 /* ----------------------------------------------------------- diagram ink */
 
 .mermaid-node-body {
@@ -540,11 +812,113 @@ body {
     cursor: pointer;
 }
 
+/* The `text` shape's invisible hit area. Fill must stay a colour (not
+   `none`) to catch pointer events; selection restores a visible outline. */
+.mermaid-node-body.is-ghost {
+    fill: transparent;
+    stroke: none;
+}
+
+/* Fork bars and junction dots are drawn in the stroke colour. */
+.mermaid-node-body.is-filled {
+    fill: var(--node-stroke);
+}
+
+/* Braces are not closed shapes; a fill would paint their bowl. */
+.mermaid-node-body.is-open {
+    fill: none;
+}
+
 /* Inner rules of the subroutine shape, cylinder cap, double-circle ring. */
 .mermaid-node-detail {
     fill: none;
     stroke: var(--node-stroke);
     stroke-width: 1.5;
+}
+
+/* ------------------------------------------------------------- subgraphs */
+
+.mermaid-subgraph-body {
+    fill: var(--group-fill);
+    stroke: var(--group-stroke);
+    stroke-width: 1.25;
+    stroke-dasharray: 5 4;
+}
+
+.mermaid-subgraph-title {
+    font-family: inherit;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    fill: var(--group-title);
+}
+
+.joint-element.jj-is-selected .mermaid-subgraph-body {
+    stroke: var(--node-selected);
+    stroke-dasharray: none;
+    stroke-width: 2;
+}
+
+/* ------------------------------------------------------------ hyperlinks */
+
+.mermaid-node-link {
+    cursor: pointer;
+    outline: none;
+}
+
+.mermaid-node-link-disc {
+    fill: var(--overlay-surface);
+    stroke: var(--node-stroke);
+    stroke-width: 1.25;
+}
+
+.mermaid-node-link-arrow {
+    stroke: var(--node-detail);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.mermaid-node-link:hover .mermaid-node-link-disc,
+.mermaid-node-link:focus-visible .mermaid-node-link-disc {
+    stroke: var(--accent);
+}
+
+.mermaid-node-link:hover .mermaid-node-link-arrow,
+.mermaid-node-link:focus-visible .mermaid-node-link-arrow {
+    stroke: var(--accent);
+}
+
+/* -------------------------------------------------------- animated edges */
+
+/*
+ * The Mermaid `e1@{ animate: true }` marching dash. The dash pattern lives
+ * here rather than in the link's style so a plain solid edge can carry it;
+ * a `-.->` edge already has its own dasharray and simply starts moving.
+ */
+@keyframes mermaid-edge-dash {
+    to {
+        stroke-dashoffset: -22;
+    }
+}
+
+.mermaid-link-line.is-animated {
+    stroke-dasharray: 7 4;
+    animation: mermaid-edge-dash 0.9s linear infinite;
+}
+
+.mermaid-link-line.is-animated-slow {
+    animation-duration: 1.8s;
+}
+
+.mermaid-link-line.is-animated-fast {
+    animation-duration: 0.45s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mermaid-link-line.is-animated {
+        animation: none;
+    }
 }
 
 .mermaid-node-text {

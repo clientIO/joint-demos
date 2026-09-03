@@ -1,5 +1,5 @@
 import { linkMarkerArrow, linkMarkerCircle, linkMarkerCross } from '@joint/react-plus';
-import type { CellRecord, ElementRecord, LinkLabel, LinkMarker, LinkRecord } from '@joint/react-plus';
+import type { CellId, CellRecord, ElementRecord, LinkLabel, LinkMarker, LinkRecord } from '@joint/react-plus';
 import type { CSSProperties } from 'react';
 import type { FlowArrow, FlowDirection, FlowGraph, FlowShape } from './types';
 
@@ -20,14 +20,27 @@ export interface NodeData {
      * uses this to know when it would do nothing.
      */
     readonly hasOwnFill?: boolean;
+    /** Set on `subgraph` containers; the renderer draws them differently. */
+    readonly isGroup?: true;
+    /** Hyperlink from a `click <id> "<url>"` statement. */
+    readonly href?: string;
+    /** Tooltip shown on the hyperlink badge. */
+    readonly hrefTitle?: string;
 }
 
 /**
- * Mermaid's `color` styles the label; everything else styles the shape. Both
- * `style x fill:#eee` and `classDef` arrive as the same `"prop:value"` strings,
- * so one pass handles both.
+ * Mermaid's `color` and font properties style the label; everything else
+ * styles the shape. Both `style x fill:#eee` and `classDef` arrive as the same
+ * `"prop:value"` strings, so one pass handles both.
  */
-const TEXT_PROPERTIES = new Set(['color']);
+const TEXT_PROPERTIES = new Set([
+    'color',
+    'font-weight',
+    'font-style',
+    'font-family',
+    'font-size',
+    'text-decoration',
+]);
 
 /**
  * Label colours for a node that carries its own `fill`. Deliberately fixed
@@ -80,10 +93,10 @@ function toCamelCase(property: string): string {
     return property.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
 }
 
-/** Splits `"prop:value"` declarations into shape styles and a label colour. */
+/** Splits `"prop:value"` declarations into shape styles and label styles. */
 function resolveLayer(declarations: readonly string[]) {
     const body: Record<string, string> = {};
-    let color: string | undefined;
+    const text: Record<string, string> = {};
 
     for (const declaration of declarations) {
         const separator = declaration.indexOf(':');
@@ -92,12 +105,16 @@ function resolveLayer(declarations: readonly string[]) {
         const value = declaration.slice(separator + 1).trim();
         if (property === '' || value === '') continue;
         // Mermaid's `color` is the label colour, which on an SVG `<text>` is
-        // `fill`; anything else describes the shape.
-        if (TEXT_PROPERTIES.has(property)) color = value;
-        else body[toCamelCase(property)] = value;
+        // `fill`; the font properties style the label too. Anything else
+        // describes the shape.
+        if (TEXT_PROPERTIES.has(property)) {
+            text[property === 'color' ? 'fill' : toCamelCase(property)] = value;
+        } else {
+            body[toCamelCase(property)] = value;
+        }
     }
 
-    return { body, color };
+    return { body, text };
 }
 
 /**
@@ -120,16 +137,21 @@ function toNodeStyle(
     const fromClass = resolveLayer(classDeclarations);
     const own = resolveLayer(ownDeclarations);
     const body = { ...fromClass.body, ...own.body };
+    const text: Record<string, string> = { ...fromClass.text, ...own.text };
 
-    let color = own.color;
-    if (color === undefined && own.body.fill === undefined) color = fromClass.color;
+    // The label colour keeps the pairing rule described above; the other text
+    // properties merge per-property like the body ones.
+    let color: string | undefined = own.text.fill;
+    if (color === undefined && own.body.fill === undefined) color = fromClass.text.fill;
     if (color === undefined && body.fill !== undefined) {
         color = readableLabel(body.fill) ?? undefined;
     }
+    if (color === undefined) delete text.fill;
+    else text.fill = color;
 
     const style: NodeStyle = {
         ...(Object.keys(body).length > 0 ? { body } : {}),
-        ...(color === undefined ? {} : { text: { fill: color }}),
+        ...(Object.keys(text).length > 0 ? { text } : {}),
     };
     // Undefined rather than an empty object, so an unstyled node's `data` stays
     // identical between parses and nothing re-renders needlessly.
@@ -221,6 +243,29 @@ const LABEL_BASE: Omit<LinkLabel, 'text'> = {
  * @returns Cells ready to hand to `GraphProvider`.
  */
 export function toCells(flow: FlowGraph): MermaidCell[] {
+    // Embedding is written from both sides — `parent` on the member, `embeds`
+    // on the container — the same pair `graph.toJSON()` produces. The layout
+    // reads `parent` to build its compound graph; `fitToChildren` reads
+    // `embeds` to size the container afterwards.
+    const memberIds = new Map<string, CellId[]>();
+    for (const member of [...flow.groups, ...flow.nodes]) {
+        if (member.parent === undefined) continue;
+        const siblings = memberIds.get(member.parent) ?? [];
+        siblings.push(member.id);
+        memberIds.set(member.parent, siblings);
+    }
+
+    // Containers first, so a member never references a not-yet-synced parent.
+    const groups: Array<ElementRecord<NodeData>> = flow.groups.map((group) => ({
+        id: group.id,
+        type: 'element',
+        // Behind the links (z −1), which are behind the nodes.
+        z: -2,
+        data: { label: group.label, shape: 'rect', isGroup: true },
+        ...(group.parent === undefined ? {} : { parent: group.parent }),
+        ...(memberIds.has(group.id) ? { embeds: memberIds.get(group.id) } : {}),
+    }));
+
     const elements: Array<ElementRecord<NodeData>> = flow.nodes.map((node) => {
         const style = toNodeStyle(node.classStyles, node.styles);
         const hasOwnFill = node.styles.some((entry) => /^\s*fill\s*:/i.test(entry));
@@ -232,7 +277,10 @@ export function toCells(flow: FlowGraph): MermaidCell[] {
                 shape: node.shape,
                 ...(style ? { style } : {}),
                 ...(hasOwnFill ? { hasOwnFill } : {}),
+                ...(node.href === undefined ? {} : { href: node.href }),
+                ...(node.hrefTitle === undefined ? {} : { hrefTitle: node.hrefTitle }),
             },
+            ...(node.parent === undefined ? {} : { parent: node.parent }),
         };
     });
 
@@ -251,7 +299,9 @@ export function toCells(flow: FlowGraph): MermaidCell[] {
         data: { minLen: edge.minLen },
         style: {
             color: LINK_COLOR,
-            className: 'mermaid-link-line',
+            className: edge.animation === undefined
+                ? 'mermaid-link-line'
+                : `mermaid-link-line is-animated is-animated-${edge.animation}`,
             wrapperClassName: 'mermaid-link-wrapper',
             linejoin: 'round',
             linecap: 'round',
@@ -263,5 +313,5 @@ export function toCells(flow: FlowGraph): MermaidCell[] {
         ...(edge.label === '' ? {} : { labelMap: { main: { ...LABEL_BASE, text: edge.label }}}),
     }));
 
-    return [...elements, ...links];
+    return [...groups, ...elements, ...links];
 }

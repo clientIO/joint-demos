@@ -5,6 +5,7 @@ import type { dia } from '@joint/plus';
 import { DirectedGraph } from '@joint/layout-directed-graph';
 import {
     Diagram,
+    ElementOverlay,
     linkRoutingStraight,
     Paper,
     PaperScroller,
@@ -26,6 +27,7 @@ import type { MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection } from '@/mermaid/types';
 import type { EditableShape } from '@/mermaid/edit-source';
 import type { NodeData } from '@/mermaid/to-cells';
+import { AccessibilityCheck } from './accessibility-check';
 import { ExportButton } from './export-button';
 import { NodeEditingContext } from './node-editing';
 import type { NodeEditing } from './node-editing';
@@ -107,6 +109,12 @@ function isMeasured(graph: dia.Graph): boolean {
     return elements.length > 0 && elements.every((element) => element.size().width > 0);
 }
 
+/**
+ * Breathing room `fitToChildren` keeps between a subgraph's border and its
+ * members. Extra at the top, where the container's title sits.
+ */
+const CLUSTER_PADDING = { top: 44, left: 18, right: 18, bottom: 18 };
+
 function runLayout(graph: dia.Graph, direction: FlowDirection): boolean {
     if (!isMeasured(graph)) return false;
     DirectedGraph.layout(graph, {
@@ -116,6 +124,9 @@ function runLayout(graph: dia.Graph, direction: FlowDirection): boolean {
         rankSep: 64,
         marginX: 20,
         marginY: 20,
+        // Subgraphs ride through dagre as clusters; the layout then calls
+        // `fitToChildren` on each so the container hugs its members.
+        clusterPadding: CLUSTER_PADDING,
         // Links use the paper's default routing, so dagre owns their shape:
         // it writes the simplified spline it already computed for each edge as
         // the link's vertices, and the default router draws straight through
@@ -146,6 +157,20 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
     // The scroller owns panning, wheel scrolling, pinch zoom and the zoom
     // bounds; all this component needs from it is the fit-to-content call.
     const { zoomToFit, paperScroller } = usePaperScroller();
+
+    // The scroller element is the scrollable region, so it must be focusable
+    // and labelled (WCAG 2.1.1, axe `scrollable-region-focusable`).
+    // `@joint/react-plus` 4.3.2 drops HTML attributes passed to
+    // `<PaperScroller>` (clientIO/joint-plus#801), so until that fix ships the
+    // attributes go on imperatively.
+    useEffect(() => {
+        const scrollerElement = paperScroller?.el;
+        if (!scrollerElement) return;
+        scrollerElement.setAttribute('tabindex', '0');
+        scrollerElement.setAttribute('role', 'application');
+        scrollerElement.setAttribute('aria-roledescription', 'diagram canvas');
+        scrollerElement.setAttribute('aria-label', 'Flowchart canvas — scrollable');
+    }, [paperScroller]);
 
     // Selection is one-way: the app owns it, the canvas renders it and reports
     // clicks upward. Subscribing to the collection here as well would close a
@@ -244,7 +269,22 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
     const toolbarCell = selectedIds.length === 1
         ? cells.find((cell) => cell.id === selectedIds[0] && cell.type === 'element')
         : undefined;
-    const toolbarData = toolbarCell?.data as NodeData | undefined;
+    const maybeToolbarData = toolbarCell?.data as NodeData | undefined;
+    // Subgraph containers take no shape or fill — their look is the block's.
+    const toolbarData = maybeToolbarData?.isGroup ? undefined : maybeToolbarData;
+
+    // Exactly two nodes selected (Shift-click) offers to connect them, in
+    // selection order. Subgraphs are excluded — dagre cannot route to one.
+    const connectPair = selectedIds.length === 2
+        ? selectedIds.map((id) =>
+            cells.find((cell) =>
+                cell.id === id
+                && cell.type === 'element'
+                && !(cell.data as NodeData).isGroup))
+        : undefined;
+    const [connectFrom, connectTo] = connectPair ?? [];
+    const connectFromId = connectFrom?.id;
+    const connectToId = connectTo?.id;
 
     return (
         <NodeEditingContext value={editing}>
@@ -257,8 +297,30 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
                         snapLabels
                         interactive={PAPER_INTERACTIVE}
                         linkRouting={LINK_ROUTING}
-                        onElementPointerClick={({ model }) => onSelect([model.id])}
-                        onElementPointerDblClick={({ model }) => editing.begin(model.id)}
+                        onElementPointerClick={({ model, event }) => {
+                            // Shift (or the platform modifier) grows the
+                            // selection; a plain click replaces it.
+                            const isAdditive =
+                                event.shiftKey === true
+                                || event.metaKey === true
+                                || event.ctrlKey === true;
+                            if (!isAdditive) {
+                                onSelect([model.id]);
+                                return;
+                            }
+                            onSelect(
+                                selectedIds.includes(model.id)
+                                    ? selectedIds.filter((id) => id !== model.id)
+                                    : [...selectedIds, model.id]
+                            );
+                        }}
+                        onElementPointerDblClick={({ model }) => {
+                            // Subgraph containers render no label input, so
+                            // entering edit mode there would be a dead end.
+                            const cell = cells.find((candidate) => candidate.id === model.id);
+                            if ((cell?.data as NodeData | undefined)?.isGroup) return;
+                            editing.begin(model.id);
+                        }}
                         onBlankPointerClick={() => {
                             onSelect([]);
                             editing.cancel();
@@ -267,16 +329,34 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
                         <Selection {...SELECTION} />
                         {toolbarCell?.id !== undefined && toolbarData && (
                             <NodeToolbar
+                                // Keyed so toolbar state (an open link editor,
+                                // its draft) never survives onto another node.
+                                key={String(toolbarCell.id)}
                                 cellId={toolbarCell.id}
                                 data={toolbarData}
-                                onShapeChange={edit.onShapeChange}
-                                onFillChange={edit.onFillChange}
+                                edit={edit}
                             />
+                        )}
+                        {connectFrom && connectTo
+                            && connectFromId !== undefined && connectToId !== undefined && (
+                            <ElementOverlay cell={connectToId} position="top" origin="bottom" dy={-10}>
+                                <button
+                                    type="button"
+                                    className="connect-bar"
+                                    onPointerDown={(event) => event.stopPropagation()}
+                                    onClick={() => edit.onConnect(connectFromId, connectToId)}
+                                >
+                                    Connect {(connectFrom.data as NodeData).label}
+                                    {' → '}
+                                    {(connectTo.data as NodeData).label}
+                                </button>
+                            </ElementOverlay>
                         )}
                     </Paper>
                 </PaperScroller>
                 <ExportButton />
                 <ZoomControls onFit={fit} />
+                <AccessibilityCheck />
             </div>
         </NodeEditingContext>
     );
@@ -287,6 +367,14 @@ export interface NodeEditHandlers {
     readonly onLabelChange: (id: CellId, label: string) => void;
     readonly onShapeChange: (id: CellId, shape: EditableShape) => void;
     readonly onFillChange: (id: CellId, fill: string | null) => void;
+    /** Sets or clears one property on the node's `style` line. */
+    readonly onStyleChange: (id: CellId, property: string, value: string | null) => void;
+    /** Sets or removes the node's `click` hyperlink. */
+    readonly onLinkChange: (id: CellId, url: string | null) => void;
+    /** Appends a new node connected from this one. */
+    readonly onAddChild: (id: CellId) => void;
+    /** Appends an edge between two existing nodes. */
+    readonly onConnect: (from: CellId, to: CellId) => void;
 }
 
 export interface MermaidDiagramProps {

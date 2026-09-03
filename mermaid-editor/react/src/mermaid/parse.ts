@@ -1,5 +1,13 @@
 import type { Mermaid } from 'mermaid';
-import type { FlowArrow, FlowDirection, FlowEdge, FlowGraph, FlowStroke } from './types';
+import type {
+    FlowAnimation,
+    FlowArrow,
+    FlowDirection,
+    FlowEdge,
+    FlowGraph,
+    FlowGroup,
+    FlowStroke,
+} from './types';
 
 /**
  * Parsing Mermaid flowchart source into a plain {@link FlowGraph}.
@@ -29,6 +37,9 @@ interface FlowDbLike {
             label?: string;
             shape?: string;
             isGroup?: boolean;
+            parentId?: string;
+            link?: string;
+            tooltip?: string;
             cssStyles?: string[];
             cssCompiledStyles?: string[];
         }>;
@@ -41,6 +52,8 @@ interface FlowDbLike {
             arrowTypeEnd?: string;
             pattern?: string;
             minlen?: number;
+            animate?: boolean;
+            animation?: string;
         }>;
     };
 }
@@ -101,6 +114,15 @@ function toStroke(raw: string | undefined): FlowStroke {
     }
 }
 
+/** `animate: true` runs at Mermaid's default speed; `animation:` names one. */
+function toAnimation(
+    animate: boolean | undefined,
+    animation: string | undefined
+): FlowAnimation | undefined {
+    if (animation === 'fast' || animation === 'slow') return animation;
+    return animate ? 'normal' : undefined;
+}
+
 /** Mermaid errors are sometimes plain strings or `{ str }` objects. */
 function toMessage(error: unknown): string {
     if (error instanceof Error) return error.message;
@@ -141,10 +163,19 @@ export async function parseFlowchart(text: string): Promise<FlowGraph> {
     const db = diagram.db as unknown as FlowDbLike;
     const { nodes, edges } = db.getData();
 
-    // Subgraphs come back as extra nodes flagged `isGroup`, with their members
-    // pointing at them via `parentId`. This demo renders a flat graph, so the
-    // group nodes are dropped and the membership is ignored.
-    const groups = nodes.filter((node) => node.isGroup);
+    // Subgraphs come back as extra nodes flagged `isGroup`, with members —
+    // nested subgraphs included — pointing at them via `parentId`.
+    const groupIds = new Set(nodes.filter((node) => node.isGroup).map((node) => node.id));
+    const flowGroups: FlowGroup[] = nodes
+        .filter((node) => node.isGroup)
+        .map((node) => ({
+            id: node.id,
+            label: node.label?.trim() || node.id,
+            ...(node.parentId !== undefined && groupIds.has(node.parentId)
+                ? { parent: node.parentId }
+                : {}),
+        }));
+
     const flowNodes = nodes
         .filter((node) => !node.isGroup)
         .map((node) => ({
@@ -153,20 +184,33 @@ export async function parseFlowchart(text: string): Promise<FlowGraph> {
             shape: node.shape ?? 'squareRect',
             classStyles: node.cssCompiledStyles ?? [],
             styles: node.cssStyles ?? [],
+            ...(node.parentId !== undefined && groupIds.has(node.parentId)
+                ? { parent: node.parentId }
+                : {}),
+            ...(node.link ? { href: node.link } : {}),
+            ...(node.link && node.tooltip ? { hrefTitle: node.tooltip } : {}),
         }));
 
     const known = new Set(flowNodes.map((node) => node.id));
     const flowEdges: FlowEdge[] = [];
+    let droppedGroupEdges = 0;
 
     for (const edge of edges) {
         const { start, end } = edge;
-        // An edge into or out of a subgraph has no node to attach to once the
-        // group is gone; skipping it beats rendering a dangling link.
-        if (!start || !end || !known.has(start) || !known.has(end)) continue;
+        if (!start || !end) continue;
+        // Dagre cannot route an edge to a cluster, so an edge that starts or
+        // ends on the subgraph itself is skipped — and counted, so the UI can
+        // say so instead of silently losing it.
+        if (groupIds.has(start) || groupIds.has(end)) {
+            droppedGroupEdges += 1;
+            continue;
+        }
+        if (!known.has(start) || !known.has(end)) continue;
 
         const stroke = toStroke(edge.pattern);
         if (stroke === 'invisible') continue;
 
+        const animation = toAnimation(edge.animate, edge.animation);
         flowEdges.push({
             id: edge.id,
             source: start,
@@ -176,6 +220,7 @@ export async function parseFlowchart(text: string): Promise<FlowGraph> {
             targetArrow: toArrow(edge.arrowTypeEnd),
             stroke,
             minLen: edge.minlen && edge.minlen > 0 ? edge.minlen : 1,
+            ...(animation === undefined ? {} : { animation }),
         });
     }
 
@@ -186,7 +231,8 @@ export async function parseFlowchart(text: string): Promise<FlowGraph> {
     return {
         direction: toDirection(db.getDirection()),
         nodes: flowNodes,
+        groups: flowGroups,
         edges: flowEdges,
-        droppedSubgraphs: groups.length,
+        droppedGroupEdges,
     };
 }

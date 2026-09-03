@@ -1,4 +1,5 @@
-import { SVGText, useCellId, useMeasureElement } from '@joint/react-plus';
+import { SVGText, useCell, useCellId, useMeasureElement } from '@joint/react-plus';
+import type { ElementRecord } from '@joint/react-plus';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { NodeData } from '@/mermaid/to-cells';
 import { useNodeEditing } from './node-editing';
@@ -16,6 +17,76 @@ function toMultiline(label: string): string {
 }
 
 /**
+ * Renders one cell: a `subgraph` container or a flowchart node. Split into two
+ * components so each keeps its own hook order.
+ * @param data - The cell's parsed Mermaid data.
+ */
+export function RenderNode(data: NodeData) {
+    if (data.isGroup) return <SubgraphCell label={data.label} />;
+    return <FlowNodeCell {...data} />;
+}
+
+/** Padding the measured title adds around itself for the container minimum. */
+const GROUP_TITLE_PAD_X = 24;
+const GROUP_MIN = { width: 120, height: 80 };
+const GROUP_TITLE_Y = 22;
+
+const isSameSize = (a: { width: number; height: number }, b: { width: number; height: number }) =>
+    a.width === b.width && a.height === b.height;
+
+/**
+ * A `subgraph … end` block: a rounded container behind its member nodes.
+ *
+ * Unlike a node, its size is owned by the layout — `fitToChildren` wraps it
+ * around its members — so the outline is drawn from the element's live size.
+ * The measured title only sets a floor, which is what an *empty* subgraph
+ * stands on.
+ */
+function SubgraphCell({ label }: Readonly<{ label: string }>) {
+    const [textNode, setTextNode] = useState<SVGTextElement | null>(null);
+    const { textRef, options } = useMemo(() => ({
+        textRef: { current: textNode },
+        options: {
+            transform: (title: { width: number; height: number }) => ({
+                width: Math.max(title.width + 2 * GROUP_TITLE_PAD_X, GROUP_MIN.width),
+                height: GROUP_MIN.height,
+            }),
+        },
+    }), [textNode]);
+    useMeasureElement(textRef, options);
+    // The live element size, which `fitToChildren` rewrites after every layout.
+    const size = useCell<ElementRecord<NodeData>, { width: number; height: number }>(
+        (cell) => ({ width: cell.size.width, height: cell.size.height }),
+        isSameSize
+    );
+
+    return (
+        <>
+            <rect
+                className="mermaid-subgraph-body"
+                width={size.width}
+                height={size.height}
+                rx={10}
+                ry={10}
+            />
+            <SVGText
+                ref={setTextNode}
+                className="mermaid-subgraph-title"
+                x={size.width / 2}
+                y={GROUP_TITLE_Y}
+                textAnchor="middle"
+                textVerticalAnchor="middle"
+                fontSize={12}
+                lineHeight={LINE_HEIGHT}
+                pointerEvents="none"
+            >
+                {toMultiline(label)}
+            </SVGText>
+        </>
+    );
+}
+
+/**
  * Renders one Mermaid node.
  *
  * The label is the source of truth for size: `useMeasureElement` watches the
@@ -29,7 +100,7 @@ function toMultiline(label: string): string {
  * measurement above still sees the whole block.
  * @param data - Label and Mermaid shape id of the node.
  */
-export function RenderNode(data: NodeData) {
+function FlowNodeCell(data: NodeData) {
     const cellId = useCellId();
     const editing = useNodeEditing();
     const isEditing = editing !== null && cellId !== undefined && editing.editingId === cellId;
@@ -114,7 +185,40 @@ export function RenderNode(data: NodeData) {
                     onCancel={editing.cancel}
                 />
             )}
+            {data.href !== undefined && !isEditing && (
+                <LinkBadge href={data.href} title={data.hrefTitle} x={width} />
+            )}
         </>
+    );
+}
+
+const BADGE_RADIUS = 9;
+
+/**
+ * The `click <id> "<url>"` affordance: a small ↗ pinned to the node's
+ * top-right corner. A real SVG `<a>`, so middle-click, keyboard focus and the
+ * status-bar URL preview all behave like any other link.
+ */
+function LinkBadge({ href, title, x }: Readonly<{ href: string; title?: string; x: number }>) {
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mermaid-node-link"
+            aria-label={title ?? `Open ${href}`}
+            // A press on the badge is navigation, not node selection.
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
+        >
+            <title>{title ?? href}</title>
+            <circle className="mermaid-node-link-disc" cx={x} cy={0} r={BADGE_RADIUS} />
+            <path
+                className="mermaid-node-link-arrow"
+                d={`M ${x - 3} 3 L ${x + 3} -3 M ${x - 1.5} -3 H ${x + 3} V 1.5`}
+                fill="none"
+            />
+        </a>
     );
 }
 
