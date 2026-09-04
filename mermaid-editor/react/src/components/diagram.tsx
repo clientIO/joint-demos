@@ -231,6 +231,7 @@ interface CanvasProps {
     readonly linkEdit: EdgeEditHandlers;
     readonly autoLayout: boolean;
     readonly onAutoLayoutChange: (autoLayout: boolean) => void;
+    readonly onDirectionChange: (direction: FlowDirection) => void;
     readonly positionsRef: RefObject<ManualPositions>;
 }
 
@@ -244,6 +245,7 @@ function Canvas({
     linkEdit,
     autoLayout,
     onAutoLayoutChange,
+    onDirectionChange,
     positionsRef,
 }: CanvasProps) {
     const { graph } = useGraph();
@@ -365,23 +367,25 @@ function Canvas({
     // never fires and the diagram would keep its old shape. Verified: with this
     // effect removed, `TD` → `LR` leaves the chart vertical.
     //
-    // This trigger never re-frames, so a direction flip leaves the camera
-    // alone. An edit that changes an id is a different story: it remounts, and
-    // `pendingFit` is fresh on every mount, so a rename does re-fit. That is a
-    // side effect of the remount below, not a decision.
+    // A pending fit is consumed HERE too: when the app raises `fitToken` (a
+    // loaded example, the direction switch), the parse lands a commit later,
+    // and framing anything earlier would frame the previous layout.
     useEffect(() => {
         if (!paper) return;
-        settle(graph);
-    }, [cells, graph, paper, settle]);
+        if (!settle(graph)) return;
+        if (pendingFit.current) {
+            pendingFit.current = false;
+            fit();
+        }
+    }, [cells, fit, graph, paper, settle]);
 
     // Framing is its own signal, raised by the app when a different diagram is
-    // loaded — not on every parse. Typing must not yank the camera around.
+    // loaded or relaid out wholesale — not on every parse. Typing must not
+    // yank the camera around. Only the REQUEST is recorded here; whichever
+    // layout pass runs next consumes it against the fresh geometry.
     useEffect(() => {
         pendingFit.current = true;
-        if (!paper || !isMeasured(graph)) return;
-        pendingFit.current = false;
-        fit();
-    }, [fitToken, fit, graph, paper]);
+    }, [fitToken]);
 
     // Double-click renames in place. The id lives here rather than in the node
     // so that only one node is ever in edit mode, and so the canvas can clear
@@ -537,7 +541,12 @@ function Canvas({
                         )}
                     </Paper>
                 </PaperScroller>
-                <CanvasActions autoLayout={autoLayout} onAutoLayoutChange={onAutoLayoutChange} />
+                <CanvasActions
+                    autoLayout={autoLayout}
+                    onAutoLayoutChange={onAutoLayoutChange}
+                    direction={direction}
+                    onDirectionChange={onDirectionChange}
+                />
                 <ZoomControls onFit={fit} />
                 <AccessibilityCheck />
             </div>
@@ -594,6 +603,8 @@ export interface MermaidDiagramProps {
     /** Dagre owns positions when true; the user's drags own them when false. */
     readonly autoLayout: boolean;
     readonly onAutoLayoutChange: (autoLayout: boolean) => void;
+    /** Rewrites the `flowchart <dir>` header in the source. */
+    readonly onDirectionChange: (direction: FlowDirection) => void;
     /**
      * Where manual-mode positions live. Owned by the app — the canvas below
      * remounts on id changes, and dragged positions must survive that.
@@ -619,6 +630,7 @@ export function MermaidDiagram({
     linkEdit,
     autoLayout,
     onAutoLayoutChange,
+    onDirectionChange,
     positionsRef,
 }: MermaidDiagramProps) {
     /*
@@ -661,6 +673,7 @@ export function MermaidDiagram({
                 linkEdit={linkEdit}
                 autoLayout={autoLayout}
                 onAutoLayoutChange={onAutoLayoutChange}
+                onDirectionChange={onDirectionChange}
                 positionsRef={positionsRef}
             />
         </Diagram>

@@ -264,15 +264,17 @@ export function NodeToolbar({ cellId, data, edit }: NodeToolbarProps) {
     const [openEditor, setOpenEditor] = useState<'link' | 'image' | null>(null);
     const isLinkOpen = openEditor === 'link';
     const isImageOpen = openEditor === 'image';
-    // Open whenever the node wears an extended shape — otherwise nothing in
-    // the toolbar would show which shape is active. Derived (not mount-only):
-    // a source edit can reshape the selected node without remounting this
-    // toolbar. The user's own toggle takes precedence once used.
+    // The full catalogue shows by DEFAULT — a collapsed "⋯" hid three quarters
+    // of the supported shapes from anyone who did not think to press it. The
+    // toggle now only lets the user fold the grid away; it snaps back open
+    // when the node wears an extended shape, so the active one is never
+    // invisible.
     const isExtendedActive =
         !SHAPES.some((entry) => isActive(entry.id))
         && EXTENDED_SHAPES.some((entry) => isActive(entry.id));
     const [moreOverride, setMoreOverride] = useState<boolean | null>(null);
-    const isMoreOpen = moreOverride ?? isExtendedActive;
+    const isMoreOpen = moreOverride ?? true;
+    const isMoreLocked = isExtendedActive;
 
     return (
         <ElementOverlay cell={cellId} position="top" origin="bottom" dy={-10}>
@@ -299,15 +301,22 @@ export function NodeToolbar({ cellId, data, edit }: NodeToolbarProps) {
                         type="button"
                         className={`node-toolbar-toggle is-more${isMoreOpen ? ' is-active' : ''}`}
                         aria-pressed={isMoreOpen}
-                        aria-expanded={isMoreOpen}
-                        aria-label="More shapes"
-                        title="More shapes (@{ shape } syntax)"
+                        aria-expanded={isMoreOpen || isMoreLocked}
+                        aria-label={isMoreOpen ? 'Hide the extended shapes' : 'Show all shapes'}
+                        title={
+                            isMoreLocked
+                                ? 'The node uses an extended shape, so the full catalogue stays open'
+                                : isMoreOpen
+                                    ? 'Hide the extended shapes'
+                                    : 'Show all shapes (@{ shape } syntax)'
+                        }
+                        disabled={isMoreLocked}
                         onClick={() => setMoreOverride(!isMoreOpen)}
                     >
                         ⋯
                     </button>
                 </span>
-                {isMoreOpen && (
+                {(isMoreOpen || isMoreLocked) && (
                     <span className="node-toolbar-more" role="radiogroup" aria-label="More shapes">
                         {EXTENDED_SHAPES.map((entry) => (
                             <button
@@ -459,16 +468,18 @@ export function NodeToolbar({ cellId, data, edit }: NodeToolbarProps) {
                         >
                             <ImageIcon />
                         </button>
-                        <button
-                            type="button"
-                            className="node-toolbar-toggle"
-                            aria-label="Add a connected step"
-                            title="Add a connected step"
-                            onClick={() => edit.onAddChild(cellId)}
-                        >
-                            <PlusIcon />
-                        </button>
                     </span>
+                    {/* Standalone, labelled — the toolbar's one structural
+                        action, not another anonymous icon in the pile. */}
+                    <button
+                        type="button"
+                        className="node-toolbar-add"
+                        title="Append a new step connected from this node"
+                        onClick={() => edit.onAddChild(cellId)}
+                    >
+                        <PlusIcon />
+                        Add step
+                    </button>
                 </span>
                 {isLinkOpen && (
                     <UrlEditor

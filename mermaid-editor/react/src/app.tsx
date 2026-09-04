@@ -8,6 +8,7 @@ import { useTheme } from '@/hooks/use-theme';
 import {
     addChildNode,
     addEdge,
+    setDirection,
     setEdgeAnimation,
     setEdgeArrow,
     setEdgeInterpolate,
@@ -211,6 +212,19 @@ export function App() {
         };
     }, [setSource]);
 
+    const handleDirectionChange = useCallback(
+        (direction: FlowDirection) => {
+            const next = setDirection(sourceRef.current, direction);
+            if (next === null) return;
+            setSource(next, true);
+            setPresetId('custom');
+            // A direction flip reshapes the whole board; unlike typing, it
+            // should re-frame — the old camera points at the old shape.
+            setFitToken((token) => token + 1);
+        },
+        [setSource]
+    );
+
     function handleSourceChange(next: string) {
         setSource(next);
         // Once the text diverges from the example, stop claiming it is one.
@@ -277,6 +291,7 @@ export function App() {
                         linkEdit={linkEdit}
                         autoLayout={autoLayout}
                         onAutoLayoutChange={setAutoLayout}
+                        onDirectionChange={handleDirectionChange}
                         positionsRef={manualPositionsRef}
                     />
                 </div>

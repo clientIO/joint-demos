@@ -453,6 +453,22 @@ export function addEdge(source: string, from: CellId, to: CellId): string | null
     return `${source}${separator}${statementIndent(source)}${String(from)} --> ${String(to)}\n`;
 }
 
+/**
+ * Rewrite the diagram's layout direction on the `flowchart` / `graph` header
+ * line. A header with no direction gets one appended; `direction` statements
+ * inside subgraphs are left alone — only the header line is touched.
+ * @param source - Current Mermaid source.
+ * @param direction - Target direction: `TB`, `BT`, `LR` or `RL`.
+ * @returns The updated source, or `null` when no header line exists.
+ */
+export function setDirection(source: string, direction: string): string | null {
+    const header = /^([ \t]*(?:flowchart|graph))((?:[ \t]+)(?:TB|TD|BT|LR|RL))?(?=\s|$)/im.exec(source);
+    if (!header) return null;
+    const from = header.index + header[1].length;
+    const to = from + (header[2]?.length ?? 0);
+    return splice(source, from, to, ` ${direction}`);
+}
+
 /* ------------------------------------------------------------------------- *
  * Edge edits, for the controls on a selected edge.
  * ------------------------------------------------------------------------- */

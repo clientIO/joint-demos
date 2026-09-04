@@ -1,4 +1,5 @@
 import { useImageExport } from '@joint/react-plus';
+import type { FlowDirection } from '@/mermaid/types';
 
 /**
  * The canvas's action cluster: download as SVG and the auto-layout switch.
@@ -54,12 +55,28 @@ const EXPORT = {
 } as const;
 const DOWNLOAD_NAME = 'mermaid-diagram';
 
+/** The four flowchart directions, with an arrow glyph pointing the flow. */
+const DIRECTIONS: ReadonlyArray<{ readonly id: FlowDirection; readonly label: string; readonly glyph: string }> = [
+    { id: 'TB', label: 'Top to bottom', glyph: '↓' },
+    { id: 'BT', label: 'Bottom to top', glyph: '↑' },
+    { id: 'LR', label: 'Left to right', glyph: '→' },
+    { id: 'RL', label: 'Right to left', glyph: '←' },
+];
+
 export interface CanvasActionsProps {
     readonly autoLayout: boolean;
     readonly onAutoLayoutChange: (autoLayout: boolean) => void;
+    readonly direction: FlowDirection;
+    /** Rewrites the `flowchart <dir>` header in the source. */
+    readonly onDirectionChange: (direction: FlowDirection) => void;
 }
 
-export function CanvasActions({ autoLayout, onAutoLayoutChange }: CanvasActionsProps) {
+export function CanvasActions({
+    autoLayout,
+    onAutoLayoutChange,
+    direction,
+    onDirectionChange,
+}: CanvasActionsProps) {
     const [exportSvg, state] = useImageExport(EXPORT);
 
     return (
@@ -91,6 +108,22 @@ export function CanvasActions({ autoLayout, onAutoLayoutChange }: CanvasActionsP
                     <path d="M4.4 16.4v2.2a2 2 0 0 0 2 2h11.2a2 2 0 0 0 2-2v-2.2" />
                 </svg>
             </button>
+            <span className="canvas-direction" role="radiogroup" aria-label="Layout direction">
+                {DIRECTIONS.map((entry) => (
+                    <button
+                        key={entry.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={direction === entry.id}
+                        aria-label={`Lay out ${entry.label.toLowerCase()}`}
+                        title={`${entry.label} (flowchart ${entry.id})`}
+                        className={`app-button is-icon canvas-direction-option${direction === entry.id ? ' is-active' : ''}`}
+                        onClick={() => onDirectionChange(entry.id)}
+                    >
+                        {entry.glyph}
+                    </button>
+                ))}
+            </span>
             <button
                 type="button"
                 className="app-button layout-toggle"
