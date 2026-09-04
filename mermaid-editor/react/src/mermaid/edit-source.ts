@@ -423,6 +423,14 @@ export function setNodeLink(source: string, id: CellId, url: string | null): str
     return `${source}${separator}${statementIndent(source)}click ${name} "${safeUrl}"\n`;
 }
 
+/** The lowest `stepN` id no declaration uses yet. */
+function mintStepId(parsed: Parsed): string {
+    const taken = new Set(parsed.declarations.map((declaration) => declaration.id));
+    let counter = 1;
+    while (taken.has(`step${counter}`)) counter += 1;
+    return `step${counter}`;
+}
+
 /**
  * Append a new node connected from an existing one: `parent --> stepN[…]`.
  * @param source - Current Mermaid source.
@@ -432,11 +440,38 @@ export function setNodeLink(source: string, id: CellId, url: string | null): str
 export function addChildNode(source: string, parentId: CellId): string | null {
     const parsed = parse(source);
     if (!findDeclaration(parsed, parentId)) return null;
-    const taken = new Set(parsed.declarations.map((declaration) => declaration.id));
-    let counter = 1;
-    while (taken.has(`step${counter}`)) counter += 1;
+    const step = mintStepId(parsed);
     const separator = source.endsWith('\n') ? '' : '\n';
-    return `${source}${separator}${statementIndent(source)}${String(parentId)} --> step${counter}[New step]\n`;
+    return `${source}${separator}${statementIndent(source)}${String(parentId)} --> ${step}[New step]\n`;
+}
+
+/** The `flowchart` / `graph` header line every flowchart declaration starts with. */
+const FLOWCHART_HEADER = /^[ \t]*(?:flowchart|graph)\b/im;
+
+/**
+ * Append a new top-level, unconnected node — how a diagram starts from
+ * scratch. Blank source gets the `flowchart TD` header along with it.
+ *
+ * Refuses a source that is not a flowchart at all (a pasted `sequenceDiagram`,
+ * say): appending flowchart syntax there would silently corrupt the author's
+ * text, and every sibling editor here declines the same way when its anchor
+ * is missing.
+ * @param source - Current Mermaid source, possibly empty.
+ * @returns The updated source and the new node's id, or `null` when the
+ *   source is not a flowchart.
+ */
+export function addNode(
+    source: string
+): { readonly source: string; readonly id: string } | null {
+    if (source.trim() !== '' && !FLOWCHART_HEADER.test(source)) return null;
+    const base = source.trim() === '' ? 'flowchart TD\n' : source;
+    const parsed = parse(base);
+    const step = mintStepId(parsed);
+    const separator = base.endsWith('\n') ? '' : '\n';
+    return {
+        source: `${base}${separator}${statementIndent(base)}${step}[New step]\n`,
+        id: step,
+    };
 }
 
 /**

@@ -232,6 +232,7 @@ interface CanvasProps {
     readonly autoLayout: boolean;
     readonly onAutoLayoutChange: (autoLayout: boolean) => void;
     readonly onDirectionChange: (direction: FlowDirection) => void;
+    readonly onAddShape: () => void;
     readonly positionsRef: RefObject<ManualPositions>;
 }
 
@@ -246,6 +247,7 @@ function Canvas({
     autoLayout,
     onAutoLayoutChange,
     onDirectionChange,
+    onAddShape,
     positionsRef,
 }: CanvasProps) {
     const { graph } = useGraph();
@@ -387,6 +389,24 @@ function Canvas({
         pendingFit.current = true;
     }, [fitToken]);
 
+    // The node the pointer is over, driving the add-step "+" under it. The
+    // clear is DELAYED: the "+" hangs below the shape, so the pointer leaves
+    // the element on its way to the button, and an instant clear would yank
+    // the button away mid-travel. Entering the button cancels the clear.
+    const [hoveredId, setHoveredId] = useState<CellId | null>(null);
+    const hoverClearTimer = useRef<number | null>(null);
+    const cancelHoverClear = useCallback(() => {
+        if (hoverClearTimer.current !== null) {
+            window.clearTimeout(hoverClearTimer.current);
+            hoverClearTimer.current = null;
+        }
+    }, []);
+    const scheduleHoverClear = useCallback(() => {
+        cancelHoverClear();
+        hoverClearTimer.current = window.setTimeout(() => setHoveredId(null), 250);
+    }, [cancelHoverClear]);
+    useEffect(() => cancelHoverClear, [cancelHoverClear]);
+
     // Double-click renames in place. The id lives here rather than in the node
     // so that only one node is ever in edit mode, and so the canvas can clear
     // it when the selection moves on.
@@ -414,6 +434,19 @@ function Canvas({
     const maybeToolbarData = toolbarCell?.data as NodeData | undefined;
     // Subgraph containers take no shape or fill — their look is the block's.
     const toolbarData = maybeToolbarData?.isGroup ? undefined : maybeToolbarData;
+
+    // The add-step "+" hangs under the hovered node — or the selected one, so
+    // it is reachable by keyboard-and-click flows too. Groups take none: a
+    // child cannot hang off a subgraph.
+    const addTargetId = hoveredId ?? toolbarCell?.id ?? null;
+    const addTargetCell = addTargetId === null
+        ? undefined
+        : cells.find(
+            (cell) =>
+                cell.id === addTargetId
+                && cell.type === 'element'
+                && !(cell.data as NodeData).isGroup
+        );
 
     // A lone selected edge gets its own toolbar, floating over the midpoint of
     // its route. The position comes from the model — dagre writes its vertices
@@ -491,6 +524,17 @@ function Canvas({
                         // An edge is selectable like a node; a lone one opens
                         // the edge toolbar below.
                         onLinkPointerClick={({ model }) => onSelect([model.id])}
+                        onElementMouseEnter={({ model }) => {
+                            // Subgraph containers are skipped HERE, not just
+                            // in the lookup below: a container cannot take a
+                            // child, and recording it as hovered would drop
+                            // the "+" off the node the user has selected.
+                            const cell = cells.find((candidate) => candidate.id === model.id);
+                            if ((cell?.data as NodeData | undefined)?.isGroup) return;
+                            cancelHoverClear();
+                            setHoveredId(model.id);
+                        }}
+                        onElementMouseLeave={scheduleHoverClear}
                         onElementPointerDblClick={({ model }) => {
                             // Subgraph containers render no label input, so
                             // entering edit mode there would be a dead end.
@@ -524,6 +568,33 @@ function Canvas({
                                 edit={linkEdit}
                             />
                         )}
+                        {addTargetCell?.id !== undefined && (
+                            <ElementOverlay
+                                cell={addTargetCell.id}
+                                position="bottom"
+                                origin="top"
+                                dy={-6}
+                            >
+                                <button
+                                    type="button"
+                                    className="node-add-below"
+                                    aria-label="Add a connected step"
+                                    title="Add a connected step"
+                                    onPointerDown={(event) => event.stopPropagation()}
+                                    // Travelling from the node onto this button
+                                    // leaves the element; keep the button alive.
+                                    onPointerEnter={cancelHoverClear}
+                                    onPointerLeave={scheduleHoverClear}
+                                    onClick={() => {
+                                        if (addTargetCell.id !== undefined) {
+                                            edit.onAddChild(addTargetCell.id);
+                                        }
+                                    }}
+                                >
+                                    +
+                                </button>
+                            </ElementOverlay>
+                        )}
                         {connectFrom && connectTo
                             && connectFromId !== undefined && connectToId !== undefined && (
                             <ElementOverlay cell={connectToId} position="top" origin="bottom" dy={-10}>
@@ -546,6 +617,7 @@ function Canvas({
                     onAutoLayoutChange={onAutoLayoutChange}
                     direction={direction}
                     onDirectionChange={onDirectionChange}
+                    onAddShape={onAddShape}
                 />
                 <ZoomControls onFit={fit} />
                 <AccessibilityCheck />
@@ -605,6 +677,8 @@ export interface MermaidDiagramProps {
     readonly onAutoLayoutChange: (autoLayout: boolean) => void;
     /** Rewrites the `flowchart <dir>` header in the source. */
     readonly onDirectionChange: (direction: FlowDirection) => void;
+    /** Appends a top-level, unconnected node — the from-scratch start. */
+    readonly onAddShape: () => void;
     /**
      * Where manual-mode positions live. Owned by the app — the canvas below
      * remounts on id changes, and dragged positions must survive that.
@@ -631,6 +705,7 @@ export function MermaidDiagram({
     autoLayout,
     onAutoLayoutChange,
     onDirectionChange,
+    onAddShape,
     positionsRef,
 }: MermaidDiagramProps) {
     /*
@@ -674,6 +749,7 @@ export function MermaidDiagram({
                 autoLayout={autoLayout}
                 onAutoLayoutChange={onAutoLayoutChange}
                 onDirectionChange={onDirectionChange}
+                onAddShape={onAddShape}
                 positionsRef={positionsRef}
             />
         </Diagram>

@@ -240,6 +240,15 @@ export function MermaidEditor({
                 const key = ids.join(' ');
                 if (key === lastCursorKey.current) return;
                 lastCursorKey.current = key;
+                // A caret move CAUSED by our own document write is not the
+                // user pointing at anything: replacing the whole model moves
+                // the tracked cursor, and Monaco recovers its position from
+                // markers, firing this handler synchronously. Reporting that
+                // recovered line would overwrite a selection the same edit
+                // just asked for — a node added from the toolbar would
+                // deselect itself. The key is still recorded above, so the
+                // user's next real caret move is not swallowed.
+                if (isApplyingRef.current) return;
                 onCursorRef.current(ids);
             });
 

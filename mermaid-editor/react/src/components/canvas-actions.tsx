@@ -69,6 +69,8 @@ export interface CanvasActionsProps {
     readonly direction: FlowDirection;
     /** Rewrites the `flowchart <dir>` header in the source. */
     readonly onDirectionChange: (direction: FlowDirection) => void;
+    /** Appends a top-level, unconnected node — the from-scratch start. */
+    readonly onAddShape: () => void;
 }
 
 export function CanvasActions({
@@ -76,11 +78,21 @@ export function CanvasActions({
     onAutoLayoutChange,
     direction,
     onDirectionChange,
+    onAddShape,
 }: CanvasActionsProps) {
     const [exportSvg, state] = useImageExport(EXPORT);
 
     return (
         <div className="canvas-actions">
+            <button
+                type="button"
+                className="app-button add-shape"
+                aria-label="Add an unconnected shape"
+                title="Add a shape — it lands unconnected, ready to reshape and wire up"
+                onClick={onAddShape}
+            >
+                + Shape
+            </button>
             <button
                 type="button"
                 className="app-button is-icon"

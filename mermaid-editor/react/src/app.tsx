@@ -8,6 +8,7 @@ import { useTheme } from '@/hooks/use-theme';
 import {
     addChildNode,
     addEdge,
+    addNode,
     setDirection,
     setEdgeAnimation,
     setEdgeArrow,
@@ -225,6 +226,21 @@ export function App() {
         [setSource]
     );
 
+    /**
+     * The from-scratch start: append an unconnected node (seeding the
+     * `flowchart TD` header when the text is blank) and select it, so the
+     * shape toolbar opens on something immediately.
+     */
+    const handleAddShape = useCallback(() => {
+        const added = addNode(sourceRef.current);
+        // `null` means the text is not a flowchart at all; the parse error
+        // already says so, and appending to it would corrupt it.
+        if (added === null) return;
+        setSource(added.source, true);
+        setPresetId('custom');
+        setSelection({ ids: [added.id], origin: 'canvas' });
+    }, [setSource]);
+
     function handleSourceChange(next: string) {
         setSource(next);
         // Once the text diverges from the example, stop claiming it is one.
@@ -241,6 +257,10 @@ export function App() {
                         <span>Example</span>
                         <select
                             className="app-select"
+                            // The visible label is hidden on phones to fit the
+                            // header; carry the name on the control itself so
+                            // it never depends on that text being rendered.
+                            aria-label="Example"
                             value={presetId}
                             onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                                 handlePresetChange(event.target.value)}
@@ -292,6 +312,7 @@ export function App() {
                         autoLayout={autoLayout}
                         onAutoLayoutChange={setAutoLayout}
                         onDirectionChange={handleDirectionChange}
+                        onAddShape={handleAddShape}
                         positionsRef={manualPositionsRef}
                     />
                 </div>

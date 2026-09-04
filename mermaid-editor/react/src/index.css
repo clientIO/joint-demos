@@ -171,17 +171,23 @@ body {
 }
 
 /* The example picker lives up here: the editor pane is narrow, and this bar
-   had room going spare once the subtitle went. */
+   had room going spare once the subtitle went. The field (and the select
+   inside it) must be allowed to SHRINK — with everything `nowrap` and
+   fixed-width, a phone-wide header overflowed the lead cluster underneath
+   the actions and the logo. */
 .app-field {
     display: flex;
+    flex: 0 1 auto;
     align-items: center;
     gap: 8px;
+    min-width: 0;
     font-size: 12px;
     color: var(--text-muted);
     white-space: nowrap;
 }
 
 .app-select {
+    min-width: 0;
     padding: 5px 8px;
     font: inherit;
     font-size: 13px;
@@ -789,29 +795,28 @@ body {
     box-shadow: inset 0 0 0 1px var(--accent);
 }
 
-/* The add-step action: the toolbar's one structural edit, labelled and set
-   apart from the styling toggles. */
-.node-toolbar-add {
-    display: inline-flex;
-    gap: 5px;
-    align-items: center;
-    height: 22px;
-    padding: 0 9px;
-    margin-left: auto;
+/* The add-step "+", hanging just under the hovered or selected node — the
+   official editor's affordance. It overlaps the shape's bottom edge a touch
+   so the pointer can travel onto it without leaving both. */
+.node-add-below {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
     font: inherit;
-    font-size: 11.5px;
-    font-weight: 600;
+    font-size: 16px;
+    line-height: 1;
     color: var(--accent);
-    white-space: nowrap;
     cursor: pointer;
-    background: var(--overlay-chip);
-    border: none;
+    background: var(--overlay-surface);
+    border: 1px solid var(--accent);
     border-radius: 999px;
-    box-shadow: inset 0 0 0 1px var(--accent);
+    box-shadow: var(--overlay-shadow-sm);
 }
 
-.node-toolbar-add:hover {
-    color: var(--accent-contrast, var(--overlay-surface));
+.node-add-below:hover {
+    color: var(--surface);
     background: var(--accent);
 }
 
@@ -1069,5 +1074,38 @@ body {
         height: 45%;
         border-right: 0;
         border-bottom: 1px solid var(--border);
+    }
+
+    /* One tight header row on a phone: smaller title and logo, the
+       redundant "Example" label gone, the select free to shrink. */
+    .app-header {
+        gap: 10px;
+        padding: 10px 12px;
+    }
+
+    .app-lead {
+        gap: 10px;
+    }
+
+    .app-title {
+        font-size: 14px;
+    }
+
+    .app-field span {
+        display: none;
+    }
+
+    .app-actions {
+        gap: 10px;
+    }
+
+    .app-logo {
+        height: 18px;
+    }
+
+    /* The action cluster is wider than a phone canvas; wrap it. */
+    .canvas-actions {
+        flex-wrap: wrap;
+        max-width: calc(100% - 32px);
     }
 }
