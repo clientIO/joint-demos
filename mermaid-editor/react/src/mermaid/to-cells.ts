@@ -1,7 +1,7 @@
 import { linkMarkerArrow, linkMarkerCircle, linkMarkerCross } from '@joint/react-plus';
-import type { CellRecord, ElementRecord, LinkLabel, LinkMarker, LinkRecord } from '@joint/react-plus';
+import type { CellId, CellRecord, ElementRecord, LinkLabel, LinkMarker, LinkRecord } from '@joint/react-plus';
 import type { CSSProperties } from 'react';
-import type { FlowArrow, FlowDirection, FlowGraph, FlowShape } from './types';
+import type { FlowAnimation, FlowArrow, FlowDirection, FlowGraph, FlowShape, FlowStroke } from './types';
 
 /** Inline styling from a Mermaid `style` / `classDef` directive. */
 export interface NodeStyle {
@@ -20,14 +20,35 @@ export interface NodeData {
      * uses this to know when it would do nothing.
      */
     readonly hasOwnFill?: boolean;
+    /** Whether the node's own `style` line sets a label colour. */
+    readonly hasOwnTextColor?: boolean;
+    /** Set on `subgraph` containers; the renderer draws them differently. */
+    readonly isGroup?: true;
+    /** Hyperlink from a `click <id> "<url>"` statement. */
+    readonly href?: string;
+    /** Tooltip shown on the hyperlink badge. */
+    readonly hrefTitle?: string;
+    /** Image URL from an `id@{ img: "…" }` block. */
+    readonly img?: string;
+    /** Rendered image width from the block's `w:`, when set. */
+    readonly assetWidth?: number;
+    /** Rendered image height from the block's `h:`, when set. */
+    readonly assetHeight?: number;
 }
 
 /**
- * Mermaid's `color` styles the label; everything else styles the shape. Both
- * `style x fill:#eee` and `classDef` arrive as the same `"prop:value"` strings,
- * so one pass handles both.
+ * Mermaid's `color` and font properties style the label; everything else
+ * styles the shape. Both `style x fill:#eee` and `classDef` arrive as the same
+ * `"prop:value"` strings, so one pass handles both.
  */
-const TEXT_PROPERTIES = new Set(['color']);
+const TEXT_PROPERTIES = new Set([
+    'color',
+    'font-weight',
+    'font-style',
+    'font-family',
+    'font-size',
+    'text-decoration',
+]);
 
 /**
  * Label colours for a node that carries its own `fill`. Deliberately fixed
@@ -80,10 +101,10 @@ function toCamelCase(property: string): string {
     return property.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
 }
 
-/** Splits `"prop:value"` declarations into shape styles and a label colour. */
+/** Splits `"prop:value"` declarations into shape styles and label styles. */
 function resolveLayer(declarations: readonly string[]) {
     const body: Record<string, string> = {};
-    let color: string | undefined;
+    const text: Record<string, string> = {};
 
     for (const declaration of declarations) {
         const separator = declaration.indexOf(':');
@@ -92,12 +113,16 @@ function resolveLayer(declarations: readonly string[]) {
         const value = declaration.slice(separator + 1).trim();
         if (property === '' || value === '') continue;
         // Mermaid's `color` is the label colour, which on an SVG `<text>` is
-        // `fill`; anything else describes the shape.
-        if (TEXT_PROPERTIES.has(property)) color = value;
-        else body[toCamelCase(property)] = value;
+        // `fill`; the font properties style the label too. Anything else
+        // describes the shape.
+        if (TEXT_PROPERTIES.has(property)) {
+            text[property === 'color' ? 'fill' : toCamelCase(property)] = value;
+        } else {
+            body[toCamelCase(property)] = value;
+        }
     }
 
-    return { body, color };
+    return { body, text };
 }
 
 /**
@@ -120,26 +145,84 @@ function toNodeStyle(
     const fromClass = resolveLayer(classDeclarations);
     const own = resolveLayer(ownDeclarations);
     const body = { ...fromClass.body, ...own.body };
+    const text: Record<string, string> = { ...fromClass.text, ...own.text };
 
-    let color = own.color;
-    if (color === undefined && own.body.fill === undefined) color = fromClass.color;
+    // The label colour keeps the pairing rule described above; the other text
+    // properties merge per-property like the body ones.
+    let color: string | undefined = own.text.fill;
+    if (color === undefined && own.body.fill === undefined) color = fromClass.text.fill;
     if (color === undefined && body.fill !== undefined) {
         color = readableLabel(body.fill) ?? undefined;
     }
+    if (color === undefined) delete text.fill;
+    else text.fill = color;
 
     const style: NodeStyle = {
         ...(Object.keys(body).length > 0 ? { body } : {}),
-        ...(color === undefined ? {} : { text: { fill: color }}),
+        ...(Object.keys(text).length > 0 ? { text } : {}),
     };
     // Undefined rather than an empty object, so an unstyled node's `data` stays
     // identical between parses and nothing re-renders needlessly.
     return Object.keys(style).length > 0 ? style : undefined;
 }
 
-/** Data carried by every link cell. */
+/** Data carried by every link cell; the edge toolbar reads its state here. */
 export interface EdgeData {
     /** Minimum rank distance, honored by the directed-graph layout. */
     readonly minLen: number;
+    /** The `linkStyle` index this edge answers to. */
+    readonly index: number;
+    /** Which of the declarations sharing this (source, target) pair this is. */
+    readonly pairIndex: number;
+    readonly source: string;
+    readonly target: string;
+    readonly stroke: FlowStroke;
+    readonly sourceArrow: FlowArrow;
+    readonly targetArrow: FlowArrow;
+    readonly animation?: FlowAnimation;
+    /** The author's own `stroke:` from a `linkStyle`, when set. */
+    readonly color?: string;
+    /** The author's own `interpolate` curve, when set. */
+    readonly curve?: string;
+}
+
+/** Curve families that render as a smooth spline rather than straight runs. */
+const SMOOTH_CURVES = new Set([
+    'basis',
+    'bumpX',
+    'bumpY',
+    'cardinal',
+    'catmullRom',
+    'monotoneX',
+    'monotoneY',
+    'natural',
+]);
+
+/** The `linkStyle` properties the renderer honors, extracted by last-wins. */
+interface EdgePaint {
+    readonly stroke?: string;
+    readonly strokeWidth?: number;
+    readonly strokeDasharray?: string;
+}
+
+function toEdgePaint(declarations: readonly string[]): EdgePaint {
+    let stroke: string | undefined;
+    let strokeWidth: number | undefined;
+    let strokeDasharray: string | undefined;
+    for (const declaration of declarations) {
+        const separator = declaration.indexOf(':');
+        if (separator === -1) continue;
+        const property = declaration.slice(0, separator).trim().toLowerCase();
+        const value = declaration.slice(separator + 1).trim();
+        if (value === '') continue;
+        if (property === 'stroke') stroke = value;
+        if (property === 'stroke-width') {
+            const parsed = Number.parseFloat(value);
+            if (Number.isFinite(parsed)) strokeWidth = parsed;
+        }
+        if (property === 'stroke-dasharray') strokeDasharray = value;
+    }
+    return { stroke, strokeWidth, strokeDasharray };
 }
 
 export type MermaidCell = CellRecord<NodeData, EdgeData>;
@@ -221,9 +304,33 @@ const LABEL_BASE: Omit<LinkLabel, 'text'> = {
  * @returns Cells ready to hand to `GraphProvider`.
  */
 export function toCells(flow: FlowGraph): MermaidCell[] {
+    // Embedding is written from both sides — `parent` on the member, `embeds`
+    // on the container — the same pair `graph.toJSON()` produces. The layout
+    // reads `parent` to build its compound graph; `fitToChildren` reads
+    // `embeds` to size the container afterwards.
+    const memberIds = new Map<string, CellId[]>();
+    for (const member of [...flow.groups, ...flow.nodes]) {
+        if (member.parent === undefined) continue;
+        const siblings = memberIds.get(member.parent) ?? [];
+        siblings.push(member.id);
+        memberIds.set(member.parent, siblings);
+    }
+
+    // Containers first, so a member never references a not-yet-synced parent.
+    const groups: Array<ElementRecord<NodeData>> = flow.groups.map((group) => ({
+        id: group.id,
+        type: 'element',
+        // Behind the links (z −1), which are behind the nodes.
+        z: -2,
+        data: { label: group.label, shape: 'rect', isGroup: true },
+        ...(group.parent === undefined ? {} : { parent: group.parent }),
+        ...(memberIds.has(group.id) ? { embeds: memberIds.get(group.id) } : {}),
+    }));
+
     const elements: Array<ElementRecord<NodeData>> = flow.nodes.map((node) => {
         const style = toNodeStyle(node.classStyles, node.styles);
         const hasOwnFill = node.styles.some((entry) => /^\s*fill\s*:/i.test(entry));
+        const hasOwnTextColor = node.styles.some((entry) => /^\s*color\s*:/i.test(entry));
         return {
             id: node.id,
             type: 'element',
@@ -232,36 +339,68 @@ export function toCells(flow: FlowGraph): MermaidCell[] {
                 shape: node.shape,
                 ...(style ? { style } : {}),
                 ...(hasOwnFill ? { hasOwnFill } : {}),
+                ...(hasOwnTextColor ? { hasOwnTextColor } : {}),
+                ...(node.href === undefined ? {} : { href: node.href }),
+                ...(node.hrefTitle === undefined ? {} : { hrefTitle: node.hrefTitle }),
+                ...(node.img === undefined ? {} : { img: node.img }),
+                ...(node.assetWidth === undefined ? {} : { assetWidth: node.assetWidth }),
+                ...(node.assetHeight === undefined ? {} : { assetHeight: node.assetHeight }),
             },
+            ...(node.parent === undefined ? {} : { parent: node.parent }),
         };
     });
 
     const anchor = endAnchor(ANCHOR_MODE[flow.direction]);
-    const links: Array<LinkRecord<EdgeData>> = flow.edges.map((edge) => ({
-        id: edge.id,
-        type: 'link',
-        // Behind the elements, so a link never crosses over a node body.
-        z: -1,
-        // No `magnet`: the `midSide` anchor below resolves from the model bbox,
-        // and its attachment points already land on the outline of every shape
-        // here (a diamond's mid-side *is* its vertex). Pointing the ends at the
-        // rendered body instead measurably changed nothing.
-        source: { id: edge.source, anchor },
-        target: { id: edge.target, anchor },
-        data: { minLen: edge.minLen },
-        style: {
-            color: LINK_COLOR,
-            className: 'mermaid-link-line',
-            wrapperClassName: 'mermaid-link-wrapper',
-            linejoin: 'round',
-            linecap: 'round',
-            width: edge.stroke === 'thick' ? 3.5 : 2,
-            ...(edge.stroke === 'dotted' ? { dasharray: '6,5' } : {}),
-            sourceMarker: MARKERS[edge.sourceArrow],
-            targetMarker: MARKERS[edge.targetArrow],
-        },
-        ...(edge.label === '' ? {} : { labelMap: { main: { ...LABEL_BASE, text: edge.label }}}),
-    }));
+    const links: Array<LinkRecord<EdgeData>> = flow.edges.map((edge) => {
+        const paint = toEdgePaint(edge.styles);
+        return {
+            id: edge.id,
+            type: 'link',
+            // Behind the elements, so a link never crosses over a node body.
+            z: -1,
+            // No `magnet`: the `midSide` anchor below resolves from the model bbox,
+            // and its attachment points already land on the outline of every shape
+            // here (a diamond's mid-side *is* its vertex). Pointing the ends at the
+            // rendered body instead measurably changed nothing.
+            source: { id: edge.source, anchor },
+            target: { id: edge.target, anchor },
+            data: {
+                minLen: edge.minLen,
+                index: edge.index,
+                pairIndex: edge.pairIndex,
+                source: edge.source,
+                target: edge.target,
+                stroke: edge.stroke,
+                sourceArrow: edge.sourceArrow,
+                targetArrow: edge.targetArrow,
+                ...(edge.animation === undefined ? {} : { animation: edge.animation }),
+                ...(paint.stroke === undefined ? {} : { color: paint.stroke }),
+                ...(edge.curve === undefined ? {} : { curve: edge.curve }),
+            },
+            // An `interpolate` curve bends the line through dagre's vertices
+            // instead of running straight between them — the closest JointJS
+            // spelling of Mermaid's curve families.
+            ...(edge.curve !== undefined && SMOOTH_CURVES.has(edge.curve)
+                ? { connector: { name: 'smooth' }}
+                : {}),
+            style: {
+                color: paint.stroke ?? LINK_COLOR,
+                className: edge.animation === undefined
+                    ? 'mermaid-link-line'
+                    : `mermaid-link-line is-animated is-animated-${edge.animation}`,
+                wrapperClassName: 'mermaid-link-wrapper',
+                linejoin: 'round',
+                linecap: 'round',
+                width: paint.strokeWidth ?? (edge.stroke === 'thick' ? 3.5 : 2),
+                ...(paint.strokeDasharray !== undefined
+                    ? { dasharray: paint.strokeDasharray }
+                    : edge.stroke === 'dotted' ? { dasharray: '6,5' } : {}),
+                sourceMarker: MARKERS[edge.sourceArrow],
+                targetMarker: MARKERS[edge.targetArrow],
+            },
+            ...(edge.label === '' ? {} : { labelMap: { main: { ...LABEL_BASE, text: edge.label }}}),
+        };
+    });
 
-    return [...elements, ...links];
+    return [...groups, ...elements, ...links];
 }

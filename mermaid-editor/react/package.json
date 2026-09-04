@@ -14,16 +14,12 @@
     "test": "npm run typecheck && npm run lint"
   },
   "dependencies": {
-    "@codemirror/commands": "^6.10.4",
-    "@codemirror/language": "^6.12.4",
-    "@codemirror/state": "^6.7.1",
-    "@codemirror/view": "^6.43.7",
     "@joint/layout-directed-graph": "4.3.0",
     "@joint/plus": "4.3.1",
     "@joint/react-plus": "^4.3.1",
-    "@lezer/highlight": "^1.2.3",
     "codemirror-lang-mermaid": "^0.5.0",
     "mermaid": "^11.12.2",
+    "monaco-editor": "^0.55.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },

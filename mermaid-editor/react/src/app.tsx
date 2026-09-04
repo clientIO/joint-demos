@@ -5,14 +5,28 @@ import { MermaidDiagram } from '@/components/diagram';
 import { EditorPanel } from '@/components/editor-panel';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useTheme } from '@/hooks/use-theme';
-import { setNodeFill, setNodeLabel, setNodeShape } from '@/mermaid/edit-source';
-import type { EditableShape } from '@/mermaid/edit-source';
+import {
+    addChildNode,
+    addEdge,
+    addNode,
+    setDirection,
+    setEdgeAnimation,
+    setEdgeArrow,
+    setEdgeInterpolate,
+    setEdgeStyleProperty,
+    setNodeFill,
+    setNodeImage,
+    setNodeLabel,
+    setNodeLink,
+    setNodeShape,
+    setNodeStyleProperty,
+} from '@/mermaid/edit-source';
 import { MermaidParseError, parseFlowchart } from '@/mermaid/parse';
 import { DEFAULT_PRESET, PRESETS } from '@/mermaid/presets';
 import { toCells } from '@/mermaid/to-cells';
 import type { MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection } from '@/mermaid/types';
-import type { NodeEditHandlers } from '@/components/diagram';
+import type { EdgeEditHandlers, ManualPositions, NodeEditHandlers } from '@/components/diagram';
 import type { CellId } from '@joint/react-plus';
 
 /**
@@ -79,6 +93,11 @@ export function App() {
     // Bumped when a different diagram is loaded, which is the only time the
     // canvas re-frames itself. Editing the source leaves the camera alone.
     const [fitToken, setFitToken] = useState(0);
+    // Dagre owns node positions while true. Turned off, nodes drag by hand
+    // and links route around them; the positions live in the ref below — the
+    // canvas remounts on id changes, and drags must survive that.
+    const [autoLayout, setAutoLayout] = useState(true);
+    const manualPositionsRef = useRef<ManualPositions>(new Map());
     // Read through a ref so the toolbar handlers stay stable; a new identity on
     // every keystroke would remount the overlay mid-edit.
     const sourceRef = useRef(source);
@@ -105,8 +124,8 @@ export function App() {
                     setRendered({ direction: flow.direction, cells: toCells(flow) });
                     setError(null);
                     setNotice(
-                        flow.droppedSubgraphs > 0
-                            ? `${flow.droppedSubgraphs} subgraph${flow.droppedSubgraphs > 1 ? 's were' : ' was'} ignored — this demo renders a flat graph.`
+                        flow.droppedGroupEdges > 0
+                            ? `${flow.droppedGroupEdges} edge${flow.droppedGroupEdges > 1 ? 's' : ''} connected to a subgraph ${flow.droppedGroupEdges > 1 ? 'were' : 'was'} skipped — link its member nodes instead.`
                             : null
                     );
                     setParsedSource(source);
@@ -145,6 +164,10 @@ export function App() {
         setPresetId(preset.id);
         setSource(preset.source, true);
         setFitToken((token) => token + 1);
+        // A fresh example wants a fresh layout; hand-placed positions belong
+        // to the diagram they were dragged on.
+        setAutoLayout(true);
+        manualPositionsRef.current.clear();
     }
 
     /**
@@ -160,10 +183,62 @@ export function App() {
         };
         return {
             onLabelChange: (id, label) => apply(setNodeLabel(sourceRef.current, id, label)),
-            onShapeChange: (id, shape: EditableShape) =>
-                apply(setNodeShape(sourceRef.current, id, shape)),
+            onShapeChange: (id, shape) => apply(setNodeShape(sourceRef.current, id, shape)),
             onFillChange: (id, fill) => apply(setNodeFill(sourceRef.current, id, fill)),
+            onStyleChange: (id, property, value) =>
+                apply(setNodeStyleProperty(sourceRef.current, id, property, value)),
+            onLinkChange: (id, url) => apply(setNodeLink(sourceRef.current, id, url)),
+            onImageChange: (id, url) => apply(setNodeImage(sourceRef.current, id, url)),
+            onAddChild: (id) => apply(addChildNode(sourceRef.current, id)),
+            onConnect: (from, to) => apply(addEdge(sourceRef.current, from, to)),
         };
+    }, [setSource]);
+
+    /** Same contract as {@link edit}, for the controls on a selected edge. */
+    const linkEdit = useMemo<EdgeEditHandlers>(() => {
+        const apply = (next: string | null) => {
+            if (next === null) return;
+            setSource(next, true);
+            setPresetId('custom');
+        };
+        return {
+            onArrowChange: (edgeRef, change) =>
+                apply(setEdgeArrow(sourceRef.current, edgeRef, change)),
+            onColorChange: (edgeIndex, color) =>
+                apply(setEdgeStyleProperty(sourceRef.current, edgeIndex, 'stroke', color)),
+            onCurveChange: (edgeIndex, curve) =>
+                apply(setEdgeInterpolate(sourceRef.current, edgeIndex, curve)),
+            onAnimationChange: (edgeRef, animate) =>
+                apply(setEdgeAnimation(sourceRef.current, edgeRef, animate)),
+        };
+    }, [setSource]);
+
+    const handleDirectionChange = useCallback(
+        (direction: FlowDirection) => {
+            const next = setDirection(sourceRef.current, direction);
+            if (next === null) return;
+            setSource(next, true);
+            setPresetId('custom');
+            // A direction flip reshapes the whole board; unlike typing, it
+            // should re-frame — the old camera points at the old shape.
+            setFitToken((token) => token + 1);
+        },
+        [setSource]
+    );
+
+    /**
+     * The from-scratch start: append an unconnected node (seeding the
+     * `flowchart TD` header when the text is blank) and select it, so the
+     * shape toolbar opens on something immediately.
+     */
+    const handleAddShape = useCallback(() => {
+        const added = addNode(sourceRef.current);
+        // `null` means the text is not a flowchart at all; the parse error
+        // already says so, and appending to it would corrupt it.
+        if (added === null) return;
+        setSource(added.source, true);
+        setPresetId('custom');
+        setSelection({ ids: [added.id], origin: 'canvas' });
     }, [setSource]);
 
     function handleSourceChange(next: string) {
@@ -182,6 +257,10 @@ export function App() {
                         <span>Example</span>
                         <select
                             className="app-select"
+                            // The visible label is hidden on phones to fit the
+                            // header; carry the name on the control itself so
+                            // it never depends on that text being rendered.
+                            aria-label="Example"
                             value={presetId}
                             onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                                 handlePresetChange(event.target.value)}
@@ -229,6 +308,12 @@ export function App() {
                         onSelect={selectFromCanvas}
                         fitToken={fitToken}
                         edit={edit}
+                        linkEdit={linkEdit}
+                        autoLayout={autoLayout}
+                        onAutoLayoutChange={setAutoLayout}
+                        onDirectionChange={handleDirectionChange}
+                        onAddShape={handleAddShape}
+                        positionsRef={manualPositionsRef}
                     />
                 </div>
             </main>

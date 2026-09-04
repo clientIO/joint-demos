@@ -57,6 +57,44 @@ export const PRESETS: readonly Preset[] = [
 `,
     },
     {
+        id: 'v11-shapes',
+        name: 'Extended shapes (@{ shape })',
+        source: `flowchart TD
+    a@{ shape: sm-circ, label: "Start" } --> b@{ shape: card, label: "Read request" }
+    b --> c@{ shape: manual-input, label: "Operator input" }
+    c --> d@{ shape: div-rect, label: "Validate payload" }
+    d --> e@{ shape: docs, label: "Audit trail" }
+    d --> f@{ shape: delay, label: "Debounce" }
+    f --> g@{ shape: das, label: "Queue" }
+    g --> h@{ shape: disk, label: "Cold storage" }
+    d --> i@{ shape: display, label: "Dashboard" }
+    i --> j@{ shape: fork, label: "Fan out" }
+    j --> k@{ shape: doc, label: "Invoice" }
+    j --> l@{ shape: tag-doc, label: "Receipt" }
+    k --> m@{ shape: stop, label: "Stop" }
+    l --> m
+`,
+    },
+    {
+        id: 'subgraphs',
+        name: 'Subgraphs and animation',
+        source: `flowchart LR
+    subgraph intake [Intake]
+        request([Request]) --> triage{Urgent?}
+    end
+    subgraph work [Fulfilment]
+        prep[Prepare] --> qa[[Quality check]]
+    end
+    triage e1@-->|yes| prep
+    e1@{ animate: true }
+    triage -.->|no| backlog[(Backlog)]
+    backlog e2@--> prep
+    e2@{ animation: slow }
+    qa --> done((Shipped))
+    click request "https://docs.jointjs.com" "JointJS docs"
+`,
+    },
+    {
         id: 'edges',
         name: 'Edge and arrow styles',
         source: `flowchart TD
