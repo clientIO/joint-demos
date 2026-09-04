@@ -5,7 +5,7 @@ import { DEFAULT_DIAGRAM, DIAGRAMS } from '@/data/diagrams';
 import type { DiagramKey } from '@/data/diagrams';
 import type { RoutingStatus } from '@/routing/use-avoid-router';
 
-const INITIAL_STATUS: RoutingStatus = { isRouting: true, durationMs: null };
+const INITIAL_STATUS: RoutingStatus = { isRouting: true, durationMs: null, ready: false };
 
 export function App() {
     const [selected, setSelected] = useState<DiagramKey>(DEFAULT_DIAGRAM);

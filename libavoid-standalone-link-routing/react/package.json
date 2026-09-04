@@ -14,9 +14,10 @@
     "test": "npm run typecheck && npm run lint"
   },
   "dependencies": {
-    "@joint/core": "4.3.1",
-    "@joint/plus": "4.3.1",
-    "@joint/react-plus": "^4.3.1",
+    "@joint/core": "4.3.2",
+    "@joint/plus": "4.3.2",
+    "@joint/react-plus": "4.3.2",
+    "@joint/router-avoid": "4.3.2",
     "libavoid-js": "0.4.5",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"

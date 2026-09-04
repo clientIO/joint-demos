@@ -1,56 +1,41 @@
-import type { dia, mvc } from '@joint/plus';
+import { linkAttributes } from '@joint/react-plus';
+import type { dia } from '@joint/plus';
+import { DARK_COLOR } from '@/theme';
 
-/**
- * The option that tells this app's own graph listener the write came from the
- * router and needs no round trip back to the worker.
- *
- * `unset` types its options as `Silenceable`, but JointJS passes the whole
- * object through to the `change` event, which is where this is read.
- */
-const FROM_WORKER = { fromWorker: true } as unknown as mvc.Silenceable;
-
-/**
- * The class `@joint/react` puts on every link's visible line. Writing the
- * `class` attribute replaces it wholesale, so it has to be repeated here.
- */
-const LINE_CLASS = 'jj-link-line';
-
-/** Added while the worker still owes the link a route; styled in `index.css`. */
+/** Added while the router still owes the link a route; styled in `index.css`. */
 export const AWAITING_CLASS = 'awaiting-update';
+
+/**
+ * The one style every link in this demo draws with; `cells.ts` seeds each link
+ * record with it. No initial awaiting class needed: the paper stays frozen
+ * until the router service is running, and `start()` fires `link:routing` for
+ * every link — applying the awaiting look — before the first paint.
+ */
+export const LINK_STYLE = {
+    color: DARK_COLOR,
+    width: 1.5,
+    targetMarker: 'arrow',
+} as const;
+
+/*
+ * The two looks a link toggles between, expanded once through
+ * `linkAttributes()` — the same machinery that expands the records in
+ * `cells.ts` — and applied as-is. Only `style`/`attrs` are produced. The
+ * link's ends and vertices stay untouched: they belong to the router service,
+ * and writing them back would both discard its computed anchors and trigger
+ * it to re-route.
+ */
+const AWAITING_ATTRIBUTES = linkAttributes({ style: { ...LINK_STYLE, className: AWAITING_CLASS } });
+const STABLE_ATTRIBUTES = linkAttributes({ style: LINK_STYLE });
 
 /**
  * Marks a link as waiting for its route, or clears the mark.
  *
  * The pending look lives on the model rather than on a mounted view, which is
  * what makes it work under virtual rendering: a link scrolled off-screen has no
- * view to hold a highlighter, and would come back without one. Its `attrs` come
- * with it whenever it is mounted again.
- *
- * The initial value is declared on the link records in `cells.ts` — every
- * link starts out awaiting — via the `style.className` shorthand, which expands
- * to exactly the class written here.
+ * view to hold a highlighter, and would come back without one. Its attributes
+ * come with it whenever it is mounted again.
  */
 export function setLinkAwaiting(link: dia.Link, awaiting: boolean): void {
-    link.attr('line/class', awaiting ? `${LINE_CLASS} ${AWAITING_CLASS}` : LINE_CLASS, {
-        fromWorker: true,
-    });
-    if (!awaiting) return;
-    /*
-     * Hand the link back to the paper's own orthogonal routing for the wait.
-     *
-     * A routed link carries `router: 'normal'`, which draws it straight through
-     * the vertices Libavoid gave it. Those vertices are exactly what is about to
-     * be replaced, so leaving that router on would draw the link as a set of
-     * diagonals cutting across the diagram until the reply lands. Unsetting it
-     * keeps the pending link orthogonal — the same shape it will come back as.
-     */
-    link.unset('router', FROM_WORKER);
-    /*
-     * And drop the route itself, because the paper's router reads the vertices
-     * it is given. They describe a route Libavoid computed for the diagram as it
-     * was — mid-drag, for a node that has since moved — so routing through them
-     * would bend the pending link around nothing. A link with no route has no
-     * vertices; the reply brings both back together.
-     */
-    link.set('vertices', [], FROM_WORKER);
+    link.set(awaiting ? AWAITING_ATTRIBUTES : STABLE_ATTRIBUTES);
 }
