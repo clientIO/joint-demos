@@ -8,19 +8,23 @@ import { useTheme } from '@/hooks/use-theme';
 import {
     addChildNode,
     addEdge,
+    setEdgeAnimation,
+    setEdgeArrow,
+    setEdgeInterpolate,
+    setEdgeStyleProperty,
     setNodeFill,
+    setNodeImage,
     setNodeLabel,
     setNodeLink,
     setNodeShape,
     setNodeStyleProperty,
 } from '@/mermaid/edit-source';
-import type { EditableShape } from '@/mermaid/edit-source';
 import { MermaidParseError, parseFlowchart } from '@/mermaid/parse';
 import { DEFAULT_PRESET, PRESETS } from '@/mermaid/presets';
 import { toCells } from '@/mermaid/to-cells';
 import type { MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection } from '@/mermaid/types';
-import type { NodeEditHandlers } from '@/components/diagram';
+import type { EdgeEditHandlers, ManualPositions, NodeEditHandlers } from '@/components/diagram';
 import type { CellId } from '@joint/react-plus';
 
 /**
@@ -87,6 +91,11 @@ export function App() {
     // Bumped when a different diagram is loaded, which is the only time the
     // canvas re-frames itself. Editing the source leaves the camera alone.
     const [fitToken, setFitToken] = useState(0);
+    // Dagre owns node positions while true. Turned off, nodes drag by hand
+    // and links route around them; the positions live in the ref below — the
+    // canvas remounts on id changes, and drags must survive that.
+    const [autoLayout, setAutoLayout] = useState(true);
+    const manualPositionsRef = useRef<ManualPositions>(new Map());
     // Read through a ref so the toolbar handlers stay stable; a new identity on
     // every keystroke would remount the overlay mid-edit.
     const sourceRef = useRef(source);
@@ -153,6 +162,10 @@ export function App() {
         setPresetId(preset.id);
         setSource(preset.source, true);
         setFitToken((token) => token + 1);
+        // A fresh example wants a fresh layout; hand-placed positions belong
+        // to the diagram they were dragged on.
+        setAutoLayout(true);
+        manualPositionsRef.current.clear();
     }
 
     /**
@@ -168,14 +181,33 @@ export function App() {
         };
         return {
             onLabelChange: (id, label) => apply(setNodeLabel(sourceRef.current, id, label)),
-            onShapeChange: (id, shape: EditableShape) =>
-                apply(setNodeShape(sourceRef.current, id, shape)),
+            onShapeChange: (id, shape) => apply(setNodeShape(sourceRef.current, id, shape)),
             onFillChange: (id, fill) => apply(setNodeFill(sourceRef.current, id, fill)),
             onStyleChange: (id, property, value) =>
                 apply(setNodeStyleProperty(sourceRef.current, id, property, value)),
             onLinkChange: (id, url) => apply(setNodeLink(sourceRef.current, id, url)),
+            onImageChange: (id, url) => apply(setNodeImage(sourceRef.current, id, url)),
             onAddChild: (id) => apply(addChildNode(sourceRef.current, id)),
             onConnect: (from, to) => apply(addEdge(sourceRef.current, from, to)),
+        };
+    }, [setSource]);
+
+    /** Same contract as {@link edit}, for the controls on a selected edge. */
+    const linkEdit = useMemo<EdgeEditHandlers>(() => {
+        const apply = (next: string | null) => {
+            if (next === null) return;
+            setSource(next, true);
+            setPresetId('custom');
+        };
+        return {
+            onArrowChange: (edgeRef, change) =>
+                apply(setEdgeArrow(sourceRef.current, edgeRef, change)),
+            onColorChange: (edgeIndex, color) =>
+                apply(setEdgeStyleProperty(sourceRef.current, edgeIndex, 'stroke', color)),
+            onCurveChange: (edgeIndex, curve) =>
+                apply(setEdgeInterpolate(sourceRef.current, edgeIndex, curve)),
+            onAnimationChange: (edgeRef, animate) =>
+                apply(setEdgeAnimation(sourceRef.current, edgeRef, animate)),
         };
     }, [setSource]);
 
@@ -242,6 +274,10 @@ export function App() {
                         onSelect={selectFromCanvas}
                         fitToken={fitToken}
                         edit={edit}
+                        linkEdit={linkEdit}
+                        autoLayout={autoLayout}
+                        onAutoLayoutChange={setAutoLayout}
+                        positionsRef={manualPositionsRef}
                     />
                 </div>
             </main>

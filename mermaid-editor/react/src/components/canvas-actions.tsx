@@ -1,15 +1,17 @@
 import { useImageExport } from '@joint/react-plus';
 
 /**
- * Saves the diagram as an SVG.
+ * The canvas's action cluster: download as SVG and the auto-layout switch.
+ * (The `.mmd` download lives in the editor pane's footer, with the source.)
  *
- * Deliberately not part of the zoom cluster: that is camera state, this acts on
- * the document. It sits in the canvas's free corner, diagonally opposite the
- * zoom controls, so the two are not read as one toolbar — and clear of the
- * header's logo, which the previous top-right position crowded.
+ * Deliberately not part of the zoom cluster: that is camera state, these act
+ * on the document. It sits in the canvas's free corner, diagonally opposite
+ * the zoom controls, so the two are not read as one toolbar — and clear of
+ * the header's logo, which the previous top-right position crowded.
  *
- * Icon only. Spelling it out made a single secondary action the loudest thing
- * on the canvas.
+ * Icons only for the downloads. Spelling them out made secondary actions the
+ * loudest thing on the canvas. The layout switch is text: it is a *mode*, and
+ * its current state has to be readable at a glance.
  *
  * SVG rather than a raster format — the diagram is vector all the way down.
  *
@@ -52,7 +54,12 @@ const EXPORT = {
 } as const;
 const DOWNLOAD_NAME = 'mermaid-diagram';
 
-export function ExportButton() {
+export interface CanvasActionsProps {
+    readonly autoLayout: boolean;
+    readonly onAutoLayoutChange: (autoLayout: boolean) => void;
+}
+
+export function CanvasActions({ autoLayout, onAutoLayoutChange }: CanvasActionsProps) {
     const [exportSvg, state] = useImageExport(EXPORT);
 
     return (
@@ -83,6 +90,19 @@ export function ExportButton() {
                     <path d="M12 3.4v10.2m0 0 3.8-3.8M12 13.6l-3.8-3.8" />
                     <path d="M4.4 16.4v2.2a2 2 0 0 0 2 2h11.2a2 2 0 0 0 2-2v-2.2" />
                 </svg>
+            </button>
+            <button
+                type="button"
+                className="app-button layout-toggle"
+                aria-pressed={!autoLayout}
+                title={
+                    autoLayout
+                        ? 'Turn auto-layout off: drag nodes yourself, links route around them'
+                        : 'Turn auto-layout back on — the layout re-runs and re-frames'
+                }
+                onClick={() => onAutoLayoutChange(!autoLayout)}
+            >
+                {autoLayout ? 'Auto layout' : 'Manual layout'}
             </button>
         </div>
     );

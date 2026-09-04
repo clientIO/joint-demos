@@ -1,7 +1,7 @@
 import { linkMarkerArrow, linkMarkerCircle, linkMarkerCross } from '@joint/react-plus';
 import type { CellId, CellRecord, ElementRecord, LinkLabel, LinkMarker, LinkRecord } from '@joint/react-plus';
 import type { CSSProperties } from 'react';
-import type { FlowArrow, FlowDirection, FlowGraph, FlowShape } from './types';
+import type { FlowAnimation, FlowArrow, FlowDirection, FlowGraph, FlowShape, FlowStroke } from './types';
 
 /** Inline styling from a Mermaid `style` / `classDef` directive. */
 export interface NodeStyle {
@@ -20,12 +20,20 @@ export interface NodeData {
      * uses this to know when it would do nothing.
      */
     readonly hasOwnFill?: boolean;
+    /** Whether the node's own `style` line sets a label colour. */
+    readonly hasOwnTextColor?: boolean;
     /** Set on `subgraph` containers; the renderer draws them differently. */
     readonly isGroup?: true;
     /** Hyperlink from a `click <id> "<url>"` statement. */
     readonly href?: string;
     /** Tooltip shown on the hyperlink badge. */
     readonly hrefTitle?: string;
+    /** Image URL from an `id@{ img: "…" }` block. */
+    readonly img?: string;
+    /** Rendered image width from the block's `w:`, when set. */
+    readonly assetWidth?: number;
+    /** Rendered image height from the block's `h:`, when set. */
+    readonly assetHeight?: number;
 }
 
 /**
@@ -158,10 +166,63 @@ function toNodeStyle(
     return Object.keys(style).length > 0 ? style : undefined;
 }
 
-/** Data carried by every link cell. */
+/** Data carried by every link cell; the edge toolbar reads its state here. */
 export interface EdgeData {
     /** Minimum rank distance, honored by the directed-graph layout. */
     readonly minLen: number;
+    /** The `linkStyle` index this edge answers to. */
+    readonly index: number;
+    /** Which of the declarations sharing this (source, target) pair this is. */
+    readonly pairIndex: number;
+    readonly source: string;
+    readonly target: string;
+    readonly stroke: FlowStroke;
+    readonly sourceArrow: FlowArrow;
+    readonly targetArrow: FlowArrow;
+    readonly animation?: FlowAnimation;
+    /** The author's own `stroke:` from a `linkStyle`, when set. */
+    readonly color?: string;
+    /** The author's own `interpolate` curve, when set. */
+    readonly curve?: string;
+}
+
+/** Curve families that render as a smooth spline rather than straight runs. */
+const SMOOTH_CURVES = new Set([
+    'basis',
+    'bumpX',
+    'bumpY',
+    'cardinal',
+    'catmullRom',
+    'monotoneX',
+    'monotoneY',
+    'natural',
+]);
+
+/** The `linkStyle` properties the renderer honors, extracted by last-wins. */
+interface EdgePaint {
+    readonly stroke?: string;
+    readonly strokeWidth?: number;
+    readonly strokeDasharray?: string;
+}
+
+function toEdgePaint(declarations: readonly string[]): EdgePaint {
+    let stroke: string | undefined;
+    let strokeWidth: number | undefined;
+    let strokeDasharray: string | undefined;
+    for (const declaration of declarations) {
+        const separator = declaration.indexOf(':');
+        if (separator === -1) continue;
+        const property = declaration.slice(0, separator).trim().toLowerCase();
+        const value = declaration.slice(separator + 1).trim();
+        if (value === '') continue;
+        if (property === 'stroke') stroke = value;
+        if (property === 'stroke-width') {
+            const parsed = Number.parseFloat(value);
+            if (Number.isFinite(parsed)) strokeWidth = parsed;
+        }
+        if (property === 'stroke-dasharray') strokeDasharray = value;
+    }
+    return { stroke, strokeWidth, strokeDasharray };
 }
 
 export type MermaidCell = CellRecord<NodeData, EdgeData>;
@@ -269,6 +330,7 @@ export function toCells(flow: FlowGraph): MermaidCell[] {
     const elements: Array<ElementRecord<NodeData>> = flow.nodes.map((node) => {
         const style = toNodeStyle(node.classStyles, node.styles);
         const hasOwnFill = node.styles.some((entry) => /^\s*fill\s*:/i.test(entry));
+        const hasOwnTextColor = node.styles.some((entry) => /^\s*color\s*:/i.test(entry));
         return {
             id: node.id,
             type: 'element',
@@ -277,41 +339,68 @@ export function toCells(flow: FlowGraph): MermaidCell[] {
                 shape: node.shape,
                 ...(style ? { style } : {}),
                 ...(hasOwnFill ? { hasOwnFill } : {}),
+                ...(hasOwnTextColor ? { hasOwnTextColor } : {}),
                 ...(node.href === undefined ? {} : { href: node.href }),
                 ...(node.hrefTitle === undefined ? {} : { hrefTitle: node.hrefTitle }),
+                ...(node.img === undefined ? {} : { img: node.img }),
+                ...(node.assetWidth === undefined ? {} : { assetWidth: node.assetWidth }),
+                ...(node.assetHeight === undefined ? {} : { assetHeight: node.assetHeight }),
             },
             ...(node.parent === undefined ? {} : { parent: node.parent }),
         };
     });
 
     const anchor = endAnchor(ANCHOR_MODE[flow.direction]);
-    const links: Array<LinkRecord<EdgeData>> = flow.edges.map((edge) => ({
-        id: edge.id,
-        type: 'link',
-        // Behind the elements, so a link never crosses over a node body.
-        z: -1,
-        // No `magnet`: the `midSide` anchor below resolves from the model bbox,
-        // and its attachment points already land on the outline of every shape
-        // here (a diamond's mid-side *is* its vertex). Pointing the ends at the
-        // rendered body instead measurably changed nothing.
-        source: { id: edge.source, anchor },
-        target: { id: edge.target, anchor },
-        data: { minLen: edge.minLen },
-        style: {
-            color: LINK_COLOR,
-            className: edge.animation === undefined
-                ? 'mermaid-link-line'
-                : `mermaid-link-line is-animated is-animated-${edge.animation}`,
-            wrapperClassName: 'mermaid-link-wrapper',
-            linejoin: 'round',
-            linecap: 'round',
-            width: edge.stroke === 'thick' ? 3.5 : 2,
-            ...(edge.stroke === 'dotted' ? { dasharray: '6,5' } : {}),
-            sourceMarker: MARKERS[edge.sourceArrow],
-            targetMarker: MARKERS[edge.targetArrow],
-        },
-        ...(edge.label === '' ? {} : { labelMap: { main: { ...LABEL_BASE, text: edge.label }}}),
-    }));
+    const links: Array<LinkRecord<EdgeData>> = flow.edges.map((edge) => {
+        const paint = toEdgePaint(edge.styles);
+        return {
+            id: edge.id,
+            type: 'link',
+            // Behind the elements, so a link never crosses over a node body.
+            z: -1,
+            // No `magnet`: the `midSide` anchor below resolves from the model bbox,
+            // and its attachment points already land on the outline of every shape
+            // here (a diamond's mid-side *is* its vertex). Pointing the ends at the
+            // rendered body instead measurably changed nothing.
+            source: { id: edge.source, anchor },
+            target: { id: edge.target, anchor },
+            data: {
+                minLen: edge.minLen,
+                index: edge.index,
+                pairIndex: edge.pairIndex,
+                source: edge.source,
+                target: edge.target,
+                stroke: edge.stroke,
+                sourceArrow: edge.sourceArrow,
+                targetArrow: edge.targetArrow,
+                ...(edge.animation === undefined ? {} : { animation: edge.animation }),
+                ...(paint.stroke === undefined ? {} : { color: paint.stroke }),
+                ...(edge.curve === undefined ? {} : { curve: edge.curve }),
+            },
+            // An `interpolate` curve bends the line through dagre's vertices
+            // instead of running straight between them — the closest JointJS
+            // spelling of Mermaid's curve families.
+            ...(edge.curve !== undefined && SMOOTH_CURVES.has(edge.curve)
+                ? { connector: { name: 'smooth' }}
+                : {}),
+            style: {
+                color: paint.stroke ?? LINK_COLOR,
+                className: edge.animation === undefined
+                    ? 'mermaid-link-line'
+                    : `mermaid-link-line is-animated is-animated-${edge.animation}`,
+                wrapperClassName: 'mermaid-link-wrapper',
+                linejoin: 'round',
+                linecap: 'round',
+                width: paint.strokeWidth ?? (edge.stroke === 'thick' ? 3.5 : 2),
+                ...(paint.strokeDasharray !== undefined
+                    ? { dasharray: paint.strokeDasharray }
+                    : edge.stroke === 'dotted' ? { dasharray: '6,5' } : {}),
+                sourceMarker: MARKERS[edge.sourceArrow],
+                targetMarker: MARKERS[edge.targetArrow],
+            },
+            ...(edge.label === '' ? {} : { labelMap: { main: { ...LABEL_BASE, text: edge.label }}}),
+        };
+    });
 
     return [...groups, ...elements, ...links];
 }

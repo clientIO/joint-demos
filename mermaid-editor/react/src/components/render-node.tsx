@@ -9,6 +9,11 @@ import { getShapeSpec } from './shapes';
 const FONT_SIZE = 13;
 const LINE_HEIGHT = 17;
 
+/** Image-card geometry: default picture box, frame padding, picture-label gap. */
+const IMAGE_DEFAULT_SIZE = 56;
+const IMAGE_PAD = 10;
+const IMAGE_GAP = 8;
+
 /** Mermaid writes line breaks as `<br>`; `SVGText` splits on newlines. */
 const LINE_BREAK = /<br\s*\/?>/gi;
 
@@ -106,6 +111,10 @@ function FlowNodeCell(data: NodeData) {
     const isEditing = editing !== null && cellId !== undefined && editing.editingId === cellId;
     const label = data.label;
     const spec = getShapeSpec(data.shape);
+    // An `@{ img: … }` node renders as an image card: picture on top, label
+    // underneath, rectangle outline — Mermaid's `imageSquare`.
+    const imageWidth = data.img === undefined ? 0 : data.assetWidth ?? IMAGE_DEFAULT_SIZE;
+    const imageHeight = data.img === undefined ? 0 : data.assetHeight ?? IMAGE_DEFAULT_SIZE;
     /*
      * The measured node is held in state, not in a plain ref.
      *
@@ -142,19 +151,51 @@ function FlowNodeCell(data: NodeData) {
      */
     const { textRef, options } = useMemo(() => ({
         textRef: { current: textNode },
-        options: { transform: spec.size },
-    }), [textNode, spec]);
+        options: {
+            transform: imageWidth === 0
+                ? spec.size
+                : (title: { width: number; height: number }) => ({
+                    // The card must hold whichever is wider, label or image.
+                    width: Math.max(
+                        title.width + 2 * IMAGE_PAD,
+                        imageWidth + 2 * IMAGE_PAD,
+                        60
+                    ),
+                    height: title.height + imageHeight + IMAGE_GAP + 2 * IMAGE_PAD,
+                }),
+        },
+    }), [textNode, spec, imageWidth, imageHeight]);
     const { width, height } = useMeasureElement(textRef, options);
 
     const cx = width / 2;
     const cy = height / 2;
     // Shapes whose enclosed area is off-centre (the cylinder's cap) shift the
-    // label only — the outline geometry keeps using the true centre.
-    const textY = cy + (spec.textDy ?? 0);
+    // label only — the outline geometry keeps using the true centre. On an
+    // image card the label sits in the strip below the picture instead.
+    const textY = imageWidth === 0
+        ? cy + (spec.textDy ?? 0)
+        : IMAGE_PAD + imageHeight + IMAGE_GAP
+            + (height - imageHeight - IMAGE_GAP - 2 * IMAGE_PAD) / 2;
 
     return (
         <>
-            <SVGShape shape={data.shape} width={width} height={height} style={data.style?.body} />
+            <SVGShape
+                shape={imageWidth === 0 ? data.shape : 'squareRect'}
+                width={width}
+                height={height}
+                style={data.style?.body}
+            />
+            {data.img !== undefined && (
+                <image
+                    href={data.img}
+                    x={(width - imageWidth) / 2}
+                    y={IMAGE_PAD}
+                    width={imageWidth}
+                    height={imageHeight}
+                    preserveAspectRatio="xMidYMid meet"
+                    pointerEvents="none"
+                />
+            )}
             <SVGText
                 ref={setTextNode}
                 style={data.style?.text}

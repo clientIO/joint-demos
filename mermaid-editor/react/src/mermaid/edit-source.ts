@@ -1,5 +1,6 @@
 import type { CellId } from '@joint/react-plus';
 import { parseFlowchartSpans } from './flowchart-tree';
+import type { FlowArrow, FlowStroke } from './types';
 
 /**
  * Targeted edits to Mermaid source, for the controls on a selected node.
@@ -204,34 +205,49 @@ export function setNodeLabel(source: string, id: CellId, label: string): string 
     return splice(source, declaration.idTo, declaration.idTo, `[${text}]`);
 }
 
+/** Strips the optional quotes a bracket label may carry, for `label: "…"`. */
+function unquoteLabel(label: string): string {
+    const trimmed = label.trim();
+    return trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"')
+        ? trimmed.slice(1, -1)
+        : trimmed;
+}
+
 /**
- * Swap the delimiters around a node's label, which is how Mermaid spells shape.
+ * Swap a node's shape. The classic nine rewrite the delimiters, which is how
+ * Mermaid originally spelt shape; any other (v11) shape name has no delimiter
+ * syntax at all, so the declaration is rewritten into an `id@{ shape: …,
+ * label: "…" }` block — the only spelling those shapes have.
  * @param source - Current Mermaid source.
  * @param id - Node to reshape.
- * @param shape - Target shape.
+ * @param shape - Target shape: an {@link EditableShape} or a v11 shape name.
  * @returns The updated source, or `null` when the node cannot be found.
  */
-export function setNodeShape(source: string, id: CellId, shape: EditableShape): string | null {
+export function setNodeShape(source: string, id: CellId, shape: string): string | null {
     // Same rule as the label: a `@{ … }` block's `shape:` wins over the
     // delimiters, so the reshape has to land inside the block.
     const meta = findMetaBlock(source, id);
     if (meta) {
-        const body = withMetaEntry(meta.body, 'shape', META_SHAPE_NAMES[shape] ?? 'rect');
+        const body = withMetaEntry(meta.body, 'shape', META_SHAPE_NAMES[shape] ?? shape);
         return splice(source, meta.bodyFrom, meta.bodyTo, body);
     }
 
     const parsed = parse(source);
     const declaration = findDeclaration(parsed, id);
     if (!declaration) return null;
-    const [open, close] = SHAPE_SYNTAX[shape];
     const label = declaration.labelFrom !== undefined && declaration.labelTo !== undefined
         ? source.slice(declaration.labelFrom, declaration.labelTo)
         : quoteLabel(String(id));
 
+    const bracket = (SHAPE_SYNTAX as Record<string, readonly [string, string]>)[shape];
+    const replacement = bracket
+        ? `${bracket[0]}${label}${bracket[1]}`
+        : `@{ shape: ${shape}, label: "${unquoteLabel(label).replaceAll('"', '\'')}" }`;
+
     if (declaration.shapeFrom !== undefined && declaration.shapeTo !== undefined) {
-        return splice(source, declaration.shapeFrom, declaration.shapeTo, `${open}${label}${close}`);
+        return splice(source, declaration.shapeFrom, declaration.shapeTo, replacement);
     }
-    return splice(source, declaration.idTo, declaration.idTo, `${open}${label}${close}`);
+    return splice(source, declaration.idTo, declaration.idTo, replacement);
 }
 
 /**
@@ -284,7 +300,10 @@ interface MetaBlock {
  */
 function findMetaBlock(source: string, id: CellId): MetaBlock | null {
     const matcher = new RegExp(
-        `(?:^|[^\\w"])${escapeRegExp(String(id))}@\\{([^}]*)\\}`,
+        // Boundary: `-` is legal inside Mermaid ids, so it must not separate —
+        // editing `b` may not match `a-b`. Body: a `}` inside a quoted label
+        // belongs to the label, not the block.
+        `(?:^|[^\\w"-])${escapeRegExp(String(id))}@\\{((?:"[^"]*"|[^}])*)\\}`,
         'm'
     );
     const match = matcher.exec(source);
@@ -432,4 +451,393 @@ export function addEdge(source: string, from: CellId, to: CellId): string | null
     if (!findDeclaration(parsed, from) || !findDeclaration(parsed, to)) return null;
     const separator = source.endsWith('\n') ? '' : '\n';
     return `${source}${separator}${statementIndent(source)}${String(from)} --> ${String(to)}\n`;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Edge edits, for the controls on a selected edge.
+ * ------------------------------------------------------------------------- */
+
+/** Which edge to edit, as the parse reported it. */
+export interface EdgeRef {
+    /** Mermaid's edge id — the author's own when the edge carries `id@`. */
+    readonly id: string;
+    readonly source: string;
+    readonly target: string;
+    /** Position among all declared edges — what `linkStyle <n>` addresses. */
+    readonly index: number;
+    /** Which declaration this is among edges sharing the (source, target) pair. */
+    readonly pairIndex: number;
+}
+
+/** The span of one edge's arrow token: `-->`, `-.->`, `<==>`. */
+interface EdgeSpan {
+    readonly source: string;
+    readonly target: string;
+    readonly from: number;
+    readonly to: number;
+}
+
+/** One whole arrow token: optional start head, line pattern, optional end head. */
+const ARROW_TOKEN = /[<xo]?(?:-{2,}|={2,}|-\.+-)[>xo]?/g;
+
+/**
+ * Span names whose text must never be mistaken for an arrow: shapes and
+ * labels (either can contain `-->` as prose), strings, style text, comments.
+ */
+const MASKED_SPANS = new Set(['Node', 'NodeText', 'NodeEdgeText', 'String', 'StyleText', 'LineComment']);
+
+/**
+ * Every arrow token in the source, with the node ids on either side.
+ *
+ * The Lezer grammar locates the node ids reliably, but not the arrows — it
+ * predates several spellings (`-.->` lexes into fragments, `e1@-->` not at
+ * all). So the ids come from the grammar and the arrow is found by regex in
+ * the gap between two consecutive ids, with the grammar's shape/label/string
+ * spans blanked out first so arrow-lookalikes inside prose never match.
+ * A gap holding anything other than exactly one arrow-shaped token — an
+ * `a & b` fan, the old split-label form `a-- text -->b` — is reported as
+ * *unfindable* rather than guessed at, so edits no-op instead of corrupting
+ * the text. An id directly followed by `@` is an edge id, not a node.
+ */
+function edgeSpans(source: string): EdgeSpan[] {
+    const nodes = parseFlowchartSpans(source);
+    const ids: Array<{ id: string; from: number; to: number }> = [];
+    const masked: Array<readonly [number, number]> = [];
+
+    for (const [index, node] of nodes.entries()) {
+        if (MASKED_SPANS.has(node.name)) masked.push([node.from, node.to]);
+        if (node.name !== 'NodeId') continue;
+        if (nodes[index - 1]?.name === 'StyleKeyword') continue;
+        if (source[node.to] === '@') continue;
+        ids.push({ id: source.slice(node.from, node.to), from: node.from, to: node.to });
+    }
+
+    const spans: EdgeSpan[] = [];
+    for (let index = 0; index < ids.length - 1; index += 1) {
+        const gapFrom = ids[index].to;
+        const gapTo = ids[index + 1].from;
+        if (gapTo <= gapFrom) continue;
+        let gap = source.slice(gapFrom, gapTo);
+        for (const [maskFrom, maskTo] of masked) {
+            if (maskTo <= gapFrom || maskFrom >= gapTo) continue;
+            const start = Math.max(maskFrom, gapFrom) - gapFrom;
+            const end = Math.min(maskTo, gapTo) - gapFrom;
+            gap = gap.slice(0, start) + ' '.repeat(end - start) + gap.slice(end);
+        }
+        const matches = [...gap.matchAll(ARROW_TOKEN)];
+        if (matches.length !== 1 || matches[0].index === undefined) continue;
+        spans.push({
+            source: ids[index].id,
+            target: ids[index + 1].id,
+            from: gapFrom + matches[0].index,
+            to: gapFrom + matches[0].index + matches[0][0].length,
+        });
+    }
+    return spans;
+}
+
+function findEdgeSpan(source: string, edge: EdgeRef): EdgeSpan | null {
+    const matches = edgeSpans(source).filter(
+        (span) => span.source === edge.source && span.target === edge.target
+    );
+    return matches[edge.pairIndex] ?? null;
+}
+
+const START_HEADS: Record<FlowArrow, string> = {
+    none: '',
+    arrow_point: '<',
+    arrow_circle: 'o',
+    arrow_cross: 'x',
+};
+const END_HEADS: Record<FlowArrow, string> = {
+    none: '',
+    arrow_point: '>',
+    arrow_circle: 'o',
+    arrow_cross: 'x',
+};
+
+/** What an edge's arrow token should say, in Mermaid's own spelling. */
+function composeArrow(
+    stroke: FlowStroke,
+    sourceArrow: FlowArrow,
+    targetArrow: FlowArrow,
+    minLen: number
+): string {
+    const start = START_HEADS[sourceArrow];
+    const end = END_HEADS[targetArrow];
+    // A headless dotted arrow is `-.-`; adding a head replaces nothing, so the
+    // dot count alone carries the length. Line arrows spell length in dashes:
+    // `-->` and `---` are both length 1.
+    if (stroke === 'dotted') return `${start}-${'.'.repeat(minLen)}-${end}`;
+    const dash = stroke === 'thick' ? '=' : '-';
+    const width = minLen + (start === '' && end === '' ? 2 : 1);
+    return start + dash.repeat(width) + end;
+}
+
+/** The line/arrow changes {@link setEdgeArrow} can apply. */
+export interface EdgeArrowChange {
+    readonly stroke?: FlowStroke;
+    readonly sourceArrow?: FlowArrow;
+    readonly targetArrow?: FlowArrow;
+}
+
+const HEAD_ARROWS: Record<string, FlowArrow> = {
+    '<': 'arrow_point',
+    '>': 'arrow_point',
+    o: 'arrow_circle',
+    x: 'arrow_cross',
+};
+
+interface ArrowParts {
+    readonly stroke: FlowStroke;
+    readonly sourceArrow: FlowArrow;
+    readonly targetArrow: FlowArrow;
+    readonly minLen: number;
+}
+
+/** Reads an arrow token back into its parts; `null` for exotic spellings. */
+function decomposeArrow(token: string): ArrowParts | null {
+    const match = /^([<xo])?([-=.]+)([>xo])?$/.exec(token);
+    if (!match) return null;
+    const [, start, line, end] = match;
+    const sourceArrow: FlowArrow = start === undefined ? 'none' : HEAD_ARROWS[start];
+    const targetArrow: FlowArrow = end === undefined ? 'none' : HEAD_ARROWS[end];
+    const dots = (line.match(/\./g) ?? []).length;
+    if (dots > 0) return { stroke: 'dotted', sourceArrow, targetArrow, minLen: dots };
+    const stroke: FlowStroke = line.includes('=') ? 'thick' : 'normal';
+    const headless = sourceArrow === 'none' && targetArrow === 'none';
+    return {
+        stroke,
+        sourceArrow,
+        targetArrow,
+        minLen: Math.max(1, line.length - (headless ? 2 : 1)),
+    };
+}
+
+/**
+ * Rewrite an edge's arrow token — its line pattern and heads.
+ *
+ * The parts NOT being changed are read from the token as it stands in the
+ * source right now, not from the caller's view of the edge: the caller's data
+ * lags a parse behind after its own previous edit, and composing from it would
+ * resurrect the older arrow.
+ * @param source - Current Mermaid source.
+ * @param edge - Which edge to rewrite.
+ * @param change - The parts of the arrow to change.
+ * @returns The updated source, or `null` when the edge cannot be located.
+ */
+export function setEdgeArrow(
+    source: string,
+    edge: EdgeRef,
+    change: EdgeArrowChange
+): string | null {
+    const span = findEdgeSpan(source, edge);
+    if (!span) return null;
+    const current = decomposeArrow(source.slice(span.from, span.to));
+    if (!current) return null;
+    return splice(
+        source,
+        span.from,
+        span.to,
+        composeArrow(
+            change.stroke ?? current.stroke,
+            change.sourceArrow ?? current.sourceArrow,
+            change.targetArrow ?? current.targetArrow,
+            current.minLen
+        )
+    );
+}
+
+/**
+ * Set or clear one property on an edge's `linkStyle` line.
+ *
+ * A `linkStyle` addresses edges by declaration index — that is Mermaid's own
+ * contract, and it means inserting an edge above shifts the numbers, exactly
+ * as it does on mermaid.live. The `interpolate` form is a separate statement
+ * and is deliberately not matched here.
+ * @param source - Current Mermaid source.
+ * @param edgeIndex - The edge's declaration index.
+ * @param property - CSS property, e.g. `stroke`.
+ * @param value - Property value, or `null` to drop the entry.
+ * @returns The updated source.
+ */
+export function setEdgeStyleProperty(
+    source: string,
+    edgeIndex: number,
+    property: string,
+    value: string | null
+): string {
+    const line = new RegExp(
+        `^[ \t]*linkStyle[ \t]+${edgeIndex}[ \t]+(?!interpolate\\b)(\\S.*?)[ \t]*\r?$`,
+        'm'
+    );
+    const existing = line.exec(source);
+    if (existing) {
+        const rest = withProperty(existing[1], property, value);
+        const lineEnd = existing.index + existing[0].length;
+        if (rest !== '') {
+            const bodyFrom = existing.index + existing[0].indexOf(existing[1]);
+            return splice(source, bodyFrom, bodyFrom + existing[1].length, rest);
+        }
+        return splice(
+            source,
+            existing.index,
+            lineEnd + (source[lineEnd] === '\n' ? 1 : 0),
+            ''
+        );
+    }
+    if (value === null) return source;
+    const separator = source.endsWith('\n') ? '' : '\n';
+    return `${source}${separator}${statementIndent(source)}linkStyle ${edgeIndex} ${property}:${value}\n`;
+}
+
+/**
+ * Set or clear an edge's `linkStyle <n> interpolate <curve>` statement.
+ * @param source - Current Mermaid source.
+ * @param edgeIndex - The edge's declaration index.
+ * @param curve - A d3 curve name (`basis`, `linear`, …), or `null` to drop it.
+ * @returns The updated source.
+ */
+export function setEdgeInterpolate(
+    source: string,
+    edgeIndex: number,
+    curve: string | null
+): string {
+    const line = new RegExp(
+        `^[ \t]*linkStyle[ \t]+${edgeIndex}[ \t]+interpolate[ \t]+[\\w-]+[ \t]*\r?$`,
+        'm'
+    );
+    const existing = line.exec(source);
+    if (existing) {
+        const lineEnd = existing.index + existing[0].length;
+        if (curve === null) {
+            return splice(
+                source,
+                existing.index,
+                lineEnd + (source[lineEnd] === '\n' ? 1 : 0),
+                ''
+            );
+        }
+        return splice(
+            source,
+            existing.index,
+            lineEnd,
+            existing[0].replace(/interpolate[ \t]+[\w-]+/, `interpolate ${curve}`)
+        );
+    }
+    if (curve === null) return source;
+    const separator = source.endsWith('\n') ? '' : '\n';
+    return `${source}${separator}${statementIndent(source)}linkStyle ${edgeIndex} interpolate ${curve}\n`;
+}
+
+/** Removes one `key: value` entry from a `@{ … }` block body. */
+function withoutMetaEntry(body: string, key: string): string {
+    return body
+        .replace(new RegExp(`(^|,)\\s*${key}\\s*:\\s*("[^"]*"|[^,}]*)`), '$1')
+        .replace(/^\s*,/, '')
+        .replace(/,\s*$/, '')
+        .replace(/,\s*,/, ',');
+}
+
+/**
+ * Whether the source already declares this edge id — an `id@` arrow prefix or
+ * an `id@{ … }` config block.
+ */
+function hasEdgeId(source: string, id: string): boolean {
+    return new RegExp(`(?:^|[^\\w"-])${escapeRegExp(id)}@(?=[-=.<xo{])`).test(source);
+}
+
+/** A short edge id (`e1`, `e2`, …) not used by any node or edge yet. */
+function mintEdgeId(source: string): string {
+    const taken = new Set(parse(source).declarations.map((declaration) => declaration.id));
+    for (const match of source.matchAll(/(\w+)@(?=[-=.<xo{])/g)) taken.add(match[1]);
+    let counter = 1;
+    while (taken.has(`e${counter}`) || hasEdgeId(source, `e${counter}`)) counter += 1;
+    return `e${counter}`;
+}
+
+/**
+ * Turn the marching-dash animation on or off for one edge.
+ *
+ * Animation is v11 syntax: the edge needs an id (`a e1@--> b`) and a config
+ * block (`e1@{ animate: true }`). Turning it on writes both; turning it off
+ * removes the `animate` entry again, and the whole block when nothing else is
+ * left in it.
+ * @param source - Current Mermaid source.
+ * @param edge - Which edge to animate.
+ * @param animate - Whether the marching dashes should run.
+ * @returns The updated source, or `null` when the edge cannot be located.
+ */
+export function setEdgeAnimation(
+    source: string,
+    edge: EdgeRef,
+    animate: boolean
+): string | null {
+    const hasId = hasEdgeId(source, edge.id);
+
+    if (!animate) {
+        if (!hasId) return source;
+        const meta = findMetaBlock(source, edge.id);
+        if (!meta) return source;
+        const body = withoutMetaEntry(meta.body, 'animate');
+        if (body.trim() !== '') return splice(source, meta.bodyFrom, meta.bodyTo, body);
+        // Nothing left in the block: drop its whole line when it stands alone.
+        const blockFrom = source.lastIndexOf(edge.id, meta.bodyFrom);
+        const lineStart = source.lastIndexOf('\n', blockFrom) + 1;
+        const lineEnd = source.indexOf('\n', meta.bodyTo);
+        const line = source.slice(lineStart, lineEnd === -1 ? source.length : lineEnd);
+        if (new RegExp(`^[ \t]*${escapeRegExp(edge.id)}@\\{[^}]*\\}[ \t]*\r?$`).test(line)) {
+            return splice(source, lineStart, lineEnd === -1 ? source.length : lineEnd + 1, '');
+        }
+        return splice(source, meta.bodyFrom, meta.bodyTo, ' animate: false ');
+    }
+
+    let next = source;
+    let id = edge.id;
+    if (!hasId) {
+        const span = findEdgeSpan(source, edge);
+        if (!span) return null;
+        id = mintEdgeId(source);
+        next = splice(source, span.from, span.from, `${id}@`);
+    }
+    const meta = findMetaBlock(next, id);
+    if (meta) {
+        return splice(next, meta.bodyFrom, meta.bodyTo, withMetaEntry(meta.body, 'animate', 'true'));
+    }
+    const separator = next.endsWith('\n') ? '' : '\n';
+    return `${next}${separator}${statementIndent(next)}${id}@{ animate: true }\n`;
+}
+
+/**
+ * Set or remove a node's image — the `id@{ img: "…" }` block entry. Mermaid
+ * renders any node with an `img` as an image card, label underneath.
+ * @param source - Current Mermaid source.
+ * @param id - Node to illustrate.
+ * @param url - Image URL, or `null` to remove the image.
+ * @returns The updated source, or `null` when the node cannot be found.
+ */
+export function setNodeImage(source: string, id: CellId, url: string | null): string | null {
+    const meta = findMetaBlock(source, id);
+    const safeUrl = url?.replaceAll('"', '%22');
+
+    if (meta) {
+        const body = safeUrl === undefined
+            ? withoutMetaEntry(meta.body, 'img')
+            : withMetaEntry(meta.body, 'img', `"${safeUrl}"`);
+        // A node block always keeps at least its label, so no line removal here.
+        return splice(source, meta.bodyFrom, meta.bodyTo, body.trim() === '' ? ' ' : body);
+    }
+
+    if (safeUrl === undefined) return source;
+    const parsed = parse(source);
+    const declaration = findDeclaration(parsed, id);
+    if (!declaration) return null;
+    const label = declaration.labelFrom !== undefined && declaration.labelTo !== undefined
+        ? source.slice(declaration.labelFrom, declaration.labelTo)
+        : String(id);
+    const block = `@{ img: "${safeUrl}", label: "${unquoteLabel(label).replaceAll('"', '\'')}" }`;
+    if (declaration.shapeFrom !== undefined && declaration.shapeTo !== undefined) {
+        return splice(source, declaration.shapeFrom, declaration.shapeTo, block);
+    }
+    return splice(source, declaration.idTo, declaration.idTo, block);
 }

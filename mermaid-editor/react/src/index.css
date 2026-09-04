@@ -321,12 +321,19 @@ body {
     text-decoration: underline;
 }
 
-/* CodeMirror host; the editor itself is styled by `mermaid-editor.tsx`. */
+/* Monaco host; the editor's own colours come from its theme definitions in
+   `mermaid-editor.tsx`. */
 .editor-code {
     flex: 1;
     min-height: 0;
     overflow: hidden;
     background: var(--surface);
+}
+
+/* Occurrences of the canvas-selected node ids, as a Monaco decoration. */
+.mermaid-editor-mark {
+    background: var(--syntax-selected-token);
+    border-radius: 3px;
 }
 
 .editor-message {
@@ -390,6 +397,18 @@ body {
     background: var(--overlay-surface);
     border-color: var(--overlay-border);
     box-shadow: var(--overlay-shadow-sm);
+}
+
+/* The layout switch is a mode, so it wears its state: quiet while dagre owns
+   the layout, accented while the user does. */
+.canvas-actions .layout-toggle {
+    padding: 0 10px;
+    font-size: 12px;
+}
+
+.canvas-actions .layout-toggle[aria-pressed='true'] {
+    color: var(--accent);
+    box-shadow: var(--overlay-shadow-sm), inset 0 0 0 1px var(--accent);
 }
 
 /* -------------------------------------------------- accessibility check */
@@ -573,6 +592,26 @@ body {
     box-shadow: inset 0 0 0 1px var(--accent);
 }
 
+/* The v11 shape grid, opened by the "More shapes" toggle: same buttons as
+   the quick row, wrapping — with 36 shapes a single row would overhang the
+   canvas. */
+.node-toolbar-more {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    max-width: 372px;
+    padding: 4px;
+    white-space: normal;
+    background: var(--overlay-inset);
+    border: 1px solid var(--overlay-border);
+    border-radius: 6px;
+}
+
+.node-toolbar-toggle.is-more {
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
 /* Icons stay legible at 30x20: thinner strokes than the nodes carry. */
 .node-toolbar-icon .mermaid-node-body,
 .node-toolbar-icon .mermaid-node-detail {
@@ -721,6 +760,16 @@ body {
 .node-toolbar-toggle.is-stroke:focus-within {
     background: var(--overlay-chip);
     box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* The text-colour control: an "A" in the current label colour, wrapping the
+   same hidden native colour input the stroke ring uses. */
+.node-toolbar-text-sample {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 /* Two nodes selected: a single floating action over the second one. */

@@ -38,6 +38,12 @@ export interface FlowNode {
     readonly href?: string;
     /** Tooltip from `click <id> "<url>" "<tooltip>"`. */
     readonly hrefTitle?: string;
+    /** Image URL from an `id@{ img: "…" }` block. */
+    readonly img?: string;
+    /** Rendered image width from `w:`, when the block sets one. */
+    readonly assetWidth?: number;
+    /** Rendered image height from `h:`, when the block sets one. */
+    readonly assetHeight?: number;
 }
 
 /** A `subgraph … end` block, rendered as a container behind its members. */
@@ -69,6 +75,24 @@ export interface FlowEdge {
     readonly minLen: number;
     /** Present when the edge asks for the marching-dash animation. */
     readonly animation?: FlowAnimation;
+    /**
+     * Position among *all* declared edges, dropped ones included — the index
+     * `linkStyle <n>` statements address, so the edge controls can write one.
+     */
+    readonly index: number;
+    /**
+     * Which declaration this is among the edges sharing its (source, target)
+     * pair, so the source span of a duplicate edge can still be found.
+     */
+    readonly pairIndex: number;
+    /** CSS declarations from `linkStyle` statements addressing this edge. */
+    readonly styles: readonly string[];
+    /**
+     * Curve requested via `linkStyle <n> interpolate <curve>` (or the default
+     * form). Unset when the author never asked for one — Mermaid's config-level
+     * `basis` fallback is deliberately not reported here.
+     */
+    readonly curve?: string;
 }
 
 export interface FlowGraph {

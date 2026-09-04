@@ -5,6 +5,7 @@ import type { ChangeEvent, KeyboardEvent } from 'react';
 import type { EditableShape } from '@/mermaid/edit-source';
 import type { NodeData } from '@/mermaid/to-cells';
 import type { NodeEditHandlers } from './diagram';
+import { getShapeSpec } from './shapes';
 import { SVGShape } from './svg-shape';
 
 /**
@@ -32,6 +33,50 @@ const SHAPES: ReadonlyArray<{ readonly id: EditableShape; readonly label: string
     { id: 'lean_right', label: 'Parallelogram' },
 ];
 
+/**
+ * The rest of Mermaid's flowchart vocabulary — the v11 `@{ shape: … }` names.
+ * Choosing one rewrites the node's declaration into that syntax (the only
+ * spelling these shapes have), labels included.
+ */
+const EXTENDED_SHAPES: ReadonlyArray<{ readonly id: string; readonly label: string }> = [
+    { id: 'dbl-circ', label: 'Double circle' },
+    { id: 'sm-circ', label: 'Start' },
+    { id: 'fr-circ', label: 'Stop' },
+    { id: 'f-circ', label: 'Junction' },
+    { id: 'cross-circ', label: 'Summary' },
+    { id: 'lean-l', label: 'Parallelogram (left)' },
+    { id: 'trap-b', label: 'Priority (trapezoid)' },
+    { id: 'trap-t', label: 'Manual operation' },
+    { id: 'odd', label: 'Odd' },
+    { id: 'text', label: 'Text block' },
+    { id: 'card', label: 'Card' },
+    { id: 'lin-rect', label: 'Lined process' },
+    { id: 'st-rect', label: 'Stacked process' },
+    { id: 'tag-rect', label: 'Tagged process' },
+    { id: 'div-rect', label: 'Divided process' },
+    { id: 'win-pane', label: 'Internal storage' },
+    { id: 'sl-rect', label: 'Manual input' },
+    { id: 'bow-rect', label: 'Stored data' },
+    { id: 'fork', label: 'Fork / join' },
+    { id: 'hourglass', label: 'Collate' },
+    { id: 'bolt', label: 'Com link' },
+    { id: 'tri', label: 'Extract' },
+    { id: 'flip-tri', label: 'Manual file' },
+    { id: 'notch-pent', label: 'Loop limit' },
+    { id: 'flag', label: 'Paper tape' },
+    { id: 'delay', label: 'Delay' },
+    { id: 'doc', label: 'Document' },
+    { id: 'docs', label: 'Documents' },
+    { id: 'lin-doc', label: 'Lined document' },
+    { id: 'tag-doc', label: 'Tagged document' },
+    { id: 'h-cyl', label: 'Direct access storage' },
+    { id: 'lin-cyl', label: 'Disk storage' },
+    { id: 'curv-trap', label: 'Display' },
+    { id: 'brace', label: 'Comment (brace)' },
+    { id: 'brace-r', label: 'Brace right' },
+    { id: 'braces', label: 'Braces' },
+];
+
 /** A small palette keeps the generated `style` lines readable. */
 const FILLS = ['#ddffee', '#fef3c7', '#fee2e2', '#dbeafe', '#ede9fe', '#e5e7eb'];
 
@@ -49,7 +94,7 @@ const BORDERS = [
  * Draws the button's shape with the very geometry the canvas uses, so a picker
  * icon can never drift from what choosing it produces.
  */
-function ShapeIcon({ shape }: Readonly<{ shape: EditableShape }>) {
+function ShapeIcon({ shape }: Readonly<{ shape: string }>) {
     const { width, height, padding } = ICON;
     return (
         <svg
@@ -104,6 +149,18 @@ function PlusIcon() {
     );
 }
 
+function ImageIcon() {
+    return (
+        <svg viewBox="0 0 16 16" width={14} height={14} fill="none" stroke="currentColor"
+            strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden
+        >
+            <rect x={2} y={3} width={12} height={10} rx={1.5} />
+            <circle cx={5.75} cy={6.5} r={1.1} fill="currentColor" stroke="none" />
+            <path d="M4 12 7.5 8.5 10 11l1.5-1.5L14 12" />
+        </svg>
+    );
+}
+
 /** Whether the merged text style asks for a bold / italic label. */
 function isBold(data: NodeData): boolean {
     const weight = data.style?.text?.fontWeight;
@@ -124,15 +181,17 @@ function borderOf(data: NodeData): (typeof BORDERS)[number]['id'] {
     return first <= 3 ? 'dotted' : 'dashed';
 }
 
-interface LinkEditorProps {
-    readonly href: string | undefined;
+interface UrlEditorProps {
+    /** Accessible name for the field: what the URL becomes. */
+    readonly label: string;
+    readonly value: string | undefined;
     readonly onApply: (url: string | null) => void;
     readonly onClose: () => void;
 }
 
-/** Inline URL row, opened by the link toggle. */
-function LinkEditor({ href, onApply, onClose }: LinkEditorProps) {
-    const [draft, setDraft] = useState(href ?? '');
+/** Inline URL row, opened by the link and image toggles. */
+function UrlEditor({ label, value, onApply, onClose }: UrlEditorProps) {
+    const [draft, setDraft] = useState(value ?? '');
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -162,7 +221,7 @@ function LinkEditor({ href, onApply, onClose }: LinkEditorProps) {
                 className="node-toolbar-linkinput"
                 type="url"
                 placeholder="https://…"
-                aria-label="Node hyperlink"
+                aria-label={label}
                 value={draft}
                 spellCheck={false}
                 onChange={(event: ChangeEvent<HTMLInputElement>) => setDraft(event.target.value)}
@@ -171,7 +230,7 @@ function LinkEditor({ href, onApply, onClose }: LinkEditorProps) {
             <button type="button" className="node-toolbar-action" onClick={apply}>
                 Apply
             </button>
-            {href !== undefined && (
+            {value !== undefined && (
                 <button
                     type="button"
                     className="node-toolbar-action"
@@ -194,33 +253,78 @@ export interface NodeToolbarProps {
 }
 
 export function NodeToolbar({ cellId, data, edit }: NodeToolbarProps) {
-    const shape = SHAPES.some((entry) => entry.id === data.shape)
-        ? (data.shape as EditableShape)
-        : 'squareRect';
+    // Aliases collapse through the geometry: `card` and `notch-rect` are the
+    // same spec, so whichever spelling the author used, its button lights up.
+    const activeSpec = getShapeSpec(data.shape);
+    const isActive = (id: string) => getShapeSpec(id) === activeSpec;
     const bold = isBold(data);
     const italic = isItalic(data);
     const border = borderOf(data);
-    const [isLinkOpen, setLinkOpen] = useState(false);
+    // One URL row at a time: opening one closes the other.
+    const [openEditor, setOpenEditor] = useState<'link' | 'image' | null>(null);
+    const isLinkOpen = openEditor === 'link';
+    const isImageOpen = openEditor === 'image';
+    // Open whenever the node wears an extended shape — otherwise nothing in
+    // the toolbar would show which shape is active. Derived (not mount-only):
+    // a source edit can reshape the selected node without remounting this
+    // toolbar. The user's own toggle takes precedence once used.
+    const isExtendedActive =
+        !SHAPES.some((entry) => isActive(entry.id))
+        && EXTENDED_SHAPES.some((entry) => isActive(entry.id));
+    const [moreOverride, setMoreOverride] = useState<boolean | null>(null);
+    const isMoreOpen = moreOverride ?? isExtendedActive;
 
     return (
         <ElementOverlay cell={cellId} position="top" origin="bottom" dy={-10}>
             <div className="node-toolbar" onPointerDown={(event) => event.stopPropagation()}>
-                <span className="node-toolbar-group" role="radiogroup" aria-label="Node shape">
-                    {SHAPES.map((entry) => (
-                        <button
-                            key={entry.id}
-                            type="button"
-                            role="radio"
-                            aria-checked={entry.id === shape}
-                            aria-label={entry.label}
-                            title={entry.label}
-                            className={`node-toolbar-shape${entry.id === shape ? ' is-active' : ''}`}
-                            onClick={() => edit.onShapeChange(cellId, entry.id)}
-                        >
-                            <ShapeIcon shape={entry.id} />
-                        </button>
-                    ))}
+                <span className="node-toolbar-row">
+                    <span className="node-toolbar-group" role="radiogroup" aria-label="Node shape">
+                        {SHAPES.map((entry) => (
+                            <button
+                                key={entry.id}
+                                type="button"
+                                role="radio"
+                                aria-checked={isActive(entry.id)}
+                                aria-label={entry.label}
+                                title={entry.label}
+                                className={`node-toolbar-shape${isActive(entry.id) ? ' is-active' : ''}`}
+                                onClick={() => edit.onShapeChange(cellId, entry.id)}
+                            >
+                                <ShapeIcon shape={entry.id} />
+                            </button>
+                        ))}
+                    </span>
+                    {/* Outside the radiogroup: it is a disclosure, not a radio. */}
+                    <button
+                        type="button"
+                        className={`node-toolbar-toggle is-more${isMoreOpen ? ' is-active' : ''}`}
+                        aria-pressed={isMoreOpen}
+                        aria-expanded={isMoreOpen}
+                        aria-label="More shapes"
+                        title="More shapes (@{ shape } syntax)"
+                        onClick={() => setMoreOverride(!isMoreOpen)}
+                    >
+                        ⋯
+                    </button>
                 </span>
+                {isMoreOpen && (
+                    <span className="node-toolbar-more" role="radiogroup" aria-label="More shapes">
+                        {EXTENDED_SHAPES.map((entry) => (
+                            <button
+                                key={entry.id}
+                                type="button"
+                                role="radio"
+                                aria-checked={isActive(entry.id)}
+                                aria-label={entry.label}
+                                title={entry.label}
+                                className={`node-toolbar-shape${isActive(entry.id) ? ' is-active' : ''}`}
+                                onClick={() => edit.onShapeChange(cellId, entry.id)}
+                            >
+                                <ShapeIcon shape={entry.id} />
+                            </button>
+                        ))}
+                    </span>
+                )}
                 <span className="node-toolbar-swatches">
                     {FILLS.map((fill) => (
                         <button
@@ -278,6 +382,31 @@ export function NodeToolbar({ cellId, data, edit }: NodeToolbarProps) {
                         >
                             I
                         </button>
+                        <label className="node-toolbar-toggle is-stroke" title="Text colour">
+                            <span
+                                className="node-toolbar-text-sample"
+                                style={{ color: String(data.style?.text?.fill ?? 'currentColor') }}
+                                aria-hidden
+                            >
+                                A
+                            </span>
+                            <input
+                                type="color"
+                                aria-label="Text colour"
+                                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                                    edit.onStyleChange(cellId, 'color', event.target.value)}
+                            />
+                        </label>
+                        <button
+                            type="button"
+                            className="node-toolbar-swatch is-clear"
+                            aria-label="Clear text colour"
+                            // A colour inherited from a class or derived from
+                            // the fill is not this node's to drop.
+                            disabled={!data.hasOwnTextColor}
+                            title={data.hasOwnTextColor ? 'Clear text colour' : 'No text colour of its own'}
+                            onClick={() => edit.onStyleChange(cellId, 'color', null)}
+                        />
                     </span>
                     <span className="node-toolbar-cluster" role="radiogroup" aria-label="Border style">
                         {BORDERS.map((entry) => (
@@ -316,9 +445,19 @@ export function NodeToolbar({ cellId, data, edit }: NodeToolbarProps) {
                             aria-pressed={isLinkOpen}
                             aria-label="Hyperlink"
                             title={data.href ?? 'Add a hyperlink'}
-                            onClick={() => setLinkOpen((open) => !open)}
+                            onClick={() => setOpenEditor(isLinkOpen ? null : 'link')}
                         >
                             <LinkIcon />
+                        </button>
+                        <button
+                            type="button"
+                            className={`node-toolbar-toggle${data.img !== undefined || isImageOpen ? ' is-active' : ''}`}
+                            aria-pressed={isImageOpen}
+                            aria-label="Image"
+                            title={data.img ?? 'Turn into an image card (@{ img } syntax)'}
+                            onClick={() => setOpenEditor(isImageOpen ? null : 'image')}
+                        >
+                            <ImageIcon />
                         </button>
                         <button
                             type="button"
@@ -332,10 +471,19 @@ export function NodeToolbar({ cellId, data, edit }: NodeToolbarProps) {
                     </span>
                 </span>
                 {isLinkOpen && (
-                    <LinkEditor
-                        href={data.href}
+                    <UrlEditor
+                        label="Node hyperlink"
+                        value={data.href}
                         onApply={(url) => edit.onLinkChange(cellId, url)}
-                        onClose={() => setLinkOpen(false)}
+                        onClose={() => setOpenEditor(null)}
+                    />
+                )}
+                {isImageOpen && (
+                    <UrlEditor
+                        label="Node image URL"
+                        value={data.img}
+                        onApply={(url) => edit.onImageChange(cellId, url)}
+                        onClose={() => setOpenEditor(null)}
                     />
                 )}
             </div>

@@ -6,6 +6,7 @@ import { DirectedGraph } from '@joint/layout-directed-graph';
 import {
     Diagram,
     ElementOverlay,
+    linkRoutingOrthogonal,
     linkRoutingStraight,
     Paper,
     PaperScroller,
@@ -23,12 +24,14 @@ import type {
     ZoomToFitOptions,
 } from '@joint/react-plus';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { MermaidCell } from '@/mermaid/to-cells';
+import type { RefObject } from 'react';
+import type { EdgeArrowChange, EdgeRef } from '@/mermaid/edit-source';
+import type { EdgeData, MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection } from '@/mermaid/types';
-import type { EditableShape } from '@/mermaid/edit-source';
 import type { NodeData } from '@/mermaid/to-cells';
 import { AccessibilityCheck } from './accessibility-check';
-import { ExportButton } from './export-button';
+import { CanvasActions } from './canvas-actions';
+import { LinkToolbar } from './link-toolbar';
 import { NodeEditingContext } from './node-editing';
 import type { NodeEditing } from './node-editing';
 import { NodeToolbar } from './node-toolbar';
@@ -42,12 +45,29 @@ const FIT_OPTIONS: ZoomToFitOptions = {
 };
 
 /**
- * The diagram is a rendering of the source, not a canvas to edit: the text is
- * the single source of truth, and a dragged node would be silently discarded on
- * the next keystroke. Panning and zooming are unaffected — the scroller drives
- * those from the blank area, not from cell interactions.
+ * With auto-layout on, the diagram is a rendering of the source, not a canvas
+ * to edit: the text is the single source of truth, and a dragged node would be
+ * silently discarded on the next layout. Panning and zooming are unaffected —
+ * the scroller drives those from the blank area, not from cell interactions.
  */
 const PAPER_INTERACTIVE = false;
+
+/**
+ * Manual mode: nodes drag, everything else stays read-only. Positions are not
+ * Mermaid syntax, so they live in {@link MermaidDiagramProps.positionsRef}
+ * rather than the source — the one piece of diagram state the text cannot
+ * carry.
+ */
+const MANUAL_INTERACTIVE = {
+    elementMove: true,
+    linkMove: false,
+    labelMove: false,
+    arrowheadMove: false,
+    vertexAdd: false,
+    vertexMove: false,
+    vertexRemove: false,
+    useLinkTools: false,
+} as const;
 
 /**
  * Bring a selected node into view. `strict` counts a partly clipped node as
@@ -80,6 +100,18 @@ const LINK_ROUTING = linkRoutingStraight({
     targetOffset: 6,
     cornerType: 'cubic',
     cornerRadius: 8
+});
+
+/**
+ * Manual mode drops dagre's vertices, so the links need a router of their own:
+ * orthogonal routing steers around elements wherever the user drags them.
+ * (The libavoid-based router would slot in here the day its wrapper package
+ * ships; this is the closest routing the current @joint/plus build carries.)
+ */
+const MANUAL_ROUTING = linkRoutingOrthogonal({
+    cornerType: 'cubic',
+    cornerRadius: 8,
+    margin: 12,
 });
 
 /**
@@ -141,6 +173,54 @@ function runLayout(graph: dia.Graph, direction: FlowDirection): boolean {
     return true;
 }
 
+/** Where a dragged node ended up, keyed by node id. */
+export type ManualPositions = Map<string, { x: number; y: number }>;
+
+/** Vertical gap between a new node and the neighbour it is placed under. */
+const MANUAL_DROP_GAP = 56;
+
+/**
+ * Manual mode's stand-in for the layout: put every node back where the user
+ * left it. A node the cache has never seen — one just added from the toolbar
+ * or typed into the source — lands under a connected neighbour, cascading a
+ * little so siblings do not stack pixel-perfectly on each other.
+ *
+ * Dagre's vertices are dropped along the way: they describe the *previous*
+ * layout, and the orthogonal router owns the link shapes here.
+ */
+function applyManualPositions(graph: dia.Graph, positions: ManualPositions): boolean {
+    if (!isMeasured(graph)) return false;
+    const elements = graph.getElements();
+    let cascade = 0;
+    for (const element of elements) {
+        const saved = positions.get(String(element.id));
+        if (saved) element.position(saved.x, saved.y);
+    }
+    for (const element of elements) {
+        if (positions.has(String(element.id))) continue;
+        const neighbour = graph
+            .getNeighbors(element)
+            .find((candidate) => positions.has(String(candidate.id)));
+        const base = neighbour
+            ? {
+                x: neighbour.position().x + cascade * 24,
+                y: neighbour.position().y + neighbour.size().height + MANUAL_DROP_GAP,
+            }
+            : { x: 40 + cascade * 24, y: 40 + cascade * 24 };
+        cascade += 1;
+        element.position(base.x, base.y);
+        positions.set(String(element.id), base);
+    }
+    for (const link of graph.getLinks()) link.unset('vertices');
+    // Containers hug wherever their members sit now — deepest first, so an
+    // outer subgraph fits around its inner one's ALREADY-fitted border.
+    const containers = elements
+        .filter((element) => element.getEmbeddedCells().length > 0)
+        .toSorted((a, b) => b.getAncestors().length - a.getAncestors().length);
+    for (const container of containers) container.fitToChildren({ padding: CLUSTER_PADDING });
+    return true;
+}
+
 interface CanvasProps {
     readonly direction: FlowDirection;
     readonly cells: readonly MermaidCell[];
@@ -148,9 +228,24 @@ interface CanvasProps {
     readonly onSelect: (ids: readonly CellId[]) => void;
     readonly fitToken: number;
     readonly edit: NodeEditHandlers;
+    readonly linkEdit: EdgeEditHandlers;
+    readonly autoLayout: boolean;
+    readonly onAutoLayoutChange: (autoLayout: boolean) => void;
+    readonly positionsRef: RefObject<ManualPositions>;
 }
 
-function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: CanvasProps) {
+function Canvas({
+    direction,
+    cells,
+    selectedIds,
+    onSelect,
+    fitToken,
+    edit,
+    linkEdit,
+    autoLayout,
+    onAutoLayoutChange,
+    positionsRef,
+}: CanvasProps) {
     const { graph } = useGraph();
     const { paper } = usePaper();
     const { selectCells } = useSelection();
@@ -195,6 +290,11 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
         // canvas under them.
         const [first] = selected.filter((cell): cell is dia.Element => cell.isElement());
         if (!first || !paperScroller) return;
+        // A 0×0 element is pre-layout — the graph just remounted and nothing
+        // sits at its real position yet. Scrolling would start a 150 ms
+        // animation towards a meaningless point that then lands AFTER the
+        // post-layout fit and drags the camera off the diagram.
+        if (first.size().width === 0) return;
         if (paperScroller.isElementVisible(first, VISIBILITY_OPTIONS)) return;
         paperScroller.scrollToElement(first, SCROLL_OPTIONS);
     }, [graph, paperScroller, selectCells, selectedIds]);
@@ -205,13 +305,51 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
 
     const fit = useCallback(() => zoomToFit(FIT_OPTIONS), [zoomToFit]);
 
+    // One place decides how nodes get their positions: dagre with auto-layout
+    // on, the user's own drags (via the position cache) with it off.
+    const settle = useCallback(
+        (target: dia.Graph): boolean =>
+            autoLayout
+                ? runLayout(target, direction)
+                : applyManualPositions(target, positionsRef.current),
+        [autoLayout, direction, positionsRef]
+    );
+
+    // Mode transitions — declared BEFORE the settle triggers below, because
+    // effects run in declaration order: entering manual must capture the
+    // positions the user is looking at before the first manual pass runs, or
+    // that pass would treat every node as new and scatter them. Returning to
+    // auto re-runs dagre and re-frames: the manual arrangement is the user's,
+    // but the auto one is dagre's, and showing it half-off-screen would look
+    // like data loss.
+    const wasAutoLayout = useRef(autoLayout);
+    useEffect(() => {
+        if (wasAutoLayout.current === autoLayout) return;
+        wasAutoLayout.current = autoLayout;
+        if (!paper) return;
+        if (autoLayout) {
+            if (runLayout(graph, direction)) fit();
+            return;
+        }
+        const positions = positionsRef.current;
+        positions.clear();
+        for (const element of graph.getElements()) {
+            const { x, y } = element.position();
+            positions.set(String(element.id), { x, y });
+        }
+        for (const link of graph.getLinks()) link.unset('vertices');
+    }, [autoLayout, direction, fit, graph, paper, positionsRef]);
+
     // Primary trigger. `useOnElementsMeasured` flushes the paper after the
     // callback, so there is no frame where nodes are visible at their
     // pre-layout position.
     useOnElementsMeasured(({ graph: measuredGraph }) => {
-        if (!runLayout(measuredGraph, direction)) return;
+        if (!settle(measuredGraph)) return;
         if (pendingFit.current) {
             pendingFit.current = false;
+            // Manual mode frames too: the id-keyed remount rebuilds the
+            // scroller alongside the graph, so there is no previous camera
+            // to preserve.
             fit();
         }
     });
@@ -233,8 +371,8 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
     // side effect of the remount below, not a decision.
     useEffect(() => {
         if (!paper) return;
-        runLayout(graph, direction);
-    }, [cells, direction, graph, paper]);
+        settle(graph);
+    }, [cells, graph, paper, settle]);
 
     // Framing is its own signal, raised by the app when a different diagram is
     // loaded — not on every parse. Typing must not yank the camera around.
@@ -273,6 +411,19 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
     // Subgraph containers take no shape or fill — their look is the block's.
     const toolbarData = maybeToolbarData?.isGroup ? undefined : maybeToolbarData;
 
+    // A lone selected edge gets its own toolbar, floating over the midpoint of
+    // its route. The position comes from the model — dagre writes its vertices
+    // there — so it is read per render rather than subscribed to; every edit
+    // that could move the link also re-renders this component.
+    const linkToolbarCell = selectedIds.length === 1
+        ? cells.find((cell) => cell.id === selectedIds[0] && cell.type === 'link')
+        : undefined;
+    const linkToolbarData = linkToolbarCell?.data as EdgeData | undefined;
+    const linkModel = linkToolbarCell?.id === undefined
+        ? undefined
+        : graph.getCell(linkToolbarCell.id);
+    const linkAnchor = linkModel?.isLink() ? linkModel.getBBox() : undefined;
+
     // Exactly two nodes selected (Shift-click) offers to connect them, in
     // selection order. Subgraphs are excluded — dagre cannot route to one.
     const connectPair = selectedIds.length === 2
@@ -295,8 +446,27 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
                         renderElement={RenderNode}
                         drawGrid={false}
                         snapLabels
-                        interactive={PAPER_INTERACTIVE}
-                        linkRouting={LINK_ROUTING}
+                        interactive={autoLayout ? PAPER_INTERACTIVE : MANUAL_INTERACTIVE}
+                        linkRouting={autoLayout ? LINK_ROUTING : MANUAL_ROUTING}
+                        onElementPointerUp={({ model }) => {
+                            if (autoLayout) return;
+                            // Containers hug their members again after a member
+                            // moves — the whole ancestor chain, inner to outer,
+                            // so a nested subgraph's outer border tracks too.
+                            // Then every position is re-captured: the drag may
+                            // have moved embedded children, and the containers
+                            // just resized.
+                            for (const ancestor of model.getAncestors()) {
+                                if (ancestor.isElement()) {
+                                    ancestor.fitToChildren({ padding: CLUSTER_PADDING });
+                                }
+                            }
+                            const positions = positionsRef.current;
+                            for (const element of graph.getElements()) {
+                                const { x, y } = element.position();
+                                positions.set(String(element.id), { x, y });
+                            }
+                        }}
                         onElementPointerClick={({ model, event }) => {
                             // Shift (or the platform modifier) grows the
                             // selection; a plain click replaces it.
@@ -314,6 +484,9 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
                                     : [...selectedIds, model.id]
                             );
                         }}
+                        // An edge is selectable like a node; a lone one opens
+                        // the edge toolbar below.
+                        onLinkPointerClick={({ model }) => onSelect([model.id])}
                         onElementPointerDblClick={({ model }) => {
                             // Subgraph containers render no label input, so
                             // entering edit mode there would be a dead end.
@@ -337,6 +510,16 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
                                 edit={edit}
                             />
                         )}
+                        {linkToolbarCell?.id !== undefined && linkToolbarData && linkAnchor && (
+                            <LinkToolbar
+                                key={String(linkToolbarCell.id)}
+                                cellId={linkToolbarCell.id}
+                                data={linkToolbarData}
+                                x={linkAnchor.x + linkAnchor.width / 2}
+                                y={linkAnchor.y + linkAnchor.height / 2}
+                                edit={linkEdit}
+                            />
+                        )}
                         {connectFrom && connectTo
                             && connectFromId !== undefined && connectToId !== undefined && (
                             <ElementOverlay cell={connectToId} position="top" origin="bottom" dy={-10}>
@@ -354,7 +537,7 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
                         )}
                     </Paper>
                 </PaperScroller>
-                <ExportButton />
+                <CanvasActions autoLayout={autoLayout} onAutoLayoutChange={onAutoLayoutChange} />
                 <ZoomControls onFit={fit} />
                 <AccessibilityCheck />
             </div>
@@ -365,16 +548,31 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
 /** Edits the node toolbar can request, each rewriting a span of the source. */
 export interface NodeEditHandlers {
     readonly onLabelChange: (id: CellId, label: string) => void;
-    readonly onShapeChange: (id: CellId, shape: EditableShape) => void;
+    /** Target is an `EditableShape` or a v11 `@{ shape: … }` name. */
+    readonly onShapeChange: (id: CellId, shape: string) => void;
     readonly onFillChange: (id: CellId, fill: string | null) => void;
     /** Sets or clears one property on the node's `style` line. */
     readonly onStyleChange: (id: CellId, property: string, value: string | null) => void;
     /** Sets or removes the node's `click` hyperlink. */
     readonly onLinkChange: (id: CellId, url: string | null) => void;
+    /** Sets or removes the node's `@{ img: … }` image. */
+    readonly onImageChange: (id: CellId, url: string | null) => void;
     /** Appends a new node connected from this one. */
     readonly onAddChild: (id: CellId) => void;
     /** Appends an edge between two existing nodes. */
     readonly onConnect: (from: CellId, to: CellId) => void;
+}
+
+/** Edits the edge toolbar can request, each rewriting a span of the source. */
+export interface EdgeEditHandlers {
+    /** Rewrites the edge's arrow token — line pattern and heads. */
+    readonly onArrowChange: (edge: EdgeRef, change: EdgeArrowChange) => void;
+    /** Sets or clears the `linkStyle <n> stroke:` colour. */
+    readonly onColorChange: (edgeIndex: number, color: string | null) => void;
+    /** Sets or clears the `linkStyle <n> interpolate <curve>` statement. */
+    readonly onCurveChange: (edgeIndex: number, curve: string | null) => void;
+    /** Turns the marching-dash animation on or off. */
+    readonly onAnimationChange: (edge: EdgeRef, animate: boolean) => void;
 }
 
 export interface MermaidDiagramProps {
@@ -391,6 +589,16 @@ export interface MermaidDiagramProps {
     readonly fitToken: number;
     /** Writes from the node toolbar, applied to the Mermaid source. */
     readonly edit: NodeEditHandlers;
+    /** Writes from the edge toolbar, applied to the Mermaid source. */
+    readonly linkEdit: EdgeEditHandlers;
+    /** Dagre owns positions when true; the user's drags own them when false. */
+    readonly autoLayout: boolean;
+    readonly onAutoLayoutChange: (autoLayout: boolean) => void;
+    /**
+     * Where manual-mode positions live. Owned by the app — the canvas below
+     * remounts on id changes, and dragged positions must survive that.
+     */
+    readonly positionsRef: RefObject<ManualPositions>;
 }
 
 /**
@@ -408,6 +616,10 @@ export function MermaidDiagram({
     onSelect,
     fitToken,
     edit,
+    linkEdit,
+    autoLayout,
+    onAutoLayoutChange,
+    positionsRef,
 }: MermaidDiagramProps) {
     /*
      * Remount the graph whenever the set of cell ids changes.
@@ -446,6 +658,10 @@ export function MermaidDiagram({
                 onSelect={onSelect}
                 fitToken={fitToken}
                 edit={edit}
+                linkEdit={linkEdit}
+                autoLayout={autoLayout}
+                onAutoLayoutChange={onAutoLayoutChange}
+                positionsRef={positionsRef}
             />
         </Diagram>
     );
