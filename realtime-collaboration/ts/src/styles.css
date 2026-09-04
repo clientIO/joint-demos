@@ -1,0 +1,96 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: sans-serif;
+}
+
+#paper-container {
+    position: fixed;
+    inset: 0;
+}
+
+#users {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 10px 14px;
+    min-width: 140px;
+}
+
+.user {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.user-local {
+    font-weight: 600;
+}
+
+.user-name {
+    border-radius: 3px;
+    padding: 1px 5px;
+    outline: none;
+    transition: background 0.15s;
+}
+
+.user-local .user-name {
+    cursor: text;
+}
+
+.joint-link .label {
+    cursor: pointer;
+}
+
+.user-name--editing {
+    background: rgba(255, 220, 0, 0.35);
+    border-radius: 3px;
+    padding: 1px 5px;
+}
+
+.user-local .user-name:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.user-local .user-name:focus {
+    background: rgba(255, 255, 255, 0.95);
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+
+.user-you {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1.5px solid currentColor;
+    border-radius: 4px;
+    padding: 0px 4px;
+    line-height: 1.6;
+}
+
+#logo {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 10;
+    display: block;
+}
