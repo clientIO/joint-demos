@@ -24,8 +24,9 @@ React. Pick a size and a difficulty and the generator cuts you a fresh board.
 - **Undo / redo**: `Ctrl`/`⌘` + `Z` and `Ctrl`/`⌘` + `Shift` + `Z`, or the
   toolbar buttons. A new move drops whatever was undone.
 - **Escape** abandons the rectangle being dragged.
-- The **help** button in the toolbar opens the rules and the controls, and the
-  one next to it switches between the light and dark themes.
+- The **help** button in the toolbar opens the rules and the controls, the one
+  next to it switches between the light and dark themes, and the **share**
+  button copies a link that reopens the same board.
 - Placement is strict, so the board can never hold a wrong rectangle: a
   rectangle commits only when it contains exactly one number, has that number's
   area, and does not run into a rectangle already on the board. The puzzle is
@@ -103,6 +104,11 @@ the repository's screenshot comparison uses it, through the `query` field in
 ```json
 "shikaku": { "variant": "react", "query": "?seed=1234&clock=off" }
 ```
+
+The toolbar's share button writes exactly such a link to the clipboard —
+`boardUrl` is the inverse of the parsing above, and the two are tested against
+each other. What the player has placed is not part of it: the point is to hand
+someone the same puzzle, not the same progress.
 
 One wrinkle worth knowing: the seed you ask for is where the generator *starts*.
 If that board turns out to have more than one solution it moves to the next seed

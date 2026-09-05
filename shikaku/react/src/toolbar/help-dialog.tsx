@@ -79,7 +79,11 @@ export function HelpDialog({ open, onClose }: HelpDialogProps) {
                     The clock in the corner starts with the board and stops when you
                     finish. A new puzzle starts it again.
                 </li>
-                <li>The seed in the corner reproduces a board exactly.</li>
+                <li>
+                    The seed in the corner reproduces a board exactly, and the share
+                    button copies a link that reopens it. What you have placed is not
+                    part of the link — the puzzle is.
+                </li>
             </ul>
 
             <form method="dialog">

@@ -37,8 +37,8 @@ export function Board({ puzzle, game, elapsed, onNewPuzzle }: BoardProps) {
      * The fit never changes for anything drawn over the board. Reserving room
      * for the toast rescaled the board the moment the last square was filled,
      * which is exactly the wrong moment to move the thing the player has just
-     * finished looking at. The toast sits in the corner instead, clear of a
-     * board that is centered.
+     * finished looking at. The toast is drawn over the board instead, at the
+     * top with everything else this demo has to say about it.
      */
     const ref = useFitToContent();
 
