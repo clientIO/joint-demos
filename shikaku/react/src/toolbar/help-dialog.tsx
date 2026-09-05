@@ -48,7 +48,7 @@ export function HelpDialog({ open, onClose }: HelpDialogProps) {
                     placed.
                 </li>
                 <li>
-                    <b>Remove</b> — right-click inside a rectangle.
+                    <b>Remove</b> — click or right-click inside a rectangle.
                 </li>
                 <li>
                     <b>Escape</b> — abandon the rectangle you are dragging.
