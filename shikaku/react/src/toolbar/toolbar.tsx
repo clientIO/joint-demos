@@ -69,7 +69,7 @@ export function Toolbar({ puzzle, game, settings, onSettingsChange, onNewPuzzle 
      * not part of it: the point of sharing is to hand someone the same puzzle,
      * not the same progress.
      */
-    const share = async () => {
+    const share = async() => {
         try {
             await navigator.clipboard.writeText(boardUrl(puzzle, window.location.href));
             setShared('copied');
