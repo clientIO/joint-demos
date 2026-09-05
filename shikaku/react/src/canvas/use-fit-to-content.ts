@@ -9,9 +9,15 @@
  *
  * What it cannot know is *when*. The paper fills its container through CSS, so
  * a window resize changes the room available without the paper hearing about
- * it; the `ResizeObserver` here is what turns that into a refit. The size it
- * measures is only the trigger — the fit itself is left to the paper's own
- * `getComputedSize()`, which already tracks the element.
+ * it; the `ResizeObserver` here is what turns that into a refit.
+ *
+ * The fit runs in a layout effect, and the first one runs before the observer
+ * has said anything. Both matter for a new board: `<Diagram>` is remounted, so
+ * a passive effect would let the browser paint the new squares at the old
+ * board's transform first and correct them a frame later, and waiting on the
+ * observer — which reports asynchronously — would add another. The fit reads
+ * the graph (`useModelGeometry`) and the element's own box, both of which are
+ * settled by the time a layout effect runs, so there is nothing to wait for.
  *
  * Explicitly *not* passing `fittingBBox`: it defaults to the paper's current
  * translate plus its computed size, so handing it a box at the origin fights
@@ -24,7 +30,7 @@
  * because a fit that reacted to them would move the board while the player was
  * looking at it.
  */
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { usePaper } from '@joint/react-plus';
 import type { dia } from '@joint/plus';
 
@@ -51,41 +57,25 @@ const FIT: dia.Paper.TransformToFitContentOptions = {
     verticalAlign: 'middle',
 };
 
-interface Size {
-    readonly width: number;
-    readonly height: number;
-}
-
-const NO_SIZE: Size = { width: 0, height: 0 };
-
 /**
  * @returns a ref for the element the paper fills. Attach it, and the board
- *   fits itself to that element from mount on.
+ *   fits itself to that element from the first paint on.
  */
 export function useFitToContent(): React.RefObject<HTMLDivElement | null> {
-    const { paper } = usePaper();
     const ref = useRef<HTMLDivElement>(null);
-    const [size, setSize] = useState<Size>(NO_SIZE);
+    const { paper } = usePaper();
 
     useLayoutEffect(() => {
         const element = ref.current;
-        if (!element) return;
-        const observer = new ResizeObserver(([entry]) => {
-            const { width, height } = entry.contentRect;
-            setSize((previous) =>
-                previous.width === width && previous.height === height
-                    ? previous
-                    : { width, height }
-            );
-        });
+        if (!paper || !element) return;
+
+        const fit = () => paper.transformToFitContent(FIT);
+
+        fit();
+        const observer = new ResizeObserver(fit);
         observer.observe(element);
         return () => observer.disconnect();
-    }, []);
-
-    useEffect(() => {
-        if (!paper || size.width === 0 || size.height === 0) return;
-        paper.transformToFitContent(FIT);
-    }, [paper, size]);
+    }, [paper]);
 
     return ref;
 }
