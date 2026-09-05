@@ -36,6 +36,10 @@
         "height": 800
       }
     },
+    "shikaku": {
+      "variant": "react",
+      "query": "?seed=1234&clock=off"
+    },
     "force-directed-layout": {
       "screenshotThreshold": 5
     },

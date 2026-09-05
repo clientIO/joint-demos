@@ -16,7 +16,12 @@
  *   npx playwright install chromium
  *
  * The script reuses the same variant-resolution logic as build-demos.sh,
- * reading demos.config.json for per-demo overrides.
+ * reading demos.config.json for per-demo overrides:
+ *   - variant: which sub-directory to build and serve.
+ *   - viewport: { width, height } the page is shot at.
+ *   - query: query string appended to the URL. For a demo whose starting state
+ *     is otherwise random — a generated board, a running clock — so that the
+ *     capture is the same picture every run and worth comparing.
  */
 
 import { chromium } from 'playwright';
@@ -285,9 +290,18 @@ async function main() {
                 ? { width: configViewport.width || DEFAULT_VIEWPORT.width, height: configViewport.height || DEFAULT_VIEWPORT.height }
                 : DEFAULT_VIEWPORT;
 
+            /*
+             * Per-demo query string, for a demo whose starting state is
+             * otherwise random. Anything that would differ from run to run —
+             * a generated board, a running clock — makes comparison
+             * meaningless, so the demo is asked for a fixed one instead.
+             */
+            const query = demoConfig(config, demoName, 'query');
+            const pageUrl = query ? `${url}/${String(query).replace(/^[?]?/, '?')}` : url;
+
             // Take screenshot
             const page = await browser.newPage({ viewport });
-            await page.goto(url, { waitUntil: 'networkidle' });
+            await page.goto(pageUrl, { waitUntil: 'networkidle' });
             await page.waitForTimeout(SETTLE_MS);
 
             const screenshotPath = join(SCREENSHOTS_DIR, `${demoName}.png`);
