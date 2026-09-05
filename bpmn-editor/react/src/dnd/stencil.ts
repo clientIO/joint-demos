@@ -16,7 +16,6 @@ export function onStencilElementDragStart({ model, event, dropArea, paper, dragP
     const cloneView = dragPaper.findViewByModel(model) as dia.ElementView;
     const { x, y } = dropArea.center();
 
-    showDragPaper(dragPaper);
     setStencilEvent(event, true);
 
     if (isSwimlane(model)) {
@@ -26,29 +25,6 @@ export function onStencilElementDragStart({ model, event, dropArea, paper, dragP
     } else {
         onElementDragStart(paper, cloneView, event, x, y);
     }
-}
-
-/**
- * Puts the drag paper in the top layer.
- *
- * Works around a bug in `@joint/react-plus` (clientIO/joint-plus#803): the
- * drag paper is given `popover="manual"` and its UA popover styling is
- * neutralised, but nothing ever calls `showPopover()` on the React drag path,
- * so it is not in the top layer. It renders as an ordinary absolutely
- * positioned child of the body at `z-index: auto`, which the stencil
- * container paints over — the clone disappears behind the palette.
- *
- * Delete this once the library shows it itself.
- */
-function showDragPaper(dragPaper: dia.Paper) {
-    const { el } = dragPaper;
-
-    // The types promise `showPopover`; a browser without the API is the case
-    // this guards.
-    if (typeof el.showPopover !== 'function') return;
-    if (!el.hasAttribute('popover') || el.matches(':popover-open')) return;
-
-    el.showPopover();
 }
 
 /**
