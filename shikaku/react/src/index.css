@@ -1,0 +1,454 @@
+:root {
+    /* Chrome */
+    --canvas-color: #f3f7f6;
+    --surface-color: #ffffff;
+    --border-color: #dbe2e6;
+    --text-color: #322a49;
+    --muted-color: #6b6880;
+    --main-color: #4d64dd;
+    --main-hover-color: #3d51c4;
+    --reject-color: #d63b3b;
+    --solved-color: #16a37f;
+
+    /* Board */
+    --square-fill: #ffffff;
+    --square-stroke: #d6dee2;
+    --clue-color: #322a49;
+
+    /*
+     * Eight hues at a common lightness, each with a darker border tone. The
+     * board reads these as `var(--region-fill-N)`; nothing in TypeScript knows
+     * what a palette index looks like.
+     */
+    --region-fill-0: #c7cef4;
+    --region-stroke-0: #4d64dd;
+    --region-fill-1: #b6e3dc;
+    --region-stroke-1: #229b8a;
+    --region-fill-2: #fbe0ae;
+    --region-stroke-2: #d9902a;
+    --region-fill-3: #f7c9cf;
+    --region-stroke-3: #d4506a;
+    --region-fill-4: #dcc8ee;
+    --region-stroke-4: #8e5fbf;
+    --region-fill-5: #d5e8ae;
+    --region-stroke-5: #7ea32f;
+    --region-fill-6: #bfdff2;
+    --region-stroke-6: #2e86b8;
+    --region-fill-7: #f8d2bc;
+    --region-stroke-7: #dc6b36;
+
+    /* Shown while a drag would produce a rectangle that cannot be placed. */
+    --reject-fill: #f6c4c4;
+    --reject-stroke: #d63b3b;
+
+    /* Behind the things drawn over the board. */
+    --overlay-color: rgb(255 255 255 / 78%);
+
+    color-scheme: light;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+        sans-serif;
+    color: var(--text-color);
+}
+
+/*
+ * The dark board is not the light one dimmed: the fills are deep enough for
+ * white numerals to sit on, and the borders are lifted rather than darkened,
+ * because on a dark ground it is the lighter edge that reads.
+ */
+:root[data-theme='dark'] {
+    --canvas-color: #171a21;
+    --surface-color: #1c2029;
+    --border-color: #2f3541;
+    --text-color: #e7eaf1;
+    --muted-color: #98a1b2;
+    --main-color: #7d8ef0;
+    --main-hover-color: #93a1f4;
+    --reject-color: #ff7a7a;
+    --solved-color: #35c39d;
+
+    --square-fill: #232833;
+    --square-stroke: #2f3541;
+    --clue-color: #e7eaf1;
+
+    --region-fill-0: #2f3a6e;
+    --region-stroke-0: #7d8ef0;
+    --region-fill-1: #1f4a44;
+    --region-stroke-1: #4fc4ae;
+    --region-fill-2: #533c1b;
+    --region-stroke-2: #e0a44a;
+    --region-fill-3: #532430;
+    --region-stroke-3: #ef7a90;
+    --region-fill-4: #402a5c;
+    --region-stroke-4: #b184e8;
+    --region-fill-5: #364420;
+    --region-stroke-5: #a6cf5c;
+    --region-fill-6: #1d3d55;
+    --region-stroke-6: #58b0e0;
+    --region-fill-7: #57301f;
+    --region-stroke-7: #ef8a5c;
+
+    --reject-fill: #56222a;
+    --reject-stroke: #ff6b6b;
+
+    --overlay-color: rgb(23 26 33 / 78%);
+
+    color-scheme: dark;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+    margin: 0;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--canvas-color);
+}
+
+/* Toolbar ---------------------------------------------------------------- */
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 20px;
+    padding: 10px 16px;
+    background: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Theme and help, at the far end of the row. */
+.toolbar-tools {
+    margin-left: auto;
+}
+
+.toolbar-brand {
+    display: flex;
+    align-items: center;
+    flex: none;
+}
+
+.toolbar-brand:hover {
+    opacity: 0.75;
+}
+
+.toolbar-logo {
+    display: block;
+    width: auto;
+    height: 20px;
+}
+
+.toolbar-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted-color);
+}
+
+.field input,
+.field select {
+    font: inherit;
+    font-size: 13px;
+    color: var(--text-color);
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 4px 6px;
+}
+
+.field input {
+    width: 52px;
+}
+
+button {
+    font: inherit;
+    font-size: 13px;
+    color: var(--text-color);
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+    border-color: var(--main-color);
+    color: var(--main-color);
+}
+
+button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+button.primary {
+    background: var(--main-color);
+    border-color: var(--main-color);
+    color: #ffffff;
+}
+
+button.primary:hover:not(:disabled) {
+    background: var(--main-hover-color);
+    border-color: var(--main-hover-color);
+    color: #ffffff;
+}
+
+button.icon {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    color: var(--muted-color);
+}
+
+button.icon svg {
+    display: block;
+    width: 17px;
+    height: 17px;
+}
+
+/* Help ------------------------------------------------------------------- */
+
+.help {
+    max-width: 520px;
+    padding: 22px 24px;
+    color: var(--text-color);
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgb(50 42 73 / 24%);
+}
+
+.help::backdrop {
+    background: rgb(50 42 73 / 32%);
+}
+
+.help h2 {
+    margin: 0 0 8px;
+    font-size: 18px;
+}
+
+.help h3 {
+    margin: 20px 0 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted-color);
+}
+
+.help p,
+.help li {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.help p {
+    margin: 0;
+}
+
+.help ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.help li + li {
+    margin-top: 6px;
+}
+
+.help code,
+.help kbd {
+    padding: 1px 5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    background: var(--canvas-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.help form {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 22px;
+}
+
+/* Board ------------------------------------------------------------------ */
+
+.board-area {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+
+.board-stage,
+.board-paper {
+    width: 100%;
+    height: 100%;
+}
+
+/*
+ * The paper's own background, as a rule rather than the `<Paper background>`
+ * prop — a prop takes a color string, and this has to follow the theme. The
+ * library styles `.jj-paper` inside `@layer joint`, so this unlayered rule wins.
+ */
+.board-paper {
+    background: var(--canvas-color);
+}
+
+/* The squares never move, so the pointer should say "draw", not "drag". */
+.board-paper .joint-cell {
+    cursor: crosshair;
+}
+
+/*
+ * Hide the rubber band itself. The squares light up under the cursor as it
+ * moves, in the color the rectangle will keep, and a second outline drawn over
+ * them says nothing the paint has not already said.
+ *
+ * Through the stylesheet's own variables rather than the region's `color`
+ * option: `@joint/react-plus` styles `.jj-selection-region` in CSS, which beats
+ * the `fill` and `stroke` attributes the option sets. These rules are
+ * unlayered, so they win over the library's `@layer joint` either way.
+ */
+.board-stage .jj-selection-region {
+    --jj-selection-region-border-color: transparent;
+    --jj-selection-region-fill-opacity: 0;
+}
+
+/*
+ * How many squares the rectangle being dragged covers.
+ *
+ * In the corner, over the board rather than above it: reserving a band for it
+ * would push the board down and leave a gap for the whole game, to pay for a
+ * number that is only there mid-drag. The translucent backdrop is what lets it
+ * sit on top of the squares and stay readable.
+ */
+.board-count {
+    position: absolute;
+    right: 14px;
+    top: 12px;
+    margin: 0;
+    padding: 4px 16px 7px;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted-color);
+    background: var(--overlay-color);
+    border-radius: 14px;
+    pointer-events: none;
+}
+
+.board-count.rejected {
+    color: var(--reject-color);
+}
+
+/* Why the rectangle being dragged cannot be placed. */
+.board-reject {
+    position: absolute;
+    left: 50%;
+    top: 14px;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 5px 13px;
+    font-size: 13px;
+    color: var(--reject-color);
+    background: var(--surface-color);
+    border: 1px solid var(--reject-color);
+    border-radius: 999px;
+    box-shadow: 0 2px 10px rgb(0 0 0 / 8%);
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* Board state, in the corner of the canvas rather than in the top bar. */
+.board-status {
+    position: absolute;
+    left: 16px;
+    bottom: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-color);
+    pointer-events: none;
+}
+
+.board-clock {
+    font-weight: 600;
+}
+
+.board-status .muted {
+    color: var(--muted-color);
+}
+
+.board-status .warn {
+    color: var(--reject-color);
+}
+
+/*
+ * In the corner, where a centered board leaves room, and without the fit knowing
+ * about it: rescaling the board the moment the last square is filled moves the
+ * thing the player has just finished looking at.
+ */
+.toast {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: calc(100% - 32px);
+    padding: 10px 12px 10px 16px;
+    font-size: 14px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 8px 28px rgb(50 42 73 / 18%);
+}
+
+.toast-mark {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    flex: none;
+    font-size: 13px;
+    color: #ffffff;
+    background: var(--solved-color);
+    border-radius: 50%;
+}
+
+.toast-text {
+    white-space: nowrap;
+}
+
+.toast-close {
+    padding: 4px 8px;
+    color: var(--muted-color);
+    border-color: transparent;
+}

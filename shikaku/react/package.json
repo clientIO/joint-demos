@@ -1,0 +1,39 @@
+{
+  "name": "@joint/demo-shikaku",
+  "private": true,
+  "version": "4.3.0",
+  "type": "module",
+  "description": "A playable Shikaku puzzle built with @joint/react-plus (JointJS).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "typecheck": "tsc -b",
+    "test:unit": "vitest run",
+    "test:watch": "vitest",
+    "test": "npm run typecheck && npm run lint && npm run test:unit"
+  },
+  "dependencies": {
+    "@joint/core": "4.3.2",
+    "@joint/plus": "4.3.2",
+    "@joint/react-plus": "^4.3.2",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "eslint": "^10.6.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
+    "globals": "^17.7.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.62.0",
+    "vite": "^8.1.1",
+    "vitest": "^4.1.10"
+  }
+}
