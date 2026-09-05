@@ -74,6 +74,28 @@ function readDifficulty(read: Read, ...names: readonly string[]): Difficulty | n
     return null;
 }
 
+/**
+ * A link that reopens this board.
+ *
+ * The reverse of {@link resolveBoardRequest}: everything it reads, this writes.
+ * The clock is left out — a shared board should be timed by whoever opens it —
+ * and so is anything the player has placed. What is shared is the puzzle.
+ */
+export function boardUrl(
+    board: Pick<BoardRequest, 'cols' | 'rows' | 'difficulty' | 'seed'>,
+    base: string
+): string {
+    const url = new URL(base);
+    // Replaced wholesale rather than merged: whatever opened this page should
+    // not ride along into the link.
+    url.search = '';
+    url.searchParams.set('seed', String(board.seed));
+    url.searchParams.set('width', String(board.cols));
+    url.searchParams.set('height', String(board.rows));
+    url.searchParams.set('difficulty', board.difficulty);
+    return url.toString();
+}
+
 export interface ResolveOptions {
     /** `location.search`, or any query string. */
     readonly search?: string;

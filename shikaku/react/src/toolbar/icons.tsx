@@ -78,6 +78,25 @@ export function MoonIcon() {
     );
 }
 
+/** Two links of a chain: a link to this board. */
+export function LinkIcon() {
+    return (
+        <Icon>
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+        </Icon>
+    );
+}
+
+/** A tick: the link is on the clipboard. */
+export function CheckIcon() {
+    return (
+        <Icon>
+            <path d="m5 12.5 4.5 4.5L19 7.5" />
+        </Icon>
+    );
+}
+
 /** A question mark in a circle. */
 export function HelpIcon() {
     return (

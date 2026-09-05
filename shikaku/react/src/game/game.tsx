@@ -47,6 +47,7 @@ function Playing({ puzzle, clock, settings, onSettingsChange, onNewPuzzle }: Shi
     return (
         <>
             <Toolbar
+                puzzle={puzzle}
                 game={game}
                 settings={settings}
                 onSettingsChange={onSettingsChange}

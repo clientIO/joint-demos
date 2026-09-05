@@ -235,6 +235,11 @@ button.icon svg {
     height: 17px;
 }
 
+button.icon.copied {
+    color: var(--solved-color);
+    border-color: var(--solved-color);
+}
+
 /* Help ------------------------------------------------------------------- */
 
 .help {
@@ -430,14 +435,18 @@ button.icon svg {
 }
 
 /*
- * In the corner, where a centered board leaves room, and without the fit knowing
- * about it: rescaling the board the moment the last square is filled moves the
- * thing the player has just finished looking at.
+ * Above the board, with the count and the reject pill: everything this demo has
+ * to say about the board is said up there, and a message that arrives somewhere
+ * else is a message you have to go looking for.
+ *
+ * The fit does not know about it — rescaling the board the moment the last
+ * square is filled moves the thing the player has just finished looking at.
  */
 .toast {
     position: absolute;
-    right: 16px;
-    bottom: 16px;
+    left: 50%;
+    top: 14px;
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -470,4 +479,17 @@ button.icon svg {
     padding: 4px 8px;
     color: var(--muted-color);
     border-color: transparent;
+}
+
+/* Too wide to sit centered on a narrow screen, so it spans it. */
+@media (max-width: 640px) {
+    .toast {
+        left: 12px;
+        right: 12px;
+        transform: none;
+    }
+
+    .toast-text {
+        white-space: normal;
+    }
 }

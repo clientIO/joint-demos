@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_COLS, DEFAULT_DIFFICULTY, DEFAULT_ROWS, resolveBoardRequest } from './board-request';
+import {
+    boardUrl,
+    DEFAULT_COLS,
+    DEFAULT_DIFFICULTY,
+    DEFAULT_ROWS,
+    resolveBoardRequest,
+} from './board-request';
 import { MAX_SIDE, MIN_SIDE } from './puzzle/board-size';
 
 const seed = () => 42;
@@ -84,5 +90,33 @@ describe('resolveBoardRequest', () => {
         expect(resolveBoardRequest({ search: '?difficulty=HARD', fallbackSeed: seed })).toMatchObject({
             difficulty: 'hard',
         });
+    });
+});
+
+describe('boardUrl', () => {
+    const board = { cols: 12, rows: 8, difficulty: 'hard' as const, seed: 1234 };
+
+    it('writes everything resolveBoardRequest reads', () => {
+        const url = boardUrl(board, 'https://example.com/shikaku/');
+        expect(url).toBe(
+            'https://example.com/shikaku/?seed=1234&width=12&height=8&difficulty=hard'
+        );
+        expect(resolveBoardRequest({ search: new URL(url).search })).toMatchObject(board);
+    });
+
+    it('drops whatever opened the page', () => {
+        const url = boardUrl(board, 'https://example.com/?seed=9&clock=off&unrelated=1');
+        expect(new URL(url).searchParams.get('seed')).toBe('1234');
+        expect(new URL(url).searchParams.has('clock')).toBe(false);
+        expect(new URL(url).searchParams.has('unrelated')).toBe(false);
+    });
+
+    it('round-trips a board through a link', () => {
+        const reopened = resolveBoardRequest({
+            search: new URL(boardUrl(board, 'https://example.com/')).search,
+        });
+        expect(boardUrl(reopened, 'https://example.com/')).toBe(
+            boardUrl(board, 'https://example.com/')
+        );
     });
 });
