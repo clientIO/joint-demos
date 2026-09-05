@@ -1,7 +1,7 @@
 {
   "name": "@joint/demo-shikaku",
   "private": true,
-  "version": "4.3.0",
+  "version": "4.3.3",
   "type": "module",
   "description": "A playable Shikaku puzzle built with @joint/react-plus (JointJS).",
   "scripts": {
@@ -15,9 +15,8 @@
     "test": "npm run typecheck && npm run lint && npm run test:unit"
   },
   "dependencies": {
-    "@joint/core": "4.3.2",
-    "@joint/plus": "4.3.2",
-    "@joint/react-plus": "^4.3.2",
+    "@joint/plus": "4.3.3",
+    "@joint/react-plus": "4.3.3",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
