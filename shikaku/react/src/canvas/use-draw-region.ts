@@ -85,7 +85,7 @@ export function useDrawRegion(puzzle: Puzzle, game: GameApi): DrawRegionApi {
             let moved = false;
             canceled.current = false;
 
-            void (async () => {
+            void (async() => {
                 const band = await startRectangleRegion({
                     // Typed explicitly: the option travels through
                     // `mvc.ViewOptions`, whose index signature widens it away.

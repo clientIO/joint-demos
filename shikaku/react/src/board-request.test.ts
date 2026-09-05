@@ -38,7 +38,7 @@ describe('resolveBoardRequest', () => {
 
     it('lets the query string win over the environment', () => {
         expect(
-            resolveBoardRequest({ search: '?seed=1', env: { VITE_SEED: '2', VITE_WIDTH: '20' } })
+            resolveBoardRequest({ search: '?seed=1', env: { VITE_SEED: '2', VITE_WIDTH: '20' }})
         ).toMatchObject({ seed: 1, cols: 20 });
     });
 
