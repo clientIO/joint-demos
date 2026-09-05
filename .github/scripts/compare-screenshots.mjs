@@ -66,6 +66,8 @@
  *     affecting build-demos.sh / screenshot-demos.mjs (unlike `skip`, which
  *     is shared and also removes the demo from build/deploy).
  *   - screenshotThreshold: per-demo override of --threshold.
+ *   - query: query string the screenshot is taken with, for a demo whose
+ *     starting state is otherwise random (see screenshot-demos.mjs).
  */
 
 import { chromium } from 'playwright';
@@ -526,8 +528,16 @@ async function main() {
                 ? { width: configViewport.width || DEFAULT_VIEWPORT.width, height: configViewport.height || DEFAULT_VIEWPORT.height }
                 : DEFAULT_VIEWPORT;
 
+            /*
+             * Same query the baseline was captured with, so a demo whose
+             * starting state is otherwise random is compared against the board
+             * it was shot from rather than a fresh one.
+             */
+            const query = demoConfig(config, demoName, 'query');
+            const pageUrl = query ? `${url}/${String(query).replace(/^[?]?/, '?')}` : url;
+
             const page = await browser.newPage({ viewport });
-            await page.goto(url, { waitUntil: 'networkidle' });
+            await page.goto(pageUrl, { waitUntil: 'networkidle' });
             await page.waitForTimeout(SETTLE_MS);
 
             // Clip to the bounding box of <body> children to avoid excess whitespace
