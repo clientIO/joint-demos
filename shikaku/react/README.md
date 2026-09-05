@@ -19,7 +19,8 @@ React. Pick a size and a difficulty and the generator cuts you a fresh board.
   and counting by eye is the tedious part. A rectangle that cannot be placed
   previews in dashed red, and a pill says why. A single number of `1` is placed
   with a plain click.
-- **Remove a rectangle**: right-click anywhere inside it.
+- **Remove a rectangle**: click or right-click anywhere inside it. A click is
+  what makes this reachable on a touch screen, where there is no right button.
 - **Undo / redo**: `Ctrl`/`⌘` + `Z` and `Ctrl`/`⌘` + `Shift` + `Z`, or the
   toolbar buttons. A new move drops whatever was undone.
 - **Escape** abandons the rectangle being dragged.

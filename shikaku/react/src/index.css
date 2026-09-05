@@ -127,6 +127,12 @@ body,
 
 .toolbar-group {
     display: flex;
+    /*
+     * Wraps for the same reason the toolbar does. Without it a group is one
+     * unbreakable flex item, and on a phone the widest of them runs past the
+     * toolbar's padding and out to the edge of the screen.
+     */
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
 }
@@ -320,6 +326,19 @@ button.icon svg {
 /* The squares never move, so the pointer should say "draw", not "drag". */
 .board-paper .joint-cell {
     cursor: crosshair;
+}
+
+/*
+ * Every touch on the board is a rectangle being drawn, so none of it is the
+ * browser's to interpret. Without this the browser claims the gesture for
+ * scrolling and cancels the pointer stream the rubber band is listening to,
+ * and nothing can be drawn on a phone at all.
+ */
+.board-stage {
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
 }
 
 /*

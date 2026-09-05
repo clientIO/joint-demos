@@ -19,7 +19,7 @@
  *   so commit changes nothing but the opacity.
  */
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { g } from '@joint/plus';
+import { g, type dia } from '@joint/plus';
 import { useOnKeyboardEvents, useRegion } from '@joint/react-plus';
 import type { PaperEventHandler, PaperEventMap } from '@joint/react-plus';
 import { pickColor } from '@/puzzle/colors';
@@ -35,7 +35,10 @@ export interface DrawRegionApi {
     readonly pending: PendingRect | null;
     /** Why the rectangle being dragged cannot be placed, or `null`. */
     readonly rejection: RejectReason | null;
-    readonly handlers: Pick<PaperEventMap, 'onElementPointerDown' | 'onElementContextMenu'>;
+    readonly handlers: Pick<
+        PaperEventMap,
+        'onElementPointerDown' | 'onElementPointerClick' | 'onElementContextMenu'
+    >;
 }
 
 interface Evaluated {
@@ -59,9 +62,16 @@ export function useDrawRegion(puzzle: Puzzle, game: GameApi): DrawRegionApi {
 
     const onElementPointerDown = useCallback<PaperEventHandler<'onElementPointerDown'>>(
         ({ model, event }) => {
-            // A right-press also reaches `element:pointerdown`; leave it to
-            // `onElementContextMenu`.
-            if (event.button !== 0) return;
+            /*
+             * A right-press also reaches `element:pointerdown`; leave it to
+             * `onElementContextMenu`.
+             *
+             * `?? 0` because a touch has no button at all: the paper maps
+             * `touchstart` to this same handler, and a `TouchEvent` carries no
+             * `button` property. Comparing it to 0 directly turned every touch
+             * into a right-press and made the demo unusable on a phone.
+             */
+            if ((event.button ?? 0) !== 0) return;
 
             // Pressing on a rectangle that is already placed does nothing.
             // Every rectangle drawn from there would overlap it, and a drag
@@ -119,18 +129,44 @@ export function useDrawRegion(puzzle: Puzzle, game: GameApi): DrawRegionApi {
         [clues, cols, rows, regions, place, startRectangleRegion]
     );
 
-    const onElementContextMenu = useCallback<PaperEventHandler<'onElementContextMenu'>>(
-        ({ model, event }) => {
-            event.preventDefault();
-            // Rectangles are drawn over the squares, so a right-press inside
-            // one lands on the rectangle itself and its element id names it. On
-            // a bare square there is nothing to remove.
+    /**
+     * Takes a rectangle off the board.
+     *
+     * Rectangles are drawn over the squares, so a press inside one lands on the
+     * rectangle itself and its element id names it. On a bare square there is
+     * nothing to remove.
+     */
+    const removeUnder = useCallback(
+        (model: dia.Element) => {
             const data = model.get('data') as CellData;
             if (data.kind !== 'region') return;
             remove(String(model.id));
             setRejection(null);
         },
         [remove]
+    );
+
+    const onElementContextMenu = useCallback<PaperEventHandler<'onElementContextMenu'>>(
+        ({ model, event }) => {
+            event.preventDefault();
+            removeUnder(model);
+        },
+        [removeUnder]
+    );
+
+    /*
+     * A plain click removes a rectangle too. Right-click is the natural gesture
+     * with a mouse and the only one a phone cannot make, and a rectangle is the
+     * one thing on this board a click could mean — pressing one never starts a
+     * drag, since every rectangle drawn from inside it would overlap. Undo is a
+     * keystroke away if it was not meant.
+     *
+     * A drag past the paper's `clickThreshold` is not a click, so placing a
+     * rectangle never removes the one under where the finger came up.
+     */
+    const onElementPointerClick = useCallback<PaperEventHandler<'onElementPointerClick'>>(
+        ({ model }) => removeUnder(model),
+        [removeUnder]
     );
 
     const cancelDrag = useCallback(() => {
@@ -152,8 +188,8 @@ export function useDrawRegion(puzzle: Puzzle, game: GameApi): DrawRegionApi {
     useOnKeyboardEvents({ escape: () => cancelDrag() });
 
     const handlers = useMemo(
-        () => ({ onElementPointerDown, onElementContextMenu }),
-        [onElementPointerDown, onElementContextMenu]
+        () => ({ onElementPointerDown, onElementPointerClick, onElementContextMenu }),
+        [onElementPointerDown, onElementPointerClick, onElementContextMenu]
     );
 
     return { pending, rejection, handlers };
