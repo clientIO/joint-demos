@@ -7,13 +7,13 @@
  */
 import { useState } from 'react';
 import type { GameApi } from '@/game/use-game';
-import { clampSide, MAX_SIDE, MIN_SIDE } from '@/puzzle/board-size';
 import type { Difficulty } from '@/puzzle/types';
 // Imported rather than written as a "/…" src, so Vite emits a base-relative
 // URL — the built demo is served from a sub-path and a rooted one would 404.
 import jointjsLogo from '@/assets/jointjs-logo.svg';
 import { HelpDialog } from './help-dialog';
 import { ClearIcon, HelpIcon, MoonIcon, RedoIcon, SunIcon, UndoIcon } from './icons';
+import { SizeInput } from './size-input';
 import { useTheme } from './use-theme';
 
 export interface Settings {
@@ -25,9 +25,8 @@ export interface Settings {
 const DIFFICULTIES: readonly Difficulty[] = ['easy', 'medium', 'hard'];
 
 /*
- * Shortcut labels for the button tooltips. The bindings themselves live in
- * `src/canvas/use-board-shortcuts.ts` — they have to be registered on the
- * diagram's keyboard, which only exists inside `<Diagram>`.
+ * Shortcut labels for the button tooltips. The bindings themselves are the
+ * library's, from `<Diagram history>`.
  */
 const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
 const UNDO_HINT = IS_MAC ? '\u2318Z' : 'Ctrl+Z';
@@ -61,26 +60,16 @@ export function Toolbar({ game, settings, onSettingsChange, onNewPuzzle }: Toolb
             <div className="toolbar-group">
                 <label className="field">
                     <span>Size</span>
-                    <input
-                        type="number"
-                        aria-label="Board width"
-                        min={MIN_SIDE}
-                        max={MAX_SIDE}
+                    <SizeInput
+                        label="Board width"
                         value={settings.cols}
-                        onChange={(event) =>
-                            onSettingsChange({ ...settings, cols: clampSide(event.target.valueAsNumber) })
-                        }
+                        onChange={(cols) => onSettingsChange({ ...settings, cols })}
                     />
                     <span aria-hidden="true">×</span>
-                    <input
-                        type="number"
-                        aria-label="Board height"
-                        min={MIN_SIDE}
-                        max={MAX_SIDE}
+                    <SizeInput
+                        label="Board height"
                         value={settings.rows}
-                        onChange={(event) =>
-                            onSettingsChange({ ...settings, rows: clampSide(event.target.valueAsNumber) })
-                        }
+                        onChange={(rows) => onSettingsChange({ ...settings, rows })}
                     />
                 </label>
                 <label

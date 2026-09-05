@@ -22,7 +22,7 @@ describe('countSolutions', () => {
     });
 
     it('gives up rather than hanging when the search runs past its budget', () => {
-        // A budget of one node cannot finish anything non-trivial.
+        // A budget of no nodes at all cannot finish anything non-trivial.
         expect(countSolutions({ cols: 4, rows: 4, clues: [{ x: 0, y: 0, value: 16 }] }, 2, 0)).toBe(
             null
         );

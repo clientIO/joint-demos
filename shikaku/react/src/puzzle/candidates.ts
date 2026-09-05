@@ -20,7 +20,7 @@ interface Board {
     readonly clues: readonly Clue[];
 }
 
-/** The `w x h` shapes with exactly `area` cells, widest first. */
+/** The `w x h` shapes with exactly `area` cells, narrowest first. */
 export function shapesOfArea(area: number): { w: number; h: number }[] {
     const shapes: { w: number; h: number }[] = [];
     for (let w = 1; w <= area; w++) {
