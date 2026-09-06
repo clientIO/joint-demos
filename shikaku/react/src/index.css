@@ -375,6 +375,24 @@ button.icon.copied {
     text-transform: capitalize;
 }
 
+/*
+ * Every segment is sized for its own word *in bold*, whether or not it is the
+ * chosen one. The selected segment is semibold, and bold text is wider — so
+ * without this the track, and the dialog around it, changed width every time
+ * the selection moved.
+ *
+ * A zero-height copy of the word does it: it contributes its width and nothing
+ * else.
+ */
+.choice span::after {
+    content: attr(data-label);
+    display: block;
+    height: 0;
+    overflow: hidden;
+    font-weight: 600;
+    pointer-events: none;
+}
+
 .choice span:hover {
     color: var(--text-color);
 }

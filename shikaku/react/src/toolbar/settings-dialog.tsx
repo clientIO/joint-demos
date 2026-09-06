@@ -95,7 +95,12 @@ export function SettingsDialog({ open, settings, onClose, onNewPuzzle }: Setting
                                         setDraft((previous) => ({ ...previous, difficulty }))
                                     }
                                 />
-                                <span>{difficulty}</span>
+                                {/*
+                                  * `data-label` feeds a hidden bold copy of the
+                                  * word, which is what keeps the segment as wide
+                                  * as its own selected state — see `index.css`.
+                                  */}
+                                <span data-label={difficulty}>{difficulty}</span>
                             </label>
                         ))}
                     </div>
