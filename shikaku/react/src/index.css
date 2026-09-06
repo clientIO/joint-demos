@@ -185,6 +185,24 @@ body,
     padding: 5px 8px;
 }
 
+/*
+ * 16px on a touch screen, whatever it looks like elsewhere.
+ *
+ * iOS Safari zooms the page in when a field with smaller text takes focus, and
+ * it does not zoom back out when the field is done with — so opening this
+ * dialog, which focuses the first size input, left the board magnified with no
+ * way back but a pinch. Sixteen is the threshold; below it, Safari assumes the
+ * text is too small to type into.
+ *
+ * The alternative is `maximum-scale=1` on the viewport, which stops the zoom by
+ * taking pinch-zoom away from everyone. Not worth it.
+ */
+@media (pointer: coarse) {
+    .size-input {
+        font-size: 16px;
+    }
+}
+
 button {
     font: inherit;
     font-size: 13px;
