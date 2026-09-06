@@ -541,7 +541,10 @@ button.icon.copied {
     background: var(--canvas-color);
 }
 
-/* The squares never move, so the pointer should say "draw", not "drag". */
+/*
+ * The squares never move, so the pointer says "draw", not "drag". The
+ * rectangles drawn over them say something else — see `render-cell.tsx`.
+ */
 .board-paper .joint-cell {
     cursor: crosshair;
 }

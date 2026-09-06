@@ -85,8 +85,17 @@ function Region({ color, given, pending, rejected, width, height, clue }: Region
             ? 'var(--reject-stroke)'
             : `var(--region-stroke-${color})`;
 
+    /*
+     * The pointer says what a press here would do. A placed rectangle can be
+     * clicked away, so it gets the hand; a given cannot be touched at all, so
+     * it gets nothing. The crosshair belongs to the squares, where a press
+     * starts drawing — claiming it over a rectangle that cannot be drawn on
+     * would be a lie.
+     */
+    const cursor = given ? 'default' : pending ? 'crosshair' : 'pointer';
+
     return (
-        <>
+        <g style={{ cursor }}>
             <rect
                 width={width}
                 height={height}
@@ -99,7 +108,7 @@ function Region({ color, given, pending, rejected, width, height, clue }: Region
             />
             {/* A given carries no number: a 1 has only ever one shape. */}
             {clue && !given && <ClueText x={clue.x} y={clue.y} value={clue.value} />}
-        </>
+        </g>
     );
 }
 
