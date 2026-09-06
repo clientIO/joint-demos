@@ -338,12 +338,23 @@ button.icon.copied {
 }
 
 /*
- * The difficulty choices: three radios drawn as one segmented control. The
- * inputs stay in the page rather than being display:none, so they keep their
- * focus ring and their keyboard behavior.
+ * The difficulty choices: three radios drawn as one segmented control.
+ *
+ * A recessed track with the chosen one raised out of it, rather than a filled
+ * segment. Filling it needs a strong color, and the two strong colors available
+ * both say the wrong thing — the accent belongs to Generate, and near-black is
+ * heavier than a three-way choice deserves. Depth carries it instead.
+ *
+ * The inputs stay in the page rather than being display:none, so they keep
+ * their focus ring and their keyboard behavior.
  */
 .choices {
-    display: flex;
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    background: var(--canvas-color);
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
 }
 
 .choice input {
@@ -356,47 +367,23 @@ button.icon.copied {
 
 .choice span {
     display: block;
-    padding: 6px 14px;
+    padding: 5px 14px;
     font-size: 13px;
-    color: var(--text-color);
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
+    color: var(--muted-color);
+    border-radius: 6px;
     cursor: pointer;
     text-transform: capitalize;
 }
 
-.choice:first-child span {
-    border-radius: 6px 0 0 6px;
-}
-
-.choice:last-child span {
-    border-radius: 0 6px 6px 0;
-}
-
-/* One border between neighbors rather than two. */
-.choice + .choice span {
-    margin-left: -1px;
-}
-
 .choice span:hover {
     color: var(--text-color);
-    border-color: var(--muted-color);
 }
 
-/*
- * Neutral rather than the accent: the accent belongs to Generate, the one
- * thing in the dialog you press to make something happen. A chosen segment
- * wearing the same color competes with it — it looks like a second button
- * rather than the answer to a question.
- *
- * Inverting the text color reads as "chosen" in both themes: a dark chip on
- * the light one, a light chip on the dark one.
- */
 .choice input:checked + span {
-    position: relative;
-    color: var(--surface-color);
-    background: var(--text-color);
-    border-color: var(--text-color);
+    color: var(--text-color);
+    font-weight: 600;
+    background: var(--surface-color);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 12%);
 }
 
 .choice input:focus-visible + span {
