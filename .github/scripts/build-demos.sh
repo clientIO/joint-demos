@@ -20,12 +20,19 @@ FILTER=""
 JOBS=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --force) FORCE=true ;;
-        --jobs) shift; JOBS="${1:-}" ;;
-        --jobs=*) JOBS="${1#--jobs=}" ;;
-        *) FILTER="$1" ;;
+        --force) FORCE=true; shift ;;
+        --jobs)
+            # Each branch shifts what it consumed, rather than shifting once at
+            # the bottom for everyone: `--jobs` eats two arguments, and a shared
+            # shift ran off the end of the list when it came last.
+            if [[ $# -lt 2 ]]; then
+                echo "build-demos.sh: --jobs needs a number" >&2
+                exit 2
+            fi
+            JOBS="$2"; shift 2 ;;
+        --jobs=*) JOBS="${1#--jobs=}"; shift ;;
+        *) FILTER="$1"; shift ;;
     esac
-    shift
 done
 
 if [[ -z "$JOBS" ]]; then
@@ -34,7 +41,14 @@ if [[ -z "$JOBS" ]]; then
     # waiting on the network more than on the CPU.
     JOBS=$(( cores > 4 ? 4 : cores ))
 fi
-[[ "$JOBS" -ge 1 ]] || JOBS=1
+
+# Checked as text before it is used as a number: `[[ x -ge 1 ]]` evaluates its
+# operands arithmetically, so a value like `3x` is a bash error rather than a
+# comparison, and `auto` quietly reads as zero.
+if [[ ! "$JOBS" =~ ^[0-9]+$ ]] || (( JOBS < 1 )); then
+    echo "build-demos.sh: --jobs must be a whole number of 1 or more, got '$JOBS'" >&2
+    exit 2
+fi
 
 SITE_DIR="_site"
 CONFIG_FILE="demos.config.json"
@@ -160,6 +174,10 @@ build_demo() {
             npm run build -- $build_flags
         ); then
             if [[ -d "$build_dir/dist" ]]; then
+                # Created rather than left to `cp`: whether `cp -r src/. dest/`
+                # makes a missing destination differs between implementations,
+                # and it costs nothing to not depend on it.
+                mkdir -p "$SITE_DIR/$demo_name"
                 cp -r "$build_dir/dist/." "$SITE_DIR/$demo_name/"
                 echo ":: Done $demo_name"
                 echo built > "$status"
