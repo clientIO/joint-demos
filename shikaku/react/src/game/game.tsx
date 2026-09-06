@@ -33,11 +33,10 @@ export interface ShikakuGameProps {
     /** `false` freezes the timer at zero, for a reproducible screenshot. */
     readonly clock: boolean;
     readonly settings: Settings;
-    readonly onSettingsChange: (settings: Settings) => void;
-    readonly onNewPuzzle: () => void;
+    readonly onNewPuzzle: (settings?: Settings) => void;
 }
 
-function Playing({ puzzle, clock, settings, onSettingsChange, onNewPuzzle }: ShikakuGameProps) {
+function Playing({ puzzle, clock, settings, onNewPuzzle }: ShikakuGameProps) {
     const game = useGame(puzzle);
     // Stops the moment the last square is covered, so the toast can report the
     // time the board actually took — and never starts at all when the clock has
@@ -50,7 +49,6 @@ function Playing({ puzzle, clock, settings, onSettingsChange, onNewPuzzle }: Shi
                 puzzle={puzzle}
                 game={game}
                 settings={settings}
-                onSettingsChange={onSettingsChange}
                 onNewPuzzle={onNewPuzzle}
             />
             <main className="board-area">
@@ -58,7 +56,7 @@ function Playing({ puzzle, clock, settings, onSettingsChange, onNewPuzzle }: Shi
                     puzzle={puzzle}
                     game={game}
                     elapsed={elapsed}
-                    onNewPuzzle={onNewPuzzle}
+                    onNewPuzzle={() => onNewPuzzle()}
                 />
                 <BoardStatus puzzle={puzzle} game={game} elapsed={elapsed} />
             </main>

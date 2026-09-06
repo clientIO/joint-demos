@@ -1,9 +1,9 @@
 /**
  * The controls.
  *
- * Size and difficulty are staged rather than applied: typing "1" on the way to
- * "12" should not throw away the board being played. They are read when *New
- * puzzle* is pressed, which is the button right next to them.
+ * Size and difficulty live in a dialog behind the *New puzzle* button rather
+ * than in the row: they describe the next board, not the one on screen, and out
+ * of the row the toolbar fits a phone without wrapping.
  */
 import { useEffect, useState } from 'react';
 import { boardUrl } from '@/board-request';
@@ -13,8 +13,18 @@ import type { Difficulty, Puzzle } from '@/puzzle/types';
 // URL — the built demo is served from a sub-path and a rooted one would 404.
 import jointjsLogo from '@/assets/jointjs-logo.svg';
 import { HelpDialog } from './help-dialog';
-import { CheckIcon, ClearIcon, HelpIcon, LinkIcon, MoonIcon, RedoIcon, SunIcon, UndoIcon } from './icons';
-import { SizeInput } from './size-input';
+import {
+    CheckIcon,
+    ChevronDownIcon,
+    ClearIcon,
+    HelpIcon,
+    LinkIcon,
+    MoonIcon,
+    RedoIcon,
+    SunIcon,
+    UndoIcon,
+} from './icons';
+import { SettingsDialog } from './settings-dialog';
 import { useTheme } from './use-theme';
 
 export interface Settings {
@@ -22,8 +32,6 @@ export interface Settings {
     readonly rows: number;
     readonly difficulty: Difficulty;
 }
-
-const DIFFICULTIES: readonly Difficulty[] = ['easy', 'medium', 'hard'];
 
 /*
  * Shortcut labels for the button tooltips. The bindings themselves are the
@@ -48,12 +56,13 @@ export interface ToolbarProps {
     readonly puzzle: Puzzle;
     readonly game: GameApi;
     readonly settings: Settings;
-    readonly onSettingsChange: (settings: Settings) => void;
-    readonly onNewPuzzle: () => void;
+    /** Generate a board — from `settings`, or from the ones given. */
+    readonly onNewPuzzle: (settings?: Settings) => void;
 }
 
-export function Toolbar({ puzzle, game, settings, onSettingsChange, onNewPuzzle }: ToolbarProps) {
+export function Toolbar({ puzzle, game, settings, onNewPuzzle }: ToolbarProps) {
     const [helpOpen, setHelpOpen] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
     const [shared, setShared] = useState<Shared>('idle');
     const { theme, toggleTheme } = useTheme();
 
@@ -95,49 +104,38 @@ export function Toolbar({ puzzle, game, settings, onSettingsChange, onNewPuzzle 
             </div>
 
             <div className="toolbar-group">
-                <label className="field">
-                    <span>Size</span>
-                    <SizeInput
-                        label="Board width"
-                        value={settings.cols}
-                        onChange={(cols) => onSettingsChange({ ...settings, cols })}
-                    />
-                    <span aria-hidden="true">×</span>
-                    <SizeInput
-                        label="Board height"
-                        value={settings.rows}
-                        onChange={(rows) => onSettingsChange({ ...settings, rows })}
-                    />
-                </label>
-                <label
-                    className="field"
-                    title="The largest rectangle the generator may cut, scaled to the board"
-                >
-                    <span>Difficulty</span>
-                    <select
-                        value={settings.difficulty}
-                        onChange={(event) =>
-                            onSettingsChange({
-                                ...settings,
-                                difficulty: event.target.value as Difficulty,
-                            })
-                        }
+                {/*
+                  * A split button: the left half generates a board from the
+                  * settings as they stand, the right half opens the dialog that
+                  * holds them. The common case is one press.
+                  */}
+                <div className="split">
+                    <button
+                        type="button"
+                        className="primary"
+                        title="Generate a board at the chosen size and difficulty"
+                        onClick={() => onNewPuzzle()}
                     >
-                        {DIFFICULTIES.map((difficulty) => (
-                            <option key={difficulty} value={difficulty}>
-                                {difficulty}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-                <button
-                    type="button"
-                    className="primary"
-                    title="Generate a board at the chosen size and difficulty"
-                    onClick={onNewPuzzle}
-                >
-                    New puzzle
-                </button>
+                        New puzzle
+                    </button>
+                    <button
+                        type="button"
+                        className="primary split-more"
+                        title="Size and difficulty"
+                        aria-label="Size and difficulty"
+                        aria-haspopup="dialog"
+                        aria-expanded={settingsOpen}
+                        onClick={() => setSettingsOpen(true)}
+                    >
+                        <ChevronDownIcon />
+                    </button>
+                </div>
+                <SettingsDialog
+                    open={settingsOpen}
+                    settings={settings}
+                    onClose={() => setSettingsOpen(false)}
+                    onNewPuzzle={onNewPuzzle}
+                />
             </div>
 
             <div className="toolbar-group">

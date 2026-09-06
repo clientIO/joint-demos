@@ -240,9 +240,9 @@ button.icon.copied {
     border-color: var(--solved-color);
 }
 
-/* Help ------------------------------------------------------------------- */
+/* Dialogs ---------------------------------------------------------------- */
 
-.help {
+.dialog {
     max-width: 520px;
     padding: 22px 24px;
     color: var(--text-color);
@@ -252,16 +252,16 @@ button.icon.copied {
     box-shadow: 0 20px 60px rgb(50 42 73 / 24%);
 }
 
-.help::backdrop {
+.dialog::backdrop {
     background: rgb(50 42 73 / 32%);
 }
 
-.help h2 {
+.dialog h2 {
     margin: 0 0 8px;
     font-size: 18px;
 }
 
-.help h3 {
+.dialog h3 {
     margin: 20px 0 8px;
     font-size: 13px;
     font-weight: 700;
@@ -270,27 +270,27 @@ button.icon.copied {
     color: var(--muted-color);
 }
 
-.help p,
-.help li {
+.dialog p,
+.dialog li {
     font-size: 14px;
     line-height: 1.5;
 }
 
-.help p {
+.dialog p {
     margin: 0;
 }
 
-.help ul {
+.dialog ul {
     margin: 0;
     padding-left: 18px;
 }
 
-.help li + li {
+.dialog li + li {
     margin-top: 6px;
 }
 
-.help code,
-.help kbd {
+.dialog code,
+.dialog kbd {
     padding: 1px 5px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 12px;
@@ -299,10 +299,48 @@ button.icon.copied {
     border-radius: 4px;
 }
 
-.help form {
+.dialog-actions {
     display: flex;
     justify-content: flex-end;
+    gap: 8px;
     margin-top: 22px;
+}
+
+.dialog-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin-top: 16px;
+}
+
+/*
+ * Two buttons that read as one: the whole thing generates a board, and its
+ * right-hand end says there is a choice behind it.
+ */
+.split {
+    display: flex;
+}
+
+.split > button:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.split-more {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    padding: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    /* A hairline between the halves, in the button's own foreground color. */
+    box-shadow: inset 1px 0 0 rgb(255 255 255 / 35%);
+}
+
+.split-more svg {
+    display: block;
+    width: 15px;
+    height: 15px;
 }
 
 /* Board ------------------------------------------------------------------ */

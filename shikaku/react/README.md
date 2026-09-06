@@ -24,6 +24,8 @@ React. Pick a size and a difficulty and the generator cuts you a fresh board.
 - **Undo / redo**: `Ctrl`/`⌘` + `Z` and `Ctrl`/`⌘` + `Shift` + `Z`, or the
   toolbar buttons. A new move drops whatever was undone.
 - **Escape** abandons the rectangle being dragged.
+- **New puzzle** generates a board at the current size; the arrow beside it
+  opens a dialog holding the size and difficulty.
 - The **help** button in the toolbar opens the rules and the controls, the one
   next to it switches between the light and dark themes, and the **share**
   button copies a link that reopens the same board.

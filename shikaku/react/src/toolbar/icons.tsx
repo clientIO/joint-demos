@@ -97,6 +97,15 @@ export function CheckIcon() {
     );
 }
 
+/** A chevron pointing down: there is more behind this button. */
+export function ChevronDownIcon() {
+    return (
+        <Icon>
+            <path d="m6 9 6 6 6-6" />
+        </Icon>
+    );
+}
+
 /** A question mark in a circle. */
 export function HelpIcon() {
     return (

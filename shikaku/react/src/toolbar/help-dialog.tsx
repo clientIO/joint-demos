@@ -28,7 +28,7 @@ export function HelpDialog({ open, onClose }: HelpDialogProps) {
     return (
         // `close` covers every way the platform can shut it — Escape, the
         // backdrop, the form button — so React state never drifts from the DOM.
-        <dialog ref={dialog} className="help" onClose={onClose}>
+        <dialog ref={dialog} className="dialog" onClose={onClose}>
             <h2>Shikaku</h2>
             <p>
                 Cut the whole grid into rectangles. Every rectangle must contain
@@ -72,8 +72,9 @@ export function HelpDialog({ open, onClose }: HelpDialogProps) {
                     between two of them is always readable.
                 </li>
                 <li>
-                    <b>Size</b> and <b>Difficulty</b> take effect on <b>New puzzle</b>.
-                    Difficulty is the largest rectangle the generator may cut.
+                    <b>New puzzle</b> generates one at the current size; the arrow beside
+                    it opens the size and difficulty. Difficulty is the largest rectangle
+                    the generator may cut.
                 </li>
                 <li>
                     The clock in the corner starts with the board and stops when you
@@ -86,7 +87,7 @@ export function HelpDialog({ open, onClose }: HelpDialogProps) {
                 </li>
             </ul>
 
-            <form method="dialog">
+            <form method="dialog" className="dialog-actions">
                 <button type="submit" className="primary">
                     Got it
                 </button>

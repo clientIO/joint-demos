@@ -30,9 +30,18 @@ export function App() {
      */
     const puzzle = useMemo(() => generatePuzzle(request), [request]);
 
-    const onNewPuzzle = useCallback(() => {
-        setRequest({ ...settings, seed: randomSeed() });
-    }, [settings]);
+    /*
+     * Takes the settings to use, because the dialog changes them and generates
+     * in one press: passing them in avoids reading a `settings` state that has
+     * not been committed yet.
+     */
+    const onNewPuzzle = useCallback(
+        (next: Settings = settings) => {
+            setSettings(next);
+            setRequest({ ...next, seed: randomSeed() });
+        },
+        [settings]
+    );
 
     return (
         <div className="app">
@@ -45,7 +54,6 @@ export function App() {
                 puzzle={puzzle}
                 clock={INITIAL.clock}
                 settings={settings}
-                onSettingsChange={setSettings}
                 onNewPuzzle={onNewPuzzle}
             />
         </div>
