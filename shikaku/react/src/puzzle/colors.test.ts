@@ -3,7 +3,7 @@ import { PALETTE_SIZE, pickColor } from './colors';
 import type { Region } from './types';
 
 function region(id: string, x: number, y: number, w: number, h: number, color: number): Region {
-    return { id, rect: { x, y, w, h }, clueIndex: 0, color };
+    return { id, rect: { x, y, w, h }, clueIndex: 0, color, given: false };
 }
 
 describe('pickColor', () => {

@@ -46,6 +46,7 @@ export function SizeInput({ label, value, onChange }: SizeInputProps) {
     return (
         <input
             type="number"
+            className="size-input"
             aria-label={label}
             min={MIN_SIDE}
             max={MAX_SIDE}

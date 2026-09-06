@@ -18,13 +18,14 @@ describe('resolveBoardRequest', () => {
             difficulty: DEFAULT_DIFFICULTY,
             seed: 42,
             clock: true,
+            fillOnes: true,
         });
     });
 
     it('reads a board out of a query string', () => {
         expect(
             resolveBoardRequest({ search: '?seed=1234&width=12&height=8&difficulty=hard' })
-        ).toEqual({ cols: 12, rows: 8, difficulty: 'hard', seed: 1234, clock: true });
+        ).toEqual({ cols: 12, rows: 8, difficulty: 'hard', seed: 1234, clock: true, fillOnes: true });
     });
 
     it('accepts cols / rows as aliases', () => {
@@ -39,7 +40,14 @@ describe('resolveBoardRequest', () => {
             resolveBoardRequest({
                 env: { VITE_SEED: '7', VITE_WIDTH: '15', VITE_HEIGHT: '15', VITE_DIFFICULTY: 'easy' },
             })
-        ).toEqual({ cols: 15, rows: 15, difficulty: 'easy', seed: 7, clock: true });
+        ).toEqual({
+            cols: 15,
+            rows: 15,
+            difficulty: 'easy',
+            seed: 7,
+            clock: true,
+            fillOnes: true,
+        });
     });
 
     it('lets the query string win over the environment', () => {
@@ -67,6 +75,7 @@ describe('resolveBoardRequest', () => {
             difficulty: DEFAULT_DIFFICULTY,
             seed: 42,
             clock: true,
+            fillOnes: true,
         });
     });
 
@@ -82,6 +91,18 @@ describe('resolveBoardRequest', () => {
         );
     });
 
+    it('leaves the 1s to the player on request', () => {
+        for (const value of ['off', 'no', 'false', '0']) {
+            expect(
+                resolveBoardRequest({ search: `?ones=${value}`, fallbackSeed: seed }).fillOnes
+            ).toBe(false);
+        }
+        expect(resolveBoardRequest({ env: { VITE_ONES: 'off' }, fallbackSeed: seed }).fillOnes).toBe(
+            false
+        );
+        expect(resolveBoardRequest({ fallbackSeed: seed }).fillOnes).toBe(true);
+    });
+
     it('normalizes a seed to 32 bits unsigned, as the generator does', () => {
         expect(resolveBoardRequest({ search: '?seed=-1' })).toMatchObject({ seed: 4294967295 });
     });
@@ -94,7 +115,7 @@ describe('resolveBoardRequest', () => {
 });
 
 describe('boardUrl', () => {
-    const board = { cols: 12, rows: 8, difficulty: 'hard' as const, seed: 1234 };
+    const board = { cols: 12, rows: 8, difficulty: 'hard' as const, seed: 1234, fillOnes: true };
 
     it('writes everything resolveBoardRequest reads', () => {
         const url = boardUrl(board, 'https://example.com/shikaku/');
@@ -102,6 +123,11 @@ describe('boardUrl', () => {
             'https://example.com/shikaku/?seed=1234&width=12&height=8&difficulty=hard'
         );
         expect(resolveBoardRequest({ search: new URL(url).search })).toMatchObject(board);
+    });
+
+    it('names the 1s only when they are turned off', () => {
+        expect(boardUrl(board, 'https://example.com/')).not.toContain('ones=');
+        expect(boardUrl({ ...board, fillOnes: false }, 'https://example.com/')).toContain('ones=off');
     });
 
     it('drops whatever opened the page', () => {

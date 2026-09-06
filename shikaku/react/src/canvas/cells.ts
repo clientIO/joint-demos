@@ -49,6 +49,14 @@ export interface RegionData {
      */
     readonly rect: Rect;
     readonly clueIndex: number | null;
+    /**
+     * A rectangle the board came with rather than one the player drew.
+     *
+     * Only the 1s: a clue of 1 has exactly one rectangle it can ever be, so
+     * there is no decision in it. Drawn gray and without its number, and the
+     * player cannot take it away.
+     */
+    readonly given: boolean;
     /** True while the rectangle is still being dragged out. */
     readonly pending: boolean;
     /**
@@ -91,10 +99,43 @@ export function isRegionData(data: CellData | undefined): data is RegionData {
     return data?.kind === 'region';
 }
 
+/**
+ * Everything the board starts with: a square per cell, and a rectangle for
+ * every clue of 1.
+ *
+ * The givens are seeded rather than placed, which is what keeps them off the
+ * undo stack — `<Diagram history>` records what happens after the graph is
+ * created, not what it was created with.
+ */
+export function buildBoard(puzzle: Puzzle, fillOnes: boolean): BoardElement[] {
+    const givens = puzzle.clues.flatMap((clue, clueIndex) => {
+        if (!fillOnes || clue.value !== 1) return [];
+        const rect = { x: clue.x, y: clue.y, w: 1, h: 1 };
+        return [
+            buildRegionCell({
+                id: regionId(rect),
+                rect,
+                clueIndex,
+                given: true,
+                // Givens are gray, so the palette index is never read. -1 keeps
+                // it out of the neighbor comparison `pickColor` runs.
+                color: -1,
+                pending: false,
+            }),
+        ];
+    });
+    return [...buildSquares(puzzle, fillOnes), ...givens];
+}
+
 /** One element per square, in reading order. */
-export function buildSquares(puzzle: Puzzle): BoardElement[] {
+function buildSquares(puzzle: Puzzle, fillOnes: boolean): BoardElement[] {
     const clueAt = new Map<string, number>();
-    for (const clue of puzzle.clues) clueAt.set(cellId(clue.x, clue.y), clue.value);
+    for (const clue of puzzle.clues) {
+        // A filled-in 1 is drawn by its given rectangle, which carries no
+        // number; left unfilled it is an ordinary clue like any other.
+        if (fillOnes && clue.value === 1) continue;
+        clueAt.set(cellId(clue.x, clue.y), clue.value);
+    }
 
     const squares: BoardElement[] = [];
     for (let y = 0; y < puzzle.rows; y++) {
@@ -121,6 +162,8 @@ export interface RegionCellOptions {
     readonly rejected?: boolean;
     /** Index into `Puzzle.clues`, for a placed rectangle. */
     readonly clueIndex?: number;
+    /** See {@link RegionData.given}. */
+    readonly given?: boolean;
     /** Grid position and value of the number inside, for a placed rectangle. */
     readonly clue?: { readonly value: number; readonly x: number; readonly y: number };
 }
@@ -132,6 +175,7 @@ export function buildRegionCell({
     pending,
     rejected = false,
     clueIndex,
+    given = false,
     clue,
 }: RegionCellOptions): BoardElement {
     const box = rectToBox(rect);
@@ -147,6 +191,7 @@ export function buildRegionCell({
             color,
             rect,
             clueIndex: clueIndex ?? null,
+            given,
             pending,
             rejected,
             width: box.width,

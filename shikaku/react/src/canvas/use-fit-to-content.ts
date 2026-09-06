@@ -34,8 +34,15 @@ import { useLayoutEffect, useRef } from 'react';
 import { usePaper } from '@joint/react-plus';
 import type { dia } from '@joint/plus';
 
-/** Space left between the board and the edge of its container, in pixels. */
-const PADDING = 40;
+/**
+ * Space left around the board, in pixels.
+ *
+ * Less at the sides than above and below, and much less than it used to be.
+ * The vertical band earns its keep — the count sits in it, and the status line
+ * — but nothing lives at the sides, and on a phone the board is width-limited,
+ * so every pixel spent there comes straight off the squares.
+ */
+const PADDING: dia.Padding = { top: 40, bottom: 40, left: 14, right: 14 };
 
 /**
  * How far the board may be blown up.

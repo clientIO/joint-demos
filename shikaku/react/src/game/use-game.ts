@@ -22,7 +22,10 @@ import { coveredCells } from '@/puzzle/rules';
 import type { Puzzle, Rect, Region } from '@/puzzle/types';
 
 export interface GameApi {
+    /** Every rectangle on the board, the given ones included. */
     readonly regions: readonly Region[];
+    /** Only the ones the player placed. */
+    readonly placed: readonly Region[];
     /** Add a rectangle that has already been validated. */
     readonly place: (rect: Rect, clueIndex: number) => void;
     /** Drop a rectangle by id — which is its element id. */
@@ -55,6 +58,7 @@ function selectRegions(cells: readonly { id?: unknown; data?: unknown }[]): read
             rect: data.rect,
             clueIndex: data.clueIndex,
             color: data.color,
+            given: data.given,
         });
     }
     return regions;
@@ -75,6 +79,7 @@ function sameRegions(a: readonly Region[], b: readonly Region[]): boolean {
         return (
             region.id === other.id &&
             region.color === other.color &&
+            region.given === other.given &&
             region.clueIndex === other.clueIndex &&
             region.rect.w === other.rect.w &&
             region.rect.h === other.rect.h
@@ -105,6 +110,9 @@ export function useGame(puzzle: Puzzle): GameApi {
         [puzzle, regions, setCell]
     );
 
+    /** What the player has placed — the board's own 1s are not theirs to move. */
+    const placed = useMemo(() => regions.filter((region) => !region.given), [regions]);
+
     const remove = useCallback(
         (id: string) => {
             removeCells([id]);
@@ -113,10 +121,10 @@ export function useGame(puzzle: Puzzle): GameApi {
     );
 
     const clear = useCallback(() => {
-        if (regions.length === 0) return;
+        if (placed.length === 0) return;
         // One transaction, so clearing a full board is one press of undo away.
-        transaction(() => removeCells(regions.map((region) => region.id)));
-    }, [regions, removeCells, transaction]);
+        transaction(() => removeCells(placed.map((region) => region.id)));
+    }, [placed, removeCells, transaction]);
 
     const covered = useMemo(() => coveredCells(regions), [regions]);
     const total = puzzle.cols * puzzle.rows;
@@ -128,6 +136,7 @@ export function useGame(puzzle: Puzzle): GameApi {
         undo,
         redo,
         clear,
+        placed,
         canUndo,
         canRedo,
         covered,

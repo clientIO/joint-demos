@@ -30,9 +30,18 @@ export function App() {
      */
     const puzzle = useMemo(() => generatePuzzle(request), [request]);
 
-    const onNewPuzzle = useCallback(() => {
-        setRequest({ ...settings, seed: randomSeed() });
-    }, [settings]);
+    /*
+     * Takes the settings to use, because the dialog changes them and generates
+     * in one press: passing them in avoids reading a `settings` state that has
+     * not been committed yet.
+     */
+    const onNewPuzzle = useCallback(
+        (next: Settings = settings) => {
+            setSettings(next);
+            setRequest({ ...next, seed: randomSeed() });
+        },
+        [settings]
+    );
 
     return (
         <div className="app">
@@ -41,11 +50,13 @@ export function App() {
               * graph, and an empty game. Remounting says all of that at once.
               */}
             <ShikakuGame
-                key={`${puzzle.seed}:${puzzle.cols}x${puzzle.rows}`}
+                // The key includes what the board was built with, not just what
+                // was generated: turning the 1s off is a different element set.
+                key={`${puzzle.seed}:${puzzle.cols}x${puzzle.rows}:${request.fillOnes}`}
                 puzzle={puzzle}
                 clock={INITIAL.clock}
+                fillOnes={request.fillOnes}
                 settings={settings}
-                onSettingsChange={setSettings}
                 onNewPuzzle={onNewPuzzle}
             />
         </div>
