@@ -7,7 +7,9 @@ const CLUES: Clue[] = [
     { x: 3, y: 0, value: 2 },
 ];
 
-const PLACED: Region[] = [{ id: 'r0', rect: { x: 0, y: 0, w: 2, h: 2 }, clueIndex: 0, color: 0 }];
+const PLACED: Region[] = [
+    { id: 'r0', rect: { x: 0, y: 0, w: 2, h: 2 }, clueIndex: 0, color: 0, given: false },
+];
 
 describe('validatePlacement', () => {
     it('accepts a rectangle whose area matches its one number', () => {

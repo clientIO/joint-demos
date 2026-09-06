@@ -63,7 +63,9 @@ function Square({ clue }: SquareData) {
  *
  * A placed rectangle is opaque and carries its own number, so it hides the
  * squares it covers outright — which is what makes it read as one shape rather
- * than as the squares it was drawn over.
+ * than as the squares it was drawn over. A *given* — the board's own 1s — is
+ * gray and carries no number, because a clue of 1 has only one rectangle it
+ * could ever be.
  *
  * A pending one is translucent instead, and draws nothing of its own: the
  * numbers under it are the ones the player is still reading, and they have to
@@ -71,9 +73,17 @@ function Square({ clue }: SquareData) {
  * belongs to the readout above the board — a label inside the shape is one more
  * thing to read in exactly the place the shape is already saying something.
  */
-function Region({ color, pending, rejected, width, height, clue }: RegionData) {
-    const fill = rejected ? 'var(--reject-fill)' : `var(--region-fill-${color})`;
-    const stroke = rejected ? 'var(--reject-stroke)' : `var(--region-stroke-${color})`;
+function Region({ color, given, pending, rejected, width, height, clue }: RegionData) {
+    const fill = given
+        ? 'var(--given-fill)'
+        : rejected
+            ? 'var(--reject-fill)'
+            : `var(--region-fill-${color})`;
+    const stroke = given
+        ? 'var(--given-stroke)'
+        : rejected
+            ? 'var(--reject-stroke)'
+            : `var(--region-stroke-${color})`;
 
     return (
         <>
@@ -87,7 +97,8 @@ function Region({ color, pending, rejected, width, height, clue }: RegionData) {
                 strokeDasharray={rejected ? REJECT_DASH : undefined}
                 style={{ fill, stroke }}
             />
-            {clue && <ClueText x={clue.x} y={clue.y} value={clue.value} />}
+            {/* A given carries no number: a 1 has only ever one shape. */}
+            {clue && !given && <ClueText x={clue.x} y={clue.y} value={clue.value} />}
         </>
     );
 }

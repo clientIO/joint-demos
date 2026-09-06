@@ -72,6 +72,12 @@ export function HelpDialog({ open, onClose }: HelpDialogProps) {
                     between two of them is always readable.
                 </li>
                 <li>
+                    A board starts with its <code>1</code>s filled in — a 1 has only one
+                    rectangle it could ever be — drawn gray and without a number. Turn
+                    <b> Fill in the 1s</b> off in the New puzzle dialog to draw them
+                    yourself.
+                </li>
+                <li>
                     <b>New puzzle</b> generates one at the current size; the arrow beside
                     it opens the size and difficulty. Difficulty is the largest rectangle
                     the generator may cut.

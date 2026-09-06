@@ -13,6 +13,9 @@ React. Pick a size and a difficulty and the generator cuts you a fresh board.
 
 ## Playing
 
+- A board starts with its `1`s filled in, drawn gray and without a number — a 1
+  has only one rectangle it could ever be. They cannot be removed, and *Fill in
+  the 1s* in the New puzzle dialog (or `?ones=off`) leaves them to you.
 - **Draw a rectangle**: press on a square and drag. The rectangle grows with the
   pointer, in the color it will keep, and the count of squares under it is
   drawn large in the corner of the canvas — the game is hitting an exact number,
@@ -95,6 +98,10 @@ The query string wins over the environment, and anything left unnamed falls back
 to the default 10x10 medium board — so `?seed=1234` on its own is enough. Sizes
 are held to the same 5-25 limits as the toolbar's inputs, and unusable values
 are ignored rather than argued with.
+
+`ones=off` leaves the 1s as numbers for the player to draw rather than starting
+with them filled in. It is the one setting the share link carries beyond size,
+difficulty and seed, and only when it is off.
 
 `clock=off` (or `no`, `false`, `0`, or `VITE_CLOCK=off`) stops the timer before
 it starts. Naming a board makes everything on screen reproducible except the

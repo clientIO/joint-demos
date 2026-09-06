@@ -31,6 +31,14 @@ export interface Settings {
     readonly cols: number;
     readonly rows: number;
     readonly difficulty: Difficulty;
+    /**
+     * Start with the 1s already placed.
+     *
+     * A clue of 1 has exactly one rectangle it could ever be, so filling them
+     * in takes nothing away from the puzzle — but it is a smaller board to
+     * solve, and some people would rather have the whole of it.
+     */
+    readonly fillOnes: boolean;
 }
 
 /*
@@ -54,13 +62,15 @@ const SHARE_TITLES: Record<Shared, string> = {
 
 export interface ToolbarProps {
     readonly puzzle: Puzzle;
+    /** What the board on screen was built with, for the share link. */
+    readonly fillOnes: boolean;
     readonly game: GameApi;
     readonly settings: Settings;
     /** Generate a board — from `settings`, or from the ones given. */
     readonly onNewPuzzle: (settings?: Settings) => void;
 }
 
-export function Toolbar({ puzzle, game, settings, onNewPuzzle }: ToolbarProps) {
+export function Toolbar({ puzzle, fillOnes, game, settings, onNewPuzzle }: ToolbarProps) {
     const [helpOpen, setHelpOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [shared, setShared] = useState<Shared>('idle');
@@ -80,7 +90,9 @@ export function Toolbar({ puzzle, game, settings, onNewPuzzle }: ToolbarProps) {
      */
     const share = async() => {
         try {
-            await navigator.clipboard.writeText(boardUrl(puzzle, window.location.href));
+            await navigator.clipboard.writeText(
+                boardUrl({ ...puzzle, fillOnes }, window.location.href)
+            );
             setShared('copied');
         } catch {
             // No clipboard: an insecure origin, or permission refused. Saying so
@@ -163,7 +175,7 @@ export function Toolbar({ puzzle, game, settings, onNewPuzzle }: ToolbarProps) {
                     type="button"
                     className="icon"
                     onClick={game.clear}
-                    disabled={game.regions.length === 0}
+                    disabled={game.placed.length === 0}
                     title="Clear the board"
                     aria-label="Clear the board"
                 >

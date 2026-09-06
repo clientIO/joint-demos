@@ -37,6 +37,13 @@
     --region-fill-7: #f8d2bc;
     --region-stroke-7: #dc6b36;
 
+    /*
+     * The board's own 1s. Gray on purpose: they are not one of the player's
+     * rectangles, and nothing about them is a choice.
+     */
+    --given-fill: #dfe5e9;
+    --given-stroke: #9aa6b0;
+
     /* Shown while a drag would produce a rectangle that cannot be placed. */
     --reject-fill: #f6c4c4;
     --reject-stroke: #d63b3b;
@@ -86,6 +93,9 @@
     --region-stroke-6: #58b0e0;
     --region-fill-7: #57301f;
     --region-stroke-7: #ef8a5c;
+
+    --given-fill: #2b313c;
+    --given-stroke: #5b6675;
 
     --reject-fill: #56222a;
     --reject-stroke: #ff6b6b;
@@ -437,6 +447,75 @@ button.icon.copied {
     display: block;
     width: 15px;
     height: 15px;
+}
+
+/*
+ * A checkbox drawn as a switch. The input keeps its place in the page rather
+ * than being display:none, so it stays focusable and keyboard-operable; the
+ * track and knob are drawn beside it and it is the label that is clicked.
+ */
+.switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.switch input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.switch-track {
+    position: relative;
+    flex: none;
+    width: 34px;
+    height: 20px;
+    background: var(--canvas-color);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.switch-track::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background: var(--muted-color);
+    border-radius: 50%;
+    transition: transform 0.15s, background 0.15s;
+}
+
+.switch input:checked + .switch-track {
+    background: var(--main-color);
+    border-color: var(--main-color);
+}
+
+.switch input:checked + .switch-track::after {
+    background: #ffffff;
+    transform: translateX(14px);
+}
+
+.switch input:focus-visible + .switch-track {
+    outline: 2px solid var(--main-color);
+    outline-offset: 2px;
+}
+
+.switch-label {
+    display: grid;
+    font-size: 13px;
+    color: var(--text-color);
+}
+
+.switch-label small {
+    font-size: 12px;
+    color: var(--muted-color);
 }
 
 /* Board ------------------------------------------------------------------ */

@@ -11,7 +11,7 @@
 import { useMemo } from 'react';
 import { Diagram, type InteractionsOptions } from '@joint/react-plus';
 import { Board } from '@/canvas/board';
-import { buildSquares } from '@/canvas/cells';
+import { buildBoard } from '@/canvas/cells';
 import { Toolbar, type Settings } from '@/toolbar/toolbar';
 import type { Puzzle } from '@/puzzle/types';
 import { BoardStatus } from './board-status';
@@ -32,11 +32,13 @@ export interface ShikakuGameProps {
     readonly puzzle: Puzzle;
     /** `false` freezes the timer at zero, for a reproducible screenshot. */
     readonly clock: boolean;
+    /** What this board was built with — settings can differ before New puzzle. */
+    readonly fillOnes: boolean;
     readonly settings: Settings;
     readonly onNewPuzzle: (settings?: Settings) => void;
 }
 
-function Playing({ puzzle, clock, settings, onNewPuzzle }: ShikakuGameProps) {
+function Playing({ puzzle, clock, fillOnes, settings, onNewPuzzle }: ShikakuGameProps) {
     const game = useGame(puzzle);
     // Stops the moment the last square is covered, so the toast can report the
     // time the board actually took — and never starts at all when the clock has
@@ -47,6 +49,7 @@ function Playing({ puzzle, clock, settings, onNewPuzzle }: ShikakuGameProps) {
         <>
             <Toolbar
                 puzzle={puzzle}
+                fillOnes={fillOnes}
                 game={game}
                 settings={settings}
                 onNewPuzzle={onNewPuzzle}
@@ -65,12 +68,15 @@ function Playing({ puzzle, clock, settings, onNewPuzzle }: ShikakuGameProps) {
 }
 
 export function ShikakuGame(props: ShikakuGameProps) {
-    const squares = useMemo(() => buildSquares(props.puzzle), [props.puzzle]);
+    const cells = useMemo(
+        () => buildBoard(props.puzzle, props.fillOnes),
+        [props.puzzle, props.fillOnes]
+    );
 
     return (
         // `history` is what gives the demo undo and redo, buttons and keyboard
         // shortcuts alike.
-        <Diagram initialCells={squares} interactions={INTERACTIONS} history>
+        <Diagram initialCells={cells} interactions={INTERACTIONS} history>
             <Playing {...props} />
         </Diagram>
     );

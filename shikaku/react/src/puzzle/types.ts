@@ -48,8 +48,10 @@ export interface Region {
     readonly rect: Rect;
     /** Index into `Puzzle.clues` of the clue this rectangle claims. */
     readonly clueIndex: number;
-    /** Index into the palette in `colors.ts`. */
+    /** Index into the palette in `colors.ts`. `-1` for a given, which is gray. */
     readonly color: number;
+    /** True for a rectangle the board came with — its 1s. */
+    readonly given: boolean;
 }
 
 /** Every cell of `rect`, row by row. */

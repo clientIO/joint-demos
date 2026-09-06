@@ -139,7 +139,7 @@ export function useDrawRegion(puzzle: Puzzle, game: GameApi): DrawRegionApi {
     const removeUnder = useCallback(
         (model: dia.Element) => {
             const data = model.get('data') as CellData;
-            if (data.kind !== 'region') return;
+            if (data.kind !== 'region' || data.given) return;
             remove(String(model.id));
             setRejection(null);
         },

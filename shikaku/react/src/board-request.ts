@@ -18,6 +18,9 @@
  * at that seed. Without a seed anywhere, a random one is drawn, which is the
  * ordinary case.
  *
+ * `ones=off` leaves the 1s as numbers for the player to draw, rather than
+ * starting with them filled in.
+ *
  * `clock=off` stops the timer before it starts. Naming a board makes everything
  * on screen reproducible except the clock, which would tick on regardless — so
  * this is what makes a screenshot of the demo comparable with the one taken
@@ -34,6 +37,8 @@ export interface BoardRequest {
     readonly seed: number;
     /** `false` freezes the timer at zero. See `clock=off`. */
     readonly clock: boolean;
+    /** `false` leaves the 1s as numbers to be drawn. See `ones=off`. */
+    readonly fillOnes: boolean;
 }
 
 export const DEFAULT_COLS = 10;
@@ -82,7 +87,7 @@ function readDifficulty(read: Read, ...names: readonly string[]): Difficulty | n
  * and so is anything the player has placed. What is shared is the puzzle.
  */
 export function boardUrl(
-    board: Pick<BoardRequest, 'cols' | 'rows' | 'difficulty' | 'seed'>,
+    board: Pick<BoardRequest, 'cols' | 'rows' | 'difficulty' | 'seed' | 'fillOnes'>,
     base: string
 ): string {
     const url = new URL(base);
@@ -93,6 +98,8 @@ export function boardUrl(
     url.searchParams.set('width', String(board.cols));
     url.searchParams.set('height', String(board.rows));
     url.searchParams.set('difficulty', board.difficulty);
+    // Only when it differs from the default, so an ordinary link stays short.
+    if (!board.fillOnes) url.searchParams.set('ones', 'off');
     return url.toString();
 }
 
@@ -126,6 +133,7 @@ export function resolveBoardRequest({
         readDifficulty(query, 'difficulty') ?? readDifficulty(environment, 'VITE_DIFFICULTY');
     const seed = readNumber(query, 'seed') ?? readNumber(environment, 'VITE_SEED');
     const clock = readOff(query, 'clock') ?? readOff(environment, 'VITE_CLOCK');
+    const fillOnes = readOff(query, 'ones') ?? readOff(environment, 'VITE_ONES');
 
     return {
         cols: cols === null ? DEFAULT_COLS : clampSide(cols),
@@ -136,5 +144,6 @@ export function resolveBoardRequest({
         // produce a board, just not the one the caller named.
         seed: seed === null ? fallbackSeed() : seed >>> 0,
         clock: clock ?? true,
+        fillOnes: fillOnes ?? true,
     };
 }

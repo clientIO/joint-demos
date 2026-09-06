@@ -105,6 +105,24 @@ export function SettingsDialog({ open, settings, onClose, onNewPuzzle }: Setting
                         ))}
                     </div>
                 </fieldset>
+
+                <label className="switch">
+                    <input
+                        type="checkbox"
+                        checked={draft.fillOnes}
+                        onChange={(event) =>
+                            setDraft((previous) => ({
+                                ...previous,
+                                fillOnes: event.target.checked,
+                            }))
+                        }
+                    />
+                    <span className="switch-track" aria-hidden="true" />
+                    <span className="switch-label">
+                        Fill in the 1s
+                        <small>A 1 has only one rectangle it could ever be</small>
+                    </span>
+                </label>
             </div>
 
             <form method="dialog" className="dialog-actions">

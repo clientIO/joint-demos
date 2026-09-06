@@ -50,9 +50,12 @@ export function App() {
               * graph, and an empty game. Remounting says all of that at once.
               */}
             <ShikakuGame
-                key={`${puzzle.seed}:${puzzle.cols}x${puzzle.rows}`}
+                // The key includes what the board was built with, not just what
+                // was generated: turning the 1s off is a different element set.
+                key={`${puzzle.seed}:${puzzle.cols}x${puzzle.rows}:${request.fillOnes}`}
                 puzzle={puzzle}
                 clock={INITIAL.clock}
+                fillOnes={request.fillOnes}
                 settings={settings}
                 onNewPuzzle={onNewPuzzle}
             />
