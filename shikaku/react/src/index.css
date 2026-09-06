@@ -291,7 +291,9 @@ button.icon.copied {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    margin-top: 22px;
+    /* Further than the gap between the settings: these are a different kind of
+       thing, not another row of the form. */
+    margin-top: 28px;
 }
 
 /* One setting per row: a label, and the controls under it. */
@@ -302,15 +304,20 @@ button.icon.copied {
 }
 
 .field-row {
-    display: grid;
-    gap: 8px;
-    /* The difficulty row is a fieldset, which brings its own. */
+    /*
+     * Block rather than grid: the difficulty row is a fieldset and its label is
+     * a <legend>, which browsers lay out in the fieldset's border box rather
+     * than as a child — a grid `gap` never reaches it, and the label ended up
+     * flush against the buttons. The label carries the spacing itself instead.
+     */
     margin: 0;
     padding: 0;
     border: 0;
 }
 
 .field-label {
+    display: block;
+    margin-bottom: 8px;
     padding: 0;
     font-size: 13px;
     font-weight: 600;
