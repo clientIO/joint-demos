@@ -75,6 +75,27 @@ describe('generatePuzzle', () => {
         for (const puzzle of boards()) expect(puzzle.unique).toBe(true);
     });
 
+    it('never leaves two single cells touching', () => {
+        // A 1 is the one clue with no decision in it, so a run of them is dead
+        // space — and two 1s side by side are always a 1x2 the cutting happened
+        // not to make.
+        for (const puzzle of boards()) {
+            const singles = new Set(
+                puzzle.solution.filter((r) => r.w === 1 && r.h === 1).map((r) => `${r.x}:${r.y}`)
+            );
+            for (const key of singles) {
+                const [x, y] = key.split(':').map(Number);
+                const neighbors = [
+                    `${x - 1}:${y}`,
+                    `${x + 1}:${y}`,
+                    `${x}:${y - 1}`,
+                    `${x}:${y + 1}`,
+                ];
+                expect(neighbors.filter((n) => singles.has(n))).toEqual([]);
+            }
+        }
+    });
+
     it('is a pure function of its seed', () => {
         const options = { cols: 9, rows: 7, seed: 314159, difficulty: 'hard' as const };
         expect(generatePuzzle(options)).toEqual(generatePuzzle(options));

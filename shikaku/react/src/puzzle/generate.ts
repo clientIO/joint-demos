@@ -124,6 +124,56 @@ function partition(cols: number, rows: number, maxArea: number, rng: Rng): Rect[
     return rects;
 }
 
+/**
+ * Merges runs of single cells into one rectangle each.
+ *
+ * Two 1s side by side are legal — each is its own rectangle — but they are
+ * always a 1x2 that the cutting happened not to make, and a run of them is dead
+ * space: a 1 is the one clue with no decision in it, so three of them in a row
+ * is three squares the player is given for nothing.
+ *
+ * Rows first, then columns over what is left. A cell taken into a horizontal
+ * run is no longer single, so the column pass cannot re-merge it — which is
+ * what keeps every merge a rectangle rather than an L. After both passes no
+ * two single cells touch.
+ */
+function mergeSingleRuns(rects: readonly Rect[], cols: number, rows: number): Rect[] {
+    const merged: Rect[] = [];
+    const singles = new Map<string, Rect>();
+    for (const rect of rects) {
+        if (rect.w === 1 && rect.h === 1) singles.set(`${rect.x}:${rect.y}`, rect);
+        else merged.push(rect);
+    }
+
+    const take = (x: number, y: number): boolean => singles.delete(`${x}:${y}`);
+
+    // Horizontal runs.
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+            if (!singles.has(`${x}:${y}`)) continue;
+            let length = 0;
+            while (take(x + length, y)) length++;
+            merged.push({ x, y, w: length, h: 1 });
+        }
+    }
+
+    // Vertical runs, over the cells no horizontal run claimed. A run of one is
+    // just the single cell again.
+    const leftovers = merged.filter((rect) => rect.w === 1 && rect.h === 1);
+    for (const rect of leftovers) singles.set(`${rect.x}:${rect.y}`, rect);
+    const kept = merged.filter((rect) => rect.w !== 1 || rect.h !== 1);
+
+    for (let x = 0; x < cols; x++) {
+        for (let y = 0; y < rows; y++) {
+            if (!singles.has(`${x}:${y}`)) continue;
+            let length = 0;
+            while (take(x, y + length)) length++;
+            kept.push({ x, y, w: 1, h: length });
+        }
+    }
+    return kept;
+}
+
 /** Puts each rectangle's number on a random cell inside it. */
 function placeClues(rects: readonly Rect[], rng: Rng): Clue[] {
     return rects.map((rect) => ({
@@ -160,7 +210,7 @@ export function generatePuzzle({ cols, rows, seed, difficulty }: GenerateOptions
     for (let i = 0; i < MAX_ATTEMPTS; i++) {
         const attemptSeed = (seed + i) >>> 0;
         const rng = mulberry32(attemptSeed);
-        const solution = partition(cols, rows, maxArea, rng);
+        const solution = mergeSingleRuns(partition(cols, rows, maxArea, rng), cols, rows);
         const clues = placeClues(solution, rng);
         const solutions = countSolutions({ cols, rows, clues }, 2);
         const unique = solutions === 1;
