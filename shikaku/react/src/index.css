@@ -164,27 +164,15 @@ body,
     letter-spacing: 0.01em;
 }
 
-.field {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: var(--muted-color);
-}
-
-.field input,
-.field select {
+.size-input {
     font: inherit;
     font-size: 13px;
+    width: 62px;
     color: var(--text-color);
     background: var(--surface-color);
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    padding: 4px 6px;
-}
-
-.field input {
-    width: 52px;
+    padding: 5px 8px;
 }
 
 button {
@@ -306,11 +294,92 @@ button.icon.copied {
     margin-top: 22px;
 }
 
+/* One setting per row: a label, and the controls under it. */
 .dialog-fields {
+    display: grid;
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.field-row {
+    display: grid;
+    gap: 8px;
+    /* The difficulty row is a fieldset, which brings its own. */
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.field-label {
+    padding: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted-color);
+}
+
+.field-controls {
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px 24px;
-    margin-top: 16px;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted-color);
+}
+
+/*
+ * The difficulty choices: three radios drawn as one segmented control. The
+ * inputs stay in the page rather than being display:none, so they keep their
+ * focus ring and their keyboard behavior.
+ */
+.choices {
+    display: flex;
+}
+
+.choice input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.choice span {
+    display: block;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--text-color);
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    text-transform: capitalize;
+}
+
+.choice:first-child span {
+    border-radius: 6px 0 0 6px;
+}
+
+.choice:last-child span {
+    border-radius: 0 6px 6px 0;
+}
+
+/* One border between neighbors rather than two. */
+.choice + .choice span {
+    margin-left: -1px;
+}
+
+.choice span:hover {
+    color: var(--main-color);
+}
+
+.choice input:checked + span {
+    position: relative;
+    color: #ffffff;
+    background: var(--main-color);
+    border-color: var(--main-color);
+}
+
+.choice input:focus-visible + span {
+    outline: 2px solid var(--main-color);
+    outline-offset: 2px;
 }
 
 /*

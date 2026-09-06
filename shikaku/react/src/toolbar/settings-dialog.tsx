@@ -16,6 +16,12 @@ import type { Settings } from './toolbar';
 
 const DIFFICULTIES: readonly Difficulty[] = ['easy', 'medium', 'hard'];
 
+const DIFFICULTY_HINTS: Record<Difficulty, string> = {
+    easy: 'Small rectangles',
+    medium: 'A mix',
+    hard: 'Large rectangles, more places each number could sit',
+};
+
 export interface SettingsDialogProps {
     readonly open: boolean;
     readonly settings: Settings;
@@ -44,49 +50,64 @@ export function SettingsDialog({ open, settings, onClose, onNewPuzzle }: Setting
             <h2>New puzzle</h2>
 
             <div className="dialog-fields">
-                <label className="field">
-                    <span>Size</span>
-                    <SizeInput
-                        label="Board width"
-                        value={draft.cols}
-                        onChange={(cols) => setDraft((previous) => ({ ...previous, cols }))}
-                    />
-                    <span aria-hidden="true">×</span>
-                    <SizeInput
-                        label="Board height"
-                        value={draft.rows}
-                        onChange={(rows) => setDraft((previous) => ({ ...previous, rows }))}
-                    />
-                </label>
+                <div className="field-row">
+                    {/*
+                      * A span rather than a <label>: a label points at one
+                      * control and there are two here. Each input carries its
+                      * own accessible name.
+                      */}
+                    <span className="field-label">Size</span>
+                    <div className="field-controls">
+                        <SizeInput
+                            label="Board width"
+                            value={draft.cols}
+                            onChange={(cols) => setDraft((previous) => ({ ...previous, cols }))}
+                        />
+                        <span aria-hidden="true">×</span>
+                        <SizeInput
+                            label="Board height"
+                            value={draft.rows}
+                            onChange={(rows) => setDraft((previous) => ({ ...previous, rows }))}
+                        />
+                    </div>
+                </div>
 
-                <label
-                    className="field"
-                    title="The largest rectangle the generator may cut, scaled to the board"
-                >
-                    <span>Difficulty</span>
-                    <select
-                        value={draft.difficulty}
-                        onChange={(event) =>
-                            setDraft((previous) => ({
-                                ...previous,
-                                difficulty: event.target.value as Difficulty,
-                            }))
-                        }
-                    >
+                {/*
+                  * Three real radios behind the buttons: one choice out of
+                  * three, which is what a radio group is, and it arrows between
+                  * them from the keyboard without any work here.
+                  */}
+                <fieldset className="field-row">
+                    <legend className="field-label">Difficulty</legend>
+                    <div className="choices">
                         {DIFFICULTIES.map((difficulty) => (
-                            <option key={difficulty} value={difficulty}>
-                                {difficulty}
-                            </option>
+                            <label
+                                key={difficulty}
+                                className="choice"
+                                title={DIFFICULTY_HINTS[difficulty]}
+                            >
+                                <input
+                                    type="radio"
+                                    name="difficulty"
+                                    value={difficulty}
+                                    checked={draft.difficulty === difficulty}
+                                    onChange={() =>
+                                        setDraft((previous) => ({ ...previous, difficulty }))
+                                    }
+                                />
+                                <span>{difficulty}</span>
+                            </label>
                         ))}
-                    </select>
-                </label>
+                    </div>
+                </fieldset>
             </div>
 
             <form method="dialog" className="dialog-actions">
                 <button type="submit">Cancel</button>
                 {/*
-                  * `formMethod="dialog"` so this closes the dialog too; the
-                  * click handler is what generates the board.
+                  * "Generate" rather than "New puzzle" again: the dialog is
+                  * already titled that, and the button says what pressing it
+                  * does.
                   */}
                 <button
                     type="submit"
@@ -94,7 +115,7 @@ export function SettingsDialog({ open, settings, onClose, onNewPuzzle }: Setting
                     formMethod="dialog"
                     onClick={() => onNewPuzzle(draft)}
                 >
-                    New puzzle
+                    Generate
                 </button>
             </form>
         </dialog>
