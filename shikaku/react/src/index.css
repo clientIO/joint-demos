@@ -186,9 +186,14 @@ button {
     cursor: pointer;
 }
 
+/*
+ * Hover darkens rather than turning blue. The accent means "this is the action
+ * here" — Generate, New puzzle — and a row of icons that all go blue under the
+ * pointer spends it on nothing.
+ */
 button:hover:not(:disabled) {
-    border-color: var(--main-color);
-    color: var(--main-color);
+    color: var(--text-color);
+    border-color: var(--muted-color);
 }
 
 button:disabled {
@@ -374,14 +379,24 @@ button.icon.copied {
 }
 
 .choice span:hover {
-    color: var(--main-color);
+    color: var(--text-color);
+    border-color: var(--muted-color);
 }
 
+/*
+ * Neutral rather than the accent: the accent belongs to Generate, the one
+ * thing in the dialog you press to make something happen. A chosen segment
+ * wearing the same color competes with it — it looks like a second button
+ * rather than the answer to a question.
+ *
+ * Inverting the text color reads as "chosen" in both themes: a dark chip on
+ * the light one, a light chip on the dark one.
+ */
 .choice input:checked + span {
     position: relative;
-    color: #ffffff;
-    background: var(--main-color);
-    border-color: var(--main-color);
+    color: var(--surface-color);
+    background: var(--text-color);
+    border-color: var(--text-color);
 }
 
 .choice input:focus-visible + span {
