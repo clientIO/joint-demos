@@ -26,6 +26,18 @@ jobs:
         with:
           node-version: lts/*
 
+      # Every demo runs its own `npm install`, so without this the runner
+      # downloads the same tarballs again on every run. Keyed on the manifests,
+      # with a prefix fallback so that touching one demo's dependencies reuses
+      # the cache rather than throwing all of it away.
+      - name: Cache npm downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package.json', '**/package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+
       - name: Build demos
         run: bash .github/scripts/build-demos.sh
         env:
