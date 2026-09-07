@@ -141,6 +141,9 @@ function isMeasured(graph: dia.Graph): boolean {
     return elements.length > 0 && elements.every((element) => element.size().width > 0);
 }
 
+/** Diameter of the add-step "+", in px; also its own vertical centring offset. */
+const ADD_BUTTON_SIZE = 24;
+
 /**
  * Breathing room `fitToChildren` keeps between a subgraph's border and its
  * members. Extra at the top, where the container's title sits.
@@ -573,7 +576,10 @@ function Canvas({
                                 cell={addTargetCell.id}
                                 position="bottom"
                                 origin="top"
-                                dy={-6}
+                                // Half the button's own height, so its CENTRE
+                                // lands on the node's bottom edge rather than
+                                // hanging below it.
+                                dy={-ADD_BUTTON_SIZE / 2}
                             >
                                 <button
                                     type="button"

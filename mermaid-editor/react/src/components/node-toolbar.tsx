@@ -1,4 +1,4 @@
-import { ElementOverlay } from '@joint/react-plus';
+import { ElementOverlay, useGraph, usePaper } from '@joint/react-plus';
 import type { CellId } from '@joint/react-plus';
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
@@ -79,6 +79,37 @@ const EXTENDED_SHAPES: ReadonlyArray<{ readonly id: string; readonly label: stri
 
 /** A small palette keeps the generated `style` lines readable. */
 const FILLS = ['#ddffee', '#fef3c7', '#fee2e2', '#dbeafe', '#ede9fe', '#e5e7eb'];
+
+/**
+ * Room the toolbar needs above the node, in client px. Deliberately generous:
+ * the panel is at its tallest with the extended shape grid open, and guessing
+ * low is what puts it off the top of the viewport.
+ */
+const TOOLBAR_CLEARANCE = 320;
+
+/**
+ * Which side of the node the toolbar opens on.
+ *
+ * Above by default — that is where it stays clear of the node's own outgoing
+ * flow and its add-step button. A node near the top of the viewport has no
+ * room there, though, and an overlay drawn off-screen simply gets clipped
+ * (this is a plain absolutely-positioned element, not a popover the browser
+ * repositions), so it flips below whenever the space above cannot hold it and
+ * the space below is roomier.
+ */
+function useToolbarSide(cellId: CellId): 'top' | 'bottom' {
+    const { paper } = usePaper();
+    const { graph } = useGraph();
+    if (!paper) return 'top';
+    const cell = graph.getCell(cellId);
+    if (!cell || !cell.isElement()) return 'top';
+    const box = cell.getBBox();
+    const top = paper.localToClientPoint({ x: box.x, y: box.y });
+    const bottom = paper.localToClientPoint({ x: box.x, y: box.y + box.height });
+    const spaceAbove = top.y;
+    const spaceBelow = window.innerHeight - bottom.y;
+    return spaceAbove < TOOLBAR_CLEARANCE && spaceBelow > spaceAbove ? 'bottom' : 'top';
+}
 
 /** Icon canvas, sized so every shape's clamped details still read. */
 const ICON = { width: 30, height: 20, padding: 1.5 };
@@ -265,9 +296,17 @@ export function NodeToolbar({ cellId, data, edit }: NodeToolbarProps) {
     const [moreOverride, setMoreOverride] = useState<boolean | null>(null);
     const isMoreOpen = moreOverride ?? true;
     const isMoreLocked = isExtendedActive;
+    const side = useToolbarSide(cellId);
 
     return (
-        <ElementOverlay cell={cellId} position="top" origin="bottom" dy={-10}>
+        <ElementOverlay
+            cell={cellId}
+            position={side}
+            origin={side === 'top' ? 'bottom' : 'top'}
+            // Clear of the node either way: up from its top edge, or down
+            // past the add-step button hanging off its bottom one.
+            dy={side === 'top' ? -10 : 24}
+        >
             <div className="node-toolbar" onPointerDown={(event) => event.stopPropagation()}>
                 <span className="node-toolbar-row">
                     <span className="node-toolbar-group" role="radiogroup" aria-label="Node shape">

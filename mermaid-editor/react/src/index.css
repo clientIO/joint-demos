@@ -210,9 +210,6 @@ body {
     flex: none;
 }
 
-.app-brand:hover {
-    opacity: 0.75;
-}
 
 .app-logo {
     display: block;
