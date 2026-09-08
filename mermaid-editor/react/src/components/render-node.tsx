@@ -177,8 +177,48 @@ function FlowNodeCell(data: NodeData) {
         : IMAGE_PAD + imageHeight + IMAGE_GAP
             + (height - imageHeight - IMAGE_GAP - 2 * IMAGE_PAD) / 2;
 
+    // Keyboard reach: the node is a focus stop. Focus selects it (opening its
+    // toolbar), Enter starts the in-place rename, and the rename hands focus
+    // back here on commit or cancel so the user is never dropped on <body>.
+    const focusRef = useRef<SVGGElement>(null);
+    const refocus = () => focusRef.current?.focus();
+
     return (
-        <>
+        <g
+            ref={focusRef}
+            className="mermaid-node-focus"
+            tabIndex={0}
+            role="button"
+            aria-label={`${label}. Enter renames; Escape leaves.`}
+            onFocus={() => {
+                if (editing !== null && cellId !== undefined) editing.select(cellId);
+            }}
+            onKeyDown={(event) => {
+                if (editing === null || cellId === undefined) return;
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    editing.begin(cellId);
+                    return;
+                }
+                if (event.key === 'Escape') {
+                    // Close the toolbar, keep the focus here.
+                    event.preventDefault();
+                    editing.clear();
+                    return;
+                }
+                // Tab dives into this node's toolbar: it lives in an HTML
+                // layer after EVERY node in DOM order, so without this the
+                // natural tab order would walk the whole diagram first.
+                if (event.key === 'Tab' && !event.shiftKey) {
+                    const control = document.querySelector<HTMLElement>(
+                        '.node-toolbar [role="radio"][aria-checked="true"], .node-toolbar button'
+                    );
+                    if (control === null) return;
+                    event.preventDefault();
+                    control.focus();
+                }
+            }}
+        >
             <SVGShape
                 shape={imageWidth === 0 ? data.shape : 'squareRect'}
                 width={width}
@@ -222,14 +262,20 @@ function FlowNodeCell(data: NodeData) {
                     label={toMultiline(label)}
                     width={width}
                     centerY={textY}
-                    onCommit={(next) => editing.commit(cellId, next)}
-                    onCancel={editing.cancel}
+                    onCommit={(next) => {
+                        editing.commit(cellId, next);
+                        refocus();
+                    }}
+                    onCancel={() => {
+                        editing.cancel();
+                        refocus();
+                    }}
                 />
             )}
             {data.href !== undefined && !isEditing && (
                 <LinkBadge href={data.href} title={data.hrefTitle} x={width} />
             )}
-        </>
+        </g>
     );
 }
 

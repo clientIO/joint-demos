@@ -10,6 +10,9 @@
     --text: #1f2430;
     --text-muted: #6b7280;
     --accent: #ed2637;
+    /* Keyboard focus + canvas selection. Never the red accent: a red ring on
+       a node reads as an error, not as "this one". */
+    --focus-ring: #2563eb;
 
     --node-fill: #ececff;
     --node-stroke: #9370db;
@@ -34,7 +37,7 @@
     --syntax-selection: #dbeafe;
     --syntax-selected-line: #fff3d6;
     --syntax-selected-token: #fbd88b;
-    --node-selected: #ed2637;
+    --node-selected: var(--focus-ring);
 
     --error: #b42318;
     --error-surface: #fef3f2;
@@ -73,6 +76,7 @@
     --text: #e6e7ee;
     --text-muted: #9aa0b0;
     --accent: #ff5567;
+    --focus-ring: #7cb3ff;
 
     --node-fill: #2b2545;
     --node-stroke: #a78bfa;
@@ -97,7 +101,7 @@
     --syntax-selection: #2a3350;
     --syntax-selected-line: #35301c;
     --syntax-selected-token: #6b5a22;
-    --node-selected: #ff5567;
+    --node-selected: var(--focus-ring);
 
     --error: #ff9a90;
     --error-surface: #2b1a1c;
@@ -188,7 +192,7 @@ body {
 
 .app-select {
     min-width: 0;
-    padding: 5px 8px;
+    padding: 5px 26px 5px 8px;
     font: inherit;
     font-size: 13px;
     color: var(--text);
@@ -866,8 +870,10 @@ body {
     outline: none;
 }
 
-.node-toolbar-linkinput:focus {
-    border-color: var(--accent);
+.node-toolbar-linkinput:focus-visible {
+    border-color: var(--focus-ring);
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 1px;
 }
 
 .node-toolbar-action {
@@ -1105,4 +1111,48 @@ body {
         flex-wrap: wrap;
         max-width: calc(100% - 32px);
     }
+}
+
+/* ------------------------------------------------------ keyboard focus */
+
+/* One ring for every control, in one colour, with enough offset to read
+   against the chip backgrounds; the swatches were the worst offenders. */
+.app-button:focus-visible,
+.app-select:focus-visible,
+.node-toolbar button:focus-visible,
+.node-toolbar-swatch:focus-visible,
+.node-toolbar-toggle:focus-visible,
+.node-toolbar-shape:focus-visible,
+.node-toolbar-action:focus-visible,
+.node-add-below:focus-visible,
+.connect-bar:focus-visible,
+.canvas-direction-option:focus-visible,
+.editor-link:focus-visible,
+.editor-download:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+.node-toolbar-swatch.is-custom:focus-within,
+.node-toolbar-toggle.is-stroke:focus-within {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+/* The editor pane is a focus STOP: Tab lands on the frame, Enter goes in,
+   Escape comes back out. The frame shows it holds focus. */
+.editor-code:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+}
+
+/* Nodes are keyboard-reachable: focus draws the same ring selection does,
+   on the shape itself (the SVG group takes no CSS outline reliably). */
+.mermaid-node-focus {
+    outline: none;
+}
+
+.mermaid-node-focus:focus-visible .mermaid-node-body {
+    stroke: var(--focus-ring) !important;
+    stroke-width: 2.5;
 }

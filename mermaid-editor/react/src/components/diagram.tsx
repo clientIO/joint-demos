@@ -235,7 +235,9 @@ interface CanvasProps {
     readonly autoLayout: boolean;
     readonly onAutoLayoutChange: (autoLayout: boolean) => void;
     readonly onDirectionChange: (direction: FlowDirection) => void;
-    readonly onAddShape: () => void;
+    readonly onAddShape: (fromKeyboard: boolean) => void;
+    /** Node whose toolbar takes focus when it opens (a keyboard add). */
+    readonly focusToolbarFor: CellId | null;
     readonly positionsRef: RefObject<ManualPositions>;
 }
 
@@ -251,6 +253,7 @@ function Canvas({
     onAutoLayoutChange,
     onDirectionChange,
     onAddShape,
+    focusToolbarFor,
     positionsRef,
 }: CanvasProps) {
     const { graph } = useGraph();
@@ -414,15 +417,27 @@ function Canvas({
     // so that only one node is ever in edit mode, and so the canvas can clear
     // it when the selection moves on.
     const [editingId, setEditingId] = useState<CellId | null>(null);
+    // A node selects itself when keyboard focus lands on it — EXCEPT when the
+    // focus was handed back by a toolbar being dismissed: selecting again
+    // would reopen the very toolbar Escape just closed.
+    const skipNextFocusSelect = useRef(false);
     const editing = useMemo<NodeEditing>(() => ({
         editingId,
         begin: (id) => setEditingId(id),
+        select: (id) => {
+            if (skipNextFocusSelect.current) {
+                skipNextFocusSelect.current = false;
+                return;
+            }
+            onSelect([id]);
+        },
+        clear: () => onSelect([]),
         commit: (id, label) => {
             setEditingId(null);
             edit.onLabelChange(id, label);
         },
         cancel: () => setEditingId(null),
-    }), [edit, editingId]);
+    }), [edit, editingId, onSelect]);
 
     // Only a lone element gets controls: a caret on `a --> b` selects both
     // ends plus the link, and stacking a toolbar on each would be noise.
@@ -437,6 +452,25 @@ function Canvas({
     const maybeToolbarData = toolbarCell?.data as NodeData | undefined;
     // Subgraph containers take no shape or fill — their look is the block's.
     const toolbarData = maybeToolbarData?.isGroup ? undefined : maybeToolbarData;
+
+    // Escape in a toolbar closes it and puts keyboard focus back where the
+    // user came from — the node itself when it is keyboard-reachable, else
+    // the canvas — so nobody is stranded on a control that just vanished.
+    const dismissToolbar = useCallback((id: CellId) => {
+        onSelect([]);
+        const node = paper?.el.querySelector<SVGGElement>(
+            `[model-id="${CSS.escape(String(id))}"] .mermaid-node-focus`
+        );
+        if (node) {
+            skipNextFocusSelect.current = true;
+            node.focus();
+            // Focus may not fire (node hidden, already focused): never let the
+            // suppression leak onto the user's next genuine Tab.
+            skipNextFocusSelect.current = false;
+            return;
+        }
+        paperScroller?.el?.focus();
+    }, [onSelect, paper, paperScroller]);
 
     // The add-step "+" hangs under the hovered node — or the selected one, so
     // it is reachable by keyboard-and-click flows too. Groups take none: a
@@ -559,6 +593,10 @@ function Canvas({
                                 cellId={toolbarCell.id}
                                 data={toolbarData}
                                 edit={edit}
+                                autoFocus={focusToolbarFor === toolbarCell.id}
+                                onDismiss={() => {
+                                    if (toolbarCell.id !== undefined) dismissToolbar(toolbarCell.id);
+                                }}
                             />
                         )}
                         {linkToolbarCell?.id !== undefined && linkToolbarData && linkAnchor && (
@@ -569,6 +607,9 @@ function Canvas({
                                 x={linkAnchor.x + linkAnchor.width / 2}
                                 y={linkAnchor.y + linkAnchor.height / 2}
                                 edit={linkEdit}
+                                onDismiss={() => {
+                                    if (linkToolbarCell.id !== undefined) dismissToolbar(linkToolbarCell.id);
+                                }}
                             />
                         )}
                         {addTargetCell?.id !== undefined && (
@@ -684,7 +725,9 @@ export interface MermaidDiagramProps {
     /** Rewrites the `flowchart <dir>` header in the source. */
     readonly onDirectionChange: (direction: FlowDirection) => void;
     /** Appends a top-level, unconnected node — the from-scratch start. */
-    readonly onAddShape: () => void;
+    readonly onAddShape: (fromKeyboard: boolean) => void;
+    /** Node whose toolbar takes focus when it opens (a keyboard add). */
+    readonly focusToolbarFor: CellId | null;
     /**
      * Where manual-mode positions live. Owned by the app — the canvas below
      * remounts on id changes, and dragged positions must survive that.
@@ -712,6 +755,7 @@ export function MermaidDiagram({
     onAutoLayoutChange,
     onDirectionChange,
     onAddShape,
+    focusToolbarFor,
     positionsRef,
 }: MermaidDiagramProps) {
     /*
@@ -756,6 +800,7 @@ export function MermaidDiagram({
                 onAutoLayoutChange={onAutoLayoutChange}
                 onDirectionChange={onDirectionChange}
                 onAddShape={onAddShape}
+                focusToolbarFor={focusToolbarFor}
                 positionsRef={positionsRef}
             />
         </Diagram>

@@ -125,9 +125,11 @@ export interface LinkToolbarProps {
     readonly x: number;
     readonly y: number;
     readonly edit: EdgeEditHandlers;
+    /** Escape: close the toolbar and hand focus back to the canvas. */
+    readonly onDismiss: () => void;
 }
 
-export function LinkToolbar({ cellId, data, x, y, edit }: LinkToolbarProps) {
+export function LinkToolbar({ cellId, data, x, y, edit, onDismiss }: LinkToolbarProps) {
     const edge: EdgeRef = {
         id: String(cellId),
         source: data.source,
@@ -147,7 +149,18 @@ export function LinkToolbar({ cellId, data, x, y, edit }: LinkToolbarProps) {
 
     return (
         <Overlay x={x} y={y} origin="bottom" dy={-12}>
-            <div className="node-toolbar" onPointerDown={(event) => event.stopPropagation()}>
+            <div
+                className="node-toolbar"
+                role="group"
+                aria-label="Edge formatting"
+                onPointerDown={(event) => event.stopPropagation()}
+                onKeyDown={(event) => {
+                    if (event.key !== 'Escape') return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onDismiss();
+                }}
+            >
                 <span className="node-toolbar-row">
                     <span className="node-toolbar-cluster" role="radiogroup" aria-label="Line style">
                         {STROKES.map((entry) => (

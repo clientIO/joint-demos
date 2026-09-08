@@ -1,7 +1,7 @@
 import { ElementOverlay, useGraph, usePaper } from '@joint/react-plus';
 import type { CellId } from '@joint/react-plus';
-import { useEffect, useRef, useState } from 'react';
-import type { ChangeEvent, KeyboardEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import type { ChangeEvent, KeyboardEvent, RefObject } from 'react';
 import type { EditableShape } from '@/mermaid/edit-source';
 import type { NodeData } from '@/mermaid/to-cells';
 import type { NodeEditHandlers } from './diagram';
@@ -87,28 +87,56 @@ const FILLS = ['#ddffee', '#fef3c7', '#fee2e2', '#dbeafe', '#ede9fe', '#e5e7eb']
  */
 const TOOLBAR_CLEARANCE = 320;
 
+/** Keeps this much of the canvas edge clear when shifting the toolbar sideways. */
+const EDGE_MARGIN = 8;
+
 /**
- * Which side of the node the toolbar opens on.
+ * Where the toolbar opens: which side of the node, and how far to shift it
+ * sideways so it stays inside the canvas.
  *
  * Above by default — that is where it stays clear of the node's own outgoing
  * flow and its add-step button. A node near the top of the viewport has no
  * room there, though, and an overlay drawn off-screen simply gets clipped
  * (this is a plain absolutely-positioned element, not a popover the browser
  * repositions), so it flips below whenever the space above cannot hold it and
- * the space below is roomier.
+ * the space below is roomier. The same goes sideways: a node near the left or
+ * right edge would push half the toolbar out of view, so it slides inward by
+ * exactly the overhang, measured from the rendered width.
  */
-function useToolbarSide(cellId: CellId): 'top' | 'bottom' {
+function useToolbarPlacement(
+    cellId: CellId,
+    rootRef: RefObject<HTMLDivElement | null>
+): { side: 'top' | 'bottom'; dx: number } {
     const { paper } = usePaper();
     const { graph } = useGraph();
-    if (!paper) return 'top';
+    // The rendered width, kept current as the extended grid folds and unfolds.
+    const [width, setWidth] = useState(0);
+    useLayoutEffect(() => {
+        const root = rootRef.current;
+        if (!root) return;
+        const measure = () => setWidth(root.getBoundingClientRect().width);
+        measure();
+        const observer = new ResizeObserver(measure);
+        observer.observe(root);
+        return () => observer.disconnect();
+    }, [rootRef]);
+    if (!paper) return { side: 'top', dx: 0 };
     const cell = graph.getCell(cellId);
-    if (!cell || !cell.isElement()) return 'top';
+    if (!cell || !cell.isElement()) return { side: 'top', dx: 0 };
     const box = cell.getBBox();
     const top = paper.localToClientPoint({ x: box.x, y: box.y });
     const bottom = paper.localToClientPoint({ x: box.x, y: box.y + box.height });
+    const center = paper.localToClientPoint({ x: box.x + box.width / 2, y: box.y });
     const spaceAbove = top.y;
     const spaceBelow = window.innerHeight - bottom.y;
-    return spaceAbove < TOOLBAR_CLEARANCE && spaceBelow > spaceAbove ? 'bottom' : 'top';
+    const side = spaceAbove < TOOLBAR_CLEARANCE && spaceBelow > spaceAbove ? 'bottom' : 'top';
+    const canvas = paper.el.getBoundingClientRect();
+    const left = center.x - width / 2;
+    const right = center.x + width / 2;
+    let dx = 0;
+    if (left < canvas.left + EDGE_MARGIN) dx = canvas.left + EDGE_MARGIN - left;
+    else if (right > canvas.right - EDGE_MARGIN) dx = canvas.right - EDGE_MARGIN - right;
+    return { side, dx };
 }
 
 /** Icon canvas, sized so every shape's clamped details still read. */
@@ -271,9 +299,39 @@ export interface NodeToolbarProps {
     readonly cellId: CellId;
     readonly data: NodeData;
     readonly edit: NodeEditHandlers;
+    /** Take keyboard focus on open — the node was just added from the keyboard. */
+    readonly autoFocus?: boolean;
+    /** Escape: close the toolbar and hand focus back to the canvas. */
+    readonly onDismiss: () => void;
 }
 
-export function NodeToolbar({ cellId, data, edit }: NodeToolbarProps) {
+/**
+ * Arrow keys walk a radiogroup of buttons, wrapping at the ends — the
+ * expected keyboard model for a picker, on top of plain Tab.
+ */
+function onRadioGroupKeyDown(event: KeyboardEvent<HTMLElement>): void {
+    const step = event.key === 'ArrowRight' || event.key === 'ArrowDown'
+        ? 1
+        : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 0;
+    if (step === 0) return;
+    const radios = [...event.currentTarget.querySelectorAll<HTMLElement>('[role="radio"]')];
+    const index = radios.findIndex((radio) => radio === document.activeElement);
+    if (index === -1) return;
+    event.preventDefault();
+    radios[(index + step + radios.length) % radios.length]?.focus();
+}
+
+export function NodeToolbar({ cellId, data, edit, autoFocus = false, onDismiss }: NodeToolbarProps) {
+    const rootRef = useRef<HTMLDivElement>(null);
+    // Focus the active shape on open when asked to; the user just added the
+    // node from the keyboard and should land on its controls.
+    useEffect(() => {
+        if (!autoFocus) return;
+        const root = rootRef.current;
+        const target = root?.querySelector<HTMLElement>('[role="radio"][aria-checked="true"]')
+            ?? root?.querySelector<HTMLElement>('button');
+        target?.focus();
+    }, [autoFocus]);
     // Aliases collapse through the geometry: `card` and `notch-rect` are the
     // same spec, so whichever spelling the author used, its button lights up.
     const activeSpec = getShapeSpec(data.shape);
@@ -296,20 +354,33 @@ export function NodeToolbar({ cellId, data, edit }: NodeToolbarProps) {
     const [moreOverride, setMoreOverride] = useState<boolean | null>(null);
     const isMoreOpen = moreOverride ?? true;
     const isMoreLocked = isExtendedActive;
-    const side = useToolbarSide(cellId);
+    const { side, dx } = useToolbarPlacement(cellId, rootRef);
 
     return (
         <ElementOverlay
             cell={cellId}
             position={side}
             origin={side === 'top' ? 'bottom' : 'top'}
+            dx={dx}
             // Clear of the node either way: up from its top edge, or down
             // past the add-step button hanging off its bottom one.
             dy={side === 'top' ? -10 : 24}
         >
-            <div className="node-toolbar" onPointerDown={(event) => event.stopPropagation()}>
+            <div
+                ref={rootRef}
+                className="node-toolbar"
+                role="group"
+                aria-label="Node formatting"
+                onPointerDown={(event) => event.stopPropagation()}
+                onKeyDown={(event) => {
+                    if (event.key !== 'Escape') return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onDismiss();
+                }}
+            >
                 <span className="node-toolbar-row">
-                    <span className="node-toolbar-group" role="radiogroup" aria-label="Node shape">
+                    <span className="node-toolbar-group" role="radiogroup" aria-label="Node shape" onKeyDown={onRadioGroupKeyDown}>
                         {SHAPES.map((entry) => (
                             <button
                                 key={entry.id}
@@ -346,7 +417,7 @@ export function NodeToolbar({ cellId, data, edit }: NodeToolbarProps) {
                     </button>
                 </span>
                 {(isMoreOpen || isMoreLocked) && (
-                    <span className="node-toolbar-more" role="radiogroup" aria-label="More shapes">
+                    <span className="node-toolbar-more" role="radiogroup" aria-label="More shapes" onKeyDown={onRadioGroupKeyDown}>
                         {EXTENDED_SHAPES.map((entry) => (
                             <button
                                 key={entry.id}

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ChangeEvent } from 'react';
+import type { ChangeEvent, KeyboardEvent } from 'react';
 import logoUrl from '@/assets/jointjs-logo.svg';
 import { MermaidDiagram } from '@/components/diagram';
 import { EditorPanel } from '@/components/editor-panel';
@@ -105,10 +105,16 @@ export function App() {
         sourceRef.current = source;
     }, [source]);
     const [selection, setSelection] = useState<Selection>(NO_SELECTION);
-    const selectFromCanvas = useCallback(
-        (ids: readonly CellId[]) => setSelection({ ids, origin: 'canvas' }),
-        []
-    );
+    // The node whose toolbar should take focus when it opens — set when a
+    // shape was added from the keyboard, so the user lands on the new
+    // node's controls instead of being left on the button they pressed.
+    const [focusToolbarFor, setFocusToolbarFor] = useState<CellId | null>(null);
+    const selectFromCanvas = useCallback((ids: readonly CellId[]) => {
+        setSelection({ ids, origin: 'canvas' });
+        // A selection the user made themselves must not re-trigger the
+        // "focus the toolbar" hand-off from an earlier keyboard add.
+        setFocusToolbarFor(null);
+    }, []);
     const selectFromEditor = useCallback(
         (ids: readonly CellId[]) => setSelection({ ids, origin: 'editor' }),
         []
@@ -231,7 +237,7 @@ export function App() {
      * `flowchart TD` header when the text is blank) and select it, so the
      * shape toolbar opens on something immediately.
      */
-    const handleAddShape = useCallback(() => {
+    const handleAddShape = useCallback((fromKeyboard: boolean) => {
         const added = addNode(sourceRef.current);
         // `null` means the text is not a flowchart at all; the parse error
         // already says so, and appending to it would corrupt it.
@@ -239,6 +245,7 @@ export function App() {
         setSource(added.source, true);
         setPresetId('custom');
         setSelection({ ids: [added.id], origin: 'canvas' });
+        setFocusToolbarFor(fromKeyboard ? added.id : null);
     }, [setSource]);
 
     function handleSourceChange(next: string) {
@@ -264,6 +271,16 @@ export function App() {
                             value={presetId}
                             onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                                 handlePresetChange(event.target.value)}
+                            // Enter opens the list, as keyboard users expect of
+                            // a picker; the native control only opens on Space.
+                            onKeyDown={(event: KeyboardEvent<HTMLSelectElement>) => {
+                                if (event.key !== 'Enter') return;
+                                const select = event.currentTarget;
+                                if ('showPicker' in select && typeof select.showPicker === 'function') {
+                                    event.preventDefault();
+                                    select.showPicker();
+                                }
+                            }}
                         >
                             {PRESETS.map((preset) => (
                                 <option key={preset.id} value={preset.id}>
@@ -313,6 +330,7 @@ export function App() {
                         onAutoLayoutChange={setAutoLayout}
                         onDirectionChange={handleDirectionChange}
                         onAddShape={handleAddShape}
+                        focusToolbarFor={focusToolbarFor}
                         positionsRef={manualPositionsRef}
                     />
                 </div>

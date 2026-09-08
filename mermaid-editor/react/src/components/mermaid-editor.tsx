@@ -209,6 +209,10 @@ export function MermaidEditor({
                 language: LANGUAGE_ID,
                 theme: currentTheme(),
                 ariaLabel: 'Mermaid source code',
+                // The FRAME is the Tab stop (see the host below); the editor
+                // itself is entered with Enter and left with Escape, so Tab
+                // never gets swallowed by the code area.
+                tabIndex: -1,
                 automaticLayout: true,
                 fontSize: 13,
                 lineHeight: 21,
@@ -225,6 +229,14 @@ export function MermaidEditor({
             });
             editorRef.current = editor;
             decorationsRef.current = editor.createDecorationsCollection();
+
+            // Escape leaves the editor for its frame — unless a widget (find,
+            // suggest) is open, which Escape should close first.
+            editor.addCommand(
+                monaco.KeyCode.Escape,
+                () => host.focus(),
+                '!suggestWidgetVisible && !findWidgetVisible && !parameterHintsVisible'
+            );
 
             editor.onDidChangeModelContent(() => {
                 if (isApplyingRef.current) return;
@@ -315,5 +327,20 @@ export function MermaidEditor({
         }
     }, [highlightedIds, readyTick]);
 
-    return <div ref={hostRef} className="editor-code" />;
+    return (
+        <div
+            ref={hostRef}
+            className="editor-code"
+            // A focus stop around the code: Tab lands here, Enter goes in,
+            // Escape (inside the editor) comes back out.
+            tabIndex={0}
+            role="group"
+            aria-label="Mermaid source editor. Press Enter to edit, Escape to leave."
+            onKeyDown={(event) => {
+                if (event.key !== 'Enter' || event.target !== event.currentTarget) return;
+                event.preventDefault();
+                editorRef.current?.focus();
+            }}
+        />
+    );
 }

@@ -12,6 +12,10 @@ export interface NodeEditing {
     /** Node currently under the caret, or `null` when none is. */
     readonly editingId: CellId | null;
     readonly begin: (id: CellId) => void;
+    /** Makes the node the selection — keyboard focus landing on it. */
+    readonly select: (id: CellId) => void;
+    /** Drops the selection (Escape on a focused node closes its toolbar). */
+    readonly clear: () => void;
     /** Writes the label back to the source and leaves edit mode. */
     readonly commit: (id: CellId, label: string) => void;
     readonly cancel: () => void;

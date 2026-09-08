@@ -69,8 +69,11 @@ export interface CanvasActionsProps {
     readonly direction: FlowDirection;
     /** Rewrites the `flowchart <dir>` header in the source. */
     readonly onDirectionChange: (direction: FlowDirection) => void;
-    /** Appends a top-level, unconnected node — the from-scratch start. */
-    readonly onAddShape: () => void;
+    /**
+     * Appends a top-level, unconnected node — the from-scratch start.
+     * `fromKeyboard` lets the app move focus onto the new node's toolbar.
+     */
+    readonly onAddShape: (fromKeyboard: boolean) => void;
 }
 
 export function CanvasActions({
@@ -89,7 +92,8 @@ export function CanvasActions({
                 className="app-button add-shape"
                 aria-label="Add an unconnected shape"
                 title="Add a shape — it lands unconnected, ready to reshape and wire up"
-                onClick={onAddShape}
+                // A click fired by Enter/Space carries `detail === 0`.
+                onClick={(event) => onAddShape(event.detail === 0)}
             >
                 + Shape
             </button>
