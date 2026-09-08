@@ -113,13 +113,13 @@ function defineLanguage(monaco: MonacoModule): void {
             { token: 'string', foreground: '6ee7b7' },
             { token: 'string.meta', foreground: '6ee7b7' },
             { token: 'operator.arrow', foreground: 'fda4af', fontStyle: 'bold' },
-            { token: 'comment', foreground: '6b7280', fontStyle: 'italic' },
+            { token: 'comment', foreground: '828a9c', fontStyle: 'italic' },
         ],
         colors: {
-            'editor.background': '#101119',
+            'editor.background': '#181a23',
             'editor.foreground': '#e6e7ee',
-            'editor.lineHighlightBackground': '#1c1e28',
-            'editor.selectionBackground': '#2a3350',
+            'editor.lineHighlightBackground': '#232634',
+            'editor.selectionBackground': '#2f3858',
             'editorLineNumber.foreground': '#8b92a3',
         },
     });

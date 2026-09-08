@@ -57,6 +57,10 @@
     --overlay-chip: var(--surface);
     --overlay-shadow: 0 4px 14px rgb(15 23 42 / 18%);
     --overlay-shadow-sm: 0 2px 8px rgb(15 23 42 / 8%);
+    /* Pressed/checked chips: a tinted fill, never a ring — a ring in the
+       accent red reads as an error or as a second, differently coloured focus
+       indicator next to the blue one. */
+    --chip-active: color-mix(in srgb, var(--accent) 12%, var(--overlay-chip));
 
     color-scheme: light;
     font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
@@ -69,10 +73,12 @@
  * Mermaid's own dark theme is the reference for the diagram colours.
  */
 :root[data-theme='dark'] {
-    --surface: #171821;
-    --surface-sunken: #101119;
-    --surface-raised: #1e2029;
-    --border: #2c2e3b;
+    /* A few steps up from near-black: long looks at pure dark surfaces are
+       hard on the eye, and the lifted greys still read as dark mode. */
+    --surface: #1f212b;
+    --surface-sunken: #181a23;
+    --surface-raised: #262834;
+    --border: #353848;
     --text: #e6e7ee;
     --text-muted: #9aa0b0;
     --accent: #ff5567;
@@ -94,34 +100,35 @@
     --syntax-node-id: #7dd3fc;
     --syntax-text: #6ee7b7;
     --syntax-arrow: #fda4af;
-    --syntax-comment: #6b7280;
+    --syntax-comment: #828a9c;
     /* Same AA floor as the light gutter, against the dark pane. */
     --syntax-gutter: #8b92a3;
-    --syntax-active-line: #1c1e28;
-    --syntax-selection: #2a3350;
-    --syntax-selected-line: #35301c;
+    --syntax-active-line: #232634;
+    --syntax-selection: #2f3858;
+    --syntax-selected-line: #3a3520;
     --syntax-selected-token: #6b5a22;
     --node-selected: var(--focus-ring);
 
     --error: #ff9a90;
-    --error-surface: #2b1a1c;
+    --error-surface: #332022;
     --notice: #f0c674;
-    --notice-surface: #2a2418;
+    --notice-surface: #322b1e;
 
     /*
      * A floating panel has to lift itself here: its own fill well clear of the
      * canvas, a brighter edge, and a shadow dark enough to register against
-     * #101119. `--overlay-inset` matters more than it looks: the shape picker
+     * #181a23. `--overlay-inset` matters more than it looks: the shape picker
      * fills nearly the whole toolbar, so the panel is read through the well
      * rather than around it — set to the canvas colour, as it was, the bar
      * looked as dark as the canvas no matter what the panel fill said.
      */
-    --overlay-surface: #2b2f3e;
-    --overlay-border: #464c62;
-    --overlay-inset: #232735;
-    --overlay-chip: #3a4054;
+    --overlay-surface: #313548;
+    --overlay-border: #4c5269;
+    --overlay-inset: #292d3c;
+    --overlay-chip: #40465b;
     --overlay-shadow: 0 6px 18px rgb(0 0 0 / 55%);
     --overlay-shadow-sm: 0 4px 12px rgb(0 0 0 / 45%);
+    --chip-active: color-mix(in srgb, var(--accent) 24%, var(--overlay-chip));
 
     color-scheme: dark;
 }
@@ -415,7 +422,7 @@ body {
 
 .canvas-actions .layout-toggle[aria-pressed='true'] {
     color: var(--accent);
-    box-shadow: var(--overlay-shadow-sm), inset 0 0 0 1px var(--accent);
+    background: var(--chip-active);
 }
 
 /* The direction switch: four arrows, one lit — the diagram's `flowchart TB`
@@ -441,8 +448,7 @@ body {
 
 .canvas-actions .canvas-direction-option.is-active {
     color: var(--accent);
-    background: var(--overlay-chip);
-    box-shadow: inset 0 0 0 1px var(--accent);
+    background: var(--chip-active);
 }
 
 /* -------------------------------------------------- accessibility check */
@@ -570,7 +576,7 @@ body {
     text-align: center;
     resize: none;
     background: var(--surface);
-    border: 1px solid var(--accent);
+    border: 1px solid var(--focus-ring);
     border-radius: 4px;
     outline: none;
 }
@@ -622,8 +628,8 @@ body {
 }
 
 .node-toolbar-shape.is-active {
-    background: var(--overlay-chip);
-    box-shadow: inset 0 0 0 1px var(--accent);
+    color: var(--accent);
+    background: var(--chip-active);
 }
 
 /* The v11 shape grid, opened by the "More shapes" toggle: same buttons as
@@ -711,7 +717,8 @@ body {
 }
 
 .node-toolbar-swatch.is-custom:focus-within {
-    border-color: var(--accent);
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
 }
 
 /* Third row: text style, border style, link, add-step. */
@@ -765,8 +772,8 @@ body {
 }
 
 .node-toolbar-toggle.is-active {
-    background: var(--overlay-chip);
-    box-shadow: inset 0 0 0 1px var(--accent);
+    color: var(--accent);
+    background: var(--chip-active);
 }
 
 /* The border-colour control: a ring in the current stroke colour wrapping a
@@ -793,7 +800,8 @@ body {
 
 .node-toolbar-toggle.is-stroke:focus-within {
     background: var(--overlay-chip);
-    box-shadow: inset 0 0 0 1px var(--accent);
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
 }
 
 /* The add-step "+", hanging just under the hovered or selected node — the
@@ -1091,11 +1099,27 @@ body {
     }
 
     .app-title {
-        font-size: 14px;
+        font-size: 13px;
+    }
+
+    .app-select {
+        padding-right: 22px;
     }
 
     .app-field span {
         display: none;
+    }
+
+    /* The select takes whatever the title leaves, so the example name is
+       not cut to a stub next to a lot of empty header. */
+    .app-lead,
+    .app-field {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .app-select {
+        width: 100%;
     }
 
     .app-actions {
@@ -1103,7 +1127,7 @@ body {
     }
 
     .app-logo {
-        height: 18px;
+        height: 16px;
     }
 
     /* The action cluster is wider than a phone canvas; wrap it. */
