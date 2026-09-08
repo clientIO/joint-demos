@@ -1135,6 +1135,23 @@ body {
         flex-wrap: wrap;
         max-width: calc(100% - 32px);
     }
+
+    /* The node toolbar is wider than a phone: cap it to the screen and let
+       every row wrap instead of running off the right edge. */
+    .node-toolbar {
+        max-width: calc(100vw - 16px);
+        white-space: normal;
+    }
+
+    .node-toolbar-row,
+    .node-toolbar-group,
+    .node-toolbar-swatches {
+        flex-wrap: wrap;
+    }
+
+    .node-toolbar-more {
+        max-width: 100%;
+    }
 }
 
 /* ------------------------------------------------------ keyboard focus */

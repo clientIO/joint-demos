@@ -7,6 +7,7 @@ import type { NodeData } from '@/mermaid/to-cells';
 import type { NodeEditHandlers } from './diagram';
 import { getShapeSpec } from './shapes';
 import { SVGShape } from './svg-shape';
+import { placeToolbar } from './toolbar-placement';
 
 /**
  * Formatting for the selected node, floating above it on the canvas.
@@ -81,16 +82,6 @@ const EXTENDED_SHAPES: ReadonlyArray<{ readonly id: string; readonly label: stri
 const FILLS = ['#ddffee', '#fef3c7', '#fee2e2', '#dbeafe', '#ede9fe', '#e5e7eb'];
 
 /**
- * Room the toolbar needs above the node, in client px. Deliberately generous:
- * the panel is at its tallest with the extended shape grid open, and guessing
- * low is what puts it off the top of the viewport.
- */
-const TOOLBAR_CLEARANCE = 320;
-
-/** Keeps this much of the canvas edge clear when shifting the toolbar sideways. */
-const EDGE_MARGIN = 8;
-
-/**
  * Where the toolbar opens: which side of the node, and how far to shift it
  * sideways so it stays inside the canvas.
  *
@@ -127,16 +118,11 @@ function useToolbarPlacement(
     const top = paper.localToClientPoint({ x: box.x, y: box.y });
     const bottom = paper.localToClientPoint({ x: box.x, y: box.y + box.height });
     const center = paper.localToClientPoint({ x: box.x + box.width / 2, y: box.y });
-    const spaceAbove = top.y;
-    const spaceBelow = window.innerHeight - bottom.y;
-    const side = spaceAbove < TOOLBAR_CLEARANCE && spaceBelow > spaceAbove ? 'bottom' : 'top';
-    const canvas = paper.el.getBoundingClientRect();
-    const left = center.x - width / 2;
-    const right = center.x + width / 2;
-    let dx = 0;
-    if (left < canvas.left + EDGE_MARGIN) dx = canvas.left + EDGE_MARGIN - left;
-    else if (right > canvas.right - EDGE_MARGIN) dx = canvas.right - EDGE_MARGIN - right;
-    return { side, dx };
+    // The VISIBLE canvas, not the paper: inside the scroller the paper runs
+    // well past the viewport (it starts under the source pane once the canvas
+    // is scrolled), so its box is the wrong edge to keep the toolbar inside.
+    const viewport = (paper.el.closest<HTMLElement>('.jj-paper-scroller') ?? paper.el).getBoundingClientRect();
+    return placeToolbar({ top: top.y, bottom: bottom.y, centerX: center.x }, width, viewport);
 }
 
 /** Icon canvas, sized so every shape's clamped details still read. */

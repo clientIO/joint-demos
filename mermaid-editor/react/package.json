@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc -b",
-    "test": "npm run typecheck && npm run lint"
+    "test:unit": "node --test \"src/**/*.test.ts\"",
+    "test": "npm run typecheck && npm run lint && npm run test:unit"
   },
   "dependencies": {
     "@joint/layout-directed-graph": "4.3.0",
