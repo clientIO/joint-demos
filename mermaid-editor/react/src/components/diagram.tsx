@@ -491,9 +491,10 @@ function Canvas({
         paperScroller?.el?.focus();
     }, [onSelect, paper, paperScroller]);
 
-    // The add-step "+" hangs under the hovered node — or the selected one, so
-    // it is reachable by keyboard-and-click flows too. Groups take none: a
-    // child cannot hang off a subgraph.
+    // The add-step "+" sits on the hovered node — or the selected one, so it
+    // is reachable by keyboard-and-click flows too — on the edge the layout
+    // direction flows out of. Groups take none: a child cannot hang off a
+    // subgraph.
     const addTargetId = hoveredId ?? toolbarCell?.id ?? null;
     const addTargetCell = addTargetId === null
         ? undefined
@@ -643,7 +644,7 @@ function Canvas({
                             <ElementOverlay cell={addTargetCell.id} {...ADD_BUTTON_PLACEMENT[direction]}>
                                 <button
                                     type="button"
-                                    className="node-add-below"
+                                    className="node-add-step"
                                     aria-label="Add a connected step"
                                     title="Click: add a connected step. Drag onto another shape: connect them."
                                     onPointerDown={onAddButtonPointerDown}

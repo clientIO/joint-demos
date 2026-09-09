@@ -809,7 +809,7 @@ body {
 /* The add-step "+", hanging just under the hovered or selected node — the
    official editor's affordance. It overlaps the shape's bottom edge a touch
    so the pointer can travel onto it without leaving both. */
-.node-add-below {
+.node-add-step {
     display: grid;
     place-items: center;
     width: 24px;
@@ -828,7 +828,7 @@ body {
     touch-action: none;
 }
 
-.node-add-below:hover {
+.node-add-step:hover {
     color: var(--surface);
     background: var(--accent);
 }
@@ -1210,7 +1210,7 @@ body {
 .node-toolbar-toggle:focus-visible,
 .node-toolbar-shape:focus-visible,
 .node-toolbar-action:focus-visible,
-.node-add-below:focus-visible,
+.node-add-step:focus-visible,
 .connect-bar:focus-visible,
 .canvas-direction-option:focus-visible,
 .editor-link:focus-visible,
