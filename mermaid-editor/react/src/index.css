@@ -3,39 +3,30 @@
  * a Mermaid diagram, with a JointJS-red accent for the app chrome.
  */
 :root {
-    --surface: #ffffff;
-    --surface-sunken: #f6f7f9;
-    --surface-raised: #ffffff;
-    --border: #d8dce3;
-    --text: #1f2430;
-    --text-muted: #6b7280;
+    /* Neutrals lean a hair toward the diagram's blue-violet, so chrome and
+       canvas read as one material; nothing here is pure white or pure black. */
+    --surface: oklch(0.995 0.002 262);
+    --surface-sunken: oklch(0.975 0.004 262);
+    --border: oklch(0.88 0.012 262);
+    --text: oklch(0.25 0.02 262);
+    --text-muted: oklch(0.5 0.02 262);
     --accent: #ed2637;
     /* Keyboard focus + canvas selection. Never the red accent: a red ring on
        a node reads as an error, not as "this one". */
     --focus-ring: #2563eb;
 
-    --node-fill: #ececff;
-    --node-stroke: #9370db;
-    --node-text: #1f2430;
-    --node-detail: #9370db;
-    --group-fill: rgb(147 112 219 / 7%);
-    --group-stroke: #b9a5e4;
-    --group-title: #6b5aa0;
-    --link-stroke: #333333;
+    --node-fill: oklch(0.945 0.03 290);
+    --node-stroke: oklch(0.6 0.15 300);
+    --node-text: var(--text);
+    --node-detail: var(--node-stroke);
+    --group-fill: oklch(0.6 0.15 300 / 6%);
+    --group-stroke: oklch(0.65 0.07 295);
+    --group-title: oklch(0.5 0.12 295);
+    --link-stroke: oklch(0.35 0.02 262);
     --label-fill: var(--surface-sunken);
-    --label-text: #1f2430;
-    /* Mermaid syntax colours, keyed to the shape palette above. */
-    --syntax-keyword: #7c3aed;
-    --syntax-orientation: #0e7490;
-    --syntax-node-id: #1d4ed8;
-    --syntax-text: #0f766e;
-    --syntax-arrow: #be123c;
-    --syntax-comment: #94a3b8;
-    /* Quieter than body text but still 4.5:1 on the pane, per WCAG AA. */
-    --syntax-gutter: #69707e;
-    --syntax-active-line: #f3f4f8;
-    --syntax-selection: #dbeafe;
-    --syntax-selected-line: #fff3d6;
+    --label-text: var(--text);
+    /* The source pane's own colours live in the Monaco themes
+       (`mermaid-editor.tsx`); this one is a Monaco decoration drawn by CSS. */
     --syntax-selected-token: #fbd88b;
     --node-selected: var(--focus-ring);
 
@@ -46,25 +37,36 @@
 
     /*
      * Panels that float over the canvas. They are tokens because in dark mode
-     * every one of the usual cues fails at once: `--surface` sits 7 RGB units
-     * above `--surface-sunken`, and a dark shadow over a near-black canvas
-     * contributes nothing. The values here match what these panels always
-     * had, so light mode is unchanged.
+     * every one of the usual cues fails at once: `--surface` sits a few steps
+     * above `--surface-sunken`, and a dark shadow over a dark canvas
+     * contributes nothing.
      */
     --overlay-surface: var(--surface);
     --overlay-border: var(--border);
     --overlay-inset: var(--surface-sunken);
-    --overlay-chip: var(--surface);
-    --overlay-shadow: 0 4px 14px rgb(15 23 42 / 18%);
-    --overlay-shadow-sm: 0 2px 8px rgb(15 23 42 / 8%);
-    /* Pressed/checked chips: a tinted fill, never a ring — a ring in the
-       accent red reads as an error or as a second, differently coloured focus
-       indicator next to the blue one. */
-    --chip-active: color-mix(in srgb, var(--accent) 12%, var(--overlay-chip));
+    --overlay-chip: oklch(0.94 0.008 262);
+    --overlay-shadow:
+        0 12px 32px -12px oklch(0.25 0.03 262 / 35%),
+        0 1px 2px oklch(0.25 0.03 262 / 10%);
+    --overlay-shadow-sm:
+        0 4px 12px -4px oklch(0.25 0.03 262 / 20%),
+        0 1px 2px oklch(0.25 0.03 262 / 8%);
+    /* Pressed/checked chips: a tinted fill under an ordinary glyph. Never a
+       ring (red reads as an error next to the blue focus ring) and never a red
+       glyph (the accent on the tint falls under the 3:1 floor). */
+    --chip-active: color-mix(in srgb, var(--accent) 14%, var(--overlay-chip));
+
+    --font-ui: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+        sans-serif;
+    /* Node labels, edge labels and the source share one face: the diagram is
+       the code, drawn. */
+    --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    /* Colour transitions only; zeroed under `prefers-reduced-motion`. */
+    --motion: 150ms;
 
     color-scheme: light;
-    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
-        sans-serif;
+    font-family: var(--font-ui);
 }
 
 /*
@@ -73,62 +75,54 @@
  * Mermaid's own dark theme is the reference for the diagram colours.
  */
 :root[data-theme='dark'] {
-    /* A few steps up from near-black: long looks at pure dark surfaces are
-       hard on the eye, and the lifted greys still read as dark mode. */
-    --surface: #1f212b;
-    --surface-sunken: #181a23;
-    --surface-raised: #262834;
-    --border: #353848;
-    --text: #e6e7ee;
-    --text-muted: #9aa0b0;
+    /* Navy rather than grey, and a few steps up from black: long looks at a
+       pure dark surface are hard on the eye, and the blue keeps the lifted
+       greys from going muddy. */
+    --surface: oklch(0.25 0.03 262);
+    --surface-sunken: oklch(0.215 0.03 262);
+    --border: oklch(0.37 0.03 262);
+    --text: oklch(0.93 0.01 262);
+    --text-muted: oklch(0.72 0.02 262);
     --accent: #ff5567;
     --focus-ring: #7cb3ff;
 
-    --node-fill: #2b2545;
-    --node-stroke: #a78bfa;
-    --node-text: #ece9fb;
-    --node-detail: #a78bfa;
-    --group-fill: rgb(167 139 250 / 7%);
-    --group-stroke: #4f4677;
-    --group-title: #b6a7e8;
-    --link-stroke: #b9bfd0;
+    /* Dark nodes with a light outline: the outline is the ink, the fill sits
+       just above the canvas. */
+    --node-fill: oklch(0.28 0.035 270);
+    --node-stroke: oklch(0.8 0.05 280);
+    --node-text: oklch(0.95 0.01 270);
+    --node-detail: var(--node-stroke);
+    --group-fill: oklch(0.8 0.05 280 / 5%);
+    --group-stroke: oklch(0.51 0.04 280);
+    --group-title: oklch(0.8 0.05 280);
+    --link-stroke: oklch(0.75 0.03 262);
     --label-fill: var(--surface-sunken);
-    --label-text: #e6e7ee;
+    --label-text: var(--text);
 
-    --syntax-keyword: #c4b5fd;
-    --syntax-orientation: #5eead4;
-    --syntax-node-id: #7dd3fc;
-    --syntax-text: #6ee7b7;
-    --syntax-arrow: #fda4af;
-    --syntax-comment: #828a9c;
-    /* Same AA floor as the light gutter, against the dark pane. */
-    --syntax-gutter: #8b92a3;
-    --syntax-active-line: #232634;
-    --syntax-selection: #2f3858;
-    --syntax-selected-line: #3a3520;
-    --syntax-selected-token: #6b5a22;
+    --syntax-selected-token: oklch(0.42 0.09 85);
     --node-selected: var(--focus-ring);
 
     --error: #ff9a90;
-    --error-surface: #332022;
+    --error-surface: oklch(0.29 0.05 20);
     --notice: #f0c674;
-    --notice-surface: #322b1e;
+    --notice-surface: oklch(0.29 0.04 85);
 
     /*
      * A floating panel has to lift itself here: its own fill well clear of the
-     * canvas, a brighter edge, and a shadow dark enough to register against
-     * #181a23. `--overlay-inset` matters more than it looks: the shape picker
-     * fills nearly the whole toolbar, so the panel is read through the well
-     * rather than around it — set to the canvas colour, as it was, the bar
-     * looked as dark as the canvas no matter what the panel fill said.
+     * canvas, a brighter edge, a hairline of light along its top, and a shadow
+     * dark enough to register against the navy.
      */
-    --overlay-surface: #313548;
-    --overlay-border: #4c5269;
-    --overlay-inset: #292d3c;
-    --overlay-chip: #40465b;
-    --overlay-shadow: 0 6px 18px rgb(0 0 0 / 55%);
-    --overlay-shadow-sm: 0 4px 12px rgb(0 0 0 / 45%);
-    --chip-active: color-mix(in srgb, var(--accent) 24%, var(--overlay-chip));
+    --overlay-surface: oklch(0.3 0.03 262);
+    --overlay-border: oklch(0.43 0.03 262);
+    --overlay-inset: oklch(0.26 0.03 262);
+    --overlay-chip: oklch(0.38 0.03 262);
+    --overlay-shadow:
+        0 16px 40px -12px oklch(0.1 0.03 262 / 70%),
+        inset 0 1px 0 oklch(0.95 0.01 262 / 6%);
+    --overlay-shadow-sm:
+        0 6px 16px -6px oklch(0.1 0.03 262 / 60%),
+        inset 0 1px 0 oklch(0.95 0.01 262 / 5%);
+    --chip-active: color-mix(in srgb, var(--accent) 28%, var(--overlay-chip));
 
     color-scheme: dark;
 }
@@ -162,7 +156,7 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 12px 20px;
+    padding: 10px 20px;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
 }
@@ -176,8 +170,9 @@ body {
 
 .app-title {
     margin: 0;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
+    letter-spacing: -0.01em;
     white-space: nowrap;
 }
 
@@ -205,7 +200,7 @@ body {
     color: var(--text);
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 7px;
 }
 
 .app-actions {
@@ -229,13 +224,14 @@ body {
 }
 
 .app-button {
-    padding: 7px 14px;
+    padding: 6px 12px;
     font: inherit;
     font-size: 13px;
+    font-weight: 500;
     color: var(--text);
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 7px;
     cursor: pointer;
 }
 
@@ -252,8 +248,8 @@ body {
 }
 
 .app-button:hover:not(:disabled) {
-    border-color: var(--accent);
-    color: var(--accent);
+    background: var(--overlay-chip);
+    border-color: var(--overlay-border);
 }
 
 .app-button:disabled {
@@ -321,7 +317,7 @@ body {
 }
 
 .editor-download:hover {
-    color: var(--accent);
+    color: var(--text);
     text-decoration: underline;
 }
 
@@ -331,7 +327,7 @@ body {
 }
 
 .editor-link:hover {
-    color: var(--accent);
+    color: var(--text);
     text-decoration: underline;
 }
 
@@ -353,7 +349,7 @@ body {
 .editor-message {
     margin: 0;
     padding: 10px 14px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     line-height: 1.5;
     white-space: pre-wrap;
@@ -421,7 +417,6 @@ body {
 }
 
 .canvas-actions .layout-toggle[aria-pressed='true'] {
-    color: var(--accent);
     background: var(--chip-active);
 }
 
@@ -447,7 +442,7 @@ body {
 }
 
 .canvas-actions .canvas-direction-option.is-active {
-    color: var(--accent);
+    color: var(--text);
     background: var(--chip-active);
 }
 
@@ -539,8 +534,8 @@ body {
     bottom: 16px;
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px;
+    gap: 4px;
+    padding: 4px;
     background: var(--overlay-surface);
     border: 1px solid var(--overlay-border);
     border-radius: 8px;
@@ -569,7 +564,7 @@ body {
     width: 100%;
     padding: 3px 4px;
     overflow: auto;
-    font-family: inherit;
+    font-family: var(--font-mono);
     font-size: 13px;
     line-height: 17px;
     color: var(--node-text);
@@ -593,33 +588,31 @@ body {
        than most nodes and overhung them badly. */
     flex-direction: column;
     align-items: stretch;
-    gap: 6px;
-    padding: 6px;
+    gap: 8px;
+    padding: 8px;
     white-space: nowrap;
     background: var(--overlay-surface);
     border: 1px solid var(--overlay-border);
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: var(--overlay-shadow);
 }
 
-/* Segmented shape picker: each button draws the shape it selects. */
+/* Shape picker: each button draws the shape it selects. No well around the
+   row: the panel is the only box; sections are told apart by hairlines. */
 .node-toolbar-group {
     display: flex;
     align-items: center;
-    padding: 2px;
-    background: var(--overlay-inset);
-    border: 1px solid var(--overlay-border);
-    border-radius: 6px;
+    gap: 2px;
 }
 
 .node-toolbar-shape {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3px;
+    padding: 2px 3px;
     background: none;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
 }
 
@@ -628,7 +621,6 @@ body {
 }
 
 .node-toolbar-shape.is-active {
-    color: var(--accent);
     background: var(--chip-active);
 }
 
@@ -639,11 +631,7 @@ body {
     flex-wrap: wrap;
     gap: 2px;
     max-width: 372px;
-    padding: 4px;
     white-space: normal;
-    background: var(--overlay-inset);
-    border: 1px solid var(--overlay-border);
-    border-radius: 6px;
 }
 
 /* Icons stay legible at 30x20: thinner strokes than the nodes carry. */
@@ -654,24 +642,30 @@ body {
     stroke-width: 1.25;
 }
 
+/* The colour strip and the row after it each open a new section. */
+.node-toolbar-swatches,
+.node-toolbar-swatches + .node-toolbar-row {
+    padding-top: 8px;
+    border-top: 1px solid var(--overlay-border);
+}
+
 .node-toolbar-swatches {
     display: flex;
-    align-items: stretch;
-    gap: 4px;
+    align-items: center;
+    gap: 5px;
 }
 
 .node-toolbar-swatch {
-    /* Share the row evenly, so the strip lines up with the shapes above. */
-    flex: 1;
+    flex: 0 0 22px;
     height: 18px;
     padding: 0;
     border: 1px solid var(--overlay-border);
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
 }
 
 .node-toolbar-swatch:hover:not(:disabled) {
-    border-color: var(--accent);
+    border-color: var(--text-muted);
 }
 
 .node-toolbar-swatch:disabled {
@@ -717,41 +711,39 @@ body {
     outline-offset: 2px;
 }
 
-/* Third row: text style, border style, link, add-step. */
+/* Last row: text style, border style, link and image, and at the far end,
+   on its own, delete. */
 .node-toolbar-row {
     display: flex;
-    align-items: stretch;
-    gap: 6px;
+    align-items: center;
+    gap: 8px;
 }
 
 .node-toolbar-cluster {
     display: flex;
     align-items: center;
-    gap: 1px;
-    padding: 2px;
-    background: var(--overlay-inset);
-    border: 1px solid var(--overlay-border);
-    border-radius: 6px;
+    gap: 2px;
 }
 
-/* The link/add cluster hangs at the end of the row. */
-.node-toolbar-cluster:last-child {
-    margin-left: auto;
+/* Clusters are separated by a hairline, not boxed. */
+.node-toolbar-cluster + .node-toolbar-cluster {
+    padding-left: 8px;
+    border-left: 1px solid var(--overlay-border);
 }
 
 .node-toolbar-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 26px;
-    height: 22px;
-    padding: 0 5px;
+    min-width: 28px;
+    height: 26px;
+    padding: 0 6px;
     font: inherit;
     font-size: 12px;
     color: var(--text);
     background: none;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
 }
 
@@ -768,19 +760,24 @@ body {
 }
 
 .node-toolbar-toggle.is-active {
-    color: var(--accent);
     background: var(--chip-active);
 }
 
-/* Delete: the one destructive control, in the accent red and pushed to the
-   end of its row so it never sits next to a shape button. */
+/* Delete: the one destructive control. Quiet at rest, set apart from the
+   last cluster by twice the cluster gap rather than by a hairline, and red
+   only under the pointer or keyboard focus. */
 .node-toolbar-toggle.is-danger {
-    margin-left: auto;
-    color: var(--accent);
+    color: var(--text-muted);
 }
 
-.node-toolbar-toggle.is-danger:hover {
-    background: var(--chip-active);
+.node-toolbar-cluster + .node-toolbar-toggle.is-danger {
+    margin-left: 16px;
+}
+
+.node-toolbar-toggle.is-danger:hover,
+.node-toolbar-toggle.is-danger:focus-visible {
+    color: var(--error);
+    background: var(--error-surface);
 }
 
 /* The border-colour control: a ring in the current stroke colour wrapping a
@@ -877,7 +874,7 @@ body {
 
 /* The comment shapes' picker icons are drawn as type, not geometry. */
 .node-toolbar-glyph {
-    font-family: ui-monospace, Menlo, monospace;
+    font-family: var(--font-mono);
     font-size: 17px;
     fill: var(--node-stroke);
 }
@@ -908,8 +905,7 @@ body {
 }
 
 .connect-bar:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+    background: var(--overlay-chip);
 }
 
 .node-toolbar-linkrow {
@@ -927,7 +923,7 @@ body {
     color: var(--text);
     background: var(--overlay-inset);
     border: 1px solid var(--overlay-border);
-    border-radius: 5px;
+    border-radius: 6px;
     outline: none;
 }
 
@@ -944,13 +940,12 @@ body {
     color: var(--text);
     background: var(--overlay-chip);
     border: 1px solid var(--overlay-border);
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
 }
 
 .node-toolbar-action:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+    border-color: var(--text-muted);
 }
 
 /* ----------------------------------------------------------- diagram ink */
@@ -1039,9 +1034,8 @@ body {
 }
 
 .mermaid-subgraph-title {
-    font-family: inherit;
+    font-family: var(--font-mono);
     font-weight: 600;
-    letter-spacing: 0.02em;
     fill: var(--group-title);
 }
 
@@ -1116,8 +1110,7 @@ body {
 
 .mermaid-node-text {
     fill: var(--node-text);
-    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
-        sans-serif;
+    font-family: var(--font-mono);
 }
 
 /*
@@ -1147,6 +1140,7 @@ body {
 }
 
 .mermaid-link-label-text {
+    font-family: var(--font-mono);
     fill: var(--label-text);
 }
 
@@ -1226,6 +1220,49 @@ body {
 
     .node-toolbar-more {
         max-width: 100%;
+    }
+
+    /* The last row fits a 390px screen only without its hairlines and with
+       tighter chips; the gap alone tells the clusters apart. */
+    .node-toolbar-row {
+        gap: 6px;
+    }
+
+    .node-toolbar-toggle {
+        padding: 0 4px;
+    }
+
+    .node-toolbar-cluster + .node-toolbar-cluster {
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .node-toolbar-cluster + .node-toolbar-toggle.is-danger {
+        margin-left: 6px;
+    }
+}
+
+/* ---------------------------------------------------------------- motion */
+
+/* Colour and fill only, never layout; one curve everywhere. */
+.app-button,
+.node-toolbar-toggle,
+.node-toolbar-shape,
+.node-toolbar-swatch,
+.node-toolbar-action,
+.node-add-step,
+.connect-bar,
+.editor-download,
+.editor-link {
+    transition:
+        background-color var(--motion) var(--ease-out),
+        color var(--motion) var(--ease-out),
+        border-color var(--motion) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --motion: 0ms;
     }
 }
 

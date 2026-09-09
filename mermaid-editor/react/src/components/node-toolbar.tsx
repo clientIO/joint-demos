@@ -366,24 +366,21 @@ export function NodeToolbar({ cellId, data, edit, autoFocus = false, onDismiss, 
                     onDismiss();
                 }}
             >
-                <span className="node-toolbar-row">
-                    <span className="node-toolbar-group" role="radiogroup" aria-label="Node shape" onKeyDown={onRadioGroupKeyDown}>
-                        {SHAPES.map((entry) => (
-                            <button
-                                key={entry.id}
-                                type="button"
-                                role="radio"
-                                aria-checked={isActive(entry.id)}
-                                aria-label={entry.label}
-                                title={entry.label}
-                                className={`node-toolbar-shape${isActive(entry.id) ? ' is-active' : ''}`}
-                                onClick={() => edit.onShapeChange(cellId, entry.id)}
-                            >
-                                <ShapeIcon shape={entry.id} />
-                            </button>
-                        ))}
-                    </span>
-                    <DeleteButton label="Delete node" onClick={onDelete} />
+                <span className="node-toolbar-group" role="radiogroup" aria-label="Node shape" onKeyDown={onRadioGroupKeyDown}>
+                    {SHAPES.map((entry) => (
+                        <button
+                            key={entry.id}
+                            type="button"
+                            role="radio"
+                            aria-checked={isActive(entry.id)}
+                            aria-label={entry.label}
+                            title={entry.label}
+                            className={`node-toolbar-shape${isActive(entry.id) ? ' is-active' : ''}`}
+                            onClick={() => edit.onShapeChange(cellId, entry.id)}
+                        >
+                            <ShapeIcon shape={entry.id} />
+                        </button>
+                    ))}
                 </span>
                 {/* The full catalogue is always open: a collapsed "⋯" hid three
                     quarters of the supported shapes from anyone who did not
@@ -539,6 +536,7 @@ export function NodeToolbar({ cellId, data, edit, autoFocus = false, onDismiss, 
                             <ImageIcon />
                         </button>
                     </span>
+                    <DeleteButton label="Delete node" onClick={onDelete} />
                 </span>
                 {isLinkOpen && (
                     <UrlEditor

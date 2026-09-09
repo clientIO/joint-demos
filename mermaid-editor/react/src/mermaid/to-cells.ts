@@ -13,7 +13,11 @@ export interface NodeStyle {
      * surface in dark mode (a pale pastel would otherwise glare there).
      */
     readonly ownFill?: string;
-    /** The label colour derived for `ownFill`; dark mode uses the theme's text instead. */
+    /**
+     * The label colour that goes with `ownFill`: derived from it, or the
+     * class colour that was picked for the class's fill. Dark mode blends the
+     * fill into the canvas and uses the theme's text for this instead.
+     */
     readonly ownLabel?: string;
 }
 
@@ -59,12 +63,12 @@ const TEXT_PROPERTIES = new Set([
 ]);
 
 /**
- * Label colours for a node that carries its own `fill`. Deliberately fixed
- * rather than themed: the text has to be readable against *that* fill, which
- * the author picked, in either theme.
+ * Label colours for a node that carries its own `fill`, read against *that*
+ * fill: the theme's text on a pale one, the theme's surface on a dark one.
+ * (Dark mode swaps the whole label for the theme's text; see `ownLabel`.)
  */
-const DARK_LABEL = '#1f2430';
-const LIGHT_LABEL = '#f8fafc';
+const DARK_LABEL = 'var(--text)';
+const LIGHT_LABEL = 'var(--surface)';
 
 /** Parses `#abc`, `#aabbcc` and `rgb()/rgba()`; anything else gives up. */
 function parseColor(value: string): [number, number, number] | null {
@@ -156,13 +160,16 @@ function toNodeStyle(
     const text: Record<string, string> = { ...fromClass.text, ...own.text };
 
     // The label colour keeps the pairing rule described above; the other text
-    // properties merge per-property like the body ones.
+    // properties merge per-property like the body ones. The node's own
+    // `color` is honoured as written. A class colour under a fill travels as
+    // `ownLabel`, like a derived one: it was picked for that fill, and the
+    // stylesheet swaps both together in dark mode.
+    const classColor = own.body.fill === undefined ? fromClass.text.fill : undefined;
     let color: string | undefined = own.text.fill;
-    if (color === undefined && own.body.fill === undefined) color = fromClass.text.fill;
     let ownLabel: string | undefined;
-    if (color === undefined && body.fill !== undefined) {
-        // Derived, not authored: the stylesheet may swap it per theme.
-        ownLabel = readableLabel(body.fill) ?? undefined;
+    if (color === undefined) {
+        if (body.fill === undefined) color = classColor;
+        else ownLabel = classColor ?? readableLabel(body.fill) ?? undefined;
     }
     if (color === undefined) delete text.fill;
     else text.fill = color;

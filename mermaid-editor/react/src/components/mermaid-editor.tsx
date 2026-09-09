@@ -123,8 +123,8 @@ function defineLanguage(monaco: MonacoModule): void {
         },
     });
 
-    // Colours mirror the `--syntax-*` variables in index.css; Monaco themes
-    // take literal values, so the palette is duplicated here on purpose.
+    // Monaco themes take literal values: the surfaces, text and selection
+    // repeat the index.css tokens in hex; the syntax palette lives only here.
     monaco.editor.defineTheme('mermaid-light', {
         base: 'vs',
         inherit: true,
@@ -135,14 +135,15 @@ function defineLanguage(monaco: MonacoModule): void {
             { token: 'string', foreground: '0f766e' },
             { token: 'string.meta', foreground: '0f766e' },
             { token: 'operator.arrow', foreground: 'be123c', fontStyle: 'bold' },
-            { token: 'comment', foreground: '94a3b8', fontStyle: 'italic' },
+            { token: 'comment', foreground: '666c78', fontStyle: 'italic' },
         ],
         colors: {
-            'editor.background': '#f6f7f9',
-            'editor.foreground': '#1f2430',
-            'editor.lineHighlightBackground': '#f3f4f8',
-            'editor.selectionBackground': '#dbeafe',
-            'editorLineNumber.foreground': '#69707e',
+            'editor.background': '#f5f7f9',
+            'editor.foreground': '#1c222b',
+            'editor.lineHighlightBackground': '#eef0f4',
+            'editor.selectionBackground': '#ccdfff',
+            'editorLineNumber.foreground': '#00736f',
+            'editorLineNumber.activeForeground': '#1c222b',
         },
     });
     monaco.editor.defineTheme('mermaid-dark', {
@@ -150,19 +151,20 @@ function defineLanguage(monaco: MonacoModule): void {
         inherit: true,
         rules: [
             { token: 'keyword', foreground: 'c4b5fd', fontStyle: 'bold' },
-            { token: 'type.orientation', foreground: '5eead4' },
+            { token: 'type.orientation', foreground: '54ddce' },
             { token: 'identifier', foreground: '7dd3fc' },
-            { token: 'string', foreground: '6ee7b7' },
-            { token: 'string.meta', foreground: '6ee7b7' },
+            { token: 'string', foreground: '54ddce' },
+            { token: 'string.meta', foreground: '54ddce' },
             { token: 'operator.arrow', foreground: 'fda4af', fontStyle: 'bold' },
-            { token: 'comment', foreground: '828a9c', fontStyle: 'italic' },
+            { token: 'comment', foreground: '838996', fontStyle: 'italic' },
         ],
         colors: {
-            'editor.background': '#181a23',
-            'editor.foreground': '#e6e7ee',
-            'editor.lineHighlightBackground': '#232634',
-            'editor.selectionBackground': '#2f3858',
-            'editorLineNumber.foreground': '#8b92a3',
+            'editor.background': '#121927',
+            'editor.foreground': '#e4e8ef',
+            'editor.lineHighlightBackground': '#1a2230',
+            'editor.selectionBackground': '#283c62',
+            'editorLineNumber.foreground': '#44a49e',
+            'editorLineNumber.activeForeground': '#e4e8ef',
         },
     });
 }
@@ -256,6 +258,8 @@ export function MermaidEditor({
                 // never gets swallowed by the code area.
                 tabIndex: -1,
                 automaticLayout: true,
+                // The same face the diagram's labels use (`--font-mono`).
+                fontFamily: "ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace",
                 fontSize: 13,
                 lineHeight: 21,
                 minimap: { enabled: false },

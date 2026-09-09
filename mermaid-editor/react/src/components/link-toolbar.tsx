@@ -236,8 +236,8 @@ export function LinkToolbar({ cellId, data, x, y, edit, onDismiss, onDelete }: L
                         >
                             <AnimateIcon />
                         </button>
-                        <DeleteButton label="Delete edge" onClick={onDelete} />
                     </span>
+                    <DeleteButton label="Delete edge" onClick={onDelete} />
                 </span>
                 <span className="node-toolbar-swatches">
                     {LINE_COLORS.map((color) => (
