@@ -72,9 +72,12 @@ function slant(height: number) {
     return height / 2;
 }
 
+// Softened corners on the plain rectangle, per the designer's note; Mermaid
+// itself draws it square, but the rest of the picker's rect family keeps its
+// sharp corners so the two still read apart.
 const RECT: ShapeSpec = {
     size: boxy(),
-    outline: () => ({ kind: 'rect', rx: 0 }),
+    outline: () => ({ kind: 'rect', rx: 4 }),
 };
 
 const ROUNDED: ShapeSpec = {

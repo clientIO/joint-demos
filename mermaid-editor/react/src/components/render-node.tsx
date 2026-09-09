@@ -1,13 +1,31 @@
 import { SVGText, useCell, useCellId, useMeasureElement } from '@joint/react-plus';
 import type { ElementRecord } from '@joint/react-plus';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { NodeData } from '@/mermaid/to-cells';
+import type { CSSProperties } from 'react';
+import type { NodeData, NodeStyle } from '@/mermaid/to-cells';
 import { useNodeEditing } from './node-editing';
 import { SVGShape } from './svg-shape';
 import { getShapeSpec } from './shapes';
 
 const FONT_SIZE = 13;
 const LINE_HEIGHT = 17;
+
+/** Inline style for a node body: the author's fill travels as a custom property the stylesheet themes. */
+type OwnFillStyle = CSSProperties & { '--node-own-fill'?: string; '--node-own-label'?: string };
+
+function ownFillStyle(style: NodeStyle | undefined): OwnFillStyle | undefined {
+    if (style === undefined) return undefined;
+    const body: OwnFillStyle = { ...style.body };
+    if (style.ownFill !== undefined) body['--node-own-fill'] = style.ownFill;
+    return body;
+}
+
+function ownLabelStyle(style: NodeStyle | undefined): OwnFillStyle | undefined {
+    if (style === undefined) return undefined;
+    const text: OwnFillStyle = { ...style.text };
+    if (style.ownLabel !== undefined) text['--node-own-label'] = style.ownLabel;
+    return text;
+}
 
 /** Image-card geometry: default picture box, frame padding, picture-label gap. */
 const IMAGE_DEFAULT_SIZE = 56;
@@ -189,7 +207,7 @@ function FlowNodeCell(data: NodeData) {
             className="mermaid-node-focus"
             tabIndex={0}
             role="button"
-            aria-label={`${label}. Enter renames; Escape leaves.`}
+            aria-label={`${label}. Enter renames; Delete removes; Escape leaves.`}
             onFocus={() => {
                 if (editing !== null && cellId !== undefined) editing.select(cellId);
             }}
@@ -223,7 +241,8 @@ function FlowNodeCell(data: NodeData) {
                 shape={imageWidth === 0 ? data.shape : 'squareRect'}
                 width={width}
                 height={height}
-                style={data.style?.body}
+                className={data.style?.ownFill === undefined ? 'mermaid-node-body' : 'mermaid-node-body has-own-fill'}
+                style={ownFillStyle(data.style)}
             />
             {data.img !== undefined && (
                 <image
@@ -238,12 +257,12 @@ function FlowNodeCell(data: NodeData) {
             )}
             <SVGText
                 ref={setTextNode}
-                style={data.style?.text}
+                style={ownLabelStyle(data.style)}
                 // Kept mounted while editing: this is what `useMeasureElement`
                 // measures, so hiding it rather than unmounting it holds the
                 // node's size steady under the input.
                 opacity={isEditing ? 0 : undefined}
-                className="mermaid-node-text"
+                className={data.style?.ownLabel === undefined ? 'mermaid-node-text' : 'mermaid-node-text has-own-fill'}
                 x={cx}
                 y={textY}
                 textAnchor="middle"

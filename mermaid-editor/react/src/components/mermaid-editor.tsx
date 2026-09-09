@@ -1,6 +1,8 @@
 import type { CellId } from '@joint/react-plus';
 import type * as Monaco from 'monaco-editor';
 import { useEffect, useRef, useState } from 'react';
+import { completionsFor } from '@/mermaid/completions';
+import type { CompletionKind } from '@/mermaid/completions';
 import { parseFlowchartSpans } from '@/mermaid/flowchart-tree';
 
 /**
@@ -39,10 +41,50 @@ function loadMonaco(): Promise<MonacoModule> {
     return monacoReady;
 }
 
+/** Completions: Mermaid's own vocabulary plus the diagram's node ids (see `completionsFor`). */
+function defineCompletions(monaco: MonacoModule): void {
+    const kinds: Record<CompletionKind, number> = {
+        keyword: monaco.languages.CompletionItemKind.Keyword,
+        direction: monaco.languages.CompletionItemKind.EnumMember,
+        arrow: monaco.languages.CompletionItemKind.Operator,
+        node: monaco.languages.CompletionItemKind.Variable,
+        shape: monaco.languages.CompletionItemKind.Value,
+        snippet: monaco.languages.CompletionItemKind.Snippet,
+    };
+    monaco.languages.registerCompletionItemProvider(LANGUAGE_ID, {
+        triggerCharacters: ['-', '=', '>', ':', ' '],
+        provideCompletionItems: (model, position) => {
+            const lineBefore = model.getLineContent(position.lineNumber).slice(0, position.column - 1);
+            const word = model.getWordUntilPosition(position);
+            const range = {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: word.startColumn,
+                endColumn: word.endColumn,
+            };
+            return {
+                suggestions: completionsFor(lineBefore, model.getValue()).map((entry, index) => ({
+                    label: entry.label,
+                    kind: kinds[entry.kind],
+                    detail: entry.detail,
+                    insertText: entry.insertText,
+                    insertTextRules: entry.isSnippet
+                        ? monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+                        : undefined,
+                    range,
+                    // Keep the context's own order rather than the alphabet.
+                    sortText: String(index).padStart(3, '0'),
+                })),
+            };
+        },
+    });
+}
+
 /** Monarch grammar: close enough for colour, exact parsing stays with Lezer. */
 function defineLanguage(monaco: MonacoModule): void {
     if (monaco.languages.getLanguages().some((language) => language.id === LANGUAGE_ID)) return;
     monaco.languages.register({ id: LANGUAGE_ID });
+    defineCompletions(monaco);
     monaco.languages.setLanguageConfiguration(LANGUAGE_ID, {
         comments: { lineComment: '%%' },
         brackets: [['[', ']'], ['(', ')'], ['{', '}']],
@@ -226,6 +268,9 @@ export function MermaidEditor({
                 padding: { top: 12, bottom: 12 },
                 scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
                 stickyScroll: { enabled: false },
+                // The language's own completions, not every word in the file.
+                wordBasedSuggestions: 'off',
+                quickSuggestions: { other: true, comments: false, strings: false },
             });
             editorRef.current = editor;
             decorationsRef.current = editor.createDecorationsCollection();
@@ -292,10 +337,15 @@ export function MermaidEditor({
         if (!editor || !model || model.getValue() === value) return;
         // A whole-document edit rather than `setValue`, so undo survives a
         // toolbar edit — and the user's next Cmd+Z steps back through it.
+        // Bracketed by undo stops: `executeEdits` pushes none, and without
+        // them the edit merges into whatever the user last typed, so one
+        // Cmd+Z would take a deleted node AND their last word.
         isApplyingRef.current = true;
+        editor.pushUndoStop();
         editor.executeEdits('mermaid-sync', [
             { range: model.getFullModelRange(), text: value },
         ]);
+        editor.pushUndoStop();
         isApplyingRef.current = false;
     }, [value, readyTick]);
 

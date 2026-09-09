@@ -4,6 +4,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { ChangeEvent, KeyboardEvent, RefObject } from 'react';
 import type { EditableShape } from '@/mermaid/edit-source';
 import type { NodeData } from '@/mermaid/to-cells';
+import { EXTENDED_SHAPES } from '@/mermaid/vocabulary';
+import { DeleteButton } from './delete-button';
 import type { NodeEditHandlers } from './diagram';
 import { getShapeSpec } from './shapes';
 import { SVGShape } from './svg-shape';
@@ -34,49 +36,6 @@ const SHAPES: ReadonlyArray<{ readonly id: EditableShape; readonly label: string
     { id: 'lean_right', label: 'Parallelogram' },
 ];
 
-/**
- * The rest of Mermaid's flowchart vocabulary — the v11 `@{ shape: … }` names.
- * Choosing one rewrites the node's declaration into that syntax (the only
- * spelling these shapes have), labels included.
- */
-const EXTENDED_SHAPES: ReadonlyArray<{ readonly id: string; readonly label: string }> = [
-    { id: 'dbl-circ', label: 'Double circle' },
-    { id: 'sm-circ', label: 'Start' },
-    { id: 'fr-circ', label: 'Stop' },
-    { id: 'f-circ', label: 'Junction' },
-    { id: 'cross-circ', label: 'Summary' },
-    { id: 'lean-l', label: 'Parallelogram (left)' },
-    { id: 'trap-b', label: 'Priority (trapezoid)' },
-    { id: 'trap-t', label: 'Manual operation' },
-    { id: 'odd', label: 'Odd' },
-    { id: 'text', label: 'Text block' },
-    { id: 'card', label: 'Card' },
-    { id: 'lin-rect', label: 'Lined process' },
-    { id: 'st-rect', label: 'Stacked process' },
-    { id: 'tag-rect', label: 'Tagged process' },
-    { id: 'div-rect', label: 'Divided process' },
-    { id: 'win-pane', label: 'Internal storage' },
-    { id: 'sl-rect', label: 'Manual input' },
-    { id: 'bow-rect', label: 'Stored data' },
-    { id: 'fork', label: 'Fork / join' },
-    { id: 'hourglass', label: 'Collate' },
-    { id: 'bolt', label: 'Com link' },
-    { id: 'tri', label: 'Extract' },
-    { id: 'flip-tri', label: 'Manual file' },
-    { id: 'notch-pent', label: 'Loop limit' },
-    { id: 'flag', label: 'Paper tape' },
-    { id: 'delay', label: 'Delay' },
-    { id: 'doc', label: 'Document' },
-    { id: 'docs', label: 'Documents' },
-    { id: 'lin-doc', label: 'Lined document' },
-    { id: 'tag-doc', label: 'Tagged document' },
-    { id: 'h-cyl', label: 'Direct access storage' },
-    { id: 'lin-cyl', label: 'Disk storage' },
-    { id: 'curv-trap', label: 'Display' },
-    { id: 'brace', label: 'Comment (brace)' },
-    { id: 'brace-r', label: 'Brace right' },
-    { id: 'braces', label: 'Braces' },
-];
 
 /** A small palette keeps the generated `style` lines readable. */
 const FILLS = ['#ddffee', '#fef3c7', '#fee2e2', '#dbeafe', '#ede9fe', '#e5e7eb'];
@@ -340,6 +299,8 @@ export interface NodeToolbarProps {
     readonly autoFocus?: boolean;
     /** Escape: close the toolbar and hand focus back to the canvas. */
     readonly onDismiss: () => void;
+    /** Removes the node from the source; the canvas takes focus back. */
+    readonly onDelete: () => void;
 }
 
 /**
@@ -358,7 +319,7 @@ function onRadioGroupKeyDown(event: KeyboardEvent<HTMLElement>): void {
     radios[(index + step + radios.length) % radios.length]?.focus();
 }
 
-export function NodeToolbar({ cellId, data, edit, autoFocus = false, onDismiss }: NodeToolbarProps) {
+export function NodeToolbar({ cellId, data, edit, autoFocus = false, onDismiss, onDelete }: NodeToolbarProps) {
     const rootRef = useRef<HTMLDivElement>(null);
     // Focus the active shape on open when asked to; the user just added the
     // node from the keyboard and should land on its controls.
@@ -380,17 +341,6 @@ export function NodeToolbar({ cellId, data, edit, autoFocus = false, onDismiss }
     const [openEditor, setOpenEditor] = useState<'link' | 'image' | null>(null);
     const isLinkOpen = openEditor === 'link';
     const isImageOpen = openEditor === 'image';
-    // The full catalogue shows by DEFAULT — a collapsed "⋯" hid three quarters
-    // of the supported shapes from anyone who did not think to press it. The
-    // toggle now only lets the user fold the grid away; it snaps back open
-    // when the node wears an extended shape, so the active one is never
-    // invisible.
-    const isExtendedActive =
-        !SHAPES.some((entry) => isActive(entry.id))
-        && EXTENDED_SHAPES.some((entry) => isActive(entry.id));
-    const [moreOverride, setMoreOverride] = useState<boolean | null>(null);
-    const isMoreOpen = moreOverride ?? true;
-    const isMoreLocked = isExtendedActive;
     const { side, dx } = useToolbarPlacement(cellId, rootRef);
 
     return (
@@ -433,44 +383,27 @@ export function NodeToolbar({ cellId, data, edit, autoFocus = false, onDismiss }
                             </button>
                         ))}
                     </span>
-                    {/* Outside the radiogroup: it is a disclosure, not a radio. */}
-                    <button
-                        type="button"
-                        className={`node-toolbar-toggle is-more${isMoreOpen ? ' is-active' : ''}`}
-                        aria-pressed={isMoreOpen}
-                        aria-expanded={isMoreOpen || isMoreLocked}
-                        aria-label={isMoreOpen ? 'Hide the extended shapes' : 'Show all shapes'}
-                        title={
-                            isMoreLocked
-                                ? 'The node uses an extended shape, so the full catalogue stays open'
-                                : isMoreOpen
-                                    ? 'Hide the extended shapes'
-                                    : 'Show all shapes (@{ shape } syntax)'
-                        }
-                        disabled={isMoreLocked}
-                        onClick={() => setMoreOverride(!isMoreOpen)}
-                    >
-                        ⋯
-                    </button>
+                    <DeleteButton label="Delete node" onClick={onDelete} />
                 </span>
-                {(isMoreOpen || isMoreLocked) && (
-                    <span className="node-toolbar-more" role="radiogroup" aria-label="More shapes" onKeyDown={onRadioGroupKeyDown}>
-                        {EXTENDED_SHAPES.map((entry) => (
-                            <button
-                                key={entry.id}
-                                type="button"
-                                role="radio"
-                                aria-checked={isActive(entry.id)}
-                                aria-label={entry.label}
-                                title={entry.label}
-                                className={`node-toolbar-shape${isActive(entry.id) ? ' is-active' : ''}`}
-                                onClick={() => edit.onShapeChange(cellId, entry.id)}
-                            >
-                                <ShapeIcon shape={entry.id} />
-                            </button>
-                        ))}
-                    </span>
-                )}
+                {/* The full catalogue is always open: a collapsed "⋯" hid three
+                    quarters of the supported shapes from anyone who did not
+                    think to press it. */}
+                <span className="node-toolbar-more" role="radiogroup" aria-label="More shapes" onKeyDown={onRadioGroupKeyDown}>
+                    {EXTENDED_SHAPES.map((entry) => (
+                        <button
+                            key={entry.id}
+                            type="button"
+                            role="radio"
+                            aria-checked={isActive(entry.id)}
+                            aria-label={entry.label}
+                            title={entry.label}
+                            className={`node-toolbar-shape${isActive(entry.id) ? ' is-active' : ''}`}
+                            onClick={() => edit.onShapeChange(cellId, entry.id)}
+                        >
+                            <ShapeIcon shape={entry.id} />
+                        </button>
+                    ))}
+                </span>
                 <span className="node-toolbar-swatches">
                     {FILLS.map((fill) => (
                         <button

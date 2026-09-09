@@ -1,7 +1,8 @@
 import type { CellId } from '@joint/react-plus';
 import { edgeSpans } from './edge-spans';
 import type { EdgeSpan } from './edge-spans';
-import { META_BLOCK_BODY, parseFlowchartSpans } from './flowchart-tree';
+import { FLOWCHART_HEADER, META_BLOCK_BODY, parseFlowchartSpans } from './flowchart-tree';
+import type { EdgeData } from './to-cells';
 import type { FlowArrow, FlowStroke } from './types';
 
 /**
@@ -453,9 +454,6 @@ export function addChildNode(
     };
 }
 
-/** The `flowchart` / `graph` header line every flowchart declaration starts with. */
-const FLOWCHART_HEADER = /^[ \t]*(?:flowchart|graph)\b/im;
-
 /**
  * Append a new top-level, unconnected node — how a diagram starts from
  * scratch. Blank source gets the `flowchart TD` header along with it.
@@ -526,6 +524,22 @@ export interface EdgeRef {
     readonly index: number;
     /** Which declaration this is among edges sharing the (source, target) pair. */
     readonly pairIndex: number;
+}
+
+/**
+ * The {@link EdgeRef} for a link cell, from the data the parse put on it.
+ * @param id - The link's cell id — Mermaid's edge id.
+ * @param data - The link's parsed edge data.
+ * @returns What the edge editors need to find the edge in the source.
+ */
+export function edgeRefOf(id: CellId, data: EdgeData): EdgeRef {
+    return {
+        id: String(id),
+        source: data.source,
+        target: data.target,
+        index: data.index,
+        pairIndex: data.pairIndex,
+    };
 }
 
 function findEdgeSpan(source: string, edge: EdgeRef): EdgeSpan | null {

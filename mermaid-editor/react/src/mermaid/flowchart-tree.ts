@@ -34,6 +34,9 @@ export const META_BLOCK_BODY = '(?:"[^"]*"|[^}])*';
 
 const META_BLOCK = new RegExp(`@\\{${META_BLOCK_BODY}\\}`, 'g');
 
+/** The `flowchart` / `graph` header line every flowchart declaration starts with. */
+export const FLOWCHART_HEADER = /^[ \t]*(?:flowchart|graph)\b/im;
+
 /**
  * The source with every `@{ … }` block turned into spaces of the same length.
  * The grammar predates these blocks: left in, a `(` or `[` inside a label

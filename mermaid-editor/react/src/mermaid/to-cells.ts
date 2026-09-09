@@ -7,6 +7,14 @@ import type { FlowAnimation, FlowArrow, FlowDirection, FlowGraph, FlowShape, Flo
 export interface NodeStyle {
     readonly body?: CSSProperties;
     readonly text?: CSSProperties;
+    /**
+     * The author's own `fill`, kept out of `body` so the stylesheet can
+     * decide how it shows: as written in light mode, blended into the dark
+     * surface in dark mode (a pale pastel would otherwise glare there).
+     */
+    readonly ownFill?: string;
+    /** The label colour derived for `ownFill`; dark mode uses the theme's text instead. */
+    readonly ownLabel?: string;
 }
 
 /** Data carried by every element cell; `renderElement` receives exactly this. */
@@ -151,15 +159,20 @@ function toNodeStyle(
     // properties merge per-property like the body ones.
     let color: string | undefined = own.text.fill;
     if (color === undefined && own.body.fill === undefined) color = fromClass.text.fill;
+    let ownLabel: string | undefined;
     if (color === undefined && body.fill !== undefined) {
-        color = readableLabel(body.fill) ?? undefined;
+        // Derived, not authored: the stylesheet may swap it per theme.
+        ownLabel = readableLabel(body.fill) ?? undefined;
     }
     if (color === undefined) delete text.fill;
     else text.fill = color;
 
+    const { fill: ownFill, ...bodyRest } = body;
     const style: NodeStyle = {
-        ...(Object.keys(body).length > 0 ? { body } : {}),
+        ...(Object.keys(bodyRest).length > 0 ? { body: bodyRest } : {}),
         ...(Object.keys(text).length > 0 ? { text } : {}),
+        ...(ownFill === undefined ? {} : { ownFill }),
+        ...(ownLabel === undefined ? {} : { ownLabel }),
     };
     // Undefined rather than an empty object, so an unstyled node's `data` stays
     // identical between parses and nothing re-renders needlessly.

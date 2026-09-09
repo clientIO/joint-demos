@@ -25,6 +25,7 @@ import type {
 } from '@joint/react-plus';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { RefObject } from 'react';
+import { edgeRefOf } from '@/mermaid/edit-source';
 import type { EdgeArrowChange, EdgeRef } from '@/mermaid/edit-source';
 import type { EdgeData, MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection } from '@/mermaid/types';
@@ -83,10 +84,15 @@ const SCROLL_OPTIONS = { animation: { duration: 150 }};
  * Keep the scroller's pan/zoom, drop the built-in selection interactions.
  *
  * Those bundle click-to-select with Shift-drag regions, Ctrl/Cmd+A and
- * Delete/Backspace — editing gestures with nothing to act on here. A single
- * `onElementPointerClick` handler below is the whole behaviour this demo wants.
+ * Delete/Backspace — gestures that edit the graph, where here every edit has
+ * to go through the source. A single `onElementPointerClick` handler below
+ * does the selecting, and Delete is handled on the scroller so it rewrites
+ * the text instead of the cells.
  */
 const INTERACTIONS: InteractionsOptions = { selection: false };
+
+/** Keys that remove the selection when the canvas or one of its nodes has focus. */
+const DELETE_KEYS = new Set(['Delete', 'Backspace']);
 
 /**
  * `wrapper: false` drops the bbox overlay and its resize / rotate handles —
@@ -258,6 +264,12 @@ interface CanvasProps {
     /** Node whose toolbar takes focus when it opens (a keyboard add). */
     readonly focusToolbarFor: CellId | null;
     readonly positionsRef: RefObject<ManualPositions>;
+    /**
+     * Set before a removal: the canvas remounts on the new id set, taking the
+     * focused node (or toolbar button) with it, and the fresh scroller takes
+     * focus on mount so keyboard users are not dropped on `<body>`.
+     */
+    readonly focusOnMountRef: RefObject<boolean>;
 }
 
 function Canvas({
@@ -274,6 +286,7 @@ function Canvas({
     onAddShape,
     focusToolbarFor,
     positionsRef,
+    focusOnMountRef,
 }: CanvasProps) {
     const { graph } = useGraph();
     const { paper } = usePaper();
@@ -294,7 +307,11 @@ function Canvas({
         scrollerElement.setAttribute('role', 'application');
         scrollerElement.setAttribute('aria-roledescription', 'diagram canvas');
         scrollerElement.setAttribute('aria-label', 'Flowchart canvas — scrollable');
-    }, [paperScroller]);
+        if (focusOnMountRef.current) {
+            focusOnMountRef.current = false;
+            scrollerElement.focus({ preventScroll: true });
+        }
+    }, [focusOnMountRef, paperScroller]);
 
     // Selection is one-way: the app owns it, the canvas renders it and reports
     // clicks upward. Subscribing to the collection here as well would close a
@@ -472,24 +489,65 @@ function Canvas({
     // Subgraph containers take no shape or fill — their look is the block's.
     const toolbarData = maybeToolbarData?.isGroup ? undefined : maybeToolbarData;
 
+    // Puts keyboard focus on a node without re-selecting it. Subgraph
+    // containers have no focus stop, so those report `false`.
+    const focusNode = useCallback((id: CellId): boolean => {
+        const node = paper?.el.querySelector<SVGGElement>(
+            `[model-id="${CSS.escape(String(id))}"] .mermaid-node-focus`
+        );
+        if (!node) return false;
+        skipNextFocusSelect.current = true;
+        node.focus({ preventScroll: true });
+        // Focus may not fire (node hidden, already focused): never let the
+        // suppression leak onto the user's next genuine Tab.
+        skipNextFocusSelect.current = false;
+        return true;
+    }, [paper]);
+
     // Escape in a toolbar closes it and puts keyboard focus back where the
     // user came from — the node itself when it is keyboard-reachable, else
     // the canvas — so nobody is stranded on a control that just vanished.
     const dismissToolbar = useCallback((id: CellId) => {
         onSelect([]);
-        const node = paper?.el.querySelector<SVGGElement>(
-            `[model-id="${CSS.escape(String(id))}"] .mermaid-node-focus`
-        );
-        if (node) {
-            skipNextFocusSelect.current = true;
-            node.focus();
-            // Focus may not fire (node hidden, already focused): never let the
-            // suppression leak onto the user's next genuine Tab.
-            skipNextFocusSelect.current = false;
-            return;
+        if (!focusNode(id)) paperScroller?.el?.focus();
+    }, [focusNode, onSelect, paperScroller]);
+
+    // Removal goes through the source like every other edit. Nodes first —
+    // they take their edges with them — then the edges from the last declared
+    // down, so removing one never shifts the position of the next among its
+    // duplicates. Focus is handed to the scroller straight away, and again
+    // to the one the remount builds.
+    const remove = useCallback((ids: readonly CellId[]) => {
+        const nodes: CellId[] = [];
+        const edges: EdgeRef[] = [];
+        for (const id of ids) {
+            const cell = cells.find((candidate) => candidate.id === id);
+            if (!cell) continue;
+            if (cell.type === 'link') edges.push(edgeRefOf(id, cell.data as EdgeData));
+            else nodes.push(id);
         }
-        paperScroller?.el?.focus();
-    }, [onSelect, paper, paperScroller]);
+        if (nodes.length === 0 && edges.length === 0) return;
+        for (const id of nodes) edit.onRemove(id);
+        for (const edge of edges.toSorted((a, b) => b.index - a.index)) linkEdit.onRemove(edge);
+        focusOnMountRef.current = true;
+        paperScroller?.el?.focus({ preventScroll: true });
+    }, [cells, edit, focusOnMountRef, linkEdit, paperScroller]);
+
+    // Delete / Backspace on the canvas, a node or a toolbar button. Listened
+    // for on the scroller, so the source editor and every text field are out
+    // of reach by construction; the toolbar's own inputs are skipped too.
+    useEffect(() => {
+        const scrollerElement = paperScroller?.el;
+        if (!scrollerElement || selectedIds.length === 0) return;
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (!DELETE_KEYS.has(event.key)) return;
+            if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+            event.preventDefault();
+            remove(selectedIds);
+        };
+        scrollerElement.addEventListener('keydown', onKeyDown);
+        return () => scrollerElement.removeEventListener('keydown', onKeyDown);
+    }, [paperScroller, remove, selectedIds]);
 
     // The add-step "+" sits on the hovered node — or the selected one, so it
     // is reachable by keyboard-and-click flows too — on the edge the layout
@@ -578,17 +636,26 @@ function Canvas({
                                 || event.ctrlKey === true;
                             if (!isAdditive) {
                                 onSelect([model.id]);
-                                return;
+                            } else {
+                                onSelect(
+                                    selectedIds.includes(model.id)
+                                        ? selectedIds.filter((id) => id !== model.id)
+                                        : [...selectedIds, model.id]
+                                );
                             }
-                            onSelect(
-                                selectedIds.includes(model.id)
-                                    ? selectedIds.filter((id) => id !== model.id)
-                                    : [...selectedIds, model.id]
-                            );
+                            // Selection drives focus. The paper cancels the
+                            // mousedown default (no text selection), which
+                            // also cancels the browser's own focus move — so
+                            // Delete would otherwise still go to wherever focus
+                            // was, the source editor included.
+                            if (!focusNode(model.id)) paperScroller?.el?.focus({ preventScroll: true });
                         }}
                         // An edge is selectable like a node; a lone one opens
                         // the edge toolbar below.
-                        onLinkPointerClick={({ model }) => onSelect([model.id])}
+                        onLinkPointerClick={({ model }) => {
+                            onSelect([model.id]);
+                            paperScroller?.el?.focus({ preventScroll: true });
+                        }}
                         onElementMouseEnter={({ model }) => {
                             // Subgraph containers are skipped HERE, not just
                             // in the lookup below: a container cannot take a
@@ -625,6 +692,9 @@ function Canvas({
                                 onDismiss={() => {
                                     if (toolbarCell.id !== undefined) dismissToolbar(toolbarCell.id);
                                 }}
+                                onDelete={() => {
+                                    if (toolbarCell.id !== undefined) remove([toolbarCell.id]);
+                                }}
                             />
                         )}
                         {linkToolbarCell?.id !== undefined && linkToolbarData && linkAnchor && (
@@ -637,6 +707,9 @@ function Canvas({
                                 edit={linkEdit}
                                 onDismiss={() => {
                                     if (linkToolbarCell.id !== undefined) dismissToolbar(linkToolbarCell.id);
+                                }}
+                                onDelete={() => {
+                                    if (linkToolbarCell.id !== undefined) remove([linkToolbarCell.id]);
                                 }}
                             />
                         )}
@@ -713,6 +786,8 @@ export interface NodeEditHandlers {
     readonly onAddChild: (id: CellId, fromKeyboard: boolean) => void;
     /** Appends an edge between two existing nodes. */
     readonly onConnect: (from: CellId, to: CellId) => void;
+    /** Removes the node and every edge touching it; a subgraph id unwraps the block. */
+    readonly onRemove: (id: CellId) => void;
 }
 
 /** Edits the edge toolbar can request, each rewriting a span of the source. */
@@ -725,6 +800,8 @@ export interface EdgeEditHandlers {
     readonly onCurveChange: (edgeIndex: number, curve: string | null) => void;
     /** Turns the marching-dash animation on or off. */
     readonly onAnimationChange: (edge: EdgeRef, animate: boolean) => void;
+    /** Removes the edge; both ends stay declared. */
+    readonly onRemove: (edge: EdgeRef) => void;
 }
 
 export interface MermaidDiagramProps {
@@ -804,6 +881,8 @@ export function MermaidDiagram({
      * every rename, and a full graph teardown on a single keystroke.
      */
     const graphKey = useMemo(() => cells.map((cell) => cell.id).join(' '), [cells]);
+    // Survives the keyed remount below, which is exactly when it is read.
+    const focusOnMountRef = useRef(false);
 
     return (
         <Diagram
@@ -826,6 +905,7 @@ export function MermaidDiagram({
                 onAddShape={onAddShape}
                 focusToolbarFor={focusToolbarFor}
                 positionsRef={positionsRef}
+                focusOnMountRef={focusOnMountRef}
             />
         </Diagram>
     );

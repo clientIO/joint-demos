@@ -1,9 +1,10 @@
 import { Overlay } from '@joint/react-plus';
 import type { CellId } from '@joint/react-plus';
 import type { ChangeEvent } from 'react';
-import type { EdgeRef } from '@/mermaid/edit-source';
+import { edgeRefOf } from '@/mermaid/edit-source';
 import type { EdgeData } from '@/mermaid/to-cells';
 import type { FlowArrow, FlowStroke } from '@/mermaid/types';
+import { DeleteButton } from './delete-button';
 import type { EdgeEditHandlers } from './diagram';
 
 /**
@@ -127,16 +128,12 @@ export interface LinkToolbarProps {
     readonly edit: EdgeEditHandlers;
     /** Escape: close the toolbar and hand focus back to the canvas. */
     readonly onDismiss: () => void;
+    /** Removes the edge from the source; the canvas takes focus back. */
+    readonly onDelete: () => void;
 }
 
-export function LinkToolbar({ cellId, data, x, y, edit, onDismiss }: LinkToolbarProps) {
-    const edge: EdgeRef = {
-        id: String(cellId),
-        source: data.source,
-        target: data.target,
-        index: data.index,
-        pairIndex: data.pairIndex,
-    };
+export function LinkToolbar({ cellId, data, x, y, edit, onDismiss, onDelete }: LinkToolbarProps) {
+    const edge = edgeRefOf(cellId, data);
     const isBidirectional = data.sourceArrow !== 'none';
     const isCurved = data.curve !== undefined && SMOOTH.has(data.curve);
     const isAnimated = data.animation !== undefined;
@@ -239,6 +236,7 @@ export function LinkToolbar({ cellId, data, x, y, edit, onDismiss }: LinkToolbar
                         >
                             <AnimateIcon />
                         </button>
+                        <DeleteButton label="Delete edge" onClick={onDelete} />
                     </span>
                 </span>
                 <span className="node-toolbar-swatches">

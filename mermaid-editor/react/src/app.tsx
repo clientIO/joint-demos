@@ -21,6 +21,7 @@ import {
     setNodeShape,
     setNodeStyleProperty,
 } from '@/mermaid/edit-source';
+import { removeEdge, removeNode } from '@/mermaid/remove';
 import { MermaidParseError, parseFlowchart } from '@/mermaid/parse';
 import { DEFAULT_PRESET, PRESETS } from '@/mermaid/presets';
 import { toCells } from '@/mermaid/to-cells';
@@ -186,6 +187,10 @@ export function App() {
             if (next === null) return;
             setSource(next, true);
             setPresetId('custom');
+            // Written through at once, so a second edit in the same event —
+            // deleting a multi-selection — builds on this one, not on the
+            // text from before it.
+            sourceRef.current = next;
         };
         return {
             onLabelChange: (id, label) => apply(setNodeLabel(sourceRef.current, id, label)),
@@ -205,6 +210,12 @@ export function App() {
                 setFocusToolbarFor(fromKeyboard ? added.id : null);
             },
             onConnect: (from, to) => apply(addEdge(sourceRef.current, from, to)),
+            onRemove: (id) => {
+                apply(removeNode(sourceRef.current, String(id)));
+                // The selection pointed at a node that no longer exists.
+                setSelection(NO_SELECTION);
+                setFocusToolbarFor(null);
+            },
         };
     }, [setSource]);
 
@@ -214,6 +225,7 @@ export function App() {
             if (next === null) return;
             setSource(next, true);
             setPresetId('custom');
+            sourceRef.current = next;
         };
         return {
             onArrowChange: (edgeRef, change) =>
@@ -224,6 +236,10 @@ export function App() {
                 apply(setEdgeInterpolate(sourceRef.current, edgeIndex, curve)),
             onAnimationChange: (edgeRef, animate) =>
                 apply(setEdgeAnimation(sourceRef.current, edgeRef, animate)),
+            onRemove: (edgeRef) => {
+                apply(removeEdge(sourceRef.current, edgeRef));
+                setSelection(NO_SELECTION);
+            },
         };
     }, [setSource]);
 

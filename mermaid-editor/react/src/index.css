@@ -632,9 +632,8 @@ body {
     background: var(--chip-active);
 }
 
-/* The v11 shape grid, opened by the "More shapes" toggle: same buttons as
-   the quick row, wrapping — with 36 shapes a single row would overhang the
-   canvas. */
+/* The v11 shape grid, always open under the quick row: the same buttons,
+   wrapping — with 36 shapes a single row would overhang the canvas. */
 .node-toolbar-more {
     display: flex;
     flex-wrap: wrap;
@@ -645,11 +644,6 @@ body {
     background: var(--overlay-inset);
     border: 1px solid var(--overlay-border);
     border-radius: 6px;
-}
-
-.node-toolbar-toggle.is-more {
-    font-size: 14px;
-    letter-spacing: 1px;
 }
 
 /* Icons stay legible at 30x20: thinner strokes than the nodes carry. */
@@ -778,6 +772,17 @@ body {
     background: var(--chip-active);
 }
 
+/* Delete: the one destructive control, in the accent red and pushed to the
+   end of its row so it never sits next to a shape button. */
+.node-toolbar-toggle.is-danger {
+    margin-left: auto;
+    color: var(--accent);
+}
+
+.node-toolbar-toggle.is-danger:hover {
+    background: var(--chip-active);
+}
+
 /* The border-colour control: a ring in the current stroke colour wrapping a
    hidden native colour input, mirroring the custom fill swatch. */
 .node-toolbar-toggle.is-stroke {
@@ -814,7 +819,10 @@ body {
     place-items: center;
     width: 24px;
     height: 24px;
-    padding: 0;
+    /* The "+" glyph hangs on the font's math axis, below the em box's
+       centre, so it rendered ~1px low; the bottom padding lifts the centred
+       cell by half that much (measured at 1x and 2x). */
+    padding: 0 0 2px;
     font: inherit;
     font-size: 16px;
     line-height: 1;
@@ -951,6 +959,28 @@ body {
     fill: var(--node-fill);
     stroke: var(--node-stroke);
     stroke-width: 1.5;
+}
+
+/*
+ * A node with its own `style … fill:` shows that fill as written in light
+ * mode. In dark mode the pastel is blended into the canvas instead, so a
+ * styled diagram stays a dark diagram (true dark mode) while the hue still
+ * tells the nodes apart; the derived label colour gives way to the theme's.
+ */
+.mermaid-node-body.has-own-fill {
+    fill: var(--node-own-fill);
+}
+
+.mermaid-node-text.has-own-fill {
+    fill: var(--node-own-label);
+}
+
+:root[data-theme='dark'] .mermaid-node-body.has-own-fill {
+    fill: color-mix(in srgb, var(--node-own-fill) 34%, var(--surface-sunken));
+}
+
+:root[data-theme='dark'] .mermaid-node-text.has-own-fill {
+    fill: var(--node-text);
 }
 
 /*
