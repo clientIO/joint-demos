@@ -1,5 +1,7 @@
 import type { CellId } from '@joint/react-plus';
-import { parseFlowchartSpans } from './flowchart-tree';
+import { edgeSpans } from './edge-spans';
+import type { EdgeSpan } from './edge-spans';
+import { META_BLOCK_BODY, parseFlowchartSpans } from './flowchart-tree';
 import type { FlowArrow, FlowStroke } from './types';
 
 /**
@@ -294,16 +296,16 @@ interface MetaBlock {
 }
 
 /**
- * Finds a node's `@{ … }` block. The Lezer grammar predates this syntax and
- * emits error nodes for it, so `parse()` sees such a node as bare — these
- * blocks are located by regex and edited in place instead.
+ * Finds a node's `@{ … }` block. The Lezer grammar predates this syntax (the
+ * parse blanks the blocks out), so they are located by regex and edited in
+ * place instead.
  */
 function findMetaBlock(source: string, id: CellId): MetaBlock | null {
     const matcher = new RegExp(
         // Boundary: `-` is legal inside Mermaid ids, so it must not separate —
         // editing `b` may not match `a-b`. Body: a `}` inside a quoted label
         // belongs to the label, not the block.
-        `(?:^|[^\\w"-])${escapeRegExp(String(id))}@\\{((?:"[^"]*"|[^}])*)\\}`,
+        `(?:^|[^\\w"-])${escapeRegExp(String(id))}@\\{(${META_BLOCK_BODY})\\}`,
         'm'
     );
     const match = matcher.exec(source);
@@ -437,12 +439,18 @@ function mintStepId(parsed: Parsed): string {
  * @param parentId - Node the new step hangs off.
  * @returns The updated source, or `null` when the parent cannot be found.
  */
-export function addChildNode(source: string, parentId: CellId): string | null {
+export function addChildNode(
+    source: string,
+    parentId: CellId
+): { readonly source: string; readonly id: string } | null {
     const parsed = parse(source);
     if (!findDeclaration(parsed, parentId)) return null;
     const step = mintStepId(parsed);
     const separator = source.endsWith('\n') ? '' : '\n';
-    return `${source}${separator}${statementIndent(source)}${String(parentId)} --> ${step}[New step]\n`;
+    return {
+        source: `${source}${separator}${statementIndent(source)}${String(parentId)} --> ${step}[New step]\n`,
+        id: step,
+    };
 }
 
 /** The `flowchart` / `graph` header line every flowchart declaration starts with. */
@@ -518,73 +526,6 @@ export interface EdgeRef {
     readonly index: number;
     /** Which declaration this is among edges sharing the (source, target) pair. */
     readonly pairIndex: number;
-}
-
-/** The span of one edge's arrow token: `-->`, `-.->`, `<==>`. */
-interface EdgeSpan {
-    readonly source: string;
-    readonly target: string;
-    readonly from: number;
-    readonly to: number;
-}
-
-/** One whole arrow token: optional start head, line pattern, optional end head. */
-const ARROW_TOKEN = /[<xo]?(?:-{2,}|={2,}|-\.+-)[>xo]?/g;
-
-/**
- * Span names whose text must never be mistaken for an arrow: shapes and
- * labels (either can contain `-->` as prose), strings, style text, comments.
- */
-const MASKED_SPANS = new Set(['Node', 'NodeText', 'NodeEdgeText', 'String', 'StyleText', 'LineComment']);
-
-/**
- * Every arrow token in the source, with the node ids on either side.
- *
- * The Lezer grammar locates the node ids reliably, but not the arrows — it
- * predates several spellings (`-.->` lexes into fragments, `e1@-->` not at
- * all). So the ids come from the grammar and the arrow is found by regex in
- * the gap between two consecutive ids, with the grammar's shape/label/string
- * spans blanked out first so arrow-lookalikes inside prose never match.
- * A gap holding anything other than exactly one arrow-shaped token — an
- * `a & b` fan, the old split-label form `a-- text -->b` — is reported as
- * *unfindable* rather than guessed at, so edits no-op instead of corrupting
- * the text. An id directly followed by `@` is an edge id, not a node.
- */
-function edgeSpans(source: string): EdgeSpan[] {
-    const nodes = parseFlowchartSpans(source);
-    const ids: Array<{ id: string; from: number; to: number }> = [];
-    const masked: Array<readonly [number, number]> = [];
-
-    for (const [index, node] of nodes.entries()) {
-        if (MASKED_SPANS.has(node.name)) masked.push([node.from, node.to]);
-        if (node.name !== 'NodeId') continue;
-        if (nodes[index - 1]?.name === 'StyleKeyword') continue;
-        if (source[node.to] === '@') continue;
-        ids.push({ id: source.slice(node.from, node.to), from: node.from, to: node.to });
-    }
-
-    const spans: EdgeSpan[] = [];
-    for (let index = 0; index < ids.length - 1; index += 1) {
-        const gapFrom = ids[index].to;
-        const gapTo = ids[index + 1].from;
-        if (gapTo <= gapFrom) continue;
-        let gap = source.slice(gapFrom, gapTo);
-        for (const [maskFrom, maskTo] of masked) {
-            if (maskTo <= gapFrom || maskFrom >= gapTo) continue;
-            const start = Math.max(maskFrom, gapFrom) - gapFrom;
-            const end = Math.min(maskTo, gapTo) - gapFrom;
-            gap = gap.slice(0, start) + ' '.repeat(end - start) + gap.slice(end);
-        }
-        const matches = [...gap.matchAll(ARROW_TOKEN)];
-        if (matches.length !== 1 || matches[0].index === undefined) continue;
-        spans.push({
-            source: ids[index].id,
-            target: ids[index + 1].id,
-            from: gapFrom + matches[0].index,
-            to: gapFrom + matches[0].index + matches[0][0].length,
-        });
-    }
-    return spans;
 }
 
 function findEdgeSpan(source: string, edge: EdgeRef): EdgeSpan | null {

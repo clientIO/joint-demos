@@ -655,6 +655,8 @@ body {
 /* Icons stay legible at 30x20: thinner strokes than the nodes carry. */
 .node-toolbar-icon .mermaid-node-body,
 .node-toolbar-icon .mermaid-node-detail {
+    /* Icons are whole nodes scaled down; the stroke must not scale with them. */
+    vector-effect: non-scaling-stroke;
     stroke-width: 1.25;
 }
 
@@ -822,11 +824,54 @@ body {
     border: 1px solid var(--accent);
     border-radius: 999px;
     box-shadow: var(--overlay-shadow-sm);
+    /* The drag out of it must not become a scroll of the canvas on touch. */
+    touch-action: none;
 }
 
 .node-add-below:hover {
     color: var(--surface);
     background: var(--accent);
+}
+
+/* Dragging the "+" draws a connection towards the pointer; it snaps to the
+   shape underneath and turns solid when it has one. Fixed to the window so
+   it stays put while the canvas underneath does not scroll. */
+.connect-draft {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.connect-draft line {
+    stroke: var(--focus-ring);
+    stroke-width: 2;
+    stroke-dasharray: 6 4;
+}
+
+.connect-draft.is-snapped line {
+    stroke-dasharray: none;
+}
+
+.connect-draft circle {
+    fill: var(--focus-ring);
+}
+
+/* Dashed, and forced past the inline stroke a Mermaid `style` line sets, so
+   it also reads on a styled node and on the node that is already selected. */
+[model-id][data-connect-target] .mermaid-node-body {
+    stroke: var(--focus-ring) !important;
+    stroke-width: 2.5px !important;
+    stroke-dasharray: 6 3;
+}
+
+/* The comment shapes' picker icons are drawn as type, not geometry. */
+.node-toolbar-glyph {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 17px;
+    fill: var(--node-stroke);
 }
 
 /* The text-colour control: an "A" in the current label colour, wrapping the

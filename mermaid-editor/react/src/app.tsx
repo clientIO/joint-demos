@@ -195,7 +195,15 @@ export function App() {
                 apply(setNodeStyleProperty(sourceRef.current, id, property, value)),
             onLinkChange: (id, url) => apply(setNodeLink(sourceRef.current, id, url)),
             onImageChange: (id, url) => apply(setNodeImage(sourceRef.current, id, url)),
-            onAddChild: (id) => apply(addChildNode(sourceRef.current, id)),
+            onAddChild: (id, fromKeyboard) => {
+                const added = addChildNode(sourceRef.current, id);
+                if (added === null) return;
+                apply(added.source);
+                // The new step is what the author works on next: select it so
+                // its toolbar opens at once, as "+ Shape" does.
+                setSelection({ ids: [added.id], origin: 'canvas' });
+                setFocusToolbarFor(fromKeyboard ? added.id : null);
+            },
             onConnect: (from, to) => apply(addEdge(sourceRef.current, from, to)),
         };
     }, [setSource]);

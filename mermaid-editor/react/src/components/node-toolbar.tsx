@@ -125,7 +125,7 @@ function useToolbarPlacement(
     return placeToolbar({ top: top.y, bottom: bottom.y, centerX: center.x }, width, viewport);
 }
 
-/** Icon canvas, sized so every shape's clamped details still read. */
+/** Icon canvas, in CSS px; every shape is drawn at natural size and fitted into it. */
 const ICON = { width: 30, height: 20, padding: 1.5 };
 
 /** `stroke-dasharray` values the border picker writes; solid removes the entry. */
@@ -136,22 +136,73 @@ const BORDERS = [
 ] as const;
 
 /**
+ * Shapes whose icon is type rather than geometry: the comment shapes are a
+ * tall brace beside a note (squeezed into the icon box the brace path
+ * collapses into a squiggle), and the `text` shape draws no outline at all,
+ * which left its button blank.
+ */
+const GLYPH_ICONS: Readonly<Record<string, string>> = {
+    brace: '{',
+    'brace-l': '{',
+    'brace-r': '}',
+    braces: '{ }',
+    text: 'Aa',
+};
+
+/**
+ * The label a picker icon pretends to hold. Every shape's own `size()` then
+ * says how big — and how proportioned — the node would be, so the icon is the
+ * canvas node itself scaled down, and details drawn in canvas pixels (tag
+ * corners, header rules, cylinder caps) keep the proportions the node has.
+ */
+const ICON_LABEL = { width: 44, height: 16 };
+
+/**
  * Draws the button's shape with the very geometry the canvas uses, so a picker
  * icon can never drift from what choosing it produces.
  */
 function ShapeIcon({ shape }: Readonly<{ shape: string }>) {
     const { width, height, padding } = ICON;
+    const glyph = GLYPH_ICONS[shape];
+    if (glyph !== undefined) {
+        return (
+            <svg
+                className="node-toolbar-icon"
+                viewBox={`0 0 ${width + 2 * padding} ${height + 2 * padding}`}
+                width={width + 2 * padding}
+                height={height + 2 * padding}
+                aria-hidden
+            >
+                <text
+                    className="node-toolbar-glyph"
+                    x={(width + 2 * padding) / 2}
+                    y={(height + 2 * padding) / 2}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                >
+                    {glyph}
+                </text>
+            </svg>
+        );
+    }
+    const natural = getShapeSpec(shape).size(ICON_LABEL);
+    // Never magnify: a shape smaller than the box (the small circles) is shown
+    // at 1:1, centred, instead of looming over its neighbours.
+    const view = { width: Math.max(natural.width, width), height: Math.max(natural.height, height) };
+    // Room for the (non-scaling) stroke, in shape units: about one screen px.
+    const margin = Math.max(view.width, view.height) / width;
+    const originX = -(view.width - natural.width) / 2 - margin;
+    const originY = -(view.height - natural.height) / 2 - margin;
     return (
         <svg
             className="node-toolbar-icon"
-            viewBox={`0 0 ${width + 2 * padding} ${height + 2 * padding}`}
+            viewBox={`${originX} ${originY} ${view.width + 2 * margin} ${view.height + 2 * margin}`}
             width={width + 2 * padding}
             height={height + 2 * padding}
+            preserveAspectRatio="xMidYMid meet"
             aria-hidden
         >
-            <g transform={`translate(${padding} ${padding})`}>
-                <SVGShape shape={shape} width={width} height={height} />
-            </g>
+            <SVGShape shape={shape} width={natural.width} height={natural.height} />
         </svg>
     );
 }

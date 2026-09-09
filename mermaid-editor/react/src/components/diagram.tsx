@@ -28,6 +28,8 @@ import type { RefObject } from 'react';
 import type { EdgeArrowChange, EdgeRef } from '@/mermaid/edit-source';
 import type { EdgeData, MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection } from '@/mermaid/types';
+import { ConnectDraftLine } from './connect-draft-line';
+import { useConnectDrag } from './use-connect-drag';
 import type { NodeData } from '@/mermaid/to-cells';
 import { AccessibilityCheck } from './accessibility-check';
 import { CanvasActions } from './canvas-actions';
@@ -143,6 +145,23 @@ function isMeasured(graph: dia.Graph): boolean {
 
 /** Diameter of the add-step "+", in px; also its own vertical centring offset. */
 const ADD_BUTTON_SIZE = 24;
+
+/**
+ * Where the "+" sits: on the edge the next step will hang off, so it points
+ * the way the layout flows — below in TB, to the right in LR. Offset by half
+ * its size so its centre rides the node's edge.
+ */
+const ADD_BUTTON_PLACEMENT: Record<FlowDirection, {
+    readonly position: 'top' | 'bottom' | 'left' | 'right';
+    readonly origin: 'top' | 'bottom' | 'left' | 'right';
+    readonly dx: number;
+    readonly dy: number;
+}> = {
+    TB: { position: 'bottom', origin: 'top', dx: 0, dy: -ADD_BUTTON_SIZE / 2 },
+    BT: { position: 'top', origin: 'bottom', dx: 0, dy: ADD_BUTTON_SIZE / 2 },
+    LR: { position: 'right', origin: 'left', dx: -ADD_BUTTON_SIZE / 2, dy: 0 },
+    RL: { position: 'left', origin: 'right', dx: ADD_BUTTON_SIZE / 2, dy: 0 },
+};
 
 /**
  * Breathing room `fitToChildren` keeps between a subgraph's border and its
@@ -484,6 +503,14 @@ function Canvas({
                 && cell.type === 'element'
                 && !(cell.data as NodeData).isGroup
         );
+    const {
+        onPointerDown: onAddButtonPointerDown,
+        onPointerMove: onAddButtonPointerMove,
+        onPointerUp: onAddButtonPointerUp,
+        onPointerCancel: onAddButtonPointerCancel,
+        onClick: onAddButtonClick,
+        draft: connectDraft,
+    } = useConnectDrag(addTargetCell?.id, edit.onConnect, edit.onAddChild, cancelHoverClear);
 
     // A lone selected edge gets its own toolbar, floating over the midpoint of
     // its route. The position comes from the model — dagre writes its vertices
@@ -613,35 +640,27 @@ function Canvas({
                             />
                         )}
                         {addTargetCell?.id !== undefined && (
-                            <ElementOverlay
-                                cell={addTargetCell.id}
-                                position="bottom"
-                                origin="top"
-                                // Half the button's own height, so its CENTRE
-                                // lands on the node's bottom edge rather than
-                                // hanging below it.
-                                dy={-ADD_BUTTON_SIZE / 2}
-                            >
+                            <ElementOverlay cell={addTargetCell.id} {...ADD_BUTTON_PLACEMENT[direction]}>
                                 <button
                                     type="button"
                                     className="node-add-below"
                                     aria-label="Add a connected step"
-                                    title="Add a connected step"
-                                    onPointerDown={(event) => event.stopPropagation()}
+                                    title="Click: add a connected step. Drag onto another shape: connect them."
+                                    onPointerDown={onAddButtonPointerDown}
+                                    onPointerMove={onAddButtonPointerMove}
+                                    onPointerUp={onAddButtonPointerUp}
+                                    onPointerCancel={onAddButtonPointerCancel}
                                     // Travelling from the node onto this button
                                     // leaves the element; keep the button alive.
                                     onPointerEnter={cancelHoverClear}
                                     onPointerLeave={scheduleHoverClear}
-                                    onClick={() => {
-                                        if (addTargetCell.id !== undefined) {
-                                            edit.onAddChild(addTargetCell.id);
-                                        }
-                                    }}
+                                    onClick={onAddButtonClick}
                                 >
                                     +
                                 </button>
                             </ElementOverlay>
                         )}
+                        {connectDraft !== null && <ConnectDraftLine draft={connectDraft} />}
                         {connectFrom && connectTo
                             && connectFromId !== undefined && connectToId !== undefined && (
                             <ElementOverlay cell={connectToId} position="top" origin="bottom" dy={-10}>
@@ -685,8 +704,12 @@ export interface NodeEditHandlers {
     readonly onLinkChange: (id: CellId, url: string | null) => void;
     /** Sets or removes the node's `@{ img: … }` image. */
     readonly onImageChange: (id: CellId, url: string | null) => void;
-    /** Appends a new node connected from this one. */
-    readonly onAddChild: (id: CellId) => void;
+    /**
+     * Appends a new node connected from this one. `fromKeyboard` moves focus
+     * into the new node's toolbar, as "+ Shape" does: the button that had
+     * focus unmounts with the remount, and focus must not fall to <body>.
+     */
+    readonly onAddChild: (id: CellId, fromKeyboard: boolean) => void;
     /** Appends an edge between two existing nodes. */
     readonly onConnect: (from: CellId, to: CellId) => void;
 }
