@@ -24,7 +24,7 @@ body {
     border: 0;
 }
 
-/* The pan/scroll canvas is keyboard-focusable (see CanvasAccessibility), and
+/* The pan/scroll canvas is keyboard-focusable (see the `tabIndex` prop on `<PaperScroller>` in bpmn-editor.tsx), and
    its ring is drawn by its container — see `bpmn-editor.css`. An outline on
    the scroller itself is painted over by its own background, which is a
    positioned child the size of the whole sheet, leaving the ring visible only
