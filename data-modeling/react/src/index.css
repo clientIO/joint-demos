@@ -640,6 +640,24 @@
   outline: none;
 }
 
+/* Focus ring for the pan/scroll canvas (the `tabIndex` PaperScroller in canvas.tsx).
+   An outline on the scroller itself is painted over by its own background — a
+   positioned child the size of the whole sheet — so the ring shows only where that
+   background happens not to reach. Draw it on the non-scrolling root instead, as an
+   overlay above the sheet. z-index keeps it over the docked panels/minimap; it is
+   pointer-transparent so nothing underneath loses hit-testing. */
+.canvas-root:has(.jj-paper-scroller:focus-visible)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  border: 2px solid var(--ring);
+  pointer-events: none;
+}
+.jj-paper-scroller:focus-visible {
+  outline: none;
+}
+
 /* Ports / column magnets — small + subtle at rest, accent on hover/focus. The
    demo's magnets are the whole HTML column row; native jj ports (if present)
    read as quiet dots that warm to the accent on interaction. */

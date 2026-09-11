@@ -115,25 +115,10 @@ export const CanvasArea = memo(function CanvasArea() {
         return only.type === 'element' && (isTableCell(only.data) || isGroupCell(only.data));
     });
 
-    // The scrollable canvas region must be keyboard-focusable (WCAG scrollable-region-
-    // focusable). The react-plus PaperScroller has no tabIndex prop, and its focusable
-    // cell cards are portaled to a sibling overlay (NOT descendants of the scroller), so
-    // the scroll container has no focusable child of its own. Set the attributes on the
-    // library element once — a targeted a11y escape hatch, like the [model-id] levers.
     const rootRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         const root = rootRef.current;
         if (!root) return;
-        const scroller = root.querySelector('.jj-paper-scroller');
-        if (scroller instanceof HTMLElement) {
-            scroller.tabIndex = 0;
-            // role="application": a focusable, arrow-key-pannable diagram canvas is a widget,
-            // not a plain group — a focusable element in the tab order needs a widget role
-            // (WCAG focus-order-semantics), and "application" tells AT to pass the arrow keys
-            // through for panning. The aria-label names the region.
-            scroller.setAttribute('role', 'application');
-            scroller.setAttribute('aria-label', 'Diagram canvas — scrollable; use arrow keys to pan');
-        }
         // Track whether the focus about to land was POINTER-initiated. A click/tap already puts
         // the card where the user pressed, so animating it into view then would yank the canvas
         // (the "weird jump when clicking to pan"). Only a KEYBOARD focus (Tab) should smooth-
@@ -222,7 +207,7 @@ export const CanvasArea = memo(function CanvasArea() {
     });
 
     return (
-        <div ref={rootRef} className="relative size-full">
+        <div ref={rootRef} className="canvas-root relative size-full">
             {/* Keyboard access to FK links (which aren't Tab-focusable): a focus-revealed
           list that selects a relation so the RelationshipMenu opens. */}
             <RelationshipKeyboardList />
@@ -243,6 +228,16 @@ export const CanvasArea = memo(function CanvasArea() {
                 virtualRendering
                 minZoom={FIT_MIN_ZOOM}
                 maxZoom={MAX_ZOOM}
+                // The scrollable canvas region must be keyboard-focusable (WCAG scrollable-
+                // region-focusable): the focusable cell cards are portaled to a sibling
+                // overlay (NOT descendants of the scroller), so the scroll container has no
+                // focusable child of its own. role="application": a focusable, arrow-key-
+                // pannable diagram canvas is a widget, not a plain group — a focusable element
+                // in the tab order needs a widget role (WCAG focus-order-semantics), and
+                // "application" tells AT to pass the arrow keys through for panning.
+                tabIndex={0}
+                role="application"
+                aria-label="Diagram canvas — scrollable; use arrow keys to pan"
             >
                 <Paper
                     className={cn('size-full', armed && 'cursor-crosshair')}

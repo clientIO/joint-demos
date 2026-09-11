@@ -1,9 +1,7 @@
-import { useEffect } from 'react';
 import {
     Diagram,
     Paper,
     PaperScroller,
-    usePaperScroller,
 } from '@joint/react-plus';
 import '@joint/react-plus/styles.css';
 import '../../css/variables.css';
@@ -38,29 +36,6 @@ import { Navigator } from '../navigator/navigator';
 import { FileImportOverlay } from '../file-import-overlay/file-import-overlay';
 import { AccessibilityCheck } from '../accessibility-check/accessibility-check';
 
-
-/**
- * Makes the pan/scroll container keyboard-reachable: the scroller is a
- * scrollable region with no focusable child of its own (axe
- * `scrollable-region-focusable`), and once focusable it needs a widget
- * role (`focus-order-semantics`). The library exposes no props for this,
- * so the attributes are set on its element imperatively.
- */
-function CanvasAccessibility() {
-    const { paperScroller } = usePaperScroller();
-
-    useEffect(() => {
-        const el = paperScroller?.el;
-        if (!el) return;
-        el.tabIndex = 0;
-        el.setAttribute('role', 'application');
-        el.setAttribute('aria-roledescription', 'diagram canvas');
-        el.setAttribute('aria-label', 'BPMN diagram canvas — scrollable');
-    }, [paperScroller]);
-
-    return null;
-}
-
 /**
  * The whole BPMN editor — embeddable, it fills its container (which must
  * have a definite size).
@@ -82,6 +57,14 @@ export function BpmnEditor() {
                                 cursor='grab'
                                 minZoom={ZOOM_SETTINGS.min}
                                 maxZoom={ZOOM_SETTINGS.max}
+                                // The scroller is a scrollable region with no focusable
+                                // child of its own (axe `scrollable-region-focusable`);
+                                // once focusable it needs a widget role
+                                // (`focus-order-semantics`). Forwarded to the viewport element.
+                                tabIndex={0}
+                                role='application'
+                                aria-roledescription='diagram canvas'
+                                aria-label='BPMN diagram canvas — scrollable'
                             >
                                 <Paper
                                     gridSize={10}
@@ -110,7 +93,6 @@ export function BpmnEditor() {
                                     <ExampleDiagram />
                                 </Paper>
                             </PaperScroller>
-                            <CanvasAccessibility />
                             <Navigator />
                             <AccessibilityCheck />
                             <FileImportOverlay />
