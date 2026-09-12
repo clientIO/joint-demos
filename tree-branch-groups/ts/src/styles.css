@@ -23,6 +23,15 @@ body {
     fill-opacity: 0.5;
 }
 
+.joint-paper [joint-selector="button"]:focus {
+    outline: none;
+}
+
+.joint-paper [joint-selector="button"]:focus-visible {
+    stroke: #222222;
+    stroke-width: 2;
+}
+
 .hint {
     position: absolute;
     top: 18px;

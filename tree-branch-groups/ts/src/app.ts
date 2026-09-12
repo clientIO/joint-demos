@@ -2,8 +2,7 @@ import { dia } from '@joint/plus';
 
 import { addChild, insertBranchGroup } from './actions';
 import { isCellVisible, runLayout } from './layout';
-import type { Group } from './shapes';
-import { Node, TOGGLE_EVENT, cellNamespace } from './shapes';
+import { Group, Node, TOGGLE_EVENT, cellNamespace } from './shapes';
 import { addHoverTools } from './tools';
 
 const PAPER_PADDING = 40;
@@ -51,12 +50,28 @@ export function init(): void {
         });
     }
 
-    paper.on(TOGGLE_EVENT, (elementView: dia.ElementView, evt: dia.Event) => {
-        evt.stopPropagation();
+    function toggleGroup(group: Group): void {
         // A hidden view is not disposed while it has tools.
         paper.removeTools();
-        (elementView.model as Group).toggle();
+        group.toggle();
         refresh();
+    }
+
+    paper.on(TOGGLE_EVENT, (elementView: dia.ElementView, evt: dia.Event) => {
+        evt.stopPropagation();
+        toggleGroup(elementView.model as Group);
+    });
+
+    // The button is focusable; the paper does not forward keyboard events,
+    // so Enter and Space are handled on its element.
+    paper.el.addEventListener('keydown', (evt: KeyboardEvent) => {
+        if (evt.key !== 'Enter' && evt.key !== ' ') return;
+        const target = evt.target;
+        if (!(target instanceof SVGElement) || target.getAttribute('joint-selector') !== 'button') return;
+        const view = paper.findView(target);
+        if (!view || !Group.isGroup(view.model)) return;
+        evt.preventDefault();
+        toggleGroup(view.model);
     });
 
     addHoverTools(paper, {

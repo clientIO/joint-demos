@@ -93,9 +93,18 @@ export function GroupView() {
                 className="group-button"
                 transform={`translate(${buttonX}, ${buttonY})`}
                 cursor="pointer"
+                role="button"
+                tabIndex={0}
+                aria-label={collapsed ? 'Expand the branches' : 'Collapse the branches'}
+                aria-expanded={!collapsed}
                 // Keep the paper from treating the click as a press on the element.
                 onPointerDown={(event) => event.stopPropagation()}
                 onClick={toggle}
+                onKeyDown={(event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    event.preventDefault();
+                    toggle();
+                }}
             >
                 <title>{collapsed ? 'Expand' : 'Collapse'}</title>
                 <rect width={BUTTON_SIZE} height={BUTTON_SIZE} rx={3} ry={3} fill={COLORS.group.button} />

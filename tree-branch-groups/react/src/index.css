@@ -30,6 +30,15 @@ body {
     fill-opacity: 0.5;
 }
 
+.group-button:focus {
+    outline: none;
+}
+
+.group-button:focus-visible rect {
+    stroke: #222222;
+    stroke-width: 2;
+}
+
 .hint {
     position: absolute;
     top: 18px;

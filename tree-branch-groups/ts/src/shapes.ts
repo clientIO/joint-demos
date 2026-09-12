@@ -113,7 +113,7 @@ const EXPANDED_ATTRS = {
     },
     header: { display: 'none' },
     // The button sits in the top right corner.
-    button: { x: `calc(w - ${BUTTON_SIZE})`, y: 0 },
+    button: { x: `calc(w - ${BUTTON_SIZE})`, y: 0, 'aria-label': 'Collapse the branches', 'aria-expanded': 'true' },
     buttonIcon: { d: EXPANDED_ICON, transform: `translate(calc(w - ${BUTTON_SIZE / 2}), ${BUTTON_SIZE / 2})` }
 };
 const COLLAPSED_ATTRS = {
@@ -128,7 +128,7 @@ const COLLAPSED_ATTRS = {
     },
     header: { display: null },
     // The button is centered vertically, next to the label.
-    button: { x: `calc(w - ${BUTTON_SIZE + GROUP_STROKE_WIDTH / 2})`, y: `calc(h / 2 - ${BUTTON_SIZE / 2})` },
+    button: { x: `calc(w - ${BUTTON_SIZE + GROUP_STROKE_WIDTH / 2})`, y: `calc(h / 2 - ${BUTTON_SIZE / 2})`, 'aria-label': 'Expand the branches', 'aria-expanded': 'false' },
     buttonIcon: { d: COLLAPSED_ICON, transform: `translate(calc(w - ${BUTTON_SIZE / 2 + GROUP_STROKE_WIDTH / 2}), calc(h / 2))` }
 };
 
@@ -175,6 +175,9 @@ export class Group extends dia.Element {
                 button: {
                     event: TOGGLE_EVENT,
                     cursor: 'pointer',
+                    // A focusable control: Enter and Space are handled by the app.
+                    role: 'button',
+                    tabindex: 0,
                     width: BUTTON_SIZE,
                     height: BUTTON_SIZE,
                     rx: 3,
