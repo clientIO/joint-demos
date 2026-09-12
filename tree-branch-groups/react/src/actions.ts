@@ -15,15 +15,22 @@ function nextSiblingRank(graph: dia.Graph, parent: dia.Element): number {
 }
 
 /**
- * Inside a group only the leaf of a branch connects to the `end` node. When
- * the leaf gets a child, the link to `end` moves down to the child.
+ * Inside a group every leaf of a branch connects to the `end` node. When a
+ * leaf gets its first child, the link to `end` moves down to the child; every
+ * further child gets a link to `end` of its own.
  */
-function passEndLinkToChild(graph: dia.Graph, parent: dia.Element, child: dia.Element): void {
+function connectChildToEnd(graph: dia.Graph, parent: dia.Element, child: dia.Element): void {
     const container = parent.getParentCell();
     if (!container || !Group.isGroup(container)) return;
     const end = container.getEnd();
     const endLink = graph.getConnectedLinks(parent, { outbound: true }).find((link) => link.getTargetCell() === end);
-    endLink?.source(child);
+    if (endLink) {
+        endLink.source(child);
+    } else {
+        const link = Link.create(child, end);
+        graph.addCell(link);
+        link.reparent();
+    }
 }
 
 /**
@@ -32,7 +39,7 @@ function passEndLinkToChild(graph: dia.Graph, parent: dia.Element, child: dia.El
  * group of its ends, so that the group hides it when it collapses.
  */
 function attachChild(graph: dia.Graph, parent: dia.Element, child: dia.Element): void {
-    passEndLinkToChild(graph, parent, child);
+    connectChildToEnd(graph, parent, child);
     child.set('siblingRank', nextSiblingRank(graph, parent));
     // Seed the position below the parent so that the first render does not flash at the origin.
     const parentBBox = parent.getBBox();
