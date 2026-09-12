@@ -19,7 +19,7 @@ const COLORS = {
 };
 
 /** The stroke of an expanded group; also the right margin of the button of a collapsed one. */
-const GROUP_STROKE_WIDTH = 25;
+const GROUP_STROKE_WIDTH = 12;
 const BUTTON_SIZE = 18;
 
 const EXPANDED_ICON = 'M -4 0 4 0';

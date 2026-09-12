@@ -4,7 +4,7 @@ import { COLORS, GROUP_TYPE, Group, NODE_TYPE } from './shapes';
 import type { GroupData, NodeData } from './shapes';
 
 /** The stroke of an expanded group; also the right margin of the button of a collapsed one. */
-const GROUP_STROKE_WIDTH = 25;
+const GROUP_STROKE_WIDTH = 12;
 const BUTTON_SIZE = 18;
 
 /** A rectangle with a label. The start and end of a group are pills. */
