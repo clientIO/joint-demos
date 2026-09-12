@@ -39,6 +39,12 @@ function connectChildToEnd(graph: dia.Graph, parent: dia.Element, child: dia.Ele
  * group of its ends, so that the group hides it when it collapses.
  */
 function attachChild(graph: dia.Graph, parent: dia.Element, child: dia.Element): void {
+    // Embed first: a link is reparented into the common ancestor of its ends,
+    // so the child has to be inside the group before any link to it is made.
+    // A link left at the top level would not move along with the group.
+    const container = parent.getParentCell();
+    if (container) container.embed(child);
+
     connectChildToEnd(graph, parent, child);
     child.set('siblingRank', nextSiblingRank(graph, parent));
     // Seed the position below the parent so that the first render does not flash at the origin.
@@ -47,9 +53,6 @@ function attachChild(graph: dia.Graph, parent: dia.Element, child: dia.Element):
 
     const link = Link.create(parent, child);
     graph.addCell(link);
-
-    const container = parent.getParentCell();
-    if (container) container.embed(child);
     link.reparent();
 }
 
