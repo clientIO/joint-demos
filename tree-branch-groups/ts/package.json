@@ -1,0 +1,26 @@
+{
+  "name": "@joint/demo-tree-branch-groups",
+  "version": "4.3.3",
+  "description": "JointJS+ - Tree Layout with Branch Groups",
+  "main": "src/main.ts",
+  "homepage": "https://jointjs.com",
+  "author": {
+    "name": "client IO",
+    "url": "https://client.io"
+  },
+  "license": "http://jointjs.com/license",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@joint/plus": "4.3.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}

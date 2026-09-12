@@ -1,0 +1,47 @@
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+.paper {
+    width: 100%;
+    height: 100%;
+}
+
+/*
+    The collapse button of a group. A stylesheet rule wins over the
+    presentation attribute set by the shape, so the hover state does not
+    depend on the element view.
+*/
+.joint-paper [joint-selector="button"] {
+    transition: fill-opacity 100ms ease-out;
+}
+
+.joint-paper [joint-selector="button"]:hover {
+    fill-opacity: 0.5;
+}
+
+.joint-paper [joint-selector="button"]:focus {
+    outline: none;
+}
+
+.joint-paper [joint-selector="button"]:focus-visible {
+    stroke: #222222;
+    stroke-width: 2;
+}
+
+.hint {
+    position: absolute;
+    top: 18px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 12px;
+    color: #6A6A75;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+}
