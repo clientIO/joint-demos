@@ -7,9 +7,10 @@ import { fileURLToPath } from 'node:url';
 /*
  * Absolute path to `libavoid.wasm`.
  *
- * The router worker has to hand Libavoid the URL of its own WebAssembly binary
- * — a worker has no `document`, so the library cannot work out where it was
- * served from. `libavoid-js` does not export the file as a subpath, so it is
+ * `@joint/router-avoid` has to hand Libavoid the URL of its WebAssembly binary
+ * (the `libavoidFilePath` option) — the router runs in a worker, which has no
+ * `document`, so the library cannot work out where it was served from.
+ * `libavoid-js` does not export the file as a subpath, so it is
  * located next to the entry point that *is* exported and aliased below, which
  * lets `?url` treat it as an ordinary asset: hashed and emitted by the build,
  * served straight from `node_modules` in dev.
@@ -31,14 +32,21 @@ export default defineConfig({
         ],
         // `@joint/react` arrives transitively through `@joint/react-plus`; two
         // copies would mean two React contexts and no graph in the Paper.
-        dedupe: ['react', 'react-dom', '@joint/react'],
+        // `@joint/core` arrives through `@joint/router-avoid` as well as
+        // through `@joint/plus`; two copies would break every `instanceof`
+        // check between the router service and the app's cells.
+        dedupe: ['react', 'react-dom', '@joint/react', '@joint/core'],
     },
     optimizeDeps: {
-        include: ['@joint/core', '@joint/plus', '@joint/react', '@joint/react/internal'],
+        include: ['@joint/core', '@joint/plus', '@joint/react'],
+        // The package spawns its worker with `new Worker(new URL(...))`
+        // relative to its own module; prebundling would flatten that module
+        // away, so in dev it has to be served from source.
+        exclude: ['@joint/router-avoid'],
     },
     worker: {
-        // The router worker imports `@joint/core` and `libavoid-js` as ES
-        // modules; the default `iife` worker format cannot carry those.
+        // The package's router worker imports `@joint/core` and `libavoid-js`
+        // as ES modules; the default `iife` worker format cannot carry those.
         format: 'es',
     },
     build: {

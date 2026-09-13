@@ -1,5 +1,5 @@
 import type { ElementPort, ElementRecord, LinkRecord } from '@joint/react-plus';
-import { AWAITING_CLASS } from '@/routing/awaiting';
+import { LINK_STYLE } from '@/routing/awaiting';
 import { CANVAS_COLOR, DARK_COLOR, LIGHT_COLOR, MAIN_COLOR } from '@/theme';
 import example1 from './example-1.json';
 import example2 from './example-2.json';
@@ -169,13 +169,7 @@ export function makeLink({ id, source, target, label, labelPosition }: LinkSpec)
         z: LINK_Z,
         source,
         target,
-        style: {
-            color: DARK_COLOR,
-            width: 1.5,
-            targetMarker: 'arrow',
-            // Every link starts out unrouted — the worker has not answered yet.
-            className: AWAITING_CLASS,
-        },
+        style: LINK_STYLE,
         labelMap: label
             ? {
                 name: {

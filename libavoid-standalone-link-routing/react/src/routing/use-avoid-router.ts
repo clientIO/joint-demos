@@ -1,151 +1,116 @@
-import type { dia } from '@joint/plus';
 import { useGraph } from '@joint/react-plus';
+import { initAvoidRouter } from '@joint/router-avoid';
+import type { RouterService } from '@joint/router-avoid';
+import type { dia } from '@joint/plus';
 import { useEffect, useState } from 'react';
+import wasmUrl from 'libavoid-wasm?url';
 import { setLinkAwaiting } from './awaiting';
-import type { CellJSON, RoutedLink, RouterCommand, RouterResponse } from './protocol';
+import { IDEAL_NUDGING_DISTANCE, SHAPE_BUFFER_DISTANCE } from './settings';
 
 /** What the router is doing, for the status readout. */
 export interface RoutingStatus {
-    /** `true` between handing an edit to the worker and its reply landing. */
+    /** `true` while the router still owes at least one link a route. */
     readonly isRouting: boolean;
     /** How long the last completed routing pass took, in ms. */
     readonly durationMs: number | null;
-}
-
-/** A link the worker can do something with: both ends attached to a cell. */
-function isRoutable(link: dia.Link): boolean {
-    return Boolean(link.source()?.id && link.target()?.id);
-}
-
-/**
- * One routed link as a single `set` payload.
- *
- * `router` is `normal` when Libavoid's own route won: the vertices *are* the
- * route, so they are drawn through as they came rather than being sent through a
- * router a second time. It is `null` when Libavoid had nothing usable, which
- * hands the link back to the paper's own orthogonal routing — the way JointJS is
- * told to fall back to the paper default, though the typings only allow a router
- * or `undefined`, hence the cast.
- */
-function applyRoute(routed: RoutedLink): Partial<dia.Link.Attributes> {
-    return {
-        vertices: routed.vertices as dia.Point[],
-        source: routed.source as dia.Link.EndJSON,
-        target: routed.target as dia.Link.EndJSON,
-        router: routed.router,
-    } as unknown as Partial<dia.Link.Attributes>;
+    /**
+     * `true` once the router service is running — from that point on, every
+     * link in the graph carries at least the service's interim route.
+     */
+    readonly ready: boolean;
 }
 
 /**
  * Runs the Libavoid router for this `<Diagram>`, in a Web Worker.
  *
- * Mount it once inside the diagram. It ships the graph to the worker, keeps the
- * two in step as cells are added, moved and reconnected, and writes each route
- * back onto its link when the worker answers.
+ * Mount it once inside the diagram. All of the worker plumbing lives in
+ * `@joint/router-avoid` (`worker: true`): the package spawns the worker, ships
+ * the graph to it, keeps the two in step as cells are added, moved and
+ * reconnected, and writes each route back onto its link when Libavoid answers.
+ * What is left here is wiring the service's events to this app's UI — the
+ * awaiting-update style on the links and the timing readout in the toolbar.
  *
- * Everything here goes through the JointJS graph rather than through React
- * state. The graph is what both sides own — the worker replays cell JSON onto
- * a graph of its own and answers with geometry, and that geometry is set on the
- * models directly. `@joint/react-plus` is subscribed to the graph, so the
- * canvas follows without a single route passing through a React render.
+ * Everything still goes through the JointJS graph rather than through React
+ * state: the service sets geometry on the link models directly, and
+ * `@joint/react-plus` is subscribed to the graph, so the canvas follows
+ * without a single route passing through a React render.
  *
- * The hook owns the worker for the lifetime of the component, which is why the
- * app remounts the whole `<Diagram>` when a different graph is chosen: a fresh
- * worker cannot carry over a pending debounce or a stale Libavoid shape from
- * the graph before it.
+ * The hook owns the service for the lifetime of the component, which is why
+ * the app remounts the whole `<Diagram>` when a different graph is chosen:
+ * `destroy()` terminates the worker, and the next mount starts a fresh one
+ * with no pending debounce or stale Libavoid shape from the graph before it.
  */
 export function useAvoidRouter(): RoutingStatus {
     const { graph } = useGraph();
-    const [status, setStatus] = useState<RoutingStatus>({ isRouting: true, durationMs: null });
+    const [status, setStatus] = useState<RoutingStatus>({
+        isRouting: true,
+        durationMs: null,
+        ready: false,
+    });
 
     useEffect(() => {
-        const worker = new Worker(new URL('./router-worker.ts', import.meta.url), {
-            type: 'module',
-        });
-        const post = (message: RouterCommand) => worker.postMessage(message);
+        let service: RouterService | null = null;
+        let disposed = false;
 
         /** When the pass in flight began, or `null` when the graph is settled. */
         let startedAt: number | null = null;
 
-        const beginRouting = () => {
-            if (startedAt === null) startedAt = performance.now();
-            // A drag fires this on every pointer move; re-rendering the status
-            // on each one would be a frame's work for no visible change.
-            setStatus((previous) => (previous.isRouting ? previous : { ...previous, isRouting: true }));
-        };
+        initAvoidRouter(graph, {
+            worker: true,
+            // The wasm binary as a Vite asset URL (see `vite.config.ts`); the
+            // package forwards it into its worker, where Libavoid loads it.
+            libavoidFilePath: wasmUrl,
+            shapeBufferDistance: SHAPE_BUFFER_DISTANCE,
+            idealNudgingDistance: IDEAL_NUDGING_DISTANCE,
+        }).then((routerService) => {
+            // The component may be gone before the wasm module has loaded —
+            // the graph dropdown remounts the diagram — in which case the
+            // service is torn down before it ever starts.
+            if (disposed) {
+                routerService.destroy();
+                return;
+            }
+            service = routerService;
 
-        worker.onmessage = ({ data }: MessageEvent<RouterResponse>) => {
-            if (data.command !== 'routed') return;
-
-            const elapsed = startedAt === null ? null : performance.now() - startedAt;
-            startedAt = null;
-            setStatus((previous) => ({ isRouting: false, durationMs: elapsed ?? previous.durationMs }));
-
-            // One JointJS batch for the whole reply: on the large graph this is
-            // ~450 links, and the paper repaints once at the end rather than
-            // after each one.
-            graph.startBatch('avoid-router');
-            data.cells.forEach((routed) => {
-                const model = graph.getCell(routed.id);
-                if (!model || model.isElement()) return;
-                const link = model as dia.Link;
-                // The user may have pulled an end off while the worker was
-                // routing; applying the route would snap it back.
-                if (!isRoutable(link)) return;
-                link.set(applyRoute(routed), { fromWorker: true });
-                setLinkAwaiting(link, false);
-            });
-            graph.stopBatch('avoid-router');
-        };
-
-        const onChange = (cell: dia.Cell, opt: dia.Cell.Options) => {
-            // Skip what this hook itself just wrote.
-            if (opt.fromWorker) return;
-
-            if (cell.isLink()) {
-                const link = cell as dia.Link;
-                // Only the endpoints matter to the router.
-                if (!link.hasChanged('source') && !link.hasChanged('target')) return;
-                // Dangling before and dangling still: nothing to route.
-                const wasRoutable = Boolean(link.previous('source')?.id && link.previous('target')?.id);
-                if (!wasRoutable && !isRoutable(link)) return;
+            routerService.on('link:routing', (link) => {
+                if (startedAt === null) startedAt = performance.now();
                 setLinkAwaiting(link, true);
-            }
+                // A drag fires this on every pointer move; re-rendering the
+                // status on each one would be a frame's work for no visible
+                // change.
+                setStatus((previous) =>
+                    previous.isRouting ? previous : { ...previous, isRouting: true });
+            });
+            // One handler for both cycle-closing events, via the object form —
+            // the only multi-event form the service's typed event map accepts.
+            const unmarkAwaiting = (link: dia.Link) => setLinkAwaiting(link, false);
+            routerService.on({
+                'link:routed': unmarkAwaiting,
+                'link:routing:cancelled': unmarkAwaiting,
+            });
+            // Fired when no link is owed a route any more — the end of a pass.
+            routerService.on('idle', () => {
+                const elapsed = startedAt === null ? null : performance.now() - startedAt;
+                startedAt = null;
+                setStatus((previous) => ({
+                    ...previous,
+                    isRouting: false,
+                    durationMs: elapsed ?? previous.durationMs,
+                }));
+            });
 
-            beginRouting();
-            post({ command: 'change', cell: cell.toJSON() as CellJSON });
-
-            if (cell.isElement() && (cell.hasChanged('position') || cell.hasChanged('size'))) {
-                graph.getConnectedLinks(cell).forEach((link) => setLinkAwaiting(link, true));
-            }
-        };
-
-        const onAdd = (cell: dia.Cell) => {
-            beginRouting();
-            post({ command: 'add', cell: cell.toJSON() as CellJSON });
-            if (cell.isLink()) setLinkAwaiting(cell as dia.Link, true);
-        };
-
-        const onRemove = (cell: dia.Cell) => {
-            beginRouting();
-            post({ command: 'remove', id: String(cell.id) });
-        };
-
-        graph.on('change', onChange);
-        graph.on('add', onAdd);
-        graph.on('remove', onRemove);
-
-        // The graph is fully seeded by the time this effect runs, so the first
-        // message is the whole diagram rather than a cell at a time.
-        beginRouting();
-        post({ command: 'reset', cells: graph.toJSON().cells as CellJSON[] });
+            // Not auto-started: `start()` syncs every cell the graph already
+            // holds — the graph is fully seeded by the time this effect runs —
+            // and begins listening for changes. It also applies the interim
+            // route to every link synchronously, which is what `ready` vouches
+            // for: from here on, no link is routeless.
+            routerService.start();
+            setStatus((previous) => ({ ...previous, ready: true }));
+        });
 
         return () => {
-            graph.off('change', onChange);
-            graph.off('add', onAdd);
-            graph.off('remove', onRemove);
-            worker.onmessage = null;
-            worker.terminate();
+            disposed = true;
+            service?.destroy();
         };
     }, [graph]);
 
