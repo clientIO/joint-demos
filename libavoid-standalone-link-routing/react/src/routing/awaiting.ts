@@ -25,7 +25,7 @@ export const LINK_STYLE = {
  * and writing them back would both discard its computed anchors and trigger
  * it to re-route.
  */
-const AWAITING_ATTRIBUTES = linkAttributes({ style: { ...LINK_STYLE, className: AWAITING_CLASS } });
+const AWAITING_ATTRIBUTES = linkAttributes({ style: { ...LINK_STYLE, className: AWAITING_CLASS }});
 const STABLE_ATTRIBUTES = linkAttributes({ style: LINK_STYLE });
 
 /**
