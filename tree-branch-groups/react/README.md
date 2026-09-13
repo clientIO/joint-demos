@@ -2,13 +2,6 @@
 
 A tree laid out by `layout.TreeLayout` in which a node can be a *branch group*: a container with a start node, two branches and an end node the branches converge into. The tree connects to the group as a single node, so a fork/join subgraph — which a tree layout cannot handle on its own — fits into the tree. Groups nest and collapse. Built with `@joint/react-plus`.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/tree-branch-groups/react" target="_blank">
-  <img
-    alt="Open in StackBlitz"
-    src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
-  />
-</a>
-
 ![The initial tree: a branch group with a nested branch group, both expanded](../screenshot.png)
 
 ## Features
