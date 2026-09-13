@@ -2,13 +2,6 @@
 
 A tree laid out by `layout.TreeLayout` in which a node can be a *branch group*: a container with a start node, two branches and an end node the branches converge into. The tree connects to the group as a single node, so a fork/join subgraph — which a tree layout cannot handle on its own — fits into the tree. Groups nest and collapse. Built with `@joint/react-plus`.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/tree-branch-groups/react" target="_blank">
-  <img
-    alt="Open in StackBlitz"
-    src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
-  />
-</a>
-
 ![The initial tree: a branch group with a nested branch group, both expanded](../screenshot.png)
 
 ## Features
@@ -56,9 +49,28 @@ A tree laid out by `layout.TreeLayout` in which a node can be a *branch group*: 
 
 ## Running the Demo
 
-Set the `JOINTJS_NPM_TOKEN` environment variable to your JointJS+ npm token (see the `.npmrc` file), then:
+To run this application you need to have access to the JointJS+ package. You can get it by having a JointJS+ license or by starting a [free trial](https://www.jointjs.com/free-trial).
 
+If you are a trial user, you received your access token during the trial sign-up process.
+If you are a customer, log in to the customer portal at https://my.jointjs.com to obtain your access token.
+
+This example uses the `.npmrc` file to set up access to the JointJS+ private npm registry. By default it reads the authentication token from the `JOINTJS_NPM_TOKEN` environment variable, which you can set in your terminal or CI environment:
+
+**macOS / Linux**:
+```sh
+export JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
+
+**Windows (PowerShell)**:
+```sh
+$env:JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+```
+
+Learn more about our [private npm registry here.](https://docs.jointjs.com/learn/help-center/npm-registry)
+
+After setting up access to the JointJS+ package, install the dependencies and start the dev server:
+
+```bash
 npm install
 npm run dev
 ```

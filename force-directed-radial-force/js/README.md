@@ -2,13 +2,6 @@
 
 This demo demonstrates the use of a radial force in the layout algorithm to prevent elements from overlapping. Elements are pushed away from a central point, creating a clear and evenly spaced arrangement.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/force-directed-radial-force/js" target="_blank">
-  <img
-    alt="Open in StackBlitz"
-    src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
-  />
-</a>
-
 This demo is also available online at [jointjs.com](https://jointjs.com/demos/force-directed-radial-force).
 
 ## How to download this demo

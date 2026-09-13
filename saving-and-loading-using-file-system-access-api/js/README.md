@@ -2,13 +2,6 @@
 
 Wondering how to allow users to save and load diagrams from the local file system? Check out the integration with the File System Access API to help accomplish this.
 
-<a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/saving-and-loading-using-file-system-access-api/js" target="_blank">
-  <img
-    alt="Open in StackBlitz"
-    src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
-  />
-</a>
-
 This demo is also available online at [jointjs.com](https://jointjs.com/demos/saving-and-loading-using-file-system-access-api).
 
 ## How to download this demo
