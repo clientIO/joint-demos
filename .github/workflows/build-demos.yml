@@ -1,0 +1,238 @@
+# Builds the demos and reports which ones failed.
+#
+# The same workflow serves two callers, and the only difference between them is
+# whether `packages_artifact` is set:
+#
+#   - this repository, on a pull request or a push to main, with it empty, so
+#     that the demos build against the released @joint/* packages they pin;
+#   - clientIO/joint-plus, which builds @joint/plus and then calls this workflow
+#     with the name of the artifact holding the freshly packed tarballs, so that
+#     the demos build against an unreleased JointJS+ before it ships.
+#
+# The second is why this lives here rather than in joint-plus: which demos
+# exist, which variant of each is canonical and which are skipped is knowledge
+# that belongs next to the demos. joint-plus only has to produce tarballs.
+name: Build demos
+
+on:
+  workflow_call:
+    inputs:
+      packages_artifact:
+        description: 'Artifact holding @joint/* tarballs to build against. Empty means use the packages the demos pin.'
+        type: string
+        required: false
+        default: ''
+      plus_only:
+        description: 'Build only the demos that depend on a JointJS+ package.'
+        type: boolean
+        required: false
+        default: false
+      demos:
+        description: 'Comma-separated demo names to build. Empty means all of them.'
+        type: string
+        required: false
+        default: ''
+      jobs:
+        description: 'How many demos to build at once.'
+        type: number
+        required: false
+        default: 4
+    secrets:
+      JOINTJS_NPM_TOKEN:
+        description: 'Token for https://npm.jointjs.com. Needed even when linking local packages: the demos use @joint/* packages that a joint-plus build does not produce.'
+        required: true
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # Pushes to main keep the default branch's npm cache warm. A pull request can
+  # restore from that scope but cannot write to it, so without this every PR
+  # would start from a cold cache.
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      plus_only:
+        description: 'Build only the demos that depend on a JointJS+ package.'
+        type: boolean
+        required: false
+        default: false
+      demos:
+        description: 'Comma-separated demo names to build. Empty means all of them.'
+        type: string
+        required: false
+        default: ''
+
+# The literal prefix matters. Inside a reusable workflow `github.workflow` is the
+# *caller's* workflow name, so without it a run called from joint-plus would land
+# in the same group as the caller and cancel the very job waiting on it.
+concurrency:
+  group: build-demos-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Decides which demos this run is about, so that the build job stays the same
+  # whoever called it. Only a pull request narrows the set by itself.
+  select:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    outputs:
+      demos: ${{ steps.pick.outputs.demos }}
+      count: ${{ steps.pick.outputs.count }}
+    steps:
+      # `actions/checkout` defaults to the *calling* repository: inside a
+      # reusable workflow the `github` context belongs to the caller, so a bare
+      # checkout would fetch joint-plus. `job.workflow_*` describes the
+      # repository this file lives in, which is right both when joint-plus calls
+      # us and when this repository runs the workflow itself.
+      - name: Checkout joint-demos
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          # A pull request needs the base commit to diff against; everything
+          # else only needs the tree.
+          fetch-depth: ${{ github.event_name == 'pull_request' && 0 || 1 }}
+
+      - name: Pick demos
+        id: pick
+        env:
+          REQUESTED: ${{ inputs.demos }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+
+          # Every demo the build script would consider, used below to tell a
+          # demo directory from any other top-level path.
+          bash .github/scripts/build-demos.sh --list-only > /tmp/all-demos.txt 2>/dev/null
+
+          # Paths that change how every demo is built, so touching one widens
+          # the run to all of them. Anything else outside a demo directory -
+          # README.md, LICENSE, an editor config - affects no build and is
+          # ignored rather than triggering a full rebuild.
+          shared='^(\.github/|demos\.config\.json$|package\.json$|package-lock\.json$|eslint\.config\.)'
+
+          if [ -n "$REQUESTED" ]; then
+            demos="$REQUESTED"
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --name-only "$BASE_SHA...HEAD" > /tmp/changed.txt
+            if grep -qE "$shared" /tmp/changed.txt; then
+              echo ":: A shared file changed; building every demo." >&2
+              demos=""
+            else
+              # `grep -xF -f` keeps only the top-level names that really are
+              # demos, so a stray directory cannot reach --demos.
+              demos="$(cut -d/ -f1 /tmp/changed.txt | sort -u | grep -xF -f /tmp/all-demos.txt | paste -sd, - || true)"
+              if [ -z "$demos" ]; then
+                echo ":: No demo changed; nothing to build." >&2
+                echo "demos=" >> "$GITHUB_OUTPUT"
+                echo "count=0" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+            fi
+          else
+            demos=""
+          fi
+
+          if [ -n "$demos" ]; then
+            count="$(echo "$demos" | tr ',' '\n' | grep -c .)"
+          else
+            count="$(grep -c . /tmp/all-demos.txt)"
+          fi
+
+          echo "demos=$demos" >> "$GITHUB_OUTPUT"
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo ":: $count demo(s) selected${demos:+: $demos}" >&2
+
+  build:
+    needs: select
+    # A pull request that touched no demo at all has nothing to build.
+    if: needs.select.outputs.count != '0'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout joint-demos
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      # Every demo runs its own `npm install`, so without this the runner
+      # downloads the same tarballs again on every run. Keyed on the manifests,
+      # with a prefix fallback so that touching one demo's dependencies reuses
+      # the cache rather than throwing all of it away.
+      #
+      # This has to come before the linking step below: `hashFiles` is evaluated
+      # when the step starts and linking rewrites every demo's package.json, so
+      # the other order would change the key on every run and never hit.
+      - name: Cache npm downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package.json', '**/package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+
+      - name: Download @joint/* tarballs
+        if: inputs.packages_artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.packages_artifact }}
+          path: .packages
+
+      # --skip-install because the script would otherwise install every demo in
+      # the repository, including the ones this run is not going to build.
+      - name: Link local packages
+        if: inputs.packages_artifact
+        run: |
+          ls -l .packages
+          node .github/scripts/link-local-packages.mjs --skip-install
+
+      - name: Build demos
+        id: build
+        env:
+          DEMOS: ${{ needs.select.outputs.demos }}
+          JOINTJS_NPM_TOKEN: ${{ secrets.JOINTJS_NPM_TOKEN }}
+          # The runner has ~14 GB free and no room to keep every demo's
+          # node_modules; the script reclaims each one once its output is copied.
+          CLEANUP: '1'
+        run: |
+          set -o pipefail
+          args=(--force --jobs "${{ inputs.jobs || 4 }}")
+          if [ "${{ inputs.plus_only || false }}" = "true" ]; then
+            args+=(--plus-only)
+          fi
+          if [ -n "$DEMOS" ]; then
+            args+=(--demos "$DEMOS")
+          fi
+          # Kept so the next step can name the failures without re-running
+          # anything; the script itself only prints and sets the exit code.
+          bash .github/scripts/build-demos.sh "${args[@]}" 2>&1 | tee /tmp/build.log
+
+      # `always()` so a failed build is still summarised, and so the failing
+      # demos are visible on the run's summary page without opening the log.
+      - name: Summarise
+        if: always()
+        run: |
+          {
+            echo '## Demo build results'
+            echo
+            echo '| | |'
+            echo '|---|---|'
+            echo "| **Packages** | ${{ inputs.packages_artifact && format('`{0}`', inputs.packages_artifact) || 'as pinned by each demo' }} |"
+            echo "| **Selection** | ${{ inputs.plus_only && 'JointJS+ demos' || 'all demos' }}${{ needs.select.outputs.demos != '' && format(' ({0})', needs.select.outputs.demos) || '' }} |"
+            grep -E '^(Built|Failed|Skipped):' /tmp/build.log 2>/dev/null \
+              | sed -E 's/^([^:]+): (.*)$/| **\1** | \2 |/' || true
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          failed="$(sed -n 's/^Failed: [0-9]* demos: //p' /tmp/build.log 2>/dev/null || true)"
+          if [ -n "$failed" ]; then
+            for demo in $failed; do
+              echo "::error title=Demo build failed::$demo"
+            done
+          fi
