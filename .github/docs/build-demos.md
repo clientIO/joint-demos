@@ -13,7 +13,20 @@ bash .github/scripts/build-demos.sh data-pipeline
 
 # Build all demos, continuing past failures
 bash .github/scripts/build-demos.sh --force
+
+# Build several named demos
+bash .github/scripts/build-demos.sh --demos charts,kitchen-sink
+
+# Build only the demos that depend on a JointJS+ package
+bash .github/scripts/build-demos.sh --plus-only
+
+# Print what would be built, without building it
+bash .github/scripts/build-demos.sh --plus-only --list-only
 ```
+
+`--list-only` prints nothing but demo names to stdout, one per line — every
+other message goes to stderr — so its output can be fed straight back in as a
+`--demos` list.
 
 ## How it works
 
@@ -35,16 +48,28 @@ bash .github/scripts/build-demos.sh --force
 
 | Flag | Description |
 |------|-------------|
-| `--force` | Continue building remaining demos when a build fails. Without this flag the script exits on the first failure. |
+| `--force` | Continue building remaining demos when a build fails. Without this flag no further demo is started after a failure (the ones already running are left to finish). |
+| `--jobs N` | How many demos to build at once. Defaults to the machine's core count, capped at 4. |
+| `--demos a,b,c` | Build only these demos. Repeatable, and combines with a bare demo name. |
+| `--plus-only` | Build only demos that depend on a JointJS+ package (`@joint/plus`, `@joint/react-plus`, `@joint/format-*`, `@joint/shapes-vsm`). Open-source-only demos are left out. |
+| `--list-only` | Print the demos that would be built, one per line, and exit without building or touching `_site/`. |
+
+`--plus-only` reads the `dependencies` and `devDependencies` of the variant that
+would actually be built, not the text of `package.json`. That matters after
+[`link-local-packages.mjs`](../scripts/link-local-packages.mjs) has run: the
+`overrides` block it adds names every local package, so matching on text would
+select every demo.
 
 ## Environment variables
 
 | Variable | Description |
 |----------|-------------|
 | `JOINTJS_NPM_TOKEN` | Authentication token for the `@joint` private npm registry. Required for demos that use `@joint/plus`. |
+| `CLEANUP` | Set to `1` or `true` to delete each demo's `node_modules/` and `dist/` once its output has been copied into `_site/`. A CI runner has no room to keep every demo's dependencies at once. Opt-in, because it is destructive to a local checkout. |
 
 ## Related files
 
 - [`demos.config.json`](../../demos.config.json) — per-demo configuration (skip, variant, buildFlags)
 - [`.github/docs/demos-config.md`](./demos-config.md) — documentation for the config file
+- [`.github/workflows/build-demos.yml`](../workflows/build-demos.yml) — builds the demos on pull requests, and is the workflow `clientIO/joint-plus` calls to test them against an unreleased JointJS+
 - [`.github/workflows/deploy.yml`](../workflows/deploy.yml) — GitHub Actions workflow that invokes this script

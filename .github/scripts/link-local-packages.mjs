@@ -22,6 +22,12 @@
  * joint-<name>/ or <name>/ inside the packages directory. Dependencies with
  * no match are left untouched.
  *
+ * Every demo that uses @joint/* also gets an "overrides" block covering all
+ * the local packages, so that a package reached only transitively is caught
+ * too. Without it @joint/core - which @joint/plus depends on by range and
+ * almost no demo declares - still comes from the registry, and the run tests a
+ * released core against a local @joint/plus while reporting success.
+ *
  * A manifest of every file this tool has changed is kept at
  * <packages-dir>/.link-manifest.json so --restore can put things back
  * exactly, independent of git state.
@@ -30,7 +36,7 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, rmSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 import { execSync } from 'child_process';
-import { findLocalPackageInDir, toFileSpec } from './lib/local-packages.mjs';
+import { applyLocalPackages, findLocalPackageInDir, jointDepNames, toFileSpec } from './lib/local-packages.mjs';
 
 const ROOT = resolve(import.meta.dirname, '..', '..');
 const DEFAULT_PACKAGES_DIR = join(ROOT, '.packages');
@@ -137,43 +143,51 @@ function main() {
     const pkgFiles = findPackageJsonFiles(ROOT);
     const manifest = loadManifest();
     const modifiedDirs = [];
-    const unresolvedDeps = new Set();
     let filesChanged = 0;
 
-    for (const pkgPath of pkgFiles) {
+    // Which @joint/* packages have a local stand-in is resolved once, over the
+    // names the whole repo mentions, rather than per demo. A demo is then
+    // pointed at every one of them - not just the ones it names - because the
+    // package most likely to be wrong is the one no demo declares: @joint/core
+    // arrives transitively through @joint/plus.
+    const parsed = pkgFiles.map((pkgPath) => {
         const original = readFileSync(pkgPath, 'utf-8');
-        const pkg = JSON.parse(original);
-        let changed = false;
-        const linked = [];
+        return { pkgPath, original, pkg: JSON.parse(original) };
+    });
 
-        for (const field of ['dependencies', 'devDependencies']) {
-            if (!pkg[field]) continue;
-            for (const depName of Object.keys(pkg[field])) {
-                if (!depName.startsWith('@joint/')) continue;
-
-                const found = findLocalPackageInDir(PACKAGES_DIR, depName);
-                if (!found) {
-                    unresolvedDeps.add(depName);
-                    continue;
-                }
-
-                const spec = toFileSpec(found);
-                if (pkg[field][depName] === spec) continue;
-
-                linked.push(`${depName}: ${pkg[field][depName]} -> ${spec}`);
-                pkg[field][depName] = spec;
-                changed = true;
-            }
+    const specs = {};
+    const unresolvedDeps = new Set();
+    for (const { pkg } of parsed) {
+        for (const depName of jointDepNames(pkg)) {
+            if (depName in specs || unresolvedDeps.has(depName)) continue;
+            const found = findLocalPackageInDir(PACKAGES_DIR, depName);
+            if (found) specs[depName] = toFileSpec(found);
+            else unresolvedDeps.add(depName);
         }
+    }
 
-        if (!changed) continue;
+    const resolvedNames = Object.keys(specs).sort();
+    console.log(`Local packages in ${PACKAGES_DIR}:`);
+    for (const name of resolvedNames) console.log(`  ${name} -> ${specs[name]}`);
+    if (resolvedNames.length === 0) {
+        console.error('\nNo @joint/* dependency matched anything in the packages directory.');
+        process.exit(1);
+    }
+    console.log('');
+
+    for (const { pkgPath, original, pkg } of parsed) {
+        const applied = applyLocalPackages(pkg, specs);
+        if (applied.length === 0) continue;
+
+        const updated = JSON.stringify(pkg, null, 2);
+        if (updated === original) continue;
 
         console.log(`:: ${pkgPath}`);
-        for (const line of linked) console.log(`   ${line}`);
+        for (const depName of applied) console.log(`   ${depName} -> ${specs[depName]}`);
 
         if (!DRY_RUN) {
             if (!(pkgPath in manifest)) manifest[pkgPath] = original;
-            writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+            writeFileSync(pkgPath, updated);
             modifiedDirs.push(dirname(pkgPath));
         }
         filesChanged++;
