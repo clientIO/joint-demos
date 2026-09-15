@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="The JointJS+ Level of Detail demo shows a 1,200-node service map where every element view swaps its markup for a cheaper one as you zoom out.">
+    <title>Level of Detail | JointJS+</title>
+</head>
+
+<body>
+    <header class="toolbar">
+        <h1 class="toolbar-title">Service map</h1>
+        <span class="toolbar-count" id="count"></span>
+        <label class="toolbar-field">
+            <span>Detail</span>
+            <select class="detail-selector" id="detail"></select>
+        </label>
+    </header>
+    <div class="canvas-stage">
+        <div id="canvas" class="canvas"></div>
+        <dl class="hud">
+            <div class="hud-item"><dt>Zoom</dt><dd id="hud-zoom">100%</dd></div>
+            <div class="hud-item"><dt>Rendering</dt><dd id="hud-level">Card</dd></div>
+            <div class="hud-item"><dt>Elements</dt><dd id="hud-elements">0</dd></div>
+            <div class="hud-item"><dt>Links</dt><dd id="hud-links">0</dd></div>
+            <div class="hud-item"><dt>SVG nodes</dt><dd id="hud-nodes">0</dd></div>
+        </dl>
+        <div class="zoom-controls">
+            <button type="button" id="zoom-out" title="Zoom out">&minus;</button>
+            <button type="button" id="zoom-in" title="Zoom in">+</button>
+            <button type="button" id="zoom-fit" title="Fit the whole map">Fit</button>
+        </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
