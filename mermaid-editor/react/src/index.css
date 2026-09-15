@@ -3,34 +3,32 @@
  * a Mermaid diagram, with a JointJS-red accent for the app chrome.
  */
 :root {
-    --surface: #ffffff;
-    --surface-sunken: #f6f7f9;
-    --surface-raised: #ffffff;
-    --border: #d8dce3;
-    --text: #1f2430;
-    --text-muted: #6b7280;
+    /* Neutrals lean a hair toward the diagram's blue-violet, so chrome and
+       canvas read as one material; nothing here is pure white or pure black. */
+    --surface: oklch(0.995 0.002 262);
+    --surface-sunken: oklch(0.975 0.004 262);
+    --border: oklch(0.88 0.012 262);
+    --text: oklch(0.25 0.02 262);
+    --text-muted: oklch(0.5 0.02 262);
     --accent: #ed2637;
+    /* Keyboard focus + canvas selection. Never the red accent: a red ring on
+       a node reads as an error, not as "this one". */
+    --focus-ring: #2563eb;
 
-    --node-fill: #ececff;
-    --node-stroke: #9370db;
-    --node-text: #1f2430;
-    --node-detail: #9370db;
-    --link-stroke: #333333;
+    --node-fill: oklch(0.945 0.03 290);
+    --node-stroke: oklch(0.6 0.15 300);
+    --node-text: var(--text);
+    --node-detail: var(--node-stroke);
+    --group-fill: oklch(0.6 0.15 300 / 6%);
+    --group-stroke: oklch(0.65 0.07 295);
+    --group-title: oklch(0.5 0.12 295);
+    --link-stroke: oklch(0.35 0.02 262);
     --label-fill: var(--surface-sunken);
-    --label-text: #1f2430;
-    /* Mermaid syntax colours, keyed to the shape palette above. */
-    --syntax-keyword: #7c3aed;
-    --syntax-orientation: #0e7490;
-    --syntax-node-id: #1d4ed8;
-    --syntax-text: #0f766e;
-    --syntax-arrow: #be123c;
-    --syntax-comment: #94a3b8;
-    --syntax-gutter: #b6bcc7;
-    --syntax-active-line: #f3f4f8;
-    --syntax-selection: #dbeafe;
-    --syntax-selected-line: #fff3d6;
+    --label-text: var(--text);
+    /* The source pane's own colours live in the Monaco themes
+       (`mermaid-editor.tsx`); this one is a Monaco decoration drawn by CSS. */
     --syntax-selected-token: #fbd88b;
-    --node-selected: #ed2637;
+    --node-selected: var(--focus-ring);
 
     --error: #b42318;
     --error-surface: #fef3f2;
@@ -39,21 +37,36 @@
 
     /*
      * Panels that float over the canvas. They are tokens because in dark mode
-     * every one of the usual cues fails at once: `--surface` sits 7 RGB units
-     * above `--surface-sunken`, and a dark shadow over a near-black canvas
-     * contributes nothing. The values here match what these panels always
-     * had, so light mode is unchanged.
+     * every one of the usual cues fails at once: `--surface` sits a few steps
+     * above `--surface-sunken`, and a dark shadow over a dark canvas
+     * contributes nothing.
      */
     --overlay-surface: var(--surface);
     --overlay-border: var(--border);
     --overlay-inset: var(--surface-sunken);
-    --overlay-chip: var(--surface);
-    --overlay-shadow: 0 4px 14px rgb(15 23 42 / 18%);
-    --overlay-shadow-sm: 0 2px 8px rgb(15 23 42 / 8%);
+    --overlay-chip: oklch(0.94 0.008 262);
+    --overlay-shadow:
+        0 12px 32px -12px oklch(0.25 0.03 262 / 35%),
+        0 1px 2px oklch(0.25 0.03 262 / 10%);
+    --overlay-shadow-sm:
+        0 4px 12px -4px oklch(0.25 0.03 262 / 20%),
+        0 1px 2px oklch(0.25 0.03 262 / 8%);
+    /* Pressed/checked chips: a tinted fill under an ordinary glyph. Never a
+       ring (red reads as an error next to the blue focus ring) and never a red
+       glyph (the accent on the tint falls under the 3:1 floor). */
+    --chip-active: color-mix(in srgb, var(--accent) 14%, var(--overlay-chip));
+
+    --font-ui: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+        sans-serif;
+    /* Node labels, edge labels and the source share one face: the diagram is
+       the code, drawn. */
+    --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    /* Colour transitions only; zeroed under `prefers-reduced-motion`. */
+    --motion: 150ms;
 
     color-scheme: light;
-    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
-        sans-serif;
+    font-family: var(--font-ui);
 }
 
 /*
@@ -62,54 +75,54 @@
  * Mermaid's own dark theme is the reference for the diagram colours.
  */
 :root[data-theme='dark'] {
-    --surface: #171821;
-    --surface-sunken: #101119;
-    --surface-raised: #1e2029;
-    --border: #2c2e3b;
-    --text: #e6e7ee;
-    --text-muted: #9aa0b0;
+    /* Navy rather than grey, and a few steps up from black: long looks at a
+       pure dark surface are hard on the eye, and the blue keeps the lifted
+       greys from going muddy. */
+    --surface: oklch(0.25 0.03 262);
+    --surface-sunken: oklch(0.215 0.03 262);
+    --border: oklch(0.37 0.03 262);
+    --text: oklch(0.93 0.01 262);
+    --text-muted: oklch(0.72 0.02 262);
     --accent: #ff5567;
+    --focus-ring: #7cb3ff;
 
-    --node-fill: #2b2545;
-    --node-stroke: #a78bfa;
-    --node-text: #ece9fb;
-    --node-detail: #a78bfa;
-    --link-stroke: #b9bfd0;
+    /* Dark nodes with a light outline: the outline is the ink, the fill sits
+       just above the canvas. */
+    --node-fill: oklch(0.28 0.035 270);
+    --node-stroke: oklch(0.8 0.05 280);
+    --node-text: oklch(0.95 0.01 270);
+    --node-detail: var(--node-stroke);
+    --group-fill: oklch(0.8 0.05 280 / 5%);
+    --group-stroke: oklch(0.51 0.04 280);
+    --group-title: oklch(0.8 0.05 280);
+    --link-stroke: oklch(0.75 0.03 262);
     --label-fill: var(--surface-sunken);
-    --label-text: #e6e7ee;
+    --label-text: var(--text);
 
-    --syntax-keyword: #c4b5fd;
-    --syntax-orientation: #5eead4;
-    --syntax-node-id: #7dd3fc;
-    --syntax-text: #6ee7b7;
-    --syntax-arrow: #fda4af;
-    --syntax-comment: #6b7280;
-    --syntax-gutter: #4b5162;
-    --syntax-active-line: #1c1e28;
-    --syntax-selection: #2a3350;
-    --syntax-selected-line: #35301c;
-    --syntax-selected-token: #6b5a22;
-    --node-selected: #ff5567;
+    --syntax-selected-token: oklch(0.42 0.09 85);
+    --node-selected: var(--focus-ring);
 
     --error: #ff9a90;
-    --error-surface: #2b1a1c;
+    --error-surface: oklch(0.29 0.05 20);
     --notice: #f0c674;
-    --notice-surface: #2a2418;
+    --notice-surface: oklch(0.29 0.04 85);
 
     /*
      * A floating panel has to lift itself here: its own fill well clear of the
-     * canvas, a brighter edge, and a shadow dark enough to register against
-     * #101119. `--overlay-inset` matters more than it looks: the shape picker
-     * fills nearly the whole toolbar, so the panel is read through the well
-     * rather than around it — set to the canvas colour, as it was, the bar
-     * looked as dark as the canvas no matter what the panel fill said.
+     * canvas, a brighter edge, a hairline of light along its top, and a shadow
+     * dark enough to register against the navy.
      */
-    --overlay-surface: #2b2f3e;
-    --overlay-border: #464c62;
-    --overlay-inset: #232735;
-    --overlay-chip: #3a4054;
-    --overlay-shadow: 0 6px 18px rgb(0 0 0 / 55%);
-    --overlay-shadow-sm: 0 4px 12px rgb(0 0 0 / 45%);
+    --overlay-surface: oklch(0.3 0.03 262);
+    --overlay-border: oklch(0.43 0.03 262);
+    --overlay-inset: oklch(0.26 0.03 262);
+    --overlay-chip: oklch(0.38 0.03 262);
+    --overlay-shadow:
+        0 16px 40px -12px oklch(0.1 0.03 262 / 70%),
+        inset 0 1px 0 oklch(0.95 0.01 262 / 6%);
+    --overlay-shadow-sm:
+        0 6px 16px -6px oklch(0.1 0.03 262 / 60%),
+        inset 0 1px 0 oklch(0.95 0.01 262 / 5%);
+    --chip-active: color-mix(in srgb, var(--accent) 28%, var(--overlay-chip));
 
     color-scheme: dark;
 }
@@ -143,7 +156,7 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 12px 20px;
+    padding: 10px 20px;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
 }
@@ -157,30 +170,43 @@ body {
 
 .app-title {
     margin: 0;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
+    letter-spacing: -0.01em;
     white-space: nowrap;
 }
 
 /* The example picker lives up here: the editor pane is narrow, and this bar
-   had room going spare once the subtitle went. */
+   had room going spare once the subtitle went. The field (and the select
+   inside it) must be allowed to SHRINK — with everything `nowrap` and
+   fixed-width, a phone-wide header overflowed the lead cluster underneath
+   the actions and the logo. */
 .app-field {
     display: flex;
+    flex: 0 1 auto;
     align-items: center;
     gap: 8px;
+    min-width: 0;
     font-size: 12px;
     color: var(--text-muted);
     white-space: nowrap;
 }
 
 .app-select {
-    padding: 5px 8px;
+    min-width: 0;
+    padding: 5px 30px 5px 8px;
     font: inherit;
     font-size: 13px;
     color: var(--text);
-    background: var(--surface);
+    /* Own chevron with a real right margin: the native arrow sits on the
+       border and cannot be moved. Mid grey reads on both themes. */
+    appearance: none;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%238a8f9c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5l3 3 3-3'/%3E%3C/svg%3E")
+        right 10px center / 12px 12px no-repeat,
+        var(--surface);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 7px;
 }
 
 .app-actions {
@@ -196,9 +222,6 @@ body {
     flex: none;
 }
 
-.app-brand:hover {
-    opacity: 0.75;
-}
 
 .app-logo {
     display: block;
@@ -207,13 +230,14 @@ body {
 }
 
 .app-button {
-    padding: 7px 14px;
+    padding: 6px 12px;
     font: inherit;
     font-size: 13px;
+    font-weight: 500;
     color: var(--text);
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 7px;
     cursor: pointer;
 }
 
@@ -230,8 +254,8 @@ body {
 }
 
 .app-button:hover:not(:disabled) {
-    border-color: var(--accent);
-    color: var(--accent);
+    background: var(--overlay-chip);
+    border-color: var(--overlay-border);
 }
 
 .app-button:disabled {
@@ -273,15 +297,34 @@ body {
     border-top: 1px solid var(--border);
 }
 
+/*
+ * No visual dim while a parse is in flight: every opacity that still read as
+ * "dimmed" put the text under the WCAG AA contrast floor on one theme or the
+ * other. `aria-busy` on the element carries the state instead.
+ */
 .editor-counts {
     font-variant-numeric: tabular-nums;
-    /* Eased so a fast parse does not read as a flicker. */
-    transition: opacity 120ms ease-out;
 }
 
-/* Only the counts dim while a parse is in flight — they are the stale part. */
-.editor-counts.is-busy {
-    opacity: 0.35;
+.editor-tools {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Styled as the footer's other quiet action, not as a primary button. */
+.editor-download {
+    padding: 0;
+    font: inherit;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.editor-download:hover {
+    color: var(--text);
+    text-decoration: underline;
 }
 
 .editor-link {
@@ -290,11 +333,12 @@ body {
 }
 
 .editor-link:hover {
-    color: var(--accent);
+    color: var(--text);
     text-decoration: underline;
 }
 
-/* CodeMirror host; the editor itself is styled by `mermaid-editor.tsx`. */
+/* Monaco host; the editor's own colours come from its theme definitions in
+   `mermaid-editor.tsx`. */
 .editor-code {
     flex: 1;
     min-height: 0;
@@ -302,10 +346,16 @@ body {
     background: var(--surface);
 }
 
+/* Occurrences of the canvas-selected node ids, as a Monaco decoration. */
+.mermaid-editor-mark {
+    background: var(--syntax-selected-token);
+    border-radius: 3px;
+}
+
 .editor-message {
     margin: 0;
     padding: 10px 14px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     line-height: 1.5;
     white-space: pre-wrap;
@@ -365,14 +415,133 @@ body {
     box-shadow: var(--overlay-shadow-sm);
 }
 
+/* The layout switch is a mode, so it wears its state: quiet while dagre owns
+   the layout, accented while the user does. */
+.canvas-actions .layout-toggle {
+    padding: 0 10px;
+    font-size: 12px;
+}
+
+.canvas-actions .layout-toggle[aria-pressed='true'] {
+    background: var(--chip-active);
+}
+
+/* The direction switch: four arrows, one lit — the diagram's `flowchart TB`
+   header made clickable. */
+.canvas-direction {
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    background: var(--overlay-surface);
+    border: 1px solid var(--overlay-border);
+    border-radius: 8px;
+    box-shadow: var(--overlay-shadow-sm);
+}
+
+.canvas-actions .canvas-direction-option {
+    height: 100%;
+    min-width: 26px;
+    font-size: 13px;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.canvas-actions .canvas-direction-option.is-active {
+    color: var(--text);
+    background: var(--chip-active);
+}
+
+/* -------------------------------------------------- accessibility check */
+
+.accessibility-check {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    display: inline-flex;
+    gap: 7px;
+    align-items: center;
+    padding: 7px 13px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #fdf6f2;
+    text-decoration: none;
+    background: linear-gradient(to right, oklch(0.34 0.03 60), oklch(0.5 0.15 45));
+    border-radius: 999px;
+    box-shadow: var(--overlay-shadow-sm);
+    transition: transform 120ms ease-out;
+}
+
+.accessibility-check:hover {
+    transform: scale(1.02);
+}
+
+.accessibility-check:active {
+    transform: scale(0.95);
+}
+
+.accessibility-check-ping {
+    position: relative;
+    display: inline-flex;
+    width: 8px;
+    height: 8px;
+}
+
+.accessibility-check-ping-wave {
+    position: absolute;
+    inset: 0;
+    background: #4ade80;
+    border-radius: 999px;
+    opacity: 0.75;
+    animation: accessibility-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.accessibility-check-ping-dot {
+    position: relative;
+    display: inline-flex;
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    border-radius: 999px;
+}
+
+@keyframes accessibility-ping {
+    75%,
+    100% {
+        opacity: 0;
+        transform: scale(2);
+    }
+}
+
+.accessibility-check-icon {
+    width: 14px;
+    height: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .accessibility-check {
+        transition: none;
+    }
+
+    .accessibility-check-ping-wave {
+        animation: none;
+    }
+}
+
+@media (max-width: 720px) {
+    .accessibility-check-label {
+        display: none;
+    }
+}
+
 .zoom-controls {
     position: absolute;
     right: 16px;
     bottom: 16px;
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px;
+    gap: 4px;
+    padding: 4px;
     background: var(--overlay-surface);
     border: 1px solid var(--overlay-border);
     border-radius: 8px;
@@ -401,14 +570,14 @@ body {
     width: 100%;
     padding: 3px 4px;
     overflow: auto;
-    font-family: inherit;
+    font-family: var(--font-mono);
     font-size: 13px;
     line-height: 17px;
     color: var(--node-text);
     text-align: center;
     resize: none;
     background: var(--surface);
-    border: 1px solid var(--accent);
+    border: 1px solid var(--focus-ring);
     border-radius: 4px;
     outline: none;
 }
@@ -425,33 +594,31 @@ body {
        than most nodes and overhung them badly. */
     flex-direction: column;
     align-items: stretch;
-    gap: 6px;
-    padding: 6px;
+    gap: 8px;
+    padding: 8px;
     white-space: nowrap;
     background: var(--overlay-surface);
     border: 1px solid var(--overlay-border);
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: var(--overlay-shadow);
 }
 
-/* Segmented shape picker: each button draws the shape it selects. */
+/* Shape picker: each button draws the shape it selects. No well around the
+   row: the panel is the only box; sections are told apart by hairlines. */
 .node-toolbar-group {
     display: flex;
     align-items: center;
-    padding: 2px;
-    background: var(--overlay-inset);
-    border: 1px solid var(--overlay-border);
-    border-radius: 6px;
+    gap: 2px;
 }
 
 .node-toolbar-shape {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3px;
+    padding: 2px 3px;
     background: none;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
 }
 
@@ -460,34 +627,51 @@ body {
 }
 
 .node-toolbar-shape.is-active {
-    background: var(--overlay-chip);
-    box-shadow: inset 0 0 0 1px var(--accent);
+    background: var(--chip-active);
+}
+
+/* The v11 shape grid, always open under the quick row: the same buttons,
+   wrapping — with 36 shapes a single row would overhang the canvas. */
+.node-toolbar-more {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    max-width: 372px;
+    white-space: normal;
 }
 
 /* Icons stay legible at 30x20: thinner strokes than the nodes carry. */
 .node-toolbar-icon .mermaid-node-body,
 .node-toolbar-icon .mermaid-node-detail {
+    /* Icons are whole nodes scaled down; the stroke must not scale with them. */
+    vector-effect: non-scaling-stroke;
     stroke-width: 1.25;
+}
+
+/* The colour strip and the row after it each open a new section. */
+.node-toolbar-swatches,
+.node-toolbar-swatches + .node-toolbar-row {
+    padding-top: 8px;
+    border-top: 1px solid var(--overlay-border);
 }
 
 .node-toolbar-swatches {
     display: flex;
-    align-items: stretch;
-    gap: 4px;
+    align-items: center;
+    gap: 5px;
 }
 
 .node-toolbar-swatch {
-    /* Share the row evenly, so the strip lines up with the shapes above. */
-    flex: 1;
+    flex: 0 0 22px;
     height: 18px;
     padding: 0;
     border: 1px solid var(--overlay-border);
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
 }
 
 .node-toolbar-swatch:hover:not(:disabled) {
-    border-color: var(--accent);
+    border-color: var(--text-muted);
 }
 
 .node-toolbar-swatch:disabled {
@@ -510,12 +694,294 @@ body {
         var(--overlay-inset);
 }
 
+/* The free-colour swatch wraps a native colour input, so the browser's own
+   picker does the work; a conic ring says "any colour" without a new icon. */
+.node-toolbar-swatch.is-custom {
+    position: relative;
+    flex: 0 0 24px;
+    overflow: hidden;
+    cursor: pointer;
+    background:
+        conic-gradient(#f87171, #facc15, #4ade80, #38bdf8, #a78bfa, #f87171);
+}
+
+.node-toolbar-swatch.is-custom input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.node-toolbar-swatch.is-custom:focus-within {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+/* Last row: text style, border style, link and image, and at the far end,
+   on its own, delete. */
+.node-toolbar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.node-toolbar-cluster {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+/* Clusters are separated by a hairline, not boxed. */
+.node-toolbar-cluster + .node-toolbar-cluster {
+    padding-left: 8px;
+    border-left: 1px solid var(--overlay-border);
+}
+
+.node-toolbar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 26px;
+    padding: 0 6px;
+    font: inherit;
+    font-size: 12px;
+    color: var(--text);
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.node-toolbar-toggle.is-bold {
+    font-weight: 700;
+}
+
+.node-toolbar-toggle.is-italic {
+    font-style: italic;
+}
+
+.node-toolbar-toggle:hover {
+    background: var(--overlay-chip);
+}
+
+.node-toolbar-toggle.is-active {
+    background: var(--chip-active);
+}
+
+/* Delete: the one destructive control. Quiet at rest, set apart from the
+   last cluster by twice the cluster gap rather than by a hairline, and red
+   only under the pointer or keyboard focus. */
+.node-toolbar-toggle.is-danger {
+    color: var(--text-muted);
+}
+
+.node-toolbar-cluster + .node-toolbar-toggle.is-danger {
+    margin-left: 16px;
+}
+
+.node-toolbar-toggle.is-danger:hover,
+.node-toolbar-toggle.is-danger:focus-visible {
+    color: var(--error);
+    background: var(--error-surface);
+}
+
+/* The border-colour control: a ring in the current stroke colour wrapping a
+   hidden native colour input, mirroring the custom fill swatch. */
+.node-toolbar-toggle.is-stroke {
+    position: relative;
+    cursor: pointer;
+}
+
+.node-toolbar-stroke-ring {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border: 3px solid;
+    border-radius: 999px;
+}
+
+.node-toolbar-toggle.is-stroke input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.node-toolbar-toggle.is-stroke:focus-within {
+    background: var(--overlay-chip);
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+/* The add-step "+", hanging just under the hovered or selected node — the
+   official editor's affordance. It overlaps the shape's bottom edge a touch
+   so the pointer can travel onto it without leaving both. */
+.node-add-step {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    /* The "+" glyph hangs on the font's math axis, below the em box's
+       centre, so it rendered ~1px low; the bottom padding lifts the centred
+       cell by half that much (measured at 1x and 2x). */
+    padding: 0 0 2px;
+    font: inherit;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--accent);
+    cursor: pointer;
+    background: var(--overlay-surface);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    box-shadow: var(--overlay-shadow-sm);
+    /* The drag out of it must not become a scroll of the canvas on touch. */
+    touch-action: none;
+}
+
+.node-add-step:hover {
+    color: var(--surface);
+    background: var(--accent);
+}
+
+/* Dragging the "+" draws a connection towards the pointer; it snaps to the
+   shape underneath and turns solid when it has one. Fixed to the window so
+   it stays put while the canvas underneath does not scroll. */
+.connect-draft {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.connect-draft line {
+    stroke: var(--focus-ring);
+    stroke-width: 2;
+    stroke-dasharray: 6 4;
+}
+
+.connect-draft.is-snapped line {
+    stroke-dasharray: none;
+}
+
+.connect-draft circle {
+    fill: var(--focus-ring);
+}
+
+/* Dashed, and forced past the inline stroke a Mermaid `style` line sets, so
+   it also reads on a styled node and on the node that is already selected. */
+[model-id][data-connect-target] .mermaid-node-body {
+    stroke: var(--focus-ring) !important;
+    stroke-width: 2.5px !important;
+    stroke-dasharray: 6 3;
+}
+
+/* The comment shapes' picker icons are drawn as type, not geometry. */
+.node-toolbar-glyph {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    fill: var(--node-stroke);
+}
+
+/* The text-colour control: an "A" in the current label colour, wrapping the
+   same hidden native colour input the stroke ring uses. */
+.node-toolbar-text-sample {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* Two nodes selected: a single floating action over the second one. */
+.connect-bar {
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    background: var(--overlay-surface);
+    border: 1px solid var(--overlay-border);
+    border-radius: 999px;
+    box-shadow: var(--overlay-shadow);
+    cursor: pointer;
+}
+
+.connect-bar:hover {
+    background: var(--overlay-chip);
+}
+
+.node-toolbar-linkrow {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.node-toolbar-linkinput {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 7px;
+    font: inherit;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--overlay-inset);
+    border: 1px solid var(--overlay-border);
+    border-radius: 6px;
+    outline: none;
+}
+
+.node-toolbar-linkinput:focus-visible {
+    border-color: var(--focus-ring);
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 1px;
+}
+
+.node-toolbar-action {
+    padding: 4px 8px;
+    font: inherit;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--overlay-chip);
+    border: 1px solid var(--overlay-border);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.node-toolbar-action:hover {
+    border-color: var(--text-muted);
+}
+
 /* ----------------------------------------------------------- diagram ink */
 
 .mermaid-node-body {
     fill: var(--node-fill);
     stroke: var(--node-stroke);
     stroke-width: 1.5;
+}
+
+/*
+ * A node with its own `style … fill:` shows that fill as written in light
+ * mode. In dark mode the pastel is blended into the canvas instead, so a
+ * styled diagram stays a dark diagram (true dark mode) while the hue still
+ * tells the nodes apart; the derived label colour gives way to the theme's.
+ */
+.mermaid-node-body.has-own-fill {
+    fill: var(--node-own-fill);
+}
+
+.mermaid-node-text.has-own-fill {
+    fill: var(--node-own-label);
+}
+
+:root[data-theme='dark'] .mermaid-node-body.has-own-fill {
+    fill: color-mix(in srgb, var(--node-own-fill) 34%, var(--surface-sunken));
+}
+
+:root[data-theme='dark'] .mermaid-node-text.has-own-fill {
+    fill: var(--node-text);
 }
 
 /*
@@ -540,6 +1006,23 @@ body {
     cursor: pointer;
 }
 
+/* The `text` shape's invisible hit area. Fill must stay a colour (not
+   `none`) to catch pointer events; selection restores a visible outline. */
+.mermaid-node-body.is-ghost {
+    fill: transparent;
+    stroke: none;
+}
+
+/* Fork bars and junction dots are drawn in the stroke colour. */
+.mermaid-node-body.is-filled {
+    fill: var(--node-stroke);
+}
+
+/* Braces are not closed shapes; a fill would paint their bowl. */
+.mermaid-node-body.is-open {
+    fill: none;
+}
+
 /* Inner rules of the subroutine shape, cylinder cap, double-circle ring. */
 .mermaid-node-detail {
     fill: none;
@@ -547,10 +1030,93 @@ body {
     stroke-width: 1.5;
 }
 
+/* ------------------------------------------------------------- subgraphs */
+
+.mermaid-subgraph-body {
+    fill: var(--group-fill);
+    stroke: var(--group-stroke);
+    stroke-width: 1.25;
+    stroke-dasharray: 5 4;
+}
+
+.mermaid-subgraph-title {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    fill: var(--group-title);
+}
+
+.joint-element.jj-is-selected .mermaid-subgraph-body {
+    stroke: var(--node-selected);
+    stroke-dasharray: none;
+    stroke-width: 2;
+}
+
+/* ------------------------------------------------------------ hyperlinks */
+
+.mermaid-node-link {
+    cursor: pointer;
+    outline: none;
+}
+
+.mermaid-node-link-disc {
+    fill: var(--overlay-surface);
+    stroke: var(--node-stroke);
+    stroke-width: 1.25;
+}
+
+.mermaid-node-link-arrow {
+    stroke: var(--node-detail);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.mermaid-node-link:hover .mermaid-node-link-disc,
+.mermaid-node-link:focus-visible .mermaid-node-link-disc {
+    stroke: var(--accent);
+}
+
+.mermaid-node-link:hover .mermaid-node-link-arrow,
+.mermaid-node-link:focus-visible .mermaid-node-link-arrow {
+    stroke: var(--accent);
+}
+
+/* -------------------------------------------------------- animated edges */
+
+/*
+ * The Mermaid `e1@{ animate: true }` marching dash. The dash pattern lives
+ * here rather than in the link's style so a plain solid edge can carry it;
+ * a `-.->` edge already has its own dasharray and simply starts moving.
+ */
+@keyframes mermaid-edge-dash {
+    to {
+        stroke-dashoffset: -22;
+    }
+}
+
+.mermaid-link-line.is-animated {
+    stroke-dasharray: 7 4;
+    animation: mermaid-edge-dash 0.9s linear infinite;
+}
+
+.mermaid-link-line.is-animated-slow {
+    animation-duration: 1.8s;
+}
+
+.mermaid-link-line.is-animated-fast {
+    animation-duration: 0.45s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mermaid-link-line.is-animated {
+        animation: none;
+    }
+}
+
 .mermaid-node-text {
     fill: var(--node-text);
-    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
-        sans-serif;
+    font-family: var(--font-mono);
 }
 
 /*
@@ -580,6 +1146,7 @@ body {
 }
 
 .mermaid-link-label-text {
+    font-family: var(--font-mono);
     fill: var(--label-text);
 }
 
@@ -594,4 +1161,157 @@ body {
         border-right: 0;
         border-bottom: 1px solid var(--border);
     }
+
+    /* One tight header row on a phone: smaller title and logo, the
+       redundant "Example" label gone, the select free to shrink. */
+    .app-header {
+        gap: 10px;
+        padding: 10px 12px;
+    }
+
+    .app-lead {
+        gap: 10px;
+    }
+
+    .app-title {
+        font-size: 13px;
+    }
+
+    .app-select {
+        padding-right: 26px;
+    }
+
+    .app-field span {
+        display: none;
+    }
+
+    /* The select takes whatever the title leaves, so the example name is
+       not cut to a stub next to a lot of empty header. */
+    .app-lead,
+    .app-field {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .app-select {
+        width: 100%;
+    }
+
+    .app-actions {
+        gap: 10px;
+    }
+
+    .app-logo {
+        height: 16px;
+    }
+
+    /* The action cluster is wider than a phone canvas; wrap it. */
+    .canvas-actions {
+        flex-wrap: wrap;
+        max-width: calc(100% - 32px);
+    }
+
+    /* The node toolbar is wider than a phone: cap it to the screen and let
+       every row wrap instead of running off the right edge. */
+    .node-toolbar {
+        max-width: calc(100vw - 16px);
+        white-space: normal;
+    }
+
+    .node-toolbar-row,
+    .node-toolbar-group,
+    .node-toolbar-swatches {
+        flex-wrap: wrap;
+    }
+
+    .node-toolbar-more {
+        max-width: 100%;
+    }
+
+    /* The last row fits a 390px screen only without its hairlines and with
+       tighter chips; the gap alone tells the clusters apart. */
+    .node-toolbar-row {
+        gap: 6px;
+    }
+
+    .node-toolbar-toggle {
+        padding: 0 4px;
+    }
+
+    .node-toolbar-cluster + .node-toolbar-cluster {
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .node-toolbar-cluster + .node-toolbar-toggle.is-danger {
+        margin-left: 6px;
+    }
+}
+
+/* ---------------------------------------------------------------- motion */
+
+/* Colour and fill only, never layout; one curve everywhere. */
+.app-button,
+.node-toolbar-toggle,
+.node-toolbar-shape,
+.node-toolbar-swatch,
+.node-toolbar-action,
+.node-add-step,
+.connect-bar,
+.editor-download,
+.editor-link {
+    transition:
+        background-color var(--motion) var(--ease-out),
+        color var(--motion) var(--ease-out),
+        border-color var(--motion) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --motion: 0ms;
+    }
+}
+
+/* ------------------------------------------------------ keyboard focus */
+
+/* One ring for every control, in one colour, with enough offset to read
+   against the chip backgrounds; the swatches were the worst offenders. */
+.app-button:focus-visible,
+.app-select:focus-visible,
+.node-toolbar button:focus-visible,
+.node-toolbar-swatch:focus-visible,
+.node-toolbar-toggle:focus-visible,
+.node-toolbar-shape:focus-visible,
+.node-toolbar-action:focus-visible,
+.node-add-step:focus-visible,
+.connect-bar:focus-visible,
+.canvas-direction-option:focus-visible,
+.editor-link:focus-visible,
+.editor-download:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+.node-toolbar-swatch.is-custom:focus-within,
+.node-toolbar-toggle.is-stroke:focus-within {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+/* The editor pane is a focus STOP: Tab lands on the frame, Enter goes in,
+   Escape comes back out. The frame shows it holds focus. */
+.editor-code:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+}
+
+/* Nodes are keyboard-reachable: focus draws the same ring selection does,
+   on the shape itself (the SVG group takes no CSS outline reliably). */
+.mermaid-node-focus {
+    outline: none;
+}
+
+.mermaid-node-focus:focus-visible .mermaid-node-body {
+    stroke: var(--focus-ring) !important;
+    stroke-width: 2.5;
 }

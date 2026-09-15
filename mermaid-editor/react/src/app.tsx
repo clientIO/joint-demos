@@ -1,18 +1,33 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ChangeEvent } from 'react';
+import type { ChangeEvent, KeyboardEvent } from 'react';
 import logoUrl from '@/assets/jointjs-logo.svg';
 import { MermaidDiagram } from '@/components/diagram';
 import { EditorPanel } from '@/components/editor-panel';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useTheme } from '@/hooks/use-theme';
-import { setNodeFill, setNodeLabel, setNodeShape } from '@/mermaid/edit-source';
-import type { EditableShape } from '@/mermaid/edit-source';
+import {
+    addChildNode,
+    addEdge,
+    addNode,
+    setDirection,
+    setEdgeAnimation,
+    setEdgeArrow,
+    setEdgeInterpolate,
+    setEdgeStyleProperty,
+    setNodeFill,
+    setNodeImage,
+    setNodeLabel,
+    setNodeLink,
+    setNodeShape,
+    setNodeStyleProperty,
+} from '@/mermaid/edit-source';
+import { removeEdge, removeNode } from '@/mermaid/remove';
 import { MermaidParseError, parseFlowchart } from '@/mermaid/parse';
 import { DEFAULT_PRESET, PRESETS } from '@/mermaid/presets';
 import { toCells } from '@/mermaid/to-cells';
 import type { MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection } from '@/mermaid/types';
-import type { NodeEditHandlers } from '@/components/diagram';
+import type { EdgeEditHandlers, ManualPositions, NodeEditHandlers } from '@/components/diagram';
 import type { CellId } from '@joint/react-plus';
 
 /**
@@ -79,6 +94,11 @@ export function App() {
     // Bumped when a different diagram is loaded, which is the only time the
     // canvas re-frames itself. Editing the source leaves the camera alone.
     const [fitToken, setFitToken] = useState(0);
+    // Dagre owns node positions while true. Turned off, nodes drag by hand
+    // and links route around them; the positions live in the ref below — the
+    // canvas remounts on id changes, and drags must survive that.
+    const [autoLayout, setAutoLayout] = useState(true);
+    const manualPositionsRef = useRef<ManualPositions>(new Map());
     // Read through a ref so the toolbar handlers stay stable; a new identity on
     // every keystroke would remount the overlay mid-edit.
     const sourceRef = useRef(source);
@@ -86,10 +106,16 @@ export function App() {
         sourceRef.current = source;
     }, [source]);
     const [selection, setSelection] = useState<Selection>(NO_SELECTION);
-    const selectFromCanvas = useCallback(
-        (ids: readonly CellId[]) => setSelection({ ids, origin: 'canvas' }),
-        []
-    );
+    // The node whose toolbar should take focus when it opens — set when a
+    // shape was added from the keyboard, so the user lands on the new
+    // node's controls instead of being left on the button they pressed.
+    const [focusToolbarFor, setFocusToolbarFor] = useState<CellId | null>(null);
+    const selectFromCanvas = useCallback((ids: readonly CellId[]) => {
+        setSelection({ ids, origin: 'canvas' });
+        // A selection the user made themselves must not re-trigger the
+        // "focus the toolbar" hand-off from an earlier keyboard add.
+        setFocusToolbarFor(null);
+    }, []);
     const selectFromEditor = useCallback(
         (ids: readonly CellId[]) => setSelection({ ids, origin: 'editor' }),
         []
@@ -105,8 +131,8 @@ export function App() {
                     setRendered({ direction: flow.direction, cells: toCells(flow) });
                     setError(null);
                     setNotice(
-                        flow.droppedSubgraphs > 0
-                            ? `${flow.droppedSubgraphs} subgraph${flow.droppedSubgraphs > 1 ? 's were' : ' was'} ignored — this demo renders a flat graph.`
+                        flow.droppedGroupEdges > 0
+                            ? `${flow.droppedGroupEdges} edge${flow.droppedGroupEdges > 1 ? 's' : ''} connected to a subgraph ${flow.droppedGroupEdges > 1 ? 'were' : 'was'} skipped — link its member nodes instead.`
                             : null
                     );
                     setParsedSource(source);
@@ -145,6 +171,10 @@ export function App() {
         setPresetId(preset.id);
         setSource(preset.source, true);
         setFitToken((token) => token + 1);
+        // A fresh example wants a fresh layout; hand-placed positions belong
+        // to the diagram they were dragged on.
+        setAutoLayout(true);
+        manualPositionsRef.current.clear();
     }
 
     /**
@@ -157,13 +187,89 @@ export function App() {
             if (next === null) return;
             setSource(next, true);
             setPresetId('custom');
+            // Written through at once, so a second edit in the same event —
+            // deleting a multi-selection — builds on this one, not on the
+            // text from before it.
+            sourceRef.current = next;
         };
         return {
             onLabelChange: (id, label) => apply(setNodeLabel(sourceRef.current, id, label)),
-            onShapeChange: (id, shape: EditableShape) =>
-                apply(setNodeShape(sourceRef.current, id, shape)),
+            onShapeChange: (id, shape) => apply(setNodeShape(sourceRef.current, id, shape)),
             onFillChange: (id, fill) => apply(setNodeFill(sourceRef.current, id, fill)),
+            onStyleChange: (id, property, value) =>
+                apply(setNodeStyleProperty(sourceRef.current, id, property, value)),
+            onLinkChange: (id, url) => apply(setNodeLink(sourceRef.current, id, url)),
+            onImageChange: (id, url) => apply(setNodeImage(sourceRef.current, id, url)),
+            onAddChild: (id, fromKeyboard) => {
+                const added = addChildNode(sourceRef.current, id);
+                if (added === null) return;
+                apply(added.source);
+                // The new step is what the author works on next: select it so
+                // its toolbar opens at once, as "+ Shape" does.
+                setSelection({ ids: [added.id], origin: 'canvas' });
+                setFocusToolbarFor(fromKeyboard ? added.id : null);
+            },
+            onConnect: (from, to) => apply(addEdge(sourceRef.current, from, to)),
+            onRemove: (id) => {
+                apply(removeNode(sourceRef.current, String(id)));
+                // The selection pointed at a node that no longer exists.
+                setSelection(NO_SELECTION);
+                setFocusToolbarFor(null);
+            },
         };
+    }, [setSource]);
+
+    /** Same contract as {@link edit}, for the controls on a selected edge. */
+    const linkEdit = useMemo<EdgeEditHandlers>(() => {
+        const apply = (next: string | null) => {
+            if (next === null) return;
+            setSource(next, true);
+            setPresetId('custom');
+            sourceRef.current = next;
+        };
+        return {
+            onArrowChange: (edgeRef, change) =>
+                apply(setEdgeArrow(sourceRef.current, edgeRef, change)),
+            onColorChange: (edgeIndex, color) =>
+                apply(setEdgeStyleProperty(sourceRef.current, edgeIndex, 'stroke', color)),
+            onCurveChange: (edgeIndex, curve) =>
+                apply(setEdgeInterpolate(sourceRef.current, edgeIndex, curve)),
+            onAnimationChange: (edgeRef, animate) =>
+                apply(setEdgeAnimation(sourceRef.current, edgeRef, animate)),
+            onRemove: (edgeRef) => {
+                apply(removeEdge(sourceRef.current, edgeRef));
+                setSelection(NO_SELECTION);
+            },
+        };
+    }, [setSource]);
+
+    const handleDirectionChange = useCallback(
+        (direction: FlowDirection) => {
+            const next = setDirection(sourceRef.current, direction);
+            if (next === null) return;
+            setSource(next, true);
+            setPresetId('custom');
+            // A direction flip reshapes the whole board; unlike typing, it
+            // should re-frame — the old camera points at the old shape.
+            setFitToken((token) => token + 1);
+        },
+        [setSource]
+    );
+
+    /**
+     * The from-scratch start: append an unconnected node (seeding the
+     * `flowchart TD` header when the text is blank) and select it, so the
+     * shape toolbar opens on something immediately.
+     */
+    const handleAddShape = useCallback((fromKeyboard: boolean) => {
+        const added = addNode(sourceRef.current);
+        // `null` means the text is not a flowchart at all; the parse error
+        // already says so, and appending to it would corrupt it.
+        if (added === null) return;
+        setSource(added.source, true);
+        setPresetId('custom');
+        setSelection({ ids: [added.id], origin: 'canvas' });
+        setFocusToolbarFor(fromKeyboard ? added.id : null);
     }, [setSource]);
 
     function handleSourceChange(next: string) {
@@ -182,9 +288,23 @@ export function App() {
                         <span>Example</span>
                         <select
                             className="app-select"
+                            // The visible label is hidden on phones to fit the
+                            // header; carry the name on the control itself so
+                            // it never depends on that text being rendered.
+                            aria-label="Example"
                             value={presetId}
                             onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                                 handlePresetChange(event.target.value)}
+                            // Enter opens the list, as keyboard users expect of
+                            // a picker; the native control only opens on Space.
+                            onKeyDown={(event: KeyboardEvent<HTMLSelectElement>) => {
+                                if (event.key !== 'Enter') return;
+                                const select = event.currentTarget;
+                                if ('showPicker' in select && typeof select.showPicker === 'function') {
+                                    event.preventDefault();
+                                    select.showPicker();
+                                }
+                            }}
                         >
                             {PRESETS.map((preset) => (
                                 <option key={preset.id} value={preset.id}>
@@ -229,6 +349,13 @@ export function App() {
                         onSelect={selectFromCanvas}
                         fitToken={fitToken}
                         edit={edit}
+                        linkEdit={linkEdit}
+                        autoLayout={autoLayout}
+                        onAutoLayoutChange={setAutoLayout}
+                        onDirectionChange={handleDirectionChange}
+                        onAddShape={handleAddShape}
+                        focusToolbarFor={focusToolbarFor}
+                        positionsRef={manualPositionsRef}
                     />
                 </div>
             </main>

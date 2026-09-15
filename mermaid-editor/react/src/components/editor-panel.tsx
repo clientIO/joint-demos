@@ -1,6 +1,21 @@
 import type { CellId } from '@joint/react-plus';
 import { MermaidEditor } from './mermaid-editor';
 
+/**
+ * Saves the pane's text as a `.mmd` file — the portable form every Mermaid
+ * tool accepts. It lives in this footer because it exports the *source*; the
+ * SVG button on the canvas exports the *drawing*.
+ */
+function downloadSource(source: string) {
+    const blob = new Blob([source], { type: 'text/vnd.mermaid' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'diagram.mmd';
+    anchor.click();
+    URL.revokeObjectURL(url);
+}
+
 export interface EditorPanelProps {
     readonly source: string;
     readonly error: string | null;
@@ -43,15 +58,25 @@ export function EditorPanel({
                     {' · '}
                     {edgeCount} {edgeCount === 1 ? 'edge' : 'edges'}
                 </span>
-                {/* The syntax this pane takes is Mermaid's, so credit it here. */}
-                <a
-                    className="editor-link"
-                    href="https://mermaid.ai/open-source"
-                    target="_blank"
-                    rel="noreferrer"
-                >
-                    Mermaid&nbsp;&#8599;
-                </a>
+                <span className="editor-tools">
+                    <button
+                        type="button"
+                        className="editor-download"
+                        title="Download the source as diagram.mmd"
+                        onClick={() => downloadSource(source)}
+                    >
+                        .mmd&nbsp;&#8595;
+                    </button>
+                    {/* The syntax this pane takes is Mermaid's, so credit it here. */}
+                    <a
+                        className="editor-link"
+                        href="https://mermaid.ai/open-source"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        Mermaid&nbsp;&#8599;
+                    </a>
+                </span>
             </footer>
 
             {error !== null && (

@@ -30,6 +30,12 @@ export function SVGShape({
 }: SVGShapeProps) {
     const outline = getShapeSpec(shape).outline({ width, height });
 
+    // The `text` shape draws nothing — but still needs a hit area, or the
+    // node could never be clicked, selected or renamed on the canvas.
+    if (outline.kind === 'none') {
+        return <rect className={`${className} is-ghost`} width={width} height={height} />;
+    }
+
     if (outline.kind === 'rect') {
         return (
             <rect
@@ -56,9 +62,17 @@ export function SVGShape({
         );
     }
 
+    // `is-filled` paints the body in the stroke colour (fork bars, junction
+    // dots); `is-open` drops the fill for shapes that are not closed (braces).
+    const variant = outline.filled ? ' is-filled' : outline.open ? ' is-open' : '';
     return (
         <>
-            <path style={style} className={className} d={outline.d} strokeLinejoin="round" />
+            <path
+                style={style}
+                className={`${className}${variant}`}
+                d={outline.d}
+                strokeLinejoin="round"
+            />
             {outline.inner && (
                 <path className={detailClassName} d={outline.inner} pointerEvents="none" />
             )}

@@ -26,12 +26,36 @@ export interface SourceSpan {
 const MISSING_DIRECTION = /^([ \t]*(?:flowchart|graph))[ \t]*(?=\r?\n|$)/i;
 const IMPLIED_DIRECTION = ' TB';
 
+/**
+ * The body of a v11 `id@{ shape: …, label: "…" }` block, as a regex source: a
+ * `}` inside a quoted label belongs to the label, not the block.
+ */
+export const META_BLOCK_BODY = '(?:"[^"]*"|[^}])*';
+
+const META_BLOCK = new RegExp(`@\\{${META_BLOCK_BODY}\\}`, 'g');
+
+/** The `flowchart` / `graph` header line every flowchart declaration starts with. */
+export const FLOWCHART_HEADER = /^[ \t]*(?:flowchart|graph)\b/im;
+
+/**
+ * The source with every `@{ … }` block turned into spaces of the same length.
+ * The grammar predates these blocks: left in, a `(` or `[` inside a label
+ * desyncs it for the rest of the line and the ids after it never come out.
+ * Same-length blanks keep every offset valid.
+ * @param source - Mermaid source.
+ * @returns The source, metadata blocks blanked.
+ */
+export function blankMetaBlocks(source: string): string {
+    return source.replace(META_BLOCK, (block) => ' '.repeat(block.length));
+}
+
 export function parseFlowchartSpans(source: string): SourceSpan[] {
-    const match = MISSING_DIRECTION.exec(source);
+    const blanked = blankMetaBlocks(source);
+    const match = MISSING_DIRECTION.exec(blanked);
     const at = match ? match[1].length : -1;
     const text = at === -1
-        ? source
-        : source.slice(0, at) + IMPLIED_DIRECTION + source.slice(at);
+        ? blanked
+        : blanked.slice(0, at) + IMPLIED_DIRECTION + blanked.slice(at);
     // Offsets past the insertion point shift back by its length; the inserted
     // direction itself collapses to a zero-width span at `at`, which no caller
     // looks for.

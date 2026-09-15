@@ -41,19 +41,72 @@ export const PRESETS: readonly Preset[] = [
         id: 'shapes',
         name: 'All node shapes',
         source: `flowchart TD
-    a[Rectangle] --> b(Rounded)
-    b --> c([Stadium])
-    c --> d[[Subroutine]]
-    d --> e[(Database)]
-    e --> f((Circle))
-    f --> g>Asymmetric]
-    g --> h{Rhombus}
-    h --> i{{Hexagon}}
-    i --> j[/Parallelogram/]
-    j --> k[\\Parallelogram alt\\]
-    k --> l[/Trapezoid\\]
-    l --> m[\\Trapezoid alt/]
-    m --> n(((Double circle)))
+    go@{ shape: sm-circ, label: "Start" } --> rect[Rectangle]
+    go --> junction@{ shape: f-circ, label: "Junction" }
+    go --> card@{ shape: card, label: "Card" }
+    go --> fork@{ shape: fork, label: "Fork / join" }
+    go --> doc@{ shape: doc, label: "Document" }
+    go --> das@{ shape: h-cyl, label: "Direct access storage" }
+
+    rect --> rounded(Rounded) --> stadium([Stadium]) --> sub[[Subroutine]]
+    rect --> rhombus{Rhombus} --> hex{{Hexagon}} --> asym>Asymmetric]
+    rect --> para[/Parallelogram/] --> paraAlt[\\Parallelogram alt\\] --> trap[/Trapezoid\\] --> trapAlt[\\Trapezoid alt/]
+    rounded --> db[(Database)] --> circle((Circle)) --> dbl(((Double circle)))
+
+    junction --> summary@{ shape: cross-circ, label: "Summary" } --> halt@{ shape: fr-circ, label: "Stop" }
+    junction --> leanL@{ shape: lean-l, label: "Parallelogram (left)" } --> priority@{ shape: trap-b, label: "Priority" } --> manualOp@{ shape: trap-t, label: "Manual operation" }
+    junction --> oddOne@{ shape: odd, label: "Odd" } --> note@{ shape: text, label: "Text block" }
+
+    card --> lined@{ shape: lin-rect, label: "Lined process" } --> stacked@{ shape: st-rect, label: "Stacked process" } --> tagged@{ shape: tag-rect, label: "Tagged process" }
+    card --> divided@{ shape: div-rect, label: "Divided process" } --> internal@{ shape: win-pane, label: "Internal storage" }
+    card --> manualIn@{ shape: sl-rect, label: "Manual input" } --> stored@{ shape: bow-rect, label: "Stored data" }
+
+    fork --> collate@{ shape: hourglass, label: "Collate" } --> comLink@{ shape: bolt, label: "Com link" }
+    fork --> extract@{ shape: tri, label: "Extract" } --> manualFile@{ shape: flip-tri, label: "Manual file" }
+    fork --> loopLimit@{ shape: notch-pent, label: "Loop limit" } --> tape@{ shape: flag, label: "Paper tape" } --> delay@{ shape: delay, label: "Delay" }
+
+    doc --> docs@{ shape: docs, label: "Documents" } --> linedDoc@{ shape: lin-doc, label: "Lined document" } --> taggedDoc@{ shape: tag-doc, label: "Tagged document" }
+    doc --> comment@{ shape: brace, label: "Comment" } --> commentR@{ shape: brace-r, label: "Comment (right)" } --> commentBoth@{ shape: braces, label: "Comment (both)" }
+
+    das --> disk@{ shape: lin-cyl, label: "Disk storage" } --> display@{ shape: curv-trap, label: "Display" }
+`,
+    },
+    {
+        id: 'v11-shapes',
+        name: 'Extended shapes (@{ shape })',
+        source: `flowchart TD
+    a@{ shape: sm-circ, label: "Start" } --> b@{ shape: card, label: "Read request" }
+    b --> c@{ shape: manual-input, label: "Operator input" }
+    c --> d@{ shape: div-rect, label: "Validate payload" }
+    d --> e@{ shape: docs, label: "Audit trail" }
+    d --> f@{ shape: delay, label: "Debounce" }
+    f --> g@{ shape: das, label: "Queue" }
+    g --> h@{ shape: disk, label: "Cold storage" }
+    d --> i@{ shape: display, label: "Dashboard" }
+    i --> j@{ shape: fork, label: "Fan out" }
+    j --> k@{ shape: doc, label: "Invoice" }
+    j --> l@{ shape: tag-doc, label: "Receipt" }
+    k --> m@{ shape: stop, label: "Stop" }
+    l --> m
+`,
+    },
+    {
+        id: 'subgraphs',
+        name: 'Subgraphs and animation',
+        source: `flowchart LR
+    subgraph intake [Intake]
+        request([Request]) --> triage{Urgent?}
+    end
+    subgraph work [Fulfilment]
+        prep[Prepare] --> qa[[Quality check]]
+    end
+    triage e1@-->|yes| prep
+    e1@{ animate: true }
+    triage -.->|no| backlog[(Backlog)]
+    backlog e2@--> prep
+    e2@{ animation: slow }
+    qa --> done((Shipped))
+    click request "https://docs.jointjs.com" "JointJS docs"
 `,
     },
     {
