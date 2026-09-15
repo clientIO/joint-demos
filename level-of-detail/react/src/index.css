@@ -1,0 +1,302 @@
+:root {
+    --main-color: #4d64dd;
+    --dark-color: #322a49;
+    --border-color: #d4d4d4;
+    --muted-color: #655e77;
+    --canvas-color: #f3f7f6;
+
+    --card-border-color: #e3e6f0;
+    --accent-soft-color: #eef1fd;
+
+    /* Mirrored from `theme.ts`, which is where the SVG levels read them. */
+    --healthy-color: #12b76a;
+    --degraded-color: #f79009;
+    --down-color: #ed2637;
+
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    font-family: var(--font-family);
+    color: var(--dark-color);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Toolbar ----------------------------------------------------------------- */
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px;
+    background: #fff;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.toolbar-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.toolbar-count {
+    font-size: 13px;
+    color: var(--muted-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.toolbar-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--muted-color);
+}
+
+.detail-selector {
+    padding: 7px 10px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--dark-color);
+    cursor: pointer;
+}
+
+.detail-selector:hover {
+    border-color: var(--main-color);
+}
+
+/* Canvas ------------------------------------------------------------------ */
+
+.canvas-stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+
+.map-scroller,
+.map-paper {
+    width: 100%;
+    height: 100%;
+}
+
+/* High detail: the card --------------------------------------------------- */
+
+/*
+ * The card is HTML, rendered by `<HTMLHost useModelGeometry>` into a
+ * `foreignObject` sized from the graph element. The host writes `width` and
+ * `height` as inline styles, so `border-box` is what keeps a bordered card
+ * exactly the size the model says — and that size is the box the two SVG levels
+ * draw into, so a card overflowing it would make the switch visible as a jump.
+ */
+.service-card {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px;
+    background: linear-gradient(180deg, #fff 0%, #fdfdff 100%);
+    border: 1px solid var(--card-border-color);
+    border-radius: 10px;
+    /* Cheap in HTML, unlike in SVG: no filter region to rasterize per node. */
+    box-shadow: 0 1px 2px rgb(50 42 73 / 6%), 0 4px 10px rgb(50 42 73 / 5%);
+    font-family: var(--font-family);
+    /* Panning the paper must not turn into selecting a label. */
+    user-select: none;
+}
+
+/* One variable per status, set once on the card and used by the parts. */
+.service-card.is-healthy { --status-color: var(--healthy-color); }
+.service-card.is-degraded { --status-color: var(--degraded-color); }
+.service-card.is-down { --status-color: var(--down-color); }
+
+.service-mark {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: var(--status-color);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 35%);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+/* `min-width: 0` lets the flex item shrink far enough for the ellipsis below
+   to ever trigger; without it a long name would push the card wider. */
+.service-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.service-name,
+.service-meta {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.service-name {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--dark-color);
+}
+
+.service-meta {
+    font-size: 12px;
+    color: var(--muted-color);
+}
+
+.service-load {
+    width: 100%;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--accent-soft-color);
+    overflow: hidden;
+}
+
+.service-load-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--status-color);
+}
+
+.service-numbers {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.service-latency {
+    font-variant-numeric: tabular-nums;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.service-latency small {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted-color);
+}
+
+.service-pill {
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--status-color) 14%, #fff);
+    color: var(--status-color);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+/* HUD --------------------------------------------------------------------- */
+
+.hud {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    gap: 22px;
+    margin: 0;
+    padding: 10px 16px;
+    background: rgb(255 255 255 / 92%);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgb(50 42 73 / 8%);
+    /* A readout, not a target: it must never swallow a drag on the canvas. */
+    pointer-events: none;
+    user-select: none;
+}
+
+.hud-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hud dt {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted-color);
+}
+
+.hud dd {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--dark-color);
+}
+
+.hud-level.is-high { color: var(--main-color); }
+.hud-level.is-medium { color: #7a6ad8; }
+.hud-level.is-low { color: var(--muted-color); }
+
+/* Zoom controls ----------------------------------------------------------- */
+
+.zoom-controls {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
+}
+
+.zoom-controls button {
+    min-width: 32px;
+    height: 28px;
+    padding: 0 8px;
+    background: transparent;
+    border: 0;
+    border-radius: 4px;
+    font: inherit;
+    font-size: 14px;
+    color: inherit;
+    cursor: pointer;
+}
+
+.zoom-controls button:hover:not(:disabled) {
+    background: var(--canvas-color);
+}
+
+.zoom-controls button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}

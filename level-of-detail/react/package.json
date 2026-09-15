@@ -1,0 +1,36 @@
+{
+  "name": "@joint/demo-level-of-detail-react",
+  "private": true,
+  "version": "4.3.3",
+  "type": "module",
+  "description": "A 1,200-node service map that swaps each node's rendering for a cheaper one as you zoom out, built with @joint/react-plus (JointJS).",
+  "license": "http://jointjs.com/license",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "typecheck": "tsc -b",
+    "test": "npm run typecheck && npm run lint"
+  },
+  "dependencies": {
+    "@joint/plus": "4.3.3",
+    "@joint/react-plus": "4.3.3",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "eslint": "^10.6.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
+    "globals": "^17.7.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.62.0",
+    "vite": "^8.1.1"
+  }
+}

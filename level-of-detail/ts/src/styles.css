@@ -1,0 +1,175 @@
+:root {
+    --main-color: #4d64dd;
+    --dark-color: #322a49;
+    --border-color: #d4d4d4;
+    --muted-color: #655e77;
+    --canvas-color: #f3f7f6;
+
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    font-family: var(--font-family);
+    color: var(--dark-color);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Toolbar ----------------------------------------------------------------- */
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px;
+    background: #fff;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.toolbar-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.toolbar-count {
+    font-size: 13px;
+    color: var(--muted-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.toolbar-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--muted-color);
+}
+
+.detail-selector {
+    padding: 7px 10px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--dark-color);
+    cursor: pointer;
+}
+
+.detail-selector:hover {
+    border-color: var(--main-color);
+}
+
+/* Canvas ------------------------------------------------------------------ */
+
+.canvas-stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+
+.canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* The scroller fills the stage; the paper is sized by `autoResizePaper`. */
+.canvas .joint-paper-scroller {
+    width: 100%;
+    height: 100%;
+}
+
+/* HUD --------------------------------------------------------------------- */
+
+.hud {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    gap: 22px;
+    margin: 0;
+    padding: 10px 16px;
+    background: rgb(255 255 255 / 92%);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgb(50 42 73 / 8%);
+    /* A readout, not a target: it must never swallow a drag on the canvas. */
+    pointer-events: none;
+    user-select: none;
+}
+
+.hud-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hud dt {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted-color);
+}
+
+.hud dd {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--dark-color);
+}
+
+.hud-level.is-high { color: var(--main-color); }
+.hud-level.is-medium { color: #7a6ad8; }
+.hud-level.is-low { color: var(--muted-color); }
+
+
+/* Zoom controls ----------------------------------------------------------- */
+
+.zoom-controls {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
+}
+
+.zoom-controls button {
+    min-width: 32px;
+    height: 28px;
+    padding: 0 8px;
+    background: transparent;
+    border: 0;
+    border-radius: 4px;
+    font: inherit;
+    font-size: 14px;
+    color: inherit;
+    cursor: pointer;
+}
+
+.zoom-controls button:hover {
+    background: var(--canvas-color);
+}
