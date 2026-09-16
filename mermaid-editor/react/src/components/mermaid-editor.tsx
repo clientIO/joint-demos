@@ -259,7 +259,7 @@ export function MermaidEditor({
                 tabIndex: -1,
                 automaticLayout: true,
                 // The same face the diagram's labels use (`--font-mono`).
-                fontFamily: "ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace",
+                fontFamily: 'ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
                 fontSize: 13,
                 lineHeight: 21,
                 minimap: { enabled: false },
