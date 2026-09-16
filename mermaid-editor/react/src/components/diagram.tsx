@@ -5,6 +5,7 @@ import type { dia } from '@joint/plus';
 import { DirectedGraph } from '@joint/layout-directed-graph';
 import {
     Diagram,
+    ElementOverlay,
     linkRoutingStraight,
     Paper,
     PaperScroller,
@@ -22,11 +23,17 @@ import type {
     ZoomToFitOptions,
 } from '@joint/react-plus';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { MermaidCell } from '@/mermaid/to-cells';
+import type { RefObject } from 'react';
+import { edgeRefOf } from '@/mermaid/edit-source';
+import type { EdgeArrowChange, EdgeRef } from '@/mermaid/edit-source';
+import type { EdgeData, MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection } from '@/mermaid/types';
-import type { EditableShape } from '@/mermaid/edit-source';
+import { ConnectDraftLine } from './connect-draft-line';
+import { useConnectDrag } from './use-connect-drag';
 import type { NodeData } from '@/mermaid/to-cells';
-import { ExportButton } from './export-button';
+import { AccessibilityCheck } from './accessibility-check';
+import { CanvasActions } from './canvas-actions';
+import { LinkToolbar } from './link-toolbar';
 import { NodeEditingContext } from './node-editing';
 import type { NodeEditing } from './node-editing';
 import { NodeToolbar } from './node-toolbar';
@@ -40,10 +47,10 @@ const FIT_OPTIONS: ZoomToFitOptions = {
 };
 
 /**
- * The diagram is a rendering of the source, not a canvas to edit: the text is
- * the single source of truth, and a dragged node would be silently discarded on
- * the next keystroke. Panning and zooming are unaffected — the scroller drives
- * those from the blank area, not from cell interactions.
+ * With auto-layout on, the diagram is a rendering of the source, not a canvas
+ * to edit: the text is the single source of truth, and a dragged node would be
+ * silently discarded on the next layout. Panning and zooming are unaffected —
+ * the scroller drives those from the blank area, not from cell interactions.
  */
 const PAPER_INTERACTIVE = false;
 
@@ -59,10 +66,15 @@ const SCROLL_OPTIONS = { animation: { duration: 150 }};
  * Keep the scroller's pan/zoom, drop the built-in selection interactions.
  *
  * Those bundle click-to-select with Shift-drag regions, Ctrl/Cmd+A and
- * Delete/Backspace — editing gestures with nothing to act on here. A single
- * `onElementPointerClick` handler below is the whole behaviour this demo wants.
+ * Delete/Backspace — gestures that edit the graph, where here every edit has
+ * to go through the source. A single `onElementPointerClick` handler below
+ * does the selecting, and Delete is handled on the scroller so it rewrites
+ * the text instead of the cells.
  */
 const INTERACTIONS: InteractionsOptions = { selection: false };
+
+/** Keys that remove the selection when the canvas or one of its nodes has focus. */
+const DELETE_KEYS = new Set(['Delete', 'Backspace']);
 
 /**
  * `wrapper: false` drops the bbox overlay and its resize / rotate handles —
@@ -107,6 +119,32 @@ function isMeasured(graph: dia.Graph): boolean {
     return elements.length > 0 && elements.every((element) => element.size().width > 0);
 }
 
+/** Diameter of the add-step "+", in px; also its own vertical centring offset. */
+const ADD_BUTTON_SIZE = 24;
+
+/**
+ * Where the "+" sits: on the edge the next step will hang off, so it points
+ * the way the layout flows — below in TB, to the right in LR. Offset by half
+ * its size so its centre rides the node's edge.
+ */
+const ADD_BUTTON_PLACEMENT: Record<FlowDirection, {
+    readonly position: 'top' | 'bottom' | 'left' | 'right';
+    readonly origin: 'top' | 'bottom' | 'left' | 'right';
+    readonly dx: number;
+    readonly dy: number;
+}> = {
+    TB: { position: 'bottom', origin: 'top', dx: 0, dy: -ADD_BUTTON_SIZE / 2 },
+    BT: { position: 'top', origin: 'bottom', dx: 0, dy: ADD_BUTTON_SIZE / 2 },
+    LR: { position: 'right', origin: 'left', dx: -ADD_BUTTON_SIZE / 2, dy: 0 },
+    RL: { position: 'left', origin: 'right', dx: ADD_BUTTON_SIZE / 2, dy: 0 },
+};
+
+/**
+ * Breathing room `fitToChildren` keeps between a subgraph's border and its
+ * members. Extra at the top, where the container's title sits.
+ */
+const CLUSTER_PADDING = { top: 44, left: 18, right: 18, bottom: 18 };
+
 function runLayout(graph: dia.Graph, direction: FlowDirection): boolean {
     if (!isMeasured(graph)) return false;
     DirectedGraph.layout(graph, {
@@ -116,6 +154,9 @@ function runLayout(graph: dia.Graph, direction: FlowDirection): boolean {
         rankSep: 64,
         marginX: 20,
         marginY: 20,
+        // Subgraphs ride through dagre as clusters; the layout then calls
+        // `fitToChildren` on each so the container hugs its members.
+        clusterPadding: CLUSTER_PADDING,
         // Links use the paper's default routing, so dagre owns their shape:
         // it writes the simplified spline it already computed for each edge as
         // the link's vertices, and the default router draws straight through
@@ -137,15 +178,56 @@ interface CanvasProps {
     readonly onSelect: (ids: readonly CellId[]) => void;
     readonly fitToken: number;
     readonly edit: NodeEditHandlers;
+    readonly linkEdit: EdgeEditHandlers;
+    readonly onDirectionChange: (direction: FlowDirection) => void;
+    readonly onAddShape: (fromKeyboard: boolean) => void;
+    /** Node whose toolbar takes focus when it opens (a keyboard add). */
+    readonly focusToolbarFor: CellId | null;
+    /**
+     * Set before a removal: the canvas remounts on the new id set, taking the
+     * focused node (or toolbar button) with it, and the fresh scroller takes
+     * focus on mount so keyboard users are not dropped on `<body>`.
+     */
+    readonly focusOnMountRef: RefObject<boolean>;
 }
 
-function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: CanvasProps) {
+function Canvas({
+    direction,
+    cells,
+    selectedIds,
+    onSelect,
+    fitToken,
+    edit,
+    linkEdit,
+    onDirectionChange,
+    onAddShape,
+    focusToolbarFor,
+    focusOnMountRef,
+}: CanvasProps) {
     const { graph } = useGraph();
     const { paper } = usePaper();
     const { selectCells } = useSelection();
     // The scroller owns panning, wheel scrolling, pinch zoom and the zoom
     // bounds; all this component needs from it is the fit-to-content call.
     const { zoomToFit, paperScroller } = usePaperScroller();
+
+    // The scroller element is the scrollable region, so it must be focusable
+    // and labelled (WCAG 2.1.1, axe `scrollable-region-focusable`).
+    // `@joint/react-plus` 4.3.2 drops HTML attributes passed to
+    // `<PaperScroller>` (clientIO/joint-plus#801), so until that fix ships the
+    // attributes go on imperatively.
+    useEffect(() => {
+        const scrollerElement = paperScroller?.el;
+        if (!scrollerElement) return;
+        scrollerElement.setAttribute('tabindex', '0');
+        scrollerElement.setAttribute('role', 'application');
+        scrollerElement.setAttribute('aria-roledescription', 'diagram canvas');
+        scrollerElement.setAttribute('aria-label', 'Flowchart canvas — scrollable');
+        if (focusOnMountRef.current) {
+            focusOnMountRef.current = false;
+            scrollerElement.focus({ preventScroll: true });
+        }
+    }, [focusOnMountRef, paperScroller]);
 
     // Selection is one-way: the app owns it, the canvas renders it and reports
     // clicks upward. Subscribing to the collection here as well would close a
@@ -170,6 +252,11 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
         // canvas under them.
         const [first] = selected.filter((cell): cell is dia.Element => cell.isElement());
         if (!first || !paperScroller) return;
+        // A 0×0 element is pre-layout — the graph just remounted and nothing
+        // sits at its real position yet. Scrolling would start a 150 ms
+        // animation towards a meaningless point that then lands AFTER the
+        // post-layout fit and drags the camera off the diagram.
+        if (first.size().width === 0) return;
         if (paperScroller.isElementVisible(first, VISIBILITY_OPTIONS)) return;
         paperScroller.scrollToElement(first, SCROLL_OPTIONS);
     }, [graph, paperScroller, selectCells, selectedIds]);
@@ -180,11 +267,18 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
 
     const fit = useCallback(() => zoomToFit(FIT_OPTIONS), [zoomToFit]);
 
+    // One place decides how nodes get their positions: dagre, every time.
+    const settle = useCallback(
+        (target: dia.Graph): boolean => runLayout(target, direction),
+        [direction]
+    );
+
+
     // Primary trigger. `useOnElementsMeasured` flushes the paper after the
     // callback, so there is no frame where nodes are visible at their
     // pre-layout position.
     useOnElementsMeasured(({ graph: measuredGraph }) => {
-        if (!runLayout(measuredGraph, direction)) return;
+        if (!settle(measuredGraph)) return;
         if (pendingFit.current) {
             pendingFit.current = false;
             fit();
@@ -202,37 +296,69 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
     // never fires and the diagram would keep its old shape. Verified: with this
     // effect removed, `TD` → `LR` leaves the chart vertical.
     //
-    // This trigger never re-frames, so a direction flip leaves the camera
-    // alone. An edit that changes an id is a different story: it remounts, and
-    // `pendingFit` is fresh on every mount, so a rename does re-fit. That is a
-    // side effect of the remount below, not a decision.
+    // A pending fit is consumed HERE too: when the app raises `fitToken` (a
+    // loaded example, the direction switch), the parse lands a commit later,
+    // and framing anything earlier would frame the previous layout.
     useEffect(() => {
         if (!paper) return;
-        runLayout(graph, direction);
-    }, [cells, direction, graph, paper]);
+        if (!settle(graph)) return;
+        if (pendingFit.current) {
+            pendingFit.current = false;
+            fit();
+        }
+    }, [cells, fit, graph, paper, settle]);
 
     // Framing is its own signal, raised by the app when a different diagram is
-    // loaded — not on every parse. Typing must not yank the camera around.
+    // loaded or relaid out wholesale — not on every parse. Typing must not
+    // yank the camera around. Only the REQUEST is recorded here; whichever
+    // layout pass runs next consumes it against the fresh geometry.
     useEffect(() => {
         pendingFit.current = true;
-        if (!paper || !isMeasured(graph)) return;
-        pendingFit.current = false;
-        fit();
-    }, [fitToken, fit, graph, paper]);
+    }, [fitToken]);
+
+    // The node the pointer is over, driving the add-step "+" under it. The
+    // clear is DELAYED: the "+" hangs below the shape, so the pointer leaves
+    // the element on its way to the button, and an instant clear would yank
+    // the button away mid-travel. Entering the button cancels the clear.
+    const [hoveredId, setHoveredId] = useState<CellId | null>(null);
+    const hoverClearTimer = useRef<number | null>(null);
+    const cancelHoverClear = useCallback(() => {
+        if (hoverClearTimer.current !== null) {
+            window.clearTimeout(hoverClearTimer.current);
+            hoverClearTimer.current = null;
+        }
+    }, []);
+    const scheduleHoverClear = useCallback(() => {
+        cancelHoverClear();
+        hoverClearTimer.current = window.setTimeout(() => setHoveredId(null), 250);
+    }, [cancelHoverClear]);
+    useEffect(() => cancelHoverClear, [cancelHoverClear]);
 
     // Double-click renames in place. The id lives here rather than in the node
     // so that only one node is ever in edit mode, and so the canvas can clear
     // it when the selection moves on.
     const [editingId, setEditingId] = useState<CellId | null>(null);
+    // A node selects itself when keyboard focus lands on it — EXCEPT when the
+    // focus was handed back by a toolbar being dismissed: selecting again
+    // would reopen the very toolbar Escape just closed.
+    const skipNextFocusSelect = useRef(false);
     const editing = useMemo<NodeEditing>(() => ({
         editingId,
         begin: (id) => setEditingId(id),
+        select: (id) => {
+            if (skipNextFocusSelect.current) {
+                skipNextFocusSelect.current = false;
+                return;
+            }
+            onSelect([id]);
+        },
+        clear: () => onSelect([]),
         commit: (id, label) => {
             setEditingId(null);
             edit.onLabelChange(id, label);
         },
         cancel: () => setEditingId(null),
-    }), [edit, editingId]);
+    }), [edit, editingId, onSelect]);
 
     // Only a lone element gets controls: a caret on `a --> b` selects both
     // ends plus the link, and stacking a toolbar on each would be noise.
@@ -244,7 +370,117 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
     const toolbarCell = selectedIds.length === 1
         ? cells.find((cell) => cell.id === selectedIds[0] && cell.type === 'element')
         : undefined;
-    const toolbarData = toolbarCell?.data as NodeData | undefined;
+    const maybeToolbarData = toolbarCell?.data as NodeData | undefined;
+    // Subgraph containers take no shape or fill — their look is the block's.
+    const toolbarData = maybeToolbarData?.isGroup ? undefined : maybeToolbarData;
+
+    // Puts keyboard focus on a node without re-selecting it. Subgraph
+    // containers have no focus stop, so those report `false`.
+    const focusNode = useCallback((id: CellId): boolean => {
+        const node = paper?.el.querySelector<SVGGElement>(
+            `[model-id="${CSS.escape(String(id))}"] .mermaid-node-focus`
+        );
+        if (!node) return false;
+        skipNextFocusSelect.current = true;
+        node.focus({ preventScroll: true });
+        // Focus may not fire (node hidden, already focused): never let the
+        // suppression leak onto the user's next genuine Tab.
+        skipNextFocusSelect.current = false;
+        return true;
+    }, [paper]);
+
+    // Escape in a toolbar closes it and puts keyboard focus back where the
+    // user came from — the node itself when it is keyboard-reachable, else
+    // the canvas — so nobody is stranded on a control that just vanished.
+    const dismissToolbar = useCallback((id: CellId) => {
+        onSelect([]);
+        if (!focusNode(id)) paperScroller?.el?.focus();
+    }, [focusNode, onSelect, paperScroller]);
+
+    // Removal goes through the source like every other edit. Nodes first —
+    // they take their edges with them — then the edges from the last declared
+    // down, so removing one never shifts the position of the next among its
+    // duplicates. Focus is handed to the scroller straight away, and again
+    // to the one the remount builds.
+    const remove = useCallback((ids: readonly CellId[]) => {
+        const nodes: CellId[] = [];
+        const edges: EdgeRef[] = [];
+        for (const id of ids) {
+            const cell = cells.find((candidate) => candidate.id === id);
+            if (!cell) continue;
+            if (cell.type === 'link') edges.push(edgeRefOf(id, cell.data as EdgeData));
+            else nodes.push(id);
+        }
+        if (nodes.length === 0 && edges.length === 0) return;
+        for (const id of nodes) edit.onRemove(id);
+        for (const edge of edges.toSorted((a, b) => b.index - a.index)) linkEdit.onRemove(edge);
+        focusOnMountRef.current = true;
+        paperScroller?.el?.focus({ preventScroll: true });
+    }, [cells, edit, focusOnMountRef, linkEdit, paperScroller]);
+
+    // Delete / Backspace on the canvas, a node or a toolbar button. Listened
+    // for on the scroller, so the source editor and every text field are out
+    // of reach by construction; the toolbar's own inputs are skipped too.
+    useEffect(() => {
+        const scrollerElement = paperScroller?.el;
+        if (!scrollerElement || selectedIds.length === 0) return;
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (!DELETE_KEYS.has(event.key)) return;
+            if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+            event.preventDefault();
+            remove(selectedIds);
+        };
+        scrollerElement.addEventListener('keydown', onKeyDown);
+        return () => scrollerElement.removeEventListener('keydown', onKeyDown);
+    }, [paperScroller, remove, selectedIds]);
+
+    // The add-step "+" sits on the hovered node — or the selected one, so it
+    // is reachable by keyboard-and-click flows too — on the edge the layout
+    // direction flows out of. Groups take none: a child cannot hang off a
+    // subgraph.
+    const addTargetId = hoveredId ?? toolbarCell?.id ?? null;
+    const addTargetCell = addTargetId === null
+        ? undefined
+        : cells.find(
+            (cell) =>
+                cell.id === addTargetId
+                && cell.type === 'element'
+                && !(cell.data as NodeData).isGroup
+        );
+    const {
+        onPointerDown: onAddButtonPointerDown,
+        onPointerMove: onAddButtonPointerMove,
+        onPointerUp: onAddButtonPointerUp,
+        onPointerCancel: onAddButtonPointerCancel,
+        onClick: onAddButtonClick,
+        draft: connectDraft,
+    } = useConnectDrag(addTargetCell?.id, edit.onConnect, edit.onAddChild, cancelHoverClear);
+
+    // A lone selected edge gets its own toolbar, floating over the midpoint of
+    // its route. The position comes from the model — dagre writes its vertices
+    // there — so it is read per render rather than subscribed to; every edit
+    // that could move the link also re-renders this component.
+    const linkToolbarCell = selectedIds.length === 1
+        ? cells.find((cell) => cell.id === selectedIds[0] && cell.type === 'link')
+        : undefined;
+    const linkToolbarData = linkToolbarCell?.data as EdgeData | undefined;
+    const linkModel = linkToolbarCell?.id === undefined
+        ? undefined
+        : graph.getCell(linkToolbarCell.id);
+    const linkAnchor = linkModel?.isLink() ? linkModel.getBBox() : undefined;
+
+    // Exactly two nodes selected (Shift-click) offers to connect them, in
+    // selection order. Subgraphs are excluded — dagre cannot route to one.
+    const connectPair = selectedIds.length === 2
+        ? selectedIds.map((id) =>
+            cells.find((cell) =>
+                cell.id === id
+                && cell.type === 'element'
+                && !(cell.data as NodeData).isGroup))
+        : undefined;
+    const [connectFrom, connectTo] = connectPair ?? [];
+    const connectFromId = connectFrom?.id;
+    const connectToId = connectTo?.id;
 
     return (
         <NodeEditingContext value={editing}>
@@ -257,8 +493,53 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
                         snapLabels
                         interactive={PAPER_INTERACTIVE}
                         linkRouting={LINK_ROUTING}
-                        onElementPointerClick={({ model }) => onSelect([model.id])}
-                        onElementPointerDblClick={({ model }) => editing.begin(model.id)}
+                        onElementPointerClick={({ model, event }) => {
+                            // Shift (or the platform modifier) grows the
+                            // selection; a plain click replaces it.
+                            const isAdditive =
+                                event.shiftKey === true
+                                || event.metaKey === true
+                                || event.ctrlKey === true;
+                            if (!isAdditive) {
+                                onSelect([model.id]);
+                            } else {
+                                onSelect(
+                                    selectedIds.includes(model.id)
+                                        ? selectedIds.filter((id) => id !== model.id)
+                                        : [...selectedIds, model.id]
+                                );
+                            }
+                            // Selection drives focus. The paper cancels the
+                            // mousedown default (no text selection), which
+                            // also cancels the browser's own focus move — so
+                            // Delete would otherwise still go to wherever focus
+                            // was, the source editor included.
+                            if (!focusNode(model.id)) paperScroller?.el?.focus({ preventScroll: true });
+                        }}
+                        // An edge is selectable like a node; a lone one opens
+                        // the edge toolbar below.
+                        onLinkPointerClick={({ model }) => {
+                            onSelect([model.id]);
+                            paperScroller?.el?.focus({ preventScroll: true });
+                        }}
+                        onElementMouseEnter={({ model }) => {
+                            // Subgraph containers are skipped HERE, not just
+                            // in the lookup below: a container cannot take a
+                            // child, and recording it as hovered would drop
+                            // the "+" off the node the user has selected.
+                            const cell = cells.find((candidate) => candidate.id === model.id);
+                            if ((cell?.data as NodeData | undefined)?.isGroup) return;
+                            cancelHoverClear();
+                            setHoveredId(model.id);
+                        }}
+                        onElementMouseLeave={scheduleHoverClear}
+                        onElementPointerDblClick={({ model }) => {
+                            // Subgraph containers render no label input, so
+                            // entering edit mode there would be a dead end.
+                            const cell = cells.find((candidate) => candidate.id === model.id);
+                            if ((cell?.data as NodeData | undefined)?.isGroup) return;
+                            editing.begin(model.id);
+                        }}
                         onBlankPointerClick={() => {
                             onSelect([]);
                             editing.cancel();
@@ -267,16 +548,83 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
                         <Selection {...SELECTION} />
                         {toolbarCell?.id !== undefined && toolbarData && (
                             <NodeToolbar
+                                // Keyed so toolbar state (an open link editor,
+                                // its draft) never survives onto another node.
+                                key={String(toolbarCell.id)}
                                 cellId={toolbarCell.id}
                                 data={toolbarData}
-                                onShapeChange={edit.onShapeChange}
-                                onFillChange={edit.onFillChange}
+                                edit={edit}
+                                autoFocus={focusToolbarFor === toolbarCell.id}
+                                onDismiss={() => {
+                                    if (toolbarCell.id !== undefined) dismissToolbar(toolbarCell.id);
+                                }}
+                                onDelete={() => {
+                                    if (toolbarCell.id !== undefined) remove([toolbarCell.id]);
+                                }}
                             />
+                        )}
+                        {linkToolbarCell?.id !== undefined && linkToolbarData && linkAnchor && (
+                            <LinkToolbar
+                                key={String(linkToolbarCell.id)}
+                                cellId={linkToolbarCell.id}
+                                data={linkToolbarData}
+                                x={linkAnchor.x + linkAnchor.width / 2}
+                                y={linkAnchor.y + linkAnchor.height / 2}
+                                edit={linkEdit}
+                                onDismiss={() => {
+                                    if (linkToolbarCell.id !== undefined) dismissToolbar(linkToolbarCell.id);
+                                }}
+                                onDelete={() => {
+                                    if (linkToolbarCell.id !== undefined) remove([linkToolbarCell.id]);
+                                }}
+                            />
+                        )}
+                        {addTargetCell?.id !== undefined && (
+                            <ElementOverlay cell={addTargetCell.id} {...ADD_BUTTON_PLACEMENT[direction]}>
+                                <button
+                                    type="button"
+                                    className="node-add-step"
+                                    aria-label="Add a connected step"
+                                    title="Click: add a connected step. Drag onto another shape: connect them."
+                                    onPointerDown={onAddButtonPointerDown}
+                                    onPointerMove={onAddButtonPointerMove}
+                                    onPointerUp={onAddButtonPointerUp}
+                                    onPointerCancel={onAddButtonPointerCancel}
+                                    // Travelling from the node onto this button
+                                    // leaves the element; keep the button alive.
+                                    onPointerEnter={cancelHoverClear}
+                                    onPointerLeave={scheduleHoverClear}
+                                    onClick={onAddButtonClick}
+                                >
+                                    +
+                                </button>
+                            </ElementOverlay>
+                        )}
+                        {connectDraft !== null && <ConnectDraftLine draft={connectDraft} />}
+                        {connectFrom && connectTo
+                            && connectFromId !== undefined && connectToId !== undefined && (
+                            <ElementOverlay cell={connectToId} position="top" origin="bottom" dy={-10}>
+                                <button
+                                    type="button"
+                                    className="connect-bar"
+                                    onPointerDown={(event) => event.stopPropagation()}
+                                    onClick={() => edit.onConnect(connectFromId, connectToId)}
+                                >
+                                    Connect {(connectFrom.data as NodeData).label}
+                                    {' → '}
+                                    {(connectTo.data as NodeData).label}
+                                </button>
+                            </ElementOverlay>
                         )}
                     </Paper>
                 </PaperScroller>
-                <ExportButton />
+                <CanvasActions
+                    direction={direction}
+                    onDirectionChange={onDirectionChange}
+                    onAddShape={onAddShape}
+                />
                 <ZoomControls onFit={fit} />
+                <AccessibilityCheck />
             </div>
         </NodeEditingContext>
     );
@@ -285,8 +633,41 @@ function Canvas({ direction, cells, selectedIds, onSelect, fitToken, edit }: Can
 /** Edits the node toolbar can request, each rewriting a span of the source. */
 export interface NodeEditHandlers {
     readonly onLabelChange: (id: CellId, label: string) => void;
-    readonly onShapeChange: (id: CellId, shape: EditableShape) => void;
+    /** Target is an `EditableShape` or a v11 `@{ shape: … }` name. */
+    readonly onShapeChange: (id: CellId, shape: string) => void;
     readonly onFillChange: (id: CellId, fill: string | null) => void;
+    /** Sets or clears one property on the node's `style` line. */
+    readonly onStyleChange: (id: CellId, property: string, value: string | null) => void;
+    /** Sets or removes the node's `click` hyperlink. */
+    readonly onLinkChange: (id: CellId, url: string | null) => void;
+    /** Sets or removes the node's `@{ img: … }` image. */
+    readonly onImageChange: (id: CellId, url: string | null) => void;
+    /**
+     * Appends a new node connected from this one. `fromKeyboard` moves focus
+     * into the new node's toolbar, as "+ Shape" does: the button that had
+     * focus unmounts with the remount, and focus must not fall to <body>.
+     */
+    readonly onAddChild: (id: CellId, fromKeyboard: boolean) => void;
+    /** Appends an edge between two existing nodes. */
+    readonly onConnect: (from: CellId, to: CellId) => void;
+    /** Removes the node and every edge touching it; a subgraph id unwraps the block. */
+    readonly onRemove: (id: CellId) => void;
+}
+
+/** Edits the edge toolbar can request, each rewriting a span of the source. */
+export interface EdgeEditHandlers {
+    /** Sets or clears the `|text|` label on the arrow. */
+    readonly onLabelChange: (edge: EdgeRef, label: string) => void;
+    /** Rewrites the edge's arrow token — line pattern and heads. */
+    readonly onArrowChange: (edge: EdgeRef, change: EdgeArrowChange) => void;
+    /** Sets or clears the `linkStyle <n> stroke:` colour. */
+    readonly onColorChange: (edgeIndex: number, color: string | null) => void;
+    /** Sets or clears the `linkStyle <n> interpolate <curve>` statement. */
+    readonly onCurveChange: (edgeIndex: number, curve: string | null) => void;
+    /** Turns the marching-dash animation on or off. */
+    readonly onAnimationChange: (edge: EdgeRef, animate: boolean) => void;
+    /** Removes the edge; both ends stay declared. */
+    readonly onRemove: (edge: EdgeRef) => void;
 }
 
 export interface MermaidDiagramProps {
@@ -303,6 +684,14 @@ export interface MermaidDiagramProps {
     readonly fitToken: number;
     /** Writes from the node toolbar, applied to the Mermaid source. */
     readonly edit: NodeEditHandlers;
+    /** Writes from the edge toolbar, applied to the Mermaid source. */
+    readonly linkEdit: EdgeEditHandlers;
+    /** Rewrites the `flowchart <dir>` header in the source. */
+    readonly onDirectionChange: (direction: FlowDirection) => void;
+    /** Appends a top-level, unconnected node — the from-scratch start. */
+    readonly onAddShape: (fromKeyboard: boolean) => void;
+    /** Node whose toolbar takes focus when it opens (a keyboard add). */
+    readonly focusToolbarFor: CellId | null;
 }
 
 /**
@@ -320,6 +709,10 @@ export function MermaidDiagram({
     onSelect,
     fitToken,
     edit,
+    linkEdit,
+    onDirectionChange,
+    onAddShape,
+    focusToolbarFor,
 }: MermaidDiagramProps) {
     /*
      * Remount the graph whenever the set of cell ids changes.
@@ -343,6 +736,8 @@ export function MermaidDiagram({
      * every rename, and a full graph teardown on a single keystroke.
      */
     const graphKey = useMemo(() => cells.map((cell) => cell.id).join(' '), [cells]);
+    // Survives the keyed remount below, which is exactly when it is read.
+    const focusOnMountRef = useRef(false);
 
     return (
         <Diagram
@@ -358,6 +753,11 @@ export function MermaidDiagram({
                 onSelect={onSelect}
                 fitToken={fitToken}
                 edit={edit}
+                linkEdit={linkEdit}
+                onDirectionChange={onDirectionChange}
+                onAddShape={onAddShape}
+                focusToolbarFor={focusToolbarFor}
+                focusOnMountRef={focusOnMountRef}
             />
         </Diagram>
     );

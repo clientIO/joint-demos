@@ -1,18 +1,34 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ChangeEvent } from 'react';
+import type { ChangeEvent, KeyboardEvent } from 'react';
 import logoUrl from '@/assets/jointjs-logo.svg';
 import { MermaidDiagram } from '@/components/diagram';
 import { EditorPanel } from '@/components/editor-panel';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useTheme } from '@/hooks/use-theme';
-import { setNodeFill, setNodeLabel, setNodeShape } from '@/mermaid/edit-source';
-import type { EditableShape } from '@/mermaid/edit-source';
+import {
+    addChildNode,
+    addEdge,
+    addNode,
+    setDirection,
+    setEdgeAnimation,
+    setEdgeLabel,
+    setEdgeArrow,
+    setEdgeInterpolate,
+    setEdgeStyleProperty,
+    setNodeFill,
+    setNodeImage,
+    setNodeLabel,
+    setNodeLink,
+    setNodeShape,
+    setNodeStyleProperty,
+} from '@/mermaid/edit-source';
+import { removeEdge, removeNode } from '@/mermaid/remove';
 import { MermaidParseError, parseFlowchart } from '@/mermaid/parse';
 import { DEFAULT_PRESET, PRESETS } from '@/mermaid/presets';
 import { toCells } from '@/mermaid/to-cells';
 import type { MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection } from '@/mermaid/types';
-import type { NodeEditHandlers } from '@/components/diagram';
+import type { EdgeEditHandlers, NodeEditHandlers } from '@/components/diagram';
 import type { CellId } from '@joint/react-plus';
 
 /**
@@ -86,10 +102,20 @@ export function App() {
         sourceRef.current = source;
     }, [source]);
     const [selection, setSelection] = useState<Selection>(NO_SELECTION);
-    const selectFromCanvas = useCallback(
-        (ids: readonly CellId[]) => setSelection({ ids, origin: 'canvas' }),
-        []
-    );
+    const canvasRef = useRef<HTMLDivElement>(null);
+    // Set when an undo or redo arrives with the canvas focused; read once the
+    // diagram it asked for has rendered. See the effect below.
+    const refocusCanvasRef = useRef(false);
+    // The node whose toolbar should take focus when it opens — set when a
+    // shape was added from the keyboard, so the user lands on the new
+    // node's controls instead of being left on the button they pressed.
+    const [focusToolbarFor, setFocusToolbarFor] = useState<CellId | null>(null);
+    const selectFromCanvas = useCallback((ids: readonly CellId[]) => {
+        setSelection({ ids, origin: 'canvas' });
+        // A selection the user made themselves must not re-trigger the
+        // "focus the toolbar" hand-off from an earlier keyboard add.
+        setFocusToolbarFor(null);
+    }, []);
     const selectFromEditor = useCallback(
         (ids: readonly CellId[]) => setSelection({ ids, origin: 'editor' }),
         []
@@ -105,8 +131,8 @@ export function App() {
                     setRendered({ direction: flow.direction, cells: toCells(flow) });
                     setError(null);
                     setNotice(
-                        flow.droppedSubgraphs > 0
-                            ? `${flow.droppedSubgraphs} subgraph${flow.droppedSubgraphs > 1 ? 's were' : ' was'} ignored — this demo renders a flat graph.`
+                        flow.droppedGroupEdges > 0
+                            ? `${flow.droppedGroupEdges} edge${flow.droppedGroupEdges > 1 ? 's' : ''} connected to a subgraph ${flow.droppedGroupEdges > 1 ? 'were' : 'was'} skipped — link its member nodes instead.`
                             : null
                     );
                     setParsedSource(source);
@@ -139,6 +165,34 @@ export function App() {
         };
     }, [draft, source]);
 
+    /**
+     * Keeps the canvas focused across an undo.
+     *
+     * The diagram remounts whenever the set of cell ids changes (`graphKey` in
+     * `diagram.tsx`), which destroys the scroller focus was sitting on and
+     * drops it to the body — the same hand-off `remove` makes with
+     * `focusOnMountRef`, except an undo cannot re-focus at the keystroke: the
+     * new scroller does not exist until the source has been parsed. So the
+     * request is recorded then, and honoured here. A step that changed no ids
+     * remounted nothing, so focus never left; the guard below sees that and
+     * leaves it alone.
+     */
+    useEffect(() => {
+        if (!refocusCanvasRef.current) return;
+        refocusCanvasRef.current = false;
+        if (document.activeElement !== document.body) return;
+        // A frame later, and by the scroller's own class as the toolbar
+        // geometry finds it: the new scroller only becomes focusable once it
+        // reaches React's context and the canvas puts its `tabindex` and ARIA
+        // attributes on, which is a commit after this one.
+        const frame = requestAnimationFrame(() => {
+            canvasRef.current
+                ?.querySelector<HTMLElement>('.jj-paper-scroller')
+                ?.focus({ preventScroll: true });
+        });
+        return () => cancelAnimationFrame(frame);
+    }, [rendered]);
+
     function handlePresetChange(nextId: string) {
         const preset = PRESETS.find((candidate) => candidate.id === nextId);
         if (!preset) return;
@@ -157,17 +211,107 @@ export function App() {
             if (next === null) return;
             setSource(next, true);
             setPresetId('custom');
+            // Written through at once, so a second edit in the same event —
+            // deleting a multi-selection — builds on this one, not on the
+            // text from before it.
+            sourceRef.current = next;
         };
         return {
             onLabelChange: (id, label) => apply(setNodeLabel(sourceRef.current, id, label)),
-            onShapeChange: (id, shape: EditableShape) =>
-                apply(setNodeShape(sourceRef.current, id, shape)),
+            onShapeChange: (id, shape) => apply(setNodeShape(sourceRef.current, id, shape)),
             onFillChange: (id, fill) => apply(setNodeFill(sourceRef.current, id, fill)),
+            onStyleChange: (id, property, value) =>
+                apply(setNodeStyleProperty(sourceRef.current, id, property, value)),
+            onLinkChange: (id, url) => apply(setNodeLink(sourceRef.current, id, url)),
+            onImageChange: (id, url) => apply(setNodeImage(sourceRef.current, id, url)),
+            onAddChild: (id, fromKeyboard) => {
+                const added = addChildNode(sourceRef.current, id);
+                if (added === null) return;
+                apply(added.source);
+                // The new step is what the author works on next: select it so
+                // its toolbar opens at once, as "+ Shape" does.
+                setSelection({ ids: [added.id], origin: 'canvas' });
+                setFocusToolbarFor(fromKeyboard ? added.id : null);
+            },
+            onConnect: (from, to) => apply(addEdge(sourceRef.current, from, to)),
+            onRemove: (id) => {
+                apply(removeNode(sourceRef.current, String(id)));
+                // The selection pointed at a node that no longer exists.
+                setSelection(NO_SELECTION);
+                setFocusToolbarFor(null);
+            },
         };
     }, [setSource]);
 
-    function handleSourceChange(next: string) {
-        setSource(next);
+    /** Same contract as {@link edit}, for the controls on a selected edge. */
+    const linkEdit = useMemo<EdgeEditHandlers>(() => {
+        const apply = (next: string | null) => {
+            if (next === null) return;
+            setSource(next, true);
+            setPresetId('custom');
+            sourceRef.current = next;
+        };
+        return {
+            onLabelChange: (edgeRef, label) =>
+                apply(setEdgeLabel(sourceRef.current, edgeRef, label)),
+            onArrowChange: (edgeRef, change) =>
+                apply(setEdgeArrow(sourceRef.current, edgeRef, change)),
+            onColorChange: (edgeIndex, color) =>
+                apply(setEdgeStyleProperty(sourceRef.current, edgeIndex, 'stroke', color)),
+            onCurveChange: (edgeIndex, curve) =>
+                apply(setEdgeInterpolate(sourceRef.current, edgeIndex, curve)),
+            onAnimationChange: (edgeRef, animate) =>
+                apply(setEdgeAnimation(sourceRef.current, edgeRef, animate)),
+            onRemove: (edgeRef) => {
+                apply(removeEdge(sourceRef.current, edgeRef));
+                setSelection(NO_SELECTION);
+            },
+        };
+    }, [setSource]);
+
+    const handleDirectionChange = useCallback(
+        (direction: FlowDirection) => {
+            const next = setDirection(sourceRef.current, direction);
+            if (next === null) return;
+            setSource(next, true);
+            setPresetId('custom');
+            // A direction flip reshapes the whole board; unlike typing, it
+            // should re-frame — the old camera points at the old shape.
+            setFitToken((token) => token + 1);
+        },
+        [setSource]
+    );
+
+    /**
+     * The from-scratch start: append an unconnected node (seeding the
+     * `flowchart TD` header when the text is blank) and select it, so the
+     * shape toolbar opens on something immediately.
+     */
+    const handleAddShape = useCallback((fromKeyboard: boolean) => {
+        const added = addNode(sourceRef.current);
+        // `null` means the text is not a flowchart at all; the parse error
+        // already says so, and appending to it would corrupt it.
+        if (added === null) return;
+        setSource(added.source, true);
+        setPresetId('custom');
+        setSelection({ ids: [added.id], origin: 'canvas' });
+        setFocusToolbarFor(fromKeyboard ? added.id : null);
+    }, [setSource]);
+
+    function handleSourceChange(next: string, isHistoryStep: boolean) {
+        // An undo is a discrete edit, like picking a shape: parsing it at once
+        // keeps the canvas from trailing the keystroke by the typing delay,
+        // which is what makes a held-down Cmd+Z feel broken.
+        setSource(next, isHistoryStep);
+        if (isHistoryStep) {
+            refocusCanvasRef.current = canvasRef.current?.contains(document.activeElement) === true;
+            // The step may have taken away the selected node — or renamed its
+            // id — so the selection and any toolbar hand-off waiting on it are
+            // both stale. A caret still in the code re-selects its own line on
+            // the cursor move that follows.
+            setSelection(NO_SELECTION);
+            setFocusToolbarFor(null);
+        }
         // Once the text diverges from the example, stop claiming it is one.
         const preset = PRESETS.find((candidate) => candidate.id === presetId);
         if (preset && preset.source !== next) setPresetId('custom');
@@ -182,9 +326,23 @@ export function App() {
                         <span>Example</span>
                         <select
                             className="app-select"
+                            // The visible label is hidden on phones to fit the
+                            // header; carry the name on the control itself so
+                            // it never depends on that text being rendered.
+                            aria-label="Example"
                             value={presetId}
                             onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                                 handlePresetChange(event.target.value)}
+                            // Enter opens the list, as keyboard users expect of
+                            // a picker; the native control only opens on Space.
+                            onKeyDown={(event: KeyboardEvent<HTMLSelectElement>) => {
+                                if (event.key !== 'Enter') return;
+                                const select = event.currentTarget;
+                                if ('showPicker' in select && typeof select.showPicker === 'function') {
+                                    event.preventDefault();
+                                    select.showPicker();
+                                }
+                            }}
                         >
                             {PRESETS.map((preset) => (
                                 <option key={preset.id} value={preset.id}>
@@ -221,7 +379,7 @@ export function App() {
                     onCursorNodeChange={selectFromEditor}
                     onSourceChange={handleSourceChange}
                 />
-                <div className="canvas">
+                <div className="canvas" ref={canvasRef}>
                     <MermaidDiagram
                         direction={rendered.direction}
                         cells={rendered.cells}
@@ -229,6 +387,10 @@ export function App() {
                         onSelect={selectFromCanvas}
                         fitToken={fitToken}
                         edit={edit}
+                        linkEdit={linkEdit}
+                        onDirectionChange={handleDirectionChange}
+                        onAddShape={handleAddShape}
+                        focusToolbarFor={focusToolbarFor}
                     />
                 </div>
             </main>

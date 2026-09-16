@@ -1,6 +1,8 @@
-import { SVGText, useCellId, useMeasureElement } from '@joint/react-plus';
+import { SVGText, useCell, useCellId, useMeasureElement } from '@joint/react-plus';
+import type { ElementRecord } from '@joint/react-plus';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { NodeData } from '@/mermaid/to-cells';
+import type { CSSProperties } from 'react';
+import type { NodeData, NodeStyle } from '@/mermaid/to-cells';
 import { useNodeEditing } from './node-editing';
 import { SVGShape } from './svg-shape';
 import { getShapeSpec } from './shapes';
@@ -8,11 +10,103 @@ import { getShapeSpec } from './shapes';
 const FONT_SIZE = 13;
 const LINE_HEIGHT = 17;
 
+/** Inline style for a node body: the author's fill travels as a custom property the stylesheet themes. */
+type OwnFillStyle = CSSProperties & { '--node-own-fill'?: string; '--node-own-label'?: string };
+
+function ownFillStyle(style: NodeStyle | undefined): OwnFillStyle | undefined {
+    if (style === undefined) return undefined;
+    const body: OwnFillStyle = { ...style.body };
+    if (style.ownFill !== undefined) body['--node-own-fill'] = style.ownFill;
+    return body;
+}
+
+function ownLabelStyle(style: NodeStyle | undefined): OwnFillStyle | undefined {
+    if (style === undefined) return undefined;
+    const text: OwnFillStyle = { ...style.text };
+    if (style.ownLabel !== undefined) text['--node-own-label'] = style.ownLabel;
+    return text;
+}
+
+/** Image-card geometry: default picture box, frame padding, picture-label gap. */
+const IMAGE_DEFAULT_SIZE = 56;
+const IMAGE_PAD = 10;
+const IMAGE_GAP = 8;
+
 /** Mermaid writes line breaks as `<br>`; `SVGText` splits on newlines. */
 const LINE_BREAK = /<br\s*\/?>/gi;
 
 function toMultiline(label: string): string {
     return label.replace(LINE_BREAK, '\n');
+}
+
+/**
+ * Renders one cell: a `subgraph` container or a flowchart node. Split into two
+ * components so each keeps its own hook order.
+ * @param data - The cell's parsed Mermaid data.
+ */
+export function RenderNode(data: NodeData) {
+    if (data.isGroup) return <SubgraphCell label={data.label} />;
+    return <FlowNodeCell {...data} />;
+}
+
+/** Padding the measured title adds around itself for the container minimum. */
+const GROUP_TITLE_PAD_X = 24;
+const GROUP_MIN = { width: 120, height: 80 };
+const GROUP_TITLE_Y = 22;
+
+const isSameSize = (a: { width: number; height: number }, b: { width: number; height: number }) =>
+    a.width === b.width && a.height === b.height;
+
+/**
+ * A `subgraph … end` block: a rounded container behind its member nodes.
+ *
+ * Unlike a node, its size is owned by the layout — `fitToChildren` wraps it
+ * around its members — so the outline is drawn from the element's live size.
+ * The measured title only sets a floor, which is what an *empty* subgraph
+ * stands on.
+ */
+function SubgraphCell({ label }: Readonly<{ label: string }>) {
+    const [textNode, setTextNode] = useState<SVGTextElement | null>(null);
+    const { textRef, options } = useMemo(() => ({
+        textRef: { current: textNode },
+        options: {
+            transform: (title: { width: number; height: number }) => ({
+                width: Math.max(title.width + 2 * GROUP_TITLE_PAD_X, GROUP_MIN.width),
+                height: GROUP_MIN.height,
+            }),
+        },
+    }), [textNode]);
+    useMeasureElement(textRef, options);
+    // The live element size, which `fitToChildren` rewrites after every layout.
+    const size = useCell<ElementRecord<NodeData>, { width: number; height: number }>(
+        (cell) => ({ width: cell.size.width, height: cell.size.height }),
+        isSameSize
+    );
+
+    return (
+        <>
+            <rect
+                className="mermaid-subgraph-body"
+                width={size.width}
+                height={size.height}
+                rx={10}
+                ry={10}
+            />
+            <SVGText
+                ref={setTextNode}
+                className="mermaid-subgraph-title"
+                x={size.width / 2}
+                y={GROUP_TITLE_Y}
+                textAnchor="middle"
+                textVerticalAnchor="middle"
+                fontSize={12}
+                lineHeight={LINE_HEIGHT}
+                pointerEvents="none"
+            >
+                {toMultiline(label)}
+            </SVGText>
+        </>
+    );
 }
 
 /**
@@ -29,12 +123,16 @@ function toMultiline(label: string): string {
  * measurement above still sees the whole block.
  * @param data - Label and Mermaid shape id of the node.
  */
-export function RenderNode(data: NodeData) {
+function FlowNodeCell(data: NodeData) {
     const cellId = useCellId();
     const editing = useNodeEditing();
     const isEditing = editing !== null && cellId !== undefined && editing.editingId === cellId;
     const label = data.label;
     const spec = getShapeSpec(data.shape);
+    // An `@{ img: … }` node renders as an image card: picture on top, label
+    // underneath, rectangle outline — Mermaid's `imageSquare`.
+    const imageWidth = data.img === undefined ? 0 : data.assetWidth ?? IMAGE_DEFAULT_SIZE;
+    const imageHeight = data.img === undefined ? 0 : data.assetHeight ?? IMAGE_DEFAULT_SIZE;
     /*
      * The measured node is held in state, not in a plain ref.
      *
@@ -71,27 +169,100 @@ export function RenderNode(data: NodeData) {
      */
     const { textRef, options } = useMemo(() => ({
         textRef: { current: textNode },
-        options: { transform: spec.size },
-    }), [textNode, spec]);
+        options: {
+            transform: imageWidth === 0
+                ? spec.size
+                : (title: { width: number; height: number }) => ({
+                    // The card must hold whichever is wider, label or image.
+                    width: Math.max(
+                        title.width + 2 * IMAGE_PAD,
+                        imageWidth + 2 * IMAGE_PAD,
+                        60
+                    ),
+                    height: title.height + imageHeight + IMAGE_GAP + 2 * IMAGE_PAD,
+                }),
+        },
+    }), [textNode, spec, imageWidth, imageHeight]);
     const { width, height } = useMeasureElement(textRef, options);
 
     const cx = width / 2;
     const cy = height / 2;
     // Shapes whose enclosed area is off-centre (the cylinder's cap) shift the
-    // label only — the outline geometry keeps using the true centre.
-    const textY = cy + (spec.textDy ?? 0);
+    // label only — the outline geometry keeps using the true centre. On an
+    // image card the label sits in the strip below the picture instead.
+    const textY = imageWidth === 0
+        ? cy + (spec.textDy ?? 0)
+        : IMAGE_PAD + imageHeight + IMAGE_GAP
+            + (height - imageHeight - IMAGE_GAP - 2 * IMAGE_PAD) / 2;
+
+    // Keyboard reach: the node is a focus stop. Focus selects it (opening its
+    // toolbar), Enter starts the in-place rename, and the rename hands focus
+    // back here on commit or cancel so the user is never dropped on <body>.
+    const focusRef = useRef<SVGGElement>(null);
+    const refocus = () => focusRef.current?.focus();
 
     return (
-        <>
-            <SVGShape shape={data.shape} width={width} height={height} style={data.style?.body} />
+        <g
+            ref={focusRef}
+            className="mermaid-node-focus"
+            tabIndex={0}
+            role="button"
+            aria-label={`${label}. Enter renames; Delete removes; Escape leaves.`}
+            onFocus={() => {
+                if (editing !== null && cellId !== undefined) editing.select(cellId);
+            }}
+            onKeyDown={(event) => {
+                if (editing === null || cellId === undefined) return;
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    editing.begin(cellId);
+                    return;
+                }
+                if (event.key === 'Escape') {
+                    // Close the toolbar, keep the focus here.
+                    event.preventDefault();
+                    editing.clear();
+                    return;
+                }
+                // Tab dives into this node's toolbar: it lives in an HTML
+                // layer after EVERY node in DOM order, so without this the
+                // natural tab order would walk the whole diagram first.
+                if (event.key === 'Tab' && !event.shiftKey) {
+                    const control = document.querySelector<HTMLElement>(
+                        '.node-toolbar [role="radio"][aria-checked="true"], .node-toolbar button'
+                    );
+                    if (control === null) return;
+                    event.preventDefault();
+                    control.focus();
+                }
+            }}
+        >
+            <SVGShape
+                shape={imageWidth === 0 ? data.shape : 'squareRect'}
+                width={width}
+                height={height}
+                className={data.style?.ownFill === undefined ? 'mermaid-node-body' : 'mermaid-node-body has-own-fill'}
+                style={ownFillStyle(data.style)}
+            />
+            {data.img !== undefined && (
+                <image
+                    href={data.img}
+                    x={(width - imageWidth) / 2}
+                    y={IMAGE_PAD}
+                    width={imageWidth}
+                    height={imageHeight}
+                    preserveAspectRatio="xMidYMid meet"
+                    pointerEvents="none"
+                />
+            )}
             <SVGText
                 ref={setTextNode}
-                style={data.style?.text}
+                style={ownLabelStyle(data.style)}
                 // Kept mounted while editing: this is what `useMeasureElement`
                 // measures, so hiding it rather than unmounting it holds the
                 // node's size steady under the input.
                 opacity={isEditing ? 0 : undefined}
-                className="mermaid-node-text"
+                className={data.style?.ownLabel === undefined ? 'mermaid-node-text' : 'mermaid-node-text has-own-fill'}
                 x={cx}
                 y={textY}
                 textAnchor="middle"
@@ -110,11 +281,50 @@ export function RenderNode(data: NodeData) {
                     label={toMultiline(label)}
                     width={width}
                     centerY={textY}
-                    onCommit={(next) => editing.commit(cellId, next)}
-                    onCancel={editing.cancel}
+                    onCommit={(next) => {
+                        editing.commit(cellId, next);
+                        refocus();
+                    }}
+                    onCancel={() => {
+                        editing.cancel();
+                        refocus();
+                    }}
                 />
             )}
-        </>
+            {data.href !== undefined && !isEditing && (
+                <LinkBadge href={data.href} title={data.hrefTitle} x={width} />
+            )}
+        </g>
+    );
+}
+
+const BADGE_RADIUS = 9;
+
+/**
+ * The `click <id> "<url>"` affordance: a small ↗ pinned to the node's
+ * top-right corner. A real SVG `<a>`, so middle-click, keyboard focus and the
+ * status-bar URL preview all behave like any other link.
+ */
+function LinkBadge({ href, title, x }: Readonly<{ href: string; title?: string; x: number }>) {
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mermaid-node-link"
+            aria-label={title ?? `Open ${href}`}
+            // A press on the badge is navigation, not node selection.
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
+        >
+            <title>{title ?? href}</title>
+            <circle className="mermaid-node-link-disc" cx={x} cy={0} r={BADGE_RADIUS} />
+            <path
+                className="mermaid-node-link-arrow"
+                d={`M ${x - 3} 3 L ${x + 3} -3 M ${x - 1.5} -3 H ${x + 3} V 1.5`}
+                fill="none"
+            />
+        </a>
     );
 }
 
