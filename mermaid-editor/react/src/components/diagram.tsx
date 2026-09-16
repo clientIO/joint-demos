@@ -6,7 +6,6 @@ import { DirectedGraph } from '@joint/layout-directed-graph';
 import {
     Diagram,
     ElementOverlay,
-    linkRoutingOrthogonal,
     linkRoutingStraight,
     Paper,
     PaperScroller,
@@ -56,23 +55,6 @@ const FIT_OPTIONS: ZoomToFitOptions = {
 const PAPER_INTERACTIVE = false;
 
 /**
- * Manual mode: nodes drag, everything else stays read-only. Positions are not
- * Mermaid syntax, so they live in {@link MermaidDiagramProps.positionsRef}
- * rather than the source — the one piece of diagram state the text cannot
- * carry.
- */
-const MANUAL_INTERACTIVE = {
-    elementMove: true,
-    linkMove: false,
-    labelMove: false,
-    arrowheadMove: false,
-    vertexAdd: false,
-    vertexMove: false,
-    vertexRemove: false,
-    useLinkTools: false,
-} as const;
-
-/**
  * Bring a selected node into view. `strict` counts a partly clipped node as
  * not visible, so moving the caret onto one that is half off the edge centres
  * it rather than leaving it cut in two.
@@ -108,18 +90,6 @@ const LINK_ROUTING = linkRoutingStraight({
     targetOffset: 6,
     cornerType: 'cubic',
     cornerRadius: 8
-});
-
-/**
- * Manual mode drops dagre's vertices, so the links need a router of their own:
- * orthogonal routing steers around elements wherever the user drags them.
- * (The libavoid-based router would slot in here the day its wrapper package
- * ships; this is the closest routing the current @joint/plus build carries.)
- */
-const MANUAL_ROUTING = linkRoutingOrthogonal({
-    cornerType: 'cubic',
-    cornerRadius: 8,
-    margin: 12,
 });
 
 /**
@@ -201,54 +171,6 @@ function runLayout(graph: dia.Graph, direction: FlowDirection): boolean {
     return true;
 }
 
-/** Where a dragged node ended up, keyed by node id. */
-export type ManualPositions = Map<string, { x: number; y: number }>;
-
-/** Vertical gap between a new node and the neighbour it is placed under. */
-const MANUAL_DROP_GAP = 56;
-
-/**
- * Manual mode's stand-in for the layout: put every node back where the user
- * left it. A node the cache has never seen — one just added from the toolbar
- * or typed into the source — lands under a connected neighbour, cascading a
- * little so siblings do not stack pixel-perfectly on each other.
- *
- * Dagre's vertices are dropped along the way: they describe the *previous*
- * layout, and the orthogonal router owns the link shapes here.
- */
-function applyManualPositions(graph: dia.Graph, positions: ManualPositions): boolean {
-    if (!isMeasured(graph)) return false;
-    const elements = graph.getElements();
-    let cascade = 0;
-    for (const element of elements) {
-        const saved = positions.get(String(element.id));
-        if (saved) element.position(saved.x, saved.y);
-    }
-    for (const element of elements) {
-        if (positions.has(String(element.id))) continue;
-        const neighbour = graph
-            .getNeighbors(element)
-            .find((candidate) => positions.has(String(candidate.id)));
-        const base = neighbour
-            ? {
-                x: neighbour.position().x + cascade * 24,
-                y: neighbour.position().y + neighbour.size().height + MANUAL_DROP_GAP,
-            }
-            : { x: 40 + cascade * 24, y: 40 + cascade * 24 };
-        cascade += 1;
-        element.position(base.x, base.y);
-        positions.set(String(element.id), base);
-    }
-    for (const link of graph.getLinks()) link.unset('vertices');
-    // Containers hug wherever their members sit now — deepest first, so an
-    // outer subgraph fits around its inner one's ALREADY-fitted border.
-    const containers = elements
-        .filter((element) => element.getEmbeddedCells().length > 0)
-        .toSorted((a, b) => b.getAncestors().length - a.getAncestors().length);
-    for (const container of containers) container.fitToChildren({ padding: CLUSTER_PADDING });
-    return true;
-}
-
 interface CanvasProps {
     readonly direction: FlowDirection;
     readonly cells: readonly MermaidCell[];
@@ -257,13 +179,10 @@ interface CanvasProps {
     readonly fitToken: number;
     readonly edit: NodeEditHandlers;
     readonly linkEdit: EdgeEditHandlers;
-    readonly autoLayout: boolean;
-    readonly onAutoLayoutChange: (autoLayout: boolean) => void;
     readonly onDirectionChange: (direction: FlowDirection) => void;
     readonly onAddShape: (fromKeyboard: boolean) => void;
     /** Node whose toolbar takes focus when it opens (a keyboard add). */
     readonly focusToolbarFor: CellId | null;
-    readonly positionsRef: RefObject<ManualPositions>;
     /**
      * Set before a removal: the canvas remounts on the new id set, taking the
      * focused node (or toolbar button) with it, and the fresh scroller takes
@@ -280,12 +199,9 @@ function Canvas({
     fitToken,
     edit,
     linkEdit,
-    autoLayout,
-    onAutoLayoutChange,
     onDirectionChange,
     onAddShape,
     focusToolbarFor,
-    positionsRef,
     focusOnMountRef,
 }: CanvasProps) {
     const { graph } = useGraph();
@@ -351,40 +267,12 @@ function Canvas({
 
     const fit = useCallback(() => zoomToFit(FIT_OPTIONS), [zoomToFit]);
 
-    // One place decides how nodes get their positions: dagre with auto-layout
-    // on, the user's own drags (via the position cache) with it off.
+    // One place decides how nodes get their positions: dagre, every time.
     const settle = useCallback(
-        (target: dia.Graph): boolean =>
-            autoLayout
-                ? runLayout(target, direction)
-                : applyManualPositions(target, positionsRef.current),
-        [autoLayout, direction, positionsRef]
+        (target: dia.Graph): boolean => runLayout(target, direction),
+        [direction]
     );
 
-    // Mode transitions — declared BEFORE the settle triggers below, because
-    // effects run in declaration order: entering manual must capture the
-    // positions the user is looking at before the first manual pass runs, or
-    // that pass would treat every node as new and scatter them. Returning to
-    // auto re-runs dagre and re-frames: the manual arrangement is the user's,
-    // but the auto one is dagre's, and showing it half-off-screen would look
-    // like data loss.
-    const wasAutoLayout = useRef(autoLayout);
-    useEffect(() => {
-        if (wasAutoLayout.current === autoLayout) return;
-        wasAutoLayout.current = autoLayout;
-        if (!paper) return;
-        if (autoLayout) {
-            if (runLayout(graph, direction)) fit();
-            return;
-        }
-        const positions = positionsRef.current;
-        positions.clear();
-        for (const element of graph.getElements()) {
-            const { x, y } = element.position();
-            positions.set(String(element.id), { x, y });
-        }
-        for (const link of graph.getLinks()) link.unset('vertices');
-    }, [autoLayout, direction, fit, graph, paper, positionsRef]);
 
     // Primary trigger. `useOnElementsMeasured` flushes the paper after the
     // callback, so there is no frame where nodes are visible at their
@@ -393,9 +281,6 @@ function Canvas({
         if (!settle(measuredGraph)) return;
         if (pendingFit.current) {
             pendingFit.current = false;
-            // Manual mode frames too: the id-keyed remount rebuilds the
-            // scroller alongside the graph, so there is no previous camera
-            // to preserve.
             fit();
         }
     });
@@ -606,27 +491,8 @@ function Canvas({
                         renderElement={RenderNode}
                         drawGrid={false}
                         snapLabels
-                        interactive={autoLayout ? PAPER_INTERACTIVE : MANUAL_INTERACTIVE}
-                        linkRouting={autoLayout ? LINK_ROUTING : MANUAL_ROUTING}
-                        onElementPointerUp={({ model }) => {
-                            if (autoLayout) return;
-                            // Containers hug their members again after a member
-                            // moves — the whole ancestor chain, inner to outer,
-                            // so a nested subgraph's outer border tracks too.
-                            // Then every position is re-captured: the drag may
-                            // have moved embedded children, and the containers
-                            // just resized.
-                            for (const ancestor of model.getAncestors()) {
-                                if (ancestor.isElement()) {
-                                    ancestor.fitToChildren({ padding: CLUSTER_PADDING });
-                                }
-                            }
-                            const positions = positionsRef.current;
-                            for (const element of graph.getElements()) {
-                                const { x, y } = element.position();
-                                positions.set(String(element.id), { x, y });
-                            }
-                        }}
+                        interactive={PAPER_INTERACTIVE}
+                        linkRouting={LINK_ROUTING}
                         onElementPointerClick={({ model, event }) => {
                             // Shift (or the platform modifier) grows the
                             // selection; a plain click replaces it.
@@ -753,8 +619,6 @@ function Canvas({
                     </Paper>
                 </PaperScroller>
                 <CanvasActions
-                    autoLayout={autoLayout}
-                    onAutoLayoutChange={onAutoLayoutChange}
                     direction={direction}
                     onDirectionChange={onDirectionChange}
                     onAddShape={onAddShape}
@@ -822,20 +686,12 @@ export interface MermaidDiagramProps {
     readonly edit: NodeEditHandlers;
     /** Writes from the edge toolbar, applied to the Mermaid source. */
     readonly linkEdit: EdgeEditHandlers;
-    /** Dagre owns positions when true; the user's drags own them when false. */
-    readonly autoLayout: boolean;
-    readonly onAutoLayoutChange: (autoLayout: boolean) => void;
     /** Rewrites the `flowchart <dir>` header in the source. */
     readonly onDirectionChange: (direction: FlowDirection) => void;
     /** Appends a top-level, unconnected node — the from-scratch start. */
     readonly onAddShape: (fromKeyboard: boolean) => void;
     /** Node whose toolbar takes focus when it opens (a keyboard add). */
     readonly focusToolbarFor: CellId | null;
-    /**
-     * Where manual-mode positions live. Owned by the app — the canvas below
-     * remounts on id changes, and dragged positions must survive that.
-     */
-    readonly positionsRef: RefObject<ManualPositions>;
 }
 
 /**
@@ -854,12 +710,9 @@ export function MermaidDiagram({
     fitToken,
     edit,
     linkEdit,
-    autoLayout,
-    onAutoLayoutChange,
     onDirectionChange,
     onAddShape,
     focusToolbarFor,
-    positionsRef,
 }: MermaidDiagramProps) {
     /*
      * Remount the graph whenever the set of cell ids changes.
@@ -901,12 +754,9 @@ export function MermaidDiagram({
                 fitToken={fitToken}
                 edit={edit}
                 linkEdit={linkEdit}
-                autoLayout={autoLayout}
-                onAutoLayoutChange={onAutoLayoutChange}
                 onDirectionChange={onDirectionChange}
                 onAddShape={onAddShape}
                 focusToolbarFor={focusToolbarFor}
-                positionsRef={positionsRef}
                 focusOnMountRef={focusOnMountRef}
             />
         </Diagram>

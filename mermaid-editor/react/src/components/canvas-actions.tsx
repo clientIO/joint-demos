@@ -64,8 +64,6 @@ const DIRECTIONS: ReadonlyArray<{ readonly id: FlowDirection; readonly label: st
 ];
 
 export interface CanvasActionsProps {
-    readonly autoLayout: boolean;
-    readonly onAutoLayoutChange: (autoLayout: boolean) => void;
     readonly direction: FlowDirection;
     /** Rewrites the `flowchart <dir>` header in the source. */
     readonly onDirectionChange: (direction: FlowDirection) => void;
@@ -77,8 +75,6 @@ export interface CanvasActionsProps {
 }
 
 export function CanvasActions({
-    autoLayout,
-    onAutoLayoutChange,
     direction,
     onDirectionChange,
     onAddShape,
@@ -140,19 +136,6 @@ export function CanvasActions({
                     </button>
                 ))}
             </span>
-            <button
-                type="button"
-                className="app-button layout-toggle"
-                aria-pressed={!autoLayout}
-                title={
-                    autoLayout
-                        ? 'Turn auto-layout off: drag nodes yourself, links route around them'
-                        : 'Turn auto-layout back on — the layout re-runs and re-frames'
-                }
-                onClick={() => onAutoLayoutChange(!autoLayout)}
-            >
-                {autoLayout ? 'Auto layout' : 'Manual layout'}
-            </button>
         </div>
     );
 }

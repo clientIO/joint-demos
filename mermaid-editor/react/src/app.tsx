@@ -28,7 +28,7 @@ import { DEFAULT_PRESET, PRESETS } from '@/mermaid/presets';
 import { toCells } from '@/mermaid/to-cells';
 import type { MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection } from '@/mermaid/types';
-import type { EdgeEditHandlers, ManualPositions, NodeEditHandlers } from '@/components/diagram';
+import type { EdgeEditHandlers, NodeEditHandlers } from '@/components/diagram';
 import type { CellId } from '@joint/react-plus';
 
 /**
@@ -95,11 +95,6 @@ export function App() {
     // Bumped when a different diagram is loaded, which is the only time the
     // canvas re-frames itself. Editing the source leaves the camera alone.
     const [fitToken, setFitToken] = useState(0);
-    // Dagre owns node positions while true. Turned off, nodes drag by hand
-    // and links route around them; the positions live in the ref below — the
-    // canvas remounts on id changes, and drags must survive that.
-    const [autoLayout, setAutoLayout] = useState(true);
-    const manualPositionsRef = useRef<ManualPositions>(new Map());
     // Read through a ref so the toolbar handlers stay stable; a new identity on
     // every keystroke would remount the overlay mid-edit.
     const sourceRef = useRef(source);
@@ -172,10 +167,6 @@ export function App() {
         setPresetId(preset.id);
         setSource(preset.source, true);
         setFitToken((token) => token + 1);
-        // A fresh example wants a fresh layout; hand-placed positions belong
-        // to the diagram they were dragged on.
-        setAutoLayout(true);
-        manualPositionsRef.current.clear();
     }
 
     /**
@@ -353,12 +344,9 @@ export function App() {
                         fitToken={fitToken}
                         edit={edit}
                         linkEdit={linkEdit}
-                        autoLayout={autoLayout}
-                        onAutoLayoutChange={setAutoLayout}
                         onDirectionChange={handleDirectionChange}
                         onAddShape={handleAddShape}
                         focusToolbarFor={focusToolbarFor}
-                        positionsRef={manualPositionsRef}
                     />
                 </div>
             </main>

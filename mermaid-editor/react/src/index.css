@@ -417,14 +417,6 @@ body {
 
 /* The layout switch is a mode, so it wears its state: quiet while dagre owns
    the layout, accented while the user does. */
-.canvas-actions .layout-toggle {
-    padding: 0 10px;
-    font-size: 12px;
-}
-
-.canvas-actions .layout-toggle[aria-pressed='true'] {
-    background: var(--chip-active);
-}
 
 /* The direction switch: four arrows, one lit — the diagram's `flowchart TB`
    header made clickable. */
