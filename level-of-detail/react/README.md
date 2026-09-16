@@ -2,6 +2,8 @@
 
 A 1,200-node service map where every node swaps its rendering for a cheaper one as you zoom out: a full HTML card at reading zoom, a plain SVG chip in the middle, and a single tinted rectangle when the whole map is on screen. Built with `@joint/react-plus`.
 
+This demo is also available online at [demos.jointjs.com](https://demos.jointjs.com/level-of-detail/).
+
 ![screenshot](../screenshot.png)
 
 ## The idea

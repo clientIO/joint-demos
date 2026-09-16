@@ -4,6 +4,8 @@ A 1,200-node service map where every element swaps its rendering for a cheaper o
 
 Virtual rendering decides *how many* elements are drawn; level of detail decides *how much each one draws*. The two are independent, and the second is the one that survives zooming out — frame the whole map and all 1,200 elements really are inside the viewport, so there is nothing for virtual rendering to skip and the level of detail is the only lever left.
 
+This demo is also available online at [demos.jointjs.com](https://demos.jointjs.com/level-of-detail/).
+
 ## Available Versions
 
 - [TypeScript](./ts/)
