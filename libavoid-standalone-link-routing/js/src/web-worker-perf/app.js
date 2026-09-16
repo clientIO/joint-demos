@@ -1,6 +1,6 @@
 import { dia, V, g } from '@joint/core';
 import { cellNamespace } from './shapes';
-import { AvoidRouter } from '../shared/avoid-router';
+import { initAvoidRouter } from '@joint/router-avoid';
 import { markAwaiting, unmarkAwaiting } from '../shared/awaiting';
 import diagram1 from './example-1.json';
 import diagram2 from './example-2.json';
@@ -13,8 +13,6 @@ const DIAGRAMS = {
 export const init = async() => {
 
     document.documentElement.classList.add('web-worker-perf');
-
-    await AvoidRouter.load();
 
     const canvasEl = document.getElementById('canvas');
 
@@ -41,7 +39,6 @@ export const init = async() => {
             },
         },
         defaultAnchor: { name: 'modelCenter' },
-        defaultRouter: { name: 'rightAngle' },
         highlighting: {
             default: {
                 name: 'mask',
@@ -76,108 +73,39 @@ export const init = async() => {
 
     canvasEl.appendChild(paper.el);
 
-    // Start the Avoid Router in a Web Worker. We recreate the worker on every
-    // diagram reset to guarantee no stale state carries over (pending debounce,
-    // lingering libavoid shape/connection refs, etc.).
-    let routerWorker;
+    // Start the Avoid Router in a Web Worker. The `@joint/router-avoid`
+    // package spawns and manages the worker itself (`worker: true`) and
+    // batches graph changes before sending them to the worker. The router
+    // service's events drive the awaiting-update visuals; the `idle` event
+    // (fired when the worker has no more routing to do) closes the timer
+    // started in `loadDiagram()`.
 
-    function createRouterWorker() {
-        const w = new Worker(new URL('./worker.js', import.meta.url));
-        w.onmessage = (e) => {
-            const { command, ...data } = e.data;
-            switch (command) {
-                case 'routed': {
-                    // eslint-disable-next-line no-console
-                    console.timeEnd('worker routed');
-                    const { cells } = data;
-                    cells.forEach((cell) => {
-                        const model = graph.getCell(cell.id);
-                        if (!model || model.isElement()) return;
-                        // Skip if the user has disconnected an endpoint locally while
-                        // the worker was routing — applying would snap it back.
-                        if (!model.source()?.id || !model.target()?.id) return;
-                        model.set({
-                            vertices: cell.vertices,
-                            source: cell.source,
-                            target: cell.target,
-                            router: { name: 'normal' }
-                        }, {
-                            fromWorker: true
-                        });
-                        unmarkAwaiting(model.findView(paper));
-                    });
-                    break;
-                }
-                default:
-                    console.log('Unknown command', command);
-                    break;
-            }
-        };
-        return w;
-    }
-
-    routerWorker = createRouterWorker();
-
-    // When loading a diagram we suspend the worker sync listeners because
-    // we send a single `reset` command with the full cell list instead.
-    let loading = false;
-
-    graph.on('change', (cell, opt) => {
-        if (opt.fromWorker || loading) return;
-
-        if (cell.isLink()) {
-            // The worker only cares about source/target changes on links.
-            if (!cell.hasChanged('source') && !cell.hasChanged('target')) return;
-            // If the link was dangling and is still dangling, there's nothing to route.
-            const wasRoutable = Boolean(cell.previous('source')?.id && cell.previous('target')?.id);
-            const isRoutable = Boolean(cell.source()?.id && cell.target()?.id);
-            if (!wasRoutable && !isRoutable) return;
-        }
-
-        routerWorker.postMessage([{
-            command: 'change',
-            cell: cell.toJSON()
-        }]);
-
-        if (cell.isElement() && (cell.hasChanged('position') || cell.hasChanged('size'))) {
-            const links = graph.getConnectedLinks(cell);
-            links.forEach((link) => {
-                link.unset('router');
-                markAwaiting(link.findView(paper));
-            });
-        }
+    const routerService = await initAvoidRouter(graph, {
+        shapeBufferDistance: 20,
+        idealNudgingDistance: 10,
+        worker: true,
     });
 
-    graph.on('remove', (cell) => {
-        if (loading) return;
-        routerWorker.postMessage([{
-            command: 'remove',
-            id: cell.id
-        }]);
+    routerService.on('link:routing', (link) => {
+        const linkView = link.findView(paper);
+        if (linkView) markAwaiting(linkView);
     });
 
-    graph.on('add', (cell) => {
-        if (loading) return;
-        routerWorker.postMessage([{
-            command: 'add',
-            cell: cell.toJSON()
-        }]);
-        if (cell.isLink()) {
-            markAwaiting(cell.findView(paper));
-        }
+    routerService.on('link:routed link:routing:cancelled', (link) => {
+        const linkView = link.findView(paper);
+        if (linkView) unmarkAwaiting(linkView);
     });
 
-    paper.on('link:snap:connect', (linkView) => {
-        linkView.model.router('rightAngle');
+    let timing = false;
+
+    routerService.on('idle', () => {
+        if (!timing) return;
+        timing = false;
+        // eslint-disable-next-line no-console
+        console.timeEnd('worker routed');
     });
 
-    paper.on('link:snap:disconnect', (linkView) => {
-        linkView.model.set({
-            vertices: [],
-            router: null
-        });
-        markAwaiting(linkView);
-    });
+    routerService.start();
 
     const FIT_OPTIONS = {
         useModelGeometry: true,
@@ -241,24 +169,14 @@ export const init = async() => {
     paper.on('cell:pointerclick', () => fitToContent());
 
     function loadDiagram(json) {
-        loading = true;
-        graph.fromJSON(json);
-        loading = false;
-
-        // Mark links as awaiting-update while the worker routes them.
-        graph.getLinks().forEach((link) => markAwaiting(link.findView(paper)));
-
-        // Spin up a fresh worker so no state from the previous diagram leaks in.
-        routerWorker.terminate();
-        routerWorker = createRouterWorker();
-
-        // Tell the worker to reset with the full new cell set.
+        timing = true;
         // eslint-disable-next-line no-console
         console.time('worker routed');
-        routerWorker.postMessage([{
-            command: 'reset',
-            cells: json.cells
-        }]);
+
+        // `fromJSON` fires the graph's `reset` event — the router service
+        // reacts to it by re-syncing its whole avoid state from scratch,
+        // so no manual worker recreation is needed.
+        graph.fromJSON(json);
 
         paper.transformToFitContent(FIT_OPTIONS);
     }

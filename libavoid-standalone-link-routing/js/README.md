@@ -1,6 +1,6 @@
 # JointJS: Standalone Link Routing with Libavoid (JavaScript)
 
-Libavoid is a library that offers high-quality polyline and orthogonal link routing, effectively navigating around objects and avoiding overlapping parallel links. It is particularly useful when used in conjunction with interactive diagram editors, such as those that can be created with JointJS. This demo showcases the functionality of Libavoid, integrated into a JointJS diagram.
+Libavoid is a library that offers high-quality polyline and orthogonal link routing, effectively navigating around objects and avoiding overlapping parallel links. It is particularly useful when used in conjunction with interactive diagram editors, such as those that can be created with JointJS. This demo showcases the official [`@joint/router-avoid`](https://www.npmjs.com/package/@joint/router-avoid) package — a JointJS integration of the Libavoid WebAssembly build — in three configurations.
 
 <a href="https://stackblitz.com/github/clientio/joint-demos/tree/main/libavoid-standalone-link-routing/js" target="_blank">
   <img
@@ -35,11 +35,11 @@ And then start one of the variants below.
 
 ## Variants
 
-Three variants live side-by-side under `src/`, sharing the avoid-router integration code and a handful of helpers under `src/shared/`. They differ in *where* the router runs and *what* each one is meant to demonstrate.
+Three variants live side-by-side under `src/`, sharing a handful of helpers under `src/shared/`. All of them use `initAvoidRouter()` from `@joint/router-avoid` — the returned router service listens to the graph, keeps the Libavoid state in sync, and writes the computed routes (vertices and anchors) back onto the links. They differ in *where* the routing runs and *what* each one is meant to demonstrate.
 
 ### UI thread (default)
 
-Runs the avoid router on the main thread against a small graph (5 nodes, 4 links) from `src/shared/example-graph.js`. Fully editable — double-click blank to add a node, drag to move or resize, hover a link for remove/arrowhead tools. The simplest place to read the router integration end to end.
+Runs the avoid routing on the main thread against a small graph (5 nodes, 4 links) from `src/shared/example-graph.js`. Fully editable — double-click blank to add a node, drag to move or resize, hover a link for remove/arrowhead tools. The simplest setup: `await initAvoidRouter(graph, options)` followed by `routerService.start()` is the entire integration.
 
 ```bash
 npm run start   # or: npm run build
@@ -47,7 +47,7 @@ npm run start   # or: npm run build
 
 ### Web Worker
 
-Same graph, shapes, and editing affordances as the UI-thread variant, with the avoid router running in a dedicated `Worker` (`src/web-worker/worker.js`) so routing never blocks the UI. The reference for async routing: a paper↔worker message protocol (`add` / `remove` / `change` / `reset` out, `routed` back), an "awaiting-update" visual while a link's route is pending, and filters on both sides so no wasted message is sent and no stale reply overrides a link the user just disconnected.
+Same graph, shapes, and editing affordances as the UI-thread variant, with the routing running off the main thread — enabled with a single option, `worker: true`. The package spawns and manages the worker itself; there is no hand-rolled message protocol. While a route is being computed, the router service applies a provisional built-in `rightAngle` route (also the final fallback for unroutable links), and the demo listens to the service's `link:routing` / `link:routed` / `link:routing:cancelled` events to toggle an "awaiting-update" visual on the affected links.
 
 ```bash
 npm run start-web-worker   # or: npm run build-web-worker
@@ -55,8 +55,13 @@ npm run start-web-worker   # or: npm run build-web-worker
 
 ### Web Worker (performance)
 
-Stress test for the worker setup. A dropdown switches between two flowchart-style graphs of very different sizes (the bigger one ~400 elements / ~450 links); routing time for each load is logged to the console via `console.time('worker routed')`. Click on blank or a cell to fit the paper, drag on blank to rubber-band zoom.
+Stress test for the worker setup. A dropdown switches between two flowchart-style graphs of very different sizes (the bigger one ~400 elements / ~450 links); loading a diagram via `graph.fromJSON()` makes the router service re-sync its entire Libavoid state, and the routing time is logged to the console via `console.time('worker routed')`, closed by the service's `idle` event (fired when the worker has nothing left to route). In worker mode the service also batches graph changes before sending them to the worker (configurable via `worker: { debounceTime }`). Click on blank or a cell to fit the paper, drag on blank to rubber-band zoom.
 
 ```bash
 npm run start-web-worker-perf   # or: npm run build-web-worker-perf
 ```
+
+## Notes on bundling
+
+- `libavoid.wasm` is not bundled into the JavaScript — it is served as a separate file (Libavoid is LGPL-licensed) and copied to the output directory by `copy-webpack-plugin`; the package resolves it relative to the executing script at runtime.
+- The package's routing worker is a module worker created with `new Worker(new URL(...), import.meta.url)`, which webpack 5 detects and bundles automatically into a separate chunk — no extra configuration needed.

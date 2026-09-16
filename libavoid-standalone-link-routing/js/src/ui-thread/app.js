@@ -1,7 +1,7 @@
 import { linkTools, elementTools, dia, shapes, highlighters } from '@joint/core';
 import { Node, Edge } from '../shared/shapes';
 import ResizeTool from '../shared/resize-tool';
-import { AvoidRouter } from '../shared/avoid-router';
+import { initAvoidRouter } from '@joint/router-avoid';
 import { createExampleCells } from '../shared/example-graph';
 
 // Avoid Docs
@@ -13,8 +13,6 @@ import { createExampleCells } from '../shared/example-graph';
 export const init = async() => {
 
     document.documentElement.classList.add('ui-thread');
-
-    await AvoidRouter.load();
 
     const canvasEl = document.getElementById('canvas');
 
@@ -158,12 +156,10 @@ export const init = async() => {
 
     // Start the Avoid Router.
 
-    const router = new AvoidRouter(graph, {
+    const routerService = await initAvoidRouter(graph, {
         shapeBufferDistance: 20,
         idealNudgingDistance: 10,
-        portOverflow: Node.PORT_RADIUS,
     });
 
-    router.addGraphListeners();
-    router.routeAll();
+    routerService.start();
 };
