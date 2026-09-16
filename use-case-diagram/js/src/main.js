@@ -3,22 +3,189 @@ import './styles.css';
 
 const paperContainer = document.getElementById('paper-container');
 
-const COLORS = [
-    '#3f84e5',
-    '#49306B',
-    '#fe7f2d',
-    '#ad343e',
-    '#899e8b',
-    '#ede9e9',
-    '#b2a29f',
-    '#392F2D'
+const FONT_FAMILY = "'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif";
+
+// Actor accents, each a light->deep pair of the same hue rather than one flat
+// tone - every accent surface (actor chip, card background) renders as a
+// smooth diagonal gradient instead of a flat, dated-looking solid fill. Kept
+// as literal hex (not theme CSS variables): these need real color values,
+// both for the gradient stops and to blend across actors (see getAccentColor).
+//
+// Hues are spread far apart on purpose (blue/rose/emerald/violet/amber, not
+// e.g. indigo+violet+sky which all cluster in the same blue-purple range) so
+// that when 2-3 of these appear as adjacent bands in a use case's blended
+// background (see getAccentColor), every band boundary stays clearly visible
+// - a middle band never gets lost between two neighbors of a similar hue.
+const ACTOR_ACCENTS = [
+    { from: '#3b82f6', to: '#1d4ed8' }, // blue
+    { from: '#f43f5e', to: '#be123c' }, // rose
+    { from: '#10b981', to: '#047857' }, // emerald
+    { from: '#8b5cf6', to: '#6d28d9' }, // violet
+    { from: '#f59e0b', to: '#b45309' } // amber
 ];
 
-const logo = /* xml */ `
-    <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 280" fill="#DA3D40">
-        <path d="m130.71 225.71l-27.28-27.27q0-0.01 0-0.01h76.41v-103.68h27.28c0 0 0 59.4 0 98.19l-32.77 32.77zm330.37-116.97c10.68 10.41 17.29 25.87 17.29 46.13 0 20.26-6.61 35.71-17.29 46.13-10.69 10.41-25.47 15.79-41.91 15.79-16.44 0-31.22-5.38-41.91-15.79-10.68-10.42-17.29-25.87-17.29-46.13 0-20.26 6.61-35.72 17.29-46.13 10.69-10.41 25.47-15.79 41.91-15.79 16.44 0 31.22 5.38 41.91 15.79zm401.41-18.61q-8.23-7.14-22.76-7.15-11.77 0.01-18.3 5.07-6.59 5.11-6.59 14.42 0 6.67 3.47 10.89 3.42 4.18 10.27 7.59 6.77 3.37 20.96 8.6h0.01q14.98 5.85 23.95 10.62 8.92 4.74 15.31 13.26 6.38 8.48 6.38 21.16 0 12.48-6.28 22.05-6.29 9.58-18.03 14.86-11.78 5.29-27.76 5.29-15.99 0-28.09-5.4-12.05-5.39-18.55-15.18-6.49-9.79-6.49-22.71v-7.66h23.37v6.36q-0.01 10.17 8.71 16.92 8.64 6.7 22.95 6.7 13.05-0.01 19.69-5.74 6.69-5.76 6.69-14.84-0.01-6.23-3.69-10.56-3.63-4.29-10.37-7.81-6.67-3.48-20.01-8.7 0 0-0.01 0-14.98-5.64-24.27-10.63-9.23-4.95-15.42-13.46-6.16-8.49-6.16-21.17 0-18.93 13.39-29.9 13.45-11 35.93-10.99 15.77 0 27.86 5.61 12.07 5.6 18.78 15.62 6.7 10.01 6.7 23.13v5.92h-23.37v-4.61q0-10.38-8.27-17.56zm-318.54 18.35h1.52c7.2-9.6 18.63-15.53 34.94-15.53 14.12 0 25.51 4.23 33.38 12.18 7.88 7.95 12.27 19.65 12.27 34.71v74.96h-21.74v-71.71c0-9.84-2.46-17.37-7.24-22.42-4.78-5.03-11.84-7.55-20.88-7.55-10.09 0-18.19 3.05-23.74 9.4-5.05 5.79-7.99 14.26-8.51 25.47v66.53h-21.83v-119.76h21.83zm-194.95-13.73c0 0 0 63.58 0 98.2l-21.85 21.85c-10.29 0-22.53 0-32.81 0l-21.83-21.83q0 0 0 0h54.66v-98.22zm353.46 98.22l-21.83 21.83c0 0-10.89 0-21.8 0l-21.85-21.85v-130.94h21.83v32.74h32.74v21.83h-32.74v76.39h98.31v-130.96h21.83c0 0 0 88.7 0 130.94l-21.85 21.85c-10.29 0-22.53 0-32.81 0 0 0-21.83-21.83-21.83-21.83zm-213.17-98.22h21.83v119.77h-21.83zm-96.8 29.36c-6.6 7.05-10.44 17.44-10.44 30.75 0 13.3 3.84 23.69 10.44 30.74 6.57 7.02 15.86 10.69 26.68 10.69 10.82 0 20.11-3.67 26.68-10.69 6.61-7.05 10.45-17.44 10.45-30.74 0-13.31-3.84-23.7-10.45-30.75-6.57-7.01-15.86-10.69-26.68-10.69-10.82 0-20.11 3.68-26.68 10.69zm-299.99 63.38l-27.28-27.28q0 0 0 0h76.4v-103.69h27.29c0 0 0 59.4 0 98.2l-32.77 32.77zm396.79-125.48h21.82v21.82h-21.82zm-162.11 0h21.82v21.83h-21.82z" />
-    </svg>
-`;
+// Mostly-horizontal gradient vector with a slight tilt - bands run
+// perpendicular to it (vertical-ish columns, left-to-right). Fractional
+// (objectBoundingBox) coordinates are fine here since this is the default
+// for makeGradient(), used on the actor's roughly-square icon chip where
+// there's no width/height mismatch to stretch the tilt unevenly; the wider,
+// shorter use-case card body needs its own real-pixel version of this same
+// idea instead (see CARD_GRADIENT_ATTRS, defined once CARD_WIDTH is known).
+const GRADIENT_ANGLE_ATTRS = { x1: 0, y1: 0, x2: 1, y2: 0.1 };
+
+function makeGradient(from, to, attrs = GRADIENT_ANGLE_ATTRS) {
+    return {
+        type: 'linearGradient',
+        stops: [
+            { color: from, offset: 0 },
+            { color: to, offset: 1 }
+        ],
+        attrs
+    };
+}
+
+// Everything else theme-dependent (card fill/border, ink, line, grid, badge
+// colors) is driven by CSS custom properties defined in styles.css and
+// consumed either as a `class` on the shape (for colors the app never
+// recomputes) or read live via getCSSVar (for the accent colors that
+// fillUseCaseColors() does recompute).
+function getCSSVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function getTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+}
+
+const nodeShadow = {
+    name: 'dropShadow',
+    args: { dx: 0, dy: 3, blur: 8, color: '#0f172a', opacity: 0.12 }
+};
+
+const nodeShadowHover = {
+    name: 'dropShadow',
+    args: { dx: 0, dy: 6, blur: 16, color: '#0f172a', opacity: 0.2 }
+};
+
+// A tiny 2x2 grid glyph (a "frame/group" icon) drawn as four small squares,
+// used as the boundary's corner mark. Fixed pixel coordinates - it sits at a
+// constant offset from the card's top-left corner regardless of card size.
+function squarePath(x, y, size) {
+    return `M ${x} ${y} h ${size} v ${size} h ${-size} Z`;
+}
+
+const BOUNDARY_ICON_X = 26;
+const BOUNDARY_ICON_Y = 24;
+const BOUNDARY_ICON_SIZE = 14;
+const BOUNDARY_ICON_GAP = 3;
+const BOUNDARY_LABEL_GAP = 12;
+const boundaryIconSquare = (BOUNDARY_ICON_SIZE - BOUNDARY_ICON_GAP) / 2;
+const BOUNDARY_ICON_D = [
+    squarePath(BOUNDARY_ICON_X, BOUNDARY_ICON_Y, boundaryIconSquare),
+    squarePath(BOUNDARY_ICON_X + boundaryIconSquare + BOUNDARY_ICON_GAP, BOUNDARY_ICON_Y, boundaryIconSquare),
+    squarePath(BOUNDARY_ICON_X, BOUNDARY_ICON_Y + boundaryIconSquare + BOUNDARY_ICON_GAP, boundaryIconSquare),
+    squarePath(BOUNDARY_ICON_X + boundaryIconSquare + BOUNDARY_ICON_GAP, BOUNDARY_ICON_Y + boundaryIconSquare + BOUNDARY_ICON_GAP, boundaryIconSquare)
+].join(' ');
+
+// --- Actor and UseCase share one "node card" recipe (icon chip + title row) -
+// modeled directly on the AI Workflow Builder's node header: a small tinted,
+// ring-outlined icon chip identifies the node, sized text sits to its right.
+// The card border/fill stays neutral (theme-driven); the accent color only
+// ever shows up on the chip fill/ring and the icon itself.
+const CARD_WIDTH = 180;
+const CARD_HEIGHT = 60;
+// Use-case body gradients (see getAccentColor) need this card's own real
+// pixel coordinates rather than GRADIENT_ANGLE_ATTRS's 0-1 fractional ones:
+// on this 3:1 (180x60) card, a fractional tilt gets stretched far more on
+// the short axis than the long one, so each band's boundary lands at a
+// noticeably different x between the card's top and bottom edge. Real
+// pixel coordinates don't have that distortion, so a "slight" y2 tilt here
+// stays genuinely slight and every band stays the same width top-to-bottom.
+const CARD_GRADIENT_ATTRS = { gradientUnits: 'userSpaceOnUse', x1: 0, y1: 0, x2: CARD_WIDTH, y2: 20 };
+const NEUTRAL_GRADIENT = makeGradient('#64748b', '#475569', CARD_GRADIENT_ATTRS);
+// The chip sits on the card's own accent color/gradient (that's where the
+// "which actor(s) use this" half-color lives - see getAccentColor), so its
+// fill stays mostly-white for contrast rather than tinted the same accent
+// (which would just blend in); only its ring and icon pick up that accent.
+const CHIP_SIZE = 26;
+const CHIP_PAD_X = 10;
+const CHIP_Y = (CARD_HEIGHT - CHIP_SIZE) / 2;
+const TITLE_X = CHIP_PAD_X + CHIP_SIZE + 8;
+const CHIP_FILL_OPACITY = 0.92;
+const CHIP_STROKE_OPACITY = 0.55;
+
+// Icon glyph geometry lives inside the chip's own (fixed-size) box, so it
+// never needs a calc() expression - only the outer card scales with `w`/`h`.
+const ICON_BOX_X = CHIP_PAD_X + 4;
+const ICON_BOX_Y = CHIP_Y + 4;
+const ICON_BOX_SIZE = CHIP_SIZE - 8;
+
+// Use-case icons: each reflects what the action actually is, instead of one
+// checkmark repeated on every card. `createUseCase`'s last argument picks one
+// of these by key; `check` is the fallback for anything uncategorized.
+function circleD(cx, cy, r) {
+    return `M ${cx - r} ${cy} A ${r} ${r} 0 1 0 ${cx + r} ${cy} A ${r} ${r} 0 1 0 ${cx - r} ${cy}`;
+}
+
+const ICON_CX = ICON_BOX_X + ICON_BOX_SIZE / 2;
+const ICON_CY = ICON_BOX_Y + ICON_BOX_SIZE / 2;
+
+const USE_CASE_ICONS = {
+    // A goal/task accomplished - the fallback for anything uncategorized.
+    check: `M ${ICON_BOX_X + 2} ${ICON_CY} L ${ICON_BOX_X + ICON_BOX_SIZE * 0.42} ${ICON_BOX_Y + ICON_BOX_SIZE - 2} L ${ICON_BOX_X + ICON_BOX_SIZE - 1} ${ICON_BOX_Y + 2}`,
+    // Code brackets `</>`: reviewing or changing code.
+    code: `M ${ICON_BOX_X + ICON_BOX_SIZE * 0.42} ${ICON_BOX_Y + 2} L ${ICON_BOX_X + 2} ${ICON_CY} L ${ICON_BOX_X + ICON_BOX_SIZE * 0.42} ${ICON_BOX_Y + ICON_BOX_SIZE - 2} M ${ICON_BOX_X + ICON_BOX_SIZE * 0.58} ${ICON_BOX_Y + 2} L ${ICON_BOX_X + ICON_BOX_SIZE - 2} ${ICON_CY} L ${ICON_BOX_X + ICON_BOX_SIZE * 0.58} ${ICON_BOX_Y + ICON_BOX_SIZE - 2}`,
+    // Clock face: scheduling or attending a call.
+    clock: `${circleD(ICON_CX, ICON_CY, ICON_BOX_SIZE * 0.42)} M ${ICON_CX} ${ICON_CY} L ${ICON_CX} ${ICON_CY - ICON_BOX_SIZE * 0.28} M ${ICON_CX} ${ICON_CY} L ${ICON_CX + ICON_BOX_SIZE * 0.22} ${ICON_CY}`,
+    // Envelope: contacting or responding through a support channel.
+    ticket: `M ${ICON_BOX_X + 1} ${ICON_BOX_Y + 3} L ${ICON_BOX_X + ICON_BOX_SIZE - 1} ${ICON_BOX_Y + 3} L ${ICON_BOX_X + ICON_BOX_SIZE - 1} ${ICON_BOX_Y + ICON_BOX_SIZE - 3} L ${ICON_BOX_X + 1} ${ICON_BOX_Y + ICON_BOX_SIZE - 3} Z M ${ICON_BOX_X + 1} ${ICON_BOX_Y + 3} L ${ICON_CX} ${ICON_BOX_Y + ICON_BOX_SIZE * 0.55} L ${ICON_BOX_X + ICON_BOX_SIZE - 1} ${ICON_BOX_Y + 3}`,
+    // Chat bubble: a discussion thread or a piece of feedback.
+    chat: `M ${ICON_BOX_X + 1} ${ICON_BOX_Y + 2} L ${ICON_BOX_X + ICON_BOX_SIZE - 1} ${ICON_BOX_Y + 2} L ${ICON_BOX_X + ICON_BOX_SIZE - 1} ${ICON_BOX_Y + ICON_BOX_SIZE * 0.72} L ${ICON_BOX_X + ICON_BOX_SIZE * 0.4} ${ICON_BOX_Y + ICON_BOX_SIZE * 0.72} L ${ICON_BOX_X + ICON_BOX_SIZE * 0.28} ${ICON_BOX_Y + ICON_BOX_SIZE - 1} L ${ICON_BOX_X + ICON_BOX_SIZE * 0.28} ${ICON_BOX_Y + ICON_BOX_SIZE * 0.72} L ${ICON_BOX_X + 1} ${ICON_BOX_Y + ICON_BOX_SIZE * 0.72} Z`
+};
+
+// Actor cards get their own layout: a bigger icon chip on its own row, name
+// centered below - distinct from the use case's left icon + inline title row.
+const ACTOR_WIDTH = 160;
+const ACTOR_HEIGHT = 120;
+const ACTOR_CHIP_SIZE = 32;
+const ACTOR_CHIP_X = (ACTOR_WIDTH - ACTOR_CHIP_SIZE) / 2;
+const ACTOR_GAP = 8;
+// How tall a reserved label area to center the icon+name block around - the
+// actual wrapped line count isn't known until render time, so callers with a
+// short one-line name (e.g. "Community") pass ACTOR_LABEL_ONE_LINE instead of
+// letting the two-line default push the block off-true-center (see
+// computeActorGeometry / createActor's `lines` argument).
+const ACTOR_LABEL_TWO_LINES = 40;
+const ACTOR_LABEL_ONE_LINE = 20;
+
+function centerY(offset) {
+    const rounded = Math.round(offset * 100) / 100;
+    return `calc(0.5 * h ${rounded < 0 ? '-' : '+'} ${Math.abs(rounded)})`;
+}
+
+const ACTOR_ICON_BOX_SIZE = ACTOR_CHIP_SIZE - 10;
+const ACTOR_ICON_BOX_X = ACTOR_CHIP_X + 5;
+
+// Person glyph (actor): a head circle plus a "shoulders" dome - no
+// stick-figure UML relic. X coordinates (unaffected by centering) are fixed;
+// Y coordinates depend on `labelAllowance` via computeActorGeometry() below.
+const ACTOR_PERSON_HEAD_R = ACTOR_ICON_BOX_SIZE * 0.23;
+const ACTOR_PERSON_HEAD_CX = ACTOR_ICON_BOX_X + ACTOR_ICON_BOX_SIZE / 2;
+
+function computeActorGeometry(labelAllowance) {
+    const blockHalf = (ACTOR_CHIP_SIZE + ACTOR_GAP + labelAllowance) / 2;
+    const iconInsetOffset = -blockHalf + 5;
+    const shouldersBaseYExpr = centerY(iconInsetOffset + ACTOR_ICON_BOX_SIZE - 1);
+    const shouldersCtrlYExpr = centerY(iconInsetOffset + ACTOR_ICON_BOX_SIZE * 0.55);
+    return {
+        chipYExpr: centerY(-blockHalf),
+        labelTopExpr: centerY(-blockHalf + ACTOR_CHIP_SIZE + ACTOR_GAP),
+        headCyExpr: centerY(iconInsetOffset + ACTOR_ICON_BOX_SIZE * 0.32),
+        shouldersD: `M ${ACTOR_ICON_BOX_X + 1} ${shouldersBaseYExpr} Q ${ACTOR_PERSON_HEAD_CX} ${shouldersCtrlYExpr} ${ACTOR_ICON_BOX_X + ACTOR_ICON_BOX_SIZE - 1} ${shouldersBaseYExpr} Z`
+    };
+}
+
+const ACTOR_GEOMETRY_DEFAULT = computeActorGeometry(ACTOR_LABEL_TWO_LINES);
 
 const shapes = { ...defaultShapes };
 const graph = new dia.Graph({}, { cellNamespace: shapes });
@@ -32,6 +199,8 @@ const paper = new dia.Paper({
     linkPinning: false,
     cellViewNamespace: shapes,
     sorting: dia.Paper.sorting.APPROX,
+    gridSize: 20,
+    drawGrid: { name: 'dot', args: { color: getCSSVar('--uc-grid-dot'), thickness: 1.4 } },
     defaultConnectionPoint: {
         name: 'boundary',
         args: {
@@ -41,15 +210,17 @@ const paper = new dia.Paper({
     defaultConnector: {
         name: 'jumpover'
     },
-    background: {
-        color: '#f6f4f4'
-    },
+    // `Use` isn't defined yet at this point in the file, but this factory only
+    // runs later (when a user actually drags a new link), by which time the
+    // class exists - so newly-drawn links get the same styling/markers as the
+    // ones built at load time, not a bare default `dia.Link`.
+    defaultLink: () => new Use(),
     highlighting: {
         connecting: {
             name: 'mask',
             options: {
                 attrs: {
-                    stroke: '#0A100D',
+                    stroke: '#6366f1',
                     'stroke-width': 3
                 }
             }
@@ -80,31 +251,32 @@ class Boundary extends dia.Element {
                 root: {
                     cursor: 'move',
                 },
+                // No drop-shadow filter here on purpose: applied to this shape
+                // (800x1150, the one genuinely large element in the diagram)
+                // it silently clips the rect's own fill part-way down - a
+                // browser filter-region/texture-size limit for large filtered
+                // shapes, not anything about this element's declared size.
+                // Small nodes (Actor/UseCase) are well under that ceiling and
+                // keep their own shadow via `nodeShadow`.
                 body: {
                     width: 'calc(w)',
                     height: 'calc(h)',
-                    fill: COLORS[5],
-                    stroke: COLORS[6],
-                    strokeWidth: 1,
-                    rx: 20,
-                    ry: 20
+                    strokeWidth: 1.5,
+                    rx: 24,
+                    ry: 24
+                },
+                icon: {
+                    d: BOUNDARY_ICON_D
                 },
                 label: {
-                    y: 10,
-                    x: 'calc(w / 2)',
-                    textAnchor: 'middle',
-                    textVerticalAnchor: 'top',
-                    fontSize: 18,
-                    fontFamily: 'sans-serif',
-                    fontWeight: 'bold',
-                    fill: COLORS[7]
-                },
-                logo: {
-                    width: 200,
-                    height: 100,
-                    x: 'calc(w - 200)',
-                    y: 'calc(h - 100)',
-                    xlinkHref: `data:image/svg+xml;utf8,${encodeURIComponent(logo)}`
+                    x: BOUNDARY_ICON_X + BOUNDARY_ICON_SIZE + BOUNDARY_LABEL_GAP,
+                    y: BOUNDARY_ICON_Y + BOUNDARY_ICON_SIZE / 2,
+                    textAnchor: 'start',
+                    textVerticalAnchor: 'middle',
+                    fontSize: 14.5,
+                    fontFamily: FONT_FAMILY,
+                    fontWeight: 600,
+                    letterSpacing: '0.02em'
                 }
             }
         };
@@ -112,103 +284,110 @@ class Boundary extends dia.Element {
 
     preinitialize(...args) {
         super.preinitialize(...args);
+        // Title reads like a canvas frame/group label (small icon + caption in
+        // the top-left corner) rather than a centered UML caption banner.
         this.markup = util.svg`
-            <rect @selector="body" />
-            <text @selector="label" />
-            <image @selector="logo" />
+            <rect @selector="body" class="uc-boundary-card" />
+            <path @selector="icon" class="uc-muted-fill" />
+            <text @selector="label" class="uc-muted-text" />
         `;
     }
 }
 
-const legsY = 0.7;
-const bodyY = 0.3;
-const headY = 0.15;
+// Small magnet dots on the left/right edge, shared by Actor and UseCase, via
+// JointJS's own ports API (`dia.Element` port groups) instead of splicing
+// custom circles into each shape's own markup - the 'left'/'right' port
+// layouts already center a single port vertically and reposition it on
+// resize, so no hand-written `calc(w)` position math is needed here. Each
+// port's own markup carries two elements: a small visible dot (PORT_RADIUS)
+// plus a larger, invisible circle (PORT_HIT_RADIUS) stacked on top that alone
+// carries `magnet: true` - that's the actual drag target, so the hit area is
+// comfortably bigger than what's drawn. Ports render inside their own
+// `<g class="joint-port">` container automatically, which CSS below uses to
+// scope the dot's hover feedback to the side actually being hovered.
+const PORT_RADIUS = 5;
+const PORT_HIT_RADIUS = 13;
+
+const PORT_MARKUP = [
+    { tagName: 'circle', selector: 'portDot' },
+    { tagName: 'circle', selector: 'portHit' }
+];
+
+const PORT_ATTRS = {
+    portDot: { cx: 0, cy: 0, r: PORT_RADIUS, class: 'uc-link-dot uc-port' },
+    portHit: { cx: 0, cy: 0, r: PORT_HIT_RADIUS, fill: 'transparent', magnet: true, class: 'uc-port-hit' }
+};
+
+const PORT_GROUPS = {
+    left: { position: 'left', markup: PORT_MARKUP, attrs: PORT_ATTRS },
+    right: { position: 'right', markup: PORT_MARKUP, attrs: PORT_ATTRS }
+};
+
+const PORTS = {
+    groups: PORT_GROUPS,
+    items: [{ group: 'left' }, { group: 'right' }]
+};
 
 class Actor extends dia.Element {
     defaults() {
         return {
             ...super.defaults,
             type: 'Actor',
+            size: { width: ACTOR_WIDTH, height: ACTOR_HEIGHT },
+            ports: PORTS,
             attrs: {
                 root: {
                     cursor: 'move',
                 },
-                background: {
+                // Actors stand apart from use cases: a solid-color chip + a
+                // border in that same accent (set per-instance in createActor),
+                // instead of the neutral card + faint tint use cases get - they
+                // read as the "external, colorful" role at a glance. Layout is
+                // also its own: a bigger icon on its own row, name centered below.
+                body: {
                     width: 'calc(w)',
                     height: 'calc(h)',
-                    fill: 'transparent'
-                },
-                body: {
-                    d: `M 0 calc(0.4 * h) h calc(w) M 0 calc(h) calc(0.5 * w) calc(${legsY} * h) calc(w) calc(h) M calc(0.5 * w) calc(${legsY} * h) V calc(${bodyY} * h)`,
-                    fill: 'none',
-                    stroke: COLORS[7],
-                    strokeWidth: 2
-                },
-                head: {
-                    cx: 'calc(0.5 * w)',
-                    cy: `calc(${headY} * h)`,
-                    r: `calc(${headY} * h)`,
-                    stroke: COLORS[7],
+                    rx: 10,
+                    ry: 10,
                     strokeWidth: 2,
+                    filter: nodeShadow
+                },
+                wash: {
+                    width: 'calc(w)',
+                    height: 'calc(h)',
+                    rx: 10,
+                    ry: 10
+                },
+                chipBg: {
+                    x: ACTOR_CHIP_X,
+                    y: ACTOR_GEOMETRY_DEFAULT.chipYExpr,
+                    width: ACTOR_CHIP_SIZE,
+                    height: ACTOR_CHIP_SIZE,
+                    rx: 8,
+                    ry: 8
+                },
+                iconHead: {
+                    cx: ACTOR_PERSON_HEAD_CX,
+                    cy: ACTOR_GEOMETRY_DEFAULT.headCyExpr,
+                    r: ACTOR_PERSON_HEAD_R,
+                    fill: '#ffffff'
+                },
+                icon: {
+                    d: ACTOR_GEOMETRY_DEFAULT.shouldersD,
                     fill: '#ffffff'
                 },
                 label: {
-                    y: 'calc(h + 10)',
                     x: 'calc(0.5 * w)',
+                    y: ACTOR_GEOMETRY_DEFAULT.labelTopExpr,
                     textAnchor: 'middle',
                     textVerticalAnchor: 'top',
                     fontSize: 14,
-                    fontFamily: 'sans-serif',
-                    fill: COLORS[7],
+                    lineHeight: '1.4em',
+                    fontFamily: FONT_FAMILY,
+                    fontWeight: 600,
                     textWrap: {
-                        width: 'calc(3 * w)',
-                        height: null
-                    }
-                }
-            }
-        };
-    }
-
-    preinitialize(...args) {
-        super.preinitialize(...args);
-        this.markup = util.svg`
-            <rect @selector="background" />
-            <path @selector="body" />
-            <circle @selector="head" />
-            <text @selector="label" />
-        `;
-    }
-}
-
-class UseCase extends dia.Element {
-    defaults() {
-        return {
-            ...super.defaults,
-            type: 'UseCase',
-            attrs: {
-                root: {
-                    highlighterSelector: 'body',
-                    cursor: 'move',
-                },
-                body: {
-                    cx: 'calc(0.5 * w)',
-                    cy: 'calc(0.5 * h)',
-                    rx: 'calc(0.5 * w)',
-                    ry: 'calc(0.5 * h)',
-                    stroke: COLORS[7],
-                    strokeWidth: 2
-                },
-                label: {
-                    x: 'calc(0.5 * w)',
-                    y: 'calc(0.5 * h)',
-                    textVerticalAnchor: 'middle',
-                    textAnchor: 'middle',
-                    fontSize: 14,
-                    fontFamily: 'sans-serif',
-                    fill: '#ffffff',
-                    textWrap: {
-                        width: 'calc(w - 30)',
-                        height: 'calc(h - 10)',
+                        width: 'calc(w - 20)',
+                        height: 'calc(0.5 * h - 8)',
                         ellipsis: true
                     }
                 }
@@ -219,7 +398,94 @@ class UseCase extends dia.Element {
     preinitialize(...args) {
         super.preinitialize(...args);
         this.markup = util.svg`
-            <ellipse @selector="body" />
+            <rect @selector="body" class="uc-actor-card" />
+            <rect @selector="wash" class="uc-actor-wash" />
+            <rect @selector="chipBg" />
+            <path @selector="icon" />
+            <circle @selector="iconHead" />
+            <text @selector="label" class="uc-ink-text" />
+        `;
+    }
+}
+
+class UseCase extends dia.Element {
+    defaults() {
+        return {
+            ...super.defaults,
+            type: 'UseCase',
+            size: { width: CARD_WIDTH, height: CARD_HEIGHT },
+            ports: PORTS,
+            attrs: {
+                root: {
+                    highlighterSelector: 'body',
+                    cursor: 'move',
+                },
+                // Like the original demo, the "which actor(s) use this" accent
+                // is the whole card's background (see fillUseCaseColors) - not
+                // just a small chip - so it stays unmistakable at a glance. The
+                // outline is a constant ink tone (theme-reactive, not per-instance)
+                // so the border still reads against any accent color/gradient.
+                body: {
+                    width: 'calc(w)',
+                    height: 'calc(h)',
+                    rx: 10,
+                    ry: 10,
+                    strokeWidth: 1.5,
+                    filter: nodeShadow
+                },
+                chipBg: {
+                    x: CHIP_PAD_X,
+                    y: CHIP_Y,
+                    width: CHIP_SIZE,
+                    height: CHIP_SIZE,
+                    rx: 7,
+                    ry: 7,
+                    // Fill stays white and mostly opaque - it sits on the card's
+                    // own accent color/gradient, so tinting it the same accent
+                    // would just blend in; a sliver of translucency (not fully
+                    // opaque) lets a soft hint of that color through instead.
+                    fill: '#ffffff',
+                    fillOpacity: CHIP_FILL_OPACITY,
+                    strokeWidth: 1.5,
+                    strokeOpacity: CHIP_STROKE_OPACITY
+                },
+                // stroke (chipBg's ring) and stroke (icon) are set per-instance
+                // in fillUseCaseColors() to the same accent as the card body -
+                // a colored ring + colored icon on an (almost) white chip, not a
+                // flat dark icon on a plain white tile.
+                icon: {
+                    d: USE_CASE_ICONS.check,
+                    fill: 'none',
+                    strokeWidth: 2.4,
+                    strokeLinecap: 'round',
+                    strokeLinejoin: 'round'
+                },
+                label: {
+                    x: TITLE_X,
+                    y: 'calc(0.5 * h)',
+                    textAnchor: 'start',
+                    textVerticalAnchor: 'middle',
+                    fontSize: 12.5,
+                    lineHeight: '1.4em',
+                    fontFamily: FONT_FAMILY,
+                    fontWeight: 600,
+                    fill: '#ffffff',
+                    textWrap: {
+                        width: `calc(w - ${TITLE_X + 14})`,
+                        height: 'calc(h - 12)',
+                        ellipsis: true
+                    }
+                }
+            }
+        };
+    }
+
+    preinitialize(...args) {
+        super.preinitialize(...args);
+        this.markup = util.svg`
+            <rect @selector="body" class="uc-node-stroke" />
+            <rect @selector="chipBg" />
+            <path @selector="icon" />
             <text @selector="label" />
         `;
     }
@@ -232,9 +498,10 @@ class Use extends shapes.standard.Link {
                 type: 'Use',
                 attrs: {
                     line: {
-                        stroke: COLORS[7],
-                        strokeWidth: 2,
-                        targetMarker: null
+                        class: 'uc-link-line',
+                        strokeWidth: 1.75,
+                        sourceMarker: { type: 'circle', r: 3.5, class: 'uc-link-dot' },
+                        targetMarker: { type: 'circle', r: 3.5, class: 'uc-link-dot' }
                     }
                 }
             },
@@ -244,43 +511,49 @@ class Use extends shapes.standard.Link {
 }
 
 const lineAttrs = {
-    stroke: COLORS[7],
-    strokeWidth: 2,
-    strokeDasharray: '6,2',
+    class: 'uc-link-line',
+    strokeWidth: 1.75,
+    strokeDasharray: '5,4',
+    sourceMarker: { type: 'circle', r: 3, class: 'uc-link-dot' },
     targetMarker: {
         type: 'path',
+        class: 'uc-link-line',
         fill: 'none',
-        stroke: COLORS[7],
-        'stroke-width': 2,
-        d: 'M 10 -5 0 0 10 5'
+        'stroke-width': 1.75,
+        d: 'M 8 -4 0 0 8 4'
     }
 };
 
-const defaultLabel = {
-    position: 0.5,
-    markup: util.svg`
-        <rect @selector="labelBody" />
-        <text @selector="labelText" />
-    `,
-    attrs: {
-        labelText: {
-            fill: COLORS[7],
-            fontSize: 12,
-            fontFamily: 'sans-serif',
-            fontWeight: 'bold',
-            textAnchor: 'middle',
-            textVerticalAnchor: 'middle'
-        },
-        labelBody: {
-            ref: 'labelText',
-            x: 'calc(x - 2)',
-            y: 'calc(y - 2)',
-            width: 'calc(w + 4)',
-            height: 'calc(h + 4)',
-            fill: COLORS[5]
+function createStereotypeLabel(text, kind) {
+    return {
+        position: 0.5,
+        markup: util.svg`
+            <rect @selector="labelBody" class="uc-${kind}-badge-fill" />
+            <text @selector="labelText" class="uc-${kind}-badge-text" />
+        `,
+        attrs: {
+            labelText: {
+                text,
+                fontSize: 11,
+                fontFamily: FONT_FAMILY,
+                fontWeight: 600,
+                letterSpacing: '0.01em',
+                textAnchor: 'middle',
+                textVerticalAnchor: 'middle'
+            },
+            labelBody: {
+                ref: 'labelText',
+                x: 'calc(x - 7)',
+                y: 'calc(y - 3)',
+                width: 'calc(w + 14)',
+                height: 'calc(h + 6)',
+                rx: 9,
+                ry: 9,
+                strokeWidth: 1
+            }
         }
-    }
-};
+    };
+}
 
 class Include extends shapes.standard.Link {
     defaults() {
@@ -290,32 +563,7 @@ class Include extends shapes.standard.Link {
                 attrs: {
                     line: lineAttrs
                 },
-                defaultLabel,
-                labels: [
-                    {
-                        attrs: {
-                            labelText: {
-                                text: '<<include>>',
-                                annotations: [
-                                    {
-                                        start: 0,
-                                        end: 2,
-                                        attrs: {
-                                            fill: COLORS[6]
-                                        }
-                                    },
-                                    {
-                                        start: 9,
-                                        end: 11,
-                                        attrs: {
-                                            fill: COLORS[6]
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                ]
+                labels: [createStereotypeLabel('«include»', 'include')]
             },
             super.defaults
         );
@@ -330,32 +578,7 @@ class Extend extends shapes.standard.Link {
                 attrs: {
                     line: lineAttrs
                 },
-                defaultLabel,
-                labels: [
-                    {
-                        attrs: {
-                            labelText: {
-                                text: '<<extend>>',
-                                annotations: [
-                                    {
-                                        start: 0,
-                                        end: 2,
-                                        attrs: {
-                                            fill: COLORS[6]
-                                        }
-                                    },
-                                    {
-                                        start: 8,
-                                        end: 10,
-                                        attrs: {
-                                            fill: COLORS[6]
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                ]
+                labels: [createStereotypeLabel('«extend»', 'extend')]
             },
             super.defaults
         );
@@ -371,33 +594,51 @@ Object.assign(shapes, {
     Extend
 });
 
-function createActor(name, x, y, color) {
-    return new Actor({
-        size: {
-            width: 40,
-            height: 80
-        },
+function createActor(name, x, y, accent, lines = 2) {
+    // A one-line name (e.g. "Community") gets its own geometry so the
+    // icon+name block centers on that shorter block, not the two-line
+    // default - otherwise it'd sit visibly above true-center, with the
+    // reserved second line's space left empty below it.
+    const geometry = lines === 1
+        ? computeActorGeometry(ACTOR_LABEL_ONE_LINE)
+        : ACTOR_GEOMETRY_DEFAULT;
+    const actor = new Actor({
         position: {
             x,
             y
         },
         attrs: {
-            head: {
-                fill: color
+            body: {
+                stroke: accent.to
+            },
+            wash: {
+                fill: accent.to
+            },
+            chipBg: {
+                fill: makeGradient(accent.from, accent.to),
+                y: geometry.chipYExpr
+            },
+            iconHead: {
+                cy: geometry.headCyExpr
+            },
+            icon: {
+                d: geometry.shouldersD
             },
             label: {
-                text: name
+                text: name,
+                y: geometry.labelTopExpr
             }
         }
     });
+    // Stashed as plain model data (not under `attrs`) so fillUseCaseColors()
+    // can read back the actor's own {from, to} pair - not just a flat color -
+    // when it recomputes a connected use case's gradient.
+    actor.prop('accent', accent);
+    return actor;
 }
 
-function createUseCase(useCase, x, y) {
+function createUseCase(useCase, x, y, icon = 'check') {
     return new UseCase({
-        size: {
-            width: 125,
-            height: 75
-        },
         position: {
             x,
             y
@@ -405,6 +646,9 @@ function createUseCase(useCase, x, y) {
         attrs: {
             label: {
                 text: useCase
+            },
+            icon: {
+                d: USE_CASE_ICONS[icon] || USE_CASE_ICONS.check
             }
         }
     });
@@ -412,15 +656,7 @@ function createUseCase(useCase, x, y) {
 
 function createUse(source, target) {
     return new Use({
-        source: {
-            id: source.id,
-            connectionPoint: {
-                name: 'rectangle',
-                args: {
-                    offset: 5
-                }
-            }
-        },
+        source: { id: source.id },
         target: { id: target.id }
     });
 }
@@ -442,10 +678,13 @@ function createExtend(source, target) {
 const boundary = new Boundary({
     size: {
         width: 800,
-        height: 1000
+        // Extra height beyond the lowest embedded use case (bottom row ends
+        // at y=1010) gives a clear, generous margin so the last row reads as
+        // unmistakably inside the frame, not hugging its edge.
+        height: 1150
     },
     position: {
-        x: 200,
+        x: 260,
         y: 100
     },
     attrs: {
@@ -455,55 +694,65 @@ const boundary = new Boundary({
     }
 });
 
+// Actor Y positions are chosen to center each column on the boundary's own
+// vertical span (y:100-1250) rather than clustering low - techSupport, which
+// fans out to nearly every use case, sits near the middle; the others land
+// close to the row(s) they actually connect to.
 const packageHolder = createActor(
     'JointJS+ Support Package Subscriber',
-    100,
-    400,
-    COLORS[0]
+    20,
+    350,
+    ACTOR_ACCENTS[0]
 );
 const jointJSPlusUser = createActor(
     'JointJS+ User\n(Commercial)',
-    100,
-    700,
-    COLORS[1]
+    20,
+    650,
+    ACTOR_ACCENTS[1]
 );
 const jointJSUser = createActor(
     'JointJS User\n(Open Source)',
-    100,
-    930,
-    COLORS[2]
+    20,
+    900,
+    ACTOR_ACCENTS[2]
 );
 const techSupport = createActor(
     'JointJS Technical Support',
-    1075,
-    550,
-    COLORS[3]
+    1120,
+    480,
+    ACTOR_ACCENTS[3]
 );
-const community = createActor('Community', 1075, 930, COLORS[4]);
+const community = createActor('JointJS Community', 1120, 900, ACTOR_ACCENTS[4], 1);
 
-const requestCodeReview = createUseCase('Request Code Review', 400, 150);
-const reviewCode = createUseCase('Review Code', 700, 150);
-const giveFeedback = createUseCase('Give Feedback', 700, 290);
-const proposeChanges = createUseCase('Propose Changes', 700, 425);
+// Y positions are shifted +95 from a naive top-packed layout so the use-case
+// block (150-1010 originally) centers within the boundary's own vertical
+// span (100-1250) instead of leaving nearly all the slack at the bottom.
+const requestCodeReview = createUseCase('Request Code Review', 420, 245, 'code');
+const reviewCode = createUseCase('Review Code', 720, 245, 'code');
+const giveFeedback = createUseCase('Give Feedback', 720, 385, 'chat');
+const proposeChanges = createUseCase('Propose Changes', 720, 520, 'code');
 const requestConferenceCall = createUseCase(
     'Request Conference Call',
-    400,
-    350
+    420,
+    445,
+    'clock'
 );
 const proposeTimeAndDateOfCall = createUseCase(
     'Propose Time and Date of Call',
-    400,
-    525
+    420,
+    620,
+    'clock'
 );
-const attendConferenceCall = createUseCase('Attend Conference Call', 400, 700);
+const attendConferenceCall = createUseCase('Attend Conference Call', 420, 795, 'clock');
 const contactViaTicketingSystem = createUseCase(
     'Contact via Ticketing System',
-    400,
-    825
+    420,
+    920,
+    'ticket'
 );
-const respondToTicket = createUseCase('Respond to Ticket', 700, 825);
-const askGithubDiscussion = createUseCase('Ask on GitHub Discussion', 400, 950);
-const respondToDiscussion = createUseCase('Respond to Discussion', 700, 950);
+const respondToTicket = createUseCase('Respond to Ticket', 720, 920, 'ticket');
+const askGithubDiscussion = createUseCase('Ask on GitHub Discussion', 420, 1045, 'chat');
+const respondToDiscussion = createUseCase('Respond to Discussion', 720, 1045, 'chat');
 
 boundary.embed([
     requestCodeReview,
@@ -562,43 +811,72 @@ graph.addCells([
     createInclude(respondToDiscussion, askGithubDiscussion)
 ]);
 
-function getFillColor(colors) {
-    if (colors.length === 0) return COLORS[7];
-    if (colors.length === 1) return colors[0];
+// `accents` is a list of the connected actors' own {from, to} pairs. One
+// actor -> that actor's own smooth two-stop gradient. Several actors -> each
+// actor gets its own equal-width band (from -> to, a gentle gradient), with a
+// hard break at every band boundary - so it stays obvious at a glance how
+// many distinct actors use this and where one's color ends and the next
+// begins, while no single band is a flat, dated-looking solid.
+function getAccentColor(accents) {
+    if (accents.length === 0) return NEUTRAL_GRADIENT;
+    if (accents.length === 1) return makeGradient(accents[0].from, accents[0].to, CARD_GRADIENT_ATTRS);
 
-    const step = 1 / colors.length;
-
-    const stops = colors.reduce((acc, color, index) => {
-        const offset = index * step;
-        acc.push({ color, offset });
-        acc.push({ color, offset: offset + step });
-        return acc;
-    }, []);
+    const step = 1 / accents.length;
+    const stops = accents.flatMap((accent, index) => [
+        { color: accent.from, offset: index * step },
+        { color: accent.to, offset: (index + 1) * step }
+    ]);
 
     return {
         type: 'linearGradient',
         stops,
-        attrs: {
-            x1: 0.15,
-            gradientTransform: 'rotate(10)'
-        }
+        attrs: CARD_GRADIENT_ATTRS
     };
+}
+
+// Same "half-color" use case as the original demo: `body/fill` (the whole
+// card) takes the connected actors' blended color/gradient directly - one
+// actor's color solid, several actors' colors as a smooth multi-stop gradient
+// - so it's unmistakable at a glance, not tucked into a small chip.
+function recolorUseCase(useCase) {
+    const useCaseActors = graph
+        .getNeighbors(useCase, { inbound: true })
+        .filter((el) => el instanceof Actor);
+    const accent = getAccentColor(useCaseActors.map((actor) => actor.prop('accent')));
+    useCase.attr('body/fill', accent, { rewrite: true });
+    useCase.attr('chipBg/stroke', accent, { rewrite: true });
+    useCase.attr('icon/stroke', accent, { rewrite: true });
 }
 
 function fillUseCaseColors() {
     graph.getElements().forEach((element) => {
-        if (!(element instanceof UseCase)) return;
-        const useCaseActors = graph
-            .getNeighbors(element, { inbound: true })
-            .filter((el) => el instanceof Actor);
-        const colors = useCaseActors.map((actor) => actor.attr('head/fill'));
-        element.attr('body/fill', getFillColor(colors), { rewrite: true });
+        if (element instanceof UseCase) recolorUseCase(element);
     });
 }
 
 fillUseCaseColors();
 
-paper.on('link:connect', () => fillUseCaseColors());
+// A connect/disconnect only ever changes the coloring of the one use case at
+// the end that actually changed (the `elementView*` argument the event
+// itself carries - not necessarily the link's current target: dragging an
+// *existing* link's target arrowhead elsewhere, which the hover `TargetArrowhead`
+// tool below allows, fires `link:disconnect` for the use case it left and
+// `link:connect` for the one it landed on, and both need to be recolored, not
+// just the new one). Any other change to the graph's connectivity (a link,
+// actor, or use case being removed, cascading embeds, and so on) can affect
+// more than one use case in ways that aren't safe to pinpoint from the
+// removed cell alone, so that case still recomputes every use case.
+function recolorConnectedEnd(elementView) {
+    const cell = elementView && elementView.model;
+    if (cell instanceof UseCase) {
+        recolorUseCase(cell);
+    } else {
+        fillUseCaseColors();
+    }
+}
+
+paper.on('link:connect', (linkView, evt, elementViewConnected) => recolorConnectedEnd(elementViewConnected));
+paper.on('link:disconnect', (linkView, evt, elementViewDisconnected) => recolorConnectedEnd(elementViewDisconnected));
 graph.on('remove', () => fillUseCaseColors());
 
 paper.on('link:mouseenter', (linkView) => {
@@ -616,6 +894,30 @@ paper.on('link:mouseleave', (linkView) => {
     linkView.removeTools();
 });
 
+// Lift a node card slightly on hover for a bit of interactive feedback.
+paper.on('element:mouseenter', (elementView) => {
+    if (!(elementView.model instanceof UseCase) && !(elementView.model instanceof Actor)) return;
+    elementView.model.attr('body/filter', nodeShadowHover, { rewrite: true });
+});
+
+paper.on('element:mouseleave', (elementView) => {
+    if (!(elementView.model instanceof UseCase) && !(elementView.model instanceof Actor)) return;
+    elementView.model.attr('body/filter', nodeShadow, { rewrite: true });
+});
+
+const themeToggle = document.getElementById('theme-toggle');
+themeToggle.addEventListener('click', () => {
+    const next = getTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try {
+        localStorage.setItem('uc-theme', next);
+    } catch {
+        // localStorage unavailable (e.g. private mode) - theme just won't persist.
+    }
+    paper.setGrid({ name: 'dot', args: { color: getCSSVar('--uc-grid-dot'), thickness: 1.4 } });
+    fillUseCaseColors();
+});
+
 function scaleToFit() {
     const graphBBox = graph.getBBox();
     paper.scaleContentToFit({
@@ -629,5 +931,4 @@ function scaleToFit() {
     paper.translate(xLeft * sy, yTop * sy);
 }
 
-window.addEventListener('resize', () => scaleToFit());
 scaleToFit();
