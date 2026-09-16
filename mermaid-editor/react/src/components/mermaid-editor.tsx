@@ -386,9 +386,11 @@ export function MermaidEditor({
             ref={hostRef}
             className="editor-code"
             // A focus stop around the code: Tab lands here, Enter goes in,
-            // Escape (inside the editor) comes back out.
+            // Escape (inside the editor) comes back out. A labelled region is
+            // what a tabbable container may be; a `group` in the focus order
+            // fails the focus-order-semantics audit.
             tabIndex={0}
-            role="group"
+            role="region"
             aria-label="Mermaid source editor. Press Enter to edit, Escape to leave."
             onKeyDown={(event) => {
                 if (event.key !== 'Enter' || event.target !== event.currentTarget) return;
