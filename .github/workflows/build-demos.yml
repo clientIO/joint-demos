@@ -14,15 +14,19 @@
 #
 # WHICH COMMIT OF THE DEMOS GETS BUILT
 #
-# `demos_ref` when it is given and exists here; otherwise the commit this
-# workflow file came from - which is the branch under test for our own runs, and
-# the ref the caller pinned in `uses:` for everyone else.
+#   - no `demos_ref`, and the commit under test, which is what our own runs
+#     want;
+#   - a `demos_ref` that exists here, and that ref;
+#   - a `demos_ref` that does not, and the default branch.
 #
 # Asking for a ref that does not exist is therefore not an error, just a
 # fallback. That is deliberate: it lets a caller request some branch
 # unconditionally, and get the default whenever that branch is absent, without
-# either side having to track whether it exists. The run summary records which
-# ref was used and why.
+# either side having to track whether it exists. The last case resolves the
+# default branch rather than reusing the commit this workflow file came from,
+# so that a caller pinning `uses:` to a commit - to control which version of
+# this workflow runs - does not thereby freeze which demos get built. The run
+# summary records which ref was used and why.
 #
 # NOTE: there is deliberately no `pull_request` trigger. Building a demo runs
 # `npm install --ignore-scripts=false` and then its build script, both of which
@@ -60,7 +64,7 @@ on:
         required: false
         default: 4
       demos_ref:
-        description: 'Branch or tag of the demos to build. Falls back to the commit this workflow file came from when it does not exist here, so it is safe to ask for one unconditionally.'
+        description: 'Branch or tag of the demos to build. Falls back to the default branch when it does not exist here, so it is safe to ask for one unconditionally.'
         type: string
         required: false
         default: ''
@@ -120,21 +124,37 @@ jobs:
         run: |
           set -euo pipefail
 
+          url="https://github.com/$DEMOS_REPO.git"
+
           if [ -z "$REQUESTED" ]; then
             ref="$WORKFLOW_SHA"
             why="no ref requested"
-          # `--heads --tags` is what makes "a branch or a tag" the supported
-          # input: a raw commit matches no ref name and so falls back, which is
-          # fine because nothing asks for one. `--exit-code` reports 0 when the
-          # ref is there and 2 when it is not, so a network or permission
-          # failure is neither and stops the step rather than being mistaken for
-          # "the branch does not exist". Unauthenticated, as this repo is public.
-          elif git ls-remote --exit-code --heads --tags "https://github.com/$DEMOS_REPO.git" "$REQUESTED" >/dev/null 2>&1; then
-            ref="$REQUESTED"
-            why="requested"
           else
-            ref="$WORKFLOW_SHA"
-            why="requested '$REQUESTED' does not exist here, falling back"
+            # `--heads --tags` is what makes "a branch or a tag" the supported
+            # input. `--exit-code` then separates the two answers that matter:
+            # 0 the ref is there, 2 it is not. Anything else is a network or
+            # permission failure, and quietly building some other branch is
+            # worse than stopping. Unauthenticated, as this repo is public.
+            set +e
+            git ls-remote --exit-code --heads --tags "$url" "$REQUESTED" >/dev/null 2>&1
+            found=$?
+            set -e
+
+            if [ "$found" -eq 0 ]; then
+              ref="$REQUESTED"
+              why="requested"
+            elif [ "$found" -eq 2 ]; then
+              # The default branch, deliberately, and not $WORKFLOW_SHA: a
+              # caller may pin `uses:` to a commit so that it controls which
+              # version of *this workflow* runs, and that must not also freeze
+              # which commit of the demos gets built.
+              ref="$(git ls-remote --symref "$url" HEAD | awk '/^ref:/ { sub("refs/heads/", "", $2); print $2; exit }')"
+              [ -n "$ref" ] || { echo "::error::could not resolve the default branch of $DEMOS_REPO"; exit 1; }
+              why="requested '$REQUESTED' does not exist here, using the default branch"
+            else
+              echo "::error::could not read refs from $url (git ls-remote exited $found)"
+              exit 1
+            fi
           fi
 
           echo "ref=$ref" >> "$GITHUB_OUTPUT"
@@ -151,6 +171,14 @@ jobs:
           repository: ${{ job.workflow_repository }}
           ref: ${{ steps.resolve.outputs.ref }}
           fetch-depth: 1
+          # This job installs and builds every selected demo, which runs npm
+          # lifecycle scripts and each demo's own build - third-party code, in
+          # other words - and nothing here pushes. Left at its default, checkout
+          # would write the token into .git/config where all of that can read
+          # it. Worth more than the usual hygiene here: on a `workflow_call` the
+          # token belongs to the *caller*, so it is not necessarily scoped to
+          # this repository, or to a public one.
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

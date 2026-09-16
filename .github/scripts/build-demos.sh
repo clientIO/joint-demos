@@ -9,7 +9,7 @@ set -euo pipefail
 # --jobs N:     how many demos to build at once (default: the machine's cores, max 4)
 # --demos a,b:  build only these demos (repeatable, comma-separated)
 # --plus-only:  build only demos that depend on a JointJS+ package
-# --list-only:  print the demos that would be built, one per line, and stop
+# --list-only:  print the demos that would be built, comma-separated, and stop
 #
 # Demos are independent — each installs and builds inside its own directory and
 # copies its own output into _site — so they are built several at a time. The
@@ -234,7 +234,11 @@ PLANNED=$(wc -l < "$PLAN" | tr -d ' ')
 # Printed before anything is removed or built, so that checking what a set of
 # filters selects stays a read-only operation.
 if [[ "$LIST_ONLY" == true ]]; then
-    cut -f1 "$PLAN"
+    # Comma-separated, which is exactly what --demos parses, so the two compose
+    # without reshaping: `--demos "$(... --list-only)"`. One name per line would
+    # read better on a terminal, but --demos splits on commas only, so feeding
+    # it back would produce a single name with newlines in it and build nothing.
+    cut -f1 "$PLAN" | paste -sd, -
     exit 0
 fi
 

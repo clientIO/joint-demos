@@ -24,9 +24,15 @@ bash .github/scripts/build-demos.sh --plus-only
 bash .github/scripts/build-demos.sh --plus-only --list-only
 ```
 
-`--list-only` prints nothing but demo names to stdout, one per line — every
-other message goes to stderr — so its output can be fed straight back in as a
-`--demos` list.
+`--list-only` prints nothing but demo names to stdout, comma-separated — every
+other message goes to stderr — so its output is exactly what `--demos` parses
+and the two compose directly:
+
+```bash
+# Build every JointJS+ demo, having first checked which ones those are
+bash .github/scripts/build-demos.sh \
+  --demos "$(bash .github/scripts/build-demos.sh --plus-only --list-only)"
+```
 
 ## How it works
 
@@ -52,7 +58,7 @@ other message goes to stderr — so its output can be fed straight back in as a
 | `--jobs N` | How many demos to build at once. Defaults to the machine's core count, capped at 4. |
 | `--demos a,b,c` | Build only these demos. Repeatable, and combines with a bare demo name. |
 | `--plus-only` | Build only demos that depend on a JointJS+ package (`@joint/plus`, `@joint/react-plus`, `@joint/format-*`, `@joint/shapes-vsm`). Open-source-only demos are left out. |
-| `--list-only` | Print the demos that would be built, one per line, and exit without building or touching `_site/`. |
+| `--list-only` | Print the demos that would be built as a comma-separated list, and exit without building or touching `_site/`. |
 
 `--plus-only` reads the `dependencies` and `devDependencies` of the variant that
 would actually be built, not the text of `package.json`. That matters after
@@ -90,13 +96,19 @@ already push. This is the same trust model `deploy.yml` has always relied on.
 
 ## Which commit gets built
 
-The workflow builds its `demos_ref` input when that ref exists here, and
-otherwise the commit the workflow file itself came from — the branch under test
-for our own runs, and whatever ref the caller pinned in `uses:` for everyone
-else.
+| `demos_ref` | Builds |
+|---|---|
+| not given | the commit under test — what our own runs want |
+| given, and the ref exists here | that ref |
+| given, but no such ref | the default branch |
 
 Asking for a ref that does not exist is a fallback rather than an error, so a
 caller can request a branch unconditionally and get the default whenever that
 branch is absent, without either side tracking whether it exists. Branches and
-tags are what `demos_ref` accepts. The run summary records which ref was used
-and why.
+tags are what `demos_ref` accepts.
+
+The last row resolves the default branch rather than reusing the commit the
+workflow file came from, so that a caller pinning `uses:` to a commit — to
+control which version of this workflow runs — does not thereby freeze which
+demos get built. A remote that cannot be read fails the job instead of quietly
+building something else. The run summary records which ref was used and why.
