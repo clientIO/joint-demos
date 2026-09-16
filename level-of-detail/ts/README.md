@@ -125,41 +125,17 @@ Dragging an element still moves its links, of course: `isolate` is on the level-
 ## Features
 
 - **Three markups, one size.** Card (10 SVG nodes, `≥ 60%`), chip (5, `≥ 25%`), block (1, below that). The level changes what an element *draws*, never how big it is: the size lives on the model, so the links, the quad-tree index and the scroller's viewport test all keep working on geometry that never moves.
-- **A flagged custom `dia.ElementView`.** Three flags, one kind of work each — see below.
+- **A flagged custom `dia.ElementView`.** Three flags, one kind of work each, split from a reusable abstract base.
 - **A detail picker that pins a level**, to show what the other two are worth.
 - **Links are a level of detail too.** Below 25% they are not drawn at all, through the scroller's `cellVisibility`. At `Fit` all 1,600 of them are in the viewport, so virtual rendering would otherwise mount every one — and at that scale a 1px line is a grey haze that hides the status colours. It is the single biggest saving here, because the links outnumber the elements.
-- **Draggable nodes.** Moving an element runs `updateTransformation()` and nothing else — the markup the level of detail built is untouched, which is the whole reason `confirmUpdate()` keeps `Detail` and `Transform` apart.
+- **Draggable nodes.** Moving an element runs `updateTransformation()` and nothing else — the markup the level of detail built is untouched, which is the whole reason `confirmUpdate()` keeps `Render`, `Update` and `Transform` apart.
 - **Composes with the other two performance features.** `dia.SearchGraph` in lazy quad-tree mode, and `ui.PaperScroller`'s `virtualRendering`.
-- **Pinch-to-zoom, wired by hand.** `ui.PaperScroller` does not look at the wheel at all, and `dia.Paper` only emits `paper:pinch` when something is listening — so the gesture that sweeps through both thresholds takes one subscription. See below.
-
-## Pinch and pan
-
-Panning needs nothing: the scroller is a native scroll container, so a two-finger scroll scrolls it, and a blank drag pans it.
-
-Zooming by pinch does need wiring. `dia.Paper` checks for `paper:pinch` subscribers *before* it calls `preventDefault()` — so that a page with no zoom of its own does not swallow the browser's — and with no listener the gesture falls through to `paper:pan` and scrolls instead:
-
-```ts
-paper.on('paper:pinch', (_evt, x, y, scale) => {
-    scroller.zoom(scroller.zoom() * scale, {
-        absolute: true, min: MIN_ZOOM, max: MAX_ZOOM, ox: x, oy: y
-    });
-});
-```
-
-`scale` is a multiplier and `x`/`y` are local paper coordinates — the same space `zoom()`'s `ox`/`oy` expect — so the point under the cursor stays put.
-
-Two caveats specific to plain JointJS:
-
-- The core keys pinch off `evt.ctrlKey` only, which is what a trackpad pinch sends. **Cmd/⌘ + wheel does not zoom**; add a `paper:pan` handler that checks `metaKey` if you want it to.
-- The core's pinch scale is `0.995 ^ deltaY`, capped per event. macOS trackpads send very small deltas, so the raw gesture can feel slow — `@joint/react-plus` amplifies them for this reason.
-
-`@joint/react-plus` wires pinch, wheel-pan and ⌘ + wheel for you behind `<Diagram interactions>`, which is why the [React version](../react/) of this demo has no equivalent of this block.
 
 ## Controls
 
 | Action | Result |
 |--------|--------|
-| Drag the canvas, or two-finger scroll | Pan — the scroller is a native scroll container, so this needs no wiring |
+| Drag the canvas, or two-finger scroll | Pan |
 | Trackpad pinch, or Ctrl + wheel | Zoom — watch the level in the HUD change at 60% and 25% |
 | Drag a node | Move it — only `Transform` runs, so the markup is neither rebuilt nor rewritten |
 | `+` / `−` / `Fit` | Zoom in, out, or frame the whole map |
