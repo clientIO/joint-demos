@@ -3,7 +3,7 @@ import './styles.css';
 
 const paperContainer = document.getElementById('paper-container');
 
-const FONT_FAMILY = "'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif";
+const FONT_FAMILY = 'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
 
 // Actor accents, each a light->deep pair of the same hue rather than one flat
 // tone - every accent surface (actor chip, card background) renders as a
@@ -200,7 +200,7 @@ const paper = new dia.Paper({
     cellViewNamespace: shapes,
     sorting: dia.Paper.sorting.APPROX,
     gridSize: 20,
-    drawGrid: { name: 'dot', args: { color: getCSSVar('--uc-grid-dot'), thickness: 1.4 } },
+    drawGrid: { name: 'dot', args: { color: getCSSVar('--uc-grid-dot'), thickness: 1.4 }},
     defaultConnectionPoint: {
         name: 'boundary',
         args: {
@@ -914,7 +914,7 @@ themeToggle.addEventListener('click', () => {
     } catch {
         // localStorage unavailable (e.g. private mode) - theme just won't persist.
     }
-    paper.setGrid({ name: 'dot', args: { color: getCSSVar('--uc-grid-dot'), thickness: 1.4 } });
+    paper.setGrid({ name: 'dot', args: { color: getCSSVar('--uc-grid-dot'), thickness: 1.4 }});
     fillUseCaseColors();
 });
 
