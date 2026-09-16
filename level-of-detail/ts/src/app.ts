@@ -195,6 +195,21 @@ export function init(): void {
         });
     });
 
+    /*
+     * Dragging the blank canvas pans it.
+     *
+     * `ui.PaperScroller` does not bind this itself - `cursor: 'grab'` only sets
+     * the CSS cursor - so without the line below the grab cursor is a promise
+     * the canvas does not keep. `blank:pointerdown` fires only where there is
+     * no cell, so dragging a node still moves the node.
+     *
+     * The cursor follows the gesture, which is the feedback that tells a drag
+     * apart from a click on a map this dense.
+     */
+    paper.on('blank:pointerdown', (evt: dia.Event) => scroller.startPanning(evt));
+    scroller.on('pan:start', () => scroller.setCursor('grabbing'));
+    scroller.on('pan:stop', () => scroller.setCursor('grab'));
+
     /* --- Toolbar ---------------------------------------------------------- */
 
     const select = document.getElementById('detail') as HTMLSelectElement | null;
