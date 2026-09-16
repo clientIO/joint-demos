@@ -196,6 +196,8 @@ export interface EdgeData {
     readonly pairIndex: number;
     readonly source: string;
     readonly target: string;
+    /** The `|text|` on the arrow; empty when the edge has none. */
+    readonly label: string;
     readonly stroke: FlowStroke;
     readonly sourceArrow: FlowArrow;
     readonly targetArrow: FlowArrow;
@@ -393,6 +395,7 @@ export function toCells(flow: FlowGraph): MermaidCell[] {
                 stroke: edge.stroke,
                 sourceArrow: edge.sourceArrow,
                 targetArrow: edge.targetArrow,
+                label: edge.label,
                 ...(edge.animation === undefined ? {} : { animation: edge.animation }),
                 ...(paint.stroke === undefined ? {} : { color: paint.stroke }),
                 ...(edge.curve === undefined ? {} : { curve: edge.curve }),

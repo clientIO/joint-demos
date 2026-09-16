@@ -1,6 +1,7 @@
 import { Overlay } from '@joint/react-plus';
 import type { CellId } from '@joint/react-plus';
-import type { ChangeEvent } from 'react';
+import { useRef, useState } from 'react';
+import type { ChangeEvent, KeyboardEvent } from 'react';
 import { edgeRefOf } from '@/mermaid/edit-source';
 import type { EdgeData } from '@/mermaid/to-cells';
 import type { FlowArrow, FlowStroke } from '@/mermaid/types';
@@ -119,6 +120,62 @@ function AnimateIcon() {
     );
 }
 
+interface LabelFieldProps {
+    /** The label as the source has it now. */
+    readonly value: string;
+    readonly onCommit: (label: string) => void;
+}
+
+/**
+ * The edge's text, edited in place. Enter or leaving the field writes it to
+ * the source; Escape puts the parsed label back and lets the toolbar close.
+ */
+function LabelField({ value, onCommit }: LabelFieldProps) {
+    const [draft, setDraft] = useState(value);
+    const [parsed, setParsed] = useState(value);
+    // Escape closes the toolbar, which blurs the field on its way out; that
+    // blur must not write the draft the user just threw away.
+    const isDiscarding = useRef(false);
+    // The source changed underneath (an edit in the text editor): follow it.
+    if (parsed !== value) {
+        setParsed(value);
+        setDraft(value);
+    }
+
+    function commit() {
+        if (isDiscarding.current) return;
+        if (draft.trim() !== value) onCommit(draft);
+    }
+
+    function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+        if (event.key === 'Escape') {
+            isDiscarding.current = true;
+            setDraft(value);
+            return;
+        }
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            commit();
+        }
+        // Typing must not reach the canvas shortcuts (Delete, arrows).
+        event.stopPropagation();
+    }
+
+    return (
+        <input
+            className="link-toolbar-label"
+            type="text"
+            placeholder="Add a label"
+            aria-label="Edge label"
+            value={draft}
+            spellCheck={false}
+            onChange={(event: ChangeEvent<HTMLInputElement>) => setDraft(event.target.value)}
+            onBlur={commit}
+            onKeyDown={onKeyDown}
+        />
+    );
+}
+
 export interface LinkToolbarProps {
     readonly cellId: CellId;
     readonly data: EdgeData;
@@ -158,6 +215,9 @@ export function LinkToolbar({ cellId, data, x, y, edit, onDismiss, onDelete }: L
                     onDismiss();
                 }}
             >
+                <span className="node-toolbar-row link-toolbar-labelrow">
+                    <LabelField value={data.label} onCommit={(label) => edit.onLabelChange(edge, label)} />
+                </span>
                 <span className="node-toolbar-row">
                     <span className="node-toolbar-cluster" role="radiogroup" aria-label="Line style">
                         {STROKES.map((entry) => (

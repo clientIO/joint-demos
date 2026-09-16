@@ -792,6 +792,8 @@ export interface NodeEditHandlers {
 
 /** Edits the edge toolbar can request, each rewriting a span of the source. */
 export interface EdgeEditHandlers {
+    /** Sets or clears the `|text|` label on the arrow. */
+    readonly onLabelChange: (edge: EdgeRef, label: string) => void;
     /** Rewrites the edge's arrow token — line pattern and heads. */
     readonly onArrowChange: (edge: EdgeRef, change: EdgeArrowChange) => void;
     /** Sets or clears the `linkStyle <n> stroke:` colour. */

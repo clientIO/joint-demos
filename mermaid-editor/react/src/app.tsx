@@ -11,6 +11,7 @@ import {
     addNode,
     setDirection,
     setEdgeAnimation,
+    setEdgeLabel,
     setEdgeArrow,
     setEdgeInterpolate,
     setEdgeStyleProperty,
@@ -228,6 +229,8 @@ export function App() {
             sourceRef.current = next;
         };
         return {
+            onLabelChange: (edgeRef, label) =>
+                apply(setEdgeLabel(sourceRef.current, edgeRef, label)),
             onArrowChange: (edgeRef, change) =>
                 apply(setEdgeArrow(sourceRef.current, edgeRef, change)),
             onColorChange: (edgeIndex, color) =>

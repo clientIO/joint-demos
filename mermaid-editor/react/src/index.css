@@ -939,6 +939,43 @@ body {
     outline-offset: 1px;
 }
 
+/* The edge's text sits first, above the formatting: a quiet field that only
+   shows its edges when pointed at, so an unlabelled edge is not shouting for
+   one. */
+.link-toolbar-labelrow {
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--overlay-border);
+}
+
+.link-toolbar-label {
+    flex: 1;
+    min-width: 0;
+    padding: 5px 8px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+
+.link-toolbar-label::placeholder {
+    color: var(--text-muted);
+}
+
+.link-toolbar-label:hover {
+    border-color: var(--overlay-border);
+}
+
+.link-toolbar-label:focus-visible {
+    background: var(--overlay-inset);
+    border-color: var(--focus-ring);
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 1px;
+}
+
 .node-toolbar-action {
     padding: 4px 8px;
     font: inherit;

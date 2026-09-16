@@ -1,9 +1,9 @@
 import type { CellId } from '@joint/react-plus';
-import { edgeSpans } from './edge-spans';
-import type { EdgeSpan } from './edge-spans';
-import { FLOWCHART_HEADER, META_BLOCK_BODY, parseFlowchartSpans } from './flowchart-tree';
-import type { EdgeData } from './to-cells';
-import type { FlowArrow, FlowStroke } from './types';
+import { edgeSpans } from './edge-spans.ts';
+import type { EdgeSpan } from './edge-spans.ts';
+import { FLOWCHART_HEADER, META_BLOCK_BODY, parseFlowchartSpans } from './flowchart-tree.ts';
+import type { EdgeData } from './to-cells.ts';
+import type { FlowArrow, FlowStroke } from './types.ts';
 
 /**
  * Targeted edits to Mermaid source, for the controls on a selected node.
@@ -652,6 +652,29 @@ export function setEdgeArrow(
             current.minLen
         )
     );
+}
+
+/** The `|text|` label Mermaid hangs directly off an arrow token. */
+const PIPE_LABEL = /^\s*\|[^|\n]*\|/;
+
+/**
+ * Set or clear an edge's label, in Mermaid's `a -->|text| b` spelling.
+ *
+ * The label sits right after the arrow token, so it is found from the arrow
+ * span rather than parsed on its own. A pipe inside the text would end the
+ * label early, so it is written as a slash.
+ * @param source - Current Mermaid source.
+ * @param edge - Which edge to label.
+ * @param label - New label text; blank clears the label.
+ * @returns The updated source, or `null` when the edge cannot be located.
+ */
+export function setEdgeLabel(source: string, edge: EdgeRef, label: string): string | null {
+    const span = findEdgeSpan(source, edge);
+    if (!span) return null;
+    const existing = PIPE_LABEL.exec(source.slice(span.to));
+    const to = span.to + (existing?.[0].length ?? 0);
+    const text = encodeBreaks(label.trim()).replaceAll('|', '/');
+    return splice(source, span.to, to, text === '' ? '' : `|${quoteLabel(text)}|`);
 }
 
 /**
