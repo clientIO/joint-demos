@@ -191,9 +191,26 @@ function idsOnLine(text: string, lineStart: number, lineEnd: number): CellId[] {
     return seen;
 }
 
+/**
+ * Whether a key event belongs to a field with an undo stack of its own — the
+ * node rename box, the edge label, a colour input. Cmd+Z there is the
+ * browser's, and stealing it to undo the document would throw away the word
+ * the user is in the middle of typing.
+ */
+function isNativeUndoTarget(target: EventTarget | null): boolean {
+    return target instanceof HTMLInputElement
+        || target instanceof HTMLTextAreaElement
+        || (target instanceof HTMLElement && target.isContentEditable);
+}
+
 export interface MermaidEditorProps {
     readonly value: string;
-    readonly onChange: (value: string) => void;
+    /**
+     * The new text, plus whether it came from an undo or a redo — one discrete
+     * step, which the app parses at once instead of charging it the typing
+     * delay, and which may have removed whatever was selected.
+     */
+    readonly onChange: (value: string, isHistoryStep: boolean) => void;
     /**
      * Node ids selected on the canvas; every occurrence of each is marked and
      * the first is scrolled into view. Empty when the selection came from the
@@ -287,9 +304,9 @@ export function MermaidEditor({
                 '!suggestWidgetVisible && !findWidgetVisible && !parameterHintsVisible'
             );
 
-            editor.onDidChangeModelContent(() => {
+            editor.onDidChangeModelContent((event) => {
                 if (isApplyingRef.current) return;
-                onChangeRef.current(editor?.getValue() ?? '');
+                onChangeRef.current(editor?.getValue() ?? '', event.isUndoing || event.isRedoing);
             });
             editor.onDidChangeCursorPosition((event) => {
                 const model = editor?.getModel();
@@ -333,6 +350,49 @@ export function MermaidEditor({
             editorRef.current = null;
             editor?.dispose();
         };
+    }, []);
+
+    // Undo and redo anywhere in the app, not just with the caret in the code.
+    //
+    // Monaco holds the only history there is: the source text IS the document
+    // (Dagre owns every position), and each canvas edit goes onto its stack as
+    // one step (see the sync effect below), so a canvas-side stack would be a
+    // second history over derived state. The listener is on the window because
+    // the keystroke can come from anywhere — the paper, a node, a toolbar
+    // chip, the source pane's focus frame — and in the CAPTURE phase because
+    // Monaco's keybinding service listens on the container it was handed,
+    // which is that very frame: with the frame focused it would swallow the
+    // keystroke (`stopPropagation`) and then undo nothing, no editor having
+    // text focus.
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => {
+            const editor = editorRef.current;
+            if (!editor || event.isComposing) return;
+            // With the caret in the code, Monaco's own keybinding has it —
+            // including its find widget and multi-cursor bookkeeping.
+            if (editor.hasTextFocus()) return;
+            if (!(event.metaKey || event.ctrlKey) || event.altKey) return;
+            const key = event.key.toLowerCase();
+            // Cmd/Ctrl+Z, Shift+Z to come back, and Ctrl+Y as Windows spells
+            // redo. A modifier combination the platform does not use for undo
+            // is left alone.
+            const isRedo = key === 'y' ? !event.metaKey : key === 'z' && event.shiftKey;
+            const isUndo = key === 'z' && !event.shiftKey;
+            if (!isUndo && !isRedo) return;
+            if (isNativeUndoTarget(event.target)) return;
+            const model = editor.getModel();
+            if (!model) return;
+            event.preventDefault();
+            // Ours now: nothing downstream gets a second go at it.
+            event.stopPropagation();
+            // Straight at the MODEL, not `editor.trigger('undo')`: running the
+            // editor command pulls focus into the code, and the user is not
+            // there — their next Delete or arrow key would go to the text
+            // instead of the canvas. An empty stack makes this a no-op.
+            void (isRedo ? model.redo() : model.undo());
+        };
+        window.addEventListener('keydown', onKeyDown, true);
+        return () => window.removeEventListener('keydown', onKeyDown, true);
     }, []);
 
     useEffect(() => {

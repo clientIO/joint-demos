@@ -25,7 +25,7 @@ export interface EditorPanelProps {
     readonly edgeCount: number;
     readonly highlightedIds: readonly CellId[];
     readonly onCursorNodeChange: (ids: readonly CellId[]) => void;
-    readonly onSourceChange: (source: string) => void;
+    readonly onSourceChange: (source: string, isHistoryStep: boolean) => void;
 }
 
 export function EditorPanel({

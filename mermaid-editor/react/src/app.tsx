@@ -102,6 +102,10 @@ export function App() {
         sourceRef.current = source;
     }, [source]);
     const [selection, setSelection] = useState<Selection>(NO_SELECTION);
+    const canvasRef = useRef<HTMLDivElement>(null);
+    // Set when an undo or redo arrives with the canvas focused; read once the
+    // diagram it asked for has rendered. See the effect below.
+    const refocusCanvasRef = useRef(false);
     // The node whose toolbar should take focus when it opens — set when a
     // shape was added from the keyboard, so the user lands on the new
     // node's controls instead of being left on the button they pressed.
@@ -160,6 +164,34 @@ export function App() {
             clearTimeout(timer);
         };
     }, [draft, source]);
+
+    /**
+     * Keeps the canvas focused across an undo.
+     *
+     * The diagram remounts whenever the set of cell ids changes (`graphKey` in
+     * `diagram.tsx`), which destroys the scroller focus was sitting on and
+     * drops it to the body — the same hand-off `remove` makes with
+     * `focusOnMountRef`, except an undo cannot re-focus at the keystroke: the
+     * new scroller does not exist until the source has been parsed. So the
+     * request is recorded then, and honoured here. A step that changed no ids
+     * remounted nothing, so focus never left; the guard below sees that and
+     * leaves it alone.
+     */
+    useEffect(() => {
+        if (!refocusCanvasRef.current) return;
+        refocusCanvasRef.current = false;
+        if (document.activeElement !== document.body) return;
+        // A frame later, and by the scroller's own class as the toolbar
+        // geometry finds it: the new scroller only becomes focusable once it
+        // reaches React's context and the canvas puts its `tabindex` and ARIA
+        // attributes on, which is a commit after this one.
+        const frame = requestAnimationFrame(() => {
+            canvasRef.current
+                ?.querySelector<HTMLElement>('.jj-paper-scroller')
+                ?.focus({ preventScroll: true });
+        });
+        return () => cancelAnimationFrame(frame);
+    }, [rendered]);
 
     function handlePresetChange(nextId: string) {
         const preset = PRESETS.find((candidate) => candidate.id === nextId);
@@ -266,8 +298,20 @@ export function App() {
         setFocusToolbarFor(fromKeyboard ? added.id : null);
     }, [setSource]);
 
-    function handleSourceChange(next: string) {
-        setSource(next);
+    function handleSourceChange(next: string, isHistoryStep: boolean) {
+        // An undo is a discrete edit, like picking a shape: parsing it at once
+        // keeps the canvas from trailing the keystroke by the typing delay,
+        // which is what makes a held-down Cmd+Z feel broken.
+        setSource(next, isHistoryStep);
+        if (isHistoryStep) {
+            refocusCanvasRef.current = canvasRef.current?.contains(document.activeElement) === true;
+            // The step may have taken away the selected node — or renamed its
+            // id — so the selection and any toolbar hand-off waiting on it are
+            // both stale. A caret still in the code re-selects its own line on
+            // the cursor move that follows.
+            setSelection(NO_SELECTION);
+            setFocusToolbarFor(null);
+        }
         // Once the text diverges from the example, stop claiming it is one.
         const preset = PRESETS.find((candidate) => candidate.id === presetId);
         if (preset && preset.source !== next) setPresetId('custom');
@@ -335,7 +379,7 @@ export function App() {
                     onCursorNodeChange={selectFromEditor}
                     onSourceChange={handleSourceChange}
                 />
-                <div className="canvas">
+                <div className="canvas" ref={canvasRef}>
                     <MermaidDiagram
                         direction={rendered.direction}
                         cells={rendered.cells}
