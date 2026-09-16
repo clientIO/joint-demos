@@ -71,5 +71,32 @@ select every demo.
 
 - [`demos.config.json`](../../demos.config.json) — per-demo configuration (skip, variant, buildFlags)
 - [`.github/docs/demos-config.md`](./demos-config.md) — documentation for the config file
-- [`.github/workflows/build-demos.yml`](../workflows/build-demos.yml) — builds the demos on pull requests, and is the workflow `clientIO/joint-plus` calls to test them against an unreleased JointJS+
+- [`.github/workflows/build-demos.yml`](../workflows/build-demos.yml) — builds the demos on pushes to `main`, and is callable by another repository to build them against `@joint/*` packages it has built itself
 - [`.github/workflows/deploy.yml`](../workflows/deploy.yml) — GitHub Actions workflow that invokes this script
+
+## Why no pull request check
+
+Building a demo runs `npm install --ignore-scripts=false` and then its build
+script, both of which execute code from the commit under test, and the build
+needs `JOINTJS_NPM_TOKEN`. A pull request opened from a branch of this
+repository **does** receive repository secrets, so a `pull_request` trigger
+would hand that credential to unreviewed code, which could read it out of the
+environment and exfiltrate it.
+
+So the demos are built after merge instead: on pushes to `main`, on demand via
+**Run workflow**, and on `workflow_call` from another repository. Every one of
+those runs code that has already been reviewed, or is started by someone who can
+already push. This is the same trust model `deploy.yml` has always relied on.
+
+## Which commit gets built
+
+The workflow builds its `demos_ref` input when that ref exists here, and
+otherwise the commit the workflow file itself came from — the branch under test
+for our own runs, and whatever ref the caller pinned in `uses:` for everyone
+else.
+
+Asking for a ref that does not exist is a fallback rather than an error, so a
+caller can request a branch unconditionally and get the default whenever that
+branch is absent, without either side tracking whether it exists. Branches and
+tags are what `demos_ref` accepts. The run summary records which ref was used
+and why.
