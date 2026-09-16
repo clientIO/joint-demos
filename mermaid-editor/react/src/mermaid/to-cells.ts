@@ -208,6 +208,9 @@ export interface EdgeData {
     readonly curve?: string;
 }
 
+/** An edge without a label; typed so the record's `labelMap` is never `{ main?: undefined }`. */
+const NO_LABELS: Record<string, LinkLabel> = {};
+
 /** Curve families that render as a smooth spline rather than straight runs. */
 const SMOOTH_CURVES = new Set([
     'basis',
@@ -421,7 +424,9 @@ export function toCells(flow: FlowGraph): MermaidCell[] {
                 sourceMarker: MARKERS[edge.sourceArrow],
                 targetMarker: MARKERS[edge.targetArrow],
             },
-            ...(edge.label === '' ? {} : { labelMap: { main: { ...LABEL_BASE, text: edge.label }}}),
+            // Always present: an absent key leaves whatever labels the link
+            // already has, so a label removed in the source would stay drawn.
+            labelMap: edge.label === '' ? NO_LABELS : { main: { ...LABEL_BASE, text: edge.label }},
         };
     });
 
