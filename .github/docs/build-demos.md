@@ -13,6 +13,25 @@ bash .github/scripts/build-demos.sh data-pipeline
 
 # Build all demos, continuing past failures
 bash .github/scripts/build-demos.sh --force
+
+# Build several named demos
+bash .github/scripts/build-demos.sh --demos charts,kitchen-sink
+
+# Build only the demos that depend on a JointJS+ package
+bash .github/scripts/build-demos.sh --plus-only
+
+# Print what would be built, without building it
+bash .github/scripts/build-demos.sh --plus-only --list-only
+```
+
+`--list-only` prints nothing but demo names to stdout, comma-separated — every
+other message goes to stderr — so its output is exactly what `--demos` parses
+and the two compose directly:
+
+```bash
+# Build every JointJS+ demo, having first checked which ones those are
+bash .github/scripts/build-demos.sh \
+  --demos "$(bash .github/scripts/build-demos.sh --plus-only --list-only)"
 ```
 
 ## How it works
@@ -35,16 +54,61 @@ bash .github/scripts/build-demos.sh --force
 
 | Flag | Description |
 |------|-------------|
-| `--force` | Continue building remaining demos when a build fails. Without this flag the script exits on the first failure. |
+| `--force` | Continue building remaining demos when a build fails. Without this flag no further demo is started after a failure (the ones already running are left to finish). |
+| `--jobs N` | How many demos to build at once. Defaults to the machine's core count, capped at 4. |
+| `--demos a,b,c` | Build only these demos. Repeatable, and combines with a bare demo name. |
+| `--plus-only` | Build only demos that depend on a JointJS+ package (`@joint/plus`, `@joint/react-plus`, `@joint/format-*`, `@joint/shapes-vsm`). Open-source-only demos are left out. |
+| `--list-only` | Print the demos that would be built as a comma-separated list, and exit without building or touching `_site/`. |
+
+`--plus-only` reads the `dependencies` and `devDependencies` of the variant that
+would actually be built, not the text of `package.json`. That matters after
+[`link-local-packages.mjs`](../scripts/link-local-packages.mjs) has run: the
+`overrides` block it adds names every local package, so matching on text would
+select every demo.
 
 ## Environment variables
 
 | Variable | Description |
 |----------|-------------|
 | `JOINTJS_NPM_TOKEN` | Authentication token for the `@joint` private npm registry. Required for demos that use `@joint/plus`. |
+| `CLEANUP` | Set to `1` or `true` to delete each demo's `node_modules/` and `dist/` once its output has been copied into `_site/`. A CI runner has no room to keep every demo's dependencies at once. Opt-in, because it is destructive to a local checkout. |
 
 ## Related files
 
 - [`demos.config.json`](../../demos.config.json) — per-demo configuration (skip, variant, buildFlags)
 - [`.github/docs/demos-config.md`](./demos-config.md) — documentation for the config file
+- [`.github/workflows/build-demos.yml`](../workflows/build-demos.yml) — builds the demos on pushes to `main`, and is callable by another repository to build them against `@joint/*` packages it has built itself
 - [`.github/workflows/deploy.yml`](../workflows/deploy.yml) — GitHub Actions workflow that invokes this script
+
+## Why no pull request check
+
+Building a demo runs `npm install --ignore-scripts=false` and then its build
+script, both of which execute code from the commit under test, and the build
+needs `JOINTJS_NPM_TOKEN`. A pull request opened from a branch of this
+repository **does** receive repository secrets, so a `pull_request` trigger
+would hand that credential to unreviewed code, which could read it out of the
+environment and exfiltrate it.
+
+So the demos are built after merge instead: on pushes to `main`, on demand via
+**Run workflow**, and on `workflow_call` from another repository. Every one of
+those runs code that has already been reviewed, or is started by someone who can
+already push. This is the same trust model `deploy.yml` has always relied on.
+
+## Which commit gets built
+
+| `demos_ref` | Builds |
+|---|---|
+| not given | the commit under test — what our own runs want |
+| given, and the ref exists here | that ref |
+| given, but no such ref | the default branch |
+
+Asking for a ref that does not exist is a fallback rather than an error, so a
+caller can request a branch unconditionally and get the default whenever that
+branch is absent, without either side tracking whether it exists. Branches and
+tags are what `demos_ref` accepts.
+
+The last row resolves the default branch rather than reusing the commit the
+workflow file came from, so that a caller pinning `uses:` to a commit — to
+control which version of this workflow runs — does not thereby freeze which
+demos get built. A remote that cannot be read fails the job instead of quietly
+building something else. The run summary records which ref was used and why.
