@@ -219,15 +219,17 @@ jobs:
       - name: Build demos
         id: build
         env:
+          # Caller-supplied values need to go via `env` and `printf '%s'`
+          # - inline interpolation with `${{ }}` is not secure
           DEMOS: ${{ inputs.demos }}
+          JOBS: ${{ inputs.jobs || 4 }}
+          PLUS_ONLY: ${{ inputs.plus_only || false }}
           JOINTJS_NPM_TOKEN: ${{ secrets.JOINTJS_NPM_TOKEN }}
-          # The runner has ~14 GB free and no room to keep every demo's
-          # node_modules; the script reclaims each one once its output is copied.
-          CLEANUP: '1'
+          CLEANUP: '1' # Reclaim every demo's node_modules once output is copied
         run: |
           set -o pipefail
-          args=(--force --jobs "${{ inputs.jobs || 4 }}")
-          if [ "${{ inputs.plus_only || false }}" = "true" ]; then
+          args=(--force --jobs "$JOBS")
+          if [ "$PLUS_ONLY" = "true" ]; then
             args+=(--plus-only)
           fi
           if [ -n "$DEMOS" ]; then
@@ -237,19 +239,40 @@ jobs:
           # anything; the script itself only prints and sets the exit code.
           bash .github/scripts/build-demos.sh "${args[@]}" 2>&1 | tee /tmp/build.log
 
-      # `always()` so a failed build is still summarised, and so the failing
-      # demos are visible on the run's summary page without opening the log.
       - name: Summarise
-        if: always()
+        if: always() # A failed build must still be summarized
+        env:
+          # Caller-supplied values need to go via `env` and `printf '%s'`
+          # - inline interpolation with `${{ }}` is not secure
+          RESOLVED_REF: ${{ steps.resolve.outputs.ref }}
+          RESOLVED_WHY: ${{ steps.resolve.outputs.why }}
+          PACKAGES_ARTIFACT: ${{ inputs.packages_artifact }}
+          PLUS_ONLY: ${{ inputs.plus_only }}
+          DEMOS: ${{ inputs.demos }}
         run: |
+          if [ -n "$PACKAGES_ARTIFACT" ]; then
+            packages="$(printf '`%s`' "$PACKAGES_ARTIFACT")"
+          else
+            packages='as pinned by each demo'
+          fi
+
+          if [ "$PLUS_ONLY" = "true" ]; then
+            selection='JointJS+ demos'
+          else
+            selection='all demos'
+          fi
+          if [ -n "$DEMOS" ]; then
+            selection="$(printf '%s (%s)' "$selection" "$DEMOS")"
+          fi
+
           {
             echo '## Demo build results'
             echo
             echo '| | |'
             echo '|---|---|'
-            echo "| **Demos** | \`${{ steps.resolve.outputs.ref }}\` (${{ steps.resolve.outputs.why }}) |"
-            echo "| **Packages** | ${{ inputs.packages_artifact && format('`{0}`', inputs.packages_artifact) || 'as pinned by each demo' }} |"
-            echo "| **Selection** | ${{ inputs.plus_only && 'JointJS+ demos' || 'all demos' }}${{ inputs.demos && format(' ({0})', inputs.demos) || '' }} |"
+            printf '| **Demos** | `%s` (%s) |\n' "$RESOLVED_REF" "$RESOLVED_WHY"
+            printf '| **Packages** | %s |\n' "$packages"
+            printf '| **Selection** | %s |\n' "$selection"
             grep -E '^(Built|Failed|Skipped):' /tmp/build.log 2>/dev/null \
               | sed -E 's/^([^:]+): (.*)$/| **\1** | \2 |/' || true
           } >> "$GITHUB_STEP_SUMMARY"
