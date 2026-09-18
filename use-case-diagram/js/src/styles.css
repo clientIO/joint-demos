@@ -1,8 +1,301 @@
+:root {
+    color-scheme: light;
+    --uc-canvas: #eef1f6;
+    --uc-canvas-glow-1: rgba(99, 102, 241, 0.07);
+    --uc-canvas-glow-2: rgba(99, 102, 241, 0.06);
+    /* Carries about as much contrast against the canvas as @joint/react's own
+       default grid (#a6b6c5 dots on a #e4ebf1 paper) - the previous tone was
+       barely there at all. */
+    --uc-grid-dot: #b3c0d0;
+    --uc-magnet-available: #6366f1;
+    --uc-port-hit-bg: rgba(99, 102, 241, 0.12);
+    --uc-control-border: #e2e8f0;
+    --uc-text: #1e293b;
+    --uc-muted: #64748b;
+    --uc-toggle-bg: #f1f5f9;
+    --uc-toggle-hover: #e2e8f0;
+
+    --uc-card-bg: #ffffff;
+    --uc-card-border: #e2e8f0;
+    --uc-ink: #334155;
+    --uc-line: #94a3b8;
+    /* Use-case card outline: same dark tone as ink in light mode, but NOT the
+       (light) dark-mode ink - a light ring around an already-bright gradient
+       card reads like a sticker outline, so dark mode gets a translucent
+       black edge instead, for quiet definition without extra brightness. */
+    --uc-node-border: var(--uc-ink);
+    /* Actor's colored wash-over-card tint (see .uc-actor-wash): a dark tint
+       barely registers against an already-dark card, so it's boosted for
+       dark mode - kept subtle here since white cards show tint easily. */
+    --uc-wash-opacity: 0.07;
+
+    --uc-include-text: #0f766e;
+    --uc-include-bg: #f0fdfa;
+    --uc-include-border: #99f6e4;
+    --uc-extend-text: #6d28d9;
+    --uc-extend-bg: #f5f3ff;
+    --uc-extend-border: #ddd6fe;
+
+    --uc-font: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+[data-theme="dark"] {
+    color-scheme: dark;
+    --uc-canvas: #0d1220;
+    --uc-canvas-glow-1: rgba(99, 102, 241, 0.16);
+    --uc-canvas-glow-2: rgba(129, 140, 248, 0.12);
+    --uc-grid-dot: #313c56;
+    --uc-magnet-available: #818cf8;
+    --uc-port-hit-bg: rgba(129, 140, 248, 0.18);
+    --uc-control-border: #232b3b;
+    --uc-text: #e6e9f0;
+    --uc-muted: #8b95a7;
+    --uc-toggle-bg: #1a2131;
+    --uc-toggle-hover: #232c40;
+
+    /* Lighter than the canvas (#0d1220) so cards read as a raised surface on
+       their own - the dark theme's drop shadow (see NODE_SHADOWS in main.js)
+       deepens that, but a dark page gives a shadow far less to work with than
+       a light one does. */
+    --uc-card-bg: #1c2438;
+    --uc-card-border: #2a3348;
+    --uc-ink: #dbe1ea;
+    --uc-line: #4b5768;
+    --uc-wash-opacity: 0.22;
+    --uc-node-border: rgba(0, 0, 0, 0.45);
+
+    --uc-include-text: #5eead4;
+    --uc-include-bg: rgba(45, 212, 191, 0.12);
+    --uc-include-border: rgba(94, 234, 212, 0.35);
+    --uc-extend-text: #c4b5fd;
+    --uc-extend-bg: rgba(167, 139, 250, 0.14);
+    --uc-extend-border: rgba(196, 181, 253, 0.35);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: var(--uc-font);
+    color: var(--uc-text);
+    background: var(--uc-canvas);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--uc-control-border);
+    border-radius: 8px;
+    background: var(--uc-toggle-bg);
+    color: var(--uc-muted);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--uc-toggle-hover);
+    color: var(--uc-text);
+}
+
+.theme-toggle:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+.theme-toggle svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.theme-toggle .icon-moon {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5) rotate(-90deg);
+}
+
+[data-theme="dark"] .theme-toggle .icon-sun {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5) rotate(90deg);
+}
+
+[data-theme="dark"] .theme-toggle .icon-moon {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+}
+
 #paper-container {
     position: absolute;
     right: 0;
     top: 0;
     left: 0;
     bottom: 0;
-    overflow: scroll;
+    overflow: hidden;
+    background:
+        radial-gradient(60% 50% at 82% 0%, var(--uc-canvas-glow-1), transparent 60%),
+        radial-gradient(55% 55% at 6% 100%, var(--uc-canvas-glow-2), transparent 60%),
+        var(--uc-canvas);
+}
+
+/* Theme-reactive fills/strokes for the JointJS SVG shapes. Kept as plain classes
+   (not inline attrs) so toggling `data-theme` re-themes the whole diagram without
+   touching the graph - only colors that are never recomputed by app JS live here;
+   colors the app does recompute (e.g. use-case border from connected actors) stay
+   JS-driven and read these same CSS variables at run time instead. */
+.uc-boundary-card {
+    fill: var(--uc-card-bg);
+    stroke: var(--uc-card-border);
+    transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+/* Actor card: fill only - its border color is the actor's own accent, set
+   per-instance in JS, so it must NOT be overridden by a class rule here. */
+.uc-actor-card {
+    fill: var(--uc-card-bg);
+    transition: fill 0.2s ease;
+}
+
+/* Wash's fill color is the actor's own accent (JS-driven, set per-instance);
+   only its opacity is themed here, so the tint stays visible against a dark
+   card and stays subtle against a light one. */
+.uc-actor-wash {
+    fill-opacity: var(--uc-wash-opacity);
+    transition: fill-opacity 0.2s ease;
+}
+
+/* Use-case card: fill is the per-instance accent (JS-driven, see
+   fillUseCaseColors), so only the outline is themed here - a tone that reads
+   against any accent color/gradient behind it (see --uc-node-border above). */
+.uc-node-stroke {
+    stroke: var(--uc-node-border);
+    transition: stroke 0.2s ease;
+}
+
+.uc-ink-text {
+    fill: var(--uc-ink);
+    transition: fill 0.2s ease;
+}
+
+.uc-muted-text {
+    fill: var(--uc-muted);
+    transition: fill 0.2s ease;
+}
+
+.uc-muted-fill {
+    fill: var(--uc-muted);
+    transition: fill 0.2s ease;
+}
+
+.uc-link-line {
+    stroke: var(--uc-line);
+    transition: stroke 0.2s ease;
+}
+
+.uc-link-dot {
+    fill: var(--uc-line);
+    transition: fill 0.2s ease;
+}
+
+/* Connection magnets on actor/use-case cards (defined via JointJS's own
+   `ports` API - see PORT_GROUPS in main.js) - subtle by default, clearer on
+   hover so a new link is easy to discover without cluttering the card. The
+   visible dot (.uc-port) is deliberately small; a larger circle (.uc-port-hit)
+   stacked on top is the actual drag target, so the area you can press is
+   bigger than what's drawn - see PORT_HIT_RADIUS in main.js.
+   `.joint-port` is the container JointJS renders around each port itself. */
+.uc-port {
+    stroke: var(--uc-card-bg);
+    stroke-width: 1.5;
+    opacity: 0.5;
+    /* `r` is transitioned as well so an available port grows into its larger
+       size and shrinks back when the drag ends - see .available-magnet. */
+    transition: r 0.15s ease, opacity 0.15s ease, fill 0.15s ease, stroke 0.15s ease, stroke-width 0.15s ease;
+}
+
+/* Invisible until the pointer is inside it, then a faint tinted disc - the
+   grab area stops being something you have to find by trial and error, and the
+   dot it surrounds reads as connectable rather than decorative. */
+.uc-port-hit {
+    cursor: crosshair;
+    fill: transparent;
+    transition: fill 0.15s ease;
+}
+
+.joint-port:hover .uc-port-hit {
+    fill: var(--uc-port-hit-bg);
+}
+
+/* Hovering the (invisible, on top) hit circle already counts as hovering its
+   `.joint-port` ancestor - no `:has()` needed to reach the sibling dot. */
+.joint-port:hover .uc-port {
+    opacity: 1;
+}
+
+/* While a link is being dragged, JointJS marks every port that end could
+   legally land on (paper `markAvailable`) with this class. A dot at its resting
+   size, only recolored, is far too quiet to read across the canvas - so an
+   available port grows and takes on the color of the connecting highlight,
+   inside a soft halo of the same color (a wide, mostly transparent stroke).
+   That reads at a glance and from a distance, which is the whole point of
+   marking them: to show where a link may go before the pointer is near one. */
+.available-magnet .uc-port {
+    r: 7px;
+    opacity: 1;
+    fill: var(--uc-magnet-available);
+    stroke: var(--uc-magnet-available);
+    stroke-width: 7;
+    stroke-opacity: 0.25;
+}
+
+/* The port under the pointer is about to be connected, not merely available:
+   it drops the halo and goes solid, so the one that would win reads apart from
+   the rest. (The `connecting` highlighter draws its own ring on top.) */
+.available-magnet:hover .uc-port {
+    stroke: var(--uc-card-bg);
+    stroke-width: 1.5;
+    stroke-opacity: 1;
+}
+
+.uc-include-badge-fill {
+    fill: var(--uc-include-bg);
+    stroke: var(--uc-include-border);
+    transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.uc-include-badge-text {
+    fill: var(--uc-include-text);
+    transition: fill 0.2s ease;
+}
+
+.uc-extend-badge-fill {
+    fill: var(--uc-extend-bg);
+    stroke: var(--uc-extend-border);
+    transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.uc-extend-badge-text {
+    fill: var(--uc-extend-text);
+    transition: fill 0.2s ease;
 }
