@@ -3,7 +3,12 @@
     --uc-canvas: #eef1f6;
     --uc-canvas-glow-1: rgba(99, 102, 241, 0.07);
     --uc-canvas-glow-2: rgba(99, 102, 241, 0.06);
-    --uc-grid-dot: #dbe2ea;
+    /* Carries about as much contrast against the canvas as @joint/react's own
+       default grid (#a6b6c5 dots on a #e4ebf1 paper) - the previous tone was
+       barely there at all. */
+    --uc-grid-dot: #b3c0d0;
+    --uc-magnet-available: #6366f1;
+    --uc-port-hit-bg: rgba(99, 102, 241, 0.12);
     --uc-control-border: #e2e8f0;
     --uc-text: #1e293b;
     --uc-muted: #64748b;
@@ -39,15 +44,19 @@
     --uc-canvas: #0d1220;
     --uc-canvas-glow-1: rgba(99, 102, 241, 0.16);
     --uc-canvas-glow-2: rgba(129, 140, 248, 0.12);
-    --uc-grid-dot: #232c40;
+    --uc-grid-dot: #313c56;
+    --uc-magnet-available: #818cf8;
+    --uc-port-hit-bg: rgba(129, 140, 248, 0.18);
     --uc-control-border: #232b3b;
     --uc-text: #e6e9f0;
     --uc-muted: #8b95a7;
     --uc-toggle-bg: #1a2131;
     --uc-toggle-hover: #232c40;
 
-    /* Lighter than the canvas (#0d1220) so cards read as a raised surface even
-       though the drop shadow itself is too dark to show against a dark page. */
+    /* Lighter than the canvas (#0d1220) so cards read as a raised surface on
+       their own - the dark theme's drop shadow (see NODE_SHADOWS in main.js)
+       deepens that, but a dark page gives a shadow far less to work with than
+       a light one does. */
     --uc-card-bg: #1c2438;
     --uc-card-border: #2a3348;
     --uc-ink: #dbe1ea;
@@ -212,25 +221,61 @@ body {
 /* Connection magnets on actor/use-case cards (defined via JointJS's own
    `ports` API - see PORT_GROUPS in main.js) - subtle by default, clearer on
    hover so a new link is easy to discover without cluttering the card. The
-   visible dot (.uc-port) is deliberately small; a larger invisible circle
-   (.uc-port-hit) stacked on top is the actual drag target, so the hit area
-   is comfortably bigger than what's drawn - see PORT_HIT_RADIUS in main.js.
+   visible dot (.uc-port) is deliberately small; a larger circle (.uc-port-hit)
+   stacked on top is the actual drag target, so the area you can press is
+   bigger than what's drawn - see PORT_HIT_RADIUS in main.js.
    `.joint-port` is the container JointJS renders around each port itself. */
 .uc-port {
     stroke: var(--uc-card-bg);
     stroke-width: 1.5;
     opacity: 0.5;
-    transition: opacity 0.15s ease;
+    /* `r` is transitioned as well so an available port grows into its larger
+       size and shrinks back when the drag ends - see .available-magnet. */
+    transition: r 0.15s ease, opacity 0.15s ease, fill 0.15s ease, stroke 0.15s ease, stroke-width 0.15s ease;
 }
 
+/* Invisible until the pointer is inside it, then a faint tinted disc - the
+   grab area stops being something you have to find by trial and error, and the
+   dot it surrounds reads as connectable rather than decorative. */
 .uc-port-hit {
     cursor: crosshair;
+    fill: transparent;
+    transition: fill 0.15s ease;
+}
+
+.joint-port:hover .uc-port-hit {
+    fill: var(--uc-port-hit-bg);
 }
 
 /* Hovering the (invisible, on top) hit circle already counts as hovering its
    `.joint-port` ancestor - no `:has()` needed to reach the sibling dot. */
 .joint-port:hover .uc-port {
     opacity: 1;
+}
+
+/* While a link is being dragged, JointJS marks every port that end could
+   legally land on (paper `markAvailable`) with this class. A dot at its resting
+   size, only recolored, is far too quiet to read across the canvas - so an
+   available port grows and takes on the color of the connecting highlight,
+   inside a soft halo of the same color (a wide, mostly transparent stroke).
+   That reads at a glance and from a distance, which is the whole point of
+   marking them: to show where a link may go before the pointer is near one. */
+.available-magnet .uc-port {
+    r: 7px;
+    opacity: 1;
+    fill: var(--uc-magnet-available);
+    stroke: var(--uc-magnet-available);
+    stroke-width: 7;
+    stroke-opacity: 0.25;
+}
+
+/* The port under the pointer is about to be connected, not merely available:
+   it drops the halo and goes solid, so the one that would win reads apart from
+   the rest. (The `connecting` highlighter draws its own ring on top.) */
+.available-magnet:hover .uc-port {
+    stroke: var(--uc-card-bg);
+    stroke-width: 1.5;
+    stroke-opacity: 1;
 }
 
 .uc-include-badge-fill {

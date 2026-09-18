@@ -1,4 +1,4 @@
-import { shapes as defaultShapes, dia, util, linkTools } from '@joint/core';
+import { shapes as defaultShapes, connectors, dia, util, linkTools } from '@joint/core';
 import './styles.css';
 
 const paperContainer = document.getElementById('paper-container');
@@ -57,15 +57,35 @@ function getTheme() {
     return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
 }
 
-const nodeShadow = {
-    name: 'dropShadow',
-    args: { dx: 0, dy: 3, blur: 8, color: '#0f172a', opacity: 0.12 }
+// Card elevation, at rest and while hovered. Unlike the flat colors, this
+// can't ride on a CSS class: a JointJS filter bakes its color and strength in
+// when it is built, so each theme needs its own pair. The light values darken
+// an already-light canvas and read as depth straight away; on the dark canvas
+// (#0d1220) that same near-black at 12% changes nothing, so dark mode uses
+// pure black at several times the opacity, spread over a wider blur - enough
+// to actually sink the page around a card. getTheme() is read per call, and
+// applyNodeShadows() re-applies the resting one when the theme is toggled.
+const NODE_SHADOWS = {
+    light: {
+        rest: { dx: 0, dy: 3, blur: 8, color: '#0f172a', opacity: 0.12 },
+        hover: { dx: 0, dy: 6, blur: 16, color: '#0f172a', opacity: 0.2 }
+    },
+    dark: {
+        rest: { dx: 0, dy: 4, blur: 12, color: '#000000', opacity: 0.5 },
+        hover: { dx: 0, dy: 8, blur: 22, color: '#000000', opacity: 0.85 }
+    }
 };
 
-const nodeShadowHover = {
-    name: 'dropShadow',
-    args: { dx: 0, dy: 6, blur: 16, color: '#0f172a', opacity: 0.2 }
-};
+function nodeShadow(state) {
+    return {
+        name: 'dropShadow',
+        args: NODE_SHADOWS[getTheme()][state]
+    };
+}
+
+function gridOptions() {
+    return { name: 'dot', args: { color: getCSSVar('--uc-grid-dot'), thickness: 1 }};
+}
 
 // A tiny 2x2 grid glyph (a "frame/group" icon) drawn as four small squares,
 // used as the boundary's corner mark. Fixed pixel coordinates - it sits at a
@@ -197,19 +217,43 @@ const paper = new dia.Paper({
     async: true,
     multiLinks: false,
     linkPinning: false,
+    // Ports are the only magnets (every element root sets `magnet: false`), so
+    // an arrowhead has to find one to connect. This keeps that easy: it snaps
+    // to the nearest valid port within the radius, rather than asking anyone to
+    // hit the port itself. A radius of 100 covers a whole card - no point of a
+    // 180x60 card is more than 90 away from one of its own two ports - while
+    // staying well short of the next column's ports, 210 away from a card's
+    // center.
+    snapLinks: { radius: 100 },
+    // Light up every port the dragged end could legally land on, so the valid
+    // targets read before the pointer is anywhere near them. It marks them
+    // with the `available-magnet` class (styles.css picks it up) - only ports
+    // carry it, since the element roots are `magnet: false`.
+    markAvailable: true,
     cellViewNamespace: shapes,
-    sorting: dia.Paper.sorting.APPROX,
-    gridSize: 20,
-    drawGrid: { name: 'dot', args: { color: getCSSVar('--uc-grid-dot'), thickness: 1.4 }},
-    defaultConnectionPoint: {
-        name: 'boundary',
+    // The same grid @joint/react's Paper preset draws by default: a 1px dot on
+    // every 10px step. Denser and in a tone with some contrast against the
+    // canvas (see --uc-grid-dot), so the canvas reads as a work surface
+    // instead of near-blank paper.
+    gridSize: 10,
+    // Hoisted function declaration - the grid color has to be re-read whenever
+    // the theme changes, so it is built in one place both this and the theme
+    // toggle's setGrid() call use, rather than spelled out twice.
+    drawGrid: gridOptions(),
+    // Every link end sits on a port (see PORTS below and endPorts()), so the
+    // line stops at the port's own dot rather than being pushed out to an
+    // element boundary it no longer starts from.
+    defaultAnchor: {
+        name: 'center',
         args: {
-            offset: 5
+            useModelGeometry: true
         }
     },
-    defaultConnector: {
-        name: 'jumpover'
+    defaultConnectionPoint: {
+        name: 'anchor'
     },
+    // Hoisted function declaration - see smoothConnector further down.
+    defaultConnector: smoothConnector,
     // `Use` isn't defined yet at this point in the file, but this factory only
     // runs later (when a user actually drags a new link), by which time the
     // class exists - so newly-drawn links get the same styling/markers as the
@@ -224,6 +268,17 @@ const paper = new dia.Paper({
                     'stroke-width': 3
                 }
             }
+        },
+        // `highlighting` replaces JointJS's own defaults wholesale rather than
+        // merging into them, so these two have to be restated - without them
+        // markAvailable above has no highlighter to mark anything with.
+        magnetAvailability: {
+            name: 'addClass',
+            options: { className: 'available-magnet' }
+        },
+        elementAvailability: {
+            name: 'addClass',
+            options: { className: 'available-cell' }
         }
     },
     restrictTranslate: function(elementView) {
@@ -250,6 +305,8 @@ class Boundary extends dia.Element {
             attrs: {
                 root: {
                     cursor: 'move',
+                    // Only ports connect - see the port section below.
+                    magnet: false
                 },
                 // No drop-shadow filter here on purpose: applied to this shape
                 // (800x1150, the one genuinely large element in the diagram)
@@ -257,7 +314,7 @@ class Boundary extends dia.Element {
                 // browser filter-region/texture-size limit for large filtered
                 // shapes, not anything about this element's declared size.
                 // Small nodes (Actor/UseCase) are well under that ceiling and
-                // keep their own shadow via `nodeShadow`.
+                // keep their own shadow via `nodeShadow()`.
                 body: {
                     width: 'calc(w)',
                     height: 'calc(h)',
@@ -300,13 +357,24 @@ class Boundary extends dia.Element {
 // layouts already center a single port vertically and reposition it on
 // resize, so no hand-written `calc(w)` position math is needed here. Each
 // port's own markup carries two elements: a small visible dot (PORT_RADIUS)
-// plus a larger, invisible circle (PORT_HIT_RADIUS) stacked on top that alone
-// carries `magnet: true` - that's the actual drag target, so the hit area is
-// comfortably bigger than what's drawn. Ports render inside their own
-// `<g class="joint-port">` container automatically, which CSS below uses to
-// scope the dot's hover feedback to the side actually being hovered.
+// plus a larger circle (PORT_HIT_RADIUS) stacked on top, so the area you can
+// grab is bigger than what's drawn - invisible until hovered, when it shows as
+// a faint tinted disc. `magnet: true`
+// sits on the port's own root (covering both circles), with magnetSelector /
+// highlighterSelector pointing back at the dot - the link attaches to the dot
+// and the connecting highlight lands on it, however wide the grab area is.
+// These ports are the only magnets in the diagram: every element's root sets
+// `magnet: false`, so a link can't attach to a bare card, only to a dot.
+// Ports render inside their own `<g class="joint-port">` container
+// automatically, which CSS below uses to scope the dot's hover feedback to
+// the side actually being hovered.
 const PORT_RADIUS = 5;
-const PORT_HIT_RADIUS = 13;
+// Wide enough to press without aiming, but no wider: the ports sit halfway up
+// a card that is only 60 tall, so a hit circle much bigger than this owns most
+// of the card's left and right edge and the card gets hard to pick up by its
+// side. Dropping a link doesn't depend on this at all - snapLinks (see the
+// paper options) catches an arrowhead released anywhere on the card.
+const PORT_HIT_RADIUS = 10;
 
 const PORT_MARKUP = [
     { tagName: 'circle', selector: 'portDot' },
@@ -314,8 +382,12 @@ const PORT_MARKUP = [
 ];
 
 const PORT_ATTRS = {
+    portRoot: { magnetSelector: 'portDot', highlighterSelector: 'portDot', magnet: true },
     portDot: { cx: 0, cy: 0, r: PORT_RADIUS, class: 'uc-link-dot uc-port' },
-    portHit: { cx: 0, cy: 0, r: PORT_HIT_RADIUS, fill: 'transparent', magnet: true, class: 'uc-port-hit' }
+    // No `fill` here - styles.css owns it, so the hover tint can transition in
+    // from the same place (a CSS rule wins over a presentation attribute
+    // anyway, so setting it here too would just be dead weight).
+    portHit: { cx: 0, cy: 0, r: PORT_HIT_RADIUS, class: 'uc-port-hit' }
 };
 
 const PORT_GROUPS = {
@@ -323,9 +395,14 @@ const PORT_GROUPS = {
     right: { position: 'right', markup: PORT_MARKUP, attrs: PORT_ATTRS }
 };
 
+// Fixed port ids (rather than the generated ones a port without an `id` gets)
+// so a link can name the side it attaches to - see endPorts().
 const PORTS = {
     groups: PORT_GROUPS,
-    items: [{ group: 'left' }, { group: 'right' }]
+    items: [
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+    ]
 };
 
 class Actor extends dia.Element {
@@ -338,6 +415,8 @@ class Actor extends dia.Element {
             attrs: {
                 root: {
                     cursor: 'move',
+                    // Only ports connect - see PORT_ATTRS.
+                    magnet: false
                 },
                 // Actors stand apart from use cases: a solid-color chip + a
                 // border in that same accent (set per-instance in createActor),
@@ -350,7 +429,7 @@ class Actor extends dia.Element {
                     rx: 10,
                     ry: 10,
                     strokeWidth: 2,
-                    filter: nodeShadow
+                    filter: nodeShadow('rest')
                 },
                 wash: {
                     width: 'calc(w)',
@@ -419,6 +498,8 @@ class UseCase extends dia.Element {
                 root: {
                     highlighterSelector: 'body',
                     cursor: 'move',
+                    // Only ports connect - see PORT_ATTRS.
+                    magnet: false
                 },
                 // Like the original demo, the "which actor(s) use this" accent
                 // is the whole card's background (see fillUseCaseColors) - not
@@ -431,7 +512,7 @@ class UseCase extends dia.Element {
                     rx: 10,
                     ry: 10,
                     strokeWidth: 1.5,
-                    filter: nodeShadow
+                    filter: nodeShadow('rest')
                 },
                 chipBg: {
                     x: CHIP_PAD_X,
@@ -491,17 +572,57 @@ class UseCase extends dia.Element {
     }
 }
 
+// Smooth link routing in the spirit of @joint/react's smoothLinkRouting():
+// JointJS's own `curve` connector draws the line, this wrapper only tells it
+// which way to leave each end. Left to itself, `curve` works that out from the
+// end's magnet - and here every magnet is a port dot, a small circle the link
+// ends in the middle of, so "which side of it are we on" has no answer. The
+// port id does have one, and 'left'/'right' happen to be exactly the tangent
+// directions `curve` accepts.
+//
+// The two coefficients pull its tangents in from the defaults (0.6 and 80).
+// The second one only bites where the curve leaves sideways but has to travel
+// straight up or down - two cards in the same column - and at its default that
+// bow swings out far enough to crowd the next column.
+const CURVE_ARGS = {
+    distanceCoefficient: 0.45,
+    angleTangentCoefficient: 10
+};
+
+function smoothConnector(sourcePoint, targetPoint, route, opt, linkView) {
+    const link = linkView.model;
+    return connectors.curve.call(linkView, sourcePoint, targetPoint, route, {
+        ...opt,
+        ...CURVE_ARGS,
+        sourceDirection: portDirection(link.source(), sourcePoint, targetPoint),
+        targetDirection: portDirection(link.target(), targetPoint, sourcePoint)
+    }, linkView);
+}
+
+// The side an end's port sits on, which is also the way the curve leaves it.
+// An arrowhead being dragged isn't on a port yet, so it just faces the other
+// end.
+function portDirection(end, point, otherPoint) {
+    if (end.port === 'left' || end.port === 'right') return end.port;
+    return otherPoint.x < point.x ? 'left' : 'right';
+}
+
 class Use extends shapes.standard.Link {
     defaults() {
         return util.defaultsDeep(
             {
                 type: 'Use',
                 attrs: {
+                    // No end markers: both ends land exactly on a port, whose
+                    // own dot already terminates the line. A marker drawn there
+                    // sits right on top of that dot and only thickens it - see
+                    // the note on lineAttrs below. `targetMarker: null` is
+                    // needed rather than just leaving it out, to suppress the
+                    // arrowhead standard.Link brings with it.
                     line: {
                         class: 'uc-link-line',
                         strokeWidth: 1.75,
-                        sourceMarker: { type: 'circle', r: 3.5, class: 'uc-link-dot' },
-                        targetMarker: { type: 'circle', r: 3.5, class: 'uc-link-dot' }
+                        targetMarker: null
                     }
                 }
             },
@@ -510,16 +631,21 @@ class Use extends shapes.standard.Link {
     }
 }
 
+// Shared by Include and Extend. Only the target keeps a marker, and it carries
+// meaning - the open arrow that says which way the relationship reads. The
+// source end has no marker for the same reason Use has none: it finishes on a
+// port dot, and a circle drawn over that dot just makes the port look heavier
+// than it is (the connection point is the port's center, not a point offset
+// off the card's edge as it was before ports).
 const lineAttrs = {
     class: 'uc-link-line',
     strokeWidth: 1.75,
     strokeDasharray: '5,4',
-    sourceMarker: { type: 'circle', r: 3, class: 'uc-link-dot' },
     targetMarker: {
         type: 'path',
         class: 'uc-link-line',
         fill: 'none',
-        'stroke-width': 1.75,
+        strokeWidth: 1.75,
         d: 'M 8 -4 0 0 8 4'
     }
 };
@@ -654,25 +780,42 @@ function createUseCase(useCase, x, y, icon = 'check') {
     });
 }
 
-function createUse(source, target) {
-    return new Use({
-        source: { id: source.id },
-        target: { id: target.id }
+// Which port each end of a link attaches to. A left-right pair uses the two
+// facing sides; a pair in the same column uses the same side on both - the one
+// facing the frame's middle, which keeps the connector clear of the outer lane
+// where the actor links run.
+function endPorts(source, target) {
+    const sourceX = source.getBBox().center().x;
+    const targetX = target.getBBox().center().x;
+    if (sourceX < targetX) return ['right', 'left'];
+    if (sourceX > targetX) return ['left', 'right'];
+    // `boundary` is declared further down, but this only ever runs from the
+    // graph.addCells() call at the end of the file, by which time it exists.
+    const inner = sourceX > boundary.getBBox().center().x ? 'left' : 'right';
+    return [inner, inner];
+}
+
+// Both ends name a port, so every link in the diagram starts and finishes on
+// one of the dots the user can grab - the same anchoring a link drawn by hand
+// gets, since ports are the only magnets on a card.
+function createLink(Constructor, source, target) {
+    const [sourcePort, targetPort] = endPorts(source, target);
+    return new Constructor({
+        source: { id: source.id, port: sourcePort },
+        target: { id: target.id, port: targetPort }
     });
+}
+
+function createUse(source, target) {
+    return createLink(Use, source, target);
 }
 
 function createInclude(source, target) {
-    return new Include({
-        source: { id: source.id },
-        target: { id: target.id }
-    });
+    return createLink(Include, source, target);
 }
 
 function createExtend(source, target) {
-    return new Extend({
-        source: { id: source.id },
-        target: { id: target.id }
-    });
+    return createLink(Extend, source, target);
 }
 
 const boundary = new Boundary({
@@ -854,6 +997,18 @@ function fillUseCaseColors() {
     });
 }
 
+// The filter each card was built with holds the colors of the theme that was
+// active at the time, so a theme change has to hand every card the other
+// theme's shadow (see NODE_SHADOWS). A card hovered at that exact moment drops
+// back to its resting shadow until the pointer leaves and re-enters.
+function applyNodeShadows() {
+    graph.getElements().forEach((element) => {
+        if (element instanceof UseCase || element instanceof Actor) {
+            element.attr('body/filter', nodeShadow('rest'), { rewrite: true });
+        }
+    });
+}
+
 fillUseCaseColors();
 
 // A connect/disconnect only ever changes the coloring of the one use case at
@@ -897,12 +1052,12 @@ paper.on('link:mouseleave', (linkView) => {
 // Lift a node card slightly on hover for a bit of interactive feedback.
 paper.on('element:mouseenter', (elementView) => {
     if (!(elementView.model instanceof UseCase) && !(elementView.model instanceof Actor)) return;
-    elementView.model.attr('body/filter', nodeShadowHover, { rewrite: true });
+    elementView.model.attr('body/filter', nodeShadow('hover'), { rewrite: true });
 });
 
 paper.on('element:mouseleave', (elementView) => {
     if (!(elementView.model instanceof UseCase) && !(elementView.model instanceof Actor)) return;
-    elementView.model.attr('body/filter', nodeShadow, { rewrite: true });
+    elementView.model.attr('body/filter', nodeShadow('rest'), { rewrite: true });
 });
 
 const themeToggle = document.getElementById('theme-toggle');
@@ -914,8 +1069,9 @@ themeToggle.addEventListener('click', () => {
     } catch {
         // localStorage unavailable (e.g. private mode) - theme just won't persist.
     }
-    paper.setGrid({ name: 'dot', args: { color: getCSSVar('--uc-grid-dot'), thickness: 1.4 }});
+    paper.setGrid(gridOptions());
     fillUseCaseColors();
+    applyNodeShadows();
 });
 
 function scaleToFit() {
