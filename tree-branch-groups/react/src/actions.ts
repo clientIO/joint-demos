@@ -1,20 +1,25 @@
 import type { dia } from '@joint/plus';
 
-import { canEmptyBranch, canInsertGroupInBranch, createBranchGroup, getBranchSink } from './branch-group';
-import { canEmptyCyclePath, canInsertGroupInCycle, createCycleGroup, getCycleSink, isOnReturnPath } from './cycle-group';
-import { Group, Link, Node, PARENT_GAP } from './shapes';
-import type { GroupKind } from './shapes';
+import type { AddChoice } from './choices';
+import type { DiagramData } from './data/DiagramData';
+import type { Id, NodeData, Slot } from './data/types';
+import { isCellVisible } from './layout';
+import { AddButton, DECISION_LABEL, Decision, Group, GroupEnd, GroupStart, Link, isGate } from './shapes';
 
-let nodeCounter = 0;
+/**
+ * The edits, and the questions the tools ask before offering one. An edit
+ * changes the data only; the graph follows (see `app.ts`). The questions
+ * take the element or the link the tools hold - the graph stands for the
+ * data one to one (see `build.ts`) - and ask the graph about the structure
+ * around it, the data about the subtree that would move.
+ */
 
+let stepCounter = 0;
+
+/** The label of a new step without one: `Step 1`, `Step 2`, ... */
 function nextLabel(): string {
-    nodeCounter += 1;
-    return `Node ${nodeCounter}`;
-}
-
-/** The rank of a new child: after the existing children of the parent. */
-function nextSiblingRank(graph: dia.Graph, parent: dia.Element): number {
-    return graph.getNeighbors(parent, { outbound: true }).length;
+    stepCounter += 1;
+    return `Step ${stepCounter}`;
 }
 
 /** The group `element` is a direct part of, if any. */
@@ -23,183 +28,236 @@ function getContainer(element: dia.Element): Group | null {
     return container && Group.isGroup(container) ? container : null;
 }
 
-/** The gate the leaves below `element` converge into; each kind of group has a rule of its own. */
-function getSink(graph: dia.Graph, group: Group, element: dia.Element): Node {
-    switch (group.getKind()) {
-        case 'branch': return getBranchSink(group);
-        case 'cycle': return getCycleSink(graph, group, element);
-    }
-}
-
-/**
- * Whether a group may be inserted below `element`. Outside of a group it
- * always may; inside, each kind of group has a rule of its own.
- */
-export function canInsertGroup(graph: dia.Graph, element: dia.Element): boolean {
-    const container = getContainer(element);
-    if (!container) return true;
-    switch (container.getKind()) {
-        case 'branch': return canInsertGroupInBranch();
-        case 'cycle': return canInsertGroupInCycle(graph, container, element);
-    }
-}
-
-/** Which way the tree grows below `element`: up on the return path of a cycle, down everywhere else. */
-export function getGrowthDirection(graph: dia.Graph, element: dia.Element): 'down' | 'up' {
-    const container = getContainer(element);
-    if (container?.getKind() === 'cycle' && isOnReturnPath(graph, container, element)) return 'up';
-    return 'down';
-}
-
 /** The parent of `element` in the tree: the source of its inbound link. */
 function getParent(graph: dia.Graph, element: dia.Element): dia.Element | undefined {
     return graph.getNeighbors(element, { inbound: true })[0];
 }
 
-/** The children of `element` in the tree: its outbound neighbors that are not the sink of its path. */
+/** The children of `element` in the tree: its outbound neighbors that are neither the end of its group nor its add button. */
 function getChildren(graph: dia.Graph, element: dia.Element): dia.Element[] {
-    return graph.getNeighbors(element, { outbound: true }).filter((child) => !(Node.isNode(child) && child.isGate()));
+    return graph.getNeighbors(element, { outbound: true })
+        .filter((child) => !isGate(child) && !AddButton.isAddButton(child));
+}
+
+/** The add button below `element`, if it has one. */
+function getAddButton(graph: dia.Graph, element: dia.Element): AddButton | undefined {
+    return graph.getNeighbors(element, { outbound: true }).find(AddButton.isAddButton);
 }
 
 /**
- * Whether the path `element` is the last node of - a leaf whose parent is a
- * gate - may be emptied, so that the gate links to the other gate directly.
- * Each kind of group has a rule of its own.
+ * Whether an end of the diagram can be added below `element`: outside of a
+ * group only - inside, every leaf has to reach the end of the group.
  */
-function canEmptyPath(graph: dia.Graph, group: Group, element: dia.Element): boolean {
-    switch (group.getKind()) {
-        case 'branch': return canEmptyBranch();
-        case 'cycle': return canEmptyCyclePath(graph, group, element);
-    }
+export function canAddTerminal(element: dia.Element): boolean {
+    return getContainer(element) === null;
+}
+
+/** Whether `element` may have several children: a decision, or a gate (the start of a group). */
+function canBranch(element: dia.Element): boolean {
+    return Decision.isDecision(element) || isGate(element);
 }
 
 /**
- * Whether `element` can be deleted: not the root, not a gate, and the last
- * node between two gates only where its group allows the path to be empty.
+ * Whether `element` can be deleted: not the root, not a gate. A decision
+ * goes with everything below it; a node with several children only where
+ * its parent can take them all - a decision or a gate. The last node of a
+ * group may go too: its `start` then links straight to its `end`, and the
+ * group is refilled through that link.
  */
 export function canDelete(graph: dia.Graph, element: dia.Element): boolean {
-    if (Node.isNode(element) && element.isGate()) return false;
+    if (isGate(element)) return false;
     const parent = getParent(graph, element);
     if (!parent) return false;
-    const isLeaf = getChildren(graph, element).length === 0;
-    if (!isLeaf || !Node.isNode(parent) || !parent.isGate()) return true;
-    return canEmptyPath(graph, getContainer(element)!, element);
+    if (Decision.isDecision(element)) return true;
+    return getChildren(graph, element).length <= 1 || canBranch(parent);
 }
 
-/** Whether `link` joins two gates directly: an emptied path, which a node can be inserted into. */
-export function isEmptyPath(link: dia.Link): boolean {
+/**
+ * The elements below `element` (and `element` itself) down to the gates of
+ * its group or the leaves of the tree, add buttons included; the outer tree
+ * of a nested group only - a group takes its content along when removed.
+ * The search stops at a gate: the gate is not part of the subtree.
+ */
+function getSubtree(graph: dia.Graph, element: dia.Element): dia.Element[] {
+    const subtree: dia.Element[] = [];
+    graph.search(element, (current) => {
+        if (isGate(current)) return false;
+        subtree.push(current);
+        return true;
+    }, { outbound: true, breadthFirst: true });
+    return subtree;
+}
+
+/**
+ * The cells a deletion of `element` removes from the picture: the element -
+ * a decision with everything below it, a group with its content - the links
+ * between them, and the add button of a leaf that goes with it. What
+ * `deleteElement()` takes away, for the highlight before the click.
+ */
+export function getDeletedCells(graph: dia.Graph, element: dia.Element): dia.Cell[] {
+    let elements: dia.Element[];
+    if (Decision.isDecision(element)) {
+        elements = getSubtree(graph, element);
+    } else {
+        const button = getAddButton(graph, element);
+        elements = button ? [element, button] : [element];
+    }
+    return graph.getSubgraph(elements, { deep: true });
+}
+
+/**
+ * Whether a new element can be inserted into `link`: every link of the tree,
+ * except the one into an add button (the button itself adds) and the return
+ * link of a loop, from its `end` back to its `start` (a node there would be
+ * a node of the tree). Neither has an insert button; see `Link.connectTo()`.
+ * The link from the `start` of an emptied group straight to its `end` can:
+ * that is how the group is refilled.
+ */
+export function canSplit(link: dia.Link): boolean {
     const source = link.getSourceElement();
     const target = link.getTargetElement();
-    return source !== null && Node.isNode(source) && source.isGate()
-        && target !== null && Node.isNode(target) && target.isGate();
+    if (!source || !target) return false;
+    return !Link.isReturnLink(source, target) && !AddButton.isAddButton(target);
+}
+
+/** The node of the data a choice of the add menu stands for. A step without a label is numbered. */
+function createNodeData(choice: AddChoice, label?: string): NodeData {
+    switch (choice) {
+        case 'step': return { type: 'step', label: label ?? nextLabel() };
+        case 'decision': return { type: 'decision', label: label ?? DECISION_LABEL };
+        case 'end': return { type: 'end' };
+        default: return { type: choice };
+    }
 }
 
 /**
- * Inserts a new node into `link`: the link now ends at the node, and a new
- * link continues from the node to the former target. The node joins the
- * group the link is in.
+ * The node of the data `element` belongs to, and the list of edges its
+ * outbound links stand for: the `branches` of the group for the `start`
+ * gate of a group, the `to` of the node for anything else - a group
+ * included, whose outbound links leave from the group itself.
  */
-export function insertNodeOnLink(graph: dia.Graph, link: dia.Link): Node {
+function getSlot(element: dia.Element): { id: Id; slot: Slot } {
+    if (GroupStart.isGroupStart(element)) {
+        return { id: String(element.getParentCell()!.id), slot: 'branches' };
+    }
+    return { id: String(element.id), slot: 'to' };
+}
+
+/** Adds a new node of the chosen kind as the last child of `parent`, with a label where it takes one. */
+export function addBelow(data: DiagramData, parent: dia.Element, choice: AddChoice, label?: string): Id {
+    const { id, slot } = getSlot(parent);
+    return data.appendNode(createNodeData(choice, label), id, slot);
+}
+
+/**
+ * Inserts a new node of the chosen kind into `link`: the link leads to the
+ * new node now, and the new node on to the former target. Into the link
+ * from the `start` of an empty group to its `end`, the node is the first
+ * branch of the group.
+ */
+export function insertOnLink(data: DiagramData, link: Link, choice: AddChoice, label?: string): Id {
+    const source = link.getSourceElement()!;
     const target = link.getTargetElement()!;
-    const node = Node.create(nextLabel());
-    graph.addCell(node);
-    link.getParentCell()?.embed(node);
-    // Seed the position at the middle of the link so that the first render does not flash at the origin.
-    const seed = link.getBBox().center();
-    node.position(seed.x - node.size().width / 2, seed.y - node.size().height / 2);
-
-    link.target(node);
-    const continuation = Link.create(node, target);
-    graph.addCell(continuation);
-    continuation.reparent();
-    return node;
+    const { id, slot } = getSlot(source);
+    const childId = GroupEnd.isGroupEnd(target) ? null : String(target.id);
+    return data.insertNode(createNodeData(choice, label), id, slot, childId);
 }
 
 /**
- * Deletes `element` and reattaches its children to its parent, in its place.
- * A group is deleted with its content. If the parent is left without
- * children inside a group, it becomes a leaf and connects to its sink.
+ * Deletes `element`. A decision is deleted with everything below it, down to
+ * the end of its group. Any other element is spliced out: its children take
+ * its place; a group takes its content along.
  */
-export function deleteElement(graph: dia.Graph, element: dia.Element): void {
+export function deleteElement(graph: dia.Graph, data: DiagramData, element: dia.Element): void {
     if (!canDelete(graph, element)) return;
-    const parent = getParent(graph, element)!;
-    const children = getChildren(graph, element);
-    const rank: number = element.get('siblingRank') ?? 0;
-    const container = getContainer(parent);
-
-    // Takes its embedded content and every link connected to it along.
-    element.remove();
-
-    children.forEach((child, index) => {
-        // Between the former siblings of the element.
-        child.set('siblingRank', rank + (index + 1) / (children.length + 1));
-        const link = Link.create(parent, child);
-        graph.addCell(link);
-        link.reparent();
-    });
-
-    if (container && graph.getNeighbors(parent, { outbound: true }).length === 0) {
-        const link = Link.create(parent, getSink(graph, container, parent));
-        graph.addCell(link);
-        link.reparent();
-    }
-}
-
-/**
- * Inside a group every leaf connects to a gate - the sink of its path. When a
- * leaf gets its first child, the link to the sink moves down to the child;
- * every further child gets a link to the sink of its own.
- */
-function connectChildToSink(graph: dia.Graph, parent: dia.Element, child: dia.Element): void {
-    const container = getContainer(parent);
-    if (!container) return;
-    const sink = getSink(graph, container, parent);
-    const sinkLink = graph.getConnectedLinks(parent, { outbound: true }).find((link) => link.getTargetCell() === sink);
-    if (sinkLink) {
-        sinkLink.source(child);
+    const id = String(element.id);
+    if (Decision.isDecision(element)) {
+        data.removeSubtree(id);
     } else {
-        const link = Link.create(child, sink);
-        graph.addCell(link);
-        link.reparent();
+        data.spliceNode(id);
     }
 }
 
+/** The node of the data `element` stands for: the group, for a gate; the owner, for an add button. */
+function getDataId(graph: dia.Graph, element: dia.Element): Id {
+    const id = String(element.id);
+    if (isGate(element)) return String(element.getParentCell()!.id);
+    if (AddButton.isAddButton(element)) return getDataId(graph, getParent(graph, element)!);
+    return id;
+}
+
 /**
- * Connects `parent` to `child` (both already in the graph) and keeps the child
- * inside the group of the parent, if any. The link is reparented into the
- * group of its ends, so that the group hides it when it collapses.
+ * Whether the subtree of `movedId` can be dropped where `parent` gets its
+ * children: not into itself, and not with an end of the diagram into a fork
+ * or a loop.
  */
-function attachChild(graph: dia.Graph, parent: dia.Element, child: dia.Element): void {
-    // Embed first: a link is reparented into the common ancestor of its ends,
-    // so the child has to be inside the group before any link to it is made.
-    // A link left at the top level would not move along with the group.
-    const container = parent.getParentCell();
-    if (container) container.embed(child);
-
-    connectChildToSink(graph, parent, child);
-    child.set('siblingRank', nextSiblingRank(graph, parent));
-    // Seed the position below the parent so that the first render does not flash at the origin.
-    const parentBBox = parent.getBBox();
-    child.position(parentBBox.x, parentBBox.y + parentBBox.height + PARENT_GAP, { deep: true });
-
-    const link = Link.create(parent, child);
-    graph.addCell(link);
-    link.reparent();
+export function canMoveBelow(graph: dia.Graph, data: DiagramData, movedId: Id, parent: dia.Element): boolean {
+    if (data.getSubtree(movedId).includes(getDataId(graph, parent))) return false;
+    const intoGroup = getContainer(parent) !== null || GroupStart.isGroupStart(parent);
+    return !(intoGroup && data.hasEnd(movedId));
 }
 
-/** Adds a plain node as the last child of `parent`. */
-export function addChild(graph: dia.Graph, parent: dia.Element): Node {
-    const node = Node.create(nextLabel());
-    graph.addCell(node);
-    attachChild(graph, parent, node);
-    return node;
+/**
+ * Whether the subtree of `movedId` can be dropped into `link`: into a link
+ * that takes an insertion, outside of the subtree, with exactly one leaf
+ * the flow can continue from - the former target of the link follows it -
+ * and not with an end into a fork or a loop.
+ */
+export function canMoveOnLink(graph: dia.Graph, data: DiagramData, movedId: Id, link: dia.Link): boolean {
+    if (!canSplit(link)) return false;
+    const source = link.getSourceElement()!;
+    const target = link.getTargetElement()!;
+    const subtree = data.getSubtree(movedId);
+    if (subtree.includes(getDataId(graph, source)) || subtree.includes(getDataId(graph, target))) return false;
+    if (data.getOpenLeaves(movedId).length !== 1) return false;
+    return !(getContainer(source) !== null && data.hasEnd(movedId));
 }
 
-/** Adds a group of the given kind, with its content, as the last child of `parent`. */
-export function insertGroup(graph: dia.Graph, parent: dia.Element, kind: GroupKind): Group {
-    const group = kind === 'branch'
-        ? createBranchGroup(graph, nextLabel)
-        : createCycleGroup(graph, nextLabel);
-    attachChild(graph, parent, group);
-    return group;
+/**
+ * Whether the subtree of `movedId` has anywhere to go: a visible link that
+ * takes it, or a visible drop point below an element - the add button of a
+ * leaf, the `+` of a decision with options or of a fork. The move is
+ * offered only then.
+ */
+export function hasMoveTarget(graph: dia.Graph, data: DiagramData, movedId: Id): boolean {
+    if (graph.getLinks().some((link) => isCellVisible(link) && canMoveOnLink(graph, data, movedId, link))) return true;
+    return graph.getElements().some((element) => {
+        if (!isCellVisible(element)) return false;
+        let parent: dia.Element | undefined;
+        if (GroupStart.isGroupStart(element)) parent = element.getKind() === 'fork' ? element : undefined;
+        else if (Decision.isDecision(element)) parent = getChildren(graph, element).length > 0 ? element : undefined;
+        else if (AddButton.isAddButton(element)) parent = getParent(graph, element);
+        return parent !== undefined && canMoveBelow(graph, data, movedId, parent);
+    });
+}
+
+/**
+ * The cells that move with the node `movedId`: the elements of its subtree
+ * with the content of the groups among them, their add buttons, and the
+ * links between all of those. For the marks of a move.
+ */
+export function getMovedCells(graph: dia.Graph, data: DiagramData, movedId: Id): dia.Cell[] {
+    const elements = data.getSubtree(movedId)
+        .flatMap((id) => [graph.getCell(id), graph.getCell(`${id}-add`)])
+        .filter((cell): cell is dia.Element => cell !== undefined && cell.isElement());
+    return graph.getSubgraph(elements, { deep: true });
+}
+
+/** Moves the subtree of `movedId` below `parent`, as its last child. */
+export function moveBelow(data: DiagramData, movedId: Id, parent: dia.Element): void {
+    const { id, slot } = getSlot(parent);
+    data.moveNode(movedId, id, slot, null);
+}
+
+/** Moves the subtree of `movedId` into `link`: the link leads to it, and its open leaf on to the former target. */
+export function moveOnLink(data: DiagramData, movedId: Id, link: Link): void {
+    const source = link.getSourceElement()!;
+    const target = link.getTargetElement()!;
+    const { id, slot } = getSlot(source);
+    data.moveNode(movedId, id, slot, GroupEnd.isGroupEnd(target) ? null : String(target.id));
+}
+
+/** Collapses an expanded group, expands a collapsed one. */
+export function toggleGroup(data: DiagramData, group: Group): void {
+    data.changeNode(String(group.id), { collapsed: !group.isCollapsed() });
 }

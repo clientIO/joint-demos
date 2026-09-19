@@ -1,206 +1,152 @@
-import { dia, elementTools, linkTools, util } from '@joint/plus';
+import { g, highlighters } from '@joint/plus';
+import type { dia } from '@joint/plus';
 
-import { canDelete, canInsertGroup, getGrowthDirection, isEmptyPath } from './actions';
-import { openAddMenu } from './add-menu';
-import { Node } from './shapes';
-import type { Group, GroupKind } from './shapes';
-
-const BUTTON_RADIUS = 11;
-const BUTTON_FILL = '#4666E5';
-const DELETE_FILL = '#E54666';
-const BUTTON_SPACING = 28;
-
-const ADD_CHILD_ICON = 'M -5 0 5 0 M 0 -5 0 5';
-// A fork: one line splitting into two.
-const ADD_BRANCH_ICON = 'M 0 5 0 0 M 0 0 -4 -5 M 0 0 4 -5';
-// A loop: an open circle with an arrow head at its end.
-const ADD_CYCLE_ICON = 'M 3.5 -3.5 A 5 5 0 1 0 3.5 3.5 M 3.5 3.5 0.2 3.2 M 3.5 3.5 3.6 0.2';
-const DELETE_ICON = 'M -4 -4 4 4 M -4 4 4 -4';
-const COLLAPSE_ICON = 'M -4 0 4 0';
-const EXPAND_ICON = 'M -4 0 4 0 M 0 -4 0 4';
-
-export interface ToolActions {
-    addChild(element: dia.Element): void;
-    addGroup(element: dia.Element, kind: GroupKind): void;
-    delete(element: dia.Element): void;
-    insertNode(link: dia.Link): void;
-    toggleGroup(group: Group): void;
-}
-
-interface ButtonOptions {
-    icon: string;
-    title: string;
-    fill: string;
-    /** The position on the element, in percent, plus an offset in pixels. */
-    x: string;
-    y: string;
-    offset: { x: number; y: number };
-    action: () => void;
-}
-
-function createButtonMarkup(icon: string, title: string, fill: string): dia.MarkupJSON {
-    return util.svg/* xml */`
-        <circle @selector="body" r="${BUTTON_RADIUS}" fill="${fill}" stroke="#FFFFFF" stroke-width="1.5" cursor="pointer"/>
-        <path d="${icon}" fill="none" stroke="#FFFFFF" stroke-width="2" pointer-events="none"/>
-        <title>${title}</title>
-    `;
-}
-
-function createButton({ icon, title, fill, x, y, offset, action }: ButtonOptions): elementTools.Button {
-    return new elementTools.Button({
-        x,
-        y,
-        offset,
-        useModelGeometry: true,
-        markup: createButtonMarkup(icon, title, fill),
-        action
-    });
-}
+import { getDeletedCells } from './actions';
+import { isCellVisible } from './layout';
+import { AddButton, Decision, End, Group, GroupEnd, GroupStart, INSERT_BUTTON_FROM_TARGET, INSERT_BUTTON_SIZE } from './shapes';
 
 /**
- * The element the "add" tools of the hovered element act on. The tree
- * continues below a group from the group element, so the `start` node of a
- * collapsed group stands in for it while the `end` is hidden. An expanded
- * `start` adds nothing: it has its branches. The `end` node has no hover
- * tools either - it is a button, and a click on it opens the add menu (see
- * `handleElementClick()`).
+ * The state of the picture that is not the data: the highlights of a
+ * deletion about to happen and of a move in progress - classes on the views
+ * of the cells - and where the button of a link goes. The views are
+ * JointJS's; the classes reach the React components rendered inside them
+ * through the stylesheet.
  */
-function getAddTarget(element: dia.Element): dia.Element | null {
-    if (!Node.isNode(element)) return element;
-    const group = element.getParentCell() as Group | null;
-    switch (element.getRole()) {
-        case 'start': return group?.isCollapsed() ? group : null;
-        case 'end': return null;
-        default: return element;
+
+/**
+ * The element the menu of `element` acts on - and the `Delete` key, when
+ * it is selected: a node acts on itself, the `start` of a group on the
+ * group. The `end` of a group and the add buttons have no menu.
+ */
+export function getActionTarget(element: dia.Element): dia.Element | null {
+    if (GroupStart.isGroupStart(element)) return element.getParentCell() as Group;
+    if (GroupEnd.isGroupEnd(element) || AddButton.isAddButton(element)) return null;
+    return element;
+}
+
+/** The item of the menu that removes `target`: "Remove" and what it is - a loop, a fork, a decision, an end, a step. */
+export function getDeleteTitle(target: dia.Element): string {
+    if (Group.isGroup(target)) return `Remove the ${target.getKind()}`;
+    if (Decision.isDecision(target)) return 'Remove the decision';
+    if (End.isEnd(target)) return 'Remove the end';
+    return 'Remove the step';
+}
+
+/** The id of the highlighter, and the class it adds, on the cells a hovered "remove" item would remove. */
+const DELETE_HIGHLIGHT = 'to-be-deleted';
+
+/** The views highlighted at the moment, to take the highlight off again. */
+let highlightedViews: dia.CellView[] = [];
+
+/**
+ * Turns the cells a deletion of `target` would remove red, by a class on
+ * their views - the visible ones; the content of a collapsed group has none.
+ * The add buttons among them are left alone: buttons do not turn red.
+ */
+export function highlightDeletion(paper: dia.Paper, target: dia.Element): void {
+    clearDeletionHighlight();
+    for (const cell of getDeletedCells(paper.model, target)) {
+        if (!isCellVisible(cell) || AddButton.isAddButton(cell)) continue;
+        const view = paper.findViewByModel(cell);
+        if (!view) continue;
+        highlighters.addClass.add(view, 'root', DELETE_HIGHLIGHT, { className: DELETE_HIGHLIGHT });
+        highlightedViews.push(view);
+    }
+}
+
+/** Takes the deletion highlight off. */
+export function clearDeletionHighlight(): void {
+    for (const view of highlightedViews) highlighters.addClass.remove(view, DELETE_HIGHLIGHT);
+    highlightedViews = [];
+}
+
+/** The classes on the cells of the subtree being moved, and on the buttons that cannot take it - hidden. */
+const MOVING_CLASS = 'moving';
+const NO_DROP_CLASS = 'no-drop';
+
+/** The views marked for the move at the moment, to unmark them. */
+let markedViews: { view: dia.CellView; className: string }[] = [];
+
+/**
+ * Marks the move in progress: the subtree that moves - dimmed, its links
+ * and buttons included - and the elements whose add button cannot take it,
+ * whose button is hidden. Nothing while no move is on: the marks of the
+ * last one come off.
+ */
+export function markMove(paper: dia.Paper, movedCells: dia.Cell[] | null, canDropBelow: (parent: dia.Element) => boolean): void {
+    for (const { view, className } of markedViews) highlighters.addClass.remove(view, className);
+    markedViews = [];
+    if (!movedCells) return;
+    const mark = (cell: dia.Cell, className: string): void => {
+        const view = isCellVisible(cell) ? paper.findViewByModel(cell) : undefined;
+        if (!view) return;
+        highlighters.addClass.add(view, 'root', className, { className });
+        markedViews.push({ view, className });
+    };
+    for (const cell of movedCells) mark(cell, MOVING_CLASS);
+    for (const element of paper.model.getElements()) {
+        const hasPillButton = GroupStart.isGroupStart(element) ? element.getKind() === 'fork' : Decision.isDecision(element);
+        if (hasPillButton) {
+            if (!canDropBelow(element)) mark(element, NO_DROP_CLASS);
+        } else if (AddButton.isAddButton(element)) {
+            const [parent] = paper.model.getNeighbors(element, { inbound: true });
+            if (parent && !canDropBelow(parent)) mark(element, NO_DROP_CLASS);
+        }
     }
 }
 
 /**
- * A click on the `end` node of a group - its plus button - opens a menu with
- * what can be added below the group: a node, a branch group, a cycle group.
- * Clicks on other elements do nothing.
+ * Whether the link out of `element` has something right below the element:
+ * the collapse button of a collapsed group, or the return link of a loop,
+ * which leaves the link below the loop and joins it below the loop's start.
  */
-export function handleElementClick(view: dia.ElementView, actions: ToolActions): void {
-    const element = view.model;
-    if (!Node.isNode(element) || element.getRole() !== 'end') return;
-    const group = element.getParentCell() as Group;
-    openAddMenu(view.el, (choice) => {
-        if (choice === 'node') actions.addChild(group);
-        else actions.addGroup(group, choice);
-    });
+function hasSomethingBelow(element: dia.Element): boolean {
+    if (Group.isGroup(element)) return element.isCollapsed() || element.getKind() === 'loop';
+    return GroupStart.isGroupStart(element) && element.getKind() === 'loop';
 }
 
 /**
- * The element the "delete" tool of the hovered element acts on: a plain node
- * deletes itself, the `start` node of a group deletes the group. The `end`
- * node deletes nothing - it is the button that adds below the group.
+ * Whether `element` is the end of a loop: the link into it from a leaf gets
+ * its insert button a fixed distance below the leaf, the mirror image of the
+ * link out of the loop's start, whose button sits a fixed distance above its
+ * child - the return link runs at equal distances around both.
  */
-function getDeleteTarget(element: dia.Element): dia.Element | null {
-    if (!Node.isNode(element)) return element;
-    switch (element.getRole()) {
-        case 'start': return element.getParentCell() as Group;
-        case 'end': return null;
-        default: return element;
+function isLoopEnd(element: dia.Element): boolean {
+    return GroupEnd.isGroupEnd(element) && element.getGroup().getKind() === 'loop';
+}
+
+/**
+ * Where the button of a link goes, given the points of its route - the
+ * source point, the vertices, the target point: the middle of its longest
+ * vertical part - the part the link has of its own, not the one it shares
+ * with its siblings on a bar, and never a horizontal part. When the link
+ * leaves an element with something right below it (see
+ * `hasSomethingBelow()`) the button sits near the child instead, a fixed
+ * distance from the target, whatever room the link was given; when it joins
+ * the end of a loop, a fixed distance from the source (see `isLoopEnd()`).
+ * `null` for a link without a vertical part.
+ */
+export function getInsertButtonPoint(points: g.PlainPoint[], source: dia.Element, target: dia.Element): g.Point | null {
+    let longest: g.Line | null = null;
+    let longestIndex = -1;
+    for (let i = 0; i < points.length - 1; i++) {
+        const segment = new g.Line(points[i], points[i + 1]);
+        if (Math.abs(segment.start.x - segment.end.x) > 0.5) continue;
+        if (!longest || segment.length() > longest.length()) {
+            longest = segment;
+            longestIndex = i;
+        }
     }
-}
-
-/**
- * The "add" tools acting on `target`: a row of buttons centered on the edge
- * the tree grows from - the bottom edge, or the top edge on the return path
- * of a cycle: add a child node and, where a group reads top-down, add a
- * branch group or a cycle group as a child.
- */
-function createAddTools(graph: dia.Graph, target: dia.Element, actions: ToolActions): dia.ToolView[] {
-    const growthEdge = getGrowthDirection(graph, target) === 'up' ? '0%' : '100%';
-
-    const addButtons: Array<[icon: string, title: string, action: () => void]> = [
-        [ADD_CHILD_ICON, 'Add a child', () => actions.addChild(target)]
-    ];
-    if (canInsertGroup(graph, target)) {
-        addButtons.push(
-            [ADD_BRANCH_ICON, 'Add a branch group', () => actions.addGroup(target, 'branch')],
-            [ADD_CYCLE_ICON, 'Add a cycle group', () => actions.addGroup(target, 'cycle')]
-        );
+    if (!longest) return null;
+    if (longestIndex === 0 && hasSomethingBelow(source)) {
+        // Such a link is straight: the button sits a fixed distance above the child.
+        const y = Math.max(longest.end.y - INSERT_BUTTON_FROM_TARGET, longest.start.y + INSERT_BUTTON_SIZE);
+        return new g.Point(longest.start.x, y);
     }
-    // The row of buttons is centered on the edge.
-    const firstOffset = -(addButtons.length - 1) * BUTTON_SPACING / 2;
-    return addButtons.map(([icon, title, action], index) => createButton({
-        icon,
-        title,
-        fill: BUTTON_FILL,
-        x: '50%',
-        y: growthEdge,
-        offset: { x: firstOffset + index * BUTTON_SPACING, y: 0 },
-        action
-    }));
-}
-
-/**
- * The "delete" tool acting on `target`, in the corner of the hovered element
- * on the edge opposite to the one the tree grows from. `null` when the
- * target cannot be deleted.
- */
-function createDeleteTool(graph: dia.Graph, target: dia.Element, actions: ToolActions): dia.ToolView | null {
-    if (!canDelete(graph, target)) return null;
-    const oppositeEdge = getGrowthDirection(graph, target) === 'up' ? '100%' : '0%';
-    return createButton({
-        icon: DELETE_ICON,
-        title: Node.isNode(target) ? 'Delete the node' : 'Delete the group',
-        fill: DELETE_FILL,
-        x: '100%',
-        y: oppositeEdge,
-        offset: { x: 0, y: 0 },
-        action: () => actions.delete(target)
-    });
-}
-
-/** The collapse/expand button of a group, in the top left corner of its `start` node. */
-function createToggleTool(group: Group, actions: ToolActions): dia.ToolView {
-    const collapsed = group.isCollapsed();
-    return createButton({
-        icon: collapsed ? EXPAND_ICON : COLLAPSE_ICON,
-        title: collapsed ? 'Expand the group' : 'Collapse the group',
-        fill: BUTTON_FILL,
-        x: '0%',
-        y: '0%',
-        offset: { x: 0, y: 0 },
-        action: () => actions.toggleGroup(group)
-    });
-}
-
-/**
- * The tools of the hovered element: the toggle of its group on a `start`
- * node, the "add" tools of the element it adds below and the "delete" tool
- * of the element it deletes (see `getAddTarget()` and `getDeleteTarget()`).
- * `null` when the element has no tools.
- */
-export function createHoverTools(graph: dia.Graph, element: dia.Element, actions: ToolActions): dia.ToolsView | null {
-    const tools: dia.ToolView[] = [];
-    if (Node.isNode(element) && element.getRole() === 'start') {
-        tools.push(createToggleTool(element.getParentCell() as Group, actions));
+    if (longestIndex === 0 && isLoopEnd(target)) {
+        // The vertical part leaves the leaf: the button sits a fixed distance below it.
+        const y = Math.min(longest.start.y + INSERT_BUTTON_FROM_TARGET, longest.end.y - INSERT_BUTTON_SIZE);
+        return new g.Point(longest.start.x, y);
     }
-    const addTarget = getAddTarget(element);
-    if (addTarget) tools.push(...createAddTools(graph, addTarget, actions));
-    const deleteTarget = getDeleteTarget(element);
-    const deleteTool = deleteTarget && createDeleteTool(graph, deleteTarget, actions);
-    if (deleteTool) tools.push(deleteTool);
-    return tools.length > 0 ? new dia.ToolsView({ tools }) : null;
-}
-
-/**
- * The tools of a hovered link: a button in the middle of an emptied path
- * (a link from one gate of a group straight to the other) that inserts a node
- * into it. Every other link has no tools.
- */
-export function createLinkTools(link: dia.Link, actions: ToolActions): dia.ToolsView | null {
-    if (!isEmptyPath(link)) return null;
-    return new dia.ToolsView({
-        tools: [
-            new linkTools.Button({
-                distance: '50%',
-                markup: createButtonMarkup(ADD_CHILD_ICON, 'Insert a node', BUTTON_FILL),
-                action: () => actions.insertNode(link)
-            })
-        ]
-    });
+    return longest.midpoint();
 }

@@ -1,6 +1,6 @@
 import type { anchors, dia, g } from '@joint/plus';
 
-import { Group } from './shapes';
+import { Group } from '../shapes';
 
 /**
  * The anchor of every link end. A link into a group enters it where its

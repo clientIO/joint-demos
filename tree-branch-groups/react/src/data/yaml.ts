@@ -1,0 +1,98 @@
+import { getEdges } from './DiagramData';
+import type { DiagramJSON, Edge, Id, NodeData } from './types';
+
+/**
+ * The diagram as YAML: the flow from the start as a sequence of steps, a
+ * fork as a map of its branches, a decision with a map of its options, a
+ * loop with its body - each a sequence again - and `end` where a path ends.
+ * The comment of a node goes above it, as a YAML comment.
+ *
+ *     steps:
+ *       # Shallow: the history is not needed.
+ *       - name: Checkout
+ *         run: git fetch --depth 1
+ *       - fork:
+ *           Quality:
+ *             - name: Lint
+ *       - decision: Deploy target
+ *         options:
+ *           Staging:
+ *             - loop:
+ *                 - name: Run smoke tests
+ *             - end
+ *
+ * Written by hand: the structure is small and fixed, and a library would
+ * be the only dependency of the demo.
+ */
+export function toYAML(json: DiagramJSON): string {
+    const root = Object.entries(json).find(([, node]) => node.type === 'start');
+    const first = root ? getEdges(root[1], 'to')[0] : undefined;
+    const lines = first ? ['steps:', ...sequence(json, first.id, 1)] : ['steps: []'];
+    return lines.join('\n') + '\n';
+}
+
+const INDENT = '  ';
+
+/** A scalar, quoted where YAML would read it as something else - or as several lines. */
+function scalar(value: string): string {
+    const plain = /^[A-Za-z_][^:#{}[\],&*!|>'"%@`?\n]*$/.test(value) && !/\s$/.test(value) && !/^(true|false|null|yes|no|on|off)$/i.test(value);
+    return plain ? value : JSON.stringify(value);
+}
+
+/** The key of an option or a branch: its name, or its number. */
+function key(edge: Edge, index: number): string {
+    return scalar(edge.name || `option ${index + 1}`);
+}
+
+/**
+ * The lines of the sequence that starts at `id`: the chain of what follows
+ * one another, until a decision (whose options are sequences of their own)
+ * or an end. Indented by `depth` levels.
+ */
+function sequence(json: DiagramJSON, id: Id | undefined, depth: number): string[] {
+    const lines: string[] = [];
+    let current: Id | undefined = id;
+    while (current !== undefined) {
+        const node: NodeData = json[current];
+        const comment = 'comment' in node ? node.comment : undefined;
+        if (comment) lines.push(...comment.split('\n').map((line) => `${INDENT.repeat(depth)}# ${line}`));
+        const [first, ...rest] = item(json, node, depth + 1);
+        lines.push(`${INDENT.repeat(depth)}- ${first}`, ...rest);
+        if (node.type === 'decision' || node.type === 'end') break;
+        current = getEdges(node, 'to')[0]?.id;
+    }
+    return lines;
+}
+
+/** The lines of a map of sequences - the branches of a group, the options of a decision - indented by `depth` levels. */
+function branches(json: DiagramJSON, edges: Edge[], depth: number): string[] {
+    return edges.flatMap((edge, index) => [`${INDENT.repeat(depth)}${key(edge, index)}:`, ...sequence(json, edge.id, depth + 1)]);
+}
+
+/** The lines of one item of a sequence: the first goes after the dash; the rest are indented by `depth` levels. */
+function item(json: DiagramJSON, node: NodeData, depth: number): string[] {
+    const pad = INDENT.repeat(depth);
+    switch (node.type) {
+        case 'step':
+            return [`name: ${scalar(node.label)}`, ...(node.run ? [`${pad}run: ${scalar(node.run)}`] : [])];
+        case 'decision': {
+            const options = getEdges(node, 'to');
+            return [`decision: ${scalar(node.label)}`, ...(options.length > 0 ? [`${pad}options:`, ...branches(json, options, depth + 1)] : [`${pad}options: {}`])];
+        }
+        case 'fork': {
+            const edges = getEdges(node, 'branches');
+            return edges.length > 0 ? ['fork:', ...branches(json, edges, depth + 1)] : ['fork: {}'];
+        }
+        case 'loop': {
+            const edges = getEdges(node, 'branches');
+            if (edges.length === 0) return ['loop: []'];
+            // A loop with one body is the common case: its body straight away; several bodies, a map like a fork.
+            return edges.length === 1 ? ['loop:', ...sequence(json, edges[0].id, depth + 1)] : ['loop:', ...branches(json, edges, depth + 1)];
+        }
+        case 'end':
+            return ['end'];
+        case 'start':
+            // Never an item: the start opens the document. Here for the compiler.
+            return ['start'];
+    }
+}
