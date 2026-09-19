@@ -5,7 +5,7 @@ export const NODE_SIZE = { width: 160, height: 40 };
 /** The end of a group has no size: it is the point the paths of the group converge into. */
 export const GROUP_END_SIZE = { width: 0, height: 0 };
 /** The start and the ends of the diagram are circles. */
-export const TERMINAL_SIZE = { width: 44, height: 44 };
+export const TERMINAL_SIZE = { width: 52, height: 52 };
 /** The add button below a leaf of the tree, the same square as the insert button of a link. */
 export const ADD_BUTTON_SIZE = { width: 18, height: 18 };
 /**

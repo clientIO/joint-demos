@@ -1,6 +1,6 @@
 import { dia, highlighters, ui } from '@joint/plus';
 
-import { addBelow, canDelete, deleteElement, insertOnLink, toggleGroup } from './actions';
+import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
 import { buildGraph } from './data/build';
 import { DiagramData } from './data/DiagramData';
 import { gateAnchor } from './gate-anchor';
@@ -8,7 +8,7 @@ import { isSelectable, syncInspector } from './inspector';
 import { isCellVisible, runLayout } from './layout';
 import { pipeline } from './pipeline';
 import { COLORS, cellNamespace } from './shapes';
-import { addHoverTools, addTooltips, getDeleteTarget, placeLinkTools } from './tools';
+import { addHoverTools, addTooltips, getDeleteTarget, markMove, placeLinkTools } from './tools';
 import type { ToolActions } from './tools';
 
 const PAPER_PADDING = 40;
@@ -91,6 +91,7 @@ export function init(): void {
         // The routes are known once rendered: the insert buttons and the
         // option names are placed in a second, cheap pass.
         placeLinkTools(paper, actions);
+        markMove(paper, actions);
         // A selected element that the edit removed, or hid, leaves the selection.
         const kept = selection.collection.filter((cell) => graph.getCell(cell.id) === cell && isCellVisible(cell));
         if (kept.length < selection.collection.length) selection.collection.reset(kept);
@@ -138,13 +139,47 @@ export function init(): void {
     paper.on('element:pointerclick', (elementView: dia.ElementView) => {
         if (isSelectable(elementView.model)) selection.collection.reset([elementView.model]);
     });
-    paper.on('blank:pointerclick', () => selection.collection.reset([]));
+    paper.on('blank:pointerclick', () => {
+        selection.collection.reset([]);
+        if (moved) setMoved(null);
+    });
+
+    // The move: "Move to…" in the menu of an element starts it; the drop
+    // points - the buttons of the links, the add buttons - take the subtree
+    // instead of adding, and the move ends. `Escape` or a click on the
+    // blank area cancels it.
+    let moved: dia.Element | null = null;
+    const moveHintEl = document.getElementById('move-hint')!;
+    function setMoved(element: dia.Element | null): void {
+        moved = element;
+        moveHintEl.hidden = element === null;
+        paper.removeTools();
+        placeLinkTools(paper, actions);
+        markMove(paper, actions);
+    }
+    const movedId = (): string => String(moved!.id);
 
     const actions: ToolActions = {
         addBelow: (element, choice) => addBelow(data, element, choice),
         insertOnLink: (link, choice) => insertOnLink(data, link, choice),
         delete: (element) => deleteElement(graph, data, element),
-        toggleGroup: (group) => toggleGroup(data, group)
+        toggleGroup: (group) => toggleGroup(data, group),
+        canMove: (element) => hasMoveTarget(graph, data, String(element.id)),
+        startMove: (element) => setMoved(element),
+        getMoved: () => moved,
+        getMovedCells: () => getMovedCells(graph, data, movedId()),
+        canDropBelow: (parent) => canMoveBelow(graph, data, movedId(), parent),
+        canDropOnLink: (link) => canMoveOnLink(graph, data, movedId(), link),
+        dropBelow: (parent) => {
+            const id = movedId();
+            setMoved(null);
+            moveBelow(data, id, parent);
+        },
+        dropOnLink: (link) => {
+            const id = movedId();
+            setMoved(null);
+            moveOnLink(data, id, link);
+        }
     };
     addHoverTools(paper, actions);
     addTooltips(document.body);
@@ -175,7 +210,9 @@ export function init(): void {
         evt.preventDefault();
         history.redo();
     });
-    keyboard.on('escape', () => selection.collection.reset([]));
+    keyboard.on('escape', () => {
+        if (moved) setMoved(null); else selection.collection.reset([]);
+    });
     // `Delete` on the selected element does what its delete tool does: the
     // start of a group deletes the group; what cannot be deleted stays.
     keyboard.on('delete backspace', (evt: dia.Event) => {

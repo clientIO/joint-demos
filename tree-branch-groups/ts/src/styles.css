@@ -27,8 +27,45 @@ body {
 }
 
 .paper {
+    position: relative;
     flex: 1;
     min-width: 0;
+}
+
+/* The hint while a move is on, floating over the top of the paper. */
+.move-hint {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    z-index: 1;
+    transform: translateX(-50%);
+    padding: 6px 12px;
+    border: 1px solid #DCE2F5;
+    border-radius: 6px;
+    background: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(34, 34, 34, 0.1);
+    font-family: sans-serif;
+    font-size: 12px;
+    color: #222222;
+    pointer-events: none;
+}
+
+.move-hint kbd {
+    padding: 1px 4px;
+    border: 1px solid #DCE2F5;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 11px;
+}
+
+/* A move in progress: the subtree that moves is dimmed; a button that cannot take it is gone. */
+.moving {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.no-drop {
+    display: none;
 }
 
 /*
@@ -265,6 +302,12 @@ body {
 
 .joint-context-toolbar[data-type="menu"] .tool:active {
     background-color: #DCE2F5;
+}
+
+.joint-context-toolbar[data-type="menu"] .tool:disabled {
+    opacity: 0.4;
+    background: none;
+    cursor: default;
 }
 
 .joint-context-toolbar[data-type="menu"] .tool svg {

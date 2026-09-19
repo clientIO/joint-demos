@@ -12,6 +12,8 @@ export interface MenuItem<A extends string> {
     label: string;
     icon: string;
     color: string;
+    /** Shown, but not to be chosen: greyed out. */
+    disabled?: boolean;
 }
 
 interface MenuHandlers<A extends string> {
@@ -42,9 +44,10 @@ export function openMenu<A extends string>(target: HTMLElement | SVGElement, ite
         vertical: true,
         autoClose: true,
         padding: 8,
-        tools: items.map((item) => ({ action: item.action, content: renderItem(item) }))
+        tools: items.map((item) => ({ action: item.action, content: renderItem(item), attrs: item.disabled ? { disabled: 'disabled' } : {}}))
     });
-    for (const { action } of items) {
+    for (const { action, disabled } of items) {
+        if (disabled) continue;
         menu.on(`action:${action}`, () => {
             onHover?.(null);
             menu.remove();

@@ -61,6 +61,23 @@ function collectSubtree(json: DiagramJSON, id: Id): Id[] {
     return ids;
 }
 
+/**
+ * The ids of the nodes that follow `id` (and `id` itself) along `to`: the
+ * path the flow takes from it - not into the branches of a group.
+ */
+function collectPath(json: DiagramJSON, id: Id): Id[] {
+    const ids: Id[] = [];
+    const stack = [id];
+    while (stack.length > 0) {
+        const current = stack.pop()!;
+        const node = json[current];
+        if (!node || ids.includes(current)) continue;
+        ids.push(current);
+        stack.push(...getEdges(node, 'to').map((edge) => edge.id));
+    }
+    return ids;
+}
+
 /** Takes the edge into `id` out of its parent. Returns the edge and where it was; `null` for the root. */
 function detach(json: DiagramJSON, id: Id): { ref: EdgeRef; edge: Edge } | null {
     const ref = findEdge(json, id);
@@ -167,6 +184,44 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
             setEdges(json[id], 'to', []);
             for (const member of collectSubtree(json, id)) delete json[member];
         });
+    }
+
+    /**
+     * Moves the node `id`, with everything below it, into `slot` of the node
+     * `parentId`: at the end of the list, or in place of the edge to
+     * `childId`, which the open leaf of the moved subtree then leads to
+     * (see `insertNode()`). The edge keeps its name: an option stays the
+     * option it was named.
+     */
+    moveNode(id: Id, parentId: Id, slot: Slot, childId: Id | null): void {
+        this.setData((json) => {
+            const edge = detach(json, id)?.edge ?? { id };
+            const edges = [...getEdges(json[parentId], slot)];
+            const index = childId === null ? -1 : edges.findIndex((candidate) => candidate.id === childId);
+            if (index < 0) {
+                edges.push(edge);
+            } else {
+                edges[index] = edge;
+                const [leaf] = this.getOpenLeaves(id, json);
+                setEdges(json[leaf], 'to', [{ id: childId! }]);
+            }
+            setEdges(json[parentId], slot, edges);
+        });
+    }
+
+    /** The ids of the node `id` and everything below it: what moves or goes with it. */
+    getSubtree(id: Id): Id[] {
+        return collectSubtree(this.getData(), id);
+    }
+
+    /** The leaves of the path from `id` that the flow can continue from: those that are not an end. */
+    getOpenLeaves(id: Id, json: DiagramJSON = this.getData()): Id[] {
+        return collectPath(json, id).filter((member) => json[member].type !== 'end' && getEdges(json[member], 'to').length === 0);
+    }
+
+    /** Whether the path from `id` reaches an end of the diagram - which cannot be inside a fork or a loop. */
+    hasEnd(id: Id): boolean {
+        return collectPath(this.getData(), id).some((member) => this.getData()[member].type === 'end');
     }
 
     /** Changes some of the fields of the node `id`: its label, whether a group is collapsed. */

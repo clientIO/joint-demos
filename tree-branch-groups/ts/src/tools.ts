@@ -20,15 +20,32 @@ export interface ToolActions {
     insertOnLink(link: Link, choice: AddChoice): void;
     delete(element: dia.Element): void;
     toggleGroup(group: Group): void;
+    /** Whether `element` with everything below it has anywhere to move to. */
+    canMove(element: dia.Element): boolean;
+    /** Starts moving `element` with everything below it: the drop points take it instead of adding. */
+    startMove(element: dia.Element): void;
+    /** The element being moved, if any. While one is, the tools drop it and add nothing. */
+    getMoved(): dia.Element | null;
+    /** The cells that move with it, to mark them. */
+    getMovedCells(): dia.Cell[];
+    canDropBelow(parent: dia.Element): boolean;
+    canDropOnLink(link: Link): boolean;
+    dropBelow(parent: dia.Element): void;
+    dropOnLink(link: Link): void;
 }
 
-/** The markup of the square insert button of a link: a plus, named by its tooltip (see `addTooltips()`). */
-function createInsertButtonMarkup(title: string): dia.MarkupJSON {
+/** The "move to" item of the menu of an element: an arrow out and down, in the blue of the nodes. */
+const MOVE_ICON = 'M -6 -6 V 6 H 6 M 6 6 L 2 2 M 6 6 L 2 10';
+/** The drop point of a move: a chevron down, on the same square as the insert button. */
+const DROP_ICON = 'M -4 -1 0 3 4 -1';
+
+/** The markup of the square button of a link: a plus to insert, a chevron to drop; named by its tooltip (see `addTooltips()`). */
+function createInsertButtonMarkup(title: string, icon: string): dia.MarkupJSON {
     const half = INSERT_BUTTON_SIZE / 2;
     // The class picks the hover color in the stylesheet.
     return util.svg/* xml */`
         <rect @selector="body" class="button add" x="${-half}" y="${-half}" width="${INSERT_BUTTON_SIZE}" height="${INSERT_BUTTON_SIZE}" rx="3" ry="3" fill="${ADD_FILL}" stroke="${BUTTON_STROKE}" stroke-width="1.5" cursor="pointer" data-tooltip="${title}"/>
-        <path d="${ADD_ICON}" fill="none" stroke="${BUTTON_STROKE}" stroke-width="2" pointer-events="none"/>
+        <path d="${icon}" fill="none" stroke="${BUTTON_STROKE}" stroke-width="2" pointer-events="none"/>
     `;
 }
 
@@ -49,17 +66,27 @@ function getAddChoices(parent: dia.Element): AddChoice[] {
 export function handleElementClick(view: dia.ElementView, evt: dia.Event, actions: ToolActions): void {
     const element = view.model;
     const graph = element.graph;
+    let parent: dia.Element;
+    let target: HTMLElement | SVGElement;
     if (Decision.isDecision(element) || GroupStart.isGroupStart(element)) {
         // The button on a decision, or on the start of a fork (a new branch).
-        const target = evt.target;
-        if (!(target instanceof Element) || target.getAttribute('joint-selector') !== ADD_BUTTON_SELECTOR) return;
-        openAddMenu(target as SVGElement, getAddChoices(element), (choice) => actions.addBelow(element, choice));
+        if (!(evt.target instanceof Element) || evt.target.getAttribute('joint-selector') !== ADD_BUTTON_SELECTOR) return;
+        parent = element;
+        target = evt.target as SVGElement;
     } else if (AddButton.isAddButton(element)) {
         // The button below a leaf.
-        const [parent] = graph.getNeighbors(element, { inbound: true });
+        [parent] = graph.getNeighbors(element, { inbound: true });
         if (!parent) return;
-        openAddMenu(view.el, getAddChoices(parent), (choice) => actions.addBelow(parent, choice));
+        target = view.el;
+    } else {
+        return;
     }
+    if (actions.getMoved()) {
+        // A drop point of the move, where the move can go.
+        if (actions.canDropBelow(parent)) actions.dropBelow(parent);
+        return;
+    }
+    openAddMenu(target, getAddChoices(parent), (choice) => actions.addBelow(parent, choice));
 }
 
 /**
@@ -145,8 +172,12 @@ function createMenuTool(paper: dia.Paper, element: dia.Element, target: dia.Elem
         useModelGeometry: true,
         markup: createMenuButtonMarkup(filled ? COLORS.gate.text : COLORS.node.stroke),
         action: (_evt, _view, tool) => {
-            openMenu(tool.el, [{ action: 'remove', label: getDeleteTitle(target), icon: DELETE_ICON, color: DELETE_FILL }], {
-                onChoose: () => actions.delete(target),
+            openMenu(tool.el, [
+                // Greyed out when there is nowhere to move the element to.
+                { action: 'move', label: 'Move to…', icon: MOVE_ICON, color: COLORS.node.stroke, disabled: !actions.canMove(target) },
+                { action: 'remove', label: getDeleteTitle(target), icon: DELETE_ICON, color: DELETE_FILL }
+            ], {
+                onChoose: (action) => (action === 'move' ? actions.startMove(target) : actions.delete(target)),
                 onHover: (action) => (action === 'remove' ? highlightDeletion(paper, target) : clearDeletionHighlight())
             });
         }
@@ -160,20 +191,71 @@ function createMenuTool(paper: dia.Paper, element: dia.Element, target: dia.Elem
  * `null` when the element has no tools.
  */
 export function createHoverTools(paper: dia.Paper, element: dia.Element, actions: ToolActions): dia.ToolsView | null {
+    // While a move is on, the drop points are the only tools.
+    if (actions.getMoved()) return null;
     const target = getDeleteTarget(element);
     const menuTool = target && createMenuTool(paper, element, target, actions);
     return menuTool ? new dia.ToolsView({ tools: [menuTool] }) : null;
 }
 
-/** The insert button of a link: a square plus, a `linkTools.Button` at `distance` along the link. */
+/**
+ * The button of a link, a `linkTools.Button` at `distance` along it: a
+ * square plus that inserts - or, while a move is on, a chevron that drops
+ * the moved subtree into the link.
+ */
 function createInsertTool(link: Link, distance: number, actions: ToolActions): dia.ToolView {
+    const moving = actions.getMoved() !== null;
     return new linkTools.Button({
         distance,
-        markup: createInsertButtonMarkup('Insert here'),
+        markup: moving ? createInsertButtonMarkup('Move here', DROP_ICON) : createInsertButtonMarkup('Insert here', ADD_ICON),
         action: (_evt, _view, tool) => {
-            openAddMenu(tool.el, INSERT_CHOICES, (choice) => actions.insertOnLink(link, choice));
+            if (moving) {
+                actions.dropOnLink(link);
+            } else {
+                openAddMenu(tool.el, INSERT_CHOICES, (choice) => actions.insertOnLink(link, choice));
+            }
         }
     });
+}
+
+/** The class on the cells of the subtree being moved, and on the buttons that cannot take it - hidden. */
+const MOVING_CLASS = 'moving';
+const NO_DROP_CLASS = 'no-drop';
+
+/** The views marked for the move at the moment, to unmark them. */
+let markedViews: { view: dia.CellView; className: string }[] = [];
+
+/**
+ * Marks the move in progress: the subtree that moves - dimmed, its links
+ * and buttons included - and the buttons that cannot take it - hidden. Nothing
+ * while no move is on: the marks of the last one come off.
+ */
+export function markMove(paper: dia.Paper, actions: ToolActions): void {
+    for (const { view, className } of markedViews) highlighters.addClass.remove(view, className);
+    markedViews = [];
+    const moved = actions.getMoved();
+    if (!moved) return;
+    const mark = (cell: dia.Cell, className: string, selector: string = 'root'): void => {
+        const view = isCellVisible(cell) ? paper.findViewByModel(cell) : undefined;
+        if (!view) return;
+        highlighters.addClass.add(view, selector, `${className}-${selector}`, { className });
+        markedViews.push({ view, className: `${className}-${selector}` });
+    };
+    for (const cell of actions.getMovedCells()) mark(cell, MOVING_CLASS);
+    for (const element of paper.model.getElements()) {
+        const hasPillButton = GroupStart.isGroupStart(element) ? element.getKind() === 'fork' : Decision.isDecision(element);
+        if (hasPillButton) {
+            // The button at the right end of a decision or of the start of a fork: only that button, not the pill.
+            if (!actions.canDropBelow(element)) {
+                mark(element, NO_DROP_CLASS, ADD_BUTTON_SELECTOR);
+                mark(element, NO_DROP_CLASS, 'addIcon');
+            }
+        } else if (AddButton.isAddButton(element)) {
+            // The button below a leaf.
+            const [parent] = paper.model.getNeighbors(element, { inbound: true });
+            if (parent && !actions.canDropBelow(parent)) mark(element, NO_DROP_CLASS);
+        }
+    }
 }
 
 /**
@@ -250,6 +332,8 @@ export function placeLinkTools(paper: dia.Paper, actions: ToolActions): void {
         const view = paper.findViewByModel(link) as dia.LinkView | undefined;
         if (!view) continue;
         if (!canSplit(link)) continue;
+        // While a move is on, only the links that can take it get a button.
+        if (actions.getMoved() && !actions.canDropOnLink(link)) continue;
         const distance = getInsertButtonDistance(view);
         if (distance === null) continue;
         // The name of an option sits a little above the button, on the same vertical part.

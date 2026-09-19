@@ -3,6 +3,7 @@ import type { dia } from '@joint/plus';
 import type { AddChoice } from './menu';
 import type { DiagramData } from './data/DiagramData';
 import type { Id, NodeData, Slot } from './data/types';
+import { isCellVisible } from './layout';
 import { AddButton, DECISION_LABEL, Decision, Group, GroupEnd, GroupStart, Link, isGate } from './shapes';
 
 /**
@@ -173,6 +174,85 @@ export function deleteElement(graph: dia.Graph, data: DiagramData, element: dia.
     } else {
         data.spliceNode(id);
     }
+}
+
+/** The node of the data `element` stands for: the group, for a gate; the owner, for an add button. */
+function getDataId(graph: dia.Graph, element: dia.Element): Id {
+    const id = String(element.id);
+    if (isGate(element)) return String(element.getParentCell()!.id);
+    if (AddButton.isAddButton(element)) return getDataId(graph, getParent(graph, element)!);
+    return id;
+}
+
+/**
+ * Whether the subtree of `movedId` can be dropped where `parent` gets its
+ * children: not into itself, and not with an end of the diagram into a fork
+ * or a loop.
+ */
+export function canMoveBelow(graph: dia.Graph, data: DiagramData, movedId: Id, parent: dia.Element): boolean {
+    if (data.getSubtree(movedId).includes(getDataId(graph, parent))) return false;
+    const intoGroup = getContainer(parent) !== null || GroupStart.isGroupStart(parent);
+    return !(intoGroup && data.hasEnd(movedId));
+}
+
+/**
+ * Whether the subtree of `movedId` can be dropped into `link`: into a link
+ * that takes an insertion, outside of the subtree, with exactly one leaf
+ * the flow can continue from - the former target of the link follows it -
+ * and not with an end into a fork or a loop.
+ */
+export function canMoveOnLink(graph: dia.Graph, data: DiagramData, movedId: Id, link: dia.Link): boolean {
+    if (!canSplit(link)) return false;
+    const source = link.getSourceElement()!;
+    const target = link.getTargetElement()!;
+    const subtree = data.getSubtree(movedId);
+    if (subtree.includes(getDataId(graph, source)) || subtree.includes(getDataId(graph, target))) return false;
+    if (data.getOpenLeaves(movedId).length !== 1) return false;
+    return !(getContainer(source) !== null && data.hasEnd(movedId));
+}
+
+/**
+ * Whether the subtree of `movedId` has anywhere to go: a visible link that
+ * takes it, or a visible drop point below an element - the add button of a
+ * leaf, the `+` of a decision with options or of a fork. The move is
+ * offered only then.
+ */
+export function hasMoveTarget(graph: dia.Graph, data: DiagramData, movedId: Id): boolean {
+    if (graph.getLinks().some((link) => isCellVisible(link) && canMoveOnLink(graph, data, movedId, link))) return true;
+    return graph.getElements().some((element) => {
+        if (!isCellVisible(element)) return false;
+        let parent: dia.Element | undefined;
+        if (GroupStart.isGroupStart(element)) parent = element.getKind() === 'fork' ? element : undefined;
+        else if (Decision.isDecision(element)) parent = getChildren(graph, element).length > 0 ? element : undefined;
+        else if (AddButton.isAddButton(element)) parent = getParent(graph, element);
+        return parent !== undefined && canMoveBelow(graph, data, movedId, parent);
+    });
+}
+
+/**
+ * The cells that move with the node `movedId`: the elements of its subtree
+ * with the content of the groups among them, their add buttons, and the
+ * links between all of those. For the marks of a move.
+ */
+export function getMovedCells(graph: dia.Graph, data: DiagramData, movedId: Id): dia.Cell[] {
+    const elements = data.getSubtree(movedId)
+        .flatMap((id) => [graph.getCell(id), graph.getCell(`${id}-add`)])
+        .filter((cell): cell is dia.Element => cell !== undefined && cell.isElement());
+    return graph.getSubgraph(elements, { deep: true });
+}
+
+/** Moves the subtree of `movedId` below `parent`, as its last child. */
+export function moveBelow(data: DiagramData, movedId: Id, parent: dia.Element): void {
+    const { id, slot } = getSlot(parent);
+    data.moveNode(movedId, id, slot, null);
+}
+
+/** Moves the subtree of `movedId` into `link`: the link leads to it, and its open leaf on to the former target. */
+export function moveOnLink(data: DiagramData, movedId: Id, link: Link): void {
+    const source = link.getSourceElement()!;
+    const target = link.getTargetElement()!;
+    const { id, slot } = getSlot(source);
+    data.moveNode(movedId, id, slot, GroupEnd.isGroupEnd(target) ? null : String(target.id));
 }
 
 /** Collapses an expanded group, expands a collapsed one. */

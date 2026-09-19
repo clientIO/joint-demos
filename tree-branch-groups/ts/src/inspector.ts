@@ -67,7 +67,8 @@ function getConfig(data: DiagramData, element: Selectable): InspectorConfig {
  * own.
  */
 let inspector: ui.Inspector | null = null;
-let signature: string | null = null;
+/** What the panel shows, to leave it alone when asked for the same; `undefined` before the first sync. */
+let signature: string | null | undefined;
 
 /** Fills the panel: a header and a body - the hint, a note, or the inspector. */
 function renderPanel(container: HTMLElement, title: string | null, body: string | HTMLElement): void {
