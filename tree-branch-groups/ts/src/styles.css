@@ -1,3 +1,11 @@
+/*
+    The stylesheet of JointJS+ goes into a cascade layer. Rules outside of a
+    layer win over any layered rule whatever its specificity, so the rules
+    below can name things simply, without matching the theme selectors of
+    the library.
+*/
+@import '@joint/plus/joint-plus.css' layer(joint);
+
 body {
     width: 100vw;
     height: 100vh;
@@ -5,43 +13,143 @@ body {
     overflow: hidden;
 }
 
-.paper {
+/* The scroller shows through around a paper smaller than the view: the same color as the paper. */
+.paper,
+.joint-paper-scroller {
     width: 100%;
     height: 100%;
+    background: #F3F7F6;
 }
 
 /*
-    The collapse button of a group. A stylesheet rule wins over the
-    presentation attribute set by the shape, so the hover state does not
-    depend on the element view.
+    The buttons: the collapse/expand button and the add button on a pill, the
+    add button below a leaf, the insert button of a link and the delete tool.
+    A stylesheet rule wins over the presentation attribute set by the shape,
+    so the hover state does not depend on the views. The same feedback
+    everywhere: a blue button darkens, the red one darkens too, the white one
+    tints.
 */
-.joint-paper [joint-selector="button"] {
-    transition: fill-opacity 100ms ease-out;
+[joint-selector="toggle"],
+[joint-selector="addButton"],
+.joint-type-tbg-addbutton [joint-selector="body"],
+.joint-tool .button {
+    transition: fill 100ms ease-out;
 }
 
-.joint-paper [joint-selector="button"]:hover {
-    fill-opacity: 0.5;
+[joint-selector="toggle"]:hover {
+    fill: #E8EDFF;
 }
 
-.joint-paper [joint-selector="button"]:focus {
-    outline: none;
+[joint-selector="addButton"]:hover,
+.joint-type-tbg-addbutton:hover [joint-selector="body"],
+.joint-tool .button.add:hover {
+    fill: #3552C4;
 }
 
-.joint-paper [joint-selector="button"]:focus-visible {
-    stroke: #222222;
-    stroke-width: 2;
+.joint-tool .button.delete:hover {
+    fill: #C8324F;
 }
 
-.hint {
-    position: absolute;
-    top: 18px;
-    left: 0;
+/*
+    The add menu: a context toolbar of JointJS+, restyled as a small panel
+    with an icon and a label per item. The `data-type` comes from the
+    `type` option of the toolbar.
+*/
+.joint-context-toolbar[data-type="add-menu"] .tools {
+    padding: 4px;
+    border: 1px solid #DCE2F5;
+    border-radius: 8px;
+    background: #FFFFFF;
+    box-shadow: 0 6px 20px rgba(34, 34, 34, 0.12);
+}
+
+.joint-context-toolbar[data-type="add-menu"] .tool {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     width: 100%;
-    text-align: center;
+    min-width: 120px;
+    padding: 6px 14px 6px 8px;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    font-family: sans-serif;
+    font-size: 13px;
+    color: #222222;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 100ms ease-out;
+}
+
+.joint-context-toolbar[data-type="add-menu"] .tool:hover {
+    background-color: #EEF2FF;
+}
+
+.joint-context-toolbar[data-type="add-menu"] .tool:active {
+    background-color: #DCE2F5;
+}
+
+.joint-context-toolbar[data-type="add-menu"] .tool svg {
+    flex: none;
+    pointer-events: none;
+}
+
+/*
+    The cells a hovered delete tool would remove, marked by a class from a
+    highlighter: the elements and the links turn red - the outline and the
+    icon of a node, the fill of a pill, the lines of the links - the buttons
+    on them do not. The color fades in and out.
+*/
+[joint-selector="body"],
+[joint-selector="line"],
+[joint-selector="kindIcon"] {
+    transition: fill 150ms ease-out, stroke 150ms ease-out;
+}
+
+.to-be-deleted [joint-selector="body"],
+.to-be-deleted [joint-selector="line"] {
+    stroke: #E54666;
+}
+
+.to-be-deleted [joint-selector="body"][fill="#4666E5"] {
+    fill: #E54666;
+}
+
+.to-be-deleted [joint-selector="kindIcon"][stroke="#4666E5"] {
+    stroke: #E54666;
+}
+
+/* The tooltips of the buttons: a small dark label. */
+.joint-tooltip {
+    padding: 0;
+    border-radius: 4px;
+    background-color: #222222;
+    color: #FFFFFF;
     font-family: sans-serif;
     font-size: 12px;
-    color: #6A6A75;
-    pointer-events: none;
-    user-select: none;
-    z-index: 1;
+    line-height: 1.3;
+}
+
+.joint-tooltip .tooltip-content {
+    padding: 6px 10px;
+}
+
+.joint-tooltip.top .tooltip-arrow,
+.joint-tooltip.top .tooltip-arrow-mask {
+    border-bottom-color: #222222;
+}
+
+.joint-tooltip.bottom .tooltip-arrow,
+.joint-tooltip.bottom .tooltip-arrow-mask {
+    border-top-color: #222222;
+}
+
+.joint-tooltip.left .tooltip-arrow,
+.joint-tooltip.left .tooltip-arrow-mask {
+    border-right-color: #222222;
+}
+
+.joint-tooltip.right .tooltip-arrow,
+.joint-tooltip.right .tooltip-arrow-mask {
+    border-left-color: #222222;
 }
