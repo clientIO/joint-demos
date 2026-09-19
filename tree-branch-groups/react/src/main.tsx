@@ -1,6 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import '@joint/react-plus/styles.css';
+// The context toolbar (the add menu of a group) is a JointJS+ UI component.
+import '@joint/plus/joint-plus.css';
 import './index.css';
 import { App } from './app';
 
