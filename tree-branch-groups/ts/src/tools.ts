@@ -2,21 +2,18 @@ import { dia, elementTools, g, highlighters, linkTools, ui, util } from '@joint/
 
 import { canAddTerminal, canDelete, canSplit, getDeletedCells } from './actions';
 import { isCellVisible } from './layout';
-import { openAddMenu } from './add-menu';
-import type { AddChoice } from './add-menu';
-import { ADD_BUTTON_SELECTOR, AddButton, BRANCH_LABEL_OFFSET_ALONG, Group, INSERT_BUTTON_FROM_TARGET, Link, Node, TOGGLE_EVENT } from './shapes';
+import { openAddMenu, openMenu } from './menu';
+import type { AddChoice } from './menu';
+import { ADD_BUTTON_SELECTOR, AddButton, BRANCH_LABEL_OFFSET_ALONG, COLORS, Decision, End, Group, GroupEnd, GroupStart, INSERT_BUTTON_FROM_TARGET, Link, TOGGLE_EVENT } from './shapes';
 
-const BUTTON_RADIUS = 11;
-const DELETE_FILL = '#E54666';
+/** The insert buttons are squares, so that they differ from the round toggle and "more" buttons. */
 const ADD_FILL = '#4666E5';
 const BUTTON_STROKE = '#FFFFFF';
-
-/** The "add" buttons are squares, so that they differ from the round toggle and delete buttons. */
-type ButtonShape = 'circle' | 'square';
-
-const DELETE_ICON = 'M -4 -4 4 4 M -4 4 4 -4';
 const ADD_ICON = 'M -4 0 4 0 M 0 -4 0 4';
 const INSERT_BUTTON_SIZE = 18;
+/** The "remove" item of the menu of an element: a cross, in red. */
+const DELETE_FILL = '#E54666';
+const DELETE_ICON = 'M -5 -5 5 5 M -5 5 5 -5';
 
 export interface ToolActions {
     addBelow(element: dia.Element, choice: AddChoice): void;
@@ -25,41 +22,14 @@ export interface ToolActions {
     toggleGroup(group: Group): void;
 }
 
-interface ButtonOptions {
-    icon: string;
-    title: string;
-    fill: string;
-    shape: ButtonShape;
-    /** The position on the element, in percent, plus an offset in pixels. */
-    x: string;
-    y: string;
-    offset: { x: number; y: number };
-    action: (evt: dia.Event, view: dia.CellView, tool: dia.ToolView) => void;
-}
-
-function createButtonMarkup(icon: string, title: string, fill: string, shape: ButtonShape): dia.MarkupJSON {
+/** The markup of the square insert button of a link: a plus, named by its tooltip (see `addTooltips()`). */
+function createInsertButtonMarkup(title: string): dia.MarkupJSON {
     const half = INSERT_BUTTON_SIZE / 2;
     // The class picks the hover color in the stylesheet.
-    const className = `button ${fill === DELETE_FILL ? 'delete' : 'add'}`;
-    // The title is the tooltip (see `addTooltips()`).
-    const body = shape === 'circle'
-        ? `<circle @selector="body" class="${className}" r="${BUTTON_RADIUS}" fill="${fill}" stroke="${BUTTON_STROKE}" stroke-width="1.5" cursor="pointer" data-tooltip="${title}"/>`
-        : `<rect @selector="body" class="${className}" x="${-half}" y="${-half}" width="${INSERT_BUTTON_SIZE}" height="${INSERT_BUTTON_SIZE}" rx="3" ry="3" fill="${fill}" stroke="${BUTTON_STROKE}" stroke-width="1.5" cursor="pointer" data-tooltip="${title}"/>`;
     return util.svg/* xml */`
-        ${body}
-        <path d="${icon}" fill="none" stroke="${BUTTON_STROKE}" stroke-width="2" pointer-events="none"/>
+        <rect @selector="body" class="button add" x="${-half}" y="${-half}" width="${INSERT_BUTTON_SIZE}" height="${INSERT_BUTTON_SIZE}" rx="3" ry="3" fill="${ADD_FILL}" stroke="${BUTTON_STROKE}" stroke-width="1.5" cursor="pointer" data-tooltip="${title}"/>
+        <path d="${ADD_ICON}" fill="none" stroke="${BUTTON_STROKE}" stroke-width="2" pointer-events="none"/>
     `;
-}
-
-function createButton({ icon, title, fill, shape, x, y, offset, action }: ButtonOptions): elementTools.Button {
-    return new elementTools.Button({
-        x,
-        y,
-        offset,
-        useModelGeometry: true,
-        markup: createButtonMarkup(icon, title, fill, shape),
-        action
-    });
 }
 
 /** What can be inserted anywhere: a node, a decision, a fork, a loop. */
@@ -79,11 +49,10 @@ function getAddChoices(parent: dia.Element): AddChoice[] {
 export function handleElementClick(view: dia.ElementView, evt: dia.Event, actions: ToolActions): void {
     const element = view.model;
     const graph = element.graph;
-    if (Node.isNode(element)) {
+    if (Decision.isDecision(element) || GroupStart.isGroupStart(element)) {
         // The button on a decision, or on the start of a fork (a new branch).
         const target = evt.target;
         if (!(target instanceof Element) || target.getAttribute('joint-selector') !== ADD_BUTTON_SELECTOR) return;
-        if (!element.isDecision() && element.getRole() !== 'start') return;
         openAddMenu(target as SVGElement, getAddChoices(element), (choice) => actions.addBelow(element, choice));
     } else if (AddButton.isAddButton(element)) {
         // The button below a leaf.
@@ -94,22 +63,26 @@ export function handleElementClick(view: dia.ElementView, evt: dia.Event, action
 }
 
 /**
- * The element the "delete" tool of the hovered element acts on: a plain node
+ * The element the menu of the hovered element acts on: a plain node
  * deletes itself, the `start` node of a group deletes the group. The `end`
- * node and the add buttons delete nothing.
+ * node and the add buttons delete nothing. The `Delete` key on the selected
+ * element acts on the same target.
  */
-function getDeleteTarget(element: dia.Element): dia.Element | null {
-    if (Node.isNode(element)) {
-        switch (element.getRole()) {
-            case 'start': return element.getParentCell() as Group;
-            case 'end': return null;
-            default: return element;
-        }
-    }
-    return AddButton.isAddButton(element) ? null : element;
+export function getDeleteTarget(element: dia.Element): dia.Element | null {
+    if (GroupStart.isGroupStart(element)) return element.getParentCell() as Group;
+    if (GroupEnd.isGroupEnd(element) || AddButton.isAddButton(element)) return null;
+    return element;
 }
 
-/** The id of the highlighter, and the class it adds, on the cells a hovered delete tool would remove. */
+/** The item of the menu that removes `target`: "Remove" and what it is - a loop, a fork, a decision, an end, a node. */
+function getDeleteTitle(target: dia.Element): string {
+    if (Group.isGroup(target)) return `Remove the ${target.getKind()}`;
+    if (Decision.isDecision(target)) return 'Remove the decision';
+    if (End.isEnd(target)) return 'Remove the end';
+    return 'Remove the node';
+}
+
+/** The id of the highlighter, and the class it adds, on the cells a hovered "remove" item would remove. */
 const DELETE_HIGHLIGHT = 'to-be-deleted';
 
 /** The views highlighted at the moment, to take the highlight off again. */
@@ -138,53 +111,65 @@ export function clearDeletionHighlight(): void {
     highlightedViews = [];
 }
 
-/**
- * The "delete" tool acting on `target`, at the top left of the hovered
- * element, inset so that it stays on the element. Hovering the tool
- * highlights what it would remove.
- * `null` when the target cannot be deleted.
- */
-function createDeleteTool(graph: dia.Graph, target: dia.Element, actions: ToolActions, paper: dia.Paper): dia.ToolView | null {
-    if (!canDelete(graph, target)) return null;
-    const tool = createButton({
-        icon: DELETE_ICON,
-        title: Node.isNode(target)
-            ? (target.isDecision() ? 'Delete the decision with everything below it' : target.isTerminal() ? 'Delete the end' : 'Delete the node')
-            : 'Delete the group',
-        fill: DELETE_FILL,
-        shape: 'circle',
-        // Top left, a little towards the middle: the pointer reaches the
-        // button without leaving the element - not even a round pill.
-        x: '0%',
-        y: '0%',
-        offset: { x: 12, y: 2 },
-        action: () => {
-            clearDeletionHighlight();
-            actions.delete(target);
-        }
-    });
-    tool.el.addEventListener('mouseenter', () => highlightDeletion(paper, target));
-    tool.el.addEventListener('mouseleave', () => clearDeletionHighlight());
-    return tool;
+/** The "more" button: three dots at the top right of the hovered element, inside it; a click opens the menu of the element. */
+const MENU_BUTTON_RADIUS = 9;
+const MENU_DOT_RADIUS = 1.5;
+const MENU_DOT_GAP = 4.5;
+
+function createMenuButtonMarkup(color: string): dia.MarkupJSON {
+    const dots = [-MENU_DOT_GAP, 0, MENU_DOT_GAP]
+        .map((x) => `<circle cx="${x}" cy="0" r="${MENU_DOT_RADIUS}" fill="${color}" pointer-events="none"/>`)
+        .join('');
+    // A transparent disc catches the pointer; the class picks the hover tint in the stylesheet.
+    return util.svg/* xml */`
+        <circle @selector="body" class="button menu" r="${MENU_BUTTON_RADIUS}" fill="transparent" cursor="pointer" data-tooltip="More"/>
+        ${dots}
+    `;
 }
 
 /**
- * The tools of the hovered element: the "delete" tool of the element it
- * deletes (see `getDeleteTarget()`). Adding happens on the links and on the
- * add buttons, collapsing on the button of the `start` node. `null` when the
- * element has no tools.
+ * The "more" tool of the hovered `element`, acting on `target` (see
+ * `getDeleteTarget()`): three dots at the top right, inside the element and
+ * clear of the button at its right end, in the color of its text. A click
+ * opens the menu of the element - its removal; hovering the item highlights
+ * what it would remove. `null` when the target cannot be deleted: the menu
+ * would be empty.
+ */
+function createMenuTool(paper: dia.Paper, element: dia.Element, target: dia.Element, actions: ToolActions): dia.ToolView | null {
+    if (!canDelete(paper.model, target)) return null;
+    const filled = Decision.isDecision(element) || GroupStart.isGroupStart(element);
+    return new elementTools.Button({
+        x: '100%',
+        y: '0%',
+        offset: { x: -(MENU_BUTTON_RADIUS + 13), y: MENU_BUTTON_RADIUS + 1 },
+        useModelGeometry: true,
+        markup: createMenuButtonMarkup(filled ? COLORS.gate.text : COLORS.node.stroke),
+        action: (_evt, _view, tool) => {
+            openMenu(tool.el, [{ action: 'remove', label: getDeleteTitle(target), icon: DELETE_ICON, color: DELETE_FILL }], {
+                onChoose: () => actions.delete(target),
+                onHover: (action) => (action === 'remove' ? highlightDeletion(paper, target) : clearDeletionHighlight())
+            });
+        }
+    });
+}
+
+/**
+ * The tools of the hovered element: the "more" tool with the menu of the
+ * element it acts on (see `getDeleteTarget()`). Adding happens on the links
+ * and on the add buttons, collapsing on the button of the `start` node.
+ * `null` when the element has no tools.
  */
 export function createHoverTools(paper: dia.Paper, element: dia.Element, actions: ToolActions): dia.ToolsView | null {
-    const deleteTarget = getDeleteTarget(element);
-    const deleteTool = deleteTarget && createDeleteTool(paper.model, deleteTarget, actions, paper);
-    return deleteTool ? new dia.ToolsView({ tools: [deleteTool] }) : null;
+    const target = getDeleteTarget(element);
+    const menuTool = target && createMenuTool(paper, element, target, actions);
+    return menuTool ? new dia.ToolsView({ tools: [menuTool] }) : null;
 }
 
 /** The insert button of a link: a square plus, a `linkTools.Button` at `distance` along the link. */
 function createInsertTool(link: Link, distance: number, actions: ToolActions): dia.ToolView {
     return new linkTools.Button({
         distance,
-        markup: createButtonMarkup(ADD_ICON, 'Insert here', ADD_FILL, 'square'),
+        markup: createInsertButtonMarkup('Insert here'),
         action: (_evt, _view, tool) => {
             openAddMenu(tool.el, INSERT_CHOICES, (choice) => actions.insertOnLink(link, choice));
         }
@@ -198,9 +183,7 @@ function createInsertTool(link: Link, distance: number, actions: ToolActions): d
  */
 function hasSomethingBelow(element: dia.Element): boolean {
     if (Group.isGroup(element)) return element.isCollapsed() || element.getKind() === 'loop';
-    if (!Node.isNode(element) || element.getRole() !== 'start') return false;
-    const group = element.getParentCell();
-    return group !== null && Group.isGroup(group) && group.getKind() === 'loop';
+    return GroupStart.isGroupStart(element) && element.getKind() === 'loop';
 }
 
 /**
@@ -210,9 +193,7 @@ function hasSomethingBelow(element: dia.Element): boolean {
  * child - the return link runs at equal distances around both.
  */
 function isLoopEnd(element: dia.Element): boolean {
-    if (!Node.isNode(element) || element.getRole() !== 'end') return false;
-    const group = element.getParentCell();
-    return group !== null && Group.isGroup(group) && group.getKind() === 'loop';
+    return GroupEnd.isGroupEnd(element) && element.getGroup().getKind() === 'loop';
 }
 
 /**
@@ -280,13 +261,14 @@ export function placeLinkTools(paper: dia.Paper, actions: ToolActions): void {
 }
 
 /**
- * One tooltip for every button on the paper - the buttons of the pills and
- * the add buttons below the leaves, the insert buttons of the links and the
- * delete tools - each named by its `data-tooltip` attribute.
+ * One tooltip for every button under `root` - the buttons of the pills and
+ * the add buttons below the leaves, the insert buttons of the links, the
+ * delete tools and the buttons of the toolbar - each named by its
+ * `data-tooltip` attribute.
  */
-export function addTooltips(paper: dia.Paper): ui.Tooltip {
+export function addTooltips(root: HTMLElement): ui.Tooltip {
     return new ui.Tooltip({
-        rootTarget: paper.el,
+        rootTarget: root,
         target: '[data-tooltip]',
         // `Top` names the side of the tooltip that touches the target: the tooltip hangs below the button.
         position: ui.Tooltip.TooltipPosition.Top,

@@ -2,7 +2,7 @@ import type { dia, g } from '@joint/plus';
 
 import { layoutForkGroup } from './fork-group';
 import { LOOP_GAP, LOOP_START_ROOM, layoutLoopGroup } from './loop-group';
-import { AddButton, Group, Link, NODE_SIZE, Node } from './shapes';
+import { AddButton, Decision, Group, GroupStart, Link, NODE_SIZE, isGate } from './shapes';
 import type { GroupKind } from './shapes';
 import { createTreeLayout } from './tree-layout';
 
@@ -15,7 +15,7 @@ import { createTreeLayout } from './tree-layout';
 export function isHiddenByCollapse(cell: dia.Cell): boolean {
     return cell.getAncestors().some((ancestor) => {
         if (!Group.isGroup(ancestor) || !ancestor.isCollapsed()) return false;
-        return !(Node.isNode(cell) && cell.getRole() === 'start' && cell.getParentCell() === ancestor);
+        return !(GroupStart.isGroupStart(cell) && cell.getParentCell() === ancestor);
     });
 }
 
@@ -49,14 +49,12 @@ const OPTION_ROOM = 30;
 
 /** The kind of the group `element` is the start of, if it is one. */
 function getStartedKind(element: dia.Element): GroupKind | null {
-    if (!Node.isNode(element) || element.getRole() !== 'start') return null;
-    const group = element.getParentCell();
-    return group !== null && Group.isGroup(group) ? group.getKind() : null;
+    return GroupStart.isGroupStart(element) ? element.getKind() : null;
 }
 
 /** Whether the children of `element` are its options: a decision, or the start of a fork. */
 function hasOptions(element: dia.Element): boolean {
-    return (Node.isNode(element) && element.isDecision()) || getStartedKind(element) === 'fork';
+    return Decision.isDecision(element) || getStartedKind(element) === 'fork';
 }
 
 /** Extra room below a loop: the return link leaves the link out of it there. */
@@ -81,7 +79,7 @@ function getRoomBelow(element: dia.Element): number {
 /** The options of `parent`: its children, gates and add buttons aside. */
 function getOptions(graph: dia.Graph, parent: dia.Element): dia.Element[] {
     return graph.getNeighbors(parent, { outbound: true })
-        .filter((child) => !(Node.isNode(child) && child.isGate()) && !AddButton.isAddButton(child));
+        .filter((child) => !isGate(child) && !AddButton.isAddButton(child));
 }
 
 /**
@@ -93,7 +91,7 @@ function getOptions(graph: dia.Graph, parent: dia.Element): dia.Element[] {
  */
 function makeRoomForOptions(graph: dia.Graph): void {
     for (const element of graph.getElements()) {
-        if (Node.isNode(element) && element.isGate()) continue;
+        if (isGate(element)) continue;
         element.set({ offset: 0 });
     }
     for (const parent of graph.getElements()) {

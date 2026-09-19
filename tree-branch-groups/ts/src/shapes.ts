@@ -2,8 +2,8 @@ import { dia, util } from '@joint/plus';
 
 // Layout metrics shared by the shapes and the layout.
 export const NODE_SIZE = { width: 160, height: 40 };
-/** The `end` of a group has no size: it is the point the paths of the group converge into. */
-export const END_SIZE = { width: 0, height: 0 };
+/** The end of a group has no size: it is the point the paths of the group converge into. */
+export const GROUP_END_SIZE = { width: 0, height: 0 };
 /** The start and the ends of the diagram are circles. */
 export const TERMINAL_SIZE = { width: 44, height: 44 };
 /** The add button below a leaf of the tree, the same square as the insert button of a link. */
@@ -29,20 +29,15 @@ const ELEMENT_Z = 2;
 export const COLORS = {
     background: '#F3F7F6',
     node: { fill: '#FFFFFF', stroke: '#4666E5', text: '#222222' },
-    /** The outline of the root of the diagram and of its terminals; red is kept for what is about to be deleted. */
+    /** The outline of the start of the diagram and of its ends; red is kept for what is about to be deleted. */
     root: '#2E9E5B',
     terminal: '#4A5470',
+    /** The pills that steer the flow: a decision, the start of a group. */
     gate: { fill: '#4666E5', stroke: '#4666E5', text: '#FFFFFF' },
-    link: '#7A90EC'
+    link: '#7A90EC',
+    /** The frame around the selected element: a shade darker than the nodes. */
+    selection: '#3552C4'
 };
-
-/**
- * The roles of the special nodes. The `start` and `end` are the gates of a
- * group; a `decision` is a node of the tree that branches out - without a
- * merge, unlike a fork - and carries a button that adds children to it; a
- * `terminal` is an end of the diagram, a leaf nothing can follow.
- */
-export type NodeRole = 'start' | 'end' | 'decision' | 'terminal';
 
 /**
  * What a group stands in for: a fork/join of two branches, or a loop whose
@@ -57,21 +52,11 @@ export const GROUP_LABELS: Record<GroupKind, string> = {
 };
 export const DECISION_LABEL = 'Decision';
 
-const nodeMarkup = util.svg/* xml */`
-    <rect @selector="body"/>
-    <path @selector="kindIcon"/>
-    <text @selector="label"/>
-    <circle @selector="toggle"/>
-    <path @selector="toggleIcon"/>
-    <rect @selector="addButton"/>
-    <path @selector="addIcon"/>
-`;
-
-/** The selector of the add button at the right end of a `decision` or the `start` of a fork; a click on it is recognized by it. */
+/** The selector of the add button at the right end of a decision or the start of a fork; a click on it is recognized by it. */
 export const ADD_BUTTON_SELECTOR = 'addButton';
 
 /**
- * The icon next to the label of the `start` of a group, drawn the way the
+ * The icon next to the label of the start of a group, drawn the way the
  * diagram draws the group itself: a fork is a stem that splits over a bar
  * into two drops with arrowheads; a loop is a circuit that runs down on the
  * right and back up on the left, with an arrowhead on the way back.
@@ -82,205 +67,284 @@ export const GROUP_ICONS: Record<GroupKind, string> = {
 };
 /** The diamond of a flowchart decision. */
 export const DECISION_ICON = 'M 0 -7 L 7 0 L 0 7 L -7 0 Z';
-/** A card with two lines: a plain node, a step. */
+/** A card with two lines: a step. */
 export const NODE_ICON = 'M -6 -6 H 6 V 6 H -6 Z M -3 -2 H 3 M -3 2 H 3';
 /** The icon sits at the left end of the pill, the label is centered in the rest. */
 const KIND_ICON_X = 18;
 const KIND_LABEL_OFFSET = 9;
+const LABEL_FONT_FAMILY = 'sans-serif';
+const LABEL_FONT_SIZE = 13;
+/** The height of a line of a label, as the text is rendered (`lineHeight`). */
+const LABEL_LINE_HEIGHT = 1.3 * LABEL_FONT_SIZE;
+/**
+ * The room a pill keeps around its label: on either side, enough for the
+ * icon at the left end or the button at the right end; above and below,
+ * enough for a single line to sit in a pill of the minimal size.
+ */
+const LABEL_PADDING_X = 26;
+const LABEL_PADDING_Y = 11;
+/** A piece of a label between backticks is code: monospaced, a little smaller, tinted. */
+const CODE_FONT_FAMILY = 'Menlo, Consolas, monospace';
+const CODE_FONT_SIZE = 12;
+const CODE_COLORS = { light: '#5B6B9E', dark: '#DCE2F5' };
 
-/** Custom paper event triggered by the collapse/expand button on the `start` of a group. */
+/** Custom paper event triggered by the collapse/expand button on the start of a group. */
 export const TOGGLE_EVENT = 'element:group:toggle';
 const TOGGLE_RADIUS = 11;
 const COLLAPSE_ICON = 'M -4 0 4 0';
 const EXPAND_ICON = 'M -4 0 4 0 M 0 -4 0 4';
 
+/*
+    The pills: a step, a decision and the start of a group are rounded
+    rectangles with an icon at the left end and a label centered in the
+    rest. A decision and the start of a fork carry, at the right end, the
+    button that adds an option or a branch; the start of a group carries the
+    collapse/expand button of the group on its bottom edge. Each class puts
+    together the markup it needs from these parts.
+*/
+
+const pillMarkup = util.svg/* xml */`
+    <rect @selector="body"/>
+    <path @selector="kindIcon"/>
+    <text @selector="label"/>
+`;
+const addButtonMarkup = util.svg/* xml */`
+    <rect @selector="addButton"/>
+    <path @selector="addIcon"/>
+`;
+const toggleMarkup = util.svg/* xml */`
+    <circle @selector="toggle"/>
+    <path @selector="toggleIcon"/>
+`;
+
+const PILL_ATTRS = {
+    body: {
+        width: 'calc(w)',
+        height: 'calc(h)',
+        rx: 4,
+        ry: 4,
+        strokeWidth: 1.5,
+        stroke: COLORS.node.stroke,
+        fill: COLORS.node.fill
+    },
+    kindIcon: {
+        transform: `translate(${KIND_ICON_X}, calc(h / 2))`,
+        stroke: COLORS.node.stroke,
+        strokeWidth: 1.5,
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round',
+        fill: 'none',
+        pointerEvents: 'none'
+    },
+    label: {
+        x: `calc(w / 2 + ${KIND_LABEL_OFFSET})`,
+        y: 'calc(h / 2)',
+        textAnchor: 'middle',
+        textVerticalAnchor: 'middle',
+        fontFamily: LABEL_FONT_FAMILY,
+        fontSize: LABEL_FONT_SIZE,
+        lineHeight: `${LABEL_LINE_HEIGHT}px`,
+        fill: COLORS.node.text
+    }
+};
+
+/** A run of a label in one font: plain, or code. */
+interface LabelSegment {
+    text: string;
+    code: boolean;
+}
+
+/** A text annotation of the `text` attribute: a range of the text with attributes of its own. */
+interface LabelAnnotation {
+    start: number;
+    end: number;
+    attrs: Record<string, string | number>;
+}
+
+interface ParsedLabel {
+    /** The text with the backticks taken out, the newlines kept. */
+    text: string;
+    /** The ranges of `text` that are code, for the `annotations` attribute. */
+    annotations: LabelAnnotation[];
+    /** The lines, each in runs of one font, for measuring. */
+    lines: LabelSegment[][];
+}
+
 /**
- * A plain rectangle. The `start` and `end` of a group are nodes with a
- * `role`: the `start` is a pill labelled with the kind of the group, an icon
- * of the kind next to the label and the collapse/expand button of the group
- * on its bottom edge - all a part of the markup; the `end` an invisible
- * point without size -
- * the paths of the group converge into it, and the tree continues from it.
+ * The little markup of a label: a piece between backticks, on one line, is
+ * code (`npm ci`). A backtick without a match stays a backtick.
  */
-export class Node extends dia.Element {
+function parseLabel(raw: string, codeColor: string): ParsedLabel {
+    const codeAttrs = { 'font-family': CODE_FONT_FAMILY, 'font-size': CODE_FONT_SIZE, fill: codeColor };
+    const annotations: LabelAnnotation[] = [];
+    const lines: LabelSegment[][] = [];
+    let text = '';
+    raw.split('\n').forEach((line, lineIndex) => {
+        if (lineIndex > 0) text += '\n';
+        const segments: LabelSegment[] = [];
+        const append = (segmentText: string, code: boolean): void => {
+            if (segmentText.length === 0) return;
+            const start = text.length;
+            text += segmentText;
+            segments.push({ text: segmentText, code });
+            if (code) annotations.push({ start, end: text.length, attrs: codeAttrs });
+        };
+        let last = 0;
+        for (const match of line.matchAll(/`([^`]+)`/g)) {
+            append(line.slice(last, match.index), false);
+            append(match[1], true);
+            last = match.index + match[0].length;
+        }
+        append(line.slice(last), false);
+        lines.push(segments);
+    });
+    return { text, annotations, lines };
+}
+
+/** A 2D context of an off-screen canvas, for measuring text in the fonts of the labels. */
+let measuringContext: CanvasRenderingContext2D | null = null;
+
+function measureSegment({ text, code }: LabelSegment): number {
+    measuringContext ??= document.createElement('canvas').getContext('2d')!;
+    measuringContext.font = code ? `${CODE_FONT_SIZE}px ${CODE_FONT_FAMILY}` : `${LABEL_FONT_SIZE}px ${LABEL_FONT_FAMILY}`;
+    return measuringContext.measureText(text).width;
+}
+
+/** The width of the widest line of a parsed label and the height of all its lines. */
+function measureLabel({ lines }: ParsedLabel): { width: number; height: number } {
+    const width = Math.max(...lines.map((segments) => segments.reduce((sum, segment) => sum + measureSegment(segment), 0)));
+    return { width, height: lines.length * LABEL_LINE_HEIGHT };
+}
+
+/**
+ * Sets the label of a pill - parsed for its little markup - and sizes the
+ * pill to it: the size of a node at least, wider for a long label and taller
+ * for one of several lines (a newline in the label breaks a line). The code
+ * is tinted for the fill of the pill: a light pill, or a dark one.
+ */
+function setPillLabel(pill: dia.Element, label: string, fill: 'light' | 'dark'): void {
+    const parsed = parseLabel(label, CODE_COLORS[fill]);
+    pill.attr('label', { text: parsed.text, annotations: parsed.annotations });
+    const { width, height } = measureLabel(parsed);
+    pill.resize(
+        Math.max(NODE_SIZE.width, Math.ceil(width) + 2 * LABEL_PADDING_X),
+        Math.max(NODE_SIZE.height, Math.ceil(height) + 2 * LABEL_PADDING_Y)
+    );
+}
+
+/** The pills that steer the flow are filled: a decision, the start of a group. */
+const FILLED_PILL_ATTRS = {
+    body: { fill: COLORS.gate.fill, stroke: COLORS.gate.stroke, rx: 'calc(h / 2)', ry: 'calc(h / 2)' },
+    kindIcon: { stroke: COLORS.gate.text },
+    label: { fill: COLORS.gate.text }
+};
+
+/**
+ * The button that adds a sibling option to a decision, or a branch to a
+ * fork: at the right end of the pill, apart from the "add below" and
+ * "insert" buttons, which sit on the links.
+ */
+const ADD_BUTTON_ATTRS = {
+    [ADD_BUTTON_SELECTOR]: {
+        x: `calc(w - ${ADD_BUTTON_SIZE.width / 2})`,
+        y: `calc(h / 2 - ${ADD_BUTTON_SIZE.height / 2})`,
+        width: ADD_BUTTON_SIZE.width,
+        height: ADD_BUTTON_SIZE.height,
+        rx: 3,
+        ry: 3,
+        fill: COLORS.gate.fill,
+        stroke: COLORS.gate.text,
+        strokeWidth: 1.5,
+        cursor: 'pointer'
+    },
+    addIcon: {
+        d: PLUS_ICON,
+        transform: 'translate(calc(w), calc(h / 2))',
+        stroke: COLORS.gate.text,
+        strokeWidth: 2,
+        fill: 'none',
+        pointerEvents: 'none'
+    }
+};
+
+/** The collapse/expand button of a group, on the bottom edge of its start. Inverted colors, so that it stands out on the pill. */
+const TOGGLE_ATTRS = {
+    toggle: {
+        cx: 'calc(w / 2)',
+        cy: 'calc(h)',
+        r: TOGGLE_RADIUS,
+        fill: COLORS.gate.text,
+        stroke: COLORS.gate.fill,
+        strokeWidth: 1.5,
+        cursor: 'pointer',
+        event: TOGGLE_EVENT,
+        'data-tooltip': 'Collapse'
+    },
+    toggleIcon: {
+        d: COLLAPSE_ICON,
+        transform: 'translate(calc(w / 2), calc(h))',
+        stroke: COLORS.gate.fill,
+        strokeWidth: 2,
+        fill: 'none',
+        pointerEvents: 'none'
+    }
+};
+
+/** What every pill shares: the size of a node and the basic attributes; the type and the icon are the subclass's. */
+function pillDefaults(type: string, extra: object, superDefaults: object): object {
+    return util.defaultsDeep({ type, z: ELEMENT_Z, size: NODE_SIZE }, extra, { attrs: PILL_ATTRS }, superDefaults);
+}
+
+/** A step of the flow: a plain pill with a label, sized to it. */
+export class Step extends dia.Element {
 
     preinitialize() {
-        this.markup = nodeMarkup;
+        this.markup = pillMarkup;
     }
 
     defaults() {
-        return util.defaultsDeep({
-            type: 'tbg.Node',
-            z: ELEMENT_Z,
-            size: NODE_SIZE,
-            attrs: {
-                body: {
-                    width: 'calc(w)',
-                    height: 'calc(h)',
-                    rx: 4,
-                    ry: 4,
-                    strokeWidth: 1.5,
-                    stroke: COLORS.node.stroke,
-                    fill: COLORS.node.fill
-                },
-                label: {
-                    x: 'calc(w / 2)',
-                    y: 'calc(h / 2)',
-                    textAnchor: 'middle',
-                    textVerticalAnchor: 'middle',
-                    fontFamily: 'sans-serif',
-                    fontSize: 13,
-                    fill: COLORS.node.text
-                },
-                // The icon of the kind of a group; only its `start` shows it.
-                kindIcon: {
-                    display: 'none',
-                    transform: `translate(${KIND_ICON_X}, calc(h / 2))`,
-                    stroke: COLORS.gate.text,
-                    strokeWidth: 1.5,
-                    strokeLinecap: 'round',
-                    strokeLinejoin: 'round',
-                    fill: 'none',
-                    pointerEvents: 'none'
-                },
-                // The collapse/expand button; only the `start` of a group shows it.
-                // Inverted colors, so that it stands out on the pill.
-                toggle: {
-                    display: 'none',
-                    cx: 'calc(w / 2)',
-                    cy: 'calc(h)',
-                    r: TOGGLE_RADIUS,
-                    fill: COLORS.gate.text,
-                    stroke: COLORS.gate.fill,
-                    strokeWidth: 1.5,
-                    cursor: 'pointer',
-                    event: TOGGLE_EVENT,
-                    'data-tooltip': 'Collapse'
-                },
-                toggleIcon: {
-                    display: 'none',
-                    transform: 'translate(calc(w / 2), calc(h))',
-                    stroke: COLORS.gate.fill,
-                    strokeWidth: 2,
-                    fill: 'none',
-                    pointerEvents: 'none'
-                },
-                // The button that adds a sibling option to a `decision`, or a
-                // branch to a fork: at the right end of the pill, apart from the
-                // "add below" and "insert" buttons, which sit on the links.
-                [ADD_BUTTON_SELECTOR]: {
-                    display: 'none',
-                    x: `calc(w - ${ADD_BUTTON_SIZE.width / 2})`,
-                    y: `calc(h / 2 - ${ADD_BUTTON_SIZE.height / 2})`,
-                    width: ADD_BUTTON_SIZE.width,
-                    height: ADD_BUTTON_SIZE.height,
-                    rx: 3,
-                    ry: 3,
-                    fill: COLORS.gate.fill,
-                    stroke: COLORS.gate.text,
-                    strokeWidth: 1.5,
-                    cursor: 'pointer'
-                },
-                addIcon: {
-                    display: 'none',
-                    d: PLUS_ICON,
-                    transform: 'translate(calc(w), calc(h / 2))',
-                    stroke: COLORS.gate.text,
-                    strokeWidth: 2,
-                    fill: 'none',
-                    pointerEvents: 'none'
-                }
-            }
+        return pillDefaults('tbg.Step', { attrs: { kindIcon: { d: NODE_ICON }}}, super.defaults);
+    }
+
+    static create(label: string): Step {
+        const step = new Step();
+        setPillLabel(step, label, 'light');
+        return step;
+    }
+
+    static isStep(cell: dia.Cell): cell is Step {
+        return cell instanceof Step;
+    }
+}
+
+/**
+ * A decision: a node of the tree that branches out - without a merge,
+ * unlike a fork. A filled pill with a diamond and, at its right end, the
+ * button that adds an option (shown once it has one, see
+ * `setAddButtonVisible()`; with none it is a leaf with the usual add button
+ * below).
+ */
+export class Decision extends dia.Element {
+
+    preinitialize() {
+        this.markup = [...pillMarkup, ...addButtonMarkup];
+    }
+
+    defaults() {
+        return pillDefaults('tbg.Decision', {
+            attrs: util.defaultsDeep({
+                kindIcon: { d: DECISION_ICON },
+                [ADD_BUTTON_SELECTOR]: { 'data-tooltip': 'Add an option' }
+            }, FILLED_PILL_ATTRS, ADD_BUTTON_ATTRS)
         }, super.defaults);
     }
 
-    static create(label: string, role?: NodeRole): Node {
-        const node = new Node({ role });
-        node.attr('label/text', label);
-        if (role && role !== 'terminal') {
-            node.attr({
-                body: { fill: COLORS.gate.fill, stroke: COLORS.gate.stroke, rx: 'calc(h / 2)', ry: 'calc(h / 2)' },
-                label: { fill: COLORS.gate.text }
-            });
-        } else {
-            // A plain node (or a terminal): the step icon in the color of its border.
-            node.attr({
-                kindIcon: { display: null, d: NODE_ICON, stroke: COLORS.node.stroke },
-                label: { x: `calc(w / 2 + ${KIND_LABEL_OFFSET})` }
-            });
-        }
-        if (role === 'end') {
-            node.resize(END_SIZE.width, END_SIZE.height);
-            node.attr({ body: { display: 'none' }, label: { display: 'none' }});
-        }
-        return node;
+    static create(label: string = DECISION_LABEL): Decision {
+        const decision = new Decision();
+        setPillLabel(decision, label, 'dark');
+        return decision;
     }
 
-    /**
-     * The `start` of a group of the given kind: a pill labelled with the kind,
-     * with its icon next to the label and the collapse/expand button of the
-     * group on its bottom edge.
-     */
-    static createStart(kind: GroupKind): Node {
-        const node = Node.create(GROUP_LABELS[kind], 'start');
-        node.attr({
-            kindIcon: { display: null, d: GROUP_ICONS[kind] },
-            label: { x: `calc(w / 2 + ${KIND_LABEL_OFFSET})` },
-            toggle: { display: null },
-            toggleIcon: { display: null, d: COLLAPSE_ICON }
-        });
-        if (kind === 'fork') {
-            // A fork takes more branches: the button at its right end adds one.
-            node.attr([ADD_BUTTON_SELECTOR, 'data-tooltip'], 'Add a branch');
-            node.setAddButtonVisible(true);
-        }
-        return node;
-    }
-
-    /** Turns a node into a circle with its label inside and no icon: the start and the ends of the diagram. */
-    private makeCircle(stroke: string, strokeWidth: number): void {
-        this.resize(TERMINAL_SIZE.width, TERMINAL_SIZE.height);
-        this.attr({
-            body: { rx: 'calc(h / 2)', ry: 'calc(h / 2)', stroke, strokeWidth },
-            kindIcon: { display: 'none' },
-            label: { x: 'calc(w / 2)', fontSize: 12 }
-        });
-    }
-
-    /** The root of the diagram: a circle labelled `Start`, outlined in green. */
-    static createRoot(): Node {
-        const node = Node.create('Start');
-        node.makeCircle(COLORS.root, 1.5);
-        return node;
-    }
-
-    /** An end of the diagram: a circle labelled `End` with the thick ring of a terminal, that nothing can follow. */
-    static createTerminal(): Node {
-        const node = Node.create('End', 'terminal');
-        node.makeCircle(COLORS.terminal, 3);
-        return node;
-    }
-
-    /**
-     * A decision: a pill labelled `Decision` (or as given), with a diamond next to the label
-     * and, at its right end, the button that adds a sibling option (shown
-     * once it has a child, see `setAddButtonVisible()`).
-     */
-    static createDecision(label: string = DECISION_LABEL): Node {
-        const node = Node.create(label, 'decision');
-        node.attr({
-            kindIcon: { display: null, d: DECISION_ICON },
-            label: { x: `calc(w / 2 + ${KIND_LABEL_OFFSET})` },
-            [ADD_BUTTON_SELECTOR]: { 'data-tooltip': 'Add an option' }
-        });
-        return node;
-    }
-
-    /**
-     * Shows or hides the button at the right end of a pill that adds a sibling
-     * option to a `decision` or a branch to a fork. A decision shows it once
-     * it has a child; with none, it is a leaf with the usual add button below.
-     */
     setAddButtonVisible(visible: boolean): void {
         this.attr({
             [ADD_BUTTON_SELECTOR]: { display: visible ? null : 'none' },
@@ -288,34 +352,177 @@ export class Node extends dia.Element {
         });
     }
 
-    /** Flips the icon and the tooltip of the collapse/expand button of a `start` node. */
-    setCollapsedIcon(collapsed: boolean): void {
+    static isDecision(cell: dia.Cell): cell is Decision {
+        return cell instanceof Decision;
+    }
+}
+
+/**
+ * The start of a group: a filled pill labelled with the kind of the group,
+ * with the icon of the kind and the collapse/expand button of the group on
+ * its bottom edge. The start of a fork also carries, at its right end, the
+ * button that adds a branch - a fork may have any number of them; a loop
+ * has one body, so its start has no such button. When the group is
+ * collapsed the start stays visible in its place and stands in for it.
+ */
+export class GroupStart extends dia.Element {
+
+    preinitialize(attributes?: { kind?: GroupKind }) {
+        const markup = [...pillMarkup, ...toggleMarkup];
+        this.markup = attributes?.kind === 'fork' ? [...markup, ...addButtonMarkup] : markup;
+    }
+
+    defaults() {
+        return pillDefaults('tbg.GroupStart', {
+            kind: 'fork' satisfies GroupKind,
+            attrs: util.defaultsDeep({
+                [ADD_BUTTON_SELECTOR]: { 'data-tooltip': 'Add a branch' }
+            }, FILLED_PILL_ATTRS, TOGGLE_ATTRS, ADD_BUTTON_ATTRS)
+        }, super.defaults);
+    }
+
+    static create(kind: GroupKind): GroupStart {
+        const start = new GroupStart({ kind });
+        start.attr({
+            kindIcon: { d: GROUP_ICONS[kind] },
+            label: { text: GROUP_LABELS[kind] }
+        });
+        return start;
+    }
+
+    getKind(): GroupKind {
+        return this.get('kind');
+    }
+
+    /** Flips the icon and the tooltip of the collapse/expand button. */
+    setCollapsed(collapsed: boolean): void {
         this.attr({
             toggle: { 'data-tooltip': collapsed ? 'Expand' : 'Collapse' },
             toggleIcon: { d: collapsed ? EXPAND_ICON : COLLAPSE_ICON }
         });
     }
 
-    getRole(): NodeRole | undefined {
-        return this.get('role');
+    static isGroupStart(cell: dia.Cell): cell is GroupStart {
+        return cell instanceof GroupStart;
+    }
+}
+
+/**
+ * The end of a group: a point without size and without a picture. The paths
+ * of the group converge into it, and the tree continues from it.
+ */
+export class GroupEnd extends dia.Element {
+
+    preinitialize() {
+        this.markup = [];
     }
 
-    /** The start and the end of a group: the nodes the paths of the group run between. */
-    isGate(): boolean {
-        const role = this.getRole();
-        return role === 'start' || role === 'end';
+    defaults() {
+        return util.defaultsDeep({
+            type: 'tbg.GroupEnd',
+            z: ELEMENT_Z,
+            size: GROUP_END_SIZE
+        }, super.defaults);
     }
 
-    isDecision(): boolean {
-        return this.getRole() === 'decision';
+    static create(): GroupEnd {
+        return new GroupEnd();
     }
 
-    isTerminal(): boolean {
-        return this.getRole() === 'terminal';
+    /** The group the end closes. */
+    getGroup(): Group {
+        const group = this.getParentCell();
+        if (!group || !Group.isGroup(group)) throw new Error(`The end ${this.id} is not in a group.`);
+        return group;
     }
 
-    static isNode(cell: dia.Cell): cell is Node {
-        return cell instanceof Node;
+    static isGroupEnd(cell: dia.Cell): cell is GroupEnd {
+        return cell instanceof GroupEnd;
+    }
+}
+
+/** The gates of a group: the nodes the paths of the group run between. */
+export type Gate = GroupStart | GroupEnd;
+
+export function isGate(cell: dia.Cell): cell is Gate {
+    return cell instanceof GroupStart || cell instanceof GroupEnd;
+}
+
+/*
+    The terminals: the start and the ends of the diagram are circles with
+    their label inside.
+*/
+
+const terminalMarkup = util.svg/* xml */`
+    <circle @selector="body"/>
+    <text @selector="label"/>
+`;
+
+function terminalDefaults(type: string, label: string, stroke: string, strokeWidth: number, superDefaults: object): object {
+    return util.defaultsDeep({
+        type,
+        z: ELEMENT_Z,
+        size: TERMINAL_SIZE,
+        attrs: {
+            body: {
+                cx: 'calc(w / 2)',
+                cy: 'calc(h / 2)',
+                r: 'calc(w / 2)',
+                fill: COLORS.node.fill,
+                stroke,
+                strokeWidth
+            },
+            label: {
+                text: label,
+                x: 'calc(w / 2)',
+                y: 'calc(h / 2)',
+                textAnchor: 'middle',
+                textVerticalAnchor: 'middle',
+                fontFamily: 'sans-serif',
+                fontSize: 12,
+                fill: COLORS.node.text
+            }
+        }
+    }, superDefaults);
+}
+
+/** The start of the diagram, its root: a circle outlined in green. */
+export class Start extends dia.Element {
+
+    preinitialize() {
+        this.markup = terminalMarkup;
+    }
+
+    defaults() {
+        return terminalDefaults('tbg.Start', 'Start', COLORS.root, 1.5, super.defaults);
+    }
+
+    static create(): Start {
+        return new Start();
+    }
+
+    static isStart(cell: dia.Cell): cell is Start {
+        return cell instanceof Start;
+    }
+}
+
+/** An end of the diagram: a circle with the thick ring of a flowchart terminal, a leaf nothing can follow. */
+export class End extends dia.Element {
+
+    preinitialize() {
+        this.markup = terminalMarkup;
+    }
+
+    defaults() {
+        return terminalDefaults('tbg.End', 'End', COLORS.terminal, 3, super.defaults);
+    }
+
+    static create(): End {
+        return new End();
+    }
+
+    static isEnd(cell: dia.Cell): cell is End {
+        return cell instanceof End;
     }
 }
 
@@ -325,7 +532,7 @@ export class Node extends dia.Element {
  * it opens the add menu for the leaf. Every element without a successor has
  * one - a plain node, or a group nothing follows (its button hangs from its
  * `end`); it goes away as soon as the element gets a real child. The buttons
- * are maintained by `ensureAddButtons()` before every layout.
+ * are derived by the build (see `data/build.ts`).
  */
 export class AddButton extends dia.Element {
 
@@ -420,14 +627,10 @@ export class Group extends dia.Element {
         return Boolean(this.get('collapsed'));
     }
 
-    toggle(collapsed: boolean = !this.isCollapsed()): void {
-        if (collapsed === this.isCollapsed()) return;
-        this.set('collapsed', collapsed);
-        this.getStart().setCollapsedIcon(collapsed);
-    }
-
-    getStart(): Node {
-        return this.getGate('start');
+    getStart(): GroupStart {
+        const start = this.getEmbeddedCells().find(GroupStart.isGroupStart);
+        if (!start) throw new Error(`Group ${this.id} has no start.`);
+        return start;
     }
 
     /**
@@ -438,14 +641,10 @@ export class Group extends dia.Element {
         return this.isCollapsed() ? this.getBBox().center().x : this.getStart().getBBox().center().x;
     }
 
-    getEnd(): Node {
-        return this.getGate('end');
-    }
-
-    protected getGate(role: NodeRole): Node {
-        const gate = this.getEmbeddedCells().find((cell) => Node.isNode(cell) && cell.getRole() === role);
-        if (!gate) throw new Error(`Group ${this.id} has no ${role} node.`);
-        return gate as Node;
+    getEnd(): GroupEnd {
+        const end = this.getEmbeddedCells().find(GroupEnd.isGroupEnd);
+        if (!end) throw new Error(`Group ${this.id} has no end.`);
+        return end;
     }
 
     static isGroup(cell: dia.Cell): cell is Group {
@@ -556,8 +755,7 @@ export class Link extends dia.Link {
      */
     connectTo(target: dia.Element): void {
         this.target({ id: target.id });
-        const isEnd = Node.isNode(target) && target.getRole() === 'end';
-        if (isEnd || AddButton.isAddButton(target)) {
+        if (GroupEnd.isGroupEnd(target) || AddButton.isAddButton(target)) {
             this.removeAttr('line/targetMarker');
         } else {
             this.attr('line/targetMarker', TARGET_MARKER);
@@ -585,7 +783,7 @@ export class Link extends dia.Link {
 
     /** Whether a link from `source` to `target` is the return link of a loop: from its `end` back to its `start`. */
     static isReturnLink(source: dia.Element, target: dia.Element): boolean {
-        return Node.isNode(source) && source.getRole() === 'end' && Node.isNode(target) && target.getRole() === 'start';
+        return GroupEnd.isGroupEnd(source) && GroupStart.isGroupStart(target);
     }
 
     /**
@@ -609,5 +807,5 @@ export class Link extends dia.Link {
 }
 
 export const cellNamespace = {
-    tbg: { Node, Group, AddButton, Link }
+    tbg: { Step, Decision, Start, End, GroupStart, GroupEnd, Group, AddButton, Link }
 };

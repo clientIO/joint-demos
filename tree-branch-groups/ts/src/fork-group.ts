@@ -1,13 +1,13 @@
 import { g } from '@joint/plus';
 import type { dia } from '@joint/plus';
 
-import { Group, Link, Node } from './shapes';
+import type { Group } from './shapes';
 import { SINK_GAP, createTreeLayout, fitGroupToContent, joinLeavesInto } from './tree-layout';
 
 /**
  * A fork group: a fork/join. The children of the `start` node are the
  * branches, and every leaf of the branches converges into the `end` node.
- * A new fork is empty: `start` links straight to `end`.
+ * A new fork is empty: `start` links straight to `end` (see `build.ts`).
  *
  *          start
  *         /     \
@@ -15,23 +15,6 @@ import { SINK_GAP, createTreeLayout, fitGroupToContent, joinLeavesInto } from '.
  *         \     /
  *           end
  */
-
-/**
- * Adds an empty fork group to the graph: a `start` node linked straight to
- * an `end` node. Branches are added with the button on the `start`, or by
- * inserting into that link. The content is embedded in the group.
- */
-export function createForkGroup(graph: dia.Graph): Group {
-    const group = Group.create('fork');
-    const start = Node.createStart('fork');
-    const end = Node.create('End', 'end');
-    const link = Link.create(start, end);
-
-    graph.addCells([group, start, end, link]);
-    group.embed([start, end, link]);
-
-    return group;
-}
 
 /**
  * Lays out the content of an expanded fork group: the tree that grows from

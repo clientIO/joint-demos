@@ -13,6 +13,104 @@ body {
     overflow: hidden;
 }
 
+/* The toolbar above; below it the paper, filling the rest, and the inspector on the right. */
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.main {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+.paper {
+    flex: 1;
+    min-width: 0;
+}
+
+/*
+    The inspector panel: a header with the kind of the selected element and,
+    below it, the fields of a `ui.Inspector` on its data - or a line of text:
+    the hint with nothing selected, a note for an element with nothing to
+    edit.
+*/
+.inspector {
+    /* The theme places the inspector absolutely: it fills the panel. */
+    position: relative;
+    width: 260px;
+    flex-shrink: 0;
+    border-left: 1px solid #DCE2F5;
+    background: #FFFFFF;
+    font-family: sans-serif;
+    font-size: 13px;
+    color: #222222;
+    overflow-y: auto;
+}
+
+.inspector .title {
+    padding: 18px 16px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6A6A75;
+}
+
+.inspector .message {
+    padding: 18px 16px;
+    color: #6A6A75;
+}
+
+.inspector .title + .message {
+    padding-top: 4px;
+}
+
+.inspector .joint-inspector {
+    position: static;
+    padding: 0;
+    border: none;
+    background: none;
+}
+
+.inspector .joint-inspector .field {
+    margin: 0;
+    padding: 4px 16px 12px;
+}
+
+.inspector .joint-inspector .field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: #222222;
+}
+
+.inspector .joint-inspector .field input[type="text"],
+.inspector .joint-inspector .field textarea {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid #DCE2F5;
+    border-radius: 6px;
+    background: #FFFFFF;
+    font: inherit;
+    color: inherit;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.inspector .joint-inspector .field textarea {
+    min-height: 64px;
+    resize: vertical;
+}
+
+.inspector .joint-inspector .field input[type="text"]:focus,
+.inspector .joint-inspector .field textarea:focus {
+    border-color: #4666E5;
+    box-shadow: 0 0 0 2px #E8EDFF;
+}
+
 /* The scroller shows through around a paper smaller than the view: the same color as the paper. */
 .paper,
 .joint-paper-scroller {
@@ -22,8 +120,82 @@ body {
 }
 
 /*
+    The toolbar: undo, redo and the zoom, built-in widgets of `ui.Toolbar`
+    drawn with the icons of this demo instead of the text of the default
+    theme - a stroke glyph as a mask over the color of the button, in the
+    blue of the nodes; a disabled button fades.
+*/
+.toolbar .joint-toolbar {
+    height: 44px;
+    padding: 0 10px;
+    gap: 4px;
+    border: none;
+    border-bottom: 1px solid #DCE2F5;
+    background: #FFFFFF;
+    box-sizing: border-box;
+}
+
+.toolbar .joint-widget[data-type="separator"] {
+    width: 1px;
+    height: 20px;
+    margin: 0 6px;
+    background: #DCE2F5;
+}
+
+.toolbar button.joint-widget {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: #4666E5;
+    cursor: pointer;
+    transition: background-color 100ms ease-out, opacity 100ms ease-out;
+}
+
+.toolbar button.joint-widget:hover:not(:disabled) {
+    background: #E8EDFF;
+}
+
+.toolbar button.joint-widget:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.toolbar button.joint-widget::after {
+    display: block;
+    width: 28px;
+    height: 28px;
+    content: '';
+    background: currentColor;
+    mask: var(--icon) center / 18px 18px no-repeat;
+    -webkit-mask: var(--icon) center / 18px 18px no-repeat;
+}
+
+.toolbar .joint-widget[data-type="undo"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -7 -2 L -3 -6 M -7 -2 L -3 2 M -7 -2 H 2 A 4.5 4.5 0 0 1 2 7 H -2' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+.toolbar .joint-widget[data-type="redo"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M 7 -2 L 3 -6 M 7 -2 L 3 2 M 7 -2 H -2 A 4.5 4.5 0 0 0 -2 7 H 2' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+.toolbar .joint-widget[data-type="zoomIn"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -1.5 -1.5 m -5.5 0 a 5.5 5.5 0 1 0 11 0 a 5.5 5.5 0 1 0 -11 0 M 2.5 2.5 L 7 7 M -4 -1.5 H 1 M -1.5 -4 V 1' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+.toolbar .joint-widget[data-type="zoomOut"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -1.5 -1.5 m -5.5 0 a 5.5 5.5 0 1 0 11 0 a 5.5 5.5 0 1 0 -11 0 M 2.5 2.5 L 7 7 M -4 -1.5 H 1' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+.toolbar .joint-widget[data-type="zoomToFit"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -7 -3 V -7 H -3 M 3 -7 H 7 V -3 M 7 3 V 7 H 3 M -3 7 H -7 V 3 M -3 -3 H 3 V 3 H -3 Z' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+/*
     The buttons: the collapse/expand button and the add button on a pill, the
-    add button below a leaf, the insert button of a link and the delete tool.
+    add button below a leaf, the insert button of a link and the "more" tool.
     A stylesheet rule wins over the presentation attribute set by the shape,
     so the hover state does not depend on the views. The same feedback
     everywhere: a blue button darkens, the red one darkens too, the white one
@@ -46,16 +218,22 @@ body {
     fill: #3552C4;
 }
 
-.joint-tool .button.delete:hover {
-    fill: #C8324F;
+/* The "more" button: a transparent disc that tints on hover, on a light pill and on a filled one. */
+.joint-tool .button.menu:hover {
+    fill: rgba(70, 102, 229, 0.12);
+}
+
+.joint-type-tbg-decision .joint-tool .button.menu:hover,
+.joint-type-tbg-groupstart .joint-tool .button.menu:hover {
+    fill: rgba(255, 255, 255, 0.25);
 }
 
 /*
-    The add menu: a context toolbar of JointJS+, restyled as a small panel
-    with an icon and a label per item. The `data-type` comes from the
-    `type` option of the toolbar.
+    The menus - the add menu, the menu of an element: a context toolbar of
+    JointJS+, restyled as a small panel with an icon and a label per item.
+    The `data-type` comes from the `type` option of the toolbar.
 */
-.joint-context-toolbar[data-type="add-menu"] .tools {
+.joint-context-toolbar[data-type="menu"] .tools {
     padding: 4px;
     border: 1px solid #DCE2F5;
     border-radius: 8px;
@@ -63,7 +241,7 @@ body {
     box-shadow: 0 6px 20px rgba(34, 34, 34, 0.12);
 }
 
-.joint-context-toolbar[data-type="add-menu"] .tool {
+.joint-context-toolbar[data-type="menu"] .tool {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -81,15 +259,15 @@ body {
     transition: background-color 100ms ease-out;
 }
 
-.joint-context-toolbar[data-type="add-menu"] .tool:hover {
+.joint-context-toolbar[data-type="menu"] .tool:hover {
     background-color: #EEF2FF;
 }
 
-.joint-context-toolbar[data-type="add-menu"] .tool:active {
+.joint-context-toolbar[data-type="menu"] .tool:active {
     background-color: #DCE2F5;
 }
 
-.joint-context-toolbar[data-type="add-menu"] .tool svg {
+.joint-context-toolbar[data-type="menu"] .tool svg {
     flex: none;
     pointer-events: none;
 }

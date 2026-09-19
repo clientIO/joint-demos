@@ -1,7 +1,7 @@
 import { layout } from '@joint/plus';
 import type { dia, g } from '@joint/plus';
 
-import { GROUP_PADDING, Group, Node, PARENT_GAP, SIBLING_GAP } from './shapes';
+import { GROUP_PADDING, Group, PARENT_GAP, SIBLING_GAP, isGate } from './shapes';
 
 /**
  * Where the horizontal bar of a fork or a join lies: a third of the gap away
@@ -57,12 +57,6 @@ export function createTreeLayout(graph: dia.Graph, options: Partial<layout.TreeL
             const source = link.getSourceElement();
             const target = link.getTargetElement();
             if (!source || !target) return;
-            const sourceX = getAxisX(source);
-            const targetX = getAxisX(target);
-            if (sourceX === targetX) {
-                link.vertices([], opt);
-                return;
-            }
             // The bar is a third of the gap away from the parent: the part of
             // the link the children share is short, the part of its own
             // (where its insert button sits) is long - and longer still for a
@@ -71,7 +65,7 @@ export function createTreeLayout(graph: dia.Graph, options: Partial<layout.TreeL
             const barY = direction === 'T'
                 ? sourceBBox.y - BAR_OFFSET_FROM_SHARED
                 : sourceBBox.corner().y + BAR_OFFSET_FROM_SHARED;
-            link.vertices([{ x: sourceX, y: barY }, { x: targetX, y: barY }], opt);
+            link.vertices(getBarVertices(graph, source, target, barY), opt);
         },
         ...options
     });
@@ -93,20 +87,44 @@ export function fitGroupToContent(group: Group, content: g.Rect): void {
 }
 
 /**
+ * The vertices of a link from `source` to `target` over a bar at `barY`:
+ * the two corners of the bar. A link that runs straight, the two axes being
+ * one, has none - unless the source has other children too, when it still
+ * has the stretch above the bar in common with them: then a single vertex
+ * on the bar level marks where its own part begins, so that its insert
+ * button lines up with those of its siblings.
+ */
+function getBarVertices(graph: dia.Graph, source: dia.Element, target: dia.Element, barY: number): dia.Point[] {
+    const sourceX = getAxisX(source);
+    const targetX = getAxisX(target);
+    if (sourceX !== targetX) return [{ x: sourceX, y: barY }, { x: targetX, y: barY }];
+    const siblings = graph.getNeighbors(source, { outbound: true }).filter((child) => !isGate(child));
+    return siblings.length > 1 ? [{ x: sourceX, y: barY }] : [];
+}
+
+/**
  * Routes the links from the leaves of a tree into the gate they converge
  * into, placed below the tree: a horizontal bar a third of the gap above the
  * gate, like the one the tree layout draws below a parent, mirrored. A leaf right above
  * the gate connects straight. Links from the other gate are left alone.
  */
-export function joinLeavesInto(graph: dia.Graph, gate: Node): void {
+export function joinLeavesInto(graph: dia.Graph, gate: dia.Element): void {
     const gateBBox = gate.getBBox();
     const gateX = gateBBox.center().x;
     const barY = gateBBox.y - BAR_OFFSET_FROM_SHARED;
+    const leaves = graph.getConnectedLinks(gate, { inbound: true })
+        .map((link) => link.getSourceElement())
+        .filter((leaf): leaf is dia.Element => leaf !== null && !isGate(leaf));
     for (const link of graph.getConnectedLinks(gate, { inbound: true })) {
         const leaf = link.getSourceElement();
-        if (!leaf || (Node.isNode(leaf) && leaf.isGate())) continue;
+        if (!leaf || isGate(leaf)) continue;
         const leafX = getAxisX(leaf);
-        link.vertices(leafX === gateX ? [] : [{ x: leafX, y: barY }, { x: gateX, y: barY }]);
+        if (leafX !== gateX) {
+            link.vertices([{ x: leafX, y: barY }, { x: gateX, y: barY }]);
+        } else {
+            // Straight, but with the stretch below the bar in common with the other leaves.
+            link.vertices(leaves.length > 1 ? [{ x: gateX, y: barY }] : []);
+        }
     }
 }
 
@@ -116,14 +134,12 @@ export function joinLeavesInto(graph: dia.Graph, gate: Node): void {
  * the one the tree layout draws below a parent. A root right below the gate connects
  * straight. Links to the other gate are left alone.
  */
-export function forkChildrenFrom(graph: dia.Graph, gate: Node): void {
+export function forkChildrenFrom(graph: dia.Graph, gate: dia.Element): void {
     const gateBBox = gate.getBBox();
-    const gateX = gateBBox.center().x;
     const barY = gateBBox.corner().y + BAR_OFFSET_FROM_SHARED;
     for (const link of graph.getConnectedLinks(gate, { outbound: true })) {
         const child = link.getTargetElement();
-        if (!child || (Node.isNode(child) && child.isGate())) continue;
-        const childX = getAxisX(child);
-        link.vertices(childX === gateX ? [] : [{ x: gateX, y: barY }, { x: childX, y: barY }]);
+        if (!child || isGate(child)) continue;
+        link.vertices(getBarVertices(graph, gate, child, barY));
     }
 }

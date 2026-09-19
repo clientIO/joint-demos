@@ -1,11 +1,14 @@
-import { dia, ui } from '@joint/plus';
+import { dia, highlighters, ui } from '@joint/plus';
 
-import { addBelow, addChild, deleteElement, ensureAddButtons, insertGroup, insertOnLink, nameOption } from './actions';
+import { addBelow, canDelete, deleteElement, insertOnLink, toggleGroup } from './actions';
+import { buildGraph } from './data/build';
+import { DiagramData } from './data/DiagramData';
 import { gateAnchor } from './gate-anchor';
+import { isSelectable, syncInspector } from './inspector';
 import { isCellVisible, runLayout } from './layout';
-import { COLORS, Node, cellNamespace } from './shapes';
-import type { Link } from './shapes';
-import { addHoverTools, addTooltips, placeLinkTools } from './tools';
+import { pipeline } from './pipeline';
+import { COLORS, cellNamespace } from './shapes';
+import { addHoverTools, addTooltips, getDeleteTarget, placeLinkTools } from './tools';
 import type { ToolActions } from './tools';
 
 const PAPER_PADDING = 40;
@@ -13,6 +16,14 @@ const MIN_ZOOM = 0.2;
 const MAX_ZOOM = 3;
 
 export function init(): void {
+
+    // The data is the source of truth; the graph is built from it (see
+    // `data/build.ts`) and laid out, after every edit. The command manager
+    // records the edits on the data: undo and redo set it back and the
+    // graph follows.
+    const data = new DiagramData();
+    data.fromJSON(pipeline);
+    const history = new dia.CommandManager({ model: data });
 
     const graph = new dia.Graph({}, { cellNamespace });
 
@@ -63,26 +74,28 @@ export function init(): void {
         scroller.zoom(scroller.zoom() * scale, { min: MIN_ZOOM, max: MAX_ZOOM, ox: x, oy: y, absolute: true });
     });
 
-    const root = Node.createRoot();
-    graph.addCell(root);
-    createInitialDiagram(graph, root);
-
     /**
-     * Lays the diagram out again and re-renders it. The view is fitted to the
-     * content once, at the start; an edit, a collapse or an expansion keeps
-     * the zoom and the scroll position the user has.
+     * Builds the graph from the data, lays it out and renders it. The view
+     * is fitted to the content once, at the start; an edit, a collapse or an
+     * expansion keeps the zoom and the scroll position the user has.
      */
     function refresh({ fit = false } = {}): void {
+        // The tools of the previous build go first - some sit on views about
+        // to be removed; the hover tools come back on hover.
+        paper.removeTools();
         paper.freeze();
-        ensureAddButtons(graph);
-        const bbox = runLayout(graph, root);
+        buildGraph(graph, data.getData());
+        const bbox = runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
         paper.unfreeze();
         paper.updateCellsVisibility();
-        // The routes are known once rendered: the insert buttons and the option
-        // names are placed in a second, cheap pass. The tools of the previous
-        // layout go first - hover tools included, they come back on hover.
-        paper.removeTools();
+        // The routes are known once rendered: the insert buttons and the
+        // option names are placed in a second, cheap pass.
         placeLinkTools(paper, actions);
+        // A selected element that the edit removed, or hid, leaves the selection.
+        const kept = selection.collection.filter((cell) => graph.getCell(cell.id) === cell && isCellVisible(cell));
+        if (kept.length < selection.collection.length) selection.collection.reset(kept);
+        // The inspector follows the data: an option added to the selected decision gets its input.
+        updateInspector();
         if (!fit || !bbox) return;
         scroller.zoomToFit({
             contentArea: bbox,
@@ -94,64 +107,84 @@ export function init(): void {
         scroller.centerContent({ useModelGeometry: true });
     }
 
+    // Every edit, undone or redone step lands on the history as one command.
+    history.on('stack:push stack:undo stack:redo', () => refresh());
+
+    // One element at a time can be selected, by a click; a click on the blank
+    // area or `Escape` clears the selection. The selected element is outlined
+    // - by a frame in the layer below the cells, behind the links and the
+    // buttons that hang off the element - and inspected in the panel on the right.
+    const selection = new ui.Selection({
+        paper,
+        useModelGeometry: true,
+        handles: [],
+        wrapper: false,
+        boxContent: false,
+        allowTranslate: false,
+        allowCellInteraction: true,
+        frames: new ui.HighlighterSelectionFrameList({
+            highlighter: highlighters.stroke,
+            selector: 'body',
+            options: { layer: dia.Paper.Layers.BACK, padding: 5, rx: 9, ry: 9, attrs: { stroke: COLORS.selection, 'stroke-width': 1.5 }}
+        })
+    });
+    const inspectorEl = document.getElementById('inspector')!;
+    function updateInspector(): void {
+        const selected = selection.collection.at(0);
+        syncInspector(inspectorEl, data, selected && isSelectable(selected) ? selected : null);
+    }
+    selection.collection.on('reset add remove', updateInspector);
+    updateInspector();
+    paper.on('element:pointerclick', (elementView: dia.ElementView) => {
+        if (isSelectable(elementView.model)) selection.collection.reset([elementView.model]);
+    });
+    paper.on('blank:pointerclick', () => selection.collection.reset([]));
+
     const actions: ToolActions = {
-        addBelow: (element, choice) => {
-            addBelow(graph, element, choice);
-            refresh();
-        },
-        delete: (element) => {
-            // The tools live on the hovered view, which is about to be removed.
-            paper.removeTools();
-            deleteElement(graph, element);
-            refresh();
-        },
-        insertOnLink: (link, choice) => {
-            paper.removeTools();
-            insertOnLink(graph, link, choice);
-            refresh();
-        },
-        toggleGroup: (group) => {
-            group.toggle();
-            refresh();
-        }
+        addBelow: (element, choice) => addBelow(data, element, choice),
+        insertOnLink: (link, choice) => insertOnLink(data, link, choice),
+        delete: (element) => deleteElement(graph, data, element),
+        toggleGroup: (group) => toggleGroup(data, group)
     };
     addHoverTools(paper, actions);
-    addTooltips(paper);
+    addTooltips(document.body);
+
+    // The toolbar: undo and redo, driven by the history and disabled when
+    // there is nothing to undo or redo; the zoom, driven by the scroller.
+    const toolbar = new ui.Toolbar({
+        autoToggle: true,
+        references: { commandManager: history, paperScroller: scroller },
+        tools: [
+            { type: 'undo', attrs: { button: { 'data-tooltip': 'Undo (Ctrl+Z)' }}},
+            { type: 'redo', attrs: { button: { 'data-tooltip': 'Redo (Ctrl+Shift+Z)' }}},
+            { type: 'separator' },
+            { type: 'zoomOut', min: MIN_ZOOM, max: MAX_ZOOM, attrs: { button: { 'data-tooltip': 'Zoom out' }}},
+            { type: 'zoomIn', min: MIN_ZOOM, max: MAX_ZOOM, attrs: { button: { 'data-tooltip': 'Zoom in' }}},
+            { type: 'zoomToFit', min: MIN_ZOOM, max: 1, step: 0.01, padding: PAPER_PADDING, useModelGeometry: true, attrs: { button: { 'data-tooltip': 'Zoom to fit' }}}
+        ]
+    });
+    document.getElementById('toolbar')!.appendChild(toolbar.el);
+    toolbar.render();
+
+    const keyboard = new ui.Keyboard();
+    keyboard.on('ctrl+z command+z', (evt: dia.Event) => {
+        evt.preventDefault();
+        history.undo();
+    });
+    keyboard.on('ctrl+shift+z command+shift+z ctrl+y', (evt: dia.Event) => {
+        evt.preventDefault();
+        history.redo();
+    });
+    keyboard.on('escape', () => selection.collection.reset([]));
+    // `Delete` on the selected element does what its delete tool does: the
+    // start of a group deletes the group; what cannot be deleted stays.
+    keyboard.on('delete backspace', (evt: dia.Event) => {
+        const selected = selection.collection.at(0);
+        if (!selected) return;
+        evt.preventDefault();
+        const target = getDeleteTarget(selected);
+        if (target && canDelete(graph, target)) actions.delete(target);
+    });
 
     refresh({ fit: true });
-}
-
-/**
- * A CI/CD pipeline. After the checkout and the install, a fork runs the lint,
- * the tests and the build side by side; a decision picks the target: staging,
- * where a loop polls the smoke tests before the build is promoted, production,
- * or no deployment at all. Groups are created empty, so the seed fills them
- * the way a user would.
- */
-function createInitialDiagram(graph: dia.Graph, root: dia.Element): void {
-    const checkout = addChild(graph, root, 'Checkout');
-    const install = addChild(graph, checkout, 'Install dependencies');
-
-    const jobs = insertGroup(graph, install, 'fork');
-    addChild(graph, jobs.getStart(), 'Lint');
-    addChild(graph, jobs.getStart(), 'Unit tests');
-    addChild(graph, jobs.getStart(), 'Build');
-
-    const target = addBelow(graph, jobs, 'decision', 'Target');
-
-    const staging = addChild(graph, target, 'Deploy to staging');
-    nameOption(staging, 'Staging');
-    const poll = insertGroup(graph, staging, 'loop');
-    const [firstLink] = graph.getConnectedLinks(poll.getStart(), { outbound: true }) as Link[];
-    const smokeTests = insertOnLink(graph, firstLink, 'node', 'Run smoke tests');
-    addChild(graph, smokeTests, 'Collect results');
-    addBelow(graph, addChild(graph, poll, 'Promote build'), 'end');
-
-    const production = addChild(graph, target, 'Deploy to production');
-    nameOption(production, 'Production');
-    addBelow(graph, addChild(graph, production, 'Notify team'), 'end');
-
-    const skip = addChild(graph, target, 'Skip deployment');
-    nameOption(skip, 'Skip');
-    addBelow(graph, skip, 'end');
 }

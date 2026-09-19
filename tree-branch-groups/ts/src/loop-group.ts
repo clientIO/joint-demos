@@ -1,7 +1,8 @@
 import { g } from '@joint/plus';
 import type { dia } from '@joint/plus';
 
-import { Group, INSERT_BUTTON_FROM_TARGET, Link, Node, PARENT_GAP } from './shapes';
+import { INSERT_BUTTON_FROM_TARGET, Link, PARENT_GAP, isGate } from './shapes';
+import type { Group } from './shapes';
 import { createTreeLayout, fitGroupToContent, forkChildrenFrom, getAxisX } from './tree-layout';
 
 /**
@@ -9,7 +10,7 @@ import { createTreeLayout, fitGroupToContent, forkChildrenFrom, getAxisX } from 
  * down on the right; its leaves converge into the `end` node, and `end` links
  * straight back to `start` - the return path, a single dashed link that runs
  * up the left side of the group. A new loop is empty: `start` links straight
- * to `end`, and the tree grows by insertions into that link.
+ * to `end` (see `build.ts`), and the tree grows by insertions into that link.
  *
  *        ┌──▶ start
  *        ┆      ├─────┐
@@ -53,23 +54,6 @@ const RETURN_ARROW_BELOW_START = RETURN_DROP_BELOW_START + 12;
 export const LOOP_START_ROOM = 40;
 const LOOP_JOIN_GAP = PARENT_GAP + LOOP_START_ROOM - RETURN_DROP_BELOW_START - RETURN_DROP_BELOW_END;
 
-/**
- * Adds an empty loop group to the graph: a `start` node linked straight to
- * an `end` node, and the return link from `end` back to `start`. Nodes are
- * inserted into the first link. The content is embedded in the group.
- */
-export function createLoopGroup(graph: dia.Graph): Group {
-    const group = Group.create('loop');
-    const start = Node.createStart('loop');
-    const end = Node.create('End', 'end');
-    const links = [Link.create(start, end), Link.create(end, start)];
-
-    graph.addCells([group, start, end, ...links]);
-    group.embed([start, end, ...links]);
-
-    return group;
-}
-
 /** The link from `end` straight back to `start`: the return path. */
 function getReturnLink(graph: dia.Graph, group: Group): Link | undefined {
     const start = group.getStart();
@@ -92,11 +76,11 @@ function collectTree(graph: dia.Graph, roots: dia.Element[]): Tree {
     const links: dia.Link[] = [];
     for (const root of roots) {
         graph.search(root, (element) => {
-            if (Node.isNode(element) && element.isGate()) return false;
+            if (isGate(element)) return false;
             elements.push(element);
             for (const link of graph.getConnectedLinks(element, { outbound: true })) {
                 const child = link.getTargetElement();
-                if (child && !(Node.isNode(child) && child.isGate())) links.push(link);
+                if (child && !isGate(child)) links.push(link);
             }
             return true;
         }, { outbound: true, breadthFirst: true });
@@ -125,7 +109,7 @@ function collectTree(graph: dia.Graph, roots: dia.Element[]): Tree {
 export function layoutLoopGroup(graph: dia.Graph, group: Group): void {
     const start = group.getStart();
     const end = group.getEnd();
-    const roots = graph.getNeighbors(start, { outbound: true }).filter((child) => !(Node.isNode(child) && child.isGate()));
+    const roots = graph.getNeighbors(start, { outbound: true }).filter((child) => !isGate(child));
 
     const startBBox = start.getBBox();
     const axisX = startBBox.center().x;
@@ -162,7 +146,7 @@ export function layoutLoopGroup(graph: dia.Graph, group: Group): void {
     const endCenterY = endBBoxNow.center().y;
     for (const link of graph.getConnectedLinks(end, { inbound: true })) {
         const leaf = link.getSourceElement();
-        if (!leaf || (Node.isNode(leaf) && leaf.isGate())) continue;
+        if (!leaf || isGate(leaf)) continue;
         const leafX = getAxisX(leaf);
         link.vertices(leafX === endX ? [] : [{ x: leafX, y: endCenterY }]);
     }
