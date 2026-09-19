@@ -6,9 +6,9 @@ import { openAddMenu, openMenu } from './menu';
 import type { AddChoice } from './menu';
 import { ADD_BUTTON_SELECTOR, AddButton, BRANCH_LABEL_OFFSET_ALONG, COLORS, Decision, End, Group, GroupEnd, GroupStart, INSERT_BUTTON_FROM_TARGET, Link, TOGGLE_EVENT } from './shapes';
 
-/** The insert buttons are squares, so that they differ from the round toggle and "more" buttons. */
-const ADD_FILL = '#4666E5';
-const BUTTON_STROKE = '#FFFFFF';
+/** The insert buttons are squares, so that they differ from the round toggle and "more" buttons: blue, marked in white like every add button. */
+const ADD_FILL = COLORS.button.fill;
+const ADD_STROKE = COLORS.button.text;
 const ADD_ICON = 'M -4 0 4 0 M 0 -4 0 4';
 const INSERT_BUTTON_SIZE = 18;
 /** The "remove" item of the menu of an element: a cross, in red. */
@@ -36,21 +36,19 @@ export interface ToolActions {
 
 /** The "move to" item of the menu of an element: an arrow out and down, in the blue of the nodes. */
 const MOVE_ICON = 'M -6 -6 V 6 H 6 M 6 6 L 2 2 M 6 6 L 2 10';
-/** The drop point of a move: a chevron down, on the same square as the insert button. */
-const DROP_ICON = 'M -4 -1 0 3 4 -1';
 
-/** The markup of the square button of a link: a plus to insert, a chevron to drop; named by its tooltip (see `addTooltips()`). */
-function createInsertButtonMarkup(title: string, icon: string): dia.MarkupJSON {
+/** The markup of the square button of a link: a plus, named by its tooltip (see `addTooltips()`). */
+function createInsertButtonMarkup(title: string): dia.MarkupJSON {
     const half = INSERT_BUTTON_SIZE / 2;
     // The class picks the hover color in the stylesheet.
     return util.svg/* xml */`
-        <rect @selector="body" class="button add" x="${-half}" y="${-half}" width="${INSERT_BUTTON_SIZE}" height="${INSERT_BUTTON_SIZE}" rx="3" ry="3" fill="${ADD_FILL}" stroke="${BUTTON_STROKE}" stroke-width="1.5" cursor="pointer" data-tooltip="${title}"/>
-        <path d="${icon}" fill="none" stroke="${BUTTON_STROKE}" stroke-width="2" pointer-events="none"/>
+        <rect @selector="body" class="button add" x="${-half}" y="${-half}" width="${INSERT_BUTTON_SIZE}" height="${INSERT_BUTTON_SIZE}" rx="3" ry="3" fill="${ADD_FILL}" stroke="${ADD_STROKE}" stroke-width="1.5" cursor="pointer" data-tooltip="${title}"/>
+        <path d="${ADD_ICON}" fill="none" stroke="${ADD_STROKE}" stroke-width="2" pointer-events="none"/>
     `;
 }
 
-/** What can be inserted anywhere: a node, a decision, a fork, a loop. */
-const INSERT_CHOICES: AddChoice[] = ['node', 'decision', 'fork', 'loop'];
+/** What can be inserted anywhere: a step, a decision, a fork, a loop. */
+const INSERT_CHOICES: AddChoice[] = ['step', 'decision', 'fork', 'loop'];
 
 /** What can be added below `parent`: everything, and an end of the diagram outside of a group. */
 function getAddChoices(parent: dia.Element): AddChoice[] {
@@ -100,12 +98,12 @@ export function getActionTarget(element: dia.Element): dia.Element | null {
     return element;
 }
 
-/** The item of the menu that removes `target`: "Remove" and what it is - a loop, a fork, a decision, an end, a node. */
+/** The item of the menu that removes `target`: "Remove" and what it is - a loop, a fork, a decision, an end, a step. */
 function getDeleteTitle(target: dia.Element): string {
     if (Group.isGroup(target)) return `Remove the ${target.getKind()}`;
     if (Decision.isDecision(target)) return 'Remove the decision';
     if (End.isEnd(target)) return 'Remove the end';
-    return 'Remove the node';
+    return 'Remove the step';
 }
 
 /** The id of the highlighter, and the class it adds, on the cells a hovered "remove" item would remove. */
@@ -199,14 +197,15 @@ function createHoverTools(paper: dia.Paper, element: dia.Element, actions: ToolA
 
 /**
  * The button of a link, a `linkTools.Button` at `distance` along it: a
- * square plus that inserts - or, while a move is on, a chevron that drops
- * the moved subtree into the link.
+ * square plus that inserts - or, while a move is on, drops the moved
+ * subtree into the link. The same plus as every other drop point; only
+ * the tooltip tells.
  */
 function createInsertTool(link: Link, distance: number, actions: ToolActions): dia.ToolView {
     const moving = actions.getMoved() !== null;
     return new linkTools.Button({
         distance,
-        markup: moving ? createInsertButtonMarkup('Move here', DROP_ICON) : createInsertButtonMarkup('Insert here', ADD_ICON),
+        markup: createInsertButtonMarkup(moving ? 'Move here' : 'Insert here'),
         action: (_evt, _view, tool) => {
             if (moving) {
                 actions.dropOnLink(link);

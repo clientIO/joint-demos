@@ -134,7 +134,7 @@ body {
 
 .inspector .yaml .hljs-number,
 .inspector .yaml .hljs-literal {
-    color: #2E9E5B;
+    color: #3C9A7A;
 }
 
 .inspector .yaml .hljs-comment {
@@ -144,21 +144,27 @@ body {
 
 .inspector .joint-inspector {
     position: static;
-    padding: 0;
+    padding: 0 0 16px;
     border: none;
     background: none;
 }
 
+/* A field: a small muted label over its input; the theme's trailing colon goes. */
 .inspector .joint-inspector .field {
     margin: 0;
-    padding: 4px 16px 12px;
+    padding: 6px 16px 10px;
 }
 
 .inspector .joint-inspector .field label {
     display: block;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
     font-size: 12px;
-    color: #222222;
+    font-weight: 500;
+    color: #6A6A75;
+}
+
+.inspector .joint-inspector .field label::after {
+    content: none;
 }
 
 .inspector .joint-inspector .field input[type="text"],
@@ -167,22 +173,67 @@ body {
     padding: 7px 10px;
     border: 1px solid #DCE2F5;
     border-radius: 6px;
-    background: #FFFFFF;
+    background: #FAFBFD;
     font: inherit;
+    line-height: 1.4;
     color: inherit;
     box-sizing: border-box;
     outline: none;
+    transition: border-color 100ms ease-out, background-color 100ms ease-out, box-shadow 100ms ease-out;
 }
 
 .inspector .joint-inspector .field textarea {
-    min-height: 64px;
+    min-height: 56px;
     resize: vertical;
+}
+
+.inspector .joint-inspector .field input[type="text"]:hover,
+.inspector .joint-inspector .field textarea:hover {
+    border-color: #B9C4F0;
 }
 
 .inspector .joint-inspector .field input[type="text"]:focus,
 .inspector .joint-inspector .field textarea:focus {
     border-color: #4666E5;
-    box-shadow: 0 0 0 2px #E8EDFF;
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px #E8EDFF;
+}
+
+/* The command a step runs: code, as on the pill. */
+.inspector .joint-inspector .field[data-field$="/run"] input {
+    font-family: Menlo, Consolas, monospace;
+    font-size: 12px;
+}
+
+/*
+    The options of a decision, the branches of a fork: their name fields
+    follow the fields of the node, under a heading of their own - the first
+    of them carries it, keyed by the path of its field.
+*/
+.inspector .joint-inspector .field[data-field$="/to/0/name"],
+.inspector .joint-inspector .field[data-field$="/branches/0/name"] {
+    margin: 10px 16px 0;
+    padding: 16px 0 10px;
+    border-top: 1px solid #EEF1F8;
+}
+
+.inspector .joint-inspector .field[data-field$="/to/0/name"]::before,
+.inspector .joint-inspector .field[data-field$="/branches/0/name"]::before {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6A6A75;
+}
+
+.inspector .joint-inspector .field[data-field$="/to/0/name"]::before {
+    content: 'Options';
+}
+
+.inspector .joint-inspector .field[data-field$="/branches/0/name"]::before {
+    content: 'Branches';
 }
 
 /* The scroller shows through around a paper smaller than the view: the same color as the paper. */
@@ -263,7 +314,11 @@ body {
     --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -1.5 -1.5 m -5.5 0 a 5.5 5.5 0 1 0 11 0 a 5.5 5.5 0 1 0 -11 0 M 2.5 2.5 L 7 7 M -4 -1.5 H 1' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 }
 
-.toolbar .joint-widget[data-type="zoomToFit"] {
+.toolbar .joint-widget[data-name="reset"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -6 -8 H 2 L 6 -4 V 8 H -6 Z M 2 -8 V -4 H 6' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+.toolbar .joint-widget[data-name="zoomToFit"] {
     --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -7 -3 V -7 H -3 M 3 -7 H 7 V -3 M 7 3 V 7 H 3 M -3 7 H -7 V 3 M -3 -3 H 3 V 3 H -3 Z' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 }
 
@@ -272,8 +327,7 @@ body {
     add button below a leaf, the insert button of a link and the "more" tool.
     A stylesheet rule wins over the presentation attribute set by the shape,
     so the hover state does not depend on the views. The same feedback
-    everywhere: a blue button darkens, the red one darkens too, the white one
-    tints.
+    everywhere: a blue button darkens, the white toggle tints.
 */
 [joint-selector="toggle"],
 [joint-selector="addButton"],
@@ -369,7 +423,9 @@ body {
     stroke: #E54666;
 }
 
-.to-be-deleted [joint-selector="body"][fill="#4666E5"] {
+.to-be-deleted [joint-selector="body"][fill="#4666E5"],
+.to-be-deleted [joint-selector="body"][fill="#3C9A7A"],
+.to-be-deleted [joint-selector="body"][fill="#2B3555"] {
     fill: #E54666;
 }
 

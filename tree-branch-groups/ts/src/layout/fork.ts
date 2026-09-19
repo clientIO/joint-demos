@@ -1,8 +1,8 @@
 import { g } from '@joint/plus';
 import type { dia } from '@joint/plus';
 
-import type { Group } from './shapes';
-import { SINK_GAP, createTreeLayout, fitGroupToContent, joinLeavesInto } from './tree-layout';
+import type { Group } from '../shapes';
+import { SINK_GAP, createTreeLayout, fitGroupToContent, joinLeavesInto } from './tree';
 
 /**
  * A fork group: a fork/join. The children of the `start` node are the
@@ -21,7 +21,7 @@ import { SINK_GAP, createTreeLayout, fitGroupToContent, joinLeavesInto } from '.
  * `start` (with `end` excluded, so the branches stay a tree), then `end`
  * right below the branches on the axis of `start`, joined by a horizontal
  * bar (`joinLeavesInto()`). The branches are named on their links like the
- * options of a decision (see `nameOptions()` in `layout.ts`).
+ * options of a decision (see `nameOptions()` in `layout/index.ts`).
  */
 export function layoutForkGroup(graph: dia.Graph, group: Group): void {
     const start = group.getStart();

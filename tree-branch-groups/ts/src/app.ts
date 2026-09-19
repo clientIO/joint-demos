@@ -1,9 +1,10 @@
 import { dia, highlighters, ui } from '@joint/plus';
+import type { g } from '@joint/plus';
 
 import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
 import { buildGraph } from './data/build';
 import { DiagramData } from './data/DiagramData';
-import { gateAnchor } from './gate-anchor';
+import { gateAnchor } from './layout/gate-anchor';
 import { isSelectable, syncInspector } from './inspector';
 import { isCellVisible, runLayout } from './layout';
 import { pipeline } from './pipeline';
@@ -74,18 +75,38 @@ export function init(): void {
         scroller.zoom(scroller.zoom() * scale, { min: MIN_ZOOM, max: MAX_ZOOM, ox: x, oy: y, absolute: true });
     });
 
+    /** The bounding box of the visible elements after the last layout: what "zoom to fit" fits. */
+    let contentBBox: g.Rect | null = null;
+
+    /**
+     * Fits the visible content into the view - at the start, and from the
+     * toolbar: centered horizontally, and at the top, where the flow starts,
+     * even when it is short.
+     */
+    function fit(): void {
+        if (!contentBBox) return;
+        scroller.zoomToFit({
+            contentArea: contentBBox,
+            padding: PAPER_PADDING,
+            minScale: MIN_ZOOM,
+            maxScale: 1,
+            useModelGeometry: true
+        });
+        scroller.positionRect(contentBBox, 'top', { padding: PAPER_PADDING });
+    }
+
     /**
      * Builds the graph from the data, lays it out and renders it. The view
      * is fitted to the content once, at the start; an edit, a collapse or an
      * expansion keeps the zoom and the scroll position the user has.
      */
-    function refresh({ fit = false } = {}): void {
+    function refresh({ fit: fitToContent = false } = {}): void {
         // The tools of the previous build go first - some sit on views about
         // to be removed; the hover tools come back on hover.
         paper.removeTools();
         paper.freeze();
         buildGraph(graph, data.getData());
-        const bbox = runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
+        contentBBox = runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
         paper.unfreeze();
         paper.updateCellsVisibility();
         // The routes are known once rendered: the insert buttons and the
@@ -97,15 +118,7 @@ export function init(): void {
         if (kept.length < selection.collection.length) selection.collection.reset(kept);
         // The inspector follows the data: an option added to the selected decision gets its input.
         updateInspector();
-        if (!fit || !bbox) return;
-        scroller.zoomToFit({
-            contentArea: bbox,
-            padding: PAPER_PADDING,
-            minScale: MIN_ZOOM,
-            maxScale: 1,
-            useModelGeometry: true
-        });
-        scroller.centerContent({ useModelGeometry: true });
+        if (fitToContent) fit();
     }
 
     // Every edit, undone or redone step lands on the history as one command.
@@ -126,7 +139,7 @@ export function init(): void {
         frames: new ui.HighlighterSelectionFrameList({
             highlighter: highlighters.stroke,
             selector: 'body',
-            options: { layer: dia.Paper.Layers.BACK, padding: 5, rx: 9, ry: 9, attrs: { stroke: COLORS.selection, 'stroke-width': 1.5 }}
+            options: { layer: dia.Paper.Layers.BACK, padding: 5, rx: 9, ry: 9, attrs: { stroke: COLORS.selection, strokeWidth: 1.5 }}
         })
     });
     const inspectorEl = document.getElementById('inspector')!;
@@ -185,7 +198,13 @@ export function init(): void {
     addTooltips(document.body);
 
     // The toolbar: undo and redo, driven by the history and disabled when
-    // there is nothing to undo or redo; the zoom, driven by the scroller.
+    // (The `attrs` of a widget are set on the DOM as they are, hence the
+    // dashed `data-tooltip`; the attributes of the cells are camel-cased.)
+    // there is nothing to undo or redo; the zoom, driven by the scroller -
+    // except "zoom to fit", a plain button: the built-in widget would fit
+    // every cell of the graph, the never-rendered groups and the hidden
+    // content of collapsed groups included, and not center. `fit()` fits
+    // what is visible, the same way as at the start.
     const toolbar = new ui.Toolbar({
         autoToggle: true,
         references: { commandManager: history, paperScroller: scroller },
@@ -195,11 +214,20 @@ export function init(): void {
             { type: 'separator' },
             { type: 'zoomOut', min: MIN_ZOOM, max: MAX_ZOOM, attrs: { button: { 'data-tooltip': 'Zoom out' }}},
             { type: 'zoomIn', min: MIN_ZOOM, max: MAX_ZOOM, attrs: { button: { 'data-tooltip': 'Zoom in' }}},
-            { type: 'zoomToFit', min: MIN_ZOOM, max: 1, step: 0.01, padding: PAPER_PADDING, useModelGeometry: true, attrs: { button: { 'data-tooltip': 'Zoom to fit' }}}
+            { type: 'button', name: 'zoomToFit', attrs: { button: { 'data-tooltip': 'Zoom to fit' }}},
+            { type: 'separator' },
+            { type: 'button', name: 'reset', attrs: { button: { 'data-tooltip': 'New diagram' }}}
         ]
     });
     document.getElementById('toolbar')!.appendChild(toolbar.el);
     toolbar.render();
+    toolbar.on('zoomToFit:pointerclick', fit);
+    // Everything but the start goes: one edit of the data like any other, so it can be undone; the view is fitted again.
+    toolbar.on('reset:pointerclick', () => {
+        if (moved) setMoved(null);
+        data.reset();
+        fit();
+    });
 
     const keyboard = new ui.Keyboard();
     keyboard.on('ctrl+z command+z', (evt: dia.Event) => {

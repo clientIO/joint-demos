@@ -1,10 +1,10 @@
 import type { dia, g } from '@joint/plus';
 
-import { layoutForkGroup } from './fork-group';
-import { LOOP_GAP, LOOP_START_ROOM, layoutLoopGroup } from './loop-group';
-import { AddButton, Decision, Group, GroupStart, Link, NODE_SIZE, isGate } from './shapes';
-import type { GroupKind } from './shapes';
-import { createTreeLayout } from './tree-layout';
+import { layoutForkGroup } from './fork';
+import { LOOP_GAP, LOOP_START_ROOM, layoutLoopGroup } from './loop';
+import { AddButton, Decision, Group, GroupStart, Link, NODE_SIZE, isGate } from '../shapes';
+import type { GroupKind } from '../shapes';
+import { createTreeLayout } from './tree';
 
 /**
  * A cell is hidden by a collapse when one of its ancestors is a collapsed

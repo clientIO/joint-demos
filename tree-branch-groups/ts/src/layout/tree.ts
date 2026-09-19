@@ -1,7 +1,7 @@
 import { layout } from '@joint/plus';
 import type { dia, g } from '@joint/plus';
 
-import { GROUP_PADDING, Group, PARENT_GAP, SIBLING_GAP, isGate } from './shapes';
+import { GROUP_PADDING, Group, PARENT_GAP, SIBLING_GAP, isGate } from '../shapes';
 
 /**
  * Where the horizontal bar of a fork or a join lies: a third of the gap away

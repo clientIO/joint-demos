@@ -115,6 +115,17 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
         return root[0];
     }
 
+    /** Resets the diagram: the start stays, alone. */
+    reset(): void {
+        const rootId = this.getRootId();
+        this.setData((json) => {
+            for (const id of Object.keys(json)) {
+                if (id !== rootId) delete json[id];
+            }
+            setEdges(json[rootId], 'to', []);
+        });
+    }
+
     /** Replaces the whole diagram. */
     fromJSON(json: DiagramJSON): void {
         this.setData((data) => {

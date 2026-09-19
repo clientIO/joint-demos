@@ -1,4 +1,4 @@
-import { ui } from '@joint/plus';
+import { ui, util } from '@joint/plus';
 import type { dia } from '@joint/plus';
 import hljs from 'highlight.js/lib/core';
 import yaml from 'highlight.js/lib/languages/yaml';
@@ -68,12 +68,14 @@ function getConfig(data: DiagramData, element: Selectable): InspectorConfig {
 }
 
 /**
- * The open inspector, and what it was opened for. Managed here rather than
- * through `ui.Inspector.create()`: that keeps one instance per model, and
- * every node is edited on the same model - the data - under a path of its
- * own.
+ * The open inspector, what it was opened for and what the panel shows.
+ * Managed here rather than through `ui.Inspector.create()`: that keeps one
+ * instance per model, and every node is edited on the same model - the
+ * data - under a path of its own.
  */
 let inspector: ui.Inspector | null = null;
+/** The id of the element the inspector is open for. */
+let openId: string | null = null;
 /** What the panel shows - the inspector of an element, or the YAML - to leave it alone when asked for the same; `undefined` before the first sync. */
 let signature: string | null | undefined;
 
@@ -100,31 +102,84 @@ function renderYAML(data: DiagramData): HTMLElement {
     return pre;
 }
 
+/** Whether a sync is under way, and the one asked for meanwhile - by the rebuild a commit triggers - to run after it. */
+let syncing = false;
+let pending: [HTMLElement, DiagramData, Selectable | null] | null = null;
+
 /**
  * Shows `element` in the panel - or the diagram as YAML, with nothing
- * selected, kept up to date with the data. The
- * inspector edits the data, not the graph: its inputs are bound to the
- * fields of the node the element stands for - the label of a step or a
- * decision, the command a step runs, the comment of a node, the names of
- * the options of a decision or a fork - and a change is one edit of the data like any other:
+ * selected, kept up to date with the data. The inspector edits the data,
+ * not the graph: its inputs are bound to the fields of the node the
+ * element stands for - the label of a step or a decision, the command a
+ * step runs, the comment of a node, the names of the options of a decision
+ * or a fork - and a change is one edit of the data like any other:
  * recorded by the history, followed by a rebuild of the graph. Called after
  * every change of the selection and after every rebuild: the inspector is
  * replaced when its set of inputs changes - an option added or removed -
- * and left alone otherwise, so that a change of a value keeps it.
+ * and left alone otherwise, so that a change of a value keeps it. What is
+ * typed is saved before the panel is replaced: a field left by a click on
+ * the paper never loses its focus, so its change is never committed on its
+ * own. The rebuild that a save triggers asks for a sync in turn; that one
+ * waits until this one is done.
  */
 export function syncInspector(container: HTMLElement, data: DiagramData, element: Selectable | null): void {
+    if (syncing) {
+        pending = [container, data, element];
+        return;
+    }
+    syncing = true;
+    try {
+        sync(container, data, element);
+    } finally {
+        syncing = false;
+    }
+    if (pending) {
+        const [nextContainer, nextData, nextElement] = pending;
+        pending = null;
+        syncInspector(nextContainer, nextData, nextElement);
+    }
+}
+
+function sync(container: HTMLElement, data: DiagramData, element: Selectable | null): void {
+    const id = element ? String(element.id) : null;
+    // The panel moves on to another element: what is typed is saved, and the signature is computed on the saved data.
+    if (inspector && id !== openId) closeInspector(data);
     const config = element ? getConfig(data, element) : null;
-    const nextSignature = config ? JSON.stringify([element!.id, config.title, config.inputs]) : toYAML(data.getData());
+    const nextSignature = config ? JSON.stringify([id, config.title, config.inputs]) : toYAML(data.getData());
     if (nextSignature === signature) return;
     signature = nextSignature;
-    inspector?.remove();
-    inspector = null;
+    // The same element with other inputs - an option added or removed: what is typed is saved too.
+    closeInspector(data);
     if (!config) {
         renderPanel(container, 'YAML', renderYAML(data));
     } else if (config.note !== undefined) {
         renderPanel(container, config.title, config.note);
     } else {
         inspector = new ui.Inspector({ cell: data, inputs: config.inputs });
-        renderPanel(container, config.title, inspector.render().el);
+        openId = id;
+        const el = inspector.render().el;
+        // `Escape` in a field leaves the field - and so commits it; the keyboard of the diagram does not listen inside fields.
+        el.addEventListener('keydown', (evt: KeyboardEvent) => {
+            if (evt.key === 'Escape' && evt.target instanceof HTMLElement) evt.target.blur();
+        });
+        renderPanel(container, config.title, el);
     }
+}
+
+/**
+ * Saves what is typed in the open inspector and takes it down. Only the
+ * fields whose value differs from the data are committed - `updateCell()`
+ * as a whole would write every empty field as an edit of its own.
+ */
+function closeInspector(data: DiagramData): void {
+    if (!inspector) return;
+    const open = inspector;
+    inspector = null;
+    openId = null;
+    for (const field of Array.from(open.el.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[data-attribute]'))) {
+        const path = field.dataset.attribute!;
+        const current = util.getByPath(data.getData(), path, '/') as string | undefined;
+        if (field.value !== (current ?? '')) open.updateCell(field, path);
+    }
+    open.remove();
 }

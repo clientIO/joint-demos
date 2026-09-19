@@ -29,12 +29,14 @@ const ELEMENT_Z = 2;
 export const COLORS = {
     background: '#F3F7F6',
     node: { fill: '#FFFFFF', stroke: '#4666E5', text: '#222222' },
-    /** The outline of the start of the diagram and of its ends; red is kept for what is about to be deleted. */
-    root: '#2E9E5B',
-    terminal: '#4A5470',
+    /** The fills of the start of the diagram and of its ends; red is kept for what is about to be deleted. */
+    root: '#3C9A7A',
+    terminal: '#2B3555',
     /** The pills that steer the flow: a decision, the start of a group. */
     gate: { fill: '#4666E5', stroke: '#4666E5', text: '#FFFFFF' },
     link: '#7A90EC',
+    /** The add buttons: the blue of the nodes, marked in white. */
+    button: { fill: '#4666E5', text: '#FFFFFF' },
     /** The frame around the selected element: a shade darker than the nodes. */
     selection: '#3552C4'
 };
@@ -83,10 +85,10 @@ const LABEL_LINE_HEIGHT = 1.3 * LABEL_FONT_SIZE;
  */
 const LABEL_PADDING_X = 26;
 const LABEL_PADDING_Y = 11;
-/** A piece of a label between backticks is code: monospaced, a little smaller, tinted. */
+/** The code below the label of a step - the command it runs: monospaced, a little smaller, tinted. */
 const CODE_FONT_FAMILY = 'Menlo, Consolas, monospace';
 const CODE_FONT_SIZE = 12;
-const CODE_COLORS = { light: '#5B6B9E', dark: '#DCE2F5' };
+const CODE_COLOR = '#5B6B9E';
 
 /** Custom paper event triggered by the collapse/expand button on the start of a group. */
 export const TOGGLE_EVENT = 'element:group:toggle';
@@ -148,12 +150,6 @@ const PILL_ATTRS = {
     }
 };
 
-/** A run of a label in one font: plain, or code. */
-interface LabelSegment {
-    text: string;
-    code: boolean;
-}
-
 /** A text annotation of the `text` attribute: a range of the text with attributes of its own. */
 interface LabelAnnotation {
     start: number;
@@ -161,74 +157,37 @@ interface LabelAnnotation {
     attrs: Record<string, string | number>;
 }
 
-interface ParsedLabel {
-    /** The text with the backticks taken out, the newlines kept. */
-    text: string;
-    /** The ranges of `text` that are code, for the `annotations` attribute. */
-    annotations: LabelAnnotation[];
-    /** The lines, each in runs of one font, for measuring. */
-    lines: LabelSegment[][];
-}
-
-/**
- * The little markup of a label: a piece between backticks, on one line, is
- * code (`npm ci`). A backtick without a match stays a backtick.
- */
-function parseLabel(raw: string, codeColor: string): ParsedLabel {
-    const codeAttrs = { 'font-family': CODE_FONT_FAMILY, 'font-size': CODE_FONT_SIZE, fill: codeColor };
-    const annotations: LabelAnnotation[] = [];
-    const lines: LabelSegment[][] = [];
-    let text = '';
-    raw.split('\n').forEach((line, lineIndex) => {
-        if (lineIndex > 0) text += '\n';
-        const segments: LabelSegment[] = [];
-        const append = (segmentText: string, code: boolean): void => {
-            if (segmentText.length === 0) return;
-            const start = text.length;
-            text += segmentText;
-            segments.push({ text: segmentText, code });
-            if (code) annotations.push({ start, end: text.length, attrs: codeAttrs });
-        };
-        let last = 0;
-        for (const match of line.matchAll(/`([^`]+)`/g)) {
-            append(line.slice(last, match.index), false);
-            append(match[1], true);
-            last = match.index + match[0].length;
-        }
-        append(line.slice(last), false);
-        lines.push(segments);
-    });
-    return { text, annotations, lines };
-}
+const LABEL_FONT = `${LABEL_FONT_SIZE}px ${LABEL_FONT_FAMILY}`;
+const CODE_FONT = `${CODE_FONT_SIZE}px ${CODE_FONT_FAMILY}`;
 
 /** A 2D context of an off-screen canvas, for measuring text in the fonts of the labels. */
 let measuringContext: CanvasRenderingContext2D | null = null;
 
-function measureSegment({ text, code }: LabelSegment): number {
+/** The width of the widest line of `text` in `font`. */
+function measureText(text: string, font: string): number {
     measuringContext ??= document.createElement('canvas').getContext('2d')!;
-    measuringContext.font = code ? `${CODE_FONT_SIZE}px ${CODE_FONT_FAMILY}` : `${LABEL_FONT_SIZE}px ${LABEL_FONT_FAMILY}`;
-    return measuringContext.measureText(text).width;
-}
-
-/** The width of the widest line of a parsed label and the height of all its lines. */
-function measureLabel({ lines }: ParsedLabel): { width: number; height: number } {
-    const width = Math.max(...lines.map((segments) => segments.reduce((sum, segment) => sum + measureSegment(segment), 0)));
-    return { width, height: lines.length * LABEL_LINE_HEIGHT };
+    measuringContext.font = font;
+    return Math.max(...text.split('\n').map((line) => measuringContext!.measureText(line).width));
 }
 
 /**
- * Sets the label of a pill - parsed for its little markup - and sizes the
- * pill to it: the size of a node at least, wider for a long label and taller
- * for one of several lines (a newline in the label breaks a line). The code
- * is tinted for the fill of the pill: a light pill, or a dark one.
+ * Sets the text of a pill - its label and, below it, its code, if any: the
+ * command a step runs, monospaced, a little smaller and tinted, through an
+ * annotation of the `text` attribute - and sizes the pill to it: the size
+ * of a node at least, wider for a long line and taller for several (a
+ * newline breaks a line). Each part is measured in its own font.
  */
-function setPillLabel(pill: dia.Element, label: string, fill: 'light' | 'dark'): void {
-    const parsed = parseLabel(label, CODE_COLORS[fill]);
-    pill.attr('label', { text: parsed.text, annotations: parsed.annotations });
-    const { width, height } = measureLabel(parsed);
+function setPillLabel(pill: dia.Element, label: string, code?: string): void {
+    const text = code ? `${label}\n${code}` : label;
+    const annotations: LabelAnnotation[] = code
+        ? [{ start: label.length + 1, end: text.length, attrs: { fontFamily: CODE_FONT_FAMILY, fontSize: CODE_FONT_SIZE, fill: CODE_COLOR }}]
+        : [];
+    pill.attr('label', { text, annotations });
+    const width = Math.max(measureText(label, LABEL_FONT), code ? measureText(code, CODE_FONT) : 0);
+    const lines = text.split('\n').length;
     pill.resize(
         Math.max(NODE_SIZE.width, Math.ceil(width) + 2 * LABEL_PADDING_X),
-        Math.max(NODE_SIZE.height, Math.ceil(height) + 2 * LABEL_PADDING_Y)
+        Math.max(NODE_SIZE.height, Math.ceil(lines * LABEL_LINE_HEIGHT) + 2 * LABEL_PADDING_Y)
     );
 }
 
@@ -242,7 +201,8 @@ const FILLED_PILL_ATTRS = {
 /**
  * The button that adds a sibling option to a decision, or a branch to a
  * fork: at the right end of the pill, apart from the "add below" and
- * "insert" buttons, which sit on the links.
+ * "insert" buttons, which sit on the links. Blue with a white plus, like
+ * every add button.
  */
 const ADD_BUTTON_ATTRS = {
     [ADD_BUTTON_SELECTOR]: {
@@ -252,15 +212,15 @@ const ADD_BUTTON_ATTRS = {
         height: ADD_BUTTON_SIZE.height,
         rx: 3,
         ry: 3,
-        fill: COLORS.gate.fill,
-        stroke: COLORS.gate.text,
+        fill: COLORS.button.fill,
+        stroke: COLORS.button.text,
         strokeWidth: 1.5,
         cursor: 'pointer'
     },
     addIcon: {
         d: PLUS_ICON,
         transform: 'translate(calc(w), calc(h / 2))',
-        stroke: COLORS.gate.text,
+        stroke: COLORS.button.text,
         strokeWidth: 2,
         fill: 'none',
         pointerEvents: 'none'
@@ -278,7 +238,7 @@ const TOGGLE_ATTRS = {
         strokeWidth: 1.5,
         cursor: 'pointer',
         event: TOGGLE_EVENT,
-        'data-tooltip': 'Collapse'
+        dataTooltip: 'Collapse'
     },
     toggleIcon: {
         d: COLLAPSE_ICON,
@@ -309,7 +269,7 @@ export class Step extends dia.Element {
     /** A step with its label and, below it, the command it runs, as code. */
     static create(label: string, run?: string): Step {
         const step = new Step();
-        setPillLabel(step, run ? `${label}\n\`${run}\`` : label, 'light');
+        setPillLabel(step, label, run);
         return step;
     }
 
@@ -335,14 +295,14 @@ export class Decision extends dia.Element {
         return pillDefaults('tbg.Decision', {
             attrs: util.defaultsDeep({
                 kindIcon: { d: DECISION_ICON },
-                [ADD_BUTTON_SELECTOR]: { 'data-tooltip': 'Add an option' }
+                [ADD_BUTTON_SELECTOR]: { dataTooltip: 'Add an option' }
             }, FILLED_PILL_ATTRS, ADD_BUTTON_ATTRS)
         }, super.defaults);
     }
 
     static create(label: string = DECISION_LABEL): Decision {
         const decision = new Decision();
-        setPillLabel(decision, label, 'dark');
+        setPillLabel(decision, label);
         return decision;
     }
 
@@ -377,7 +337,7 @@ export class GroupStart extends dia.Element {
         return pillDefaults('tbg.GroupStart', {
             kind: 'fork' satisfies GroupKind,
             attrs: util.defaultsDeep({
-                [ADD_BUTTON_SELECTOR]: { 'data-tooltip': 'Add a branch' }
+                [ADD_BUTTON_SELECTOR]: { dataTooltip: 'Add a branch' }
             }, FILLED_PILL_ATTRS, TOGGLE_ATTRS, ADD_BUTTON_ATTRS)
         }, super.defaults);
     }
@@ -398,7 +358,7 @@ export class GroupStart extends dia.Element {
     /** Flips the icon and the tooltip of the collapse/expand button. */
     setCollapsed(collapsed: boolean): void {
         this.attr({
-            toggle: { 'data-tooltip': collapsed ? 'Expand' : 'Collapse' },
+            toggle: { dataTooltip: collapsed ? 'Expand' : 'Collapse' },
             toggleIcon: { d: collapsed ? EXPAND_ICON : COLLAPSE_ICON }
         });
     }
@@ -450,8 +410,9 @@ export function isGate(cell: dia.Cell): cell is Gate {
 }
 
 /*
-    The terminals: the start and the ends of the diagram are circles with
-    their label inside.
+    The terminals: the start and the ends of the diagram are filled circles
+    with their label inside, in light text - green for the start, dark for
+    an end.
 */
 
 const terminalMarkup = util.svg/* xml */`
@@ -459,7 +420,7 @@ const terminalMarkup = util.svg/* xml */`
     <text @selector="label"/>
 `;
 
-function terminalDefaults(type: string, label: string, stroke: string, strokeWidth: number, superDefaults: object): object {
+function terminalDefaults(type: string, label: string, color: string, superDefaults: object): object {
     return util.defaultsDeep({
         type,
         z: ELEMENT_Z,
@@ -469,9 +430,9 @@ function terminalDefaults(type: string, label: string, stroke: string, strokeWid
                 cx: 'calc(w / 2)',
                 cy: 'calc(h / 2)',
                 r: 'calc(w / 2)',
-                fill: COLORS.node.fill,
-                stroke,
-                strokeWidth
+                fill: color,
+                stroke: color,
+                strokeWidth: 1.5
             },
             label: {
                 text: label,
@@ -481,13 +442,13 @@ function terminalDefaults(type: string, label: string, stroke: string, strokeWid
                 textVerticalAnchor: 'middle',
                 fontFamily: 'sans-serif',
                 fontSize: 12,
-                fill: COLORS.node.text
+                fill: COLORS.gate.text
             }
         }
     }, superDefaults);
 }
 
-/** The start of the diagram, its root: a circle outlined in green. */
+/** The start of the diagram, its root: a green circle. */
 export class Start extends dia.Element {
 
     preinitialize() {
@@ -495,7 +456,7 @@ export class Start extends dia.Element {
     }
 
     defaults() {
-        return terminalDefaults('tbg.Start', 'Start', COLORS.root, 1.5, super.defaults);
+        return terminalDefaults('tbg.Start', 'Start', COLORS.root, super.defaults);
     }
 
     static create(): Start {
@@ -507,7 +468,7 @@ export class Start extends dia.Element {
     }
 }
 
-/** An end of the diagram: a circle with the thick ring of a flowchart terminal, a leaf nothing can follow. */
+/** An end of the diagram: a dark circle, a leaf nothing can follow. */
 export class End extends dia.Element {
 
     preinitialize() {
@@ -515,7 +476,7 @@ export class End extends dia.Element {
     }
 
     defaults() {
-        return terminalDefaults('tbg.End', 'End', COLORS.terminal, 3, super.defaults);
+        return terminalDefaults('tbg.End', 'End', COLORS.terminal, super.defaults);
     }
 
     static create(): End {
@@ -555,16 +516,16 @@ export class AddButton extends dia.Element {
                     height: 'calc(h)',
                     rx: 3,
                     ry: 3,
-                    fill: COLORS.gate.fill,
-                    stroke: COLORS.gate.text,
+                    fill: COLORS.button.fill,
+                    stroke: COLORS.button.text,
                     strokeWidth: 1.5,
                     cursor: 'pointer',
-                    'data-tooltip': 'Add below'
+                    dataTooltip: 'Add below'
                 },
                 icon: {
                     d: PLUS_ICON,
                     transform: 'translate(calc(w / 2), calc(h / 2))',
-                    stroke: COLORS.gate.text,
+                    stroke: COLORS.button.text,
                     strokeWidth: 2,
                     fill: 'none',
                     pointerEvents: 'none'
@@ -592,7 +553,7 @@ export class AddButton extends dia.Element {
  * place and stands in for it.
  *
  * The content of each kind is created and laid out by its own module
- * (`fork-group.ts`, `loop-group.ts`); the group only knows its gates.
+ * (`layout/fork.ts`, `layout/loop.ts`); the group only knows its gates.
  */
 export class Group extends dia.Element {
 

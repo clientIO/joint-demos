@@ -1,9 +1,9 @@
 import { g } from '@joint/plus';
 import type { dia } from '@joint/plus';
 
-import { INSERT_BUTTON_FROM_TARGET, Link, PARENT_GAP, isGate } from './shapes';
-import type { Group } from './shapes';
-import { createTreeLayout, fitGroupToContent, forkChildrenFrom, getAxisX } from './tree-layout';
+import { INSERT_BUTTON_FROM_TARGET, Link, PARENT_GAP, isGate } from '../shapes';
+import type { Group } from '../shapes';
+import { createTreeLayout, fitGroupToContent, forkChildrenFrom, getAxisX } from './tree';
 
 /**
  * A loop group. The children of the `start` node root the tree that grows
@@ -28,7 +28,7 @@ import { createTreeLayout, fitGroupToContent, forkChildrenFrom, getAxisX } from 
  * Horizontal distance between the return link and the tree. The link runs
  * outside of the box of the group; a loop with a sibling on its left asks
  * the tree layout for that much more room before it (see
- * `makeRoomForReturnLinks()` in `layout.ts`), so that the sibling keeps
+ * `makeRoomForReturnLinks()` in `layout/index.ts`), so that the sibling keeps
  * clear of the link.
  */
 export const LOOP_GAP = 40;
@@ -37,7 +37,7 @@ export const LOOP_GAP = 40;
  * out of the gate: further below `start`, clear of the collapse button
  * hanging under its pill. The insert button of that link sits at the far
  * end, near the child (the link gets room for it, see `getRoomBelow()` in
- * `layout.ts`).
+ * `layout/index.ts`).
  */
 const RETURN_DROP_BELOW_END = 20;
 const RETURN_DROP_BELOW_START = 30;
@@ -46,7 +46,7 @@ const RETURN_ARROW_BELOW_START = RETURN_DROP_BELOW_START + 12;
 
 /**
  * Extra room below the start of a loop (read by `getRoomBelow()` in
- * `layout.ts`), and the gap between the leaves of the tree and `end`: chosen
+ * `layout/index.ts`), and the gap between the leaves of the tree and `end`: chosen
  * so that the return link runs as far above the tree as below it - from
  * where it joins the link out of `start` to the tree, and from the tree to
  * where it leaves the link out of `end`.

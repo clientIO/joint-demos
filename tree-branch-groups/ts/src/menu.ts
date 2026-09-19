@@ -3,8 +3,8 @@ import { ui } from '@joint/plus';
 import { COLORS, DECISION_ICON, GROUP_ICONS, NODE_ICON } from './shapes';
 import type { GroupKind } from './shapes';
 
-/** What the add menu offers: a plain node, a decision, a group of either kind, or an end of the diagram. */
-export type AddChoice = 'node' | 'decision' | GroupKind | 'end';
+/** What the add menu offers: a step, a decision, a group of either kind, or an end of the diagram. */
+export type AddChoice = 'step' | 'decision' | GroupKind | 'end';
 
 /** An item of a menu: an icon, drawn the way the nodes draw theirs, and a label. */
 export interface MenuItem<A extends string> {
@@ -64,7 +64,7 @@ export function openMenu<A extends string>(target: HTMLElement | SVGElement, ite
 }
 
 const ADD_ITEMS: Record<AddChoice, Omit<MenuItem<AddChoice>, 'action'>> = {
-    node: { label: 'Node', icon: NODE_ICON, color: COLORS.node.stroke },
+    step: { label: 'Step', icon: NODE_ICON, color: COLORS.node.stroke },
     decision: { label: 'Decision', icon: DECISION_ICON, color: COLORS.node.stroke },
     fork: { label: 'Fork', icon: GROUP_ICONS.fork, color: COLORS.node.stroke },
     loop: { label: 'Loop', icon: GROUP_ICONS.loop, color: COLORS.node.stroke },

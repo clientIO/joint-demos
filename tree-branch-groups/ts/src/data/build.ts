@@ -63,7 +63,7 @@ function createElement(node: NodeData): dia.Element {
  * group to the `end` of the group; an add button below every leaf outside.
  * The cells are synced into the graph: those that stand for the same thing
  * as before are updated, the others added or removed. The positions are
- * for the layout to set (see `runLayout()` in `layout.ts`).
+ * for the layout to set (see `runLayout()` in `layout/index.ts`).
  */
 export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
     const containers = getContainers(json);

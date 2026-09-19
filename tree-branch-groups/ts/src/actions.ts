@@ -14,11 +14,12 @@ import { AddButton, DECISION_LABEL, Decision, Group, GroupEnd, GroupStart, Link,
  * around it, the data about the subtree that would move.
  */
 
-let nodeCounter = 0;
+let stepCounter = 0;
 
+/** The label of a new step without one: `Step 1`, `Step 2`, ... */
 function nextLabel(): string {
-    nodeCounter += 1;
-    return `Node ${nodeCounter}`;
+    stepCounter += 1;
+    return `Step ${stepCounter}`;
 }
 
 /** The group `element` is a direct part of, if any. */
@@ -119,10 +120,10 @@ export function canSplit(link: dia.Link): boolean {
     return !Link.isReturnLink(source, target) && !AddButton.isAddButton(target);
 }
 
-/** The node of the data a choice of the add menu stands for. A node without a label is numbered. */
+/** The node of the data a choice of the add menu stands for. A step without a label is numbered. */
 function createNodeData(choice: AddChoice, label?: string): NodeData {
     switch (choice) {
-        case 'node': return { type: 'step', label: label ?? nextLabel() };
+        case 'step': return { type: 'step', label: label ?? nextLabel() };
         case 'decision': return { type: 'decision', label: label ?? DECISION_LABEL };
         case 'end': return { type: 'end' };
         default: return { type: choice };
