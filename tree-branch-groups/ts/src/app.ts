@@ -1,9 +1,10 @@
 import { dia, ui } from '@joint/plus';
 
-import { addBelow, addChild, deleteElement, ensureAddButtons, insertGroup, insertOnLink } from './actions';
+import { addBelow, addChild, deleteElement, ensureAddButtons, insertGroup, insertOnLink, nameOption } from './actions';
 import { gateAnchor } from './gate-anchor';
 import { isCellVisible, runLayout } from './layout';
 import { COLORS, Node, cellNamespace } from './shapes';
+import type { Link } from './shapes';
 import { addHoverTools, addTooltips, placeLinkTools } from './tools';
 import type { ToolActions } from './tools';
 
@@ -29,7 +30,7 @@ export function init(): void {
         // from the models: a group has no view.
         defaultAnchor: gateAnchor,
         defaultConnectionPoint: { name: 'bbox', args: { useModelGeometry: true }},
-        defaultConnector: { name: 'straight', args: { cornerType: 'cubic' }},
+        defaultConnector: { name: 'straight', args: { cornerType: 'cubic', cornerRadius: 6 }},
         sorting: dia.Paper.sorting.APPROX,
         viewManagement: {
             lazyInitialize: true,
@@ -121,31 +122,36 @@ export function init(): void {
 }
 
 /**
- * A root with a decision below it, and three children of the decision: a
- * node ending in an end of the diagram, a fork group with a fork group nested in its first branch, and a loop
- * group whose tree starts with a decision that splits into two. Groups are
- * created empty, so the seed fills them the way a user would. Every leaf gets
- * a child of its own, so that the join below the branches is visible.
+ * A CI/CD pipeline. After the checkout and the install, a fork runs the lint,
+ * the tests and the build side by side; a decision picks the target: staging,
+ * where a loop polls the smoke tests before the build is promoted, production,
+ * or no deployment at all. Groups are created empty, so the seed fills them
+ * the way a user would.
  */
 function createInitialDiagram(graph: dia.Graph, root: dia.Element): void {
-    const decision = addBelow(graph, root, 'decision');
+    const checkout = addChild(graph, root, 'Checkout');
+    const install = addChild(graph, checkout, 'Install dependencies');
 
-    const left = addChild(graph, decision);
-    addBelow(graph, addChild(graph, left), 'end');
+    const jobs = insertGroup(graph, install, 'fork');
+    addChild(graph, jobs.getStart(), 'Lint');
+    addChild(graph, jobs.getStart(), 'Unit tests');
+    addChild(graph, jobs.getStart(), 'Build');
 
-    const fork = insertGroup(graph, decision, 'fork');
-    const branchA = addChild(graph, fork.getStart());
-    const branchB = addChild(graph, fork.getStart());
-    const nested = insertGroup(graph, branchA, 'fork');
-    const nestedA = addChild(graph, nested.getStart());
-    addChild(graph, nested.getStart());
-    addChild(graph, nestedA);
-    addChild(graph, branchB);
-    addChild(graph, fork);
+    const target = addBelow(graph, jobs, 'decision', 'Target');
 
-    const loop = insertGroup(graph, decision, 'loop');
-    const split = addBelow(graph, loop.getStart(), 'decision');
-    addChild(graph, split);
-    addChild(graph, split);
-    addChild(graph, loop);
+    const staging = addChild(graph, target, 'Deploy to staging');
+    nameOption(staging, 'Staging');
+    const poll = insertGroup(graph, staging, 'loop');
+    const [firstLink] = graph.getConnectedLinks(poll.getStart(), { outbound: true }) as Link[];
+    const smokeTests = insertOnLink(graph, firstLink, 'node', 'Run smoke tests');
+    addChild(graph, smokeTests, 'Collect results');
+    addBelow(graph, addChild(graph, poll, 'Promote build'), 'end');
+
+    const production = addChild(graph, target, 'Deploy to production');
+    nameOption(production, 'Production');
+    addBelow(graph, addChild(graph, production, 'Notify team'), 'end');
+
+    const skip = addChild(graph, target, 'Skip deployment');
+    nameOption(skip, 'Skip');
+    addBelow(graph, skip, 'end');
 }

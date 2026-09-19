@@ -105,8 +105,9 @@ function makeRoomForOptions(graph: dia.Graph): void {
 
 /**
  * Names the links from every decision and every fork to their options
- * `option 1`, `option 2`, ... from left to right, and takes the name off
- * every other link. After the layout, which decides the order.
+ * `option 1`, `option 2`, ... from left to right - or as the option was
+ * named (`nameOption()`) - and takes the name off every other link. After
+ * the layout, which decides the order.
  */
 function nameOptions(graph: dia.Graph): void {
     for (const link of graph.getLinks()) {
@@ -115,8 +116,11 @@ function nameOptions(graph: dia.Graph): void {
     for (const parent of graph.getElements().filter(hasOptions)) {
         const options = getOptions(graph, parent).sort((a, b) => a.getBBox().center().x - b.getBBox().center().x);
         for (const link of graph.getConnectedLinks(parent, { outbound: true })) {
-            const index = options.indexOf(link.getTargetElement()!);
-            if (index >= 0 && link instanceof Link) link.setBranchName(`${OPTION_NAME} ${index + 1}`);
+            const option = link.getTargetElement()!;
+            const index = options.indexOf(option);
+            if (index < 0 || !(link instanceof Link)) continue;
+            const name = option.get('optionName') as string | undefined;
+            link.setBranchName(name ?? `${OPTION_NAME} ${index + 1}`);
         }
     }
 }

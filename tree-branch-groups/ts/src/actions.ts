@@ -192,16 +192,20 @@ export function canSplit(link: dia.Link): boolean {
     return !Link.isReturnLink(source, target) && !AddButton.isAddButton(target);
 }
 
-/** Adds a new element of the chosen kind to the graph: a node, a decision, an end of the diagram, or an empty group. */
-function createElement(graph: dia.Graph, choice: AddChoice): dia.Element {
+/**
+ * Adds a new element of the chosen kind to the graph: a node, a decision, an
+ * end of the diagram, or an empty group. A node or a decision takes a label;
+ * a node without one is numbered.
+ */
+function createElement(graph: dia.Graph, choice: AddChoice, label?: string): dia.Element {
     switch (choice) {
         case 'node': {
-            const node = Node.create(nextLabel());
+            const node = Node.create(label ?? nextLabel());
             graph.addCell(node);
             return node;
         }
         case 'decision': {
-            const node = Node.createDecision();
+            const node = Node.createDecision(label);
             graph.addCell(node);
             return node;
         }
@@ -220,9 +224,9 @@ function createElement(graph: dia.Graph, choice: AddChoice): dia.Element {
  * The element joins the group the link is in and takes the place of the
  * former target among its siblings.
  */
-export function insertOnLink(graph: dia.Graph, link: Link, choice: AddChoice): dia.Element {
+export function insertOnLink(graph: dia.Graph, link: Link, choice: AddChoice, label?: string): dia.Element {
     const target = link.getTargetElement()!;
-    const element = createElement(graph, choice);
+    const element = createElement(graph, choice, label);
     link.getParentCell()?.embed(element);
     element.set({ siblingRank: target.get('siblingRank') as number | undefined });
     // Seed the position at the middle of the link so that the first render does not flash at the origin.
@@ -278,19 +282,28 @@ function attachChild(graph: dia.Graph, parent: dia.Element, child: dia.Element):
     link.reparent();
 }
 
-/** Adds a plain node as the last child of `parent`. */
-export function addChild(graph: dia.Graph, parent: dia.Element): Node {
-    const node = Node.create(nextLabel());
+/** Adds a plain node as the last child of `parent`, labelled as given or numbered. */
+export function addChild(graph: dia.Graph, parent: dia.Element, label?: string): Node {
+    const node = Node.create(label ?? nextLabel());
     graph.addCell(node);
     attachChild(graph, parent, node);
     return node;
 }
 
-/** Adds a new element of the chosen kind as the last child of `parent`. */
-export function addBelow(graph: dia.Graph, parent: dia.Element, choice: AddChoice): dia.Element {
-    const element = createElement(graph, choice);
+/** Adds a new element of the chosen kind as the last child of `parent`, with a label where it takes one. */
+export function addBelow(graph: dia.Graph, parent: dia.Element, choice: AddChoice, label?: string): dia.Element {
+    const element = createElement(graph, choice, label);
     attachChild(graph, parent, element);
     return element;
+}
+
+/**
+ * Names the option `element` is of its parent - a decision or a fork - on
+ * the link into it, instead of the `option 1`, `option 2`, ... the layout
+ * numbers the options with (see `nameOptions()` in `layout.ts`).
+ */
+export function nameOption(element: dia.Element, name: string): void {
+    element.set({ optionName: name });
 }
 
 /** Adds an empty group of the given kind to the graph. */

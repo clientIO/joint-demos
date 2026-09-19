@@ -1,9 +1,11 @@
 import { dia, util } from '@joint/plus';
 
 // Layout metrics shared by the shapes and the layout.
-export const NODE_SIZE = { width: 120, height: 40 };
+export const NODE_SIZE = { width: 160, height: 40 };
 /** The `end` of a group has no size: it is the point the paths of the group converge into. */
 export const END_SIZE = { width: 0, height: 0 };
+/** The start and the ends of the diagram are circles. */
+export const TERMINAL_SIZE = { width: 44, height: 44 };
 /** The add button below a leaf of the tree, the same square as the insert button of a link. */
 export const ADD_BUTTON_SIZE = { width: 18, height: 18 };
 /**
@@ -235,27 +237,37 @@ export class Node extends dia.Element {
         return node;
     }
 
-    /** The root of the diagram: a plain node labelled `Start`, outlined in green. */
+    /** Turns a node into a circle with its label inside and no icon: the start and the ends of the diagram. */
+    private makeCircle(stroke: string, strokeWidth: number): void {
+        this.resize(TERMINAL_SIZE.width, TERMINAL_SIZE.height);
+        this.attr({
+            body: { rx: 'calc(h / 2)', ry: 'calc(h / 2)', stroke, strokeWidth },
+            kindIcon: { display: 'none' },
+            label: { x: 'calc(w / 2)', fontSize: 12 }
+        });
+    }
+
+    /** The root of the diagram: a circle labelled `Start`, outlined in green. */
     static createRoot(): Node {
         const node = Node.create('Start');
-        node.attr({ body: { stroke: COLORS.root }, kindIcon: { stroke: COLORS.root }});
+        node.makeCircle(COLORS.root, 1.5);
         return node;
     }
 
-    /** An end of the diagram: a node labelled `End`, outlined in red, that nothing can follow. */
+    /** An end of the diagram: a circle labelled `End` with the thick ring of a terminal, that nothing can follow. */
     static createTerminal(): Node {
         const node = Node.create('End', 'terminal');
-        node.attr({ body: { stroke: COLORS.terminal }, kindIcon: { stroke: COLORS.terminal }});
+        node.makeCircle(COLORS.terminal, 3);
         return node;
     }
 
     /**
-     * A decision: a pill labelled `Decision`, with a diamond next to the label
+     * A decision: a pill labelled `Decision` (or as given), with a diamond next to the label
      * and, at its right end, the button that adds a sibling option (shown
      * once it has a child, see `setAddButtonVisible()`).
      */
-    static createDecision(): Node {
-        const node = Node.create(DECISION_LABEL, 'decision');
+    static createDecision(label: string = DECISION_LABEL): Node {
+        const node = Node.create(label, 'decision');
         node.attr({
             kindIcon: { display: null, d: DECISION_ICON },
             label: { x: `calc(w / 2 + ${KIND_LABEL_OFFSET})` },
