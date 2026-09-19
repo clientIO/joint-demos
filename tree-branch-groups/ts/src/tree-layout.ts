@@ -10,7 +10,7 @@ import { GROUP_PADDING, Group, PARENT_GAP, SIBLING_GAP, isGate } from './shapes'
  * a link has of its own is thus the longer one, with room for the insert
  * button of the link.
  */
-export const BAR_OFFSET_FROM_SHARED = PARENT_GAP / 3;
+const BAR_OFFSET_FROM_SHARED = PARENT_GAP / 3;
 
 /**
  * Vertical distance between the leaves of a group and its `end`: the parent

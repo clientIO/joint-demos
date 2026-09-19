@@ -39,7 +39,7 @@ function getContainers(json: DiagramJSON): Map<Id, Id> {
 function createElement(node: NodeData): dia.Element {
     switch (node.type) {
         case 'start': return Start.create();
-        case 'step': return Step.create(node.label);
+        case 'step': return Step.create(node.label, node.run);
         case 'end': return End.create();
         case 'decision': {
             const decision = Decision.create(node.label);

@@ -4,17 +4,16 @@ import type { DiagramJSON } from './data/types';
  * A CI/CD pipeline. After the checkout and the install, a fork runs the lint,
  * the tests and the build side by side; a decision picks the target: staging,
  * where a loop polls the smoke tests before the build is promoted, production,
- * or no deployment at all. A second line of a label names the command
- * of the step, in backticks - code, on the pill; the branches of the fork
- * are named. Any id will do, but `source`, `target`,
+ * or no deployment at all. A step `run`s a command, shown as code below
+ * its label; the branches of the fork are named. Any id will do, but `source`, `target`,
  * `vertices`, `position`, `size` and `angle`: `ui.Inspector` takes a change
  * of an attribute of those names for a change of a cell's geometry and
  * ignores it, so a node with such an id would not refresh in the panel.
  */
 export const pipeline: DiagramJSON = {
     start: { type: 'start', to: [{ id: 'checkout' }] },
-    checkout: { type: 'step', label: 'Checkout\n`git fetch --depth 1`', to: [{ id: 'install' }] },
-    install: { type: 'step', label: 'Install dependencies\n`npm ci`', to: [{ id: 'jobs' }] },
+    checkout: { type: 'step', label: 'Checkout', run: 'git fetch --depth 1', comment: 'Shallow: the history is not needed.', to: [{ id: 'install' }] },
+    install: { type: 'step', label: 'Install dependencies', run: 'npm ci', to: [{ id: 'jobs' }] },
     jobs: {
         type: 'fork',
         branches: [
@@ -24,9 +23,9 @@ export const pipeline: DiagramJSON = {
         ],
         to: [{ id: 'deploy' }]
     },
-    lint: { type: 'step', label: 'Lint\n`eslint . --max-warnings 0`' },
-    tests: { type: 'step', label: 'Unit tests\n`vitest run --coverage`' },
-    build: { type: 'step', label: 'Build\n`vite build`' },
+    lint: { type: 'step', label: 'Lint', run: 'eslint . --max-warnings 0' },
+    tests: { type: 'step', label: 'Unit tests', run: 'vitest run --coverage' },
+    build: { type: 'step', label: 'Build', run: 'vite build' },
     deploy: {
         type: 'decision',
         label: 'Deploy target',
@@ -37,13 +36,13 @@ export const pipeline: DiagramJSON = {
         ]
     },
     staging: { type: 'step', label: 'Deploy to staging', to: [{ id: 'poll' }] },
-    poll: { type: 'loop', branches: [{ id: 'smoke' }], to: [{ id: 'promote' }] },
-    smoke: { type: 'step', label: 'Run smoke tests\n`playwright test --project smoke`', to: [{ id: 'results' }] },
+    poll: { type: 'loop', branches: [{ id: 'smoke' }], comment: 'Until the smoke tests pass.', to: [{ id: 'promote' }] },
+    smoke: { type: 'step', label: 'Run smoke tests', run: 'playwright test --project smoke', to: [{ id: 'results' }] },
     results: { type: 'step', label: 'Collect results' },
-    promote: { type: 'step', label: 'Promote build\ntag the release candidate', to: [{ id: 'staging-end' }] },
+    promote: { type: 'step', label: 'Promote build', run: 'git tag -f candidate', to: [{ id: 'staging-end' }] },
     'staging-end': { type: 'end' },
     production: { type: 'step', label: 'Deploy to production', to: [{ id: 'notify' }] },
-    notify: { type: 'step', label: 'Notify team\npost to `#releases`', to: [{ id: 'production-end' }] },
+    notify: { type: 'step', label: 'Notify team', run: 'slack post --channel releases', to: [{ id: 'production-end' }] },
     'production-end': { type: 'end' },
     skip: { type: 'step', label: 'Skip deployment', to: [{ id: 'skip-end' }] },
     'skip-end': { type: 'end' }

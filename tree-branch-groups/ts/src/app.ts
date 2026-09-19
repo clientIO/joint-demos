@@ -8,7 +8,7 @@ import { isSelectable, syncInspector } from './inspector';
 import { isCellVisible, runLayout } from './layout';
 import { pipeline } from './pipeline';
 import { COLORS, cellNamespace } from './shapes';
-import { addHoverTools, addTooltips, getDeleteTarget, markMove, placeLinkTools } from './tools';
+import { addHoverTools, addTooltips, getActionTarget, markMove, placeLinkTools } from './tools';
 import type { ToolActions } from './tools';
 
 const PAPER_PADDING = 40;
@@ -150,12 +150,20 @@ export function init(): void {
     // blank area cancels it.
     let moved: dia.Element | null = null;
     const moveHintEl = document.getElementById('move-hint')!;
+    /** Starts or cancels the move; the tools of the diagram follow: drop points, or insert buttons. */
     function setMoved(element: dia.Element | null): void {
         moved = element;
         moveHintEl.hidden = element === null;
         paper.removeTools();
         placeLinkTools(paper, actions);
         markMove(paper, actions);
+    }
+    /** Ends the move with a drop: the edit that follows rebuilds the diagram, tools included. */
+    function takeMoved(): string {
+        const id = String(moved!.id);
+        moved = null;
+        moveHintEl.hidden = true;
+        return id;
     }
     const movedId = (): string => String(moved!.id);
 
@@ -170,16 +178,8 @@ export function init(): void {
         getMovedCells: () => getMovedCells(graph, data, movedId()),
         canDropBelow: (parent) => canMoveBelow(graph, data, movedId(), parent),
         canDropOnLink: (link) => canMoveOnLink(graph, data, movedId(), link),
-        dropBelow: (parent) => {
-            const id = movedId();
-            setMoved(null);
-            moveBelow(data, id, parent);
-        },
-        dropOnLink: (link) => {
-            const id = movedId();
-            setMoved(null);
-            moveOnLink(data, id, link);
-        }
+        dropBelow: (parent) => moveBelow(data, takeMoved(), parent),
+        dropOnLink: (link) => moveOnLink(data, takeMoved(), link)
     };
     addHoverTools(paper, actions);
     addTooltips(document.body);
@@ -213,13 +213,14 @@ export function init(): void {
     keyboard.on('escape', () => {
         if (moved) setMoved(null); else selection.collection.reset([]);
     });
-    // `Delete` on the selected element does what its delete tool does: the
-    // start of a group deletes the group; what cannot be deleted stays.
+    // `Delete` on the selected element does what the "remove" item of its
+    // menu does: the start of a group deletes the group; what cannot be
+    // deleted stays.
     keyboard.on('delete backspace', (evt: dia.Event) => {
         const selected = selection.collection.at(0);
         if (!selected) return;
         evt.preventDefault();
-        const target = getDeleteTarget(selected);
+        const target = getActionTarget(selected);
         if (target && canDelete(graph, target)) actions.delete(target);
     });
 

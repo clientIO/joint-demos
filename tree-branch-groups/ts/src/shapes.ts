@@ -3,11 +3,11 @@ import { dia, util } from '@joint/plus';
 // Layout metrics shared by the shapes and the layout.
 export const NODE_SIZE = { width: 160, height: 40 };
 /** The end of a group has no size: it is the point the paths of the group converge into. */
-export const GROUP_END_SIZE = { width: 0, height: 0 };
+const GROUP_END_SIZE = { width: 0, height: 0 };
 /** The start and the ends of the diagram are circles. */
-export const TERMINAL_SIZE = { width: 52, height: 52 };
+const TERMINAL_SIZE = { width: 52, height: 52 };
 /** The add button below a leaf of the tree, the same square as the insert button of a link. */
-export const ADD_BUTTON_SIZE = { width: 18, height: 18 };
+const ADD_BUTTON_SIZE = { width: 18, height: 18 };
 /**
  * How far from its target the insert button of a link sits when something is
  * in the way below the source (see `placeLinkTools()`); a layout metric too,
@@ -306,9 +306,10 @@ export class Step extends dia.Element {
         return pillDefaults('tbg.Step', { attrs: { kindIcon: { d: NODE_ICON }}}, super.defaults);
     }
 
-    static create(label: string): Step {
+    /** A step with its label and, below it, the command it runs, as code. */
+    static create(label: string, run?: string): Step {
         const step = new Step();
-        setPillLabel(step, label, 'light');
+        setPillLabel(step, run ? `${label}\n\`${run}\`` : label, 'light');
         return step;
     }
 

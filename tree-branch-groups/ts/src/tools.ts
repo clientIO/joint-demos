@@ -63,7 +63,7 @@ function getAddChoices(parent: dia.Element): AddChoice[] {
  * with what can be added there: a child, or a new branch. Clicks on other
  * elements do nothing.
  */
-export function handleElementClick(view: dia.ElementView, evt: dia.Event, actions: ToolActions): void {
+function handleElementClick(view: dia.ElementView, evt: dia.Event, actions: ToolActions): void {
     const element = view.model;
     const graph = element.graph;
     let parent: dia.Element;
@@ -90,12 +90,11 @@ export function handleElementClick(view: dia.ElementView, evt: dia.Event, action
 }
 
 /**
- * The element the menu of the hovered element acts on: a plain node
- * deletes itself, the `start` node of a group deletes the group. The `end`
- * node and the add buttons delete nothing. The `Delete` key on the selected
- * element acts on the same target.
+ * The element the menu of `element` acts on - and the `Delete` key, when
+ * it is selected: a node acts on itself, the `start` of a group on the
+ * group. The `end` of a group and the add buttons have no menu.
  */
-export function getDeleteTarget(element: dia.Element): dia.Element | null {
+export function getActionTarget(element: dia.Element): dia.Element | null {
     if (GroupStart.isGroupStart(element)) return element.getParentCell() as Group;
     if (GroupEnd.isGroupEnd(element) || AddButton.isAddButton(element)) return null;
     return element;
@@ -133,7 +132,7 @@ function highlightDeletion(paper: dia.Paper, target: dia.Element): void {
 }
 
 /** Takes the deletion highlight off. */
-export function clearDeletionHighlight(): void {
+function clearDeletionHighlight(): void {
     for (const view of highlightedViews) highlighters.addClass.remove(view, DELETE_HIGHLIGHT);
     highlightedViews = [];
 }
@@ -156,7 +155,7 @@ function createMenuButtonMarkup(color: string): dia.MarkupJSON {
 
 /**
  * The "more" tool of the hovered `element`, acting on `target` (see
- * `getDeleteTarget()`): three dots at the top right, inside the element and
+ * `getActionTarget()`): three dots at the top right, inside the element and
  * clear of the button at its right end, in the color of its text. A click
  * opens the menu of the element - its removal; hovering the item highlights
  * what it would remove. `null` when the target cannot be deleted: the menu
@@ -186,14 +185,14 @@ function createMenuTool(paper: dia.Paper, element: dia.Element, target: dia.Elem
 
 /**
  * The tools of the hovered element: the "more" tool with the menu of the
- * element it acts on (see `getDeleteTarget()`). Adding happens on the links
+ * element it acts on (see `getActionTarget()`). Adding happens on the links
  * and on the add buttons, collapsing on the button of the `start` node.
  * `null` when the element has no tools.
  */
-export function createHoverTools(paper: dia.Paper, element: dia.Element, actions: ToolActions): dia.ToolsView | null {
+function createHoverTools(paper: dia.Paper, element: dia.Element, actions: ToolActions): dia.ToolsView | null {
     // While a move is on, the drop points are the only tools.
     if (actions.getMoved()) return null;
-    const target = getDeleteTarget(element);
+    const target = getActionTarget(element);
     const menuTool = target && createMenuTool(paper, element, target, actions);
     return menuTool ? new dia.ToolsView({ tools: [menuTool] }) : null;
 }
@@ -347,7 +346,7 @@ export function placeLinkTools(paper: dia.Paper, actions: ToolActions): void {
 /**
  * One tooltip for every button under `root` - the buttons of the pills and
  * the add buttons below the leaves, the insert buttons of the links, the
- * delete tools and the buttons of the toolbar - each named by its
+ * "more" tools and the buttons of the toolbar - each named by its
  * `data-tooltip` attribute.
  */
 export function addTooltips(root: HTMLElement): ui.Tooltip {
@@ -391,7 +390,7 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
     });
 
     paper.on('element:mouseleave', (elementView: dia.ElementView) => {
-        // The delete tool goes with the hover; so does its highlight.
+        // The "more" tool goes with the hover; so does the highlight of its menu.
         clearDeletionHighlight();
         elementView.removeTools();
     });

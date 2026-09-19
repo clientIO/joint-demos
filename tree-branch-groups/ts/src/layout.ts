@@ -12,7 +12,7 @@ import { createTreeLayout } from './tree-layout';
  * visible and stands in for the group. A group nested in a collapsed group
  * hides its `start` as well.
  */
-export function isHiddenByCollapse(cell: dia.Cell): boolean {
+function isHiddenByCollapse(cell: dia.Cell): boolean {
     return cell.getAncestors().some((ancestor) => {
         if (!Group.isGroup(ancestor) || !ancestor.isCollapsed()) return false;
         return !(GroupStart.isGroupStart(cell) && cell.getParentCell() === ancestor);
@@ -104,7 +104,7 @@ function makeRoomForOptions(graph: dia.Graph): void {
 /**
  * Names the links from every decision and every fork to their options
  * `option 1`, `option 2`, ... from left to right - or as the option was
- * named (`nameOption()`) - and takes the name off every other link. After
+ * named on its edge in the data - and takes the name off every other link. After
  * the layout, which decides the order.
  */
 function nameOptions(graph: dia.Graph): void {

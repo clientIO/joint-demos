@@ -203,6 +203,7 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
             } else {
                 edges[index] = edge;
                 const [leaf] = this.getOpenLeaves(id, json);
+                if (leaf === undefined) throw new Error(`Nothing below ${id} can lead on to ${childId}.`);
                 setEdges(json[leaf], 'to', [{ id: childId! }]);
             }
             setEdges(json[parentId], slot, edges);

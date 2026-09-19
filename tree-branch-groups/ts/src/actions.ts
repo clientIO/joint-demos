@@ -8,9 +8,10 @@ import { AddButton, DECISION_LABEL, Decision, Group, GroupEnd, GroupStart, Link,
 
 /**
  * The edits, and the questions the tools ask before offering one. An edit
- * changes the data only; the graph follows (see `app.ts`). The questions are
- * answered from the graph, where the tools live: it stands for the data
- * one to one (see `build.ts`).
+ * changes the data only; the graph follows (see `app.ts`). The questions
+ * take the element or the link the tools hold - the graph stands for the
+ * data one to one (see `build.ts`) - and ask the graph about the structure
+ * around it, the data about the subtree that would move.
  */
 
 let nodeCounter = 0;

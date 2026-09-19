@@ -77,7 +77,7 @@ body {
 .inspector {
     /* The theme places the inspector absolutely: it fills the panel. */
     position: relative;
-    width: 260px;
+    width: 440px;
     flex-shrink: 0;
     border-left: 1px solid #DCE2F5;
     background: #FFFFFF;
@@ -103,6 +103,43 @@ body {
 
 .inspector .title + .message {
     padding-top: 4px;
+}
+
+/*
+    The diagram as YAML, with nothing selected, highlighted by highlight.js:
+    a small theme of its classes in the colors of the diagram.
+*/
+.inspector .yaml {
+    margin: 0;
+    padding: 4px 16px 16px;
+    font-family: Menlo, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #222222;
+    white-space: pre;
+    overflow-x: auto;
+}
+
+.inspector .yaml .hljs-attr {
+    color: #4666E5;
+}
+
+.inspector .yaml .hljs-bullet {
+    color: #7A90EC;
+}
+
+.inspector .yaml .hljs-string {
+    color: #222222;
+}
+
+.inspector .yaml .hljs-number,
+.inspector .yaml .hljs-literal {
+    color: #2E9E5B;
+}
+
+.inspector .yaml .hljs-comment {
+    color: #8A8A95;
+    font-style: italic;
 }
 
 .inspector .joint-inspector {
@@ -316,7 +353,7 @@ body {
 }
 
 /*
-    The cells a hovered delete tool would remove, marked by a class from a
+    The cells a hovered "remove" item would remove, marked by a class from a
     highlighter: the elements and the links turn red - the outline and the
     icon of a node, the fill of a pill, the lines of the links - the buttons
     on them do not. The color fades in and out.

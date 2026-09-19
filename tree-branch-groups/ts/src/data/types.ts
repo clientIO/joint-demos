@@ -13,7 +13,9 @@ export interface Edge {
 
 /**
  * A node of the diagram: what the data holds about it, and which nodes it
- * leads to. Every node but an end has a `to` list - what follows it: one
+ * leads to. A step has a label and, as the case may be, the command it
+ * runs; a step, a decision or a group may carry a comment, which the YAML
+ * shows above it. Every node but an end has a `to` list - what follows it: one
  * edge, or one per option of a decision. A group has `branches` too: the
  * children of its `start`. The leaves of the branches meet in the `end` of
  * the group - the gates, the links, the add buttons are not in the data:
@@ -21,10 +23,10 @@ export interface Edge {
  */
 export type NodeData =
     | { type: 'start'; to?: Edge[] }
-    | { type: 'step'; label: string; to?: Edge[] }
-    | { type: 'decision'; label: string; to?: Edge[] }
-    | { type: 'fork'; branches?: Edge[]; collapsed?: boolean; to?: Edge[] }
-    | { type: 'loop'; branches?: Edge[]; collapsed?: boolean; to?: Edge[] }
+    | { type: 'step'; label: string; run?: string; comment?: string; to?: Edge[] }
+    | { type: 'decision'; label: string; comment?: string; to?: Edge[] }
+    | { type: 'fork'; branches?: Edge[]; collapsed?: boolean; comment?: string; to?: Edge[] }
+    | { type: 'loop'; branches?: Edge[]; collapsed?: boolean; comment?: string; to?: Edge[] }
     | { type: 'end' };
 
 export type GroupData = Extract<NodeData, { type: 'fork' | 'loop' }>;
