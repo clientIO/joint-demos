@@ -61,31 +61,21 @@ function getReturnLink(graph: dia.Graph, group: Group): Link | undefined {
         .find((link): link is Link => link instanceof Link && link.getTargetElement() === start);
 }
 
-interface Tree {
-    elements: dia.Element[];
-    links: dia.Link[];
-}
-
 /**
- * The elements of the tree that grows from `roots` and the links between
- * them, up to (not including) the gates and the links into them. Follows the
- * outbound links only, so a nested group is a single element of the tree.
+ * The elements of the tree that grows from `roots`, up to (not including)
+ * the gates. Follows the outbound links only, so a nested group is a single
+ * element of the tree.
  */
-function collectTree(graph: dia.Graph, roots: dia.Element[]): Tree {
+function collectTree(graph: dia.Graph, roots: dia.Element[]): dia.Element[] {
     const elements: dia.Element[] = [];
-    const links: dia.Link[] = [];
     for (const root of roots) {
         graph.search(root, (element) => {
             if (isGate(element)) return false;
             elements.push(element);
-            for (const link of graph.getConnectedLinks(element, { outbound: true })) {
-                const child = link.getTargetElement();
-                if (child && !isGate(child)) links.push(link);
-            }
             return true;
         }, { outbound: true, breadthFirst: true });
     }
-    return { elements, links };
+    return elements;
 }
 
 /**
@@ -121,7 +111,7 @@ export function layoutLoopGroup(graph: dia.Graph, group: Group): void {
     }).layoutTree(start);
     const tree = collectTree(graph, roots);
     // An emptied loop has no tree: `start` links straight down to `end`, and the column of `start` stands in.
-    const treeBBox = graph.getCellsBBox(tree.elements) ?? new g.Rect(startBBox.x, startBBox.corner().y + PARENT_GAP, startBBox.width, 0);
+    const treeBBox = graph.getCellsBBox(tree) ?? new g.Rect(startBBox.x, startBBox.corner().y + PARENT_GAP, startBBox.width, 0);
 
     // The return link runs a gap left of everything, outside of the box of the group.
     const returnX = Math.min(treeBBox.x, startBBox.x) - LOOP_GAP;

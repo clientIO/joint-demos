@@ -56,18 +56,18 @@ function findEdge(json: DiagramJSON, childId: Id): EdgeRef | null {
 
 /** The ids of `id` and everything below it - what it leads to and, for a group, its branches - recursively. */
 function collectSubtree(json: DiagramJSON, id: Id): Id[] {
-    const ids: Id[] = [];
+    const ids = new Set<Id>();
     const stack = [id];
     while (stack.length > 0) {
         const current = stack.pop()!;
         const node = json[current];
-        if (!node || ids.includes(current)) continue;
-        ids.push(current);
+        if (!node || ids.has(current)) continue;
+        ids.add(current);
         for (const slot of ['to', 'branches'] as const) {
             stack.push(...getEdges(node, slot).map((edge) => edge.id));
         }
     }
-    return ids;
+    return [...ids];
 }
 
 /**
@@ -75,16 +75,16 @@ function collectSubtree(json: DiagramJSON, id: Id): Id[] {
  * path the flow takes from it - not into the branches of a group.
  */
 function collectPath(json: DiagramJSON, id: Id): Id[] {
-    const ids: Id[] = [];
+    const ids = new Set<Id>();
     const stack = [id];
     while (stack.length > 0) {
         const current = stack.pop()!;
         const node = json[current];
-        if (!node || ids.includes(current)) continue;
-        ids.push(current);
+        if (!node || ids.has(current)) continue;
+        ids.add(current);
         stack.push(...getEdges(node, 'to').map((edge) => edge.id));
     }
-    return ids;
+    return [...ids];
 }
 
 /** Takes the edge into `id` out of its parent. Returns the edge and where it was; `null` for the root. */
@@ -102,7 +102,7 @@ function detach(json: DiagramJSON, id: Id): { ref: EdgeRef; edge: Edge } | null 
  * the model (see `types.ts`). Every edit is one of the methods below. Each
  * takes a copy of the data, changes it and sets it back, in a batch: the
  * command manager records the edit as one undoable step, and the graph is
- * rebuilt from the data once (see `app.ts`).
+ * rebuilt from the data once (see the app).
  */
 export class DiagramData extends mvc.Model<DiagramJSON> {
 
@@ -210,18 +210,19 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
      * Moves the node `id`, with everything below it, into `slot` of the node
      * `parentId`: at the end of the list, or in place of the edge to
      * `childId`, which the open leaf of the moved subtree then leads to
-     * (see `insertNode()`). The edge keeps its name: an option stays the
-     * option it was named.
+     * (see `insertNode()`). A name belongs to the edge, not to the node: the
+     * edge the node lands in keeps its name, so an option stays the option
+     * it was named; the name of the edge the node leaves stays behind.
      */
     moveNode(id: Id, parentId: Id, slot: Slot, childId: Id | null): void {
         this.setData((json) => {
-            const edge = detach(json, id)?.edge ?? { id };
+            detach(json, id);
             const edges = [...getEdges(json[parentId], slot)];
             const index = childId === null ? -1 : edges.findIndex((candidate) => candidate.id === childId);
             if (index < 0) {
-                edges.push(edge);
+                edges.push({ id });
             } else {
-                edges[index] = edge;
+                edges[index] = { ...edges[index], id };
                 const [leaf] = this.getOpenLeaves(id, json);
                 if (leaf === undefined) throw new Error(`Nothing below ${id} can lead on to ${childId}.`);
                 setEdges(json[leaf], 'to', [{ id: childId! }]);
@@ -256,10 +257,13 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
         });
     }
 
-    /** Changes some of the fields of the node `id`: its label, whether a group is collapsed. */
+    /** Changes some of the fields of the node `id`: its label, whether a group is collapsed. An empty or undefined value takes the field out. */
     changeNode(id: Id, change: Partial<NodeData>): void {
         this.setData((json) => {
-            Object.assign(json[id], change);
+            const node = json[id] as unknown as Record<string, unknown>;
+            for (const [field, value] of Object.entries(change)) {
+                if (value === undefined || value === '') delete node[field]; else node[field] = value;
+            }
         });
     }
 

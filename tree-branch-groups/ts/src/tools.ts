@@ -4,15 +4,15 @@ import { canAddTerminal, canDelete, canSplit, getDeletedCells } from './actions'
 import { isCellVisible } from './layout';
 import { openAddMenu, openMenu } from './menu';
 import type { AddChoice } from './menu';
-import { ADD_BUTTON_SELECTOR, AddButton, BRANCH_LABEL_OFFSET_ALONG, COLORS, Decision, End, Group, GroupEnd, GroupStart, INSERT_BUTTON_FROM_TARGET, Link, TOGGLE_EVENT } from './shapes';
+import { ADD_BUTTON_SELECTOR, ADD_BUTTON_SIZE, AddButton, BRANCH_LABEL_OFFSET_ALONG, COLORS, Decision, End, Group, GroupEnd, GroupStart, INSERT_BUTTON_FROM_TARGET, Link, PLUS_ICON, TOGGLE_EVENT } from './shapes';
 
 /** The insert buttons are squares, so that they differ from the round toggle and "more" buttons: blue, marked in white like every add button. */
 const ADD_FILL = COLORS.button.fill;
 const ADD_STROKE = COLORS.button.text;
-const ADD_ICON = 'M -4 0 4 0 M 0 -4 0 4';
-const INSERT_BUTTON_SIZE = 18;
+const ADD_ICON = PLUS_ICON;
+const INSERT_BUTTON_SIZE = ADD_BUTTON_SIZE.width;
 /** The "remove" item of the menu of an element: a cross, in red. */
-const DELETE_FILL = '#E54666';
+const DELETE_FILL = COLORS.danger;
 const DELETE_ICON = 'M -5 -5 5 5 M -5 5 5 -5';
 
 export interface ToolActions {
@@ -28,6 +28,8 @@ export interface ToolActions {
     getMoved(): dia.Element | null;
     /** The cells that move with it, to mark them. */
     getMovedCells(): dia.Cell[];
+    /** The cells that would move with `element`: for the preview of a move, before it starts. */
+    getMovedCellsOf(element: dia.Element): dia.Cell[];
     canDropBelow(parent: dia.Element): boolean;
     canDropOnLink(link: Link): boolean;
     dropBelow(parent: dia.Element): void;
@@ -130,42 +132,50 @@ function highlightDeletion(paper: dia.Paper, target: dia.Element): void {
 }
 
 /** Takes the deletion highlight off. */
-function clearDeletionHighlight(): void {
+export function clearDeletionHighlight(): void {
     for (const view of highlightedViews) highlighters.addClass.remove(view, DELETE_HIGHLIGHT);
     highlightedViews = [];
 }
 
 
-/** The class on the cells a hovered collapse button would hide: the content of the group, faded (see the stylesheet). */
-const COLLAPSE_HIGHLIGHT = 'to-be-collapsed';
+/** The class on the faded cells - what a hovered collapse button would hide, what a hovered "move" item would move: light colors (see the stylesheet). */
+const FADED_CLASS = 'faded';
 
 /** The views faded at the moment, to restore them. */
 let fadedViews: dia.CellView[] = [];
 
-/**
- * Fades what a collapse of `group` would hide - its content, nested groups
- * included, and the links of the content - by a class on their views. The
- * start of the group stays: it stands in for the collapsed group. Nothing
- * for a group already collapsed.
- */
-function highlightCollapse(paper: dia.Paper, group: Group): void {
-    clearCollapseHighlight();
-    if (group.isCollapsed()) return;
-    const content = group.getEmbeddedCells({ deep: true }).filter((cell) => !GroupStart.isGroupStart(cell) || cell !== group.getStart());
-    const links = content.filter((cell) => cell.isElement()).flatMap((cell) => paper.model.getConnectedLinks(cell));
-    for (const cell of new Set([...content, ...links])) {
+/** Fades `cells` - the visible ones - by a class on their views; what was faded before is restored first. */
+function fadeCells(paper: dia.Paper, cells: Iterable<dia.Cell>): void {
+    clearFaded();
+    for (const cell of cells) {
         if (!isCellVisible(cell)) continue;
         const view = paper.findViewByModel(cell);
         if (!view) continue;
-        highlighters.addClass.add(view, 'root', COLLAPSE_HIGHLIGHT, { className: COLLAPSE_HIGHLIGHT });
+        highlighters.addClass.add(view, 'root', FADED_CLASS, { className: FADED_CLASS });
         fadedViews.push(view);
     }
 }
 
-/** Restores the cells faded for a collapse. */
-function clearCollapseHighlight(): void {
-    for (const view of fadedViews) highlighters.addClass.remove(view, COLLAPSE_HIGHLIGHT);
+/** Restores the faded cells. */
+export function clearFaded(): void {
+    for (const view of fadedViews) highlighters.addClass.remove(view, FADED_CLASS);
     fadedViews = [];
+}
+
+/**
+ * Fades what a collapse of `group` would hide - its content, nested groups
+ * included, and the links of the content. The start of the group stays: it
+ * stands in for the collapsed group. Nothing for a group already collapsed.
+ */
+function highlightCollapse(paper: dia.Paper, group: Group): void {
+    if (group.isCollapsed()) {
+        clearFaded();
+        return;
+    }
+    const start = group.getStart();
+    const content = group.getEmbeddedCells({ deep: true }).filter((cell) => cell !== start);
+    const links = content.filter((cell) => cell.isElement()).flatMap((cell) => paper.model.getConnectedLinks(cell));
+    fadeCells(paper, new Set([...content, ...links]));
 }
 
 /** The "more" button: three dots at the top right of the hovered element, inside it; a click opens the menu of the element. */
@@ -218,7 +228,11 @@ function createMenuTool(paper: dia.Paper, element: dia.Element, target: dia.Elem
                 { action: 'remove', label: getDeleteTitle(target), icon: DELETE_ICON, color: DELETE_FILL }
             ], {
                 onChoose: (action) => (action === 'move' ? actions.startMove(target) : actions.delete(target)),
-                onHover: (action) => (action === 'remove' ? highlightDeletion(paper, target) : clearDeletionHighlight())
+                // The hovered item shows what it would do: "remove" turns the cells red, "move" fades what would move.
+                onHover: (action) => {
+                    if (action === 'remove') highlightDeletion(paper, target); else clearDeletionHighlight();
+                    if (action === 'move') fadeCells(paper, actions.getMovedCellsOf(target)); else clearFaded();
+                }
             });
         }
     });
@@ -267,7 +281,7 @@ const NO_DROP_CLASS = 'no-drop';
 let markedViews: { view: dia.CellView; className: string }[] = [];
 
 /**
- * Marks the move in progress: the subtree that moves - dimmed, its links
+ * Marks the move in progress: the subtree that moves - faded, its links
  * and buttons included - and the buttons that cannot take it - hidden. Nothing
  * while no move is on: the marks of the last one come off.
  */
@@ -416,7 +430,7 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
     // The collapse/expand button on the `start` node of a group is a part of its markup.
     paper.on(TOGGLE_EVENT, (elementView: dia.ElementView, evt: dia.Event) => {
         evt.stopPropagation();
-        clearCollapseHighlight();
+        clearFaded();
         const group = elementView.model.getParentCell();
         if (group && Group.isGroup(group)) actions.toggleGroup(group);
     });
@@ -428,11 +442,11 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
         if (isToggle(evt) && GroupStart.isGroupStart(elementView.model) && group && Group.isGroup(group)) {
             highlightCollapse(paper, group);
         } else {
-            clearCollapseHighlight();
+            clearFaded();
         }
     });
     paper.on('element:mouseout', (_elementView: dia.ElementView, evt: dia.Event) => {
-        if (isToggle(evt)) clearCollapseHighlight();
+        if (isToggle(evt)) clearFaded();
     });
 
     paper.on('element:pointerclick', (elementView: dia.ElementView, evt: dia.Event) => {
@@ -447,9 +461,9 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
     });
 
     paper.on('element:mouseleave', (elementView: dia.ElementView) => {
-        // The "more" tool goes with the hover; so does the highlight of its menu, and the preview of a collapse.
+        // The "more" tool goes with the hover; so do the previews of its menu and of the collapse button.
         clearDeletionHighlight();
-        clearCollapseHighlight();
+        clearFaded();
         elementView.removeTools();
     });
 }

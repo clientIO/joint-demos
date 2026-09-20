@@ -38,6 +38,9 @@ export function Menu({ request, onClose }: MenuProps): ReactNode {
         });
     }, [anchor]);
 
+    // The menu going - `Escape`, a click elsewhere - ends the hover of its item too: React fires no `mouseleave` on unmount.
+    useEffect(() => () => onHover?.(null), [onHover]);
+
     useEffect(() => {
         const onPointerDown = (evt: PointerEvent): void => {
             if (!ref.current?.contains(evt.target as Node)) onClose();

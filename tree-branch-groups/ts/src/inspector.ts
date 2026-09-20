@@ -198,8 +198,9 @@ function sync(container: HTMLElement, data: DiagramData, element: Selectable | n
 
 /**
  * Saves what is typed in the open inspector and takes it down. Only the
- * fields whose value differs from the data are committed - `updateCell()`
- * as a whole would write every empty field as an edit of its own.
+ * fields whose value differs from the data are committed, each through the
+ * data's own method - an empty field takes the value out, where
+ * `updateCell()` would write an empty string - as one edit each.
  */
 function closeInspector(data: DiagramData): void {
     if (!inspector) return;
@@ -209,7 +210,17 @@ function closeInspector(data: DiagramData): void {
     for (const field of Array.from(open.el.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[data-attribute]'))) {
         const path = field.dataset.attribute!;
         const current = util.getByPath(data.getData(), path, '/') as string | undefined;
-        if (field.value !== (current ?? '')) open.updateCell(field, path);
+        if (field.value !== (current ?? '')) commit(data, path, field.value);
     }
     open.remove();
+}
+
+/** Writes `value` at `path` - `<id>/<field>`, or `<id>/<slot>/<index>/name` for the name of an option - into the data. */
+function commit(data: DiagramData, path: string, value: string): void {
+    const [id, ...rest] = path.split('/');
+    if (rest.length === 3 && rest[2] === 'name') {
+        data.setOptionName(id, rest[0] as Slot, Number(rest[1]), value || null);
+    } else {
+        data.changeNode(id, { [rest[0]]: value } as Partial<NodeData>);
+    }
 }

@@ -361,8 +361,23 @@ body {
     background: #FFFFFF;
 }
 
-.moving-mode .more {
-    display: none;
+/* A move in progress: the buttons are the drop points - dark, like the ends, so that they read as the targets to click. */
+.moving-mode .square-button,
+.moving-mode .pill-add {
+    background: #2B3555;
+}
+
+.moving-mode .square-button:hover,
+.moving-mode .pill-add:hover {
+    background: #1C2440;
+}
+
+.moving-mode .link-button rect {
+    fill: #2B3555;
+}
+
+.moving-mode .link-button:hover rect {
+    fill: #1C2440;
 }
 
 /* The content React renders on a link: the insert button, the name of an option, the arrow of a return link. */
@@ -448,40 +463,40 @@ body {
 }
 
 /*
-    What a hovered collapse button would hide - the content of the group,
+    The faded cells - what a hovered collapse button would hide, what a
+    hovered "move" item would move, the subtree of a move in progress -
     marked by a class like a deletion, and colored like one: the outline and
     the icon of a node, the fill of a pill and of an end, the lines of the
     links - in light colors, faded towards the background; nothing else
     changes, no opacity is involved (translucent links add up where they
     overlap).
 */
-.to-be-collapsed .pill {
+:is(.faded, .moving) .pill {
     border-color: #AEBDEF;
 }
 
-.to-be-collapsed .pill.filled {
+:is(.faded, .moving) .pill.filled {
     background: #AEBDEF;
 }
 
-.to-be-collapsed .terminal {
+:is(.faded, .moving) .terminal {
     background: #A3A9B6;
 }
 
-.to-be-collapsed .pill .kind-icon {
+:is(.faded, .moving) .pill .kind-icon {
     color: #AEBDEF;
 }
 
-.to-be-collapsed .pill.filled .kind-icon {
+:is(.faded, .moving) .pill.filled .kind-icon {
     color: #FFFFFF;
 }
 
-.to-be-collapsed .jj-link-line {
+:is(.faded, .moving) .jj-link-line {
     stroke: #C3CEF2;
 }
 
-/* A move in progress: the subtree that moves is dimmed; a button that cannot take it is gone. */
+/* A move in progress: the subtree that moves is faded (see `.faded`) and out of reach; a button that cannot take it is gone. */
 .moving {
-    opacity: 0.4;
     pointer-events: none;
 }
 
@@ -620,11 +635,6 @@ body {
     border-radius: 8px;
     background: var(--background);
     box-shadow: 0 4px 14px rgba(34, 34, 34, 0.1);
-}
-
-/* The strokes of the map scale with it, like the diagram's: the library keeps them at a fixed width otherwise. */
-.navigator .jj-navigator-element {
-    vector-effect: none;
 }
 
 .navigator .current-view {
@@ -766,7 +776,7 @@ pre.code {
 
 .code .hljs-number,
 .code .hljs-literal {
-    color: #E36A3D;
+    color: #2B3555;
 }
 
 .code .hljs-comment {

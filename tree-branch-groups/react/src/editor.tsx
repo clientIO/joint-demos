@@ -12,7 +12,7 @@ import type { EditorApi, View } from './editor-context';
 import { isCellVisible, runLayout } from './layout';
 import { pipeline } from './pipeline';
 import { Group, GroupStart } from './shapes';
-import { clearCollapseHighlight, clearDeletionHighlight, highlightCollapse, highlightDeletion, markMove } from './tools';
+import { clearDeletionHighlight, clearFaded, fadeCells, highlightCollapse, highlightDeletion, markMove } from './tools';
 
 const PAPER_PADDING = 40;
 const ZOOM_STEP = 0.2;
@@ -51,7 +51,7 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     const [history] = useState(() => new dia.CommandManager({ model: data }));
     const viewRef = useRef<View | null>(null);
     const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [moved, setMoved] = useState<dia.Element | null>(null);
+    const [movedElement, setMoved] = useState<dia.Element | null>(null);
     const [menu, setMenu] = useState<MenuRequest | null>(null);
 
     // The data changes on every edit; the history stack on every command, undo and redo.
@@ -82,6 +82,8 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     // A selected element that an edit removed, or hid, is not selected any more.
     const selectedCell = selectedId === null ? undefined : graph.getCell(selectedId);
     const effectiveSelectedId = selectedCell && isCellVisible(selectedCell) ? selectedId : null;
+    // A move whose element an edit removed - an undo, a redo, `Delete` - is off. The build keeps a cell that stands for the same node; another instance means the node was gone in between.
+    const moved = movedElement && graph.getCell(movedElement.id) === movedElement ? movedElement : null;
 
     // The marks of a move: the dimmed subtree, the buttons that cannot take it.
     useEffect(() => {
@@ -136,7 +138,7 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
                 deleteElement(graph, data, target);
             },
             toggleGroup: (group) => {
-                clearCollapseHighlight();
+                clearFaded();
                 toggleGroup(data, group);
             },
             previewDeletion: (target) => {
@@ -145,7 +147,11 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             },
             previewCollapse: (group) => {
                 const paper = viewRef.current?.paper;
-                if (group && paper) highlightCollapse(paper, group); else clearCollapseHighlight();
+                if (group && paper) highlightCollapse(paper, group); else clearFaded();
+            },
+            previewMove: (target) => {
+                const paper = viewRef.current?.paper;
+                if (target && paper) fadeCells(paper, getMovedCells(graph, data, String(target.id))); else clearFaded();
             },
             menu,
             openMenu: setMenu,

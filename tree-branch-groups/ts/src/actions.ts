@@ -1,6 +1,7 @@
 import type { dia } from '@joint/plus';
 
 import type { AddChoice } from './menu';
+import { cellId } from './data/build';
 import type { DiagramData } from './data/DiagramData';
 import type { Id, NodeData, Slot } from './data/types';
 import { isCellVisible } from './layout';
@@ -8,18 +9,18 @@ import { AddButton, DECISION_LABEL, Decision, Group, GroupEnd, GroupStart, Link,
 
 /**
  * The edits, and the questions the tools ask before offering one. An edit
- * changes the data only; the graph follows (see `app.ts`). The questions
+ * changes the data only; the graph follows (see the app). The questions
  * take the element or the link the tools hold - the graph stands for the
  * data one to one (see `build.ts`) - and ask the graph about the structure
  * around it, the data about the subtree that would move.
  */
 
-let stepCounter = 0;
-
-/** The label of a new step without one: `Step 1`, `Step 2`, ... */
-function nextLabel(): string {
-    stepCounter += 1;
-    return `Step ${stepCounter}`;
+/** The label of a new step without one: `Step 1`, `Step 2`, ... - the number after the highest one in use. */
+function nextLabel(data: DiagramData): string {
+    const numbers = Object.values(data.getData())
+        .map((node) => (node.type === 'step' ? /^Step (\d+)$/.exec(node.label) : null))
+        .map((match) => (match ? Number(match[1]) : 0));
+    return `Step ${Math.max(0, ...numbers) + 1}`;
 }
 
 /** The group `element` is a direct part of, if any. */
@@ -121,9 +122,9 @@ export function canSplit(link: dia.Link): boolean {
 }
 
 /** The node of the data a choice of the add menu stands for. A step without a label is numbered. */
-function createNodeData(choice: AddChoice, label?: string): NodeData {
+function createNodeData(data: DiagramData, choice: AddChoice, label?: string): NodeData {
     switch (choice) {
-        case 'step': return { type: 'step', label: label ?? nextLabel() };
+        case 'step': return { type: 'step', label: label ?? nextLabel(data) };
         case 'decision': return { type: 'decision', label: label ?? DECISION_LABEL };
         case 'end': return { type: 'end' };
         default: return { type: choice };
@@ -146,7 +147,7 @@ function getSlot(element: dia.Element): { id: Id; slot: Slot } {
 /** Adds a new node of the chosen kind as the last child of `parent`, with a label where it takes one. */
 export function addBelow(data: DiagramData, parent: dia.Element, choice: AddChoice, label?: string): Id {
     const { id, slot } = getSlot(parent);
-    return data.appendNode(createNodeData(choice, label), id, slot);
+    return data.appendNode(createNodeData(data, choice, label), id, slot);
 }
 
 /**
@@ -160,7 +161,7 @@ export function insertOnLink(data: DiagramData, link: Link, choice: AddChoice, l
     const target = link.getTargetElement()!;
     const { id, slot } = getSlot(source);
     const childId = GroupEnd.isGroupEnd(target) ? null : String(target.id);
-    return data.insertNode(createNodeData(choice, label), id, slot, childId);
+    return data.insertNode(createNodeData(data, choice, label), id, slot, childId);
 }
 
 /**
@@ -224,7 +225,8 @@ export function hasMoveTarget(graph: dia.Graph, data: DiagramData, movedId: Id):
     return graph.getElements().some((element) => {
         if (!isCellVisible(element)) return false;
         let parent: dia.Element | undefined;
-        if (GroupStart.isGroupStart(element)) parent = element.getKind() === 'fork' ? element : undefined;
+        // A decision with options and a fork with branches have their own drop point, the `+`; without, the add button below is the target.
+        if (GroupStart.isGroupStart(element)) parent = element.getKind() === 'fork' && getChildren(graph, element).length > 0 ? element : undefined;
         else if (Decision.isDecision(element)) parent = getChildren(graph, element).length > 0 ? element : undefined;
         else if (AddButton.isAddButton(element)) parent = getParent(graph, element);
         return parent !== undefined && canMoveBelow(graph, data, movedId, parent);
@@ -238,7 +240,7 @@ export function hasMoveTarget(graph: dia.Graph, data: DiagramData, movedId: Id):
  */
 export function getMovedCells(graph: dia.Graph, data: DiagramData, movedId: Id): dia.Cell[] {
     const elements = data.getSubtree(movedId)
-        .flatMap((id) => [graph.getCell(id), graph.getCell(`${id}-add`)])
+        .flatMap((id) => [graph.getCell(id), graph.getCell(cellId.addButton(id))])
         .filter((cell): cell is dia.Element => cell !== undefined && cell.isElement());
     return graph.getSubgraph(elements, { deep: true });
 }

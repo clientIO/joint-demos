@@ -179,7 +179,7 @@ function parkHiddenContent(group: Group): void {
 }
 
 /** The bounding box of the visible elements - `null` with none - to fit the view to. */
-export function getVisibleBBox(graph: dia.Graph): g.Rect | null {
+function getVisibleBBox(graph: dia.Graph): g.Rect | null {
     return graph.getCellsBBox(graph.getElements().filter(isCellVisible));
 }
 

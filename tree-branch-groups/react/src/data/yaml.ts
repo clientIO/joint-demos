@@ -33,15 +33,29 @@ export function toYAML(json: DiagramJSON): string {
 
 const INDENT = '  ';
 
-/** A scalar, quoted where YAML would read it as something else - or as several lines. */
+/** A scalar, quoted where YAML would read it as something else - or as several lines, or with a control character. */
 function scalar(value: string): string {
-    const plain = /^[A-Za-z_][^:#{}[\],&*!|>'"%@`?\n]*$/.test(value) && !/\s$/.test(value) && !/^(true|false|null|yes|no|on|off)$/i.test(value);
+    // eslint-disable-next-line no-control-regex
+    const plain = /^[A-Za-z_][^:#{}[\],&*!|>'"%@`?\x00-\x1F\x7F]*$/.test(value) && !/\s$/.test(value) && !/^(true|false|null|yes|no|on|off)$/i.test(value);
     return plain ? value : JSON.stringify(value);
 }
 
-/** The key of an option or a branch: its name, or its default (`option 1`, `branch 1`, ... by the `type` of the parent). */
-function key(edge: Edge, index: number, type: NodeData['type']): string {
-    return scalar(edge.name || getDefaultOptionName(type, index));
+/**
+ * The keys of the options or the branches `edges` lead to: their names, or
+ * their defaults (`option 1`, `branch 1`, ... by the `type` of the parent).
+ * A map takes each key once: a name that repeats an earlier one - two
+ * branches named alike, an option named `option 2` next to an unnamed
+ * second one - is numbered, `Build (2)`.
+ */
+function keys(edges: Edge[], type: NodeData['type']): string[] {
+    const used = new Set<string>();
+    return edges.map((edge, index) => {
+        const name = edge.name || getDefaultOptionName(type, index);
+        let unique = name;
+        for (let n = 2; used.has(unique); n += 1) unique = `${name} (${n})`;
+        used.add(unique);
+        return scalar(unique);
+    });
 }
 
 /**
@@ -55,7 +69,7 @@ function sequence(json: DiagramJSON, id: Id | undefined, depth: number): string[
     while (current !== undefined) {
         const node: NodeData = json[current];
         const comment = 'comment' in node ? node.comment : undefined;
-        if (comment) lines.push(...comment.split('\n').map((line) => `${INDENT.repeat(depth)}# ${line}`));
+        if (comment) lines.push(...comment.split(/\r\n?|\n/).map((line) => `${INDENT.repeat(depth)}# ${line}`));
         const [first, ...rest] = item(json, node, depth + 1);
         lines.push(`${INDENT.repeat(depth)}- ${first}`, ...rest);
         if (node.type === 'decision' || node.type === 'end') break;
@@ -66,7 +80,8 @@ function sequence(json: DiagramJSON, id: Id | undefined, depth: number): string[
 
 /** The lines of a map of sequences - the branches of a group, the options of a decision - indented by `depth` levels. */
 function branches(json: DiagramJSON, edges: Edge[], depth: number, type: NodeData['type']): string[] {
-    return edges.flatMap((edge, index) => [`${INDENT.repeat(depth)}${key(edge, index, type)}:`, ...sequence(json, edge.id, depth + 1)]);
+    const names = keys(edges, type);
+    return edges.flatMap((edge, index) => [`${INDENT.repeat(depth)}${names[index]}:`, ...sequence(json, edge.id, depth + 1)]);
 }
 
 /** The lines of one item of a sequence: the first goes after the dash; the rest are indented by `depth` levels. */

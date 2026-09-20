@@ -58,9 +58,8 @@ body {
     font-size: 11px;
 }
 
-/* A move in progress: the subtree that moves is dimmed; a button that cannot take it is gone. */
+/* A move in progress: the subtree that moves is faded (see `.faded`) and out of reach; a button that cannot take it is gone. */
 .moving {
-    opacity: 0.4;
     pointer-events: none;
 }
 
@@ -114,6 +113,11 @@ body {
     height: 100%;
     border: none;
     background: #F3F7F6;
+}
+
+/* The labels of the links - the names of the options - are not for the map. */
+.navigator-panel .joint-link .label {
+    display: none;
 }
 
 .navigator-panel .current-view {
@@ -199,7 +203,7 @@ body {
 
 .inspector .code .hljs-number,
 .inspector .code .hljs-literal {
-    color: #E36A3D;
+    color: #2B3555;
 }
 
 .inspector .code .hljs-comment {
@@ -415,6 +419,19 @@ body {
     fill: #3552C4;
 }
 
+/* A move in progress: the buttons are the drop points - dark, like the ends, so that they read as the targets to click. */
+.moving-mode [joint-selector="addButton"],
+.moving-mode .joint-type-tbg-addbutton [joint-selector="body"],
+.moving-mode .joint-tool .button.add {
+    fill: #2B3555;
+}
+
+.moving-mode [joint-selector="addButton"]:hover,
+.moving-mode .joint-type-tbg-addbutton:hover [joint-selector="body"],
+.moving-mode .joint-tool .button.add:hover {
+    fill: #1C2440;
+}
+
 /* The "more" button: a transparent disc that tints on hover, on a light pill and on a filled one. */
 .joint-tool .button.menu:hover {
     fill: rgba(70, 102, 229, 0.12);
@@ -479,7 +496,9 @@ body {
     The cells a hovered "remove" item would remove, marked by a class from a
     highlighter: the elements and the links turn red - the outline and the
     icon of a node, the fill of a pill, the lines of the links - the buttons
-    on them do not. The color fades in and out.
+    on them do not. The color fades in and out. The kinds of cells are told
+    apart by the type classes of their views (`joint-type-tbg-decision`,
+    ...), so the rules hold whatever the colors of the shapes are.
 */
 [joint-selector="body"],
 [joint-selector="line"],
@@ -492,41 +511,44 @@ body {
     stroke: #E54666;
 }
 
-.to-be-deleted [joint-selector="body"][fill="#4666E5"],
-.to-be-deleted [joint-selector="body"][fill="#2B3555"] {
+.to-be-deleted.joint-type-tbg-decision [joint-selector="body"],
+.to-be-deleted.joint-type-tbg-groupstart [joint-selector="body"],
+.to-be-deleted.joint-type-tbg-end [joint-selector="body"] {
     fill: #E54666;
 }
 
-.to-be-deleted [joint-selector="kindIcon"][stroke="#4666E5"] {
+.to-be-deleted.joint-type-tbg-step [joint-selector="kindIcon"] {
     stroke: #E54666;
 }
 
 /*
-    What a hovered collapse button would hide - the content of the group,
+    The faded cells - what a hovered collapse button would hide, what a
+    hovered "move" item would move, the subtree of a move in progress -
     marked by a class like a deletion, and colored like one: the outline and
     the icon of a node, the fill of a pill and of an end, the lines of the
     links - in light colors, faded towards the background; nothing else
     changes, no opacity is involved (translucent links add up where they
     overlap).
 */
-.to-be-collapsed [joint-selector="body"] {
+:is(.faded, .moving) [joint-selector="body"] {
     stroke: #AEBDEF;
 }
 
-.to-be-collapsed [joint-selector="line"] {
+:is(.faded, .moving) [joint-selector="line"] {
     stroke: #C3CEF2;
 }
 
-.to-be-collapsed [joint-selector="body"][fill="#4666E5"] {
+:is(.faded, .moving).joint-type-tbg-decision [joint-selector="body"],
+:is(.faded, .moving).joint-type-tbg-groupstart [joint-selector="body"] {
     fill: #AEBDEF;
 }
 
-.to-be-collapsed [joint-selector="body"][fill="#2B3555"] {
+:is(.faded, .moving).joint-type-tbg-end [joint-selector="body"] {
     fill: #A3A9B6;
     stroke: #A3A9B6;
 }
 
-.to-be-collapsed [joint-selector="kindIcon"][stroke="#4666E5"] {
+:is(.faded, .moving).joint-type-tbg-step [joint-selector="kindIcon"] {
     stroke: #AEBDEF;
 }
 

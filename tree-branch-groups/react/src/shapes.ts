@@ -26,18 +26,19 @@ const BACKWARD_LINK_Z = 0;
 const LINK_Z = 1;
 const ELEMENT_Z = 2;
 
+/**
+ * The colors the models and the map need; the stylesheet (`index.css`) is
+ * where the components get theirs, and repeats these.
+ */
 export const COLORS = {
     background: '#F3F7F6',
-    node: { fill: '#FFFFFF', stroke: '#4666E5', text: '#222222' },
-    /** The fills of the start of the diagram and of its ends; red is kept for what is about to be deleted. */
+    /** The blue of the nodes: the outline of a step, the icons of the menus. */
+    node: { stroke: '#4666E5' },
+    /** The fill of the ends of the diagram and the outline of its start. */
     terminal: '#2B3555',
     /** The pills that steer the flow: a decision, the start of a group. */
-    gate: { fill: '#4666E5', stroke: '#4666E5', text: '#FFFFFF' },
-    link: '#7A90EC',
-    /** The add buttons: the blue of the nodes, marked in white. */
-    button: { fill: '#4666E5', text: '#FFFFFF' },
-    /** The frame around the selected element: a shade darker than the nodes. */
-    selection: '#3552C4'
+    gate: { fill: '#4666E5' },
+    link: '#7A90EC'
 };
 
 /**

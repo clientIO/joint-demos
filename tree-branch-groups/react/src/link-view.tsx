@@ -49,7 +49,8 @@ export function LinkContent(): ReactNode {
     const source = link.getSourceElement();
     const target = link.getTargetElement();
     if (!source || !target || !canSplit(link)) return null;
-    if (moving && !editor.canDropOnLink(link)) return null;
+    // While a move is on, a link that cannot take it shows no button - its option name stays.
+    const withButton = !moving || editor.canDropOnLink(link);
     const points = [{ x: layout.sourceX, y: layout.sourceY }, ...link.vertices(), { x: layout.targetX, y: layout.targetY }];
     const point = getInsertButtonPoint(points, source, target);
     if (!point) return null;
@@ -70,7 +71,7 @@ export function LinkContent(): ReactNode {
                     <text x={OPTION_NAME_OFFSET.x + OPTION_CHIP.paddingX} y={OPTION_NAME_OFFSET.y} dominantBaseline="central">{data.optionName}</text>
                 </g>
             ) : null}
-            <g
+            {withButton ? <g
                 ref={buttonRef}
                 className="link-button"
                 role="button"
@@ -91,7 +92,7 @@ export function LinkContent(): ReactNode {
             >
                 <rect x={-half} y={-half} width={INSERT_BUTTON_SIZE} height={INSERT_BUTTON_SIZE} rx={3} ry={3} />
                 <path d="M -4 0 4 0 M 0 -4 0 4" />
-            </g>
+            </g> : null}
         </g>
     );
 }

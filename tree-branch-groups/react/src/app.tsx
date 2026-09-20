@@ -21,9 +21,9 @@ import { TOOLTIP_ID } from './use-tooltip';
 const cellVisibility: CellVisibility = ({ model }) => isCellVisible(model);
 
 /**
- * The map shows the elements only - neither the links nor the add buttons,
- * too small to read on it - and hides the content of the collapsed groups
- * like the paper does. The navigator of `@joint/react-plus` inherits the
+ * The map shows the elements and the links - not the add buttons, too
+ * small to read on it - and hides the content of the collapsed groups like
+ * the paper does. The navigator of `@joint/react-plus` inherits the
  * routing options of the paper, not its `cellVisibility`: it is given to
  * its own paper here (which also replaces what its `showLinks` prop would
  * set).

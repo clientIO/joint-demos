@@ -8,13 +8,15 @@ import type { DiagramJSON, Edge, Id, NodeData } from './types';
  * The ids of the cells the build derives for a node: the gates of a group,
  * the links, the add button of a leaf. The node itself keeps its id. Fixed
  * ids let the build sync the graph instead of rebuilding it: a cell that
- * stands for the same thing is updated in place and keeps its view.
+ * stands for the same thing is updated in place and keeps its view. The
+ * derived ids cannot collide with each other or with the ids of the data:
+ * each has a prefix of its own, and a link's carries its ends as JSON.
  */
-const cellId = {
-    start: (id: Id) => `${id}-start`,
-    end: (id: Id) => `${id}-end`,
-    link: (from: dia.Cell.ID, to: dia.Cell.ID) => `${from}-${to}`,
-    addButton: (id: Id) => `${id}-add`
+export const cellId = {
+    start: (id: Id) => `start#${id}`,
+    end: (id: Id) => `end#${id}`,
+    link: (from: dia.Cell.ID, to: dia.Cell.ID) => `link#${JSON.stringify([from, to])}`,
+    addButton: (id: Id) => `add#${id}`
 };
 
 /**
@@ -155,4 +157,11 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
     }
 
     graph.syncCells([...elements, ...links], { remove: true });
+
+    // The sync keeps the attributes of a cell that stands for the same thing
+    // as before, a `parent` it no longer has included: a node that left a
+    // group (moved, or by an undo) has its `parent` taken off.
+    for (const cell of [...elements, ...links]) {
+        if (cell.get('parent') === undefined) graph.getCell(cell.id)?.unset('parent');
+    }
 }

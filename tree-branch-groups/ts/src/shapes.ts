@@ -7,14 +7,15 @@ const GROUP_END_SIZE = { width: 0, height: 0 };
 /** The start and the ends of the diagram are circles. */
 const TERMINAL_SIZE = { width: 52, height: 52 };
 /** The add button below a leaf of the tree, the same square as the insert button of a link. */
-const ADD_BUTTON_SIZE = { width: 18, height: 18 };
+export const ADD_BUTTON_SIZE = { width: 18, height: 18 };
 /**
  * How far from its target the insert button of a link sits when something is
  * in the way below the source (see `placeLinkTools()`); a layout metric too,
  * as the empty loop is sized around it.
  */
 export const INSERT_BUTTON_FROM_TARGET = 30;
-const PLUS_ICON = 'M -4 0 4 0 M 0 -4 0 4';
+/** The plus of every add button: the ones on the pills, the ones below the leaves, the insert buttons of the links, the expand button of a collapsed group. */
+export const PLUS_ICON = 'M -4 0 4 0 M 0 -4 0 4';
 /** Vertical distance between a parent and its children; room enough for the insert button of the link between them. */
 export const PARENT_GAP = 60;
 export const SIBLING_GAP = 24;
@@ -34,6 +35,8 @@ export const COLORS = {
     /** The pills that steer the flow: a decision, the start of a group. */
     gate: { fill: '#4666E5', stroke: '#4666E5', text: '#FFFFFF' },
     link: '#7A90EC',
+    /** What is about to be deleted, in the menus; the stylesheet repeats it for the preview on the cells. */
+    danger: '#E54666',
     /** The add buttons: the blue of the nodes, marked in white. */
     button: { fill: '#4666E5', text: '#FFFFFF' },
     /** The frame around the selected element: a shade darker than the nodes. */
@@ -41,7 +44,7 @@ export const COLORS = {
 };
 
 /**
- * What a group stands in for: a fork/join of two branches, or a loop whose
+ * What a group stands in for: a fork/join of any number of branches, or a loop whose
  * return path climbs back from the end to the start.
  */
 export type GroupKind = 'fork' | 'loop';
@@ -99,7 +102,7 @@ const CODE_ROOM = 4;
 export const TOGGLE_EVENT = 'element:group:toggle';
 const TOGGLE_RADIUS = 11;
 const COLLAPSE_ICON = 'M -4 0 4 0';
-const EXPAND_ICON = 'M -4 0 4 0 M 0 -4 0 4';
+const EXPAND_ICON = PLUS_ICON;
 
 /*
     The pills: a step, a decision and the start of a group are rounded
@@ -110,13 +113,8 @@ const EXPAND_ICON = 'M -4 0 4 0 M 0 -4 0 4';
     together the markup it needs from these parts.
 */
 
+/** The chip behind the code of a step that runs a command, under the label, is part of every pill and shown on a step with a command only: a step keeps its view when it gains or loses its command. */
 const pillMarkup = util.svg/* xml */`
-    <rect @selector="body"/>
-    <path @selector="kindIcon"/>
-    <text @selector="label"/>
-`;
-/** A step that runs a command: the chip behind the code, under the label. */
-const stepWithRunMarkup = util.svg/* xml */`
     <rect @selector="body"/>
     <path @selector="kindIcon"/>
     <rect @selector="runChip"/>
@@ -132,6 +130,7 @@ const toggleMarkup = util.svg/* xml */`
 `;
 
 const PILL_ATTRS = {
+    runChip: { display: 'none' },
     body: {
         width: 'calc(w)',
         height: 'calc(h)',
@@ -221,6 +220,7 @@ function setPillLabel(pill: dia.Element, label: string, code?: string): void {
         // centered on the pill, the second line half a line below the middle.
         const codeWidth = Math.ceil(measureText(code, CODE_FONT)) + 2 * CODE_CHIP.paddingX;
         pill.attr('runChip', {
+            display: 'inline',
             x: `calc(w / 2 + ${KIND_LABEL_OFFSET - codeWidth / 2})`,
             y: `calc(h / 2 + ${LABEL_LINE_HEIGHT / 2 - CODE_CHIP.height / 2})`,
             width: codeWidth,
@@ -229,6 +229,8 @@ function setPillLabel(pill: dia.Element, label: string, code?: string): void {
             ry: CODE_CHIP.radius,
             fill: CODE_CHIP.fill
         });
+    } else {
+        pill.attr('runChip', { display: 'none' });
     }
     const width = Math.max(measureText(label, LABEL_FONT), code ? measureText(code, CODE_FONT) : 0);
     const lines = text.split('\n').length;
@@ -305,8 +307,8 @@ function pillDefaults(type: string, extra: object, superDefaults: object): objec
 /** A step of the flow: a plain pill with a label, sized to it. */
 export class Step extends dia.Element {
 
-    preinitialize(attributes?: { run?: boolean }) {
-        this.markup = attributes?.run ? stepWithRunMarkup : pillMarkup;
+    preinitialize() {
+        this.markup = pillMarkup;
     }
 
     defaults() {
@@ -315,7 +317,7 @@ export class Step extends dia.Element {
 
     /** A step with its label and, below it, the command it runs, as code. */
     static create(label: string, run?: string): Step {
-        const step = new Step({ run: Boolean(run) });
+        const step = new Step();
         setPillLabel(step, label, run);
         return step;
     }
@@ -347,7 +349,7 @@ export class Decision extends dia.Element {
         }, super.defaults);
     }
 
-    static create(label: string = DECISION_LABEL): Decision {
+    static create(label: string): Decision {
         const decision = new Decision();
         setPillLabel(decision, label);
         return decision;
@@ -601,7 +603,7 @@ export class AddButton extends dia.Element {
 
 /**
  * A container that stands in for a subgraph the tree layout cannot handle:
- * a `start` node, content of a `kind` (two branches, or a loop) and an
+ * a `start` node, content of a `kind` (the branches of a fork, or a loop) and an
  * `end` node. The outer tree links connect to the group itself, but the
  * group is positioned and sized from its `start` to its `end`, and the links
  * are anchored on those two gates (see `gateAnchor`) - the tree appears to
@@ -805,7 +807,7 @@ export class Link extends dia.Link {
      * Names the link as an option of a decision or a fork (`Staging`), with
      * a text next to its insert button, or removes the name.
      */
-    setBranchName(name: string | null): void {
+    setOptionName(name: string | null): void {
         // The return link of a loop has a label of its own, the arrow, and no name.
         if (this.isBackward()) return;
         const labels = this.labels();

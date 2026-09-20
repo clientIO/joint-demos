@@ -52,7 +52,11 @@ export function MoreButton(): ReactNode {
                         { action: 'remove', label: getDeleteTitle(target), icon: DELETE_ICON, color: DELETE_COLOR }
                     ],
                     onChoose: (action) => (action === 'move' ? editor.startMove(target) : editor.remove(target)),
-                    onHover: (action) => editor.previewDeletion(action === 'remove' ? target : null)
+                    // The hovered item shows what it would do: "remove" turns the cells red, "move" fades what would move.
+                    onHover: (action) => {
+                        editor.previewDeletion(action === 'remove' ? target : null);
+                        editor.previewMove(action === 'move' ? target : null);
+                    }
                 });
             }}
         >

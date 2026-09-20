@@ -10,7 +10,7 @@ import { isCellVisible, runLayout } from './layout';
 import { createNavigator } from './navigator';
 import { pipeline } from './pipeline';
 import { COLORS, cellNamespace } from './shapes';
-import { addHoverTools, addTooltips, getActionTarget, markMove, placeLinkTools } from './tools';
+import { addHoverTools, addTooltips, clearDeletionHighlight, clearFaded, getActionTarget, markMove, placeLinkTools } from './tools';
 import type { ToolActions } from './tools';
 
 const PAPER_PADDING = 40;
@@ -71,8 +71,6 @@ export function init(): void {
     const navigator = createNavigator(scroller);
     document.getElementById('navigator')!.appendChild(navigator.el);
     navigator.render();
-    (globalThis as unknown as { __nav: unknown; __paper: unknown }).__nav = navigator;
-    (globalThis as unknown as { __nav: unknown; __paper: unknown }).__paper = paper;
 
     paper.on('blank:pointerdown', (evt: dia.Event) => scroller.startPanning(evt));
     paper.on('paper:pan', (evt: dia.Event, deltaX: number, deltaY: number) => {
@@ -112,12 +110,17 @@ export function init(): void {
      */
     function refresh({ fit: fitToContent = false } = {}): void {
         // The tools of the previous build go first - some sit on views about
-        // to be removed; the hover tools come back on hover.
+        // to be removed; the hover tools come back on hover - and so do the
+        // previews of a deletion or a collapse, which sit on views too.
         paper.removeTools();
+        clearDeletionHighlight();
+        clearFaded();
         paper.freeze();
         buildGraph(graph, data.getData());
         contentBBox = runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
         paper.unfreeze();
+        // A move whose element the edit removed - an undo, a redo, `Delete` - is off.
+        if (moved && graph.getCell(moved.id) !== moved) setMoved(null);
         paper.updateCellsVisibility();
         // The map hides the content of the collapsed groups like the paper does.
         navigator.targetPaper.updateCellsVisibility();
@@ -175,10 +178,12 @@ export function init(): void {
     // blank area cancels it.
     let moved: dia.Element | null = null;
     const moveHintEl = document.getElementById('move-hint')!;
-    /** Starts or cancels the move; the tools of the diagram follow: drop points, or insert buttons. */
+    const appEl = document.querySelector('.app')!;
+    /** Starts or cancels the move; the tools of the diagram follow: drop points, or insert buttons. The app marks the mode: the buttons turn into drop points. */
     function setMoved(element: dia.Element | null): void {
         moved = element;
         moveHintEl.hidden = element === null;
+        appEl.classList.toggle('moving-mode', element !== null);
         paper.removeTools();
         placeLinkTools(paper, actions);
         markMove(paper, actions);
@@ -188,6 +193,7 @@ export function init(): void {
         const id = String(moved!.id);
         moved = null;
         moveHintEl.hidden = true;
+        appEl.classList.remove('moving-mode');
         return id;
     }
     const movedId = (): string => String(moved!.id);
@@ -201,6 +207,7 @@ export function init(): void {
         startMove: (element) => setMoved(element),
         getMoved: () => moved,
         getMovedCells: () => getMovedCells(graph, data, movedId()),
+        getMovedCellsOf: (element) => getMovedCells(graph, data, String(element.id)),
         canDropBelow: (parent) => canMoveBelow(graph, data, movedId(), parent),
         canDropOnLink: (link) => canMoveOnLink(graph, data, movedId(), link),
         dropBelow: (parent) => moveBelow(data, takeMoved(), parent),
@@ -210,13 +217,13 @@ export function init(): void {
     addTooltips(document.body);
 
     // The toolbar: undo and redo, driven by the history and disabled when
-    // (The `attrs` of a widget are set on the DOM as they are, hence the
-    // dashed `data-tooltip`; the attributes of the cells are camel-cased.)
     // there is nothing to undo or redo; the zoom, driven by the scroller -
     // except "zoom to fit", a plain button: the built-in widget would fit
     // every cell of the graph, the never-rendered groups and the hidden
     // content of collapsed groups included, and not center. `fit()` fits
-    // what is visible, the same way as at the start.
+    // what is visible, the same way as at the start. (The `attrs` of a
+    // widget are set on the DOM as they are, hence the dashed `data-tooltip`;
+    // the attributes of the cells are camel-cased.)
     const toolbar = new ui.Toolbar({
         autoToggle: true,
         references: { commandManager: history, paperScroller: scroller },

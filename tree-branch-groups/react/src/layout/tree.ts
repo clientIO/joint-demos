@@ -41,10 +41,9 @@ export function getAxisX(element: dia.Element): number {
  * horizontal bar the layout draws, between the axes of the two elements.
  */
 export function createTreeLayout(graph: dia.Graph, options: Partial<layout.TreeLayout.Options> = {}): layout.TreeLayout {
-    const direction = options.direction ?? 'B';
     return new layout.TreeLayout({
         graph,
-        direction,
+        direction: 'B',
         parentGap: PARENT_GAP,
         siblingGap: SIBLING_GAP,
         firstChildGap: PARENT_GAP,
@@ -61,10 +60,7 @@ export function createTreeLayout(graph: dia.Graph, options: Partial<layout.TreeL
             // the link the children share is short, the part of its own
             // (where its insert button sits) is long - and longer still for a
             // child placed further away with the `offset` attribute.
-            const sourceBBox = source.getBBox();
-            const barY = direction === 'T'
-                ? sourceBBox.y - BAR_OFFSET_FROM_SHARED
-                : sourceBBox.corner().y + BAR_OFFSET_FROM_SHARED;
+            const barY = source.getBBox().corner().y + BAR_OFFSET_FROM_SHARED;
             link.vertices(getBarVertices(graph, source, target, barY), opt);
         },
         ...options

@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import type { RefObject } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import type { RefCallback } from 'react';
 
 /** The id of the one tooltip of the app (see `app.tsx`). */
 export const TOOLTIP_ID = 'tip';
@@ -9,12 +9,13 @@ export const TOOLTIP_ID = 'tip';
  * element is mounted, as an attribute change: that is the path react-tooltip
  * watches for new anchors - the buttons of the cells come and go with the
  * cells, well after the tooltip is mounted, and nodes added with the
- * attributes in place were not found.
+ * attributes in place were not found. A callback ref, so that an element
+ * rendered later than the first render (a button that waits for a layout)
+ * is named as soon as it exists.
  */
-export function useTooltip<T extends Element>(content: string): RefObject<T | null> {
-    const ref = useRef<T>(null);
+export function useTooltip<T extends Element>(content: string): RefCallback<T> {
+    const [el, setEl] = useState<T | null>(null);
     useEffect(() => {
-        const el = ref.current;
         // No content, no tooltip.
         if (!el || !content) return;
         el.setAttribute('data-tooltip-content', content);
@@ -23,7 +24,6 @@ export function useTooltip<T extends Element>(content: string): RefObject<T | nu
             el.removeAttribute('data-tooltip-id');
             el.removeAttribute('data-tooltip-content');
         };
-    }, [content]);
-    return ref;
+    }, [el, content]);
+    return useCallback((node: T | null) => setEl(node), []);
 }
-

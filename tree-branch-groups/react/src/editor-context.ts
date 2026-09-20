@@ -49,6 +49,8 @@ export interface EditorApi {
     previewDeletion(target: dia.Element | null): void;
     /** Fades what a collapse of `group` would hide - or restores it, with `null`. */
     previewCollapse(group: Group | null): void;
+    /** Fades what a move of `target` would take along - or restores it, with `null`. */
+    previewMove(target: dia.Element | null): void;
 
     menu: MenuRequest | null;
     openMenu(request: MenuRequest): void;

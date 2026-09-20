@@ -107,7 +107,7 @@ function makeRoomForOptions(graph: dia.Graph): void {
  */
 function nameOptions(graph: dia.Graph): void {
     for (const link of graph.getLinks()) {
-        if (link instanceof Link) link.setBranchName(null);
+        if (link instanceof Link) link.setOptionName(null);
     }
     for (const parent of graph.getElements().filter(hasOptions)) {
         const options = getOptions(graph, parent);
@@ -116,7 +116,7 @@ function nameOptions(graph: dia.Graph): void {
             const option = link.getTargetElement()!;
             if (!options.includes(option) || !(link instanceof Link)) continue;
             const name = option.get('optionName') as string | null | undefined;
-            link.setBranchName(name || getDefaultOptionName(type, option.get('siblingRank') as number));
+            link.setOptionName(name || getDefaultOptionName(type, option.get('siblingRank') as number));
         }
     }
 }
@@ -179,7 +179,7 @@ function parkHiddenContent(group: Group): void {
 }
 
 /** The bounding box of the visible elements - `null` with none - to fit the view to. */
-export function getVisibleBBox(graph: dia.Graph): g.Rect | null {
+function getVisibleBBox(graph: dia.Graph): g.Rect | null {
     return graph.getCellsBBox(graph.getElements().filter(isCellVisible));
 }
 
