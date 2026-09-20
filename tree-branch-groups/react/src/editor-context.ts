@@ -47,6 +47,8 @@ export interface EditorApi {
     toggleGroup(group: Group): void;
     /** Turns what a deletion of `target` would remove red, or takes the red off with `null`. */
     previewDeletion(target: dia.Element | null): void;
+    /** Fades what a collapse of `group` would hide - or restores it, with `null`. */
+    previewCollapse(group: Group | null): void;
 
     menu: MenuRequest | null;
     openMenu(request: MenuRequest): void;

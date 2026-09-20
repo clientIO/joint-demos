@@ -60,6 +60,39 @@ export function clearDeletionHighlight(): void {
     highlightedViews = [];
 }
 
+
+/** The class on the cells a hovered collapse button would hide: the content of the group, faded (see the stylesheet). */
+const COLLAPSE_HIGHLIGHT = 'to-be-collapsed';
+
+/** The views faded at the moment, to restore them. */
+let fadedViews: dia.CellView[] = [];
+
+/**
+ * Fades what a collapse of `group` would hide - its content, nested groups
+ * included, and the links of the content - by a class on their views. The
+ * start of the group stays: it stands in for the collapsed group. Nothing
+ * for a group already collapsed.
+ */
+export function highlightCollapse(paper: dia.Paper, group: Group): void {
+    clearCollapseHighlight();
+    if (group.isCollapsed()) return;
+    const content = group.getEmbeddedCells({ deep: true }).filter((cell) => !GroupStart.isGroupStart(cell) || cell !== group.getStart());
+    const links = content.filter((cell) => cell.isElement()).flatMap((cell) => paper.model.getConnectedLinks(cell));
+    for (const cell of new Set([...content, ...links])) {
+        if (!isCellVisible(cell)) continue;
+        const view = paper.findViewByModel(cell);
+        if (!view) continue;
+        highlighters.addClass.add(view, 'root', COLLAPSE_HIGHLIGHT, { className: COLLAPSE_HIGHLIGHT });
+        fadedViews.push(view);
+    }
+}
+
+/** Restores the cells faded for a collapse. */
+export function clearCollapseHighlight(): void {
+    for (const view of fadedViews) highlighters.addClass.remove(view, COLLAPSE_HIGHLIGHT);
+    fadedViews = [];
+}
+
 /** The classes on the cells of the subtree being moved, and on the buttons that cannot take it - hidden. */
 const MOVING_CLASS = 'moving';
 const NO_DROP_CLASS = 'no-drop';

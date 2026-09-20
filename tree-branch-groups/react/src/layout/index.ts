@@ -5,6 +5,7 @@ import { LOOP_GAP, LOOP_START_ROOM, layoutLoopGroup } from './loop';
 import { AddButton, Decision, Group, GroupStart, Link, isGate } from '../shapes';
 import type { GroupKind } from '../shapes';
 import { createTreeLayout } from './tree';
+import { getDefaultOptionName } from '../data/DiagramData';
 
 /**
  * A cell is hidden by a collapse when one of its ancestors is a collapsed
@@ -36,9 +37,6 @@ export function isCellVisible(cell: dia.Cell): boolean {
     }
     return true;
 }
-
-/** The word the options of a decision or the branches of a fork are named with: `option 1`, `option 2`, ... */
-const OPTION_NAME = 'option';
 
 /**
  * Extra room between a decision (or the start of a fork) and its children,
@@ -102,23 +100,23 @@ function makeRoomForOptions(graph: dia.Graph): void {
 }
 
 /**
- * Names the links from every decision and every fork to their options
- * `option 1`, `option 2`, ... from left to right - or as the option was
- * named on its edge in the data - and takes the name off every other link. After
- * the layout, which decides the order.
+ * Names the links from every decision and every fork to their options as
+ * the options were named on their edges in the data - or by their default,
+ * `option 1`, `branch 1`, ... in the order of the edges, the same the YAML
+ * uses - and takes the name off every other link.
  */
 function nameOptions(graph: dia.Graph): void {
     for (const link of graph.getLinks()) {
         if (link instanceof Link) link.setOptionName(null);
     }
     for (const parent of graph.getElements().filter(hasOptions)) {
-        const options = getOptions(graph, parent).sort((a, b) => a.getBBox().center().x - b.getBBox().center().x);
+        const options = getOptions(graph, parent);
+        const type = Decision.isDecision(parent) ? 'decision' : 'fork';
         for (const link of graph.getConnectedLinks(parent, { outbound: true })) {
             const option = link.getTargetElement()!;
-            const index = options.indexOf(option);
-            if (index < 0 || !(link instanceof Link)) continue;
-            const name = option.get('optionName') as string | undefined;
-            link.setOptionName(name ?? `${OPTION_NAME} ${index + 1}`);
+            if (!options.includes(option) || !(link instanceof Link)) continue;
+            const name = option.get('optionName') as string | null | undefined;
+            link.setOptionName(name || getDefaultOptionName(type, option.get('siblingRank') as number));
         }
     }
 }
@@ -147,6 +145,16 @@ function layoutGroup(graph: dia.Graph, group: Group): void {
         case 'fork': return layoutForkGroup(graph, group);
         case 'loop': return layoutLoopGroup(graph, group);
     }
+}
+
+/**
+ * The bounding box of the visible elements - `null` with none. The cells a
+ * collapse hides stay in the graph where the layout last put them, so the
+ * graph as a whole measures more than the picture: the scroller and the
+ * map are given this box instead (see `app`).
+ */
+export function getVisibleBBox(graph: dia.Graph): g.Rect | null {
+    return graph.getCellsBBox(graph.getElements().filter(isCellVisible));
 }
 
 /**
@@ -180,5 +188,5 @@ export function runLayout(graph: dia.Graph, root: dia.Element): g.Rect | null {
     createTreeLayout(graph).layoutTree(root);
     nameOptions(graph);
 
-    return graph.getCellsBBox(graph.getElements().filter(isCellVisible));
+    return getVisibleBBox(graph);
 }

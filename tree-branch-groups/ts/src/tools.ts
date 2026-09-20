@@ -135,10 +135,50 @@ function clearDeletionHighlight(): void {
     highlightedViews = [];
 }
 
+
+/** The class on the cells a hovered collapse button would hide: the content of the group, faded (see the stylesheet). */
+const COLLAPSE_HIGHLIGHT = 'to-be-collapsed';
+
+/** The views faded at the moment, to restore them. */
+let fadedViews: dia.CellView[] = [];
+
+/**
+ * Fades what a collapse of `group` would hide - its content, nested groups
+ * included, and the links of the content - by a class on their views. The
+ * start of the group stays: it stands in for the collapsed group. Nothing
+ * for a group already collapsed.
+ */
+function highlightCollapse(paper: dia.Paper, group: Group): void {
+    clearCollapseHighlight();
+    if (group.isCollapsed()) return;
+    const content = group.getEmbeddedCells({ deep: true }).filter((cell) => !GroupStart.isGroupStart(cell) || cell !== group.getStart());
+    const links = content.filter((cell) => cell.isElement()).flatMap((cell) => paper.model.getConnectedLinks(cell));
+    for (const cell of new Set([...content, ...links])) {
+        if (!isCellVisible(cell)) continue;
+        const view = paper.findViewByModel(cell);
+        if (!view) continue;
+        highlighters.addClass.add(view, 'root', COLLAPSE_HIGHLIGHT, { className: COLLAPSE_HIGHLIGHT });
+        fadedViews.push(view);
+    }
+}
+
+/** Restores the cells faded for a collapse. */
+function clearCollapseHighlight(): void {
+    for (const view of fadedViews) highlighters.addClass.remove(view, COLLAPSE_HIGHLIGHT);
+    fadedViews = [];
+}
+
 /** The "more" button: three dots at the top right of the hovered element, inside it; a click opens the menu of the element. */
 const MENU_BUTTON_RADIUS = 9;
 const MENU_DOT_RADIUS = 1.5;
 const MENU_DOT_GAP = 4.5;
+/**
+ * Where the button sits: on a step at the top right, at the same gap from
+ * the top and from the right; on a pill further from the right, inside its
+ * round end; on an end at the top, centered.
+ */
+const MENU_BUTTON_GAP = 4;
+const MENU_BUTTON_OFFSET_ON_PILL = { x: -(MENU_BUTTON_RADIUS + 13), y: MENU_BUTTON_RADIUS + 1 };
 
 function createMenuButtonMarkup(color: string): dia.MarkupJSON {
     const dots = [-MENU_DOT_GAP, 0, MENU_DOT_GAP]
@@ -162,10 +202,13 @@ function createMenuButtonMarkup(color: string): dia.MarkupJSON {
 function createMenuTool(paper: dia.Paper, element: dia.Element, target: dia.Element, actions: ToolActions): dia.ToolView | null {
     if (!canDelete(paper.model, target)) return null;
     const filled = Decision.isDecision(element) || GroupStart.isGroupStart(element);
+    const centered = End.isEnd(element);
     return new elementTools.Button({
-        x: '100%',
+        x: centered ? '50%' : '100%',
         y: '0%',
-        offset: { x: -(MENU_BUTTON_RADIUS + 13), y: MENU_BUTTON_RADIUS + 1 },
+        offset: centered ? { x: 0, y: MENU_BUTTON_RADIUS + MENU_BUTTON_GAP }
+            : filled ? MENU_BUTTON_OFFSET_ON_PILL
+                : { x: -(MENU_BUTTON_RADIUS + MENU_BUTTON_GAP), y: MENU_BUTTON_RADIUS + MENU_BUTTON_GAP },
         useModelGeometry: true,
         markup: createMenuButtonMarkup(filled ? COLORS.gate.text : COLORS.node.stroke),
         action: (_evt, _view, tool) => {
@@ -373,8 +416,23 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
     // The collapse/expand button on the `start` node of a group is a part of its markup.
     paper.on(TOGGLE_EVENT, (elementView: dia.ElementView, evt: dia.Event) => {
         evt.stopPropagation();
+        clearCollapseHighlight();
         const group = elementView.model.getParentCell();
         if (group && Group.isGroup(group)) actions.toggleGroup(group);
+    });
+
+    // Hovering the collapse button dims what it would hide; the pointer leaving it, or the element, restores it.
+    const isToggle = (evt: dia.Event): boolean => evt.target instanceof Element && evt.target.closest('[joint-selector="toggle"], [joint-selector="toggleIcon"]') !== null;
+    paper.on('element:mouseover', (elementView: dia.ElementView, evt: dia.Event) => {
+        const group = elementView.model.getParentCell();
+        if (isToggle(evt) && GroupStart.isGroupStart(elementView.model) && group && Group.isGroup(group)) {
+            highlightCollapse(paper, group);
+        } else {
+            clearCollapseHighlight();
+        }
+    });
+    paper.on('element:mouseout', (_elementView: dia.ElementView, evt: dia.Event) => {
+        if (isToggle(evt)) clearCollapseHighlight();
     });
 
     paper.on('element:pointerclick', (elementView: dia.ElementView, evt: dia.Event) => {
@@ -389,8 +447,9 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
     });
 
     paper.on('element:mouseleave', (elementView: dia.ElementView) => {
-        // The "more" tool goes with the hover; so does the highlight of its menu.
+        // The "more" tool goes with the hover; so does the highlight of its menu, and the preview of a collapse.
         clearDeletionHighlight();
+        clearCollapseHighlight();
         elementView.removeTools();
     });
 }

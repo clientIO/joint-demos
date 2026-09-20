@@ -1,12 +1,12 @@
-import { dia, highlighters, ui } from '@joint/plus';
-import type { g } from '@joint/plus';
+import { dia, g, highlighters, ui } from '@joint/plus';
 
 import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
 import { buildGraph } from './data/build';
 import { DiagramData } from './data/DiagramData';
 import { gateAnchor } from './layout/gate-anchor';
 import { isSelectable, syncInspector } from './inspector';
-import { isCellVisible, runLayout } from './layout';
+import { getVisibleBBox, isCellVisible, runLayout } from './layout';
+import { createNavigator } from './navigator';
 import { pipeline } from './pipeline';
 import { COLORS, cellNamespace } from './shapes';
 import { addHoverTools, addTooltips, getActionTarget, markMove, placeLinkTools } from './tools';
@@ -57,12 +57,21 @@ export function init(): void {
     const scroller = new ui.PaperScroller({
         paper,
         autoResizePaper: true,
+        // The paper grows to fit the visible cells: the graph also holds the content of the collapsed groups.
+        contentOptions: () => ({ contentArea: getVisibleBBox(graph) ?? new g.Rect() }),
         padding: PAPER_PADDING,
         cursor: 'grab',
         scrollWhileDragging: false
     });
     document.getElementById('paper')!.appendChild(scroller.el);
     scroller.render();
+
+    // The map of the diagram, floating over the corner of the paper.
+    const navigator = createNavigator(scroller);
+    document.getElementById('navigator')!.appendChild(navigator.el);
+    navigator.render();
+    (globalThis as unknown as { __nav: unknown; __paper: unknown }).__nav = navigator;
+    (globalThis as unknown as { __nav: unknown; __paper: unknown }).__paper = paper;
 
     paper.on('blank:pointerdown', (evt: dia.Event) => scroller.startPanning(evt));
     paper.on('paper:pan', (evt: dia.Event, deltaX: number, deltaY: number) => {
@@ -109,6 +118,8 @@ export function init(): void {
         contentBBox = runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
         paper.unfreeze();
         paper.updateCellsVisibility();
+        // The map hides the content of the collapsed groups like the paper does.
+        navigator.targetPaper.updateCellsVisibility();
         // The routes are known once rendered: the insert buttons and the
         // option names are placed in a second, cheap pass.
         placeLinkTools(paper, actions);

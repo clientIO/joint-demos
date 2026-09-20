@@ -12,9 +12,9 @@ import type { EditorApi, View } from './editor-context';
 import { isCellVisible, runLayout } from './layout';
 import { pipeline } from './pipeline';
 import { Group, GroupStart } from './shapes';
-import { clearDeletionHighlight, highlightDeletion, markMove } from './tools';
+import { clearCollapseHighlight, clearDeletionHighlight, highlightCollapse, highlightDeletion, markMove } from './tools';
 
-const PAPER_PADDING = 40;
+export const PAPER_PADDING = 40;
 const ZOOM_STEP = 0.2;
 
 /** Subscribes to `events` of an event emitter of JointJS; a counter of them, for `useSyncExternalStore`. */
@@ -135,10 +135,17 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
                 setSelectedId(null);
                 deleteElement(graph, data, target);
             },
-            toggleGroup: (group) => toggleGroup(data, group),
+            toggleGroup: (group) => {
+                clearCollapseHighlight();
+                toggleGroup(data, group);
+            },
             previewDeletion: (target) => {
                 const paper = viewRef.current?.paper;
                 if (target && paper) highlightDeletion(paper, target); else clearDeletionHighlight();
+            },
+            previewCollapse: (group) => {
+                const paper = viewRef.current?.paper;
+                if (group && paper) highlightCollapse(paper, group); else clearCollapseHighlight();
             },
             menu,
             openMenu: setMenu,
@@ -190,8 +197,14 @@ export function EditorWiring(): null {
     // view the first time. The store reports every change of a size, the
     // layout's own included - the groups are sized around their content -
     // so the layout runs only when a measured size changed since the last.
+    // The paper mounts the views in batches, so the sizes land over several
+    // passes: the view is fitted after each of them, until the user takes over.
     const laidOut = useRef('');
-    useOnElementsMeasured(({ isInitial }) => {
+    const fitPending = useRef(true);
+    useEffect(() => {
+        if (editor.version > 0) fitPending.current = false;
+    }, [editor.version]);
+    useOnElementsMeasured(() => {
         const signature = graph.getElements()
             .filter((element) => !Group.isGroup(element))
             .map((element) => `${element.id}:${Math.round(element.size().width)}x${Math.round(element.size().height)}`)
@@ -200,18 +213,25 @@ export function EditorWiring(): null {
         laidOut.current = signature;
         const root = graph.getCell(editor.data.getRootId());
         if (root) runLayout(graph, root as dia.Element);
-        if (isInitial) editor.fit();
+        if (fitPending.current) editor.fit();
     });
 
     useOnPaperEvents({
         onElementPointerClick: ({ model }) => {
+            fitPending.current = false;
             if (isSelectable(model)) editor.select(String(model.id));
         },
         onBlankPointerClick: () => {
             editor.select(null);
             editor.cancelMove();
         },
-        onBlankPointerDown: ({ event }) => scroller.startPaperPan(event)
+        onBlankPointerDown: ({ event }) => {
+            fitPending.current = false;
+            scroller.startPaperPan(event);
+        },
+        onPaperMouseWheel: () => {
+            fitPending.current = false;
+        }
     });
 
     useOnKeyboardEvents({
