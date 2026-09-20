@@ -1,4 +1,5 @@
 import hljs from 'highlight.js/lib/core';
+import json from 'highlight.js/lib/languages/json';
 import yaml from 'highlight.js/lib/languages/yaml';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
@@ -10,6 +11,11 @@ import { useEditor } from './editor-context';
 import { GROUP_LABELS, GroupStart } from './shapes';
 
 hljs.registerLanguage('yaml', yaml);
+hljs.registerLanguage('json', json);
+
+/** The two views of the diagram as text, with nothing selected: the YAML, and the data as JSON. */
+type CodeTab = 'yaml' | 'json';
+const CODE_TABS: { tab: CodeTab; label: string }[] = [{ tab: 'yaml', label: 'YAML' }, { tab: 'json', label: 'JSON' }];
 
 interface FieldProps {
     label: string;
@@ -57,7 +63,7 @@ function OptionFields({ id, node, slot, heading }: { id: string; node: NodeData;
             {edges.map((edge, index) => (
                 <Field
                     key={`${edge.id}-${index}`}
-                    label={`Option ${index + 1}`}
+                    label={`${slot === 'to' ? 'Option' : 'Branch'} ${index + 1}`}
                     value={edge.name ?? ''}
                     onCommit={(name) => editor.data.setOptionName(id, slot, index, name || null)}
                 />
@@ -122,15 +128,22 @@ function NodeFields({ id }: { id: string }): ReactNode {
     }
 }
 
-/** The diagram as YAML, highlighted by highlight.js (its YAML grammar only). */
-function YamlPanel(): ReactNode {
+/** The diagram as text on the chosen tab - the YAML of the flow, or the data as JSON - highlighted by highlight.js (its core and the two grammars only). */
+function CodePanel({ tab, onTab }: { tab: CodeTab; onTab: (tab: CodeTab) => void }): ReactNode {
     const { data } = useEditor();
+    const text = tab === 'yaml' ? toYAML(data.getData()) : JSON.stringify(data.getData(), null, 2);
     // The markup is highlight.js's, escaped. Rendered again with every change of the data (see `Inspector`).
-    const html = hljs.highlight(toYAML(data.getData()), { language: 'yaml' }).value;
+    const html = hljs.highlight(text, { language: tab }).value;
     return (
         <>
-            <div className="title">YAML</div>
-            <pre className="yaml" dangerouslySetInnerHTML={{ __html: html }} />
+            <div className="tabs">
+                {CODE_TABS.map((item) => (
+                    <button key={item.tab} type="button" className={item.tab === tab ? 'tab active' : 'tab'} onClick={() => onTab(item.tab)}>
+                        {item.label}
+                    </button>
+                ))}
+            </div>
+            <pre className={`code ${tab}`} dangerouslySetInnerHTML={{ __html: html }} />
         </>
     );
 }
@@ -138,13 +151,15 @@ function YamlPanel(): ReactNode {
 /**
  * The panel on the right: the fields of the selected element - edits of
  * the data, each one undoable step - or, with nothing selected, the diagram
- * as YAML, kept up to date.
+ * as text, YAML or JSON by the tab, kept up to date. The tab stays as
+ * chosen through the edits and the selections.
  */
 export function Inspector(): ReactNode {
     const { selectedId, version } = useEditor();
+    const [tab, setTab] = useState<CodeTab>('yaml');
     return (
         <div className="inspector">
-            {selectedId ? <NodeFields key={`${selectedId}-${version}`} id={selectedId} /> : <YamlPanel key={version} />}
+            {selectedId ? <NodeFields key={`${selectedId}-${version}`} id={selectedId} /> : <CodePanel key={version} tab={tab} onTab={setTab} />}
         </div>
     );
 }

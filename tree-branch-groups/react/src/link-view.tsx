@@ -8,11 +8,14 @@ import { INSERT_CHOICES, getAddItems } from './choices';
 import type { AddChoice } from './choices';
 import { INSERT_BUTTON_SIZE, Link } from './shapes';
 import type { LinkData } from './shapes';
+import { measureText } from './measure';
 import { getInsertButtonPoint } from './tools';
 import { useTooltip } from './use-tooltip';
 
-/** The name of an option sits above the insert button, right next to the line. */
+/** The name of an option sits above the insert button, right next to the line: bold, in the blue of the nodes, on a tinted chip that fits it (see `index.css`). */
 const OPTION_NAME_OFFSET = { x: 8, y: -17 };
+const OPTION_CHIP = { paddingX: 6, height: 18, radius: 4 };
+const OPTION_FONT = '600 12px sans-serif';
 
 /**
  * What React renders on a link, over the line JointJS draws: the insert
@@ -55,7 +58,17 @@ export function LinkContent(): ReactNode {
     return (
         <g transform={`translate(${point.x}, ${point.y})`}>
             {data.optionName ? (
-                <text className="option-name" x={OPTION_NAME_OFFSET.x} y={OPTION_NAME_OFFSET.y} dominantBaseline="central">{data.optionName}</text>
+                <g className="option-name">
+                    <rect
+                        x={OPTION_NAME_OFFSET.x}
+                        y={OPTION_NAME_OFFSET.y - OPTION_CHIP.height / 2}
+                        width={Math.ceil(measureText(data.optionName, OPTION_FONT)) + 2 * OPTION_CHIP.paddingX}
+                        height={OPTION_CHIP.height}
+                        rx={OPTION_CHIP.radius}
+                        ry={OPTION_CHIP.radius}
+                    />
+                    <text x={OPTION_NAME_OFFSET.x + OPTION_CHIP.paddingX} y={OPTION_NAME_OFFSET.y} dominantBaseline="central">{data.optionName}</text>
+                </g>
             ) : null}
             <g
                 ref={buttonRef}

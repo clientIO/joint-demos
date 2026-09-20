@@ -124,7 +124,7 @@ body {
     gap: 9px;
     min-width: 160px;
     min-height: 40px;
-    padding: 6px 26px 6px 10px;
+    padding: 8px 26px 8px 10px;
     border: 1.5px solid var(--blue);
     border-radius: 4px;
     background: #FFFFFF;
@@ -139,6 +139,7 @@ body {
 .pill .kind-icon {
     flex: none;
     color: var(--blue);
+    transition: color 150ms ease-out;
 }
 
 .pill .text {
@@ -150,10 +151,24 @@ body {
     white-space: pre;
 }
 
+/* The command a step runs: code on a chip, the program in bold, its flags tinted. */
 .pill .run {
+    margin-top: 4px;
+    padding: 1px 7px;
+    border-radius: 4px;
+    background: #EEF2FF;
     font-family: var(--code-font);
     font-size: 12px;
-    color: #5B6B9E;
+    color: #3F4C74;
+}
+
+.pill .run .cmd {
+    font-weight: 600;
+    color: var(--blue-dark);
+}
+
+.pill .run .flag {
+    color: #7A88B3;
 }
 
 .pill.filled {
@@ -166,7 +181,7 @@ body {
     color: #FFFFFF;
 }
 
-/* The start and the ends of the diagram: filled circles with their label inside. */
+/* The start and the ends of the diagram: circles with their label inside - the start white with a dark outline, an end filled dark. */
 .terminal {
     position: relative;
     display: flex;
@@ -179,12 +194,15 @@ body {
     box-sizing: border-box;
     color: #FFFFFF;
     font-size: 12px;
+    font-weight: 600;
     user-select: none;
     transition: background-color 150ms ease-out;
 }
 
 .terminal.start {
-    background: #3C9A7A;
+    background: #FFFFFF;
+    border: 1.5px solid #2B3555;
+    color: #2B3555;
 }
 
 .terminal.end {
@@ -194,7 +212,7 @@ body {
 /* The selected element: a frame a little away from its edge, a shade darker than the nodes. */
 .selected {
     outline: 1.5px solid var(--blue-dark);
-    outline-offset: 5px;
+    outline-offset: 2px;
 }
 
 .pill.selected {
@@ -271,11 +289,11 @@ body {
     background: var(--blue-tint);
 }
 
-/* The "more" button: three dots at the top right of the element, inside it, shown on hover. */
+/* The "more" button: three dots at the top right of the element, inside it, shown on hover - on a step at the same gap from the top and from the right edge. */
 .more {
     position: absolute;
-    top: 1px;
-    right: 13px;
+    top: 4px;
+    right: 4px;
     width: 18px;
     height: 18px;
     padding: 0;
@@ -287,9 +305,15 @@ body {
     transition: opacity 100ms ease-out, background-color 100ms ease-out;
 }
 
+/* On a pill further from the right, inside its round end; on the end at the top, centered. */
+.pill.filled .more {
+    top: 1px;
+    right: 13px;
+}
+
 .terminal .more {
     top: 4px;
-    right: 17px;
+    right: calc(50% - 9px);
 }
 
 .pill:hover .more,
@@ -364,11 +388,20 @@ body {
     pointer-events: none;
 }
 
+/* The name of an option: bold, in the blue of the nodes, on a tinted chip. Its font is what `link-view.tsx` measures the chip with. */
 .option-name {
-    font-family: var(--font);
-    font-size: 11px;
-    fill: var(--muted);
     pointer-events: none;
+}
+
+.option-name rect {
+    fill: var(--blue-tint);
+}
+
+.option-name text {
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    fill: var(--blue);
 }
 
 .return-arrow {
@@ -412,6 +445,38 @@ body {
 /* The return link of a loop runs against the flow: dashed. */
 .jj-link-line.backward {
     stroke-dasharray: 6 4;
+}
+
+/*
+    What a hovered collapse button would hide - the content of the group,
+    marked by a class like a deletion, and colored like one: the outline and
+    the icon of a node, the fill of a pill and of an end, the lines of the
+    links - in light colors, faded towards the background; nothing else
+    changes, no opacity is involved (translucent links add up where they
+    overlap).
+*/
+.to-be-collapsed .pill {
+    border-color: #AEBDEF;
+}
+
+.to-be-collapsed .pill.filled {
+    background: #AEBDEF;
+}
+
+.to-be-collapsed .terminal {
+    background: #A3A9B6;
+}
+
+.to-be-collapsed .pill .kind-icon {
+    color: #AEBDEF;
+}
+
+.to-be-collapsed .pill.filled .kind-icon {
+    color: #FFFFFF;
+}
+
+.to-be-collapsed .jj-link-line {
+    stroke: #C3CEF2;
 }
 
 /* A move in progress: the subtree that moves is dimmed; a button that cannot take it is gone. */
@@ -520,18 +585,54 @@ body {
     padding: 4px 8px;
 }
 
+/* The column on the right: the inspector, and the map of the diagram under it. */
+.side {
+    display: flex;
+    flex-direction: column;
+    width: 440px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--line);
+    background: #FFFFFF;
+}
+
 /*
     The inspector panel: a header with the kind of the selected element and,
     below it, its fields - or the diagram as YAML with nothing selected.
 */
 .inspector {
-    width: 440px;
-    flex-shrink: 0;
+    flex: 1;
+    min-height: 0;
     padding-bottom: 16px;
-    border-left: 1px solid var(--line);
-    background: #FFFFFF;
     font-size: 13px;
     overflow-y: auto;
+}
+
+/* The map at the bottom of the column (see `navigator-styles.ts`). */
+/* The map of the diagram: small, floating over the bottom right corner of the paper. */
+.navigator {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1;
+    width: 200px;
+    height: 140px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--background);
+    box-shadow: 0 4px 14px rgba(34, 34, 34, 0.1);
+}
+
+/* The strokes of the map scale with it, like the diagram's: the library keeps them at a fixed width otherwise. */
+.navigator .jj-navigator-element,
+.navigator .jj-navigator-link {
+    vector-effect: none;
+}
+
+.navigator .current-view {
+    border: 1.5px solid var(--blue-dark);
+    background: rgba(70, 102, 229, 0.08);
+    cursor: move;
 }
 
 .inspector .title {
@@ -612,8 +713,38 @@ body {
     padding: 6px 0 10px;
 }
 
-/* The diagram as YAML, highlighted by highlight.js: a small theme of its classes in the colors of the diagram. */
-.yaml {
+/* The tabs over the text of the diagram - YAML, JSON - styled like the title of the panel; the chosen one dark, underlined in blue. */
+.inspector .tabs {
+    display: flex;
+    gap: 16px;
+    padding: 18px 16px 6px;
+}
+
+.inspector .tab {
+    padding: 0 0 3px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.inspector .tab:hover {
+    color: var(--text);
+}
+
+.inspector .tab.active {
+    color: var(--text);
+    border-bottom-color: var(--blue);
+}
+
+/* The diagram as YAML or JSON, highlighted by highlight.js: a small theme of its classes in the colors of the diagram. */
+pre.code {
     margin: 0;
     padding: 4px 16px 16px;
     font-family: var(--code-font);
@@ -623,24 +754,28 @@ body {
     overflow-x: auto;
 }
 
-.yaml .hljs-attr {
+.code .hljs-attr {
     color: var(--blue);
 }
 
-.yaml .hljs-bullet {
+.code .hljs-bullet {
     color: var(--link);
 }
 
-.yaml .hljs-string {
+.code .hljs-string {
     color: var(--text);
 }
 
-.yaml .hljs-number,
-.yaml .hljs-literal {
-    color: #3C9A7A;
+.code .hljs-number,
+.code .hljs-literal {
+    color: #E36A3D;
 }
 
-.yaml .hljs-comment {
+.code .hljs-comment {
     color: #8A8A95;
     font-style: italic;
+}
+
+.code .hljs-punctuation {
+    color: #8A8A95;
 }

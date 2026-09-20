@@ -15,10 +15,14 @@ export function useTooltip<T extends Element>(content: string): RefObject<T | nu
     const ref = useRef<T>(null);
     useEffect(() => {
         const el = ref.current;
-        if (!el) return;
+        // No content, no tooltip.
+        if (!el || !content) return;
         el.setAttribute('data-tooltip-content', content);
         el.setAttribute('data-tooltip-id', TOOLTIP_ID);
-        return () => el.removeAttribute('data-tooltip-id');
+        return () => {
+            el.removeAttribute('data-tooltip-id');
+            el.removeAttribute('data-tooltip-content');
+        };
     }, [content]);
     return ref;
 }

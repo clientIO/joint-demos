@@ -1,4 +1,4 @@
-import { getEdges } from './DiagramData';
+import { getDefaultOptionName, getEdges } from './DiagramData';
 import type { DiagramJSON, Edge, Id, NodeData } from './types';
 
 /**
@@ -39,9 +39,9 @@ function scalar(value: string): string {
     return plain ? value : JSON.stringify(value);
 }
 
-/** The key of an option or a branch: its name, or its number. */
-function key(edge: Edge, index: number): string {
-    return scalar(edge.name || `option ${index + 1}`);
+/** The key of an option or a branch: its name, or its default (`option 1`, `branch 1`, ... by the `type` of the parent). */
+function key(edge: Edge, index: number, type: NodeData['type']): string {
+    return scalar(edge.name || getDefaultOptionName(type, index));
 }
 
 /**
@@ -65,8 +65,8 @@ function sequence(json: DiagramJSON, id: Id | undefined, depth: number): string[
 }
 
 /** The lines of a map of sequences - the branches of a group, the options of a decision - indented by `depth` levels. */
-function branches(json: DiagramJSON, edges: Edge[], depth: number): string[] {
-    return edges.flatMap((edge, index) => [`${INDENT.repeat(depth)}${key(edge, index)}:`, ...sequence(json, edge.id, depth + 1)]);
+function branches(json: DiagramJSON, edges: Edge[], depth: number, type: NodeData['type']): string[] {
+    return edges.flatMap((edge, index) => [`${INDENT.repeat(depth)}${key(edge, index, type)}:`, ...sequence(json, edge.id, depth + 1)]);
 }
 
 /** The lines of one item of a sequence: the first goes after the dash; the rest are indented by `depth` levels. */
@@ -77,17 +77,17 @@ function item(json: DiagramJSON, node: NodeData, depth: number): string[] {
             return [`name: ${scalar(node.label)}`, ...(node.run ? [`${pad}run: ${scalar(node.run)}`] : [])];
         case 'decision': {
             const options = getEdges(node, 'to');
-            return [`decision: ${scalar(node.label)}`, ...(options.length > 0 ? [`${pad}options:`, ...branches(json, options, depth + 1)] : [`${pad}options: {}`])];
+            return [`decision: ${scalar(node.label)}`, ...(options.length > 0 ? [`${pad}options:`, ...branches(json, options, depth + 1, node.type)] : [`${pad}options: {}`])];
         }
         case 'fork': {
             const edges = getEdges(node, 'branches');
-            return edges.length > 0 ? ['fork:', ...branches(json, edges, depth + 1)] : ['fork: {}'];
+            return edges.length > 0 ? ['fork:', ...branches(json, edges, depth + 1, node.type)] : ['fork: {}'];
         }
         case 'loop': {
             const edges = getEdges(node, 'branches');
             if (edges.length === 0) return ['loop: []'];
             // A loop with one body is the common case: its body straight away; several bodies, a map like a fork.
-            return edges.length === 1 ? ['loop:', ...sequence(json, edges[0].id, depth + 1)] : ['loop:', ...branches(json, edges, depth + 1)];
+            return edges.length === 1 ? ['loop:', ...sequence(json, edges[0].id, depth + 1)] : ['loop:', ...branches(json, edges, depth + 1, node.type)];
         }
         case 'end':
             return ['end'];

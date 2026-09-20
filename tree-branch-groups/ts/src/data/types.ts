@@ -3,8 +3,9 @@ export type Id = string;
 
 /**
  * An edge to a child. Where the child is an option of a decision or a
- * branch of a fork, the edge may carry its name (`Staging`); the layout
- * numbers the unnamed ones (`option 1`, `option 2`, ...).
+ * branch of a fork, the edge may carry its name (`Staging`); an unnamed
+ * one goes by its number, on the diagram and in the YAML alike: `option 1`
+ * below a decision, `branch 1` below a fork (see `getDefaultOptionName()`).
  */
 export interface Edge {
     id: Id;

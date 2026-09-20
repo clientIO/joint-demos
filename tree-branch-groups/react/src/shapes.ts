@@ -30,7 +30,6 @@ export const COLORS = {
     background: '#F3F7F6',
     node: { fill: '#FFFFFF', stroke: '#4666E5', text: '#222222' },
     /** The fills of the start of the diagram and of its ends; red is kept for what is about to be deleted. */
-    root: '#3C9A7A',
     terminal: '#2B3555',
     /** The pills that steer the flow: a decision, the start of a group. */
     gate: { fill: '#4666E5', stroke: '#4666E5', text: '#FFFFFF' },
@@ -122,10 +121,11 @@ export class Decision extends ElementModel {
     }
 }
 
-/** The React-facing state of the start of a group: the kind of the group, and whether it is collapsed. */
+/** The React-facing state of the start of a group: the kind of the group, whether it is collapsed and, for a fork, whether it has a branch - its add button shows once it has one. */
 export interface GroupStartData {
     kind: GroupKind;
     collapsed: boolean;
+    hasBranches: boolean;
 }
 
 /**
@@ -141,8 +141,8 @@ export class GroupStart extends ElementModel {
         return { ...super.defaults(), type: 'tbg.GroupStart', z: ELEMENT_Z, size: NODE_SIZE };
     }
 
-    static create(kind: GroupKind, collapsed: boolean = false): GroupStart {
-        const data: GroupStartData = { kind, collapsed };
+    static create(kind: GroupKind, collapsed: boolean = false, hasBranches: boolean = false): GroupStart {
+        const data: GroupStartData = { kind, collapsed, hasBranches };
         return new GroupStart({ data });
     }
 
@@ -195,7 +195,7 @@ export function isGate(cell: dia.Cell): cell is Gate {
     return cell instanceof GroupStart || cell instanceof GroupEnd;
 }
 
-/** The start of the diagram, its root: a green circle. */
+/** The start of the diagram, its root: a white circle with a dark outline. */
 export class Start extends ElementModel {
 
     defaults() {
@@ -388,7 +388,7 @@ export class Link extends LinkModel {
         this.set('data', { ...this.getData(), ...change });
     }
 
-    /** Names the link as an option of a decision or a fork (`option 1`, `option 2`, ...), or takes the name off. */
+    /** Names the link as an option of a decision or a fork (`Staging`), or takes the name off. */
     setOptionName(name: string | null): void {
         if (this.isBackward()) return;
         this.setData({ optionName: name ?? undefined });

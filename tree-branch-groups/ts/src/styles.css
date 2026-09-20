@@ -68,6 +68,16 @@ body {
     display: none;
 }
 
+/* The column on the right: the inspector, and the map of the diagram under it. */
+.side {
+    display: flex;
+    flex-direction: column;
+    width: 440px;
+    flex-shrink: 0;
+    border-left: 1px solid #DCE2F5;
+    background: #FFFFFF;
+}
+
 /*
     The inspector panel: a header with the kind of the selected element and,
     below it, the fields of a `ui.Inspector` on its data - or a line of text:
@@ -77,14 +87,48 @@ body {
 .inspector {
     /* The theme places the inspector absolutely: it fills the panel. */
     position: relative;
-    width: 440px;
-    flex-shrink: 0;
-    border-left: 1px solid #DCE2F5;
-    background: #FFFFFF;
+    flex: 1;
+    min-height: 0;
     font-family: sans-serif;
     font-size: 13px;
     color: #222222;
     overflow-y: auto;
+}
+
+/*
+    The map: a `ui.Navigator` at the bottom of the column, with the elements
+    as rects, pills and circles in their colors (see `navigator.ts`) and
+    the links as lines - their labels are not for the map.
+*/
+/* The map of the diagram: small, floating over the bottom right corner of the paper. */
+.navigator-panel {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1;
+    width: 200px;
+    height: 140px;
+    overflow: hidden;
+    border: 1px solid #DCE2F5;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(34, 34, 34, 0.1);
+}
+
+.navigator-panel .joint-navigator {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #F3F7F6;
+}
+
+.navigator-panel .joint-link .label {
+    display: none;
+}
+
+.navigator-panel .current-view {
+    border: 1.5px solid #3552C4;
+    background: rgba(70, 102, 229, 0.08);
+    cursor: move;
 }
 
 .inspector .title {
@@ -109,7 +153,37 @@ body {
     The diagram as YAML, with nothing selected, highlighted by highlight.js:
     a small theme of its classes in the colors of the diagram.
 */
-.inspector .yaml {
+/* The tabs over the text of the diagram - YAML, JSON - styled like the title of the panel; the chosen one dark, underlined in blue. */
+.inspector .tabs {
+    display: flex;
+    gap: 16px;
+    padding: 18px 16px 6px;
+}
+
+.inspector .tab {
+    padding: 0 0 3px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6A6A75;
+    cursor: pointer;
+}
+
+.inspector .tab:hover {
+    color: #222222;
+}
+
+.inspector .tab.active {
+    color: #222222;
+    border-bottom-color: #4666E5;
+}
+
+.inspector .code {
     margin: 0;
     padding: 4px 16px 16px;
     font-family: Menlo, Consolas, monospace;
@@ -120,26 +194,30 @@ body {
     overflow-x: auto;
 }
 
-.inspector .yaml .hljs-attr {
+.inspector .code .hljs-attr {
     color: #4666E5;
 }
 
-.inspector .yaml .hljs-bullet {
+.inspector .code .hljs-bullet {
     color: #7A90EC;
 }
 
-.inspector .yaml .hljs-string {
+.inspector .code .hljs-string {
     color: #222222;
 }
 
-.inspector .yaml .hljs-number,
-.inspector .yaml .hljs-literal {
-    color: #3C9A7A;
+.inspector .code .hljs-number,
+.inspector .code .hljs-literal {
+    color: #E36A3D;
 }
 
-.inspector .yaml .hljs-comment {
+.inspector .code .hljs-comment {
     color: #8A8A95;
     font-style: italic;
+}
+
+.inspector .code .hljs-punctuation {
+    color: #8A8A95;
 }
 
 .inspector .joint-inspector {
@@ -424,13 +502,41 @@ body {
 }
 
 .to-be-deleted [joint-selector="body"][fill="#4666E5"],
-.to-be-deleted [joint-selector="body"][fill="#3C9A7A"],
 .to-be-deleted [joint-selector="body"][fill="#2B3555"] {
     fill: #E54666;
 }
 
 .to-be-deleted [joint-selector="kindIcon"][stroke="#4666E5"] {
     stroke: #E54666;
+}
+
+/*
+    What a hovered collapse button would hide - the content of the group,
+    marked by a class like a deletion, and colored like one: the outline and
+    the icon of a node, the fill of a pill and of an end, the lines of the
+    links - in light colors, faded towards the background; nothing else
+    changes, no opacity is involved (translucent links add up where they
+    overlap).
+*/
+.to-be-collapsed [joint-selector="body"] {
+    stroke: #AEBDEF;
+}
+
+.to-be-collapsed [joint-selector="line"] {
+    stroke: #C3CEF2;
+}
+
+.to-be-collapsed [joint-selector="body"][fill="#4666E5"] {
+    fill: #AEBDEF;
+}
+
+.to-be-collapsed [joint-selector="body"][fill="#2B3555"] {
+    fill: #A3A9B6;
+    stroke: #A3A9B6;
+}
+
+.to-be-collapsed [joint-selector="kindIcon"][stroke="#4666E5"] {
+    stroke: #AEBDEF;
 }
 
 /* The tooltips of the buttons: a small dark label. */

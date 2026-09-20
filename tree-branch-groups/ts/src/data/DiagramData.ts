@@ -7,6 +7,15 @@ export function isGroupData(node: NodeData): node is GroupData {
     return node.type === 'fork' || node.type === 'loop';
 }
 
+/**
+ * The name of an unnamed option: the option `index` of a decision is
+ * `option 1`, `option 2`, ..., the branch `index` of a fork (or of a loop)
+ * `branch 1`, `branch 2`, ... - on the diagram and in the YAML alike.
+ */
+export function getDefaultOptionName(type: NodeData['type'], index: number): string {
+    return `${type === 'decision' ? 'option' : 'branch'} ${index + 1}`;
+}
+
 /** The edges of `node` in `slot`: none for an end, none in `branches` for anything but a group. */
 export function getEdges(node: NodeData, slot: Slot): Edge[] {
     if (node.type === 'end') return [];

@@ -30,7 +30,6 @@ export const COLORS = {
     background: '#F3F7F6',
     node: { fill: '#FFFFFF', stroke: '#4666E5', text: '#222222' },
     /** The fills of the start of the diagram and of its ends; red is kept for what is about to be deleted. */
-    root: '#3C9A7A',
     terminal: '#2B3555',
     /** The pills that steer the flow: a decision, the start of a group. */
     gate: { fill: '#4666E5', stroke: '#4666E5', text: '#FFFFFF' },
@@ -88,7 +87,13 @@ const LABEL_PADDING_Y = 11;
 /** The code below the label of a step - the command it runs: monospaced, a little smaller, tinted. */
 const CODE_FONT_FAMILY = 'Menlo, Consolas, monospace';
 const CODE_FONT_SIZE = 12;
-const CODE_COLOR = '#5B6B9E';
+/** The code sits on a chip: the program in bold, its flags tinted. */
+const CODE_COLOR = '#3F4C74';
+const CODE_COMMAND_COLOR = '#3552C4';
+const CODE_FLAG_COLOR = '#7A88B3';
+const CODE_CHIP = { fill: '#EEF2FF', paddingX: 7, height: 17, radius: 4 };
+/** A pill with a command is a little taller: room between the label, the chip and the border. */
+const CODE_ROOM = 4;
 
 /** Custom paper event triggered by the collapse/expand button on the start of a group. */
 export const TOGGLE_EVENT = 'element:group:toggle';
@@ -108,6 +113,13 @@ const EXPAND_ICON = 'M -4 0 4 0 M 0 -4 0 4';
 const pillMarkup = util.svg/* xml */`
     <rect @selector="body"/>
     <path @selector="kindIcon"/>
+    <text @selector="label"/>
+`;
+/** A step that runs a command: the chip behind the code, under the label. */
+const stepWithRunMarkup = util.svg/* xml */`
+    <rect @selector="body"/>
+    <path @selector="kindIcon"/>
+    <rect @selector="runChip"/>
     <text @selector="label"/>
 `;
 const addButtonMarkup = util.svg/* xml */`
@@ -171,23 +183,58 @@ function measureText(text: string, font: string): number {
 }
 
 /**
+ * The annotations of a command line, `offset` characters into the text of
+ * the pill: the whole line as code, its program in bold, its flags tinted.
+ * No grammar: a command line is a program and its arguments.
+ */
+function annotateCommand(code: string, offset: number): LabelAnnotation[] {
+    const annotations: LabelAnnotation[] = [
+        { start: offset, end: offset + code.length, attrs: { fontFamily: CODE_FONT_FAMILY, fontSize: CODE_FONT_SIZE, fill: CODE_COLOR }}
+    ];
+    let first = true;
+    for (const match of code.matchAll(/\S+/g)) {
+        const start = offset + match.index;
+        const end = start + match[0].length;
+        if (first) {
+            first = false;
+            annotations.push({ start, end, attrs: { fontWeight: 600, fill: CODE_COMMAND_COLOR }});
+        } else if (match[0].startsWith('-')) {
+            annotations.push({ start, end, attrs: { fill: CODE_FLAG_COLOR }});
+        }
+    }
+    return annotations;
+}
+
+/**
  * Sets the text of a pill - its label and, below it, its code, if any: the
- * command a step runs, monospaced, a little smaller and tinted, through an
- * annotation of the `text` attribute - and sizes the pill to it: the size
+ * command a step runs, monospaced, a little smaller, on a chip, through
+ * annotations of the `text` attribute - and sizes the pill to it: the size
  * of a node at least, wider for a long line and taller for several (a
  * newline breaks a line). Each part is measured in its own font.
  */
 function setPillLabel(pill: dia.Element, label: string, code?: string): void {
     const text = code ? `${label}\n${code}` : label;
-    const annotations: LabelAnnotation[] = code
-        ? [{ start: label.length + 1, end: text.length, attrs: { fontFamily: CODE_FONT_FAMILY, fontSize: CODE_FONT_SIZE, fill: CODE_COLOR }}]
-        : [];
+    const annotations = code ? annotateCommand(code, label.length + 1) : [];
     pill.attr('label', { text, annotations });
+    if (code) {
+        // The chip behind the code, the second line of the text: the text is
+        // centered on the pill, the second line half a line below the middle.
+        const codeWidth = Math.ceil(measureText(code, CODE_FONT)) + 2 * CODE_CHIP.paddingX;
+        pill.attr('runChip', {
+            x: `calc(w / 2 + ${KIND_LABEL_OFFSET - codeWidth / 2})`,
+            y: `calc(h / 2 + ${LABEL_LINE_HEIGHT / 2 - CODE_CHIP.height / 2})`,
+            width: codeWidth,
+            height: CODE_CHIP.height,
+            rx: CODE_CHIP.radius,
+            ry: CODE_CHIP.radius,
+            fill: CODE_CHIP.fill
+        });
+    }
     const width = Math.max(measureText(label, LABEL_FONT), code ? measureText(code, CODE_FONT) : 0);
     const lines = text.split('\n').length;
     pill.resize(
         Math.max(NODE_SIZE.width, Math.ceil(width) + 2 * LABEL_PADDING_X),
-        Math.max(NODE_SIZE.height, Math.ceil(lines * LABEL_LINE_HEIGHT) + 2 * LABEL_PADDING_Y)
+        Math.max(NODE_SIZE.height, Math.ceil(lines * LABEL_LINE_HEIGHT) + 2 * LABEL_PADDING_Y + (code ? CODE_ROOM : 0))
     );
 }
 
@@ -258,8 +305,8 @@ function pillDefaults(type: string, extra: object, superDefaults: object): objec
 /** A step of the flow: a plain pill with a label, sized to it. */
 export class Step extends dia.Element {
 
-    preinitialize() {
-        this.markup = pillMarkup;
+    preinitialize(attributes?: { run?: boolean }) {
+        this.markup = attributes?.run ? stepWithRunMarkup : pillMarkup;
     }
 
     defaults() {
@@ -268,7 +315,7 @@ export class Step extends dia.Element {
 
     /** A step with its label and, below it, the command it runs, as code. */
     static create(label: string, run?: string): Step {
-        const step = new Step();
+        const step = new Step({ run: Boolean(run) });
         setPillLabel(step, label, run);
         return step;
     }
@@ -323,8 +370,11 @@ export class Decision extends dia.Element {
  * with the icon of the kind and the collapse/expand button of the group on
  * its bottom edge. The start of a fork also carries, at its right end, the
  * button that adds a branch - a fork may have any number of them; a loop
- * has one body, so its start has no such button. When the group is
- * collapsed the start stays visible in its place and stands in for it.
+ * has one body, so its start has no such button. The button shows once the
+ * fork has a branch (see `setAddButtonVisible()`); an empty fork gets its
+ * first branch through the insert button of the link from its start to its
+ * end. When the group is collapsed the start stays visible in its place and
+ * stands in for it.
  */
 export class GroupStart extends dia.Element {
 
@@ -353,6 +403,15 @@ export class GroupStart extends dia.Element {
 
     getKind(): GroupKind {
         return this.get('kind');
+    }
+
+    /** Shows or hides the add button of the start of a fork; the start of a loop has none. */
+    setAddButtonVisible(visible: boolean): void {
+        if (this.getKind() !== 'fork') return;
+        this.attr({
+            [ADD_BUTTON_SELECTOR]: { display: visible ? null : 'none' },
+            addIcon: { display: visible ? null : 'none' }
+        });
     }
 
     /** Flips the icon and the tooltip of the collapse/expand button. */
@@ -410,9 +469,9 @@ export function isGate(cell: dia.Cell): cell is Gate {
 }
 
 /*
-    The terminals: the start and the ends of the diagram are filled circles
-    with their label inside, in light text - green for the start, dark for
-    an end.
+    The terminals: the start and the ends of the diagram are circles with
+    their label inside - the start white with a dark outline and a dark
+    label, an end filled dark with a light label.
 */
 
 const terminalMarkup = util.svg/* xml */`
@@ -420,7 +479,7 @@ const terminalMarkup = util.svg/* xml */`
     <text @selector="label"/>
 `;
 
-function terminalDefaults(type: string, label: string, color: string, superDefaults: object): object {
+function terminalDefaults(type: string, label: string, colors: { fill: string; stroke: string; text: string }, superDefaults: object): object {
     return util.defaultsDeep({
         type,
         z: ELEMENT_Z,
@@ -430,8 +489,8 @@ function terminalDefaults(type: string, label: string, color: string, superDefau
                 cx: 'calc(w / 2)',
                 cy: 'calc(h / 2)',
                 r: 'calc(w / 2)',
-                fill: color,
-                stroke: color,
+                fill: colors.fill,
+                stroke: colors.stroke,
                 strokeWidth: 1.5
             },
             label: {
@@ -442,13 +501,14 @@ function terminalDefaults(type: string, label: string, color: string, superDefau
                 textVerticalAnchor: 'middle',
                 fontFamily: 'sans-serif',
                 fontSize: 12,
-                fill: COLORS.gate.text
+                fontWeight: 600,
+                fill: colors.text
             }
         }
     }, superDefaults);
 }
 
-/** The start of the diagram, its root: a green circle. */
+/** The start of the diagram, its root: a white circle with a dark outline. */
 export class Start extends dia.Element {
 
     preinitialize() {
@@ -456,7 +516,7 @@ export class Start extends dia.Element {
     }
 
     defaults() {
-        return terminalDefaults('tbg.Start', 'Start', COLORS.root, super.defaults);
+        return terminalDefaults('tbg.Start', 'Start', { fill: COLORS.node.fill, stroke: COLORS.terminal, text: COLORS.terminal }, super.defaults);
     }
 
     static create(): Start {
@@ -476,7 +536,7 @@ export class End extends dia.Element {
     }
 
     defaults() {
-        return terminalDefaults('tbg.End', 'End', COLORS.terminal, super.defaults);
+        return terminalDefaults('tbg.End', 'End', { fill: COLORS.terminal, stroke: COLORS.terminal, text: COLORS.gate.text }, super.defaults);
     }
 
     static create(): End {
@@ -624,23 +684,40 @@ const TARGET_MARKER = {
 };
 
 /**
- * The text above the insert button of a link to an option of a decision or a
- * fork: `option 1`, `option 2`, ... The only label a link has; the insert
- * button is a link tool (see `placeLinkTools()`).
+ * The name above the insert button of a link to an option of a decision or a
+ * fork (`Staging`) - bold, in the blue of the nodes, on a
+ * tinted chip, so that it stands out from the lines. The only label a link
+ * has; the insert button is a link tool (see `placeLinkTools()`).
  */
 const BRANCH_LABEL_INDEX = 0;
 /** The name sits above the insert button, right next to the line. */
 const BRANCH_LABEL_OFFSET_X = 8;
 export const BRANCH_LABEL_OFFSET_ALONG = -17;
+const BRANCH_FONT_SIZE = 12;
+const BRANCH_FONT_WEIGHT = 600;
+const BRANCH_FONT = `${BRANCH_FONT_WEIGHT} ${BRANCH_FONT_SIZE}px ${LABEL_FONT_FAMILY}`;
+const BRANCH_CHIP = { fill: '#E8EDFF', paddingX: 6, height: 18, radius: 4 };
 const BRANCH_LABEL = {
     markup: util.svg/* xml */`
+        <rect @selector="branchChip"/>
         <text @selector="branchText"/>
     `,
     attrs: {
+        branchChip: {
+            x: 0,
+            y: -BRANCH_CHIP.height / 2,
+            height: BRANCH_CHIP.height,
+            rx: BRANCH_CHIP.radius,
+            ry: BRANCH_CHIP.radius,
+            fill: BRANCH_CHIP.fill,
+            pointerEvents: 'none'
+        },
         branchText: {
-            fontFamily: 'sans-serif',
-            fontSize: 11,
-            fill: '#6A6A75',
+            x: BRANCH_CHIP.paddingX,
+            fontFamily: LABEL_FONT_FAMILY,
+            fontSize: BRANCH_FONT_SIZE,
+            fontWeight: BRANCH_FONT_WEIGHT,
+            fill: COLORS.node.stroke,
             textAnchor: 'start',
             textVerticalAnchor: 'middle',
             pointerEvents: 'none'
@@ -725,9 +802,8 @@ export class Link extends dia.Link {
     }
 
     /**
-     * Names the link as an option of a decision or a fork (`option 1`,
-     * `option 2`, ...), with a text next to its insert button, or removes
-     * the name.
+     * Names the link as an option of a decision or a fork (`Staging`), with
+     * a text next to its insert button, or removes the name.
      */
     setBranchName(name: string | null): void {
         // The return link of a loop has a label of its own, the arrow, and no name.
@@ -741,6 +817,8 @@ export class Link extends dia.Link {
             this.label(BRANCH_LABEL_INDEX, util.cloneDeep(BRANCH_LABEL));
         }
         this.prop(['labels', BRANCH_LABEL_INDEX, 'attrs', 'branchText', 'text'], name);
+        // The chip fits the name.
+        this.prop(['labels', BRANCH_LABEL_INDEX, 'attrs', 'branchChip', 'width'], Math.ceil(measureText(name, BRANCH_FONT)) + 2 * BRANCH_CHIP.paddingX);
     }
 
     /** Whether a link from `source` to `target` is the return link of a loop: from its `end` back to its `start`. */

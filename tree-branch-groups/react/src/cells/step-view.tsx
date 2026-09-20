@@ -6,6 +6,7 @@ import { NODE_ICON } from '../shapes';
 import type { StepData } from '../shapes';
 import { MoreButton } from './buttons';
 import { KindIcon } from './kind-icon';
+import { RunLine } from './run-line';
 
 /**
  * A step: a pill with the card icon, its label and, below it, the command
@@ -22,7 +23,7 @@ export function StepView(): ReactNode {
             <KindIcon d={NODE_ICON} />
             <span className="text">
                 <span className="label">{label}</span>
-                {run ? <code className="run">{run}</code> : null}
+                {run ? <RunLine run={run} /> : null}
             </span>
             <MoreButton />
         </HTMLHost>

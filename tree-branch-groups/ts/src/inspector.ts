@@ -1,6 +1,7 @@
 import { ui, util } from '@joint/plus';
 import type { dia } from '@joint/plus';
 import hljs from 'highlight.js/lib/core';
+import json from 'highlight.js/lib/languages/json';
 import yaml from 'highlight.js/lib/languages/yaml';
 
 import { getEdges } from './data/DiagramData';
@@ -34,13 +35,15 @@ const COMMENT_INPUT = { type: 'textarea', label: 'Comment', index: 9 };
 /**
  * One text input per option of `node` - a child of a decision, a branch of
  * a fork - for its name, which lives on the edge into it, in the list of
- * the parent: the path of the input is `<slot>/<index>/name`. Numbered like
- * the unnamed options are on the links.
+ * the parent: the path of the input is `<slot>/<index>/name`. Labelled
+ * `Option 1`, ... or `Branch 1`, ..., like the unnamed options are on the
+ * links; an empty field leaves the option to its default name.
  */
 function getOptionInputs(node: NodeData, slot: Slot): Record<string, unknown> {
     const inputs: Record<string, unknown> = {};
+    const word = slot === 'to' ? 'Option' : 'Branch';
     getEdges(node, slot).forEach((_edge, index) => {
-        inputs[index] = { name: { type: 'text', label: `Option ${index + 1}`, index: 10 + index }};
+        inputs[index] = { name: { type: 'text', label: `${word} ${index + 1}`, index: 10 + index }};
     });
     return { [slot]: inputs };
 }
@@ -76,7 +79,7 @@ function getConfig(data: DiagramData, element: Selectable): InspectorConfig {
 let inspector: ui.Inspector | null = null;
 /** The id of the element the inspector is open for. */
 let openId: string | null = null;
-/** What the panel shows - the inspector of an element, or the YAML - to leave it alone when asked for the same; `undefined` before the first sync. */
+/** What the panel shows - the inspector of an element, or the text of the diagram - to leave it alone when asked for the same; `undefined` before the first sync. */
 let signature: string | null | undefined;
 
 /** Fills the panel: a header and a body - the hint, a note, or the inspector. */
@@ -92,14 +95,41 @@ function renderPanel(container: HTMLElement, title: string | null, body: string 
 }
 
 hljs.registerLanguage('yaml', yaml);
+hljs.registerLanguage('json', json);
 
-/** The diagram as YAML, highlighted by highlight.js (its YAML grammar only), for the panel with nothing selected. */
-function renderYAML(data: DiagramData): HTMLElement {
+/** The two views of the diagram as text, with nothing selected: the YAML, and the data as JSON. */
+type CodeTab = 'yaml' | 'json';
+const CODE_TABS: { tab: CodeTab; label: string }[] = [{ tab: 'yaml', label: 'YAML' }, { tab: 'json', label: 'JSON' }];
+/** The tab shown; it stays as chosen through the edits and the selections. */
+let codeTab: CodeTab = 'yaml';
+
+/** The diagram as text on the chosen tab: the YAML of the flow, or the data as JSON; highlighted by highlight.js (its core and the two grammars only). */
+function renderCode(data: DiagramData): HTMLElement {
     const pre = document.createElement('pre');
-    pre.className = 'yaml';
+    pre.className = `code ${codeTab}`;
+    const text = codeTab === 'yaml' ? toYAML(data.getData()) : JSON.stringify(data.getData(), null, 2);
     // The text is the emitter's own; the markup is highlight.js's, escaped.
-    pre.innerHTML = hljs.highlight(toYAML(data.getData()), { language: 'yaml' }).value;
+    pre.innerHTML = hljs.highlight(text, { language: codeTab }).value;
     return pre;
+}
+
+/** Fills the panel with the tabs and the text of the chosen one; a click on a tab switches and renders again. */
+function renderCodePanel(container: HTMLElement, data: DiagramData): void {
+    const tabs = document.createElement('div');
+    tabs.className = 'tabs';
+    for (const { tab, label } of CODE_TABS) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = tab === codeTab ? 'tab active' : 'tab';
+        button.textContent = label;
+        button.addEventListener('click', () => {
+            if (tab === codeTab) return;
+            codeTab = tab;
+            renderCodePanel(container, data);
+        });
+        tabs.append(button);
+    }
+    container.replaceChildren(tabs, renderCode(data));
 }
 
 /** Whether a sync is under way, and the one asked for meanwhile - by the rebuild a commit triggers - to run after it. */
@@ -151,7 +181,7 @@ function sync(container: HTMLElement, data: DiagramData, element: Selectable | n
     // The same element with other inputs - an option added or removed: what is typed is saved too.
     closeInspector(data);
     if (!config) {
-        renderPanel(container, 'YAML', renderYAML(data));
+        renderCodePanel(container, data);
     } else if (config.note !== undefined) {
         renderPanel(container, config.title, config.note);
     } else {
