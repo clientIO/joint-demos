@@ -1,11 +1,11 @@
 import type { dia } from '@joint/plus';
 
-import type { AddChoice } from './choices';
+import type { AddChoice } from './add-menu';
 import { cellId, getId } from './data/build';
-import type { DiagramData } from './data/DiagramData';
+import type { DiagramData } from './data/diagram-data';
 import type { Id, NodeData, Slot } from './data/types';
 import { isCellVisible } from './layout';
-import { AddButtonModel, DECISION_LABEL, DecisionModel, GroupModel, GroupEndModel, GroupStartModel, LinkModel, isGate } from './shapes';
+import { AddButtonModel, DECISION_LABEL, DecisionModel, EndModel, GroupModel, GroupEndModel, GroupStartModel, LinkModel, isGate } from './shapes';
 
 /**
  * The edits, and the questions the tools ask before offering one. An edit
@@ -56,6 +56,25 @@ export function canAddTerminal(element: dia.Element): boolean {
 /** Whether `element` may have several children: a decision, or a gate (the start of a group). */
 function canBranch(element: dia.Element): boolean {
     return DecisionModel.isDecision(element) || isGate(element);
+}
+
+/**
+ * The element the menu of `element` acts on - and the `Delete` key, when
+ * it is selected: a node acts on itself, the `start` of a group on the
+ * group. The `end` of a group and the add buttons have no menu.
+ */
+export function getActionTarget(element: dia.Element): dia.Element | null {
+    if (GroupStartModel.isGroupStart(element)) return element.getParentCell() as GroupModel;
+    if (GroupEndModel.isGroupEnd(element) || AddButtonModel.isAddButton(element)) return null;
+    return element;
+}
+
+/** The item of the menu that removes `target`: "Remove" and what it is - a loop, a fork, a decision, an end, a step. */
+export function getDeleteTitle(target: dia.Element): string {
+    if (GroupModel.isGroup(target)) return `Remove the ${target.getKind()}`;
+    if (DecisionModel.isDecision(target)) return 'Remove the decision';
+    if (EndModel.isEnd(target)) return 'Remove the end';
+    return 'Remove the step';
 }
 
 /**

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { useEditor } from './editor-context';
+import { useEditor } from '../editor-context';
 import { TipButton } from './tooltip';
 
 const ICONS = {

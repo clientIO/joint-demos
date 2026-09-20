@@ -4,8 +4,8 @@ import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import yaml from 'highlight.js/lib/languages/yaml';
 
-import { getEdges } from './data/DiagramData';
-import type { DiagramData } from './data/DiagramData';
+import { getEdges } from './data/diagram-data';
+import type { DiagramData } from './data/diagram-data';
 import type { NodeData, Slot } from './data/types';
 import { toYAML } from './data/yaml';
 import { DecisionModel, EndModel, GROUP_LABELS, GroupStartModel, StartModel, StepModel } from './shapes';

@@ -14,6 +14,14 @@ body {
 }
 
 /* The toolbar above; below it the paper, filling the rest, and the inspector on the right. */
+/* The colors of the previews on the cells: a deletion in red, a collapse in a light blue, a move in teal - the teal of the drop points. */
+:root {
+    --red: #E54666;
+    --blue-light: #C8D3F2;
+    --teal: #2F9C95;
+    --teal-dark: #257C77;
+}
+
 .app {
     display: flex;
     flex-direction: column;
@@ -58,7 +66,7 @@ body {
     font-size: 11px;
 }
 
-/* A move in progress: the subtree that moves is faded (see `.faded`) and out of reach; a button that cannot take it is gone. */
+/* A move in progress: the subtree that moves is out of reach (and marked, see the previews); a button that cannot take it is gone. */
 .moving {
     pointer-events: none;
 }
@@ -419,17 +427,17 @@ body {
     fill: #3552C4;
 }
 
-/* A move in progress: the buttons are the drop points - dark, like the ends, so that they read as the targets to click. */
+/* A move in progress: the buttons are the drop points - teal, so that they read as the targets to click. */
 .moving-mode [joint-selector="addButton"],
 .moving-mode .joint-type-tbg-addbutton [joint-selector="body"],
 .moving-mode .joint-tool .button.add {
-    fill: #2B3555;
+    fill: var(--teal);
 }
 
 .moving-mode [joint-selector="addButton"]:hover,
 .moving-mode .joint-type-tbg-addbutton:hover [joint-selector="body"],
 .moving-mode .joint-tool .button.add:hover {
-    fill: #1C2440;
+    fill: var(--teal-dark);
 }
 
 /* The "more" button: a transparent disc that tints on hover, on a light pill and on a filled one. */
@@ -493,89 +501,47 @@ body {
 }
 
 /*
-    The cells a hovered "remove" item would remove, marked by a class from a
-    highlighter: the elements and the links turn red - the outline and the
-    icon of a node, the fill of a pill, the lines of the links - the buttons
-    on them do not. The color fades in and out. The kinds of cells are told
-    apart by the type classes of their views (`joint-type-tbg-decision`,
-    ...), so the rules hold whatever the colors of the shapes are.
+    The previews on the cells - a deletion about to happen, what a collapse
+    would hide, what a move would take or takes - are one thing in three
+    colors: a class on the view of a cell sets `--mark`, and the rules below
+    paint the outline and the icon of a node, the fill of a pill and of an
+    end, and the lines of the links in it; the buttons on the cells keep
+    their colors. The kinds of cells are told apart by the type classes of
+    their views (`joint-type-tbg-decision`, ...), so the rules hold whatever
+    the colors of the shapes are. The colors fade in and out.
 */
 [joint-selector="body"],
 [joint-selector="line"],
-[joint-selector="kindIcon"],
-[joint-selector="label"],
-[joint-selector="label"] tspan,
-[joint-selector="runChip"],
-[joint-selector="branchChip"],
-[joint-selector="branchText"] {
+[joint-selector="kindIcon"] {
     transition: fill 150ms ease-out, stroke 150ms ease-out;
 }
 
-.to-be-deleted [joint-selector="body"],
-.to-be-deleted [joint-selector="line"] {
-    stroke: #E54666;
+.to-be-deleted {
+    --mark: var(--red);
 }
 
-.to-be-deleted.joint-type-tbg-decision [joint-selector="body"],
-.to-be-deleted.joint-type-tbg-groupstart [joint-selector="body"],
-.to-be-deleted.joint-type-tbg-end [joint-selector="body"] {
-    fill: #E54666;
+.faded {
+    --mark: var(--blue-light);
 }
 
-.to-be-deleted.joint-type-tbg-step [joint-selector="kindIcon"] {
-    stroke: #E54666;
+.moving,
+.to-be-moved {
+    --mark: var(--teal);
 }
 
-/*
-    The faded cells - what a hovered collapse button would hide, what a
-    hovered "move" item would move, the subtree of a move in progress -
-    marked by a class like a deletion, and colored like one: the outline and
-    the icon of a node, the fill of a pill and of an end, the lines of the
-    links - in light colors, faded towards the background; nothing else
-    changes, no opacity is involved (translucent links add up where they
-    overlap).
-*/
-:is(.faded, .moving) [joint-selector="body"] {
-    stroke: #C8D3F2;
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) [joint-selector="body"],
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) [joint-selector="line"] {
+    stroke: var(--mark);
 }
 
-:is(.faded, .moving) [joint-selector="line"] {
-    stroke: #D5DDF4;
+:is(.to-be-deleted, .faded, .moving, .to-be-moved).joint-type-tbg-decision [joint-selector="body"],
+:is(.to-be-deleted, .faded, .moving, .to-be-moved).joint-type-tbg-groupstart [joint-selector="body"],
+:is(.to-be-deleted, .faded, .moving, .to-be-moved).joint-type-tbg-end [joint-selector="body"] {
+    fill: var(--mark);
 }
 
-:is(.faded, .moving).joint-type-tbg-decision [joint-selector="body"],
-:is(.faded, .moving).joint-type-tbg-groupstart [joint-selector="body"] {
-    fill: #C8D3F2;
-}
-
-:is(.faded, .moving).joint-type-tbg-end [joint-selector="body"] {
-    fill: #C1C7CE;
-    stroke: #C1C7CE;
-}
-
-:is(.faded, .moving).joint-type-tbg-step [joint-selector="kindIcon"] {
-    stroke: #C8D3F2;
-}
-
-/* The texts fade with the shapes: the label of a step, its code on its chip, the name of an option on its chip. */
-:is(.faded, .moving).joint-type-tbg-step [joint-selector="label"] {
-    fill: #BFC2C1;
-}
-
-:is(.faded, .moving).joint-type-tbg-step [joint-selector="label"] tspan {
-    fill: #C6CCD6;
-}
-
-:is(.faded, .moving) [joint-selector="runChip"] {
-    fill: #F2F6F8;
-}
-
-:is(.faded, .moving) [joint-selector="branchChip"] {
-    fill: #F0F4F8;
-}
-
-:is(.faded, .moving) [joint-selector="branchText"] {
-    fill: #C8D3F2;
+:is(.to-be-deleted, .faded, .moving, .to-be-moved).joint-type-tbg-step [joint-selector="kindIcon"] {
+    stroke: var(--mark);
 }
 
 /* The tooltips of the buttons: a small dark label. */

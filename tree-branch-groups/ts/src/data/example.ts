@@ -1,4 +1,4 @@
-import type { DiagramJSON } from './data/types';
+import type { DiagramJSON } from './types';
 
 /**
  * A CI/CD pipeline. After the checkout and the install, a fork runs the lint,
@@ -10,7 +10,7 @@ import type { DiagramJSON } from './data/types';
  * of an attribute of those names for a change of a cell's geometry and
  * ignores it, so a node with such an id would not refresh in the panel.
  */
-export const pipeline: DiagramJSON = {
+export const example: DiagramJSON = {
     start: { type: 'start', to: [{ id: 'checkout' }] },
     checkout: { type: 'step', label: 'Checkout', run: 'git fetch --depth 1', comment: 'Shallow: the history is not needed.', to: [{ id: 'install' }] },
     install: { type: 'step', label: 'Install dependencies', run: 'npm ci', to: [{ id: 'jobs' }] },

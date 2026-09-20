@@ -3,17 +3,18 @@ import { useGraph, useOnElementsMeasured, useOnKeyboardEvents, useOnPaperEvents,
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 
-import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
-import type { MenuRequest } from './choices';
+import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getActionTarget, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
+import type { MenuRequest } from './components/menu';
 import { buildGraph, getId } from './data/build';
 import type { Id } from './data/types';
-import { DiagramData } from './data/DiagramData';
+import { DiagramData } from './data/diagram-data';
 import { EditorContext, MAX_ZOOM, MIN_ZOOM, PAPER_ID, isSelectable, useEditor } from './editor-context';
+import { getElementMenu } from './shapes/buttons';
 import type { EditorApi } from './editor-context';
 import { isCellVisible, runLayout } from './layout';
-import { pipeline } from './pipeline';
+import { example } from './data/example';
 import { GroupModel, GroupStartModel } from './shapes';
-import { clearDeletionHighlight, clearFaded, fadeCells, highlightCollapse, highlightDeletion, markMove } from './tools';
+import { clearDeletionHighlight, clearFaded, clearMoveHighlight, highlightCollapse, highlightDeletion, highlightMove, markMove } from './highlights';
 
 const PAPER_PADDING = 40;
 /** How close the fit goes, at most: a narrow flow is shown at its size, not blown up. */
@@ -48,7 +49,7 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     const { graph } = useGraph();
     const [data] = useState(() => {
         const model = new DiagramData();
-        model.fromJSON(pipeline);
+        model.fromJSON(example);
         return model;
     });
     const [history] = useState(() => new dia.CommandManager({ model: data }));
@@ -151,7 +152,7 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
                 if (group && paper) highlightCollapse(paper, group); else clearFaded();
             },
             previewMove: (target) => {
-                if (target && paper) fadeCells(paper, getMovedCells(graph, data, getId(target))); else clearFaded();
+                if (target && paper) highlightMove(paper, getMovedCells(graph, data, getId(target))); else clearMoveHighlight();
             },
             menu,
             openMenu: setMenu,
@@ -218,6 +219,14 @@ export function EditorWiring(): null {
         onBlankPointerClick: () => {
             editor.select(null);
             editor.cancelMove();
+        },
+        // A right click on an element opens the menu of its "more" button, at the pointer.
+        onElementContextMenu: ({ model, event }) => {
+            event.preventDefault();
+            if (editor.moved || !model.isElement()) return;
+            const target = getActionTarget(model);
+            if (!target || !canDelete(graph, target)) return;
+            editor.openMenu(getElementMenu(editor, target, new DOMRect(event.clientX, event.clientY, 0, 0)));
         },
         onBlankPointerDown: ({ event }) => {
             fitPending.current = false;

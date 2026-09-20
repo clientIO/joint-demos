@@ -1,11 +1,13 @@
 import { useCellId, useGraph } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
-import { canDelete } from '../actions';
+import { canDelete, getActionTarget, getDeleteTitle } from '../actions';
 import { useEditor } from '../editor-context';
+import type { EditorApi } from '../editor-context';
+import type { MenuRequest } from '../components/menu';
+import type { dia } from '@joint/plus';
 import { COLORS } from './constants';
-import { getActionTarget, getDeleteTitle } from '../tools';
-import { TipButton } from '../tooltip';
+import { TipButton } from '../components/tooltip';
 
 /** A plus, in the size of the buttons: the add button below a leaf, the button of a pill. */
 export function PlusIcon(): ReactNode {
@@ -16,7 +18,7 @@ export function PlusIcon(): ReactNode {
     );
 }
 
-/** The "move to" item of the menu of an element: an arrow out and down. */
+/** The "move to" item of the menu of an element: an arrow out and down, in the teal of a move. */
 const MOVE_ICON = 'M -6 -6 V 6 H 6 M 6 6 L 2 2 M 6 6 L 2 10';
 /** The "remove" item: a cross, in red. */
 const DELETE_ICON = 'M -5 -5 5 5 M -5 5 5 -5';
@@ -41,25 +43,31 @@ export function MoreButton({ filled = false }: { filled?: boolean }): ReactNode 
         <TipButton
             tip="More"
             className={`more${filled ? ' on-filled' : ''}`}
-            onClick={(evt) => {
-                const anchor = (evt.currentTarget as HTMLElement).getBoundingClientRect();
-                editor.openMenu({
-                    anchor,
-                    items: [
-                        // Greyed out when there is nowhere to move the element to.
-                        { action: 'move', label: 'Move to…', icon: MOVE_ICON, color: COLORS.node.stroke, disabled: !editor.canMove(target) },
-                        { action: 'remove', label: getDeleteTitle(target), icon: DELETE_ICON, color: DELETE_COLOR }
-                    ],
-                    onChoose: (action) => (action === 'move' ? editor.startMove(target) : editor.remove(target)),
-                    // The hovered item shows what it would do: "remove" turns the cells red, "move" fades what would move.
-                    onHover: (action) => {
-                        editor.previewDeletion(action === 'remove' ? target : null);
-                        editor.previewMove(action === 'move' ? target : null);
-                    }
-                });
-            }}
+            onClick={(evt) => editor.openMenu(getElementMenu(editor, target, (evt.currentTarget as HTMLElement).getBoundingClientRect()))}
         >
             <span className="dots" aria-hidden="true" />
         </TipButton>
     );
+}
+
+/**
+ * The menu of an element, acting on `target` (see `getActionTarget()`),
+ * below `anchor` - the "more" button, or the pointer of a right click: its
+ * move and its removal; hovering an item shows what it would do.
+ */
+export function getElementMenu(editor: EditorApi, target: dia.Element, anchor: DOMRect): MenuRequest {
+    return {
+        anchor,
+        items: [
+            // Greyed out when there is nowhere to move the element to.
+            { action: 'move', label: 'Move to…', icon: MOVE_ICON, color: COLORS.move, disabled: !editor.canMove(target) },
+            { action: 'remove', label: getDeleteTitle(target), icon: DELETE_ICON, color: DELETE_COLOR }
+        ],
+        onChoose: (action) => (action === 'move' ? editor.startMove(target) : editor.remove(target)),
+        // The hovered item shows what it would do: "remove" turns the cells red, "move" marks what would move.
+        onHover: (action) => {
+            editor.previewDeletion(action === 'remove' ? target : null);
+            editor.previewMove(action === 'move' ? target : null);
+        }
+    };
 }

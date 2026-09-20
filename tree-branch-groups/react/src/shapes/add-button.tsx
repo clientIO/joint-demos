@@ -2,7 +2,7 @@ import type { dia } from '@joint/plus';
 import { ElementModel, HTMLHost, useCellId, useGraph } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
-import { TipButton } from '../tooltip';
+import { TipButton } from '../components/tooltip';
 import { PlusIcon } from './buttons';
 import { ADD_BUTTON_SIZE, ELEMENT_Z } from './constants';
 import { useAddBelow } from './use-add-below';

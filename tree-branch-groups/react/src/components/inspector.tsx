@@ -5,12 +5,12 @@ import yaml from 'highlight.js/lib/languages/yaml';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { getEdges } from './data/DiagramData';
-import type { NodeData, Slot } from './data/types';
-import { toYAML } from './data/yaml';
-import { useEditor } from './editor-context';
-import { GROUP_LABELS, GroupStartModel } from './shapes';
-import { getId } from './data/build';
+import { getEdges } from '../data/diagram-data';
+import type { NodeData, Slot } from '../data/types';
+import { toYAML } from '../data/yaml';
+import { useEditor } from '../editor-context';
+import { GROUP_LABELS, GroupStartModel } from '../shapes';
+import { getId } from '../data/build';
 
 hljs.registerLanguage('yaml', yaml);
 hljs.registerLanguage('json', json);

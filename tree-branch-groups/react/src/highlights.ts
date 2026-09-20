@@ -1,36 +1,17 @@
-import { g, highlighters } from '@joint/plus';
+import { highlighters } from '@joint/plus';
 import type { dia } from '@joint/plus';
 
 import { getDeletedCells } from './actions';
 import { isCellVisible } from './layout';
-import { AddButtonModel, DecisionModel, EndModel, GroupModel, GroupEndModel, GroupStartModel, INSERT_BUTTON_FROM_TARGET, INSERT_BUTTON_SIZE } from './shapes';
+import { AddButtonModel, DecisionModel, GroupModel, GroupStartModel } from './shapes';
 
 /**
  * The state of the picture that is not the data: the highlights of a
- * deletion about to happen and of a move in progress - classes on the views
- * of the cells - and where the button of a link goes. The views are
- * JointJS's; the classes reach the React components rendered inside them
- * through the stylesheet.
+ * deletion about to happen, of what a collapse would hide, of what a move
+ * would take, and the marks of a move in progress - classes on the views of
+ * the cells. The views are JointJS's; the classes reach the React
+ * components rendered inside them through the stylesheet.
  */
-
-/**
- * The element the menu of `element` acts on - and the `Delete` key, when
- * it is selected: a node acts on itself, the `start` of a group on the
- * group. The `end` of a group and the add buttons have no menu.
- */
-export function getActionTarget(element: dia.Element): dia.Element | null {
-    if (GroupStartModel.isGroupStart(element)) return element.getParentCell() as GroupModel;
-    if (GroupEndModel.isGroupEnd(element) || AddButtonModel.isAddButton(element)) return null;
-    return element;
-}
-
-/** The item of the menu that removes `target`: "Remove" and what it is - a loop, a fork, a decision, an end, a step. */
-export function getDeleteTitle(target: dia.Element): string {
-    if (GroupModel.isGroup(target)) return `Remove the ${target.getKind()}`;
-    if (DecisionModel.isDecision(target)) return 'Remove the decision';
-    if (EndModel.isEnd(target)) return 'Remove the end';
-    return 'Remove the step';
-}
 
 /** The id of the highlighter, and the class it adds, on the cells a hovered "remove" item would remove. */
 const DELETE_HIGHLIGHT = 'to-be-deleted';
@@ -61,7 +42,31 @@ export function clearDeletionHighlight(): void {
 }
 
 
-/** The class on the faded cells - what a hovered collapse button would hide, what a hovered "move" item would move: light colors (see the stylesheet). */
+/** The class on the cells a hovered "move" item would move: the teal of a move in progress (see the stylesheet). */
+const MOVE_HIGHLIGHT = 'to-be-moved';
+
+/** The views marked at the moment as about to move, to unmark them. */
+let moveHighlightedViews: dia.CellView[] = [];
+
+/** Marks `cells` - the visible ones - as what a move would take, by a class on their views; what was marked before is unmarked first. */
+export function highlightMove(paper: dia.Paper, cells: Iterable<dia.Cell>): void {
+    clearMoveHighlight();
+    for (const cell of cells) {
+        if (!isCellVisible(cell)) continue;
+        const view = paper.findViewByModel(cell);
+        if (!view) continue;
+        highlighters.addClass.add(view, 'root', MOVE_HIGHLIGHT, { className: MOVE_HIGHLIGHT });
+        moveHighlightedViews.push(view);
+    }
+}
+
+/** Takes the mark of a move about to happen off. */
+export function clearMoveHighlight(): void {
+    for (const view of moveHighlightedViews) highlighters.addClass.remove(view, MOVE_HIGHLIGHT);
+    moveHighlightedViews = [];
+}
+
+/** The class on the faded cells - what a hovered collapse button would hide: light colors (see the stylesheet). */
 const FADED_CLASS = 'faded';
 
 /** The views faded at the moment, to restore them. */
@@ -138,60 +143,4 @@ export function markMove(paper: dia.Paper, movedCells: dia.Cell[] | null, canDro
             }
         }
     }
-}
-
-/**
- * Whether the link out of `element` has something right below the element:
- * the collapse button of a collapsed group, or the return link of a loop,
- * which leaves the link below the loop and joins it below the loop's start.
- */
-function hasSomethingBelow(element: dia.Element): boolean {
-    if (GroupModel.isGroup(element)) return element.isCollapsed() || element.getKind() === 'loop';
-    return GroupStartModel.isGroupStart(element) && element.getKind() === 'loop';
-}
-
-/**
- * Whether `element` is the end of a loop: the link into it from a leaf gets
- * its insert button a fixed distance below the leaf, the mirror image of the
- * link out of the loop's start, whose button sits a fixed distance above its
- * child - the return link runs at equal distances around both.
- */
-function isLoopEnd(element: dia.Element): boolean {
-    return GroupEndModel.isGroupEnd(element) && element.getGroup().getKind() === 'loop';
-}
-
-/**
- * Where the button of a link goes, given the points of its route - the
- * source point, the vertices, the target point: the middle of its longest
- * vertical part - the part the link has of its own, not the one it shares
- * with its siblings on a bar, and never a horizontal part. When the link
- * leaves an element with something right below it (see
- * `hasSomethingBelow()`) the button sits near the child instead, a fixed
- * distance from the target, whatever room the link was given; when it joins
- * the end of a loop, a fixed distance from the source (see `isLoopEnd()`).
- * `null` for a link without a vertical part.
- */
-export function getInsertButtonPoint(points: g.PlainPoint[], source: dia.Element, target: dia.Element): g.Point | null {
-    let longest: g.Line | null = null;
-    let longestIndex = -1;
-    for (let i = 0; i < points.length - 1; i++) {
-        const segment = new g.Line(points[i], points[i + 1]);
-        if (Math.abs(segment.start.x - segment.end.x) > 0.5) continue;
-        if (!longest || segment.length() > longest.length()) {
-            longest = segment;
-            longestIndex = i;
-        }
-    }
-    if (!longest) return null;
-    if (longestIndex === 0 && hasSomethingBelow(source)) {
-        // Such a link is straight: the button sits a fixed distance above the child.
-        const y = Math.max(longest.end.y - INSERT_BUTTON_FROM_TARGET, longest.start.y + INSERT_BUTTON_SIZE);
-        return new g.Point(longest.start.x, y);
-    }
-    if (longestIndex === 0 && isLoopEnd(target)) {
-        // The vertical part leaves the leaf: the button sits a fixed distance below it.
-        const y = Math.min(longest.start.y + INSERT_BUTTON_FROM_TARGET, longest.end.y - INSERT_BUTTON_SIZE);
-        return new g.Point(longest.start.x, y);
-    }
-    return longest.midpoint();
 }

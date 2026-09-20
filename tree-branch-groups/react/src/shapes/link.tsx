@@ -3,15 +3,14 @@ import { LinkModel as ReactLinkModel, useCell, useCellId, useGraph, useLinkLayou
 import type { ReactNode } from 'react';
 
 import { canSplit } from '../actions';
-import { INSERT_CHOICES, getAddItems } from '../choices';
-import type { AddChoice } from '../choices';
+import { INSERT_CHOICES, getAddItems } from '../add-menu';
+import type { AddChoice } from '../add-menu';
 import { useEditor } from '../editor-context';
-import { measureText } from '../measure';
-import { getInsertButtonPoint } from '../tools';
-import { useTooltip } from '../use-tooltip';
+import { measureText } from './measure';
+import { useTooltip } from '../components/use-tooltip';
 import { AddButtonModel } from './add-button';
-import { BACKWARD_LINK_Z, COLORS, INSERT_BUTTON_SIZE, LINK_Z } from './constants';
-import { GroupEndModel, GroupStartModel } from './group';
+import { BACKWARD_LINK_Z, COLORS, INSERT_BUTTON_FROM_TARGET, INSERT_BUTTON_SIZE, LINK_Z } from './constants';
+import { GroupEndModel, GroupModel, GroupStartModel } from './group';
 
 export const LINK_TYPE = 'Link';
 
@@ -133,6 +132,62 @@ export class LinkModel extends ReactLinkModel {
     isBackward(): boolean {
         return Boolean(this.getData().backward);
     }
+}
+
+/**
+ * Whether the link out of `element` has something right below the element:
+ * the collapse button of a collapsed group, or the return link of a loop,
+ * which leaves the link below the loop and joins it below the loop's start.
+ */
+function hasSomethingBelow(element: dia.Element): boolean {
+    if (GroupModel.isGroup(element)) return element.isCollapsed() || element.getKind() === 'loop';
+    return GroupStartModel.isGroupStart(element) && element.getKind() === 'loop';
+}
+
+/**
+ * Whether `element` is the end of a loop: the link into it from a leaf gets
+ * its insert button a fixed distance below the leaf, the mirror image of the
+ * link out of the loop's start, whose button sits a fixed distance above its
+ * child - the return link runs at equal distances around both.
+ */
+function isLoopEnd(element: dia.Element): boolean {
+    return GroupEndModel.isGroupEnd(element) && element.getGroup().getKind() === 'loop';
+}
+
+/**
+ * Where the button of a link goes, given the points of its route - the
+ * source point, the vertices, the target point: the middle of its longest
+ * vertical part - the part the link has of its own, not the one it shares
+ * with its siblings on a bar, and never a horizontal part. When the link
+ * leaves an element with something right below it (see
+ * `hasSomethingBelow()`) the button sits near the child instead, a fixed
+ * distance from the target, whatever room the link was given; when it joins
+ * the end of a loop, a fixed distance from the source (see `isLoopEnd()`).
+ * `null` for a link without a vertical part.
+ */
+export function getInsertButtonPoint(points: g.PlainPoint[], source: dia.Element, target: dia.Element): g.Point | null {
+    let longest: g.Line | null = null;
+    let longestIndex = -1;
+    for (let i = 0; i < points.length - 1; i++) {
+        const segment = new g.Line(points[i], points[i + 1]);
+        if (Math.abs(segment.start.x - segment.end.x) > 0.5) continue;
+        if (!longest || segment.length() > longest.length()) {
+            longest = segment;
+            longestIndex = i;
+        }
+    }
+    if (!longest) return null;
+    if (longestIndex === 0 && hasSomethingBelow(source)) {
+        // Such a link is straight: the button sits a fixed distance above the child.
+        const y = Math.max(longest.end.y - INSERT_BUTTON_FROM_TARGET, longest.start.y + INSERT_BUTTON_SIZE);
+        return new g.Point(longest.start.x, y);
+    }
+    if (longestIndex === 0 && isLoopEnd(target)) {
+        // The vertical part leaves the leaf: the button sits a fixed distance below it.
+        const y = Math.min(longest.start.y + INSERT_BUTTON_FROM_TARGET, longest.end.y - INSERT_BUTTON_SIZE);
+        return new g.Point(longest.start.x, y);
+    }
+    return longest.midpoint();
 }
 
 /** The name of an option sits above the insert button, right next to the line: bold, in the blue of the nodes, on a tinted chip that fits it (see `index.css`). */

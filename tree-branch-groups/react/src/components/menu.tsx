@@ -1,7 +1,26 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import type { MenuRequest } from './choices';
+
+/** An item of a menu: an icon, drawn the way the nodes draw theirs, a label, and what it does. */
+export interface MenuItem {
+    action: string;
+    label: string;
+    icon: string;
+    color: string;
+    /** Shown, but not to be chosen: greyed out. */
+    disabled?: boolean;
+}
+
+/** A menu to open: where, with what, and what to do. */
+export interface MenuRequest {
+    /** The box of the button that opened the menu, on the screen: the menu opens below it. */
+    anchor: DOMRect;
+    items: MenuItem[];
+    onChoose: (action: string) => void;
+    /** Called with the hovered item, and with `null` when the pointer leaves it. */
+    onHover?: (action: string | null) => void;
+}
 
 /** An icon of a menu item, drawn the way the nodes draw theirs. */
 function MenuIcon({ d, color }: { d: string; color: string }): ReactNode {

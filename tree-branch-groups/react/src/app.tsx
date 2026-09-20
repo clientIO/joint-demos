@@ -6,12 +6,12 @@ import { Tooltip } from 'react-tooltip';
 import { EditorProvider, EditorWiring } from './editor';
 import { PAPER_ID, useEditor } from './editor-context';
 import { isCellVisible } from './layout';
-import { Inspector } from './inspector';
-import { Menu } from './menu';
-import { Minimap } from './minimap';
+import { Inspector } from './components/inspector';
+import { Menu } from './components/menu';
+import { Minimap } from './components/minimap';
 import { COLORS, ElementContent, LinkContent, cellNamespace } from './shapes';
-import { Toolbar } from './toolbar';
-import { TOOLTIP_ID } from './use-tooltip';
+import { Toolbar } from './components/toolbar';
+import { TOOLTIP_ID } from './components/use-tooltip';
 
 /** Captures nothing, so a module-level constant keeps a stable identity. */
 const cellVisibility: CellVisibility = ({ model }) => isCellVisible(model);

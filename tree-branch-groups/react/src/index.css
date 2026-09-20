@@ -15,7 +15,11 @@
     --line: #DCE2F5;
     --text: #222222;
     --muted: #6A6A75;
+    /* The previews on the cells: a deletion in red, a collapse in a light blue, a move in teal - the teal of the drop points. */
     --red: #E54666;
+    --blue-light: #C8D3F2;
+    --teal: #2F9C95;
+    --teal-dark: #257C77;
     --background: #F3F7F6;
     --font: sans-serif;
     --code-font: Menlo, Consolas, monospace;
@@ -133,7 +137,7 @@ body {
     font-size: 13px;
     line-height: 1.3;
     user-select: none;
-    transition: border-color 150ms ease-out, background-color 150ms ease-out, color 150ms ease-out;
+    transition: border-color 150ms ease-out, background-color 150ms ease-out;
 }
 
 .pill .kind-icon {
@@ -160,7 +164,6 @@ body {
     font-family: var(--code-font);
     font-size: 12px;
     color: #3F4C74;
-    transition: background-color 150ms ease-out, color 150ms ease-out;
 }
 
 .pill .run .cmd {
@@ -260,14 +263,14 @@ body {
 }
 
 .pill-add {
-    position: absolute;
+    position: fixed;
     top: 50%;
     right: -9px;
     transform: translateY(-50%);
 }
 
 .toggle {
-    position: absolute;
+    position: fixed;
     bottom: -11px;
     left: 50%;
     display: flex;
@@ -290,9 +293,16 @@ body {
     background: var(--blue-tint);
 }
 
+/*
+    The buttons on the edges of the pills - the `+` of a decision or a fork,
+    the collapse button, the "more" button - are positioned `fixed`, not
+    `absolute`: the `<foreignObject>` of the element is their containing
+    block either way, but Safari misplaces absolutely positioned content of
+    a transformed `<foreignObject>` (the paper is zoomed).
+*/
 /* The "more" button: three dots at the top right of the element, inside it, shown on hover - on a step at the same gap from the top and from the right edge. */
 .more {
-    position: absolute;
+    position: fixed;
     top: 4px;
     right: 4px;
     width: 18px;
@@ -362,23 +372,23 @@ body {
     background: #FFFFFF;
 }
 
-/* A move in progress: the buttons are the drop points - dark, like the ends, so that they read as the targets to click. */
+/* A move in progress: the buttons are the drop points - teal, so that they read as the targets to click. */
 .moving-mode .square-button,
 .moving-mode .pill-add {
-    background: #2B3555;
+    background: var(--teal);
 }
 
 .moving-mode .square-button:hover,
 .moving-mode .pill-add:hover {
-    background: #1C2440;
+    background: var(--teal-dark);
 }
 
 .moving-mode .link-button rect {
-    fill: #2B3555;
+    fill: var(--teal);
 }
 
 .moving-mode .link-button:hover rect {
-    fill: #1C2440;
+    fill: var(--teal-dark);
 }
 
 /* The content React renders on a link: the insert button, the name of an option, the arrow of a return link. */
@@ -427,33 +437,6 @@ body {
     pointer-events: none;
 }
 
-/*
-    A deletion about to happen: the cells the hovered "remove" item would
-    remove, marked by a class on their views, turn red - the elements and
-    the links, not the buttons.
-*/
-.to-be-deleted .pill {
-    border-color: var(--red);
-}
-
-.to-be-deleted .pill.filled,
-.to-be-deleted .terminal {
-    background: var(--red);
-}
-
-.to-be-deleted .pill .kind-icon {
-    color: var(--red);
-}
-
-.to-be-deleted .pill.filled .kind-icon {
-    color: #FFFFFF;
-}
-
-.to-be-deleted .jj-link-line {
-    stroke: var(--red);
-    transition: stroke 150ms ease-out;
-}
-
 .jj-link-line {
     transition: stroke 150ms ease-out;
 }
@@ -463,69 +446,52 @@ body {
     stroke-dasharray: 6 4;
 }
 
-/*
-    The faded cells - what a hovered collapse button would hide, what a
-    hovered "move" item would move, the subtree of a move in progress -
-    marked by a class like a deletion, and colored like one: the outline and
-    the icon of a node, the fill of a pill and of an end, the lines of the
-    links - in light colors, faded towards the background; nothing else
-    changes, no opacity is involved (translucent links add up where they
-    overlap).
-*/
-:is(.faded, .moving) .pill {
-    border-color: #C8D3F2;
-}
-
-:is(.faded, .moving) .pill.filled {
-    background: #C8D3F2;
-}
-
-:is(.faded, .moving) .terminal {
-    background: #C1C7CE;
-}
-
-:is(.faded, .moving) .pill .kind-icon {
-    color: #C8D3F2;
-}
-
-:is(.faded, .moving) .pill.filled .kind-icon {
-    color: #FFFFFF;
-}
-
-:is(.faded, .moving) .jj-link-line {
-    stroke: #D5DDF4;
-}
-
-/* The texts fade with the shapes: the label of a step, its code on its chip, the name of an option on its chip. */
-:is(.faded, .moving) .pill {
-    color: #BFC2C1;
-}
-
-:is(.faded, .moving) .pill.filled {
-    color: #FFFFFF;
-}
-
-:is(.faded, .moving) .pill .run {
-    background: #F2F6F8;
-    color: #C6CCD6;
-}
-
-:is(.faded, .moving) .pill .run .cmd,
-:is(.faded, .moving) .pill .run .flag {
-    color: #C6CCD6;
-}
-
-:is(.faded, .moving) .option-name rect {
-    fill: #F0F4F8;
-}
-
-:is(.faded, .moving) .option-name text {
-    fill: #C8D3F2;
-}
-
-/* A move in progress: the subtree that moves is faded (see `.faded`) and out of reach; a button that cannot take it is gone. */
+/* A move in progress: the subtree that moves is out of reach (and marked, see the previews); a button that cannot take it is gone. */
 .moving {
     pointer-events: none;
+}
+
+/*
+    The previews on the cells - a deletion about to happen, what a collapse
+    would hide, what a move would take or takes - are one thing in three
+    colors: a class on the view of a cell sets `--mark`, and the rules below
+    paint the outline and the icon of a node, the fill of a pill and of an
+    end, and the lines of the links in it; the buttons on the cells keep
+    their colors. The colors fade in and out (see the transitions of the
+    pills and the lines).
+*/
+.to-be-deleted {
+    --mark: var(--red);
+}
+
+.faded {
+    --mark: var(--blue-light);
+}
+
+.moving,
+.to-be-moved {
+    --mark: var(--teal);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .pill {
+    border-color: var(--mark);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .pill.filled,
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .terminal {
+    background: var(--mark);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .pill .kind-icon {
+    color: var(--mark);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .pill.filled .kind-icon {
+    color: #FFFFFF;
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .jj-link-line {
+    stroke: var(--mark);
 }
 
 .no-drop .pill-add,

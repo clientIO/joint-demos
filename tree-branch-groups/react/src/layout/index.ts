@@ -5,7 +5,7 @@ import { LOOP_GAP, LOOP_START_ROOM, layoutLoopGroup } from './loop';
 import { AddButtonModel, DecisionModel, GroupModel, GroupStartModel, LinkModel, isGate } from '../shapes';
 import type { GroupKind } from '../shapes';
 import { createTreeLayout } from './tree';
-import { getDefaultOptionName } from '../data/DiagramData';
+import { getDefaultOptionName } from '../data/diagram-data';
 
 /**
  * A cell is hidden by a collapse when one of its ancestors is a collapsed

@@ -2,8 +2,8 @@ import { useGraph } from '@joint/react-plus';
 import type { dia } from '@joint/plus';
 import type { MouseEvent } from 'react';
 
-import { getAddChoices, getAddItems } from '../choices';
-import type { AddChoice } from '../choices';
+import { getAddChoices, getAddItems } from '../add-menu';
+import type { AddChoice } from '../add-menu';
 import { useEditor } from '../editor-context';
 
 /**

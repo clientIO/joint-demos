@@ -1,6 +1,6 @@
 import { dia, elementTools, g, highlighters, linkTools, ui, util } from '@joint/plus';
 
-import { canAddTerminal, canDelete, canSplit, getDeletedCells } from './actions';
+import { canAddTerminal, canDelete, canSplit, getActionTarget, getDeleteTitle, getDeletedCells } from './actions';
 import { isCellVisible } from './layout';
 import { openAddMenu, openMenu } from './menu';
 import type { AddChoice } from './menu';
@@ -36,7 +36,7 @@ export interface ToolActions {
     dropOnLink(link: LinkModel): void;
 }
 
-/** The "move to" item of the menu of an element: an arrow out and down, in the blue of the nodes. */
+/** The "move to" item of the menu of an element: an arrow out and down, in the teal of a move. */
 const MOVE_ICON = 'M -6 -6 V 6 H 6 M 6 6 L 2 2 M 6 6 L 2 10';
 
 /** The markup of the square button of a link: a plus, named by its tooltip (see `addTooltips()`). */
@@ -89,25 +89,6 @@ function handleElementClick(view: dia.ElementView, evt: dia.Event, actions: Tool
     openAddMenu(target, getAddChoices(parent), (choice) => actions.addBelow(parent, choice));
 }
 
-/**
- * The element the menu of `element` acts on - and the `Delete` key, when
- * it is selected: a node acts on itself, the `start` of a group on the
- * group. The `end` of a group and the add buttons have no menu.
- */
-export function getActionTarget(element: dia.Element): dia.Element | null {
-    if (GroupStartModel.isGroupStart(element)) return element.getParentCell() as GroupModel;
-    if (GroupEndModel.isGroupEnd(element) || AddButtonModel.isAddButton(element)) return null;
-    return element;
-}
-
-/** The item of the menu that removes `target`: "Remove" and what it is - a loop, a fork, a decision, an end, a step. */
-function getDeleteTitle(target: dia.Element): string {
-    if (GroupModel.isGroup(target)) return `Remove the ${target.getKind()}`;
-    if (DecisionModel.isDecision(target)) return 'Remove the decision';
-    if (EndModel.isEnd(target)) return 'Remove the end';
-    return 'Remove the step';
-}
-
 /** The id of the highlighter, and the class it adds, on the cells a hovered "remove" item would remove. */
 const DELETE_HIGHLIGHT = 'to-be-deleted';
 
@@ -138,7 +119,31 @@ export function clearDeletionHighlight(): void {
 }
 
 
-/** The class on the faded cells - what a hovered collapse button would hide, what a hovered "move" item would move: light colors (see the stylesheet). */
+/** The class on the cells a hovered "move" item would move: the teal of a move in progress (see the stylesheet). */
+const MOVE_HIGHLIGHT = 'to-be-moved';
+
+/** The views marked at the moment as about to move, to unmark them. */
+let moveHighlightedViews: dia.CellView[] = [];
+
+/** Marks `cells` - the visible ones - as what a move would take, by a class on their views; what was marked before is unmarked first. */
+function highlightMove(paper: dia.Paper, cells: Iterable<dia.Cell>): void {
+    clearMoveHighlight();
+    for (const cell of cells) {
+        if (!isCellVisible(cell)) continue;
+        const view = paper.findViewByModel(cell);
+        if (!view) continue;
+        highlighters.addClass.add(view, 'root', MOVE_HIGHLIGHT, { className: MOVE_HIGHLIGHT });
+        moveHighlightedViews.push(view);
+    }
+}
+
+/** Takes the mark of a move about to happen off. */
+export function clearMoveHighlight(): void {
+    for (const view of moveHighlightedViews) highlighters.addClass.remove(view, MOVE_HIGHLIGHT);
+    moveHighlightedViews = [];
+}
+
+/** The class on the faded cells - what a hovered collapse button would hide: light colors (see the stylesheet). */
 const FADED_CLASS = 'faded';
 
 /** The views faded at the moment, to restore them. */
@@ -221,19 +226,26 @@ function createMenuTool(paper: dia.Paper, element: dia.Element, target: dia.Elem
                 : { x: -(MENU_BUTTON_RADIUS + MENU_BUTTON_GAP), y: MENU_BUTTON_RADIUS + MENU_BUTTON_GAP },
         useModelGeometry: true,
         markup: createMenuButtonMarkup(filled ? COLORS.gate.text : COLORS.node.stroke),
-        action: (_evt, _view, tool) => {
-            openMenu(tool.el, [
-                // Greyed out when there is nowhere to move the element to.
-                { action: 'move', label: 'Move to…', icon: MOVE_ICON, color: COLORS.node.stroke, disabled: !actions.canMove(target) },
-                { action: 'remove', label: getDeleteTitle(target), icon: DELETE_ICON, color: DELETE_FILL }
-            ], {
-                onChoose: (action) => (action === 'move' ? actions.startMove(target) : actions.delete(target)),
-                // The hovered item shows what it would do: "remove" turns the cells red, "move" fades what would move.
-                onHover: (action) => {
-                    if (action === 'remove') highlightDeletion(paper, target); else clearDeletionHighlight();
-                    if (action === 'move') fadeCells(paper, actions.getMovedCellsOf(target)); else clearFaded();
-                }
-            });
+        action: (_evt, _view, tool) => openElementMenu(paper, target, tool.el, actions)
+    });
+}
+
+/**
+ * The menu of an element, acting on `target` (see `getActionTarget()`),
+ * below `anchor` - the "more" button, or the pointer of a right click: its
+ * move and its removal; hovering an item shows what it would do.
+ */
+function openElementMenu(paper: dia.Paper, target: dia.Element, anchor: HTMLElement | SVGElement | g.PlainPoint, actions: ToolActions): void {
+    openMenu(anchor, [
+        // Greyed out when there is nowhere to move the element to.
+        { action: 'move', label: 'Move to…', icon: MOVE_ICON, color: COLORS.move, disabled: !actions.canMove(target) },
+        { action: 'remove', label: getDeleteTitle(target), icon: DELETE_ICON, color: DELETE_FILL }
+    ], {
+        onChoose: (action) => (action === 'move' ? actions.startMove(target) : actions.delete(target)),
+        // The hovered item shows what it would do: "remove" turns the cells red, "move" marks what would move.
+        onHover: (action) => {
+            if (action === 'remove') highlightDeletion(paper, target); else clearDeletionHighlight();
+            if (action === 'move') highlightMove(paper, actions.getMovedCellsOf(target)); else clearMoveHighlight();
         }
     });
 }
@@ -457,6 +469,15 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
         handleElementClick(elementView, evt, actions);
     });
 
+    // A right click on an element opens the menu of its "more" button, at the pointer.
+    paper.on('element:contextmenu', (elementView: dia.ElementView, evt: dia.Event) => {
+        evt.preventDefault();
+        if (actions.getMoved()) return;
+        const target = getActionTarget(elementView.model);
+        if (!target || !canDelete(paper.model, target)) return;
+        openElementMenu(paper, target, { x: evt.clientX!, y: evt.clientY! }, actions);
+    });
+
     paper.on('element:mouseenter', (elementView: dia.ElementView) => {
         const tools = createHoverTools(paper, elementView.model, actions);
         if (!tools) return;
@@ -467,6 +488,7 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
     paper.on('element:mouseleave', (elementView: dia.ElementView) => {
         // The "more" tool goes with the hover; so do the previews of its menu and of the collapse button.
         clearDeletionHighlight();
+        clearMoveHighlight();
         clearFaded();
         elementView.removeTools();
     });

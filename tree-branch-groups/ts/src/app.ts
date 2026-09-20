@@ -1,16 +1,16 @@
 import { dia, highlighters, ui } from '@joint/plus';
 import type { g } from '@joint/plus';
 
-import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
+import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup, getActionTarget } from './actions';
 import { buildGraph, getId } from './data/build';
 import type { Id } from './data/types';
-import { DiagramData } from './data/DiagramData';
+import { DiagramData } from './data/diagram-data';
 import { isSelectable, syncInspector } from './inspector';
 import { isCellVisible, runLayout } from './layout';
 import { createNavigator } from './navigator';
-import { pipeline } from './pipeline';
+import { example } from './data/example';
 import { COLORS, cellNamespace } from './shapes';
-import { addHoverTools, addTooltips, clearDeletionHighlight, clearFaded, getActionTarget, markMove, placeLinkTools } from './tools';
+import { addHoverTools, addTooltips, clearDeletionHighlight, clearFaded, clearMoveHighlight, markMove, placeLinkTools } from './tools';
 import type { ToolActions } from './tools';
 
 const PAPER_PADDING = 40;
@@ -26,7 +26,7 @@ export function init(): void {
     // records the edits on the data: undo and redo set it back and the
     // graph follows.
     const data = new DiagramData();
-    data.fromJSON(pipeline);
+    data.fromJSON(example);
     const history = new dia.CommandManager({ model: data });
 
     const graph = new dia.Graph({}, { cellNamespace });
@@ -111,6 +111,7 @@ export function init(): void {
         // previews of a deletion or a collapse, which sit on views too.
         paper.removeTools();
         clearDeletionHighlight();
+        clearMoveHighlight();
         clearFaded();
         paper.freeze();
         buildGraph(graph, data.getData());
@@ -255,7 +256,10 @@ export function init(): void {
         history.redo();
     });
     keyboard.on('escape', () => {
-        if (moved) setMoved(null); else selection.collection.reset([]);
+        // An open menu goes first; then the move, then the selection.
+        if (ui.ContextToolbar.opened) ui.ContextToolbar.close();
+        else if (moved) setMoved(null);
+        else selection.collection.reset([]);
     });
     // `Delete` on the selected element does what the "remove" item of its
     // menu does: the start of a group deletes the group; what cannot be

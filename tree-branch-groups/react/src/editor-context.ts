@@ -1,8 +1,9 @@
 import type { dia } from '@joint/plus';
 import { createContext, useContext } from 'react';
 
-import type { AddChoice, MenuRequest } from './choices';
-import type { DiagramData } from './data/DiagramData';
+import type { AddChoice } from './add-menu';
+import type { MenuRequest } from './components/menu';
+import type { DiagramData } from './data/diagram-data';
 import { DecisionModel, EndModel, GroupStartModel, StartModel, StepModel } from './shapes';
 import type { GroupModel, LinkModel } from './shapes';
 

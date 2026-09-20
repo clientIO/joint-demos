@@ -1,4 +1,4 @@
-import { getDefaultOptionName, getEdges } from './DiagramData';
+import { getDefaultOptionName, getEdges } from './diagram-data';
 import type { DiagramJSON, Edge, Id, NodeData } from './types';
 
 /**

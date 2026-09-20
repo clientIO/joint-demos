@@ -3,7 +3,7 @@ import { ElementModel, HTMLHost, selectElementData, useCell, useCellId } from '@
 import type { ReactNode } from 'react';
 
 import { useEditor } from '../editor-context';
-import { TipButton } from '../tooltip';
+import { TipButton } from '../components/tooltip';
 import { MoreButton, PlusIcon } from './buttons';
 import { DECISION_ICON, DECISION_LABEL, ELEMENT_Z, NODE_SIZE } from './constants';
 import { KindIcon } from './kind-icon';

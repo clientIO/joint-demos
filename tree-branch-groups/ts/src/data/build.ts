@@ -1,7 +1,7 @@
 import type { dia } from '@joint/plus';
 
 import { AddButtonModel, DecisionModel, EndModel, GroupModel, GroupEndModel, GroupStartModel, LinkModel, StartModel, StepModel } from '../shapes';
-import { getEdges, isGroupData } from './DiagramData';
+import { getEdges, isGroupData } from './diagram-data';
 import type { DiagramJSON, Edge, Id, NodeData } from './types';
 
 /**

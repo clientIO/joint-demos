@@ -1,4 +1,5 @@
 import { ui } from '@joint/plus';
+import type { g } from '@joint/plus';
 
 import { COLORS, DECISION_ICON, GROUP_ICONS, NODE_ICON } from './shapes';
 import type { GroupKind } from './shapes';
@@ -36,7 +37,7 @@ function renderItem<A extends string>({ label, icon, color }: MenuItem<A>): stri
  * choice, or on a click anywhere else. Only one menu is open at a time.
  * Styled by `styles.css` through its `data-type`.
  */
-export function openMenu<A extends string>(target: HTMLElement | SVGElement, items: MenuItem<A>[], { onChoose, onHover }: MenuHandlers<A>): void {
+export function openMenu<A extends string>(target: HTMLElement | SVGElement | g.PlainPoint, items: MenuItem<A>[], { onChoose, onHover }: MenuHandlers<A>): void {
     ui.ContextToolbar.close();
     const menu = new ui.ContextToolbar({
         target,
@@ -60,6 +61,8 @@ export function openMenu<A extends string>(target: HTMLElement | SVGElement, ite
             button.addEventListener('mouseenter', () => onHover(button.dataset.action as A));
             button.addEventListener('mouseleave', () => onHover(null));
         }
+        // The menu going - `Escape`, a click elsewhere - ends the hover of its item too.
+        menu.on('close', () => onHover(null));
     }
 }
 

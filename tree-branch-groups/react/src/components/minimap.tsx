@@ -2,9 +2,9 @@ import type { dia } from '@joint/plus';
 import { Navigator } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
-import { PAPER_ID } from './editor-context';
-import { isCellVisible } from './layout';
-import { AddButtonModel, COLORS, DecisionModel, EndModel, GroupStartModel, StartModel, StepModel } from './shapes';
+import { PAPER_ID } from '../editor-context';
+import { isCellVisible } from '../layout';
+import { AddButtonModel, COLORS, DecisionModel, EndModel, GroupStartModel, StartModel, StepModel } from '../shapes';
 
 /**
  * The look of an element on the map, over the default shape of the

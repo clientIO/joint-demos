@@ -1,24 +1,24 @@
 /*
-    The layout metrics, the colors and the icons shared by the models, the
-    layout, the tools and the components. A leaf module: nothing here imports
-    anything of the app, so any module may read it at its top level - the
-    shape modules import the tools and the tools import the shapes, and a
-    constant read while that cycle is being evaluated would not be there yet.
+    The layout metrics, the colors, the icons and the labels shared by the
+    shapes, the layout and the tools.
 */
 
-/** The size of a pill before it is measured; its minimum afterwards (see `index.css`). */
+// Layout metrics shared by the shapes and the layout.
 export const NODE_SIZE = { width: 160, height: 40 };
+/** The end of a group has no size: it is the point the paths of the group converge into. */
+export const GROUP_END_SIZE = { width: 0, height: 0 };
 /** The start and the ends of the diagram are circles. */
 export const TERMINAL_SIZE = { width: 52, height: 52 };
 /** The add button below a leaf of the tree, the same square as the insert button of a link. */
 export const ADD_BUTTON_SIZE = { width: 18, height: 18 };
-export const INSERT_BUTTON_SIZE = 18;
 /**
  * How far from its target the insert button of a link sits when something is
- * in the way below the source (see `getInsertButtonPoint()`); a layout metric
- * too, as the empty loop is sized around it.
+ * in the way below the source (see `placeLinkTools()`); a layout metric too,
+ * as the empty loop is sized around it.
  */
 export const INSERT_BUTTON_FROM_TARGET = 30;
+/** The plus of every add button: the ones on the pills, the ones below the leaves, the insert buttons of the links, the expand button of a collapsed group. */
+export const PLUS_ICON = 'M -4 0 4 0 M 0 -4 0 4';
 /** Vertical distance between a parent and its children; room enough for the insert button of the link between them. */
 export const PARENT_GAP = 60;
 export const SIBLING_GAP = 24;
@@ -30,26 +30,27 @@ export const BACKWARD_LINK_Z = 0;
 export const LINK_Z = 1;
 export const ELEMENT_Z = 2;
 
-/**
- * The colors the models and the map need; the stylesheet (`index.css`) is
- * where the components get theirs, and repeats these.
- */
 export const COLORS = {
     background: '#F3F7F6',
-    /** The blue of the nodes: the outline of a step, the icons of the menus. */
-    node: { stroke: '#4666E5' },
-    /** The fill of the ends of the diagram and the outline of its start. */
+    node: { fill: '#FFFFFF', stroke: '#4666E5', text: '#222222' },
+    /** The fills of the start of the diagram and of its ends; red is kept for what is about to be deleted. */
     terminal: '#2B3555',
     /** The pills that steer the flow: a decision, the start of a group. */
-    gate: { fill: '#4666E5' },
+    gate: { fill: '#4666E5', stroke: '#4666E5', text: '#FFFFFF' },
     link: '#7A90EC',
+    /** What is about to be deleted, in the menus; the stylesheet repeats it for the preview on the cells. */
+    danger: '#E54666',
     /** What is about to move, in the menus - the teal of the drop points; the stylesheet repeats it for the marks on the cells. */
-    move: '#2F9C95'
+    move: '#2F9C95',
+    /** The add buttons: the blue of the nodes, marked in white. */
+    button: { fill: '#4666E5', text: '#FFFFFF' },
+    /** The frame around the selected element: a shade darker than the nodes. */
+    selection: '#3552C4'
 };
 
 /**
- * What a group stands in for: a fork/join of any number of branches, or a
- * loop whose return path climbs back from the end to the start.
+ * What a group stands in for: a fork/join of any number of branches, or a loop whose
+ * return path climbs back from the end to the start.
  */
 export type GroupKind = 'fork' | 'loop';
 
@@ -59,6 +60,9 @@ export const GROUP_LABELS: Record<GroupKind, string> = {
     loop: 'Loop'
 };
 export const DECISION_LABEL = 'Decision';
+
+/** The selector of the add button at the right end of a decision or the start of a fork; a click on it is recognized by it. */
+export const ADD_BUTTON_SELECTOR = 'addButton';
 
 /**
  * The icon next to the label of the start of a group, drawn the way the
@@ -74,3 +78,6 @@ export const GROUP_ICONS: Record<GroupKind, string> = {
 export const DECISION_ICON = 'M 0 -7 L 7 0 L 0 7 L -7 0 Z';
 /** A card with two lines: a step. */
 export const NODE_ICON = 'M -6 -6 H 6 V 6 H -6 Z M -3 -2 H 3 M -3 2 H 3';
+
+/** Custom paper event triggered by the collapse/expand button on the start of a group. */
+export const TOGGLE_EVENT = 'element:group:toggle';
