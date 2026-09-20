@@ -9,6 +9,7 @@ import { isCellVisible } from './layout';
 import { Inspector } from './components/inspector';
 import { Menu } from './components/menu';
 import { Minimap } from './components/minimap';
+import { DiagramSelection } from './components/selection';
 import { COLORS, ElementContent, LinkContent, cellNamespace } from './shapes';
 import { Toolbar } from './components/toolbar';
 import { TOOLTIP_ID } from './components/use-tooltip';
@@ -68,6 +69,7 @@ export function App(): ReactNode {
                                     background={{ color: COLORS.background }}
                                 >
                                     <EditorWiring />
+                                    <DiagramSelection />
                                 </Paper>
                             </PaperScroller>
                             <div className="move-hint">Choose where to move it &mdash; <kbd>Esc</kbd> cancels</div>

@@ -1,5 +1,5 @@
-import { dia, ui } from '@joint/plus';
-import { Selection, useGraph, useOnElementsMeasured, useOnKeyboardEvents, useOnPaperEvents, usePaper, usePaperScroller, useSelectionCollection } from '@joint/react-plus';
+import { dia } from '@joint/plus';
+import { useGraph, useOnElementsMeasured, useOnKeyboardEvents, useOnPaperEvents, usePaper, usePaperScroller, useSelectionCollection } from '@joint/react-plus';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 
@@ -8,18 +8,15 @@ import type { MenuRequest } from './components/menu';
 import { buildGraph, getId } from './data/build';
 import type { Id } from './data/types';
 import { DiagramData } from './data/diagram-data';
-import { FrameHighlighter } from './frame';
-import { EditorContext, MAX_ZOOM, MIN_ZOOM, PAPER_ID, isSelectable, useEditor } from './editor-context';
+import { EditorContext, MAX_ZOOM, MIN_ZOOM, PAPER_ID, useEditor } from './editor-context';
 import { getElementMenu } from './shapes/buttons';
 import type { EditorApi } from './editor-context';
 import { getVisibleBBox, isCellVisible, runLayout } from './layout';
 import { example } from './data/example';
-import { GroupModel, GroupStartModel, StepModel, COLORS, STEP_RADIUS } from './shapes';
+import { GroupModel } from './shapes';
 import { clearDeletionHighlight, clearFaded, clearMoveHighlight, highlightCollapse, highlightDeletion, highlightMove, markMove } from './highlights';
 
 const PAPER_PADDING = 40;
-/** How far the frame of the selected element stands from its edge. */
-const SELECTION_PADDING = 5;
 /** How close the fit goes, at most: a narrow flow is shown at its size, not blown up. */
 const FIT_MAX_ZOOM = 1;
 const ZOOM_STEP = 0.2;
@@ -181,38 +178,16 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
 }
 
 /**
- * The frames of the selection: the selected element is framed in the layer
- * below the cells - behind the links, and behind the buttons that overhang
- * the element - a shade darker than the nodes, a little away from the
- * edge, in the shape of the element (see `frame.ts`): a step is a box with
- * small corners, everything else selectable is round by half its height -
- * a decision, the start of a group, the start and an end.
- */
-function createSelectionFrames(): ui.HighlighterSelectionFrameList {
-    return new ui.HighlighterSelectionFrameList({
-        highlighter: FrameHighlighter,
-        options: (cell: dia.Cell) => {
-            const radius = StepModel.isStep(cell) ? STEP_RADIUS : (cell as dia.Element).size().height / 2;
-            return { layer: dia.Paper.Layers.BACK, padding: SELECTION_PADDING, rx: radius, ry: radius, attrs: { stroke: COLORS.selection, strokeWidth: 1.5, fill: 'none' }};
-        }
-    });
-}
-
-/**
  * The wiring on the paper side, rendered inside `<Paper>` (and inside
  * `<PaperScroller>`), where the hooks on the paper's events live: lays the
- * diagram out once the sizes of the elements are measured, selects on a
- * click, pans on a drag of the blank area, and binds the keys. Renders the
- * `<Selection>` that draws the frame of the selected element - one at a
- * time, no dragging: the layout owns the positions; the clicks are the
- * editor's own (`selection: false` in the interactions of the diagram).
+ * diagram out once the sizes of the elements are measured, opens the menu
+ * on a right click, pans on a drag of the blank area, and binds the keys
+ * of the history. The selection is `<DiagramSelection>`'s (`components/`).
  */
-export function EditorWiring(): ReactNode {
+export function EditorWiring(): null {
     const editor = useEditor();
     const scroller = usePaperScroller();
     const { graph } = useGraph();
-    const { collection: selection, selectCells } = useSelectionCollection();
-    const [frames] = useState(createSelectionFrames);
 
     // The sizes of the elements come from what React renders (see `shapes/`):
     // once they are measured, the diagram is laid out - and fitted into the
@@ -239,14 +214,10 @@ export function EditorWiring(): ReactNode {
     });
 
     useOnPaperEvents({
-        onElementPointerClick: ({ model }) => {
+        onElementPointerClick: () => {
             fitPending.current = false;
-            if (isSelectable(model)) selectCells([model]);
         },
-        onBlankPointerClick: () => {
-            selectCells([]);
-            editor.cancelMove();
-        },
+        onBlankPointerClick: () => editor.cancelMove(),
         // A right click on an element opens the menu of its "more" button, at the pointer.
         onElementContextMenu: ({ model, event }) => {
             event.preventDefault();
@@ -273,19 +244,7 @@ export function EditorWiring(): ReactNode {
             evt.preventDefault();
             editor.redo();
         },
-        escape: () => {
-            if (editor.moved) editor.cancelMove(); else selectCells([]);
-        },
-        // `Delete` on the selected element does what the "remove" item of its menu does.
-        'delete backspace': (evt) => {
-            const selected = selection.at(0);
-            if (!selected) return;
-            evt.preventDefault();
-            if (!selected.isElement()) return;
-            const target = GroupStartModel.isGroupStart(selected) ? selected.getParentCell() : selected;
-            if (target?.isElement()) editor.remove(target);
-        }
     });
 
-    return <Selection frames={frames} wrapper={false} allowTranslate={false} options={{ allowCellInteraction: true }} />;
+    return null;
 }
