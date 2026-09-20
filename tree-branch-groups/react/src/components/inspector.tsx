@@ -1,4 +1,5 @@
 import type { dia } from '@joint/plus';
+import { useCells, useSelectionCollection } from '@joint/react-plus';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import yaml from 'highlight.js/lib/languages/yaml';
@@ -158,7 +159,9 @@ function CodePanel({ tab, onTab }: { tab: CodeTab; onTab: (tab: CodeTab) => void
  * chosen through the edits and the selections.
  */
 export function Inspector(): ReactNode {
-    const { selectedId, version } = useEditor();
+    const { version } = useEditor();
+    const { collection } = useSelectionCollection();
+    const selectedId = useCells(collection, (cells) => cells[0]?.id ?? null);
     const [tab, setTab] = useState<CodeTab>('yaml');
     return (
         <div className="inspector">

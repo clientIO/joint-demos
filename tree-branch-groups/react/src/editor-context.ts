@@ -19,17 +19,15 @@ export function isSelectable(cell: dia.Cell): cell is Selectable {
 
 /**
  * The editor, for every component of the app: the data and the graph, the
- * history, the selection, the move in progress, the menu that is open, and
- * the edits - each a change of the data, after which the graph is rebuilt.
+ * history, the move in progress, the menu that is open, and the edits -
+ * each a change of the data, after which the graph is rebuilt. The
+ * selection is the diagram's own (`useSelectionCollection()`).
  */
 export interface EditorApi {
     data: DiagramData;
     graph: dia.Graph;
     /** Bumped after every change of the data: what reads the data re-renders on it. */
     version: number;
-
-    selectedId: dia.Cell.ID | null;
-    select(id: dia.Cell.ID | null): void;
 
     /** The element being moved, if any. While one is, the drop points take it and add nothing. */
     moved: dia.Element | null;

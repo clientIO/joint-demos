@@ -1,5 +1,5 @@
-import { dia } from '@joint/plus';
-import { useGraph, useOnElementsMeasured, useOnKeyboardEvents, useOnPaperEvents, usePaper, usePaperScroller } from '@joint/react-plus';
+import { dia, ui } from '@joint/plus';
+import { Selection, useGraph, useOnElementsMeasured, useOnKeyboardEvents, useOnPaperEvents, usePaper, usePaperScroller, useSelectionCollection } from '@joint/react-plus';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 
@@ -12,14 +12,12 @@ import { FrameHighlighter } from './frame';
 import { EditorContext, MAX_ZOOM, MIN_ZOOM, PAPER_ID, isSelectable, useEditor } from './editor-context';
 import { getElementMenu } from './shapes/buttons';
 import type { EditorApi } from './editor-context';
-import { isCellVisible, runLayout } from './layout';
+import { getVisibleBBox, isCellVisible, runLayout } from './layout';
 import { example } from './data/example';
 import { GroupModel, GroupStartModel, StepModel, COLORS, STEP_RADIUS } from './shapes';
 import { clearDeletionHighlight, clearFaded, clearMoveHighlight, highlightCollapse, highlightDeletion, highlightMove, markMove } from './highlights';
 
 const PAPER_PADDING = 40;
-/** The id of the highlighter that frames the selected element. */
-const SELECTION_HIGHLIGHT = 'selection';
 /** How far the frame of the selected element stands from its edge. */
 const SELECTION_PADDING = 5;
 /** How close the fit goes, at most: a narrow flow is shown at its size, not blown up. */
@@ -61,7 +59,8 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     // The paper and its scroller, by id: `null` until `<Paper>` has mounted.
     const { paper } = usePaper(PAPER_ID);
     const scroller = usePaperScroller(PAPER_ID);
-    const [selectedId, setSelectedId] = useState<dia.Cell.ID | null>(null);
+    // The selection is `<Diagram>`'s collection, drawn by `<Selection>` (see `EditorWiring`).
+    const { collection: selection, selectCells } = useSelectionCollection();
     const [movedElement, setMoved] = useState<dia.Element | null>(null);
     const [menu, setMenu] = useState<MenuRequest | null>(null);
 
@@ -76,9 +75,14 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
         paper?.freeze();
         buildGraph(graph, data.getData());
         runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
+        // A selected element that the edit removed, or hid, leaves the
+        // selection - while the paper is frozen: the frame of a hidden
+        // element comes off its view, which is gone once the paper hides it.
+        const kept = selection.filter((cell) => graph.getCell(cell.id) === cell && isCellVisible(cell));
+        if (kept.length < selection.length) selection.reset(kept);
         paper?.unfreeze();
         paper?.updateCellsVisibility();
-    }, [graph, data, paper]);
+    }, [graph, data, paper, selection]);
 
     // The first build; then one after every command of the history.
     useEffect(() => {
@@ -89,33 +93,8 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
         };
     }, [graph, history, rebuild]);
 
-    // A selected element that an edit removed, or hid, is not selected any more.
-    const selectedCell = selectedId === null ? undefined : graph.getCell(selectedId);
-    const effectiveSelectedId = selectedCell && isCellVisible(selectedCell) ? selectedId : null;
     // A move whose element an edit removed - an undo, a redo, `Delete` - is off. The build keeps a cell that stands for the same node; another instance means the node was gone in between.
     const moved = movedElement && graph.getCell(movedElement.id) === movedElement ? movedElement : null;
-
-    // The selected element is framed by a highlighter in the layer below the
-    // cells - behind the links, and behind the buttons that overhang the
-    // element - a shade darker than the nodes, a little away from the edge.
-    // The frame has the shape of the element (see `frame.ts`): a step is a
-    // box with small corners, everything else selectable is round by half
-    // its height - a decision, the start of a group, the start and an end.
-    useEffect(() => {
-        if (!paper || effectiveSelectedId === null) return;
-        const cell = graph.getCell(effectiveSelectedId);
-        const view = cell?.isElement() ? paper.findViewByModel(cell) : undefined;
-        if (!view || !cell?.isElement()) return;
-        const radius = StepModel.isStep(cell) ? STEP_RADIUS : cell.size().height / 2;
-        FrameHighlighter.add(view, 'root', SELECTION_HIGHLIGHT, {
-            layer: dia.Paper.Layers.BACK,
-            padding: SELECTION_PADDING,
-            rx: radius,
-            ry: radius,
-            attrs: { stroke: COLORS.selection, strokeWidth: 1.5, fill: 'none' }
-        });
-        return () => FrameHighlighter.remove(view, SELECTION_HIGHLIGHT);
-    }, [paper, graph, effectiveSelectedId, stackVersion]);
 
     // The marks of a move: the dimmed subtree, the buttons that cannot take it.
     useEffect(() => {
@@ -125,7 +104,7 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     }, [graph, data, paper, moved, stackVersion]);
 
     const fit = useCallback(() => {
-        const bbox = graph.getCellsBBox(graph.getElements().filter(isCellVisible));
+        const bbox = getVisibleBBox(graph);
         const paperScroller = scroller.paperScroller;
         if (!bbox || !paperScroller) return;
         // The widest part of the flow fills the width of the view, with a
@@ -149,8 +128,6 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             data,
             graph,
             version,
-            selectedId: effectiveSelectedId,
-            select: setSelectedId,
             moved,
             canMove: (element) => hasMoveTarget(graph, data, getId(element)),
             startMove: (element) => setMoved(element),
@@ -165,7 +142,7 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
                 clearDeletionHighlight();
                 if (!canDelete(graph, target)) return;
                 // The selection goes with what is removed: an undo brings the element back, not the selection.
-                setSelectedId(null);
+                selectCells([]);
                 deleteElement(graph, data, target);
             },
             toggleGroup: (group) => {
@@ -190,7 +167,7 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             canRedo,
             reset: () => {
                 setMoved(null);
-                setSelectedId(null);
+                selectCells([]);
                 data.reset();
                 fit();
             },
@@ -198,21 +175,44 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             zoomOut: () => scroller.setZoom((zoom) => Math.max(MIN_ZOOM, zoom - ZOOM_STEP)),
             fit
         };
-    }, [data, graph, paper, scroller, version, effectiveSelectedId, moved, menu, history, canUndo, canRedo, fit]);
+    }, [data, graph, paper, scroller, version, selectCells, moved, menu, history, canUndo, canRedo, fit]);
 
     return <EditorContext.Provider value={editor}>{children}</EditorContext.Provider>;
+}
+
+/**
+ * The frames of the selection: the selected element is framed in the layer
+ * below the cells - behind the links, and behind the buttons that overhang
+ * the element - a shade darker than the nodes, a little away from the
+ * edge, in the shape of the element (see `frame.ts`): a step is a box with
+ * small corners, everything else selectable is round by half its height -
+ * a decision, the start of a group, the start and an end.
+ */
+function createSelectionFrames(): ui.HighlighterSelectionFrameList {
+    return new ui.HighlighterSelectionFrameList({
+        highlighter: FrameHighlighter,
+        options: (cell: dia.Cell) => {
+            const radius = StepModel.isStep(cell) ? STEP_RADIUS : (cell as dia.Element).size().height / 2;
+            return { layer: dia.Paper.Layers.BACK, padding: SELECTION_PADDING, rx: radius, ry: radius, attrs: { stroke: COLORS.selection, strokeWidth: 1.5, fill: 'none' }};
+        }
+    });
 }
 
 /**
  * The wiring on the paper side, rendered inside `<Paper>` (and inside
  * `<PaperScroller>`), where the hooks on the paper's events live: lays the
  * diagram out once the sizes of the elements are measured, selects on a
- * click, pans on a drag of the blank area, and binds the keys.
+ * click, pans on a drag of the blank area, and binds the keys. Renders the
+ * `<Selection>` that draws the frame of the selected element - one at a
+ * time, no dragging: the layout owns the positions; the clicks are the
+ * editor's own (`selection: false` in the interactions of the diagram).
  */
-export function EditorWiring(): null {
+export function EditorWiring(): ReactNode {
     const editor = useEditor();
     const scroller = usePaperScroller();
     const { graph } = useGraph();
+    const { collection: selection, selectCells } = useSelectionCollection();
+    const [frames] = useState(createSelectionFrames);
 
     // The sizes of the elements come from what React renders (see `shapes/`):
     // once they are measured, the diagram is laid out - and fitted into the
@@ -241,10 +241,10 @@ export function EditorWiring(): null {
     useOnPaperEvents({
         onElementPointerClick: ({ model }) => {
             fitPending.current = false;
-            if (isSelectable(model)) editor.select(model.id);
+            if (isSelectable(model)) selectCells([model]);
         },
         onBlankPointerClick: () => {
-            editor.select(null);
+            selectCells([]);
             editor.cancelMove();
         },
         // A right click on an element opens the menu of its "more" button, at the pointer.
@@ -274,18 +274,18 @@ export function EditorWiring(): null {
             editor.redo();
         },
         escape: () => {
-            if (editor.moved) editor.cancelMove(); else editor.select(null);
+            if (editor.moved) editor.cancelMove(); else selectCells([]);
         },
         // `Delete` on the selected element does what the "remove" item of its menu does.
         'delete backspace': (evt) => {
-            if (!editor.selectedId) return;
+            const selected = selection.at(0);
+            if (!selected) return;
             evt.preventDefault();
-            const selected = graph.getCell(editor.selectedId);
-            if (!selected?.isElement()) return;
+            if (!selected.isElement()) return;
             const target = GroupStartModel.isGroupStart(selected) ? selected.getParentCell() : selected;
             if (target?.isElement()) editor.remove(target);
         }
     });
 
-    return null;
+    return <Selection frames={frames} wrapper={false} allowTranslate={false} options={{ allowCellInteraction: true }} />;
 }
