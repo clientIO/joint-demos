@@ -178,9 +178,13 @@ function parkHiddenContent(group: GroupModel): void {
     }
 }
 
-/** The bounding box of the visible elements - `null` with none - to fit the view to. */
-function getVisibleBBox(graph: dia.Graph): g.Rect | null {
-    return graph.getCellsBBox(graph.getElements().filter(isCellVisible));
+/**
+ * The bounding box of the visible cells - `null` with none - to fit the
+ * view to. The links count: the return link of a loop runs around the
+ * content of the loop, outside of every element.
+ */
+export function getVisibleBBox(graph: dia.Graph): g.Rect | null {
+    return graph.getCellsBBox(graph.getCells().filter(isCellVisible));
 }
 
 /**
