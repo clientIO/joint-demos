@@ -1,11 +1,11 @@
 import type { dia } from '@joint/plus';
 
 import type { AddChoice } from './choices';
-import { cellId } from './data/build';
+import { cellId, getId } from './data/build';
 import type { DiagramData } from './data/DiagramData';
 import type { Id, NodeData, Slot } from './data/types';
 import { isCellVisible } from './layout';
-import { AddButton, DECISION_LABEL, Decision, Group, GroupEnd, GroupStart, Link, isGate } from './shapes';
+import { AddButtonModel, DECISION_LABEL, DecisionModel, GroupModel, GroupEndModel, GroupStartModel, LinkModel, isGate } from './shapes';
 
 /**
  * The edits, and the questions the tools ask before offering one. An edit
@@ -18,15 +18,15 @@ import { AddButton, DECISION_LABEL, Decision, Group, GroupEnd, GroupStart, Link,
 /** The label of a new step without one: `Step 1`, `Step 2`, ... - the number after the highest one in use. */
 function nextLabel(data: DiagramData): string {
     const numbers = Object.values(data.getData())
-        .map((node) => (node.type === 'step' ? /^Step (\d+)$/.exec(node.label) : null))
+        .map((node) => (node.type === 'step' ? /^StepModel (\d+)$/.exec(node.label) : null))
         .map((match) => (match ? Number(match[1]) : 0));
     return `Step ${Math.max(0, ...numbers) + 1}`;
 }
 
 /** The group `element` is a direct part of, if any. */
-function getContainer(element: dia.Element): Group | null {
+function getContainer(element: dia.Element): GroupModel | null {
     const container = element.getParentCell();
-    return container && Group.isGroup(container) ? container : null;
+    return container && GroupModel.isGroup(container) ? container : null;
 }
 
 /** The parent of `element` in the tree: the source of its inbound link. */
@@ -37,12 +37,12 @@ function getParent(graph: dia.Graph, element: dia.Element): dia.Element | undefi
 /** The children of `element` in the tree: its outbound neighbors that are neither the end of its group nor its add button. */
 function getChildren(graph: dia.Graph, element: dia.Element): dia.Element[] {
     return graph.getNeighbors(element, { outbound: true })
-        .filter((child) => !isGate(child) && !AddButton.isAddButton(child));
+        .filter((child) => !isGate(child) && !AddButtonModel.isAddButton(child));
 }
 
 /** The add button below `element`, if it has one. */
-function getAddButton(graph: dia.Graph, element: dia.Element): AddButton | undefined {
-    return graph.getNeighbors(element, { outbound: true }).find(AddButton.isAddButton);
+function getAddButton(graph: dia.Graph, element: dia.Element): AddButtonModel | undefined {
+    return graph.getNeighbors(element, { outbound: true }).find(AddButtonModel.isAddButton);
 }
 
 /**
@@ -55,7 +55,7 @@ export function canAddTerminal(element: dia.Element): boolean {
 
 /** Whether `element` may have several children: a decision, or a gate (the start of a group). */
 function canBranch(element: dia.Element): boolean {
-    return Decision.isDecision(element) || isGate(element);
+    return DecisionModel.isDecision(element) || isGate(element);
 }
 
 /**
@@ -69,7 +69,7 @@ export function canDelete(graph: dia.Graph, element: dia.Element): boolean {
     if (isGate(element)) return false;
     const parent = getParent(graph, element);
     if (!parent) return false;
-    if (Decision.isDecision(element)) return true;
+    if (DecisionModel.isDecision(element)) return true;
     return getChildren(graph, element).length <= 1 || canBranch(parent);
 }
 
@@ -97,7 +97,7 @@ function getSubtree(graph: dia.Graph, element: dia.Element): dia.Element[] {
  */
 export function getDeletedCells(graph: dia.Graph, element: dia.Element): dia.Cell[] {
     let elements: dia.Element[];
-    if (Decision.isDecision(element)) {
+    if (DecisionModel.isDecision(element)) {
         elements = getSubtree(graph, element);
     } else {
         const button = getAddButton(graph, element);
@@ -118,7 +118,7 @@ export function canSplit(link: dia.Link): boolean {
     const source = link.getSourceElement();
     const target = link.getTargetElement();
     if (!source || !target) return false;
-    return !Link.isReturnLink(source, target) && !AddButton.isAddButton(target);
+    return !LinkModel.isReturnLink(source, target) && !AddButtonModel.isAddButton(target);
 }
 
 /** The node of the data a choice of the add menu stands for. A step without a label is numbered. */
@@ -138,10 +138,10 @@ function createNodeData(data: DiagramData, choice: AddChoice, label?: string): N
  * included, whose outbound links leave from the group itself.
  */
 function getSlot(element: dia.Element): { id: Id; slot: Slot } {
-    if (GroupStart.isGroupStart(element)) {
-        return { id: String(element.getParentCell()!.id), slot: 'branches' };
+    if (GroupStartModel.isGroupStart(element)) {
+        return { id: getId(element.getParentCell()!), slot: 'branches' };
     }
-    return { id: String(element.id), slot: 'to' };
+    return { id: getId(element), slot: 'to' };
 }
 
 /** Adds a new node of the chosen kind as the last child of `parent`, with a label where it takes one. */
@@ -156,11 +156,11 @@ export function addBelow(data: DiagramData, parent: dia.Element, choice: AddChoi
  * from the `start` of an empty group to its `end`, the node is the first
  * branch of the group.
  */
-export function insertOnLink(data: DiagramData, link: Link, choice: AddChoice, label?: string): Id {
+export function insertOnLink(data: DiagramData, link: LinkModel, choice: AddChoice, label?: string): Id {
     const source = link.getSourceElement()!;
     const target = link.getTargetElement()!;
     const { id, slot } = getSlot(source);
-    const childId = GroupEnd.isGroupEnd(target) ? null : String(target.id);
+    const childId = GroupEndModel.isGroupEnd(target) ? null : getId(target);
     return data.insertNode(createNodeData(data, choice, label), id, slot, childId);
 }
 
@@ -171,8 +171,8 @@ export function insertOnLink(data: DiagramData, link: Link, choice: AddChoice, l
  */
 export function deleteElement(graph: dia.Graph, data: DiagramData, element: dia.Element): void {
     if (!canDelete(graph, element)) return;
-    const id = String(element.id);
-    if (Decision.isDecision(element)) {
+    const id = getId(element);
+    if (DecisionModel.isDecision(element)) {
         data.removeSubtree(id);
     } else {
         data.spliceNode(id);
@@ -181,9 +181,9 @@ export function deleteElement(graph: dia.Graph, data: DiagramData, element: dia.
 
 /** The node of the data `element` stands for: the group, for a gate; the owner, for an add button. */
 function getDataId(graph: dia.Graph, element: dia.Element): Id {
-    const id = String(element.id);
-    if (isGate(element)) return String(element.getParentCell()!.id);
-    if (AddButton.isAddButton(element)) return getDataId(graph, getParent(graph, element)!);
+    const id = getId(element);
+    if (isGate(element)) return getId(element.getParentCell()!);
+    if (AddButtonModel.isAddButton(element)) return getDataId(graph, getParent(graph, element)!);
     return id;
 }
 
@@ -194,7 +194,7 @@ function getDataId(graph: dia.Graph, element: dia.Element): Id {
  */
 export function canMoveBelow(graph: dia.Graph, data: DiagramData, movedId: Id, parent: dia.Element): boolean {
     if (data.getSubtree(movedId).includes(getDataId(graph, parent))) return false;
-    const intoGroup = getContainer(parent) !== null || GroupStart.isGroupStart(parent);
+    const intoGroup = getContainer(parent) !== null || GroupStartModel.isGroupStart(parent);
     return !(intoGroup && data.hasEnd(movedId));
 }
 
@@ -226,9 +226,9 @@ export function hasMoveTarget(graph: dia.Graph, data: DiagramData, movedId: Id):
         if (!isCellVisible(element)) return false;
         let parent: dia.Element | undefined;
         // A decision with options and a fork with branches have their own drop point, the `+`; without, the add button below is the target.
-        if (GroupStart.isGroupStart(element)) parent = element.getKind() === 'fork' && getChildren(graph, element).length > 0 ? element : undefined;
-        else if (Decision.isDecision(element)) parent = getChildren(graph, element).length > 0 ? element : undefined;
-        else if (AddButton.isAddButton(element)) parent = getParent(graph, element);
+        if (GroupStartModel.isGroupStart(element)) parent = element.getKind() === 'fork' && getChildren(graph, element).length > 0 ? element : undefined;
+        else if (DecisionModel.isDecision(element)) parent = getChildren(graph, element).length > 0 ? element : undefined;
+        else if (AddButtonModel.isAddButton(element)) parent = getParent(graph, element);
         return parent !== undefined && canMoveBelow(graph, data, movedId, parent);
     });
 }
@@ -252,14 +252,14 @@ export function moveBelow(data: DiagramData, movedId: Id, parent: dia.Element): 
 }
 
 /** Moves the subtree of `movedId` into `link`: the link leads to it, and its open leaf on to the former target. */
-export function moveOnLink(data: DiagramData, movedId: Id, link: Link): void {
+export function moveOnLink(data: DiagramData, movedId: Id, link: LinkModel): void {
     const source = link.getSourceElement()!;
     const target = link.getTargetElement()!;
     const { id, slot } = getSlot(source);
-    data.moveNode(movedId, id, slot, GroupEnd.isGroupEnd(target) ? null : String(target.id));
+    data.moveNode(movedId, id, slot, GroupEndModel.isGroupEnd(target) ? null : getId(target));
 }
 
 /** Collapses an expanded group, expands a collapsed one. */
-export function toggleGroup(data: DiagramData, group: Group): void {
-    data.changeNode(String(group.id), { collapsed: !group.isCollapsed() });
+export function toggleGroup(data: DiagramData, group: GroupModel): void {
+    data.changeNode(getId(group), { collapsed: !group.isCollapsed() });
 }

@@ -3,7 +3,7 @@ import type { dia } from '@joint/plus';
 
 import { getDeletedCells } from './actions';
 import { isCellVisible } from './layout';
-import { AddButton, Decision, End, Group, GroupEnd, GroupStart, INSERT_BUTTON_FROM_TARGET, INSERT_BUTTON_SIZE } from './shapes';
+import { AddButtonModel, DecisionModel, EndModel, GroupModel, GroupEndModel, GroupStartModel, INSERT_BUTTON_FROM_TARGET, INSERT_BUTTON_SIZE } from './shapes';
 
 /**
  * The state of the picture that is not the data: the highlights of a
@@ -19,16 +19,16 @@ import { AddButton, Decision, End, Group, GroupEnd, GroupStart, INSERT_BUTTON_FR
  * group. The `end` of a group and the add buttons have no menu.
  */
 export function getActionTarget(element: dia.Element): dia.Element | null {
-    if (GroupStart.isGroupStart(element)) return element.getParentCell() as Group;
-    if (GroupEnd.isGroupEnd(element) || AddButton.isAddButton(element)) return null;
+    if (GroupStartModel.isGroupStart(element)) return element.getParentCell() as GroupModel;
+    if (GroupEndModel.isGroupEnd(element) || AddButtonModel.isAddButton(element)) return null;
     return element;
 }
 
 /** The item of the menu that removes `target`: "Remove" and what it is - a loop, a fork, a decision, an end, a step. */
 export function getDeleteTitle(target: dia.Element): string {
-    if (Group.isGroup(target)) return `Remove the ${target.getKind()}`;
-    if (Decision.isDecision(target)) return 'Remove the decision';
-    if (End.isEnd(target)) return 'Remove the end';
+    if (GroupModel.isGroup(target)) return `Remove the ${target.getKind()}`;
+    if (DecisionModel.isDecision(target)) return 'Remove the decision';
+    if (EndModel.isEnd(target)) return 'Remove the end';
     return 'Remove the step';
 }
 
@@ -46,7 +46,7 @@ let highlightedViews: dia.CellView[] = [];
 export function highlightDeletion(paper: dia.Paper, target: dia.Element): void {
     clearDeletionHighlight();
     for (const cell of getDeletedCells(paper.model, target)) {
-        if (!isCellVisible(cell) || AddButton.isAddButton(cell)) continue;
+        if (!isCellVisible(cell) || AddButtonModel.isAddButton(cell)) continue;
         const view = paper.findViewByModel(cell);
         if (!view) continue;
         highlighters.addClass.add(view, 'root', DELETE_HIGHLIGHT, { className: DELETE_HIGHLIGHT });
@@ -90,7 +90,7 @@ export function clearFaded(): void {
  * included, and the links of the content. The start of the group stays: it
  * stands in for the collapsed group. Nothing for a group already collapsed.
  */
-export function highlightCollapse(paper: dia.Paper, group: Group): void {
+export function highlightCollapse(paper: dia.Paper, group: GroupModel): void {
     if (group.isCollapsed()) {
         clearFaded();
         return;
@@ -126,12 +126,16 @@ export function markMove(paper: dia.Paper, movedCells: dia.Cell[] | null, canDro
     };
     for (const cell of movedCells) mark(cell, MOVING_CLASS);
     for (const element of paper.model.getElements()) {
-        const hasPillButton = GroupStart.isGroupStart(element) ? element.getKind() === 'fork' : Decision.isDecision(element);
+        const hasPillButton = GroupStartModel.isGroupStart(element) ? element.getKind() === 'fork' : DecisionModel.isDecision(element);
         if (hasPillButton) {
             if (!canDropBelow(element)) mark(element, NO_DROP_CLASS);
-        } else if (AddButton.isAddButton(element)) {
+        } else if (AddButtonModel.isAddButton(element)) {
             const [parent] = paper.model.getNeighbors(element, { inbound: true });
-            if (parent && !canDropBelow(parent)) mark(element, NO_DROP_CLASS);
+            if (parent && !canDropBelow(parent)) {
+                // The button goes with its link: a link into nothing would hang from the leaf.
+                mark(element, NO_DROP_CLASS);
+                for (const link of paper.model.getConnectedLinks(element, { inbound: true })) mark(link, NO_DROP_CLASS);
+            }
         }
     }
 }
@@ -142,8 +146,8 @@ export function markMove(paper: dia.Paper, movedCells: dia.Cell[] | null, canDro
  * which leaves the link below the loop and joins it below the loop's start.
  */
 function hasSomethingBelow(element: dia.Element): boolean {
-    if (Group.isGroup(element)) return element.isCollapsed() || element.getKind() === 'loop';
-    return GroupStart.isGroupStart(element) && element.getKind() === 'loop';
+    if (GroupModel.isGroup(element)) return element.isCollapsed() || element.getKind() === 'loop';
+    return GroupStartModel.isGroupStart(element) && element.getKind() === 'loop';
 }
 
 /**
@@ -153,7 +157,7 @@ function hasSomethingBelow(element: dia.Element): boolean {
  * child - the return link runs at equal distances around both.
  */
 function isLoopEnd(element: dia.Element): boolean {
-    return GroupEnd.isGroupEnd(element) && element.getGroup().getKind() === 'loop';
+    return GroupEndModel.isGroupEnd(element) && element.getGroup().getKind() === 'loop';
 }
 
 /**

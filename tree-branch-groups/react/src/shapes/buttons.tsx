@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import { canDelete } from '../actions';
 import { useEditor } from '../editor-context';
-import { COLORS, Decision, GroupStart } from '../shapes';
+import { COLORS } from './constants';
 import { getActionTarget, getDeleteTitle } from '../tools';
 import { TipButton } from '../tooltip';
 
@@ -27,8 +27,9 @@ const DELETE_COLOR = '#E54666';
  * right, shown on hover; a click opens the menu of the element - its move
  * and its removal; hovering the "remove" item highlights what it would
  * remove. Nothing when the element cannot be deleted, or while a move is on.
+ * On a filled pill the dots are white (`filled`).
  */
-export function MoreButton(): ReactNode {
+export function MoreButton({ filled = false }: { filled?: boolean }): ReactNode {
     const editor = useEditor();
     const { graph } = useGraph();
     const id = useCellId();
@@ -36,8 +37,6 @@ export function MoreButton(): ReactNode {
     if (!element?.isElement() || editor.moved) return null;
     const target = getActionTarget(element);
     if (!target || !canDelete(graph, target)) return null;
-    // On a filled pill the dots are white.
-    const filled = Decision.isDecision(element) || GroupStart.isGroupStart(element);
     return (
         <TipButton
             tip="More"

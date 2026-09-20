@@ -133,7 +133,7 @@ body {
     font-size: 13px;
     line-height: 1.3;
     user-select: none;
-    transition: border-color 150ms ease-out, background-color 150ms ease-out;
+    transition: border-color 150ms ease-out, background-color 150ms ease-out, color 150ms ease-out;
 }
 
 .pill .kind-icon {
@@ -160,6 +160,7 @@ body {
     font-family: var(--code-font);
     font-size: 12px;
     color: #3F4C74;
+    transition: background-color 150ms ease-out, color 150ms ease-out;
 }
 
 .pill .run .cmd {
@@ -403,7 +404,7 @@ body {
     pointer-events: none;
 }
 
-/* The name of an option: bold, in the blue of the nodes, on a tinted chip. Its font is what `link-view.tsx` measures the chip with. */
+/* The name of an option: bold, in the blue of the nodes, on a tinted chip. Its font is what `shapes/link.tsx` measures the chip with. */
 .option-name {
     pointer-events: none;
 }
@@ -472,19 +473,19 @@ body {
     overlap).
 */
 :is(.faded, .moving) .pill {
-    border-color: #AEBDEF;
+    border-color: #C8D3F2;
 }
 
 :is(.faded, .moving) .pill.filled {
-    background: #AEBDEF;
+    background: #C8D3F2;
 }
 
 :is(.faded, .moving) .terminal {
-    background: #A3A9B6;
+    background: #C1C7CE;
 }
 
 :is(.faded, .moving) .pill .kind-icon {
-    color: #AEBDEF;
+    color: #C8D3F2;
 }
 
 :is(.faded, .moving) .pill.filled .kind-icon {
@@ -492,7 +493,34 @@ body {
 }
 
 :is(.faded, .moving) .jj-link-line {
-    stroke: #C3CEF2;
+    stroke: #D5DDF4;
+}
+
+/* The texts fade with the shapes: the label of a step, its code on its chip, the name of an option on its chip. */
+:is(.faded, .moving) .pill {
+    color: #BFC2C1;
+}
+
+:is(.faded, .moving) .pill.filled {
+    color: #FFFFFF;
+}
+
+:is(.faded, .moving) .pill .run {
+    background: #F2F6F8;
+    color: #C6CCD6;
+}
+
+:is(.faded, .moving) .pill .run .cmd,
+:is(.faded, .moving) .pill .run .flag {
+    color: #C6CCD6;
+}
+
+:is(.faded, .moving) .option-name rect {
+    fill: #F0F4F8;
+}
+
+:is(.faded, .moving) .option-name text {
+    fill: #C8D3F2;
 }
 
 /* A move in progress: the subtree that moves is faded (see `.faded`) and out of reach; a button that cannot take it is gone. */
@@ -501,7 +529,8 @@ body {
 }
 
 .no-drop .pill-add,
-.no-drop .square-button {
+.no-drop .square-button,
+.no-drop.joint-link {
     display: none;
 }
 

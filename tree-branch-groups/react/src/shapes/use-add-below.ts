@@ -13,10 +13,10 @@ import { useEditor } from '../editor-context';
  * the moved subtree below it. Hidden while a move is on that the parent
  * cannot take.
  */
-export function useAddBelow(parentId: string): { hidden: boolean; title: string; onClick: (evt: MouseEvent) => void } {
+export function useAddBelow(parentId: dia.Cell.ID | null): { hidden: boolean; title: string; onClick: (evt: MouseEvent) => void } {
     const editor = useEditor();
     const { graph } = useGraph();
-    const parent = graph.getCell(parentId) as dia.Element | undefined;
+    const parent = parentId === null ? undefined : (graph.getCell(parentId) as dia.Element | undefined);
     const moving = editor.moved !== null;
     const hidden = !parent || (moving && !editor.canDropBelow(parent));
     return {

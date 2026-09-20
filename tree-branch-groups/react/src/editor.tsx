@@ -1,20 +1,23 @@
 import { dia } from '@joint/plus';
 import { useGraph, useOnElementsMeasured, useOnKeyboardEvents, useOnPaperEvents, usePaper, usePaperScroller } from '@joint/react-plus';
-import { useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 
 import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
 import type { MenuRequest } from './choices';
-import { buildGraph } from './data/build';
+import { buildGraph, getId } from './data/build';
+import type { Id } from './data/types';
 import { DiagramData } from './data/DiagramData';
-import { EditorContext, MAX_ZOOM, MIN_ZOOM, ViewContext, isSelectable, useEditor } from './editor-context';
-import type { EditorApi, View } from './editor-context';
+import { EditorContext, MAX_ZOOM, MIN_ZOOM, PAPER_ID, isSelectable, useEditor } from './editor-context';
+import type { EditorApi } from './editor-context';
 import { isCellVisible, runLayout } from './layout';
 import { pipeline } from './pipeline';
-import { Group, GroupStart } from './shapes';
+import { GroupModel, GroupStartModel } from './shapes';
 import { clearDeletionHighlight, clearFaded, fadeCells, highlightCollapse, highlightDeletion, markMove } from './tools';
 
 const PAPER_PADDING = 40;
+/** How close the fit goes, at most: a narrow flow is shown at its size, not blown up. */
+const FIT_MAX_ZOOM = 1;
 const ZOOM_STEP = 0.2;
 
 /** Subscribes to `events` of an event emitter of JointJS; a counter of them, for `useSyncExternalStore`. */
@@ -49,8 +52,10 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
         return model;
     });
     const [history] = useState(() => new dia.CommandManager({ model: data }));
-    const viewRef = useRef<View | null>(null);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
+    // The paper and its scroller, by id: `null` until `<Paper>` has mounted.
+    const { paper } = usePaper(PAPER_ID);
+    const scroller = usePaperScroller(PAPER_ID);
+    const [selectedId, setSelectedId] = useState<dia.Cell.ID | null>(null);
     const [movedElement, setMoved] = useState<dia.Element | null>(null);
     const [menu, setMenu] = useState<MenuRequest | null>(null);
 
@@ -60,15 +65,14 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     const canUndo = history.hasUndo();
     const canRedo = history.hasRedo();
 
-    /** Builds the graph from the data and lays it out; the sizes come from what React measured (see `cells/`). */
+    /** Builds the graph from the data and lays it out; the sizes come from what React measured (see `shapes/`). */
     const rebuild = useCallback(() => {
-        const paper = viewRef.current?.paper;
         paper?.freeze();
         buildGraph(graph, data.getData());
         runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
         paper?.unfreeze();
         paper?.updateCellsVisibility();
-    }, [graph, data]);
+    }, [graph, data, paper]);
 
     // The first build; then one after every command of the history.
     useEffect(() => {
@@ -87,28 +91,27 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
 
     // The marks of a move: the dimmed subtree, the buttons that cannot take it.
     useEffect(() => {
-        const paper = viewRef.current?.paper;
         if (!paper) return;
-        const movedCells = moved ? getMovedCells(graph, data, String(moved.id)) : null;
-        markMove(paper, movedCells, (parent) => moved !== null && canMoveBelow(graph, data, String(moved.id), parent));
-    }, [graph, data, moved, stackVersion]);
+        const movedCells = moved ? getMovedCells(graph, data, getId(moved)) : null;
+        markMove(paper, movedCells, (parent) => moved !== null && canMoveBelow(graph, data, getId(moved), parent));
+    }, [graph, data, paper, moved, stackVersion]);
 
     const fit = useCallback(() => {
-        const view = viewRef.current;
-        if (!view) return;
         const bbox = graph.getCellsBBox(graph.getElements().filter(isCellVisible));
-        if (!bbox) return;
-        view.scroller.zoomToFit({ contentArea: bbox, padding: PAPER_PADDING, minScale: MIN_ZOOM, maxScale: 1, useModelGeometry: true });
-        // Centered, and at the top, where the flow starts - even when it is short.
-        view.scroller.paperScroller?.positionRect(bbox, 'top', { padding: PAPER_PADDING });
-    }, [graph]);
-
-    const setView = useCallback((view: View | null) => {
-        viewRef.current = view;
-    }, []);
+        const paperScroller = scroller.paperScroller;
+        if (!bbox || !paperScroller) return;
+        // The widest part of the flow fills the width of the view, with a
+        // margin; the flow is read from the top down by scrolling. Not closer
+        // than 1:1 - a flow that is a mere line stays its size. Centered, and
+        // at the top, where the flow starts - even when it is short.
+        const { width } = paperScroller.getClientSize();
+        const scale = Math.min(FIT_MAX_ZOOM, Math.max(MIN_ZOOM, (width - 2 * PAPER_PADDING) / bbox.width));
+        paperScroller.zoom(scale, { absolute: true });
+        paperScroller.positionRect(bbox, 'top', { padding: PAPER_PADDING });
+    }, [graph, scroller]);
 
     const editor = useMemo<EditorApi>(() => {
-        const movedId = (): string => String(moved!.id);
+        const movedId = (): Id => getId(moved!);
         const endMove = (): string => {
             const id = movedId();
             setMoved(null);
@@ -121,7 +124,7 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             selectedId: effectiveSelectedId,
             select: setSelectedId,
             moved,
-            canMove: (element) => hasMoveTarget(graph, data, String(element.id)),
+            canMove: (element) => hasMoveTarget(graph, data, getId(element)),
             startMove: (element) => setMoved(element),
             cancelMove: () => setMoved(null),
             canDropBelow: (parent) => moved !== null && canMoveBelow(graph, data, movedId(), parent),
@@ -142,16 +145,13 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
                 toggleGroup(data, group);
             },
             previewDeletion: (target) => {
-                const paper = viewRef.current?.paper;
                 if (target && paper) highlightDeletion(paper, target); else clearDeletionHighlight();
             },
             previewCollapse: (group) => {
-                const paper = viewRef.current?.paper;
                 if (group && paper) highlightCollapse(paper, group); else clearFaded();
             },
             previewMove: (target) => {
-                const paper = viewRef.current?.paper;
-                if (target && paper) fadeCells(paper, getMovedCells(graph, data, String(target.id))); else clearFaded();
+                if (target && paper) fadeCells(paper, getMovedCells(graph, data, getId(target))); else clearFaded();
             },
             menu,
             openMenu: setMenu,
@@ -166,39 +166,27 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
                 data.reset();
                 fit();
             },
-            zoomIn: () => viewRef.current?.scroller.setZoom((zoom) => Math.min(MAX_ZOOM, zoom + ZOOM_STEP)),
-            zoomOut: () => viewRef.current?.scroller.setZoom((zoom) => Math.max(MIN_ZOOM, zoom - ZOOM_STEP)),
+            zoomIn: () => scroller.setZoom((zoom) => Math.min(MAX_ZOOM, zoom + ZOOM_STEP)),
+            zoomOut: () => scroller.setZoom((zoom) => Math.max(MIN_ZOOM, zoom - ZOOM_STEP)),
             fit
         };
-    }, [data, graph, version, effectiveSelectedId, moved, menu, history, canUndo, canRedo, fit]);
+    }, [data, graph, paper, scroller, version, effectiveSelectedId, moved, menu, history, canUndo, canRedo, fit]);
 
-    return (
-        <ViewContext.Provider value={setView}>
-            <EditorContext.Provider value={editor}>{children}</EditorContext.Provider>
-        </ViewContext.Provider>
-    );
+    return <EditorContext.Provider value={editor}>{children}</EditorContext.Provider>;
 }
 
 /**
  * The wiring on the paper side, rendered inside `<Paper>` (and inside
- * `<PaperScroller>`): hands the paper and the scroller to the provider, lays
- * the diagram out once the sizes of the elements are measured, selects on a
+ * `<PaperScroller>`), where the hooks on the paper's events live: lays the
+ * diagram out once the sizes of the elements are measured, selects on a
  * click, pans on a drag of the blank area, and binds the keys.
  */
 export function EditorWiring(): null {
-    const setView = useContext(ViewContext)!;
     const editor = useEditor();
-    const { paper } = usePaper();
     const scroller = usePaperScroller();
     const { graph } = useGraph();
 
-    useEffect(() => {
-        if (!paper) return;
-        setView({ paper, scroller });
-        return () => setView(null);
-    }, [paper, scroller, setView]);
-
-    // The sizes of the elements come from what React renders (see `cells/`):
+    // The sizes of the elements come from what React renders (see `shapes/`):
     // once they are measured, the diagram is laid out - and fitted into the
     // view the first time. The store reports every change of a size, the
     // layout's own included - the groups are sized around their content -
@@ -212,7 +200,7 @@ export function EditorWiring(): null {
     }, [editor.version]);
     useOnElementsMeasured(() => {
         const signature = graph.getElements()
-            .filter((element) => !Group.isGroup(element))
+            .filter((element) => !GroupModel.isGroup(element))
             .map((element) => `${element.id}:${Math.round(element.size().width)}x${Math.round(element.size().height)}`)
             .join(' ');
         if (signature === laidOut.current) return;
@@ -225,7 +213,7 @@ export function EditorWiring(): null {
     useOnPaperEvents({
         onElementPointerClick: ({ model }) => {
             fitPending.current = false;
-            if (isSelectable(model)) editor.select(String(model.id));
+            if (isSelectable(model)) editor.select(model.id);
         },
         onBlankPointerClick: () => {
             editor.select(null);
@@ -258,7 +246,7 @@ export function EditorWiring(): null {
             evt.preventDefault();
             const selected = graph.getCell(editor.selectedId);
             if (!selected?.isElement()) return;
-            const target = GroupStart.isGroupStart(selected) ? selected.getParentCell() : selected;
+            const target = GroupStartModel.isGroupStart(selected) ? selected.getParentCell() : selected;
             if (target?.isElement()) editor.remove(target);
         }
     });

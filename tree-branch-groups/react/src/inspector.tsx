@@ -1,3 +1,4 @@
+import type { dia } from '@joint/plus';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import yaml from 'highlight.js/lib/languages/yaml';
@@ -8,7 +9,8 @@ import { getEdges } from './data/DiagramData';
 import type { NodeData, Slot } from './data/types';
 import { toYAML } from './data/yaml';
 import { useEditor } from './editor-context';
-import { GROUP_LABELS, GroupStart } from './shapes';
+import { GROUP_LABELS, GroupStartModel } from './shapes';
+import { getId } from './data/build';
 
 hljs.registerLanguage('yaml', yaml);
 hljs.registerLanguage('json', json);
@@ -73,12 +75,13 @@ function OptionFields({ id, node, slot, heading }: { id: string; node: NodeData;
 }
 
 /** The fields of the selected element: what the data holds about the node it stands for. */
-function NodeFields({ id }: { id: string }): ReactNode {
+function NodeFields({ id }: { id: dia.Cell.ID }): ReactNode {
     const editor = useEditor();
     const { data, graph } = editor;
     const element = graph.getCell(id);
+    if (!element) return null;
     // The start of a group stands for the group.
-    const nodeId = element && GroupStart.isGroupStart(element) ? String(element.getParentCell()!.id) : id;
+    const nodeId = GroupStartModel.isGroupStart(element) ? getId(element.getParentCell()!) : getId(element);
     const node = data.getNode(nodeId);
     if (!node) return null;
     const change = (fields: Partial<NodeData>): void => data.changeNode(nodeId, fields);

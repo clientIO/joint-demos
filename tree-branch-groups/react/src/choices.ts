@@ -1,8 +1,9 @@
 import type { dia } from '@joint/plus';
 
 import { canAddTerminal } from './actions';
-import { COLORS, DECISION_ICON, GROUP_ICONS, NODE_ICON } from './shapes';
-import type { GroupKind } from './shapes';
+// The constants, not the shapes: this module is imported by the shapes themselves, and reads the constants at its top level.
+import { COLORS, DECISION_ICON, GROUP_ICONS, NODE_ICON } from './shapes/constants';
+import type { GroupKind } from './shapes/constants';
 
 /** What the add menu offers: a step, a decision, a group of either kind, or an end of the diagram. */
 export type AddChoice = 'step' | 'decision' | GroupKind | 'end';

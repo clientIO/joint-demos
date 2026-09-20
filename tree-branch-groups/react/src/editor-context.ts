@@ -1,20 +1,19 @@
 import type { dia } from '@joint/plus';
-import type { usePaperScroller } from '@joint/react-plus';
 import { createContext, useContext } from 'react';
 
 import type { AddChoice, MenuRequest } from './choices';
 import type { DiagramData } from './data/DiagramData';
-import { Decision, End, GroupStart, Start, Step } from './shapes';
-import type { Group, Link } from './shapes';
+import { DecisionModel, EndModel, GroupStartModel, StartModel, StepModel } from './shapes';
+import type { GroupModel, LinkModel } from './shapes';
 
 export const MIN_ZOOM = 0.2;
 export const MAX_ZOOM = 3;
 
 /** What can be selected: every element with a picture - not the end of a group, not an add button. */
-export type Selectable = Step | Decision | Start | End | GroupStart;
+export type Selectable = StepModel | DecisionModel | StartModel | EndModel | GroupStartModel;
 
 export function isSelectable(cell: dia.Cell): cell is Selectable {
-    return Step.isStep(cell) || Decision.isDecision(cell) || Start.isStart(cell) || End.isEnd(cell) || GroupStart.isGroupStart(cell);
+    return StepModel.isStep(cell) || DecisionModel.isDecision(cell) || StartModel.isStart(cell) || EndModel.isEnd(cell) || GroupStartModel.isGroupStart(cell);
 }
 
 /**
@@ -28,8 +27,8 @@ export interface EditorApi {
     /** Bumped after every change of the data: what reads the data re-renders on it. */
     version: number;
 
-    selectedId: string | null;
-    select(id: string | null): void;
+    selectedId: dia.Cell.ID | null;
+    select(id: dia.Cell.ID | null): void;
 
     /** The element being moved, if any. While one is, the drop points take it and add nothing. */
     moved: dia.Element | null;
@@ -37,18 +36,18 @@ export interface EditorApi {
     startMove(element: dia.Element): void;
     cancelMove(): void;
     canDropBelow(parent: dia.Element): boolean;
-    canDropOnLink(link: Link): boolean;
+    canDropOnLink(link: LinkModel): boolean;
     dropBelow(parent: dia.Element): void;
-    dropOnLink(link: Link): void;
+    dropOnLink(link: LinkModel): void;
 
     addBelow(parent: dia.Element, choice: AddChoice): void;
-    insertOnLink(link: Link, choice: AddChoice): void;
+    insertOnLink(link: LinkModel, choice: AddChoice): void;
     remove(target: dia.Element): void;
-    toggleGroup(group: Group): void;
+    toggleGroup(group: GroupModel): void;
     /** Turns what a deletion of `target` would remove red, or takes the red off with `null`. */
     previewDeletion(target: dia.Element | null): void;
     /** Fades what a collapse of `group` would hide - or restores it, with `null`. */
-    previewCollapse(group: Group | null): void;
+    previewCollapse(group: GroupModel | null): void;
     /** Fades what a move of `target` would take along - or restores it, with `null`. */
     previewMove(target: dia.Element | null): void;
 
@@ -76,10 +75,5 @@ export function useEditor(): EditorApi {
     return editor;
 }
 
-/** What the paper-side wiring hands the provider: the paper and the scroller, once mounted. */
-export interface View {
-    paper: dia.Paper;
-    scroller: ReturnType<typeof usePaperScroller>;
-}
-
-export const ViewContext = createContext<((view: View | null) => void) | null>(null);
+/** The id of the paper of the diagram: the provider reaches the paper and its scroller by it, from outside of `<Paper>`. */
+export const PAPER_ID = 'diagram';
