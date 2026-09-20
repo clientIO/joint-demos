@@ -502,7 +502,12 @@ body {
 */
 [joint-selector="body"],
 [joint-selector="line"],
-[joint-selector="kindIcon"] {
+[joint-selector="kindIcon"],
+[joint-selector="label"],
+[joint-selector="label"] tspan,
+[joint-selector="runChip"],
+[joint-selector="branchChip"],
+[joint-selector="branchText"] {
     transition: fill 150ms ease-out, stroke 150ms ease-out;
 }
 
@@ -531,25 +536,46 @@ body {
     overlap).
 */
 :is(.faded, .moving) [joint-selector="body"] {
-    stroke: #AEBDEF;
+    stroke: #C8D3F2;
 }
 
 :is(.faded, .moving) [joint-selector="line"] {
-    stroke: #C3CEF2;
+    stroke: #D5DDF4;
 }
 
 :is(.faded, .moving).joint-type-tbg-decision [joint-selector="body"],
 :is(.faded, .moving).joint-type-tbg-groupstart [joint-selector="body"] {
-    fill: #AEBDEF;
+    fill: #C8D3F2;
 }
 
 :is(.faded, .moving).joint-type-tbg-end [joint-selector="body"] {
-    fill: #A3A9B6;
-    stroke: #A3A9B6;
+    fill: #C1C7CE;
+    stroke: #C1C7CE;
 }
 
 :is(.faded, .moving).joint-type-tbg-step [joint-selector="kindIcon"] {
-    stroke: #AEBDEF;
+    stroke: #C8D3F2;
+}
+
+/* The texts fade with the shapes: the label of a step, its code on its chip, the name of an option on its chip. */
+:is(.faded, .moving).joint-type-tbg-step [joint-selector="label"] {
+    fill: #BFC2C1;
+}
+
+:is(.faded, .moving).joint-type-tbg-step [joint-selector="label"] tspan {
+    fill: #C6CCD6;
+}
+
+:is(.faded, .moving) [joint-selector="runChip"] {
+    fill: #F2F6F8;
+}
+
+:is(.faded, .moving) [joint-selector="branchChip"] {
+    fill: #F0F4F8;
+}
+
+:is(.faded, .moving) [joint-selector="branchText"] {
+    fill: #C8D3F2;
 }
 
 /* The tooltips of the buttons: a small dark label. */

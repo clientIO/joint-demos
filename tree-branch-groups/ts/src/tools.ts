@@ -4,7 +4,7 @@ import { canAddTerminal, canDelete, canSplit, getDeletedCells } from './actions'
 import { isCellVisible } from './layout';
 import { openAddMenu, openMenu } from './menu';
 import type { AddChoice } from './menu';
-import { ADD_BUTTON_SELECTOR, ADD_BUTTON_SIZE, AddButton, BRANCH_LABEL_OFFSET_ALONG, COLORS, Decision, End, Group, GroupEnd, GroupStart, INSERT_BUTTON_FROM_TARGET, Link, PLUS_ICON, TOGGLE_EVENT } from './shapes';
+import { ADD_BUTTON_SELECTOR, ADD_BUTTON_SIZE, AddButtonModel, BRANCH_LABEL_OFFSET_ALONG, COLORS, DecisionModel, EndModel, GroupModel, GroupEndModel, GroupStartModel, INSERT_BUTTON_FROM_TARGET, LinkModel, PLUS_ICON, TOGGLE_EVENT } from './shapes';
 
 /** The insert buttons are squares, so that they differ from the round toggle and "more" buttons: blue, marked in white like every add button. */
 const ADD_FILL = COLORS.button.fill;
@@ -17,9 +17,9 @@ const DELETE_ICON = 'M -5 -5 5 5 M -5 5 5 -5';
 
 export interface ToolActions {
     addBelow(element: dia.Element, choice: AddChoice): void;
-    insertOnLink(link: Link, choice: AddChoice): void;
+    insertOnLink(link: LinkModel, choice: AddChoice): void;
     delete(element: dia.Element): void;
-    toggleGroup(group: Group): void;
+    toggleGroup(group: GroupModel): void;
     /** Whether `element` with everything below it has anywhere to move to. */
     canMove(element: dia.Element): boolean;
     /** Starts moving `element` with everything below it: the drop points take it instead of adding. */
@@ -31,9 +31,9 @@ export interface ToolActions {
     /** The cells that would move with `element`: for the preview of a move, before it starts. */
     getMovedCellsOf(element: dia.Element): dia.Cell[];
     canDropBelow(parent: dia.Element): boolean;
-    canDropOnLink(link: Link): boolean;
+    canDropOnLink(link: LinkModel): boolean;
     dropBelow(parent: dia.Element): void;
-    dropOnLink(link: Link): void;
+    dropOnLink(link: LinkModel): void;
 }
 
 /** The "move to" item of the menu of an element: an arrow out and down, in the blue of the nodes. */
@@ -68,12 +68,12 @@ function handleElementClick(view: dia.ElementView, evt: dia.Event, actions: Tool
     const graph = element.graph;
     let parent: dia.Element;
     let target: HTMLElement | SVGElement;
-    if (Decision.isDecision(element) || GroupStart.isGroupStart(element)) {
+    if (DecisionModel.isDecision(element) || GroupStartModel.isGroupStart(element)) {
         // The button on a decision, or on the start of a fork (a new branch).
         if (!(evt.target instanceof Element) || evt.target.getAttribute('joint-selector') !== ADD_BUTTON_SELECTOR) return;
         parent = element;
         target = evt.target as SVGElement;
-    } else if (AddButton.isAddButton(element)) {
+    } else if (AddButtonModel.isAddButton(element)) {
         // The button below a leaf.
         [parent] = graph.getNeighbors(element, { inbound: true });
         if (!parent) return;
@@ -95,16 +95,16 @@ function handleElementClick(view: dia.ElementView, evt: dia.Event, actions: Tool
  * group. The `end` of a group and the add buttons have no menu.
  */
 export function getActionTarget(element: dia.Element): dia.Element | null {
-    if (GroupStart.isGroupStart(element)) return element.getParentCell() as Group;
-    if (GroupEnd.isGroupEnd(element) || AddButton.isAddButton(element)) return null;
+    if (GroupStartModel.isGroupStart(element)) return element.getParentCell() as GroupModel;
+    if (GroupEndModel.isGroupEnd(element) || AddButtonModel.isAddButton(element)) return null;
     return element;
 }
 
 /** The item of the menu that removes `target`: "Remove" and what it is - a loop, a fork, a decision, an end, a step. */
 function getDeleteTitle(target: dia.Element): string {
-    if (Group.isGroup(target)) return `Remove the ${target.getKind()}`;
-    if (Decision.isDecision(target)) return 'Remove the decision';
-    if (End.isEnd(target)) return 'Remove the end';
+    if (GroupModel.isGroup(target)) return `Remove the ${target.getKind()}`;
+    if (DecisionModel.isDecision(target)) return 'Remove the decision';
+    if (EndModel.isEnd(target)) return 'Remove the end';
     return 'Remove the step';
 }
 
@@ -123,7 +123,7 @@ function highlightDeletion(paper: dia.Paper, target: dia.Element): void {
     clearDeletionHighlight();
     for (const cell of getDeletedCells(paper.model, target)) {
         // The buttons keep their color: only the elements and the links turn red.
-        if (!isCellVisible(cell) || AddButton.isAddButton(cell)) continue;
+        if (!isCellVisible(cell) || AddButtonModel.isAddButton(cell)) continue;
         const view = paper.findViewByModel(cell);
         if (!view) continue;
         highlighters.addClass.add(view, 'root', DELETE_HIGHLIGHT, { className: DELETE_HIGHLIGHT });
@@ -167,7 +167,7 @@ export function clearFaded(): void {
  * included, and the links of the content. The start of the group stays: it
  * stands in for the collapsed group. Nothing for a group already collapsed.
  */
-function highlightCollapse(paper: dia.Paper, group: Group): void {
+function highlightCollapse(paper: dia.Paper, group: GroupModel): void {
     if (group.isCollapsed()) {
         clearFaded();
         return;
@@ -211,8 +211,8 @@ function createMenuButtonMarkup(color: string): dia.MarkupJSON {
  */
 function createMenuTool(paper: dia.Paper, element: dia.Element, target: dia.Element, actions: ToolActions): dia.ToolView | null {
     if (!canDelete(paper.model, target)) return null;
-    const filled = Decision.isDecision(element) || GroupStart.isGroupStart(element);
-    const centered = End.isEnd(element);
+    const filled = DecisionModel.isDecision(element) || GroupStartModel.isGroupStart(element);
+    const centered = EndModel.isEnd(element);
     return new elementTools.Button({
         x: centered ? '50%' : '100%',
         y: '0%',
@@ -258,7 +258,7 @@ function createHoverTools(paper: dia.Paper, element: dia.Element, actions: ToolA
  * subtree into the link. The same plus as every other drop point; only
  * the tooltip tells.
  */
-function createInsertTool(link: Link, distance: number, actions: ToolActions): dia.ToolView {
+function createInsertTool(link: LinkModel, distance: number, actions: ToolActions): dia.ToolView {
     const moving = actions.getMoved() !== null;
     return new linkTools.Button({
         distance,
@@ -298,17 +298,21 @@ export function markMove(paper: dia.Paper, actions: ToolActions): void {
     };
     for (const cell of actions.getMovedCells()) mark(cell, MOVING_CLASS);
     for (const element of paper.model.getElements()) {
-        const hasPillButton = GroupStart.isGroupStart(element) ? element.getKind() === 'fork' : Decision.isDecision(element);
+        const hasPillButton = GroupStartModel.isGroupStart(element) ? element.getKind() === 'fork' : DecisionModel.isDecision(element);
         if (hasPillButton) {
             // The button at the right end of a decision or of the start of a fork: only that button, not the pill.
             if (!actions.canDropBelow(element)) {
                 mark(element, NO_DROP_CLASS, ADD_BUTTON_SELECTOR);
                 mark(element, NO_DROP_CLASS, 'addIcon');
             }
-        } else if (AddButton.isAddButton(element)) {
+        } else if (AddButtonModel.isAddButton(element)) {
             // The button below a leaf.
             const [parent] = paper.model.getNeighbors(element, { inbound: true });
-            if (parent && !actions.canDropBelow(parent)) mark(element, NO_DROP_CLASS);
+            if (parent && !actions.canDropBelow(parent)) {
+                // The button goes with its link: a link into nothing would hang from the leaf.
+                mark(element, NO_DROP_CLASS);
+                for (const link of paper.model.getConnectedLinks(element, { inbound: true })) mark(link, NO_DROP_CLASS);
+            }
         }
     }
 }
@@ -319,8 +323,8 @@ export function markMove(paper: dia.Paper, actions: ToolActions): void {
  * which leaves the link below the loop and joins it below the loop's start.
  */
 function hasSomethingBelow(element: dia.Element): boolean {
-    if (Group.isGroup(element)) return element.isCollapsed() || element.getKind() === 'loop';
-    return GroupStart.isGroupStart(element) && element.getKind() === 'loop';
+    if (GroupModel.isGroup(element)) return element.isCollapsed() || element.getKind() === 'loop';
+    return GroupStartModel.isGroupStart(element) && element.getKind() === 'loop';
 }
 
 /**
@@ -330,7 +334,7 @@ function hasSomethingBelow(element: dia.Element): boolean {
  * child - the return link runs at equal distances around both.
  */
 function isLoopEnd(element: dia.Element): boolean {
-    return GroupEnd.isGroupEnd(element) && element.getGroup().getKind() === 'loop';
+    return GroupEndModel.isGroupEnd(element) && element.getGroup().getKind() === 'loop';
 }
 
 /**
@@ -383,7 +387,7 @@ function getInsertButtonDistance(view: dia.LinkView): number | null {
  */
 export function placeLinkTools(paper: dia.Paper, actions: ToolActions): void {
     for (const link of paper.model.getLinks()) {
-        if (!(link instanceof Link) || !isCellVisible(link)) continue;
+        if (!(link instanceof LinkModel) || !isCellVisible(link)) continue;
         const view = paper.findViewByModel(link) as dia.LinkView | undefined;
         if (!view) continue;
         if (!canSplit(link)) continue;
@@ -432,14 +436,14 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
         evt.stopPropagation();
         clearFaded();
         const group = elementView.model.getParentCell();
-        if (group && Group.isGroup(group)) actions.toggleGroup(group);
+        if (group && GroupModel.isGroup(group)) actions.toggleGroup(group);
     });
 
     // Hovering the collapse button dims what it would hide; the pointer leaving it, or the element, restores it.
     const isToggle = (evt: dia.Event): boolean => evt.target instanceof Element && evt.target.closest('[joint-selector="toggle"], [joint-selector="toggleIcon"]') !== null;
     paper.on('element:mouseover', (elementView: dia.ElementView, evt: dia.Event) => {
         const group = elementView.model.getParentCell();
-        if (isToggle(evt) && GroupStart.isGroupStart(elementView.model) && group && Group.isGroup(group)) {
+        if (isToggle(evt) && GroupStartModel.isGroupStart(elementView.model) && group && GroupModel.isGroup(group)) {
             highlightCollapse(paper, group);
         } else {
             clearFaded();

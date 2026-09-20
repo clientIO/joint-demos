@@ -2,9 +2,9 @@ import { dia, highlighters, ui } from '@joint/plus';
 import type { g } from '@joint/plus';
 
 import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
-import { buildGraph } from './data/build';
+import { buildGraph, getId } from './data/build';
+import type { Id } from './data/types';
 import { DiagramData } from './data/DiagramData';
-import { gateAnchor } from './layout/gate-anchor';
 import { isSelectable, syncInspector } from './inspector';
 import { isCellVisible, runLayout } from './layout';
 import { createNavigator } from './navigator';
@@ -16,6 +16,8 @@ import type { ToolActions } from './tools';
 const PAPER_PADDING = 40;
 const MIN_ZOOM = 0.2;
 const MAX_ZOOM = 3;
+/** How close the fit goes, at most: a narrow flow is shown at its size, not blown up. */
+const FIT_MAX_ZOOM = 1;
 
 export function init(): void {
 
@@ -41,10 +43,6 @@ export function init(): void {
         background: { color: COLORS.background },
         // The links meet a group where its gates are. Both ends are computed
         // from the models: a group has no view.
-        defaultAnchor: gateAnchor,
-        defaultConnectionPoint: { name: 'bbox', args: { useModelGeometry: true }},
-        defaultConnector: { name: 'straight', args: { cornerType: 'cubic', cornerRadius: 6 }},
-        sorting: dia.Paper.sorting.APPROX,
         viewManagement: {
             lazyInitialize: true,
             disposeHidden: true
@@ -93,13 +91,12 @@ export function init(): void {
      */
     function fit(): void {
         if (!contentBBox) return;
-        scroller.zoomToFit({
-            contentArea: contentBBox,
-            padding: PAPER_PADDING,
-            minScale: MIN_ZOOM,
-            maxScale: 1,
-            useModelGeometry: true
-        });
+        // The widest part of the flow fills the width of the view, with a
+        // margin; the flow is read from the top down by scrolling. Not closer
+        // than 1:1 - a flow that is a mere line stays its size.
+        const { width } = scroller.getClientSize();
+        const scale = Math.min(FIT_MAX_ZOOM, Math.max(MIN_ZOOM, (width - 2 * PAPER_PADDING) / contentBBox.width));
+        scroller.zoom(scale, { absolute: true });
         scroller.positionRect(contentBBox, 'top', { padding: PAPER_PADDING });
     }
 
@@ -190,24 +187,24 @@ export function init(): void {
     }
     /** Ends the move with a drop: the edit that follows rebuilds the diagram, tools included. */
     function takeMoved(): string {
-        const id = String(moved!.id);
+        const id = getId(moved!);
         moved = null;
         moveHintEl.hidden = true;
         appEl.classList.remove('moving-mode');
         return id;
     }
-    const movedId = (): string => String(moved!.id);
+    const movedId = (): Id => getId(moved!);
 
     const actions: ToolActions = {
         addBelow: (element, choice) => addBelow(data, element, choice),
         insertOnLink: (link, choice) => insertOnLink(data, link, choice),
         delete: (element) => deleteElement(graph, data, element),
         toggleGroup: (group) => toggleGroup(data, group),
-        canMove: (element) => hasMoveTarget(graph, data, String(element.id)),
+        canMove: (element) => hasMoveTarget(graph, data, getId(element)),
         startMove: (element) => setMoved(element),
         getMoved: () => moved,
         getMovedCells: () => getMovedCells(graph, data, movedId()),
-        getMovedCellsOf: (element) => getMovedCells(graph, data, String(element.id)),
+        getMovedCellsOf: (element) => getMovedCells(graph, data, getId(element)),
         canDropBelow: (parent) => canMoveBelow(graph, data, movedId(), parent),
         canDropOnLink: (link) => canMoveOnLink(graph, data, movedId(), link),
         dropBelow: (parent) => moveBelow(data, takeMoved(), parent),

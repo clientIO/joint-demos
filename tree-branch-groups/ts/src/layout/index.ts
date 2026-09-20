@@ -2,7 +2,7 @@ import type { dia, g } from '@joint/plus';
 
 import { layoutForkGroup } from './fork';
 import { LOOP_GAP, LOOP_START_ROOM, layoutLoopGroup } from './loop';
-import { AddButton, Decision, Group, GroupStart, Link, NODE_SIZE, isGate } from '../shapes';
+import { AddButtonModel, DecisionModel, GroupModel, GroupStartModel, LinkModel, NODE_SIZE, isGate } from '../shapes';
 import type { GroupKind } from '../shapes';
 import { createTreeLayout } from './tree';
 import { getDefaultOptionName } from '../data/DiagramData';
@@ -15,8 +15,8 @@ import { getDefaultOptionName } from '../data/DiagramData';
  */
 function isHiddenByCollapse(cell: dia.Cell): boolean {
     return cell.getAncestors().some((ancestor) => {
-        if (!Group.isGroup(ancestor) || !ancestor.isCollapsed()) return false;
-        return !(GroupStart.isGroupStart(cell) && cell.getParentCell() === ancestor);
+        if (!GroupModel.isGroup(ancestor) || !ancestor.isCollapsed()) return false;
+        return !(GroupStartModel.isGroupStart(cell) && cell.getParentCell() === ancestor);
     });
 }
 
@@ -27,7 +27,7 @@ function isHiddenByCollapse(cell: dia.Cell): boolean {
  * outer links of a group nested inside a collapsed group.
  */
 export function isCellVisible(cell: dia.Cell): boolean {
-    if (Group.isGroup(cell)) return false;
+    if (GroupModel.isGroup(cell)) return false;
     if (isHiddenByCollapse(cell)) return false;
     if (cell.isLink()) {
         const source = cell.getSourceElement();
@@ -47,12 +47,12 @@ const OPTION_ROOM = 30;
 
 /** The kind of the group `element` is the start of, if it is one. */
 function getStartedKind(element: dia.Element): GroupKind | null {
-    return GroupStart.isGroupStart(element) ? element.getKind() : null;
+    return GroupStartModel.isGroupStart(element) ? element.getKind() : null;
 }
 
 /** Whether the children of `element` are its options: a decision, or the start of a fork. */
 function hasOptions(element: dia.Element): boolean {
-    return Decision.isDecision(element) || getStartedKind(element) === 'fork';
+    return DecisionModel.isDecision(element) || getStartedKind(element) === 'fork';
 }
 
 /** Extra room below a loop: the return link leaves the link out of it there. */
@@ -67,7 +67,7 @@ const LOOP_ROOM = 15;
  * near the child (see `placeLinkTools()`).
  */
 function getRoomBelow(element: dia.Element): number {
-    if (Group.isGroup(element)) {
+    if (GroupModel.isGroup(element)) {
         if (element.isCollapsed()) return OPTION_ROOM;
         return element.getKind() === 'loop' ? LOOP_ROOM : 0;
     }
@@ -77,7 +77,7 @@ function getRoomBelow(element: dia.Element): number {
 /** The options of `parent`: its children, gates and add buttons aside. */
 function getOptions(graph: dia.Graph, parent: dia.Element): dia.Element[] {
     return graph.getNeighbors(parent, { outbound: true })
-        .filter((child) => !isGate(child) && !AddButton.isAddButton(child));
+        .filter((child) => !isGate(child) && !AddButtonModel.isAddButton(child));
 }
 
 /**
@@ -107,14 +107,14 @@ function makeRoomForOptions(graph: dia.Graph): void {
  */
 function nameOptions(graph: dia.Graph): void {
     for (const link of graph.getLinks()) {
-        if (link instanceof Link) link.setOptionName(null);
+        if (link instanceof LinkModel) link.setOptionName(null);
     }
     for (const parent of graph.getElements().filter(hasOptions)) {
         const options = getOptions(graph, parent);
-        const type = Decision.isDecision(parent) ? 'decision' : 'fork';
+        const type = DecisionModel.isDecision(parent) ? 'decision' : 'fork';
         for (const link of graph.getConnectedLinks(parent, { outbound: true })) {
             const option = link.getTargetElement()!;
-            if (!options.includes(option) || !(link instanceof Link)) continue;
+            if (!options.includes(option) || !(link instanceof LinkModel)) continue;
             const name = option.get('optionName') as string | null | undefined;
             link.setOptionName(name || getDefaultOptionName(type, option.get('siblingRank') as number));
         }
@@ -129,7 +129,7 @@ function nameOptions(graph: dia.Graph): void {
  * with it. Not a collapsed loop either: it shows no return link.
  */
 function makeRoomForReturnLinks(graph: dia.Graph): void {
-    for (const group of graph.getElements().filter(Group.isGroup)) {
+    for (const group of graph.getElements().filter(GroupModel.isGroup)) {
         if (group.getKind() !== 'loop') continue;
         // A collapsed loop shows no return link: no room for it.
         const [parent] = graph.getNeighbors(group, { inbound: true });
@@ -140,7 +140,7 @@ function makeRoomForReturnLinks(graph: dia.Graph): void {
 }
 
 /** Lays out the content of an expanded group; each kind of group has a layout of its own. */
-function layoutGroup(graph: dia.Graph, group: Group): void {
+function layoutGroup(graph: dia.Graph, group: GroupModel): void {
     switch (group.getKind()) {
         case 'fork': return layoutForkGroup(graph, group);
         case 'loop': return layoutLoopGroup(graph, group);
@@ -162,14 +162,14 @@ function layoutGroup(graph: dia.Graph, group: Group): void {
  * once the library measures through `cellVisibility`:
  * https://github.com/clientIO/joint-plus/issues/836
  */
-function parkHiddenContent(group: Group): void {
+function parkHiddenContent(group: GroupModel): void {
     const { x, y } = group.position();
     for (const cell of group.getEmbeddedCells({ deep: true })) {
         if (!isHiddenByCollapse(cell)) continue;
         if (cell.isLink()) {
             cell.vertices([]);
         } else if (cell.isElement()) {
-            if (Group.isGroup(cell)) {
+            if (GroupModel.isGroup(cell)) {
                 const { width, height } = cell.getStart().size();
                 cell.resize(width, height);
             }
@@ -181,6 +181,29 @@ function parkHiddenContent(group: Group): void {
 /** The bounding box of the visible elements - `null` with none - to fit the view to. */
 function getVisibleBBox(graph: dia.Graph): g.Rect | null {
     return graph.getCellsBBox(graph.getElements().filter(isCellVisible));
+}
+
+/**
+ * Anchors the outer links of every visible group on the axis of its gates,
+ * on the link models: a link into the group meets it at the top of its
+ * `start` node, a link out of it leaves it at the bottom of its `end` node -
+ * so the tree appears to connect to the gates, although the links connect
+ * to the group, which may be wider on one side of the axis. Set after the
+ * layout, which decides where the gates are; a collapsed group is the size
+ * of its `start`, so the offset is nought.
+ */
+function anchorGroupLinks(graph: dia.Graph, groups: GroupModel[]): void {
+    for (const group of groups) {
+        const center = group.getBBox().center();
+        const startDx = group.getStart().getBBox().center().x - center.x;
+        const endDx = (group.isCollapsed() ? group.getStart() : group.getEnd()).getBBox().center().x - center.x;
+        for (const link of graph.getConnectedLinks(group, { inbound: true })) {
+            link.prop('target/anchor', { name: 'top', args: { dx: startDx }});
+        }
+        for (const link of graph.getConnectedLinks(group, { outbound: true })) {
+            link.prop('source/anchor', { name: 'bottom', args: { dx: endDx }});
+        }
+    }
 }
 
 /**
@@ -196,7 +219,7 @@ export function runLayout(graph: dia.Graph, root: dia.Element): g.Rect | null {
     makeRoomForReturnLinks(graph);
 
     const groups = graph.getElements()
-        .filter(Group.isGroup)
+        .filter(GroupModel.isGroup)
         .filter((group) => !isHiddenByCollapse(group))
         .sort((a, b) => b.getAncestors().length - a.getAncestors().length);
 
@@ -211,6 +234,7 @@ export function runLayout(graph: dia.Graph, root: dia.Element): g.Rect | null {
     }
 
     createTreeLayout(graph).layoutTree(root);
+    anchorGroupLinks(graph, groups);
     nameOptions(graph);
     for (const group of groups) {
         if (group.isCollapsed()) parkHiddenContent(group);

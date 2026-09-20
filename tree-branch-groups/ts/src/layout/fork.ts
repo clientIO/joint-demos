@@ -1,7 +1,7 @@
 import { g } from '@joint/plus';
 import type { dia } from '@joint/plus';
 
-import type { Group } from '../shapes';
+import type { GroupModel } from '../shapes';
 import { SINK_GAP, createTreeLayout, fitGroupToContent, joinLeavesInto } from './tree';
 
 /**
@@ -23,7 +23,7 @@ import { SINK_GAP, createTreeLayout, fitGroupToContent, joinLeavesInto } from '.
  * bar (`joinLeavesInto()`). The branches are named on their links like the
  * options of a decision (see `nameOptions()` in `layout/index.ts`).
  */
-export function layoutForkGroup(graph: dia.Graph, group: Group): void {
+export function layoutForkGroup(graph: dia.Graph, group: GroupModel): void {
     const start = group.getStart();
     const end = group.getEnd();
 

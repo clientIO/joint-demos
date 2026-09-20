@@ -1,8 +1,9 @@
 import { g } from '@joint/plus';
 import type { dia } from '@joint/plus';
 
-import { INSERT_BUTTON_FROM_TARGET, Link, PARENT_GAP, isGate } from '../shapes';
-import type { Group } from '../shapes';
+import { LinkModel, isGate } from '../shapes';
+import { INSERT_BUTTON_FROM_TARGET, PARENT_GAP } from '../shapes/constants';
+import type { GroupModel } from '../shapes';
 import { createTreeLayout, fitGroupToContent, forkChildrenFrom, getAxisX } from './tree';
 
 /**
@@ -55,10 +56,10 @@ export const LOOP_START_ROOM = 40;
 const LOOP_JOIN_GAP = PARENT_GAP + LOOP_START_ROOM - RETURN_DROP_BELOW_START - RETURN_DROP_BELOW_END;
 
 /** The link from `end` straight back to `start`: the return path. */
-function getReturnLink(graph: dia.Graph, group: Group): Link | undefined {
+function getReturnLink(graph: dia.Graph, group: GroupModel): LinkModel | undefined {
     const start = group.getStart();
     return graph.getConnectedLinks(group.getEnd(), { outbound: true })
-        .find((link): link is Link => link instanceof Link && link.getTargetElement() === start);
+        .find((link): link is LinkModel => link instanceof LinkModel && link.getTargetElement() === start);
 }
 
 /**
@@ -96,7 +97,7 @@ function collectTree(graph: dia.Graph, roots: dia.Element[]): dia.Element[] {
  *    left, runs up and enters `start` from the left - dashed, as it runs
  *    against the flow.
  */
-export function layoutLoopGroup(graph: dia.Graph, group: Group): void {
+export function layoutLoopGroup(graph: dia.Graph, group: GroupModel): void {
     const start = group.getStart();
     const end = group.getEnd();
     const roots = graph.getNeighbors(start, { outbound: true }).filter((child) => !isGate(child));

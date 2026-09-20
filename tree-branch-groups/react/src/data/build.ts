@@ -1,6 +1,6 @@
 import type { dia } from '@joint/plus';
 
-import { AddButton, Decision, End, Group, GroupEnd, GroupStart, Link, Start, Step } from '../shapes';
+import { AddButtonModel, DecisionModel, EndModel, GroupModel, GroupEndModel, GroupStartModel, LinkModel, StartModel, StepModel } from '../shapes';
 import { getEdges, isGroupData } from './DiagramData';
 import type { DiagramJSON, Edge, Id, NodeData } from './types';
 
@@ -18,6 +18,16 @@ export const cellId = {
     link: (from: dia.Cell.ID, to: dia.Cell.ID) => `link#${JSON.stringify([from, to])}`,
     addButton: (id: Id) => `add#${id}`
 };
+
+/**
+ * The id of the node a cell stands for. The build gives the cell of a node
+ * the id of the node - a string, the key of the node in the data - so the id
+ * of the cell is the id of the node; JointJS types it `string | number`,
+ * and this is the one place that narrows it.
+ */
+export function getId(cell: dia.Cell): Id {
+    return cell.id as Id;
+}
 
 /**
  * Which group every node is a direct part of: a branch of the group, or
@@ -40,14 +50,14 @@ function getContainers(json: DiagramJSON): Map<Id, Id> {
 /** The element that stands for `node`: a pill, a circle, or a group - never rendered, laid out as one node. */
 function createElement(node: NodeData): dia.Element {
     switch (node.type) {
-        case 'start': return Start.create();
-        case 'step': return Step.create(node.label, node.run);
-        case 'end': return End.create();
+        case 'start': return StartModel.create();
+        case 'step': return StepModel.create(node.label, node.run);
+        case 'end': return EndModel.create();
         // A decision with an option shows its own add button, which adds another; without, it is a leaf with the usual button below.
-        case 'decision': return Decision.create(node.label, getEdges(node, 'to').length >= 1);
+        case 'decision': return DecisionModel.create(node.label, getEdges(node, 'to').length >= 1);
         case 'fork':
         case 'loop': {
-            const group = Group.create(node.type);
+            const group = GroupModel.create(node.type);
             group.set({ collapsed: Boolean(node.collapsed) });
             return group;
         }
@@ -67,9 +77,9 @@ function createElement(node: NodeData): dia.Element {
 export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
     const containers = getContainers(json);
     const elements: dia.Element[] = [];
-    const links: Link[] = [];
+    const links: LinkModel[] = [];
     const elementOf = new Map<Id, dia.Element>();
-    const gatesOf = new Map<Id, { start: GroupStart; end: GroupEnd }>();
+    const gatesOf = new Map<Id, { start: GroupStartModel; end: GroupEndModel }>();
     const contentOf = new Map<Id, dia.Cell[]>();
 
     /** Puts `cell` inside the group `groupId`, if any. */
@@ -81,8 +91,8 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
         contentOf.set(groupId, content);
     }
 
-    function link(source: dia.Element, target: dia.Element, groupId: Id | undefined): Link {
-        const cell = Link.create(source, target);
+    function link(source: dia.Element, target: dia.Element, groupId: Id | undefined): LinkModel {
+        const cell = LinkModel.create(source, target);
         cell.set({ id: cellId.link(source.id, target.id) });
         embed(cell, groupId);
         links.push(cell);
@@ -107,9 +117,9 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
 
         if (!isGroupData(node)) continue;
         // A fork with a branch shows its own add button, which adds another; an empty one gets its first branch through the link from its start to its end.
-        const start = GroupStart.create(node.type, Boolean(node.collapsed), getEdges(node, 'branches').length >= 1);
+        const start = GroupStartModel.create(node.type, Boolean(node.collapsed), getEdges(node, 'branches').length >= 1);
         start.set({ id: cellId.start(id) });
-        const end = GroupEnd.create();
+        const end = GroupEndModel.create();
         end.set({ id: cellId.end(id) });
         gatesOf.set(id, { start, end });
         elements.push(start, end);
@@ -140,7 +150,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
             link(element, gatesOf.get(groupId)!.end, groupId);
         } else {
             // A leaf outside gets the button that adds below it, laid out like a child.
-            const button = new AddButton();
+            const button = new AddButtonModel();
             button.set({ id: cellId.addButton(id) });
             elements.push(button);
             link(element, button, undefined);
@@ -151,7 +161,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
         elementOf.get(groupId)!.set({ embeds: content.map((cell) => cell.id) });
     }
 
-    // The sizes are measured from what React renders (see `cells/`): an
+    // The sizes are measured from what React renders (see `shapes/`): an
     // element that is in the graph already keeps the size it was measured at,
     // instead of being reset to the default and measured again.
     for (const element of elements) {

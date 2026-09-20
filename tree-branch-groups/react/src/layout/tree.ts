@@ -1,7 +1,8 @@
 import { layout } from '@joint/plus';
 import type { dia, g } from '@joint/plus';
 
-import { GROUP_PADDING, Group, PARENT_GAP, SIBLING_GAP, isGate } from '../shapes';
+import { GroupModel, isGate } from '../shapes';
+import { GROUP_PADDING, PARENT_GAP, SIBLING_GAP } from '../shapes/constants';
 
 /**
  * Where the horizontal bar of a fork or a join lies: a third of the gap away
@@ -25,7 +26,7 @@ export const SINK_GAP = PARENT_GAP + BAR_OFFSET_FROM_SHARED;
  * node, the axis of the gates of a group.
  */
 export function getAxisX(element: dia.Element): number {
-    return Group.isGroup(element) ? element.getAxisX() : element.getBBox().center().x;
+    return GroupModel.isGroup(element) ? element.getAxisX() : element.getBBox().center().x;
 }
 
 /**
@@ -73,9 +74,10 @@ export function createTreeLayout(graph: dia.Graph, options: Partial<layout.TreeL
  * bottom of `end`, and as wide as the content plus some room on both sides.
  * The group is not rendered; its box is what the tree that contains it lays
  * out. The outer links, which connect to the group, are anchored on that axis
- * (see `gateAnchor`), so the group does not have to be symmetric around it.
+ * (see `anchorGroupLinks()` in `index.ts`), so the group does not have to be
+ * symmetric around it.
  */
-export function fitGroupToContent(group: Group, content: g.Rect): void {
+export function fitGroupToContent(group: GroupModel, content: g.Rect): void {
     const top = group.getStart().getBBox().y;
     const bottom = group.getEnd().getBBox().corner().y;
     group.position(content.x - GROUP_PADDING, top);

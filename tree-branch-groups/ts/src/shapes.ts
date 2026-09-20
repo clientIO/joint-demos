@@ -305,7 +305,7 @@ function pillDefaults(type: string, extra: object, superDefaults: object): objec
 }
 
 /** A step of the flow: a plain pill with a label, sized to it. */
-export class Step extends dia.Element {
+export class StepModel extends dia.Element {
 
     preinitialize() {
         this.markup = pillMarkup;
@@ -316,14 +316,14 @@ export class Step extends dia.Element {
     }
 
     /** A step with its label and, below it, the command it runs, as code. */
-    static create(label: string, run?: string): Step {
-        const step = new Step();
+    static create(label: string, run?: string): StepModel {
+        const step = new StepModel();
         setPillLabel(step, label, run);
         return step;
     }
 
-    static isStep(cell: dia.Cell): cell is Step {
-        return cell instanceof Step;
+    static isStep(cell: dia.Cell): cell is StepModel {
+        return cell instanceof StepModel;
     }
 }
 
@@ -334,7 +334,7 @@ export class Step extends dia.Element {
  * `setAddButtonVisible()`; with none it is a leaf with the usual add button
  * below).
  */
-export class Decision extends dia.Element {
+export class DecisionModel extends dia.Element {
 
     preinitialize() {
         this.markup = [...pillMarkup, ...addButtonMarkup];
@@ -349,8 +349,8 @@ export class Decision extends dia.Element {
         }, super.defaults);
     }
 
-    static create(label: string): Decision {
-        const decision = new Decision();
+    static create(label: string): DecisionModel {
+        const decision = new DecisionModel();
         setPillLabel(decision, label);
         return decision;
     }
@@ -362,8 +362,8 @@ export class Decision extends dia.Element {
         });
     }
 
-    static isDecision(cell: dia.Cell): cell is Decision {
-        return cell instanceof Decision;
+    static isDecision(cell: dia.Cell): cell is DecisionModel {
+        return cell instanceof DecisionModel;
     }
 }
 
@@ -378,7 +378,7 @@ export class Decision extends dia.Element {
  * end. When the group is collapsed the start stays visible in its place and
  * stands in for it.
  */
-export class GroupStart extends dia.Element {
+export class GroupStartModel extends dia.Element {
 
     preinitialize(attributes?: { kind?: GroupKind }) {
         const markup = [...pillMarkup, ...toggleMarkup];
@@ -394,8 +394,8 @@ export class GroupStart extends dia.Element {
         }, super.defaults);
     }
 
-    static create(kind: GroupKind): GroupStart {
-        const start = new GroupStart({ kind });
+    static create(kind: GroupKind): GroupStartModel {
+        const start = new GroupStartModel({ kind });
         start.attr({
             kindIcon: { d: GROUP_ICONS[kind] },
             label: { text: GROUP_LABELS[kind] }
@@ -424,8 +424,8 @@ export class GroupStart extends dia.Element {
         });
     }
 
-    static isGroupStart(cell: dia.Cell): cell is GroupStart {
-        return cell instanceof GroupStart;
+    static isGroupStart(cell: dia.Cell): cell is GroupStartModel {
+        return cell instanceof GroupStartModel;
     }
 }
 
@@ -433,7 +433,7 @@ export class GroupStart extends dia.Element {
  * The end of a group: a point without size and without a picture. The paths
  * of the group converge into it, and the tree continues from it.
  */
-export class GroupEnd extends dia.Element {
+export class GroupEndModel extends dia.Element {
 
     preinitialize() {
         this.markup = [];
@@ -447,27 +447,27 @@ export class GroupEnd extends dia.Element {
         }, super.defaults);
     }
 
-    static create(): GroupEnd {
-        return new GroupEnd();
+    static create(): GroupEndModel {
+        return new GroupEndModel();
     }
 
     /** The group the end closes. */
-    getGroup(): Group {
+    getGroup(): GroupModel {
         const group = this.getParentCell();
-        if (!group || !Group.isGroup(group)) throw new Error(`The end ${this.id} is not in a group.`);
+        if (!group || !GroupModel.isGroup(group)) throw new Error(`The end ${this.id} is not in a group.`);
         return group;
     }
 
-    static isGroupEnd(cell: dia.Cell): cell is GroupEnd {
-        return cell instanceof GroupEnd;
+    static isGroupEnd(cell: dia.Cell): cell is GroupEndModel {
+        return cell instanceof GroupEndModel;
     }
 }
 
 /** The gates of a group: the nodes the paths of the group run between. */
-export type Gate = GroupStart | GroupEnd;
+export type Gate = GroupStartModel | GroupEndModel;
 
 export function isGate(cell: dia.Cell): cell is Gate {
-    return cell instanceof GroupStart || cell instanceof GroupEnd;
+    return cell instanceof GroupStartModel || cell instanceof GroupEndModel;
 }
 
 /*
@@ -511,7 +511,7 @@ function terminalDefaults(type: string, label: string, colors: { fill: string; s
 }
 
 /** The start of the diagram, its root: a white circle with a dark outline. */
-export class Start extends dia.Element {
+export class StartModel extends dia.Element {
 
     preinitialize() {
         this.markup = terminalMarkup;
@@ -521,17 +521,17 @@ export class Start extends dia.Element {
         return terminalDefaults('tbg.Start', 'Start', { fill: COLORS.node.fill, stroke: COLORS.terminal, text: COLORS.terminal }, super.defaults);
     }
 
-    static create(): Start {
-        return new Start();
+    static create(): StartModel {
+        return new StartModel();
     }
 
-    static isStart(cell: dia.Cell): cell is Start {
-        return cell instanceof Start;
+    static isStart(cell: dia.Cell): cell is StartModel {
+        return cell instanceof StartModel;
     }
 }
 
 /** An end of the diagram: a dark circle, a leaf nothing can follow. */
-export class End extends dia.Element {
+export class EndModel extends dia.Element {
 
     preinitialize() {
         this.markup = terminalMarkup;
@@ -541,12 +541,12 @@ export class End extends dia.Element {
         return terminalDefaults('tbg.End', 'End', { fill: COLORS.terminal, stroke: COLORS.terminal, text: COLORS.gate.text }, super.defaults);
     }
 
-    static create(): End {
-        return new End();
+    static create(): EndModel {
+        return new EndModel();
     }
 
-    static isEnd(cell: dia.Cell): cell is End {
-        return cell instanceof End;
+    static isEnd(cell: dia.Cell): cell is EndModel {
+        return cell instanceof EndModel;
     }
 }
 
@@ -558,7 +558,7 @@ export class End extends dia.Element {
  * `end`); it goes away as soon as the element gets a real child. The buttons
  * are derived by the build (see `data/build.ts`).
  */
-export class AddButton extends dia.Element {
+export class AddButtonModel extends dia.Element {
 
     preinitialize() {
         this.markup = util.svg/* xml */`
@@ -596,8 +596,8 @@ export class AddButton extends dia.Element {
         }, super.defaults);
     }
 
-    static isAddButton(cell: dia.Cell): cell is AddButton {
-        return cell instanceof AddButton;
+    static isAddButton(cell: dia.Cell): cell is AddButtonModel {
+        return cell instanceof AddButtonModel;
     }
 }
 
@@ -606,7 +606,7 @@ export class AddButton extends dia.Element {
  * a `start` node, content of a `kind` (the branches of a fork, or a loop) and an
  * `end` node. The outer tree links connect to the group itself, but the
  * group is positioned and sized from its `start` to its `end`, and the links
- * are anchored on those two gates (see `gateAnchor`) - the tree appears to
+ * are anchored on those two gates (see `anchorGroupLinks()` in `layout/index.ts`) - the tree appears to
  * connect to them. The group is never rendered: the paper's `cellVisibility`
  * hides it, so it is only a node of the layout.
  *
@@ -617,7 +617,7 @@ export class AddButton extends dia.Element {
  * The content of each kind is created and laid out by its own module
  * (`layout/fork.ts`, `layout/loop.ts`); the group only knows its gates.
  */
-export class Group extends dia.Element {
+export class GroupModel extends dia.Element {
 
     preinitialize() {
         // Never rendered; a valid markup nonetheless.
@@ -639,8 +639,8 @@ export class Group extends dia.Element {
         }, super.defaults);
     }
 
-    static create(kind: GroupKind): Group {
-        return new Group({ kind });
+    static create(kind: GroupKind): GroupModel {
+        return new GroupModel({ kind });
     }
 
     getKind(): GroupKind {
@@ -651,8 +651,8 @@ export class Group extends dia.Element {
         return Boolean(this.get('collapsed'));
     }
 
-    getStart(): GroupStart {
-        const start = this.getEmbeddedCells().find(GroupStart.isGroupStart);
+    getStart(): GroupStartModel {
+        const start = this.getEmbeddedCells().find(GroupStartModel.isGroupStart);
         if (!start) throw new Error(`Group ${this.id} has no start.`);
         return start;
     }
@@ -665,14 +665,14 @@ export class Group extends dia.Element {
         return this.isCollapsed() ? this.getBBox().center().x : this.getStart().getBBox().center().x;
     }
 
-    getEnd(): GroupEnd {
-        const end = this.getEmbeddedCells().find(GroupEnd.isGroupEnd);
+    getEnd(): GroupEndModel {
+        const end = this.getEmbeddedCells().find(GroupEndModel.isGroupEnd);
         if (!end) throw new Error(`Group ${this.id} has no end.`);
         return end;
     }
 
-    static isGroup(cell: dia.Cell): cell is Group {
-        return cell instanceof Group;
+    static isGroup(cell: dia.Cell): cell is GroupModel {
+        return cell instanceof GroupModel;
     }
 }
 
@@ -749,12 +749,21 @@ const RETURN_ARROW_LABEL = {
     position: { distance: 0.5, args: { keepGradient: true, ensureLegibility: false }}
 };
 
-export class Link extends dia.Link {
+/**
+ * Where a link meets an element: the box of the model, not of the view - a
+ * view may not be rendered yet when the link is routed, the paper being
+ * frozen for the layout.
+ */
+const LINK_CONNECTION_POINT = { name: 'bbox', args: { useModelGeometry: true }};
+
+export class LinkModel extends dia.Link {
 
     defaults() {
         return util.defaultsDeep({
             type: 'tbg.Link',
             z: LINK_Z,
+            // The routes of the layout are orthogonal; the corners are rounded.
+            connector: { name: 'straight', args: { cornerType: 'cubic', cornerRadius: 6 }},
             attrs: {
                 // A copy of the line in the color of the background, right
                 // below it: where two links run on top of each other, the
@@ -784,8 +793,8 @@ export class Link extends dia.Link {
         `;
     }
 
-    static create(source: dia.Element, target: dia.Element): Link {
-        const link = new Link({ source: { id: source.id }});
+    static create(source: dia.Element, target: dia.Element): LinkModel {
+        const link = new LinkModel({ source: { id: source.id, connectionPoint: LINK_CONNECTION_POINT }});
         link.connectTo(target);
         return link;
     }
@@ -795,8 +804,8 @@ export class Link extends dia.Link {
      * an add button has no arrowhead: neither is a step.
      */
     connectTo(target: dia.Element): void {
-        this.target({ id: target.id });
-        if (GroupEnd.isGroupEnd(target) || AddButton.isAddButton(target)) {
+        this.target({ id: target.id, connectionPoint: LINK_CONNECTION_POINT });
+        if (GroupEndModel.isGroupEnd(target) || AddButtonModel.isAddButton(target)) {
             this.removeAttr('line/targetMarker');
         } else {
             this.attr('line/targetMarker', TARGET_MARKER);
@@ -825,7 +834,7 @@ export class Link extends dia.Link {
 
     /** Whether a link from `source` to `target` is the return link of a loop: from its `end` back to its `start`. */
     static isReturnLink(source: dia.Element, target: dia.Element): boolean {
-        return GroupEnd.isGroupEnd(source) && GroupStart.isGroupStart(target);
+        return GroupEndModel.isGroupEnd(source) && GroupStartModel.isGroupStart(target);
     }
 
     /**
@@ -849,5 +858,5 @@ export class Link extends dia.Link {
 }
 
 export const cellNamespace = {
-    tbg: { Step, Decision, Start, End, GroupStart, GroupEnd, Group, AddButton, Link }
+    tbg: { Step: StepModel, Decision: DecisionModel, Start: StartModel, End: EndModel, GroupStart: GroupStartModel, GroupEnd: GroupEndModel, Group: GroupModel, AddButton: AddButtonModel, Link: LinkModel }
 };

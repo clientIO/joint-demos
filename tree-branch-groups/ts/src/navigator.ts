@@ -1,7 +1,7 @@
-import { dia, ui } from '@joint/plus';
+import { ui } from '@joint/plus';
 
 import { isCellVisible } from './layout';
-import { AddButton, COLORS } from './shapes';
+import { AddButtonModel, COLORS } from './shapes';
 
 /**
  * The map of the diagram, floating over the corner of the paper: a
@@ -24,8 +24,7 @@ export function createNavigator(scroller: ui.PaperScroller): ui.Navigator {
             // Without `viewManagement` a paper runs in its legacy mode, and
             // calls `cellVisibility` with the view instead of the cell.
             viewManagement: { lazyInitialize: true, disposeHidden: true },
-            cellVisibility: (cell) => !AddButton.isAddButton(cell) && isCellVisible(cell),
-            sorting: dia.Paper.sorting.APPROX,
+            cellVisibility: (cell) => !AddButtonModel.isAddButton(cell) && isCellVisible(cell),
             overflow: true,
             background: { color: COLORS.background }
         }

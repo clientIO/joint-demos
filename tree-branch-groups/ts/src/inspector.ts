@@ -8,13 +8,14 @@ import { getEdges } from './data/DiagramData';
 import type { DiagramData } from './data/DiagramData';
 import type { NodeData, Slot } from './data/types';
 import { toYAML } from './data/yaml';
-import { Decision, End, GROUP_LABELS, GroupStart, Start, Step } from './shapes';
+import { DecisionModel, EndModel, GROUP_LABELS, GroupStartModel, StartModel, StepModel } from './shapes';
+import { getId } from './data/build';
 
 /** What can be selected: every element with a picture - not the end of a group, not an add button. */
-export type Selectable = Step | Decision | Start | End | GroupStart;
+export type Selectable = StepModel | DecisionModel | StartModel | EndModel | GroupStartModel;
 
 export function isSelectable(cell: dia.Cell): cell is Selectable {
-    return Step.isStep(cell) || Decision.isDecision(cell) || Start.isStart(cell) || End.isEnd(cell) || GroupStart.isGroupStart(cell);
+    return StepModel.isStep(cell) || DecisionModel.isDecision(cell) || StartModel.isStart(cell) || EndModel.isEnd(cell) || GroupStartModel.isGroupStart(cell);
 }
 
 interface InspectorConfig {
@@ -55,18 +56,18 @@ function getOptionInputs(node: NodeData, slot: Slot): Record<string, unknown> {
  * only way to collapse a group.
  */
 function getConfig(data: DiagramData, element: Selectable): InspectorConfig {
-    const id = String(element.id);
-    if (GroupStart.isGroupStart(element)) {
-        const groupId = String(element.getParentCell()!.id);
+    const id = getId(element);
+    if (GroupStartModel.isGroupStart(element)) {
+        const groupId = getId(element.getParentCell()!);
         const kind = element.getKind();
         if (kind === 'loop') return { title: GROUP_LABELS.loop, inputs: { [groupId]: { comment: COMMENT_INPUT }}};
         return { title: GROUP_LABELS.fork, inputs: { [groupId]: { comment: COMMENT_INPUT, ...getOptionInputs(data.getNode(groupId)!, 'branches') }}};
     }
-    if (Decision.isDecision(element)) {
+    if (DecisionModel.isDecision(element)) {
         return { title: 'Decision', inputs: { [id]: { label: LABEL_INPUT, comment: COMMENT_INPUT, ...getOptionInputs(data.getNode(id)!, 'to') }}};
     }
-    if (Start.isStart(element)) return { title: 'Start', inputs: {}, note: 'Where the flow begins. Nothing to edit.' };
-    if (End.isEnd(element)) return { title: 'End', inputs: {}, note: 'Where a path of the flow ends. Nothing to edit.' };
+    if (StartModel.isStart(element)) return { title: 'Start', inputs: {}, note: 'Where the flow begins. Nothing to edit.' };
+    if (EndModel.isEnd(element)) return { title: 'End', inputs: {}, note: 'Where a path of the flow ends. Nothing to edit.' };
     return { title: 'Step', inputs: { [id]: { label: LABEL_INPUT, run: RUN_INPUT, comment: COMMENT_INPUT }}};
 }
 
@@ -171,7 +172,7 @@ export function syncInspector(container: HTMLElement, data: DiagramData, element
 }
 
 function sync(container: HTMLElement, data: DiagramData, element: Selectable | null): void {
-    const id = element ? String(element.id) : null;
+    const id = element ? getId(element) : null;
     // The panel moves on to another element: what is typed is saved, and the signature is computed on the saved data.
     if (inspector && id !== openId) closeInspector(data);
     const config = element ? getConfig(data, element) : null;
