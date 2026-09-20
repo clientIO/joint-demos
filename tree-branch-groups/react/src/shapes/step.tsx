@@ -1,8 +1,7 @@
 import type { dia } from '@joint/plus';
-import { ElementModel, HTMLHost, selectElementData, useCell, useCellId } from '@joint/react-plus';
+import { ElementModel, HTMLHost, selectElementData, useCell } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
-import { useEditor } from '../editor-context';
 import { MoreButton } from './buttons';
 import { ELEMENT_Z, NODE_ICON, NODE_SIZE } from './constants';
 import { KindIcon } from './kind-icon';
@@ -74,10 +73,8 @@ function RunLine({ run }: { run: string }): ReactNode {
  */
 export function Step(): ReactNode {
     const { label, run } = useCell(selectElementData<StepData>);
-    const id = useCellId();
-    const editor = useEditor();
     return (
-        <HTMLHost className={`pill step${editor.selectedId === id ? ' selected' : ''}`}>
+        <HTMLHost className="pill step">
             <KindIcon d={NODE_ICON} />
             <span className="text">
                 <span className="label">{label}</span>

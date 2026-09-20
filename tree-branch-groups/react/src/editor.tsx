@@ -8,15 +8,20 @@ import type { MenuRequest } from './components/menu';
 import { buildGraph, getId } from './data/build';
 import type { Id } from './data/types';
 import { DiagramData } from './data/diagram-data';
+import { FrameHighlighter } from './frame';
 import { EditorContext, MAX_ZOOM, MIN_ZOOM, PAPER_ID, isSelectable, useEditor } from './editor-context';
 import { getElementMenu } from './shapes/buttons';
 import type { EditorApi } from './editor-context';
 import { isCellVisible, runLayout } from './layout';
 import { example } from './data/example';
-import { GroupModel, GroupStartModel } from './shapes';
+import { GroupModel, GroupStartModel, StepModel, COLORS, STEP_RADIUS } from './shapes';
 import { clearDeletionHighlight, clearFaded, clearMoveHighlight, highlightCollapse, highlightDeletion, highlightMove, markMove } from './highlights';
 
 const PAPER_PADDING = 40;
+/** The id of the highlighter that frames the selected element. */
+const SELECTION_HIGHLIGHT = 'selection';
+/** How far the frame of the selected element stands from its edge. */
+const SELECTION_PADDING = 5;
 /** How close the fit goes, at most: a narrow flow is shown at its size, not blown up. */
 const FIT_MAX_ZOOM = 1;
 const ZOOM_STEP = 0.2;
@@ -89,6 +94,28 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     const effectiveSelectedId = selectedCell && isCellVisible(selectedCell) ? selectedId : null;
     // A move whose element an edit removed - an undo, a redo, `Delete` - is off. The build keeps a cell that stands for the same node; another instance means the node was gone in between.
     const moved = movedElement && graph.getCell(movedElement.id) === movedElement ? movedElement : null;
+
+    // The selected element is framed by a highlighter in the layer below the
+    // cells - behind the links, and behind the buttons that overhang the
+    // element - a shade darker than the nodes, a little away from the edge.
+    // The frame has the shape of the element (see `frame.ts`): a step is a
+    // box with small corners, everything else selectable is round by half
+    // its height - a decision, the start of a group, the start and an end.
+    useEffect(() => {
+        if (!paper || effectiveSelectedId === null) return;
+        const cell = graph.getCell(effectiveSelectedId);
+        const view = cell?.isElement() ? paper.findViewByModel(cell) : undefined;
+        if (!view || !cell?.isElement()) return;
+        const radius = StepModel.isStep(cell) ? STEP_RADIUS : cell.size().height / 2;
+        FrameHighlighter.add(view, 'root', SELECTION_HIGHLIGHT, {
+            layer: dia.Paper.Layers.BACK,
+            padding: SELECTION_PADDING,
+            rx: radius,
+            ry: radius,
+            attrs: { stroke: COLORS.selection, strokeWidth: 1.5, fill: 'none' }
+        });
+        return () => FrameHighlighter.remove(view, SELECTION_HIGHLIGHT);
+    }, [paper, graph, effectiveSelectedId, stackVersion]);
 
     // The marks of a move: the dimmed subtree, the buttons that cannot take it.
     useEffect(() => {

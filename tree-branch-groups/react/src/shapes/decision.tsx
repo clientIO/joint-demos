@@ -45,7 +45,7 @@ export function Decision(): ReactNode {
     const editor = useEditor();
     const add = useAddBelow(id);
     return (
-        <HTMLHost className={`pill decision filled${editor.selectedId === id ? ' selected' : ''}`}>
+        <HTMLHost className="pill decision filled">
             <KindIcon d={DECISION_ICON} />
             <span className="text"><span className="label">{label}</span></span>
             {hasOptions && !add.hidden ? (

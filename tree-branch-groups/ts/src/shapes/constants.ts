@@ -5,6 +5,8 @@
 
 // Layout metrics shared by the shapes and the layout.
 export const NODE_SIZE = { width: 160, height: 40 };
+/** The radius of the corners of a step - a box; the other pills are round by half their height. */
+export const STEP_RADIUS = 4;
 /** The end of a group has no size: it is the point the paths of the group converge into. */
 export const GROUP_END_SIZE = { width: 0, height: 0 };
 /** The start and the ends of the diagram are circles. */

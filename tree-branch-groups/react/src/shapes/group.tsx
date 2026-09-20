@@ -171,7 +171,7 @@ export function GroupStart(): ReactNode {
     const add = useAddBelow(id);
     const group = graph.getCell(id)?.getParentCell();
     return (
-        <HTMLHost className={`pill group-start filled${editor.selectedId === id ? ' selected' : ''}`}>
+        <HTMLHost className="pill group-start filled">
             <KindIcon d={GROUP_ICONS[kind]} />
             <span className="text"><span className="label">{GROUP_LABELS[kind]}</span></span>
             {kind === 'fork' && hasBranches && !add.hidden ? (

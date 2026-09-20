@@ -1,8 +1,7 @@
 import type { dia } from '@joint/plus';
-import { ElementModel, HTMLHost, useCellId } from '@joint/react-plus';
+import { ElementModel, HTMLHost } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
-import { useEditor } from '../editor-context';
 import { MoreButton } from './buttons';
 import { ELEMENT_Z, TERMINAL_SIZE } from './constants';
 
@@ -43,10 +42,8 @@ export class EndModel extends ElementModel {
 
 /** The start of the diagram, a white circle with a dark outline, or one of its ends, a dark one: their label inside. */
 export function Terminal({ kind }: { kind: 'start' | 'end' }): ReactNode {
-    const id = useCellId();
-    const editor = useEditor();
     return (
-        <HTMLHost className={`terminal ${kind}${editor.selectedId === id ? ' selected' : ''}`}>
+        <HTMLHost className={`terminal ${kind}`}>
             <span className="label">{kind === 'start' ? 'Start' : 'End'}</span>
             <MoreButton />
         </HTMLHost>

@@ -8,6 +8,8 @@
 
 /** The size of a pill before it is measured; its minimum afterwards (see `index.css`). */
 export const NODE_SIZE = { width: 160, height: 40 };
+/** The radius of the corners of a step - a box (`.pill` in `index.css`); the other pills are round by half their height. */
+export const STEP_RADIUS = 4;
 /** The start and the ends of the diagram are circles. */
 export const TERMINAL_SIZE = { width: 52, height: 52 };
 /** The add button below a leaf of the tree, the same square as the insert button of a link. */
@@ -44,7 +46,9 @@ export const COLORS = {
     gate: { fill: '#4666E5' },
     link: '#7A90EC',
     /** What is about to move, in the menus - the teal of the drop points; the stylesheet repeats it for the marks on the cells. */
-    move: '#2F9C95'
+    move: '#2F9C95',
+    /** The frame around the selected element: a shade darker than the nodes. */
+    selection: '#3552C4'
 };
 
 /**

@@ -1,7 +1,7 @@
 import { util } from '@joint/plus';
 import type { dia } from '@joint/plus';
 
-import { ADD_BUTTON_SELECTOR, ADD_BUTTON_SIZE, COLORS, ELEMENT_Z, NODE_SIZE, PLUS_ICON, TOGGLE_EVENT } from './constants';
+import { ADD_BUTTON_SELECTOR, ADD_BUTTON_SIZE, COLORS, ELEMENT_Z, NODE_SIZE, PLUS_ICON, STEP_RADIUS, TOGGLE_EVENT } from './constants';
 
 /** The icon sits at the left end of the pill, the label is centered in the rest. */
 const KIND_ICON_X = 18;
@@ -61,8 +61,8 @@ const PILL_ATTRS = {
     body: {
         width: 'calc(w)',
         height: 'calc(h)',
-        rx: 4,
-        ry: 4,
+        rx: STEP_RADIUS,
+        ry: STEP_RADIUS,
         strokeWidth: 1.5,
         stroke: COLORS.node.stroke,
         fill: COLORS.node.fill

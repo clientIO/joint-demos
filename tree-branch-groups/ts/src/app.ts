@@ -1,17 +1,21 @@
-import { dia, highlighters, ui } from '@joint/plus';
+import { dia, ui } from '@joint/plus';
 import type { g } from '@joint/plus';
 
 import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup, getActionTarget } from './actions';
 import { buildGraph, getId } from './data/build';
 import type { Id } from './data/types';
 import { DiagramData } from './data/diagram-data';
+import { FrameHighlighter } from './frame';
 import { isSelectable, syncInspector } from './inspector';
 import { isCellVisible, runLayout } from './layout';
 import { createNavigator } from './navigator';
 import { example } from './data/example';
-import { COLORS, cellNamespace } from './shapes';
+import { COLORS, STEP_RADIUS, StepModel, cellNamespace } from './shapes';
 import { addHoverTools, addTooltips, clearDeletionHighlight, clearFaded, clearMoveHighlight, markMove, placeLinkTools } from './tools';
 import type { ToolActions } from './tools';
+
+/** How far the frame of the selected element stands from its edge. */
+const SELECTION_PADDING = 5;
 
 const PAPER_PADDING = 40;
 const MIN_ZOOM = 0.2;
@@ -140,7 +144,10 @@ export function init(): void {
     // One element at a time can be selected, by a click; a click on the blank
     // area or `Escape` clears the selection. The selected element is outlined
     // - by a frame in the layer below the cells, behind the links and the
-    // buttons that hang off the element - and inspected in the panel on the right.
+    // buttons that hang off the element - and inspected in the panel on the
+    // right. The frame has the shape of the element (see `frame.ts`): a step
+    // is a box with small corners, everything else selectable is round by
+    // half its height.
     const selection = new ui.Selection({
         paper,
         useModelGeometry: true,
@@ -150,9 +157,11 @@ export function init(): void {
         allowTranslate: false,
         allowCellInteraction: true,
         frames: new ui.HighlighterSelectionFrameList({
-            highlighter: highlighters.stroke,
-            selector: 'body',
-            options: { layer: dia.Paper.Layers.BACK, padding: 5, rx: 9, ry: 9, attrs: { stroke: COLORS.selection, strokeWidth: 1.5 }}
+            highlighter: FrameHighlighter,
+            options: (cell: dia.Cell) => {
+                const radius = StepModel.isStep(cell) ? STEP_RADIUS : (cell as dia.Element).size().height / 2;
+                return { layer: dia.Paper.Layers.BACK, padding: SELECTION_PADDING, rx: radius, ry: radius, attrs: { stroke: COLORS.selection, strokeWidth: 1.5 }};
+            }
         })
     });
     const inspectorEl = document.getElementById('inspector')!;
