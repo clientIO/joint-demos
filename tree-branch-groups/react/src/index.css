@@ -607,7 +607,6 @@ body {
     overflow-y: auto;
 }
 
-/* The map at the bottom of the column (see `navigator-styles.ts`). */
 /* The map of the diagram: small, floating over the bottom right corner of the paper. */
 .navigator {
     position: absolute;
@@ -624,8 +623,7 @@ body {
 }
 
 /* The strokes of the map scale with it, like the diagram's: the library keeps them at a fixed width otherwise. */
-.navigator .jj-navigator-element,
-.navigator .jj-navigator-link {
+.navigator .jj-navigator-element {
     vector-effect: none;
 }
 

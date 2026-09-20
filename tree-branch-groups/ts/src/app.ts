@@ -1,11 +1,12 @@
-import { dia, g, highlighters, ui } from '@joint/plus';
+import { dia, highlighters, ui } from '@joint/plus';
+import type { g } from '@joint/plus';
 
 import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
 import { buildGraph } from './data/build';
 import { DiagramData } from './data/DiagramData';
 import { gateAnchor } from './layout/gate-anchor';
 import { isSelectable, syncInspector } from './inspector';
-import { getVisibleBBox, isCellVisible, runLayout } from './layout';
+import { isCellVisible, runLayout } from './layout';
 import { createNavigator } from './navigator';
 import { pipeline } from './pipeline';
 import { COLORS, cellNamespace } from './shapes';
@@ -57,8 +58,8 @@ export function init(): void {
     const scroller = new ui.PaperScroller({
         paper,
         autoResizePaper: true,
-        // The paper grows to fit the visible cells: the graph also holds the content of the collapsed groups.
-        contentOptions: () => ({ contentArea: getVisibleBBox(graph) ?? new g.Rect() }),
+        // The paper grows to fit the content, measured by the model (see `parkHiddenContent()` in `layout/index.ts`).
+        contentOptions: { useModelGeometry: true },
         padding: PAPER_PADDING,
         cursor: 'grab',
         scrollWhileDragging: false

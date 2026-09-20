@@ -148,11 +148,37 @@ function layoutGroup(graph: dia.Graph, group: Group): void {
 }
 
 /**
- * The bounding box of the visible elements - `null` with none. The cells a
- * collapse hides stay in the graph where the layout last put them, so the
- * graph as a whole measures more than the picture: the scroller and the
- * map are given this box instead (see `app`).
+ * Parks the content of a collapsed `group` inside it: every hidden cell of
+ * the group, nested groups included, moves to the position of the group -
+ * a hidden group shrinks to the size of its start, a hidden link loses its
+ * vertices.
+ *
+ * A workaround: the hidden cells stay in the graph, and the library measures
+ * the content by the model - `graph.getBBox()`, every cell, hidden or not -
+ * when the scroller sizes the paper and the navigator fits the map (their
+ * `useModelGeometry`). Left where the layout put them, the hidden cells
+ * would keep the paper and the map as large as the expanded diagram.
+ * Parked inside the collapsed group, they add nothing to the measure. To go
+ * once the library measures through `cellVisibility`:
+ * https://github.com/clientIO/joint-plus/issues/836
  */
+function parkHiddenContent(group: Group): void {
+    const { x, y } = group.position();
+    for (const cell of group.getEmbeddedCells({ deep: true })) {
+        if (!isHiddenByCollapse(cell)) continue;
+        if (cell.isLink()) {
+            cell.vertices([]);
+        } else if (cell.isElement()) {
+            if (Group.isGroup(cell)) {
+                const { width, height } = cell.getStart().size();
+                cell.resize(width, height);
+            }
+            cell.position(x, y);
+        }
+    }
+}
+
+/** The bounding box of the visible elements - `null` with none - to fit the view to. */
 export function getVisibleBBox(graph: dia.Graph): g.Rect | null {
     return graph.getCellsBBox(graph.getElements().filter(isCellVisible));
 }
@@ -186,6 +212,9 @@ export function runLayout(graph: dia.Graph, root: dia.Element): g.Rect | null {
 
     createTreeLayout(graph).layoutTree(root);
     nameOptions(graph);
+    for (const group of groups) {
+        if (group.isCollapsed()) parkHiddenContent(group);
+    }
 
     return getVisibleBBox(graph);
 }

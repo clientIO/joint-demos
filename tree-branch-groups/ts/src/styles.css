@@ -95,12 +95,7 @@ body {
     overflow-y: auto;
 }
 
-/*
-    The map: a `ui.Navigator` at the bottom of the column, with the elements
-    as rects, pills and circles in their colors (see `navigator.ts`) and
-    the links as lines - their labels are not for the map.
-*/
-/* The map of the diagram: small, floating over the bottom right corner of the paper. */
+/* The map of the diagram (see `navigator.ts`): small, floating over the bottom right corner of the paper. */
 .navigator-panel {
     position: absolute;
     right: 16px;
@@ -119,10 +114,6 @@ body {
     height: 100%;
     border: none;
     background: #F3F7F6;
-}
-
-.navigator-panel .joint-link .label {
-    display: none;
 }
 
 .navigator-panel .current-view {

@@ -14,7 +14,7 @@ import { pipeline } from './pipeline';
 import { Group, GroupStart } from './shapes';
 import { clearCollapseHighlight, clearDeletionHighlight, highlightCollapse, highlightDeletion, markMove } from './tools';
 
-export const PAPER_PADDING = 40;
+const PAPER_PADDING = 40;
 const ZOOM_STEP = 0.2;
 
 /** Subscribes to `events` of an event emitter of JointJS; a counter of them, for `useSyncExternalStore`. */
