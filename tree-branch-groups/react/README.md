@@ -54,13 +54,14 @@ A flowchart-like editor built with `@joint/react-plus`: a tree laid out by `layo
 |------|-------------|
 | `src/main.tsx` | App entry point |
 | `src/app.tsx` | `<Diagram>` with the scroller and the paper, the toolbar, the inspector, the menu layer and the tooltip; `renderElement` and `renderLink` |
-| `src/editor.tsx` | `EditorProvider`: the data, the history, the move in progress and the menu, and every edit; `EditorWiring`, inside the paper: the layout on measured sizes, the `<Selection>` and its frames, selection on click, panning, the keys |
+| `src/editor.tsx` | `EditorProvider`: the data, the history, the move in progress and the menu, and every edit; `EditorWiring`, inside the paper: the layout on measured sizes, the menu on a right click, panning, the keys of the history |
+| `src/components/selection.tsx` | `<DiagramSelection>`: the `<Selection>` with the frames of `frame.ts`, selection on click, `Escape` and `Delete` |
 | `src/editor-context.ts` | The `EditorApi` every component reads with `useEditor()` |
 | `src/components/tooltip.tsx`, `src/components/use-tooltip.ts` | A button with a tooltip; how an element registers with the one tooltip of the app |
 | `src/components/minimap.tsx` | The map of the diagram: a `<Navigator>` with its options and the fills of the elements |
 | `src/components/menu.tsx`, `src/add-menu.ts` | The menu component and its types; what the add menu offers where, and its items |
 | `src/components/toolbar.tsx`, `src/components/inspector.tsx` | The toolbar; the inspector fields and the YAML panel |
-| `src/shapes/` | One module per shape, its model next to its component: `step.tsx`, `decision.tsx`, `group.tsx` (the group, its start and its end), `terminals.tsx`, `add-button.tsx`, `link.tsx` (the link and `LinkContent`: the insert or drop button, the option name, the return arrow); `element-content.tsx` picks the component by type; `constants.ts` the layout metrics, the colors and the icons; `buttons.tsx`, `kind-icon.tsx`, `use-add-below.ts`, `measure.ts` the parts they share |
+| `src/shapes/` | One module per shape, its model next to its component: `step.tsx`, `decision.tsx`, `group.tsx` (the group, its start and its end), `terminals.tsx`, `add-button.tsx`, `link.tsx` (the link and `LinkContent`: the insert or drop button, the option name, the return arrow); `element-content.tsx` picks the component by type; `constants.ts` the layout metrics, the colors and the icons; `buttons.tsx`, `kind-icon.tsx`, `use-add-below.ts`, `use-cell-model.ts` (the model of the cell a component renders), `measure.ts` the parts they share |
 | `src/highlights.ts` | The state of the picture that is not the data: the deletion highlight, the marks of a move, where the button of a link goes |
 | `src/actions.ts` | The edits (changes of the data) and the questions the tools ask first: what can be deleted, moved, inserted |
 | `src/data/` | `types.ts`, `diagram-data.ts` (the model and its edits), `build.ts` (data to graph), `yaml.ts` |

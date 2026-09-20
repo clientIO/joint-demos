@@ -1,5 +1,5 @@
 import { dia, g } from '@joint/plus';
-import { LinkModel as ReactLinkModel, useCell, useCellId, useGraph, useLinkLayout } from '@joint/react-plus';
+import { LinkModel as ReactLinkModel, useCell, useLinkLayout } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
 import { canSplit } from '../actions';
@@ -11,6 +11,7 @@ import { useTooltip } from '../components/use-tooltip';
 import { AddButtonModel } from './add-button';
 import { BACKWARD_LINK_Z, COLORS, INSERT_BUTTON_FROM_TARGET, INSERT_BUTTON_SIZE, LINK_Z } from './constants';
 import { GroupEndModel, GroupModel, GroupStartModel } from './group';
+import { useCellModel } from './use-cell-model';
 
 export const LINK_TYPE = 'Link';
 
@@ -205,15 +206,13 @@ const OPTION_FONT = '600 12px sans-serif';
  */
 export function LinkContent(): ReactNode {
     const layout = useLinkLayout();
-    const id = useCellId();
-    const { graph } = useGraph();
+    const model = useCellModel();
     const editor = useEditor();
     const data = useCell((cell) => (cell as { data?: LinkData }).data ?? {});
-    const link = graph.getCell(id);
     const moving = editor.moved !== null;
     const title = moving ? 'Move here' : 'Insert here';
     const buttonRef = useTooltip<SVGGElement>(title);
-    if (!layout || !(link instanceof LinkModel)) return null;
+    if (!layout || !(model instanceof LinkModel)) return null;
 
     if (data.backward) {
         const path = new g.Path(layout.d);
@@ -224,12 +223,12 @@ export function LinkContent(): ReactNode {
         return <path className="return-arrow" d="M -7 -6 L 5 0 L -7 6 Z" transform={`translate(${point.x}, ${point.y}) rotate(${angle})`} />;
     }
 
-    const source = link.getSourceElement();
-    const target = link.getTargetElement();
-    if (!source || !target || !canSplit(link)) return null;
+    const source = model.getSourceElement();
+    const target = model.getTargetElement();
+    if (!source || !target || !canSplit(model)) return null;
     // While a move is on, a link that cannot take it shows no button - its option name stays.
-    const withButton = !moving || editor.canDropOnLink(link);
-    const points = [{ x: layout.sourceX, y: layout.sourceY }, ...link.vertices(), { x: layout.targetX, y: layout.targetY }];
+    const withButton = !moving || editor.canDropOnLink(model);
+    const points = [{ x: layout.sourceX, y: layout.sourceY }, ...model.vertices(), { x: layout.targetX, y: layout.targetY }];
     const point = getInsertButtonPoint(points, source, target);
     if (!point) return null;
     const half = INSERT_BUTTON_SIZE / 2;
@@ -257,14 +256,14 @@ export function LinkContent(): ReactNode {
                 aria-label={title}
                 onClick={(evt) => {
                     if (moving) {
-                        editor.dropOnLink(link);
+                        editor.dropOnLink(model);
                         return;
                     }
                     const anchor = (evt.currentTarget as SVGGElement).getBoundingClientRect();
                     editor.openMenu({
                         anchor,
                         items: getAddItems(INSERT_CHOICES),
-                        onChoose: (choice) => editor.insertOnLink(link, choice as AddChoice)
+                        onChoose: (choice) => editor.insertOnLink(model, choice as AddChoice)
                     });
                 }}
             >

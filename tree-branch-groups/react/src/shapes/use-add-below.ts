@@ -1,4 +1,3 @@
-import { useGraph } from '@joint/react-plus';
 import type { dia } from '@joint/plus';
 import type { MouseEvent } from 'react';
 
@@ -13,10 +12,8 @@ import { useEditor } from '../editor-context';
  * the moved subtree below it. Hidden while a move is on that the parent
  * cannot take.
  */
-export function useAddBelow(parentId: dia.Cell.ID | null): { hidden: boolean; title: string; onClick: (evt: MouseEvent) => void } {
+export function useAddBelow(parent: dia.Element | null): { hidden: boolean; title: string; onClick: (evt: MouseEvent) => void } {
     const editor = useEditor();
-    const { graph } = useGraph();
-    const parent = parentId === null ? undefined : (graph.getCell(parentId) as dia.Element | undefined);
     const moving = editor.moved !== null;
     const hidden = !parent || (moving && !editor.canDropBelow(parent));
     return {

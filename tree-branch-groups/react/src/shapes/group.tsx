@@ -1,5 +1,5 @@
 import { dia } from '@joint/plus';
-import { ElementModel, HTMLHost, selectElementData, useCell, useCellId, useGraph } from '@joint/react-plus';
+import { ElementModel, HTMLHost, selectElementData, useCell } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
 import { useEditor } from '../editor-context';
@@ -9,6 +9,7 @@ import { ELEMENT_Z, GROUP_ICONS, GROUP_LABELS, NODE_SIZE } from './constants';
 import type { GroupKind } from './constants';
 import { KindIcon } from './kind-icon';
 import { useAddBelow } from './use-add-below';
+import { useCellModel } from './use-cell-model';
 
 /*
     A group - a fork or a loop - and its gates: the group itself, never
@@ -165,11 +166,10 @@ export class GroupModel extends dia.Element {
  */
 export function GroupStart(): ReactNode {
     const { kind, collapsed, hasBranches } = useCell(selectElementData<GroupStartData>);
-    const id = useCellId();
+    const model = useCellModel<GroupStartModel>();
     const editor = useEditor();
-    const { graph } = useGraph();
-    const add = useAddBelow(id);
-    const group = graph.getCell(id)?.getParentCell();
+    const add = useAddBelow(model);
+    const group = model.getParentCell();
     return (
         <HTMLHost className="pill group-start filled">
             <KindIcon d={GROUP_ICONS[kind]} />

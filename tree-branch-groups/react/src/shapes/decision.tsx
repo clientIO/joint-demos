@@ -1,5 +1,5 @@
 import type { dia } from '@joint/plus';
-import { ElementModel, HTMLHost, selectElementData, useCell, useCellId } from '@joint/react-plus';
+import { ElementModel, HTMLHost, selectElementData, useCell } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
 import { useEditor } from '../editor-context';
@@ -8,6 +8,7 @@ import { MoreButton, PlusIcon } from './buttons';
 import { DECISION_ICON, DECISION_LABEL, ELEMENT_Z, NODE_SIZE } from './constants';
 import { KindIcon } from './kind-icon';
 import { useAddBelow } from './use-add-below';
+import { useCellModel } from './use-cell-model';
 
 export const DECISION_TYPE = 'Decision';
 
@@ -41,9 +42,9 @@ export class DecisionModel extends ElementModel {
  */
 export function Decision(): ReactNode {
     const { label, hasOptions } = useCell(selectElementData<DecisionData>);
-    const id = useCellId();
+    const model = useCellModel<DecisionModel>();
     const editor = useEditor();
-    const add = useAddBelow(id);
+    const add = useAddBelow(model);
     return (
         <HTMLHost className="pill decision filled">
             <KindIcon d={DECISION_ICON} />

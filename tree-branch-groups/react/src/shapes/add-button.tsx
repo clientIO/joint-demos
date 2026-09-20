@@ -1,11 +1,12 @@
 import type { dia } from '@joint/plus';
-import { ElementModel, HTMLHost, useCellId, useGraph } from '@joint/react-plus';
+import { ElementModel, HTMLHost, useGraph } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
 import { TipButton } from '../components/tooltip';
 import { PlusIcon } from './buttons';
 import { ADD_BUTTON_SIZE, ELEMENT_Z } from './constants';
 import { useAddBelow } from './use-add-below';
+import { useCellModel } from './use-cell-model';
 
 export const ADD_BUTTON_TYPE = 'AddButton';
 
@@ -32,10 +33,10 @@ export class AddButtonModel extends ElementModel {
  * for the leaf - or, while a move is on, drops the moved subtree below it.
  */
 export function AddButton(): ReactNode {
-    const id = useCellId();
+    const model = useCellModel<AddButtonModel>();
     const { graph } = useGraph();
-    const [parent] = graph.getNeighbors(graph.getCell(id) as dia.Element, { inbound: true });
-    const add = useAddBelow(parent ? parent.id : null);
+    const [parent] = graph.getNeighbors(model, { inbound: true });
+    const add = useAddBelow(parent ?? null);
     return (
         <HTMLHost className="add-button-host">
             <TipButton tip={add.title} className="square-button" onClick={add.onClick}>

@@ -1,4 +1,4 @@
-import { useCellId, useGraph } from '@joint/react-plus';
+import { useGraph } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
 import { canDelete, getActionTarget, getDeleteTitle } from '../actions';
@@ -7,6 +7,7 @@ import type { EditorApi } from '../editor-context';
 import type { MenuRequest } from '../components/menu';
 import type { dia } from '@joint/plus';
 import { COLORS } from './constants';
+import { useCellModel } from './use-cell-model';
 import { TipButton } from '../components/tooltip';
 
 /** A plus, in the size of the buttons: the add button below a leaf, the button of a pill. */
@@ -34,10 +35,9 @@ const DELETE_COLOR = '#E54666';
 export function MoreButton({ filled = false }: { filled?: boolean }): ReactNode {
     const editor = useEditor();
     const { graph } = useGraph();
-    const id = useCellId();
-    const element = graph.getCell(id);
-    if (!element?.isElement() || editor.moved) return null;
-    const target = getActionTarget(element);
+    const model = useCellModel();
+    if (!model.isElement() || editor.moved) return null;
+    const target = getActionTarget(model);
     if (!target || !canDelete(graph, target)) return null;
     return (
         <TipButton
