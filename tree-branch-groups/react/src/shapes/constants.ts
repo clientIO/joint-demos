@@ -33,22 +33,27 @@ export const LINK_Z = 1;
 export const ELEMENT_Z = 2;
 
 /**
- * The colors the models and the map need; the stylesheet (`index.css`) is
- * where the components get theirs, and repeats these.
+ * The colors the models, the map and the menus need, as the custom
+ * properties of the stylesheet (`index.css`), which defines them for the
+ * light and the dark theme: `var()` is a value like any other to an SVG
+ * attribute and to the background of the paper, so the picture follows the
+ * theme without a rebuild.
  */
 export const COLORS = {
-    background: '#F3F7F6',
+    background: 'var(--background)',
     /** The blue of the nodes: the outline of a step, the icons of the menus. */
-    node: { stroke: '#4666E5' },
+    node: { stroke: 'var(--blue)' },
     /** The fill of the ends of the diagram and the outline of its start. */
-    terminal: '#2B3555',
+    terminal: 'var(--terminal)',
     /** The pills that steer the flow: a decision, the start of a group. */
-    gate: { fill: '#4666E5' },
-    link: '#7A90EC',
-    /** What is about to move, in the menus - the teal of the drop points; the stylesheet repeats it for the marks on the cells. */
-    move: '#2F9C95',
-    /** The frame around the selected element: a shade darker than the nodes. */
-    selection: '#3552C4'
+    gate: { fill: 'var(--blue)' },
+    link: 'var(--link)',
+    /** What is about to move, in the menus - the teal of the drop points and of the marks on the cells. */
+    move: 'var(--teal)',
+    /** The frame around the selected element: a shade stronger than the nodes. */
+    selection: 'var(--blue-dark)',
+    /** The steps on the map: a lighter blue. */
+    mapStep: 'var(--map-step)'
 };
 
 /**

@@ -23,7 +23,7 @@ export function PlusIcon(): ReactNode {
 const MOVE_ICON = 'M -6 -6 V 6 H 6 M 6 6 L 2 2 M 6 6 L 2 10';
 /** The "remove" item: a cross, in red. */
 const DELETE_ICON = 'M -5 -5 5 5 M -5 5 5 -5';
-const DELETE_COLOR = '#E54666';
+const DELETE_COLOR = 'var(--red)';
 
 /**
  * The "more" button of the element being rendered: three dots at its top

@@ -16,7 +16,7 @@ import { AddButtonModel, COLORS, DecisionModel, EndModel, GroupStartModel, Start
  * are drawn the default way.
  */
 function elementStyle({ model }: { model: dia.Element }): dia.attributes.SVGRectAttributes {
-    if (StepModel.isStep(model)) return { fill: '#AEBDEF', stroke: 'none' };
+    if (StepModel.isStep(model)) return { fill: COLORS.mapStep, stroke: 'none' };
     if (DecisionModel.isDecision(model) || GroupStartModel.isGroupStart(model)) return { fill: COLORS.gate.fill, stroke: 'none' };
     if (StartModel.isStart(model) || EndModel.isEnd(model)) return { fill: COLORS.terminal, stroke: 'none' };
     // The end of a group (a group itself is never mounted): drawn with nothing - not hidden, the navigator measures every node it mounts.
