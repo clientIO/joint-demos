@@ -15,7 +15,7 @@ import type { DiagramJSON, Edge, Id, NodeData } from './types';
  *           Quality:
  *             - name: Lint
  *       - name: Deploy
- *         run: |-
+ *         run: |
  *           npm run build
  *           npm run deploy
  *       - decision: Deploy target
@@ -39,12 +39,13 @@ const INDENT = '  ';
 
 /**
  * The lines of `key: value`, indented by `pad`: a value of several lines as
- * a literal block, `key: |-` and the lines one level deeper (`|-`: the
- * value has no final newline); a value of one line as a scalar after the key.
+ * a literal block, `key: |` and the lines one level deeper - the way every
+ * CI file writes a script (a reader adds a final newline, which a shell
+ * does not mind); a value of one line as a scalar after the key.
  */
 function keyed(key: string, value: string, pad: string): string[] {
     if (!value.includes('\n')) return [`${pad}${key}: ${scalar(value)}`];
-    return [`${pad}${key}: |-`, ...value.split('\n').map((line) => (line === '' ? '' : `${pad}${INDENT}${line}`))];
+    return [`${pad}${key}: |`, ...value.split('\n').map((line) => (line === '' ? '' : `${pad}${INDENT}${line}`))];
 }
 
 /** A scalar, quoted where YAML would read it as something else - or as several lines, or with a control character. */
