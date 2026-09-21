@@ -13,7 +13,7 @@ export interface StartData {
     on?: string;
 }
 
-/** The start of the diagram, its root: a white circle with a dark outline, and the trigger of the flow on a chip to its left, if it names one. */
+/** The start of the diagram, its root: a white circle with a dark outline, and the trigger of the flow on a chip at its right, if it names one. */
 export class StartModel extends ElementModel {
 
     defaults() {

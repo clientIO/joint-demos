@@ -1,14 +1,14 @@
+import type { dia } from '@joint/plus';
 import { useGraph } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
 import { canDelete, getActionTarget, getDeleteTitle } from '../actions';
+import type { MenuRequest } from '../components/menu';
+import { TipButton } from '../components/tooltip';
 import { useEditor } from '../editor-context';
 import type { EditorApi } from '../editor-context';
-import type { MenuRequest } from '../components/menu';
-import type { dia } from '@joint/plus';
 import { COLORS } from './constants';
 import { useCellModel } from './use-cell-model';
-import { TipButton } from '../components/tooltip';
 
 /** A plus, in the size of the buttons: the add button below a leaf, the button of a pill. */
 export function PlusIcon(): ReactNode {

@@ -4,14 +4,14 @@ import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import yaml from 'highlight.js/lib/languages/yaml';
 import { useState } from 'react';
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 
+import { getId } from '../data/build';
 import { getEdges } from '../data/diagram-data';
 import type { NodeData, Slot } from '../data/types';
 import { toYAML } from '../data/yaml';
 import { useEditor } from '../editor-context';
 import { GROUP_LABELS, GroupStartModel } from '../shapes';
-import { getId } from '../data/build';
 
 hljs.registerLanguage('yaml', yaml);
 hljs.registerLanguage('json', json);
@@ -40,7 +40,7 @@ function Field({ label, value, multiline, code, onCommit }: FieldProps): ReactNo
     const commit = (): void => {
         if (draft !== value) onCommit(draft);
     };
-    const onKeyDown = (evt: React.KeyboardEvent<HTMLElement>): void => {
+    const onKeyDown = (evt: KeyboardEvent<HTMLElement>): void => {
         if (evt.key === 'Escape') (evt.currentTarget as HTMLElement).blur();
     };
     return (
