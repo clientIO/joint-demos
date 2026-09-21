@@ -1,5 +1,6 @@
 import { dia, elementTools, util } from '@joint/plus';
 
+import { isCellVisible } from './layout';
 import { Group, NODE_SIZE, Node } from './shapes';
 import type { GroupKind } from './shapes';
 
@@ -142,9 +143,12 @@ function updateTools(elementView: dia.ElementView, actions: ToolActions, hovered
  * Shows the toggles of the visible groups - after every layout, which
  * takes the tools off the paper first (a hidden view is not disposed while
  * it has tools) - and, while an element is hovered, its three add buttons.
+ * Not for the content of a collapsed group: the paper keeps its views, but
+ * the tools live in a layer of their own and would show without the cells.
  */
 export function addTools(paper: dia.Paper, actions: ToolActions): void {
     for (const element of paper.model.getElements()) {
+        if (!isCellVisible(element)) continue;
         const view = paper.findViewByModel(element) as dia.ElementView | undefined;
         if (view) updateTools(view, actions, false);
     }
