@@ -60,7 +60,9 @@ export const COLORS = {
     /** The labels on the flow - the names of the options, the trigger of the flow on the start - amber on a tinted chip, so that they stand out from the blue of the nodes and the lines. */
     option: { fill: 'var(--option-chip)', text: 'var(--option-text)' },
     /** The frame around the selected element: the teal of the move, a color of its own next to the blue of the nodes. */
-    selection: 'var(--selection)'
+    selection: 'var(--selection)',
+    /** The steps on the map, a lighter blue; the pills and the terminals of the map keep their colors. */
+    mapStep: 'var(--map-step)'
 };
 
 /**
