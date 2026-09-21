@@ -38,14 +38,14 @@ export function Toolbar(): ReactNode {
     const theme = useTheme();
     return (
         <div className="toolbar" role="toolbar">
+            <ToolButton icon="reset" title="New diagram" onClick={editor.reset} />
+            <span className="separator" />
             <ToolButton icon="undo" title="Undo (Ctrl+Z)" disabled={!editor.canUndo} onClick={editor.undo} />
             <ToolButton icon="redo" title="Redo (Ctrl+Shift+Z)" disabled={!editor.canRedo} onClick={editor.redo} />
             <span className="separator" />
             <ToolButton icon="zoomOut" title="Zoom out" onClick={editor.zoomOut} />
             <ToolButton icon="zoomIn" title="Zoom in" onClick={editor.zoomIn} />
             <ToolButton icon="fit" title="Zoom to fit" onClick={editor.zoomToFit} />
-            <span className="separator" />
-            <ToolButton icon="reset" title="New diagram" onClick={editor.reset} />
             <span className="separator" />
             <ToolButton icon={theme === 'dark' ? 'sun' : 'moon'} title={theme === 'dark' ? 'Light theme' : 'Dark theme'} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />
         </div>

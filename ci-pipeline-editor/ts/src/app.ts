@@ -254,14 +254,14 @@ export function init(): void {
         autoToggle: true,
         references: { commandManager: history, paperScroller: scroller },
         tools: [
+            { type: 'button', name: 'reset', attrs: { button: { 'data-tooltip': 'New diagram' }}},
+            { type: 'separator' },
             { type: 'undo', attrs: { button: { 'data-tooltip': 'Undo (Ctrl+Z)' }}},
             { type: 'redo', attrs: { button: { 'data-tooltip': 'Redo (Ctrl+Shift+Z)' }}},
             { type: 'separator' },
             { type: 'zoomOut', min: MIN_ZOOM, max: MAX_ZOOM, attrs: { button: { 'data-tooltip': 'Zoom out' }}},
             { type: 'zoomIn', min: MIN_ZOOM, max: MAX_ZOOM, attrs: { button: { 'data-tooltip': 'Zoom in' }}},
-            { type: 'button', name: 'zoomToFit', attrs: { button: { 'data-tooltip': 'Zoom to fit' }}},
-            { type: 'separator' },
-            { type: 'button', name: 'reset', attrs: { button: { 'data-tooltip': 'New diagram' }}}
+            { type: 'button', name: 'zoomToFit', attrs: { button: { 'data-tooltip': 'Zoom to fit' }}}
         ]
     });
     document.getElementById('toolbar')!.appendChild(toolbar.el);
