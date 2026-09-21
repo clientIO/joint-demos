@@ -1,7 +1,7 @@
 {
-  "name": "@joint/demo-tree-branch-groups",
+  "name": "@joint/demo-tree-forks-and-loops",
   "version": "4.3.3",
-  "description": "JointJS+ - Tree Layout with Branch Groups",
+  "description": "JointJS+ - Tree Layout with Forks and Loops",
   "main": "src/main.ts",
   "homepage": "https://jointjs.com",
   "author": {

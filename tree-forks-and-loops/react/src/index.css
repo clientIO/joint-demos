@@ -21,24 +21,6 @@ body {
     height: 100%;
 }
 
-/* The collapse button of a group. */
-.group-button rect {
-    transition: fill-opacity 100ms ease-out;
-}
-
-.group-button:hover rect {
-    fill-opacity: 0.5;
-}
-
-.group-button:focus {
-    outline: none;
-}
-
-.group-button:focus-visible rect {
-    stroke: #222222;
-    stroke-width: 2;
-}
-
 .hint {
     position: absolute;
     top: 18px;

@@ -1,6 +1,7 @@
 import type { dia } from '@joint/plus';
 
 import { Group, Link, Node, PARENT_GAP } from './shapes';
+import type { GroupKind } from './shapes';
 
 let nodeCounter = 0;
 
@@ -65,36 +66,31 @@ export function addChild(graph: dia.Graph, parent: dia.Element): Node {
 }
 
 /**
- * Adds a group to the graph: a `start` node, two branches of one node each
- * and an `end` node the branches converge into. The content, including the
- * inner links, is embedded in the group.
+ * Adds a group to the graph: a `start` node, its content and an `end` node
+ * the content converges into - two branches of one node each for a fork
+ * group, one node for a loop group, whose `end` links back to its `start`:
+ * the return path. The content, including the inner links, is embedded in
+ * the group.
  */
-export function createBranchGroup(graph: dia.Graph): Group {
-    const group = new Group();
+export function createGroup(graph: dia.Graph, kind: GroupKind): Group {
+    const group = Group.create(kind);
     const start = Node.create('Start', 'start');
-    const branchA = Node.create(nextLabel());
-    const branchB = Node.create(nextLabel());
     const end = Node.create('End', 'end');
+    const nodes = kind === 'fork' ? [Node.create(nextLabel()), Node.create(nextLabel())] : [Node.create(nextLabel())];
+    nodes.forEach((node, index) => node.set('siblingRank', index));
 
-    branchA.set('siblingRank', 0);
-    branchB.set('siblingRank', 1);
+    const links = nodes.flatMap((node) => [Link.create(start, node), Link.create(node, end)]);
+    if (kind === 'loop') links.push(Link.createReturn(end, start));
 
-    const links = [
-        Link.create(start, branchA),
-        Link.create(start, branchB),
-        Link.create(branchA, end),
-        Link.create(branchB, end)
-    ];
-
-    graph.addCells([group, start, branchA, branchB, end, ...links]);
-    group.embed([start, branchA, branchB, end, ...links]);
+    graph.addCells([group, start, ...nodes, end, ...links]);
+    group.embed([start, ...nodes, end, ...links]);
 
     return group;
 }
 
-/** Adds a branch group as the last child of `parent`. */
-export function insertBranchGroup(graph: dia.Graph, parent: dia.Element): Group {
-    const group = createBranchGroup(graph);
+/** Adds a group of `kind` as the last child of `parent`. */
+export function insertGroup(graph: dia.Graph, parent: dia.Element, kind: GroupKind): Group {
+    const group = createGroup(graph, kind);
     attachChild(graph, parent, group);
     return group;
 }
