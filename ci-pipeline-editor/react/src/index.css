@@ -19,8 +19,10 @@
     --blue: #4666E5;
     /* The stronger blue: the hover of the blue buttons, the frame of the selection. */
     --blue-dark: #3552C4;
-    /* A darker blue in both themes: the outline of the toggle and of the `+` on a pill, which sets them off the blue pill. */
+    /* A darker blue in both themes: the outline of the toggle, which sets it off the blue pill. */
     --blue-deep: #3552C4;
+    /* The outline of the `+` at the end of a pill: white on the light ground, the darker blue on the dark one, where a white ring glares. */
+    --pill-add-outline: #FFFFFF;
     --blue-tint: #E8EDFF;
     --link: #7A90EC;
     --line: #DCE2F5;
@@ -72,6 +74,7 @@
     /* Stronger reads lighter on a dark ground. */
     --blue-dark: #7F9AF5;
     --blue-deep: #3A55C0;
+    --pill-add-outline: var(--blue-deep);
     --blue-tint: #2A3350;
     --link: #6E82C9;
     --line: #343B4E;
@@ -316,7 +319,7 @@ body {
     height: 18px;
     padding: 0;
     border: 1.5px solid var(--surface);
-    /* On a pill, the outline is the darker blue (see `.pill-add` below). */
+    /* On a pill, the outline follows the theme (see `.pill-add` below). */
     border-radius: 3px;
     background: var(--blue);
     color: var(--on-blue);
@@ -342,8 +345,7 @@ body {
     justify-self: end;
     align-self: center;
     margin-right: -35px;
-    /* Outlined like the toggle, in the darker blue that sets a button off the blue pill in both themes. */
-    border-color: var(--blue-deep);
+    border-color: var(--pill-add-outline);
 }
 
 /* On the bottom edge of the pill, centered: a row of its own, of no height, the button pulled down over the padding (8px) and the border (1.5px) to sit on the edge. */
