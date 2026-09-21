@@ -1,7 +1,7 @@
 # Builds the demos and reports which ones failed.
 # - Runs by hand, and on `workflow_call` from another repo.
 # - NOTE: deliberately not on push to main. Building every demo is far too slow
-#   and costly per merge; joint-plus calls this weekly instead.
+#   and costly per merge; joint-plus calls this on a schedule instead.
 #
 # WHICH JOINT PACKAGES ARE USED TO BUILD DEMOS:
 # No `packages_artifact` provided:
@@ -22,7 +22,7 @@
 # - (Decouples workflow commit and default branch so caller can pin on `uses:`.)
 # Otherwise, if the remote cannot be checked (= e.g. network failure):
 # - The job fails (could build default instead of `demos_ref` otherwise).
-name: Build demos
+name: Test all demos
 
 on:
   # NOTE: Deliberately no `pull_request` trigger
@@ -69,7 +69,7 @@ on:
 # *caller's* workflow name, so without it a run called from elsewhere would land
 # in the same group as the caller and cancel the very job waiting on it.
 concurrency:
-  group: build-demos-${{ github.workflow }}-${{ github.ref }}
+  group: test-all-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

@@ -8,8 +8,9 @@ Build script that compiles demos and assembles them into a `_site/` directory fo
 # Build all demos (stops on first failure)
 bash .github/scripts/build-demos.sh
 
-# Build a single demo
+# Build one demo, or several
 bash .github/scripts/build-demos.sh data-pipeline
+bash .github/scripts/build-demos.sh data-pipeline charts
 
 # Build all demos, continuing past failures
 bash .github/scripts/build-demos.sh --force
@@ -29,10 +30,11 @@ bash .github/scripts/build-demos.sh --demos charts,kitchen-sink
    - Other projects get `--mode=production`
    - `buildFlags` in `demos.config.json` overrides the defaults (e.g. `--configuration production` for Angular)
 4. Runs `npm install` and `npm run build` in the variant directory
-5. Copies `dist/` output into `_site/<demo-name>/`
+5. Copies `dist/` output into `_site/<demo-name>/`, then runs `npm test` if the demo defines a `test` script — a failing test marks the demo as failed, but its build output is already kept
 6. Generates an `_site/index.html` with links to all built demos
 7. Prints a summary of built, failed, and skipped demos
 8. Exits with code 1 if any demo failed. By default the script stops on the first failure; use `--force` to build all demos before exiting
+9. Exits with code 2, before building anything, if an argument is invalid or a selected demo name matches no directory — a typo would otherwise build nothing and still report success
 
 ## Options
 
@@ -40,7 +42,7 @@ bash .github/scripts/build-demos.sh --demos charts,kitchen-sink
 |------|-------------|
 | `--force` | Continue building remaining demos when a build fails. Without this flag no further demo is started after a failure (the ones already running are left to finish). |
 | `--jobs N` | How many demos to build at once. Defaults to the machine's core count, capped at 4. |
-| `--demos a,b,c` | Build only these demos. Repeatable, and combines with a bare demo name. |
+| `--demos a,b,c` | Build only these demos. Repeatable, and adds to the same list as any bare demo names. |
 
 ## Environment variables
 
@@ -53,5 +55,5 @@ bash .github/scripts/build-demos.sh --demos charts,kitchen-sink
 
 - [`demos.config.json`](../../demos.config.json) — per-demo configuration (skip, variant, buildFlags)
 - [`.github/docs/demos-config.md`](./demos-config.md) — documentation for the config file
-- [`.github/workflows/build-demos.yml`](../workflows/build-demos.yml) — builds the demos on pushes to `main` (can be called by another repository with its own locally built `@joint/*` packages)
+- [`.github/workflows/test-all.yml`](../workflows/test-all.yml) — builds and tests the demos (can be called by another repository with its own locally built `@joint/*` packages)
 - [`.github/workflows/deploy.yml`](../workflows/deploy.yml) — GitHub Actions workflow that invokes this script

@@ -3,7 +3,8 @@ set -euo pipefail
 
 # Usage: build-demos.sh [--force] [--jobs N] [--demos a,b,c] [demo-name...]
 # When demo names or --demos are provided, only those demos are built.
-# When neither is, all demos are built. Both forms add to the same list.
+# When neither is, all demos are built. Both forms add to the same list, and a
+# name matching no demo stops the run before anything is built.
 # --force:      keep building after a demo fails (default: stop starting new ones)
 # --jobs N:     how many demos to build at once (default: the machine's cores, max 4)
 # --demos a,b:  build only these demos (repeatable, comma-separated)
@@ -15,6 +16,10 @@ set -euo pipefail
 #
 # Each demo's output is captured to its own log and printed when it finishes,
 # so the logs stay readable instead of interleaving.
+#
+# A demo that defines a `test` script also has `npm test` run against it, after
+# its build output has been copied into _site. Most demos define none, and that
+# is not a failure - only a test that runs and fails marks the demo failed.
 #
 # Set CLEANUP=1 to delete each demo's node_modules and dist once its output has
 # been copied into _site. A CI runner does not have room for every demo's
@@ -230,6 +235,17 @@ echo ""
 # Build
 # ---------------------------------------------------------------------------
 
+# Whether a demo defines its own `test` script. Read from package.json rather
+# than run speculatively: `npm test` on a package without one still exits 0,
+# which would make "tested" and "has no tests" indistinguishable in the log.
+has_test_script() {
+    node -e '
+        const { readFileSync } = require("fs");
+        const pkg = JSON.parse(readFileSync(process.argv[1] + "/package.json", "utf8"));
+        process.exit(pkg.scripts?.test ? 0 : 1);
+    ' "$1" 2>/dev/null
+}
+
 # One demo, start to finish. Never exits non-zero: the outcome is a file, so
 # that a failure cannot take its shard down with it.
 build_demo() {
@@ -249,8 +265,25 @@ build_demo() {
                 # and it costs nothing to not depend on it.
                 mkdir -p "$SITE_DIR/$demo_name"
                 cp -r "$build_dir/dist/." "$SITE_DIR/$demo_name/"
-                echo "Done $demo_name"
-                echo built > "$status"
+
+                # Run after the output is safely in _site, so a failing test
+                # reports the demo as broken without also losing the build - and
+                # before the cleanup below, which needs node_modules gone either
+                # way. Only demos that define `test` have one; the rest are not
+                # missing anything, so silence is the right outcome for them.
+                if has_test_script "$build_dir"; then
+                    echo "Testing $demo_name"
+                    if (cd "$build_dir" && npm test); then
+                        echo "Done $demo_name"
+                        echo built > "$status"
+                    else
+                        echo "FAILED: $demo_name tests failed"
+                        echo failed > "$status"
+                    fi
+                else
+                    echo "Done $demo_name"
+                    echo built > "$status"
+                fi
             else
                 echo "FAILED: $demo_name built but no dist/ found"
                 echo failed > "$status"

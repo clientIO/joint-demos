@@ -150,10 +150,12 @@ const REWRITE_FIELDS = SCAN_FIELDS.filter((field) => {
 
 // Point a parsed `package.json` to local packages, in place.
 // - `specs` maps `@joint/*` package names to `file:` specifiers for them.
-// - Two things must happen for each:
-//   - Rewrite dependency (= make the demo build against local copy).
-//   - Add `overrides` entry (= relevant when nothing rewritable refers to it).
-//     - (Relevant for `@joint/core`.)
+// - Two things happen, and both are needed:
+//   - Every declared dependency that has a spec is rewritten to it (= the demo
+//     builds against the local copy).
+//   - One `overrides` block covering all of `specs` is added, whenever the
+//     manifest reaches `@joint/*` at all (= catches what nothing declares).
+//     - (Relevant for `@joint/core`, which arrives via `@joint/plus`.)
 //     - (Avoids using released `@joint/core` against local `@joint/plus`.)
 // - The rewritten dependencies and overrides must agree.
 //   - (NPM rejects the override otherwise.)
