@@ -14,7 +14,8 @@ export interface Edge {
 
 /**
  * A node of the diagram: what the data holds about it, and which nodes it
- * leads to. A step has a label and, as the case may be, the command it
+ * leads to. The start may name the trigger of the flow (`on`, as a CI file
+ * does: `pull_request`, `push`, `schedule: 0 6 * * 1`). A step has a label and, as the case may be, the command it
  * runs; a step, a decision or a group may carry a comment, which the YAML
  * shows above it. Every node but an end has a `to` list - what follows it: one
  * edge, or one per option of a decision. A group has `branches` too: the
@@ -23,7 +24,7 @@ export interface Edge {
  * the build derives them (see `build.ts`).
  */
 export type NodeData =
-    | { type: 'start'; to?: Edge[] }
+    | { type: 'start'; on?: string; to?: Edge[] }
     | { type: 'step'; label: string; run?: string; comment?: string; to?: Edge[] }
     | { type: 'decision'; label: string; comment?: string; to?: Edge[] }
     | { type: 'fork'; branches?: Edge[]; collapsed?: boolean; comment?: string; to?: Edge[] }

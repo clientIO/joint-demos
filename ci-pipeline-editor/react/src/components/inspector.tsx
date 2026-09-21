@@ -119,7 +119,7 @@ function NodeFields({ id }: { id: dia.Cell.ID }): ReactNode {
             return (
                 <>
                     <div className="title">Start</div>
-                    <div className="message">Where the flow begins. Nothing to edit.</div>
+                    <Field label="Trigger" value={node.on ?? ''} code onCommit={(on) => change({ on: on || undefined })} />
                 </>
             );
         case 'end':

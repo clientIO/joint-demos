@@ -56,7 +56,7 @@
     /* The steps on the map, and the tint of the viewport over it. */
     --map-step: #AEBDEF;
     --view-tint: rgba(70, 102, 229, 0.08);
-    /* The name of an option: a dark amber on a pale yellow chip, apart from the blues of the nodes and the lines; on the dark ground, a light amber on the tinted chip. */
+    /* The name of an option, and the trigger on the start - the labels on the flow: a dark amber on a pale yellow chip, apart from the blues of the nodes and the lines; on the dark ground, a light amber on the tinted chip. */
     --option-text: #9A6700;
     --option-chip: #FFF1C2;
     --tooltip-bg: #222222;
@@ -277,30 +277,44 @@ body {
     color: var(--on-blue);
 }
 
-/* The start and the ends of the diagram: circles with their label inside - the start white with a dark outline, an end filled dark. A grid too: the label and the "more" button share its one cell. */
+/*
+    The start and the ends of the diagram: circles with their label inside -
+    the start white with a dark outline, an end filled dark. The host is a
+    grid of three columns: the circle (`disc`) in the middle, the size of a
+    terminal, and two columns of no width beside it, so that the box
+    `HTMLHost` measures is the circle's. The last one holds the trigger of
+    the flow, aligned to its start, hanging out to the right. The circle is
+    a grid too: the label and the "more" button share its one cell.
+*/
 .terminal {
     display: grid;
+    grid-template-columns: 0 52px 0;
+    align-items: center;
+    user-select: none;
+}
+
+.terminal .disc {
+    grid-area: 1 / 2;
+    display: grid;
     place-items: center;
-    /* `HTMLHost` sizes its box to its content: the minimum is the size. */
-    min-width: 52px;
-    min-height: 52px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     box-sizing: border-box;
     color: var(--on-terminal);
     font-size: 12px;
     font-weight: 600;
-    user-select: none;
     box-shadow: 0 1px 3px var(--shadow);
     transition: background-color 150ms ease-out;
 }
 
-.terminal.start {
+.terminal.start .disc {
     background: var(--surface);
     border: 1.5px solid var(--terminal);
     color: var(--terminal);
 }
 
-.terminal.end {
+.terminal.end .disc {
     background: var(--terminal);
 }
 
@@ -459,6 +473,28 @@ body {
     color: var(--terminal);
 }
 
+/* The trigger of the flow: `On <event>` with the event's icon on a chip 8px right of the circle. */
+.terminal .trigger {
+    grid-area: 1 / 3;
+    justify-self: start;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 20px;
+    margin-left: 8px;
+    padding: 0 7px;
+    border-radius: 4px;
+    background: var(--option-chip);
+    color: var(--option-text);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.terminal .trigger .on {
+    font-weight: 400;
+}
+
 /* A move in progress: the buttons are the drop points - teal, so that they read as the targets to click. */
 .moving-mode .square-button,
 .moving-mode .pill-add {
@@ -565,7 +601,7 @@ body {
 }
 
 :is(.to-be-deleted, .faded, .moving, .to-be-moved) .pill.filled,
-:is(.to-be-deleted, .faded, .moving, .to-be-moved) .terminal {
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .terminal .disc {
     background: var(--mark);
 }
 

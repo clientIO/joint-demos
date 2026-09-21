@@ -5,8 +5,10 @@ import type { DiagramJSON, Edge, Id, NodeData } from './types';
  * The diagram as YAML: the flow from the start as a sequence of steps, a
  * fork as a map of its branches, a decision with a map of its options, a
  * loop with its body - each a sequence again - and `end` where a path ends.
- * The comment of a node goes above it, as a YAML comment.
+ * The comment of a node goes above it, as a YAML comment. The trigger of
+ * the flow, if the start names one, comes first: `on: pull_request`.
  *
+ *     on: pull_request
  *     steps:
  *       # Shallow: the history is not needed.
  *       - name: Checkout
@@ -31,7 +33,11 @@ import type { DiagramJSON, Edge, Id, NodeData } from './types';
 export function toYAML(json: DiagramJSON): string {
     const root = Object.entries(json).find(([, node]) => node.type === 'start');
     const first = root ? getEdges(root[1], 'to')[0] : undefined;
-    const lines = first ? ['steps:', ...sequence(json, first.id, 1)] : ['steps: []'];
+    const on = root?.[1].type === 'start' ? root[1].on : undefined;
+    const lines = [
+        ...(on ? keyed('on', on, '') : []),
+        ...(first ? ['steps:', ...sequence(json, first.id, 1)] : ['steps: []'])
+    ];
     return lines.join('\n') + '\n';
 }
 

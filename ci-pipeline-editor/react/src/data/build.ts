@@ -50,7 +50,7 @@ function getContainers(json: DiagramJSON): Map<Id, Id> {
 /** The element that stands for `node`: a pill, a circle, or a group - never rendered, laid out as one node. */
 function createElement(node: NodeData): dia.Element {
     switch (node.type) {
-        case 'start': return StartModel.create();
+        case 'start': return StartModel.create(node.on);
         case 'step': return StepModel.create(node.label, node.run);
         case 'end': return EndModel.create();
         // A decision with an option shows its own add button, which adds another; without, it is a leaf with the usual button below.

@@ -30,6 +30,8 @@ interface InspectorConfig {
 const LABEL_INPUT = { type: 'textarea', label: 'Label', index: 1 };
 /** The command a step runs: code below its label, on as many lines as typed. */
 const RUN_INPUT = { type: 'textarea', label: 'Run', index: 2 };
+/** The trigger of the flow, on the start: the event of a CI file (`pull_request`, `push`, `schedule: 0 6 * * 1`), on a chip left of the circle and first in the YAML. */
+const TRIGGER_INPUT = { type: 'text', label: 'Trigger', index: 1 };
 /** A comment on a node: shown in the YAML above it, nowhere on the diagram. */
 const COMMENT_INPUT = { type: 'textarea', label: 'Comment', index: 9 };
 
@@ -66,7 +68,7 @@ function getConfig(data: DiagramData, element: Selectable): InspectorConfig {
     if (DecisionModel.isDecision(element)) {
         return { title: 'Decision', inputs: { [id]: { label: LABEL_INPUT, comment: COMMENT_INPUT, ...getOptionInputs(data.getNode(id)!, 'to') }}};
     }
-    if (StartModel.isStart(element)) return { title: 'Start', inputs: {}, note: 'Where the flow begins. Nothing to edit.' };
+    if (StartModel.isStart(element)) return { title: 'Start', inputs: { [id]: { on: TRIGGER_INPUT }}};
     if (EndModel.isEnd(element)) return { title: 'End', inputs: {}, note: 'Where a path of the flow ends. Nothing to edit.' };
     return { title: 'Step', inputs: { [id]: { label: LABEL_INPUT, run: RUN_INPUT, comment: COMMENT_INPUT }}};
 }

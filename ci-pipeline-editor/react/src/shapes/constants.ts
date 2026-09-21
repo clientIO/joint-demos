@@ -83,3 +83,21 @@ export const GROUP_ICONS: Record<GroupKind, string> = {
 export const DECISION_ICON = 'M 0 -7 L 7 0 L 0 7 L -7 0 Z';
 /** A card with two lines: a step. */
 export const NODE_ICON = 'M -6 -6 H 6 V 6 H -6 Z M -3 -2 H 3 M -3 2 H 3';
+
+/**
+ * The trigger of the flow, on the start: an icon per event of a CI file -
+ * a push, a pull request, a schedule - and a bolt for anything else.
+ * 12px paths centered on the origin.
+ */
+export const TRIGGER_ICONS: Record<string, string> = {
+    push: 'M -3 -5 V 5 M -3 -1 C -3 -3 1 -3 3 -3 M 3 -5 V -3 M -5 -5 A 2 2 0 1 0 -1 -5 A 2 2 0 1 0 -5 -5 M -5 5 A 2 2 0 1 0 -1 5 A 2 2 0 1 0 -5 5 M 1 -5 A 2 2 0 1 0 5 -5 A 2 2 0 1 0 1 -5',
+    pull_request: 'M -3 -3 V 5 M 3 -1 V 5 M -3 -3 H 1 L 3 -1 M -5 -3 A 2 2 0 1 0 -1 -3 A 2 2 0 1 0 -5 -3 M -5 5 A 2 2 0 1 0 -1 5 A 2 2 0 1 0 -5 5 M 1 5 A 2 2 0 1 0 5 5 A 2 2 0 1 0 1 5',
+    schedule: 'M 0 0 m -5 0 a 5 5 0 1 0 10 0 a 5 5 0 1 0 -10 0 M 0 -3 V 0 H 2.5',
+    default: 'M 1 -6 L -3 1 H 0 L -1 6 L 3 -1 H 0 Z'
+};
+
+/** The icon of a trigger: by the event named first (`schedule: "0 6 * * 1"` is a schedule). */
+export function getTriggerIcon(on: string): string {
+    const event = on.trim().split(/[\s:,]/)[0];
+    return TRIGGER_ICONS[event] ?? TRIGGER_ICONS.default;
+}
