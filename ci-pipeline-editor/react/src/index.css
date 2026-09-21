@@ -27,6 +27,8 @@
     --pill-add-outline: #FFFFFF;
     --blue-tint: #E8EDFF;
     --link: #7A90EC;
+    /* The lines of the links, a grey; `--link` is their arrowheads and the return arrow. */
+    --link-line: #8A9EB0;
     --line: #DCE2F5;
     --text: #222222;
     --muted: #6A6A75;
@@ -79,6 +81,7 @@
     --pill-add-outline: var(--blue-deep);
     --blue-tint: #2A3350;
     --link: #6E82C9;
+    --link-line: #8A9EB0;
     --line: #343B4E;
     --text: #E6E8EF;
     --muted: #9AA0B4;
@@ -516,7 +519,40 @@ body {
     fill: var(--teal-dark);
 }
 
-/* The content React renders on a link: the insert button, the name of an option, the arrow of a return link. */
+/*
+    The links, drawn by React along the route JointJS computed: the line, a
+    copy of it in the color of the background right below (the gaps of a
+    dashed line over another line show the background), the arrowhead, the
+    insert button, the name of an option, the arrow of a return link.
+*/
+.link-line,
+.link-wrapper {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.link-wrapper {
+    stroke: var(--background);
+}
+
+.link-line {
+    stroke: var(--link-line);
+    transition: stroke 150ms ease-out;
+}
+
+/* The return link of a loop runs against the flow: dashed. */
+.link-line.backward {
+    stroke-dasharray: 6 4;
+}
+
+.link-arrow {
+    fill: var(--link);
+    pointer-events: none;
+    transition: fill 150ms ease-out;
+}
+
 .link-button {
     cursor: pointer;
 }
@@ -562,15 +598,6 @@ body {
     pointer-events: none;
 }
 
-.jj-link-line {
-    transition: stroke 150ms ease-out;
-}
-
-/* The return link of a loop runs against the flow: dashed. */
-.jj-link-line.backward {
-    stroke-dasharray: 6 4;
-}
-
 /* The frame of the selected element (see `shapes/selection-frame.tsx`). */
 .selection-frame {
     fill: none;
@@ -587,11 +614,12 @@ body {
 /*
     The previews on the cells - a deletion about to happen, what a collapse
     would hide, what a move would take or takes - are one thing in three
-    colors: a class on the view of a cell sets `--mark`, and the rules below
+    colors: a class on the content of a cell sets `--mark`, and the rules below
     paint the outline and the icon of a node, the fill of a pill and of an
     end, and the lines of the links in it; the buttons on the cells keep
     their colors. The colors fade in and out (see the transitions of the
-    pills and the lines).
+    pills and the lines). The mark is a class on the React content of
+    the cell (`useCellMark()`).
 */
 .to-be-deleted {
     --mark: var(--red);
@@ -623,13 +651,17 @@ body {
     color: var(--on-blue);
 }
 
-:is(.to-be-deleted, .faded, .moving, .to-be-moved) .jj-link-line {
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .link-line {
     stroke: var(--mark);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .link-arrow {
+    fill: var(--mark);
 }
 
 .no-drop .pill-add,
 .no-drop .square-button,
-.no-drop.joint-link {
+.link.no-drop {
     display: none;
 }
 

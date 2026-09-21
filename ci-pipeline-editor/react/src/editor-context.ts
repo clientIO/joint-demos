@@ -1,9 +1,11 @@
 import type { dia } from '@joint/plus';
+import { useCellId } from '@joint/react-plus';
 import { createContext, useContext } from 'react';
 
 import type { AddChoice } from './add-menu';
 import type { MenuRequest } from './components/menu';
 import type { DiagramData } from './data/diagram-data';
+import type { Mark, Marks } from './highlights';
 import { DecisionModel, EndModel, GroupStartModel, StartModel, StepModel } from './shapes';
 import type { GroupModel, LinkModel } from './shapes';
 
@@ -19,15 +21,18 @@ export function isSelectable(cell: dia.Cell): cell is Selectable {
 
 /**
  * The editor, for every component of the app: the data and the graph, the
- * history, the move in progress, the menu that is open, and the edits -
- * each a change of the data, after which the graph is rebuilt. The
- * selection is the diagram's own (`useSelectionCollection()`).
+ * history, the marks on the cells, the move in progress, the menu that is
+ * open, and the edits - each a change of the data, after which the graph is
+ * rebuilt. The selection is the diagram's own (`useSelectionCollection()`).
  */
 export interface EditorApi {
     data: DiagramData;
     graph: dia.Graph;
     /** Bumped after every change of the data: what reads the data re-renders on it. */
     version: number;
+
+    /** The marks on the cells: the previews and the move in progress (see `highlights.ts`). A cell reads its own with `useCellMark()`. */
+    marks: Marks;
 
     /** The element being moved, if any. While one is, the drop points take it and add nothing. */
     moved: dia.Element | null;
@@ -75,6 +80,11 @@ export function useEditor(): EditorApi {
     const editor = useContext(EditorContext);
     if (!editor) throw new Error('useEditor() needs an <EditorProvider>.');
     return editor;
+}
+
+/** The mark on the cell a component renders, if any - worn as a class on its content, which the stylesheet paints. */
+export function useCellMark(): Mark | undefined {
+    return useEditor().marks.get(useCellId());
 }
 
 /** The id of the paper of the diagram: the provider reaches the paper and its scroller by it, from outside of `<Paper>`. */

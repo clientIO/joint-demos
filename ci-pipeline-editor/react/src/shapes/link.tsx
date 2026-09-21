@@ -1,29 +1,24 @@
 import type { dia } from '@joint/plus';
 import { g } from '@joint/plus';
 import { LinkModel as ReactLinkModel, useCell, useLinkLayout } from '@joint/react-plus';
+import type { LinkLayout } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
 import { canSplit } from '../actions';
 import { INSERT_CHOICES, getAddItems } from '../add-menu';
 import type { AddChoice } from '../add-menu';
-import { useEditor } from '../editor-context';
-import { measureText } from './measure';
 import { useTooltip } from '../components/use-tooltip';
+import { useCellMark, useEditor } from '../editor-context';
 import { AddButtonModel } from './add-button';
-import { BACKWARD_LINK_Z, COLORS, INSERT_BUTTON_FROM_TARGET, INSERT_BUTTON_SIZE, LINK_Z } from './constants';
+import { BACKWARD_LINK_Z, INSERT_BUTTON_FROM_TARGET, INSERT_BUTTON_SIZE, LINK_Z } from './constants';
 import { GroupEndModel, GroupModel, GroupStartModel } from './group';
+import { measureText } from './measure';
 import { useCellModel } from './use-cell-model';
 
 export const LINK_TYPE = 'Link';
 
-const LINK_WIDTH = 1.5;
-
-const TARGET_MARKER = {
-    type: 'path',
-    d: 'M 8 -4 0 0 8 4 Z',
-    fill: COLORS.link,
-    stroke: COLORS.link
-};
+/** The arrowhead at the end of a link: its tip at the target, its base back along the link. */
+const ARROWHEAD = 'M -8 -4 0 0 -8 4 Z';
 
 /**
  * The React-facing state of a link: whether it runs against the flow (the
@@ -37,37 +32,27 @@ export interface LinkData {
 }
 
 /**
- * A link of the tree: a `LinkModel` of `@joint/react`, drawn by JointJS -
- * the line, with a copy in the color of the background right below it, so
- * that where two links run on top of each other the gaps of a dashed one
- * show the background - with its buttons and labels rendered by React
- * (`LinkContent`, below).
+ * A link of the tree: a `LinkModel` of `@joint/react` that JointJS routes -
+ * the ends, the vertices of the layout, the connector - and React draws,
+ * all of it (`LinkContent`, below): the line, its arrowhead, its buttons
+ * and labels. The view has no markup of its own: the route is read from it
+ * with `useLinkLayout()`.
  */
 export class LinkModel extends ReactLinkModel {
+
+    constructor(...args: ConstructorParameters<typeof ReactLinkModel>) {
+        super(...args);
+        this.markup = [];
+    }
 
     defaults() {
         return {
             ...super.defaults(),
             type: LINK_TYPE,
             z: LINK_Z,
+            attrs: {},
             // The routes of the layout are orthogonal; the corners are rounded.
-            connector: { name: 'straight', args: { cornerType: 'cubic', cornerRadius: 6 }},
-            attrs: {
-                wrapper: {
-                    connection: true,
-                    stroke: COLORS.background,
-                    strokeWidth: LINK_WIDTH,
-                    fill: 'none'
-                },
-                line: {
-                    connection: true,
-                    stroke: COLORS.link,
-                    strokeWidth: LINK_WIDTH,
-                    strokeLinejoin: 'round',
-                    fill: 'none',
-                    targetMarker: TARGET_MARKER
-                }
-            }
+            connector: { name: 'straight', args: { cornerType: 'cubic', cornerRadius: 6 }}
         };
     }
 
@@ -77,17 +62,15 @@ export class LinkModel extends ReactLinkModel {
         return link;
     }
 
-    /**
-     * Points the link at `target`. A link into the `end` of a group or into
-     * an add button has no arrowhead: neither is a step.
-     */
+    /** Points the link at `target`. */
     connectTo(target: dia.Element): void {
         this.target({ id: target.id });
-        if (GroupEndModel.isGroupEnd(target) || AddButtonModel.isAddButton(target)) {
-            this.removeAttr('line/targetMarker');
-        } else {
-            this.attr('line/targetMarker', TARGET_MARKER);
-        }
+    }
+
+    /** Whether the link ends in an arrowhead: not into the `end` of a group or an add button - neither is a step - and not the return link of a loop. */
+    hasArrowhead(): boolean {
+        const target = this.getTargetElement();
+        return !this.isBackward() && target !== null && !GroupEndModel.isGroupEnd(target) && !AddButtonModel.isAddButton(target);
     }
 
     getData(): LinkData {
@@ -114,15 +97,11 @@ export class LinkModel extends ReactLinkModel {
      * A link that runs against the flow of the tree - the return link of a
      * loop - is dashed and lies below the other links, so that a link
      * crossing it runs over it. It has no arrowhead: its end merges into
-     * another link; an arrow in its middle, rendered by React, shows the way.
+     * another link; an arrow in its middle shows the way.
      */
     setBackward(backward: boolean): void {
         this.set({ z: backward ? BACKWARD_LINK_Z : LINK_Z });
         this.setData({ backward });
-        // The stylesheet of `@joint/react` styles the line through CSS, which
-        // beats a `stroke-dasharray` attribute: the dashes come from a class.
-        this.attr('line/class', backward ? 'jj-link-line backward' : 'jj-link-line');
-        if (backward) this.removeAttr('line/targetMarker');
     }
 
     isBackward(): boolean {
@@ -192,32 +171,16 @@ const OPTION_CHIP = { paddingX: 6, height: 18, radius: 4 };
 const OPTION_FONT = '600 12px sans-serif';
 
 /**
- * What React renders on a link, over the line JointJS draws: the insert
- * button on the longest vertical part of a link that takes an insertion -
- * or, while a move is on, the drop point of the move, on the links that can
- * take it - with the name of the option the link leads to above it; the
- * arrow in the middle of the return link of a loop, turned along the link.
- * The route is read from the layout of the link, which follows every render.
+ * The insert button of a link - on the longest vertical part of a link that
+ * takes an insertion, or, while a move is on, the drop point of the move,
+ * on the links that can take it - with the name of the option the link
+ * leads to above it. Nothing on a link that takes nothing.
  */
-export function LinkContent(): ReactNode {
-    const layout = useLinkLayout();
-    const model = useCellModel();
+function InsertButton({ model, layout, optionName }: { model: LinkModel; layout: LinkLayout; optionName?: string }): ReactNode {
     const editor = useEditor();
-    const data = useCell((cell) => (cell as { data?: LinkData }).data ?? {});
     const moving = editor.moved !== null;
     const title = moving ? 'Move here' : 'Insert here';
     const buttonRef = useTooltip<SVGGElement>(title);
-    if (!layout || !(model instanceof LinkModel)) return null;
-
-    if (data.backward) {
-        const path = new g.Path(layout.d);
-        const length = path.length();
-        if (!length) return null;
-        const point = path.pointAtLength(length / 2)!;
-        const angle = path.tangentAtLength(length / 2)?.angle() ?? 0;
-        return <path className="return-arrow" d="M -7 -6 L 5 0 L -7 6 Z" transform={`translate(${point.x}, ${point.y}) rotate(${angle})`} />;
-    }
-
     const source = model.getSourceElement();
     const target = model.getTargetElement();
     if (!source || !target || !canSplit(model)) return null;
@@ -227,11 +190,11 @@ export function LinkContent(): ReactNode {
     const point = getInsertButtonPoint(points, source, target);
     if (!point) return null;
     const half = INSERT_BUTTON_SIZE / 2;
-    const chipWidth = data.optionName ? Math.ceil(measureText(data.optionName, OPTION_FONT)) + 2 * OPTION_CHIP.paddingX : 0;
+    const chipWidth = optionName ? Math.ceil(measureText(optionName, OPTION_FONT)) + 2 * OPTION_CHIP.paddingX : 0;
 
     return (
         <g transform={`translate(${point.x}, ${point.y})`}>
-            {data.optionName ? (
+            {optionName ? (
                 <g className="option-name">
                     <rect
                         x={-chipWidth / 2}
@@ -241,7 +204,7 @@ export function LinkContent(): ReactNode {
                         rx={OPTION_CHIP.radius}
                         ry={OPTION_CHIP.radius}
                     />
-                    <text x={0} y={OPTION_NAME_OFFSET_Y} textAnchor="middle" dominantBaseline="central">{data.optionName}</text>
+                    <text x={0} y={OPTION_NAME_OFFSET_Y} textAnchor="middle" dominantBaseline="central">{optionName}</text>
                 </g>
             ) : null}
             {withButton ? <g
@@ -266,6 +229,41 @@ export function LinkContent(): ReactNode {
                 <rect x={-half} y={-half} width={INSERT_BUTTON_SIZE} height={INSERT_BUTTON_SIZE} rx={3} ry={3} />
                 <path d="M -4 0 4 0 M 0 -4 0 4" />
             </g> : null}
+        </g>
+    );
+}
+
+/**
+ * What React renders for a link, all of it: the line along the route JointJS
+ * computed (read with `useLinkLayout()`, which follows every render), with a
+ * copy in the color of the background right below it, so that where two
+ * links run on top of each other the gaps of a dashed one show the
+ * background; the arrowhead at its end, turned along the link; the arrow in
+ * the middle of the return link of a loop, dashed and without an arrowhead,
+ * or the insert button and the name of the option. In a group that wears
+ * the link's mark as a class - a preview, a move in progress - for the
+ * stylesheet to paint or hide (see `useCellMark()`).
+ */
+export function LinkContent(): ReactNode {
+    const layout = useLinkLayout();
+    const model = useCellModel();
+    const data = useCell((cell) => (cell as { data?: LinkData }).data ?? {});
+    const mark = useCellMark();
+    if (!layout || !layout.d || !(model instanceof LinkModel)) return null;
+
+    const path = new g.Path(layout.d);
+    const length = path.length();
+    const angleAt = (at: number): number => path.tangentAtLength(at)?.angle() ?? 0;
+    const middle = path.pointAtLength(length / 2) ?? new g.Point(layout.targetX, layout.targetY);
+
+    return (
+        <g className={`link${mark ? ` ${mark}` : ''}`}>
+            <path className="link-wrapper" d={layout.d} />
+            <path className={`link-line${data.backward ? ' backward' : ''}`} d={layout.d} />
+            {model.hasArrowhead() ? <path className="link-arrow" d={ARROWHEAD} transform={`translate(${layout.targetX}, ${layout.targetY}) rotate(${angleAt(length)})`} /> : null}
+            {data.backward
+                ? <path className="return-arrow" d="M -7 -6 L 5 0 L -7 6 Z" transform={`translate(${middle.x}, ${middle.y}) rotate(${angleAt(length / 2)})`} />
+                : <InsertButton model={model} layout={layout} optionName={data.optionName} />}
         </g>
     );
 }
