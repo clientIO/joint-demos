@@ -70,15 +70,25 @@ function localPackageName(path) {
 // package reached only *through* another local package is named by no manifest
 // here - @joint/react arrives via @joint/react-plus - so a map built from this
 // checkout alone would leave it resolving from the registry.
+//
+// Only the *names* come from the artifacts. Which artifact a name resolves to
+// stays with findLocalPackageInDir, so a single policy settles it whether the
+// name was found here or declared by a demo - and so directory order is never
+// what picks when several artifacts match one name.
 export function localPackagesInDir(dirPath) {
     const found = {};
     if (!existsSync(dirPath)) return found;
 
+    const names = new Set();
     for (const entry of readdirSync(dirPath, { withFileTypes: true })) {
         if (entry.isFile() && !entry.name.toLowerCase().endsWith('.tgz')) continue;
-        const path = join(dirPath, entry.name);
-        const name = localPackageName(path);
-        if (name?.startsWith('@joint/')) found[name] = path;
+        const name = localPackageName(join(dirPath, entry.name));
+        if (name?.startsWith('@joint/')) names.add(name);
+    }
+
+    for (const name of names) {
+        const picked = findLocalPackageInDir(dirPath, name);
+        if (picked) found[name] = picked;
     }
     return found;
 }
