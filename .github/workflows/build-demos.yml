@@ -11,13 +11,13 @@
 # - Run summary records which ref was used and why.
 #
 # No `demos_ref` provided:
-# - The commit this workflow came from (= the commit under test).
+# - The commit this workflow came from (= the commit under test, on our runs).
 # Otherwise, if `demos_ref` is provided and it exists in this repo:
 # - That ref (= branch or tag).
 # Otherwise, if `demos_ref` is provided and it does not exist in this repo:
 # - This repo's default branch (= a missing ref is a fallback, not an error).
 # - (The fallback lets caller ask for a branch without tracking if it exists.)
-# - (Decouples workflow commit and default branch so caller can pin via`uses:`.)
+# - (Decouples workflow commit and default branch so caller can pin on `uses:`.)
 # Otherwise, if the remote cannot be checked (= e.g. network failure):
 # - The job fails (could build default instead of `demos_ref` otherwise).
 name: Build demos

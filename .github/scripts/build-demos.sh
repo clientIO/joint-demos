@@ -53,8 +53,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Empty entries come from a stray comma (`--demos a,,b`) and would otherwise
-# silently match nothing, so they are dropped rather than carried into the plan.
+# Empty entries come from a stray comma (`--demos a,,b`) or an empty argument,
+# and would otherwise silently match nothing, so they are dropped rather than
+# carried into the plan.
 if [[ ${#SELECTED[@]} -gt 0 ]]; then
     _kept=()
     for name in "${SELECTED[@]}"; do
@@ -110,7 +111,7 @@ mkdir -p "$WORK_DIR/logs" "$WORK_DIR/status"
 # ---------------------------------------------------------------------------
 
 # Dumped once, as `demo<TAB>field<TAB>value` lines. It used to be a `node -e`
-# per lookup — four per demo, several hundred interpreter starts per run, all
+# per lookup — three per demo, several hundred interpreter starts per run, all
 # to read one small file.
 : > "$CONFIG_DUMP"
 if [[ -f "$CONFIG_FILE" ]]; then
@@ -151,7 +152,7 @@ for demo_dir in */; do
     # Check demos.config.json for skip flag
     if [[ "$(demo_config "$demo_name" skip)" == "true" ]]; then
         # Planning diagnostics go to stderr, alongside the rest of the run's
-        # warnings, and are repeated in the summary at the end.
+        # warnings. Skips are also counted into the summary at the end.
         echo ":: Skipping $demo_name (skip=true in demos.config.json)" >&2
         SKIPPED+=("$demo_name")
         continue

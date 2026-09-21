@@ -71,7 +71,7 @@ const REWRITE_FIELDS = SCAN_FIELDS.filter((field) => {
 // - `specs` maps `@joint/*` package names to `file:` specifiers for them.
 // - Two things must happen for each:
 //   - Rewrite dependency (= make the demo build against local copy).
-//   - Add `overrides` entry (= relevant when nothing rewritable refers to it).vis written, which is what catches the package when
+//   - Add `overrides` entry (= relevant when nothing rewritable refers to it).
 //     - (Relevant for `@joint/core`.)
 //     - (Avoids using released `@joint/core` against local `@joint/plus`.)
 // - The rewritten dependencies and overrides must agree.
