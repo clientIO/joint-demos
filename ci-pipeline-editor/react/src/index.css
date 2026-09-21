@@ -19,7 +19,7 @@
     --blue: #4666E5;
     /* The stronger blue: the hover of the blue buttons, the frame of the selection. */
     --blue-dark: #3552C4;
-    /* A darker blue in both themes: the outline of the toggle, which sets it off the blue pill. */
+    /* A darker blue in both themes: the outline of the toggle and of the `+` on a pill, which sets them off the blue pill. */
     --blue-deep: #3552C4;
     --blue-tint: #E8EDFF;
     --link: #7A90EC;
@@ -54,6 +54,9 @@
     /* The steps on the map, and the tint of the viewport over it. */
     --map-step: #AEBDEF;
     --view-tint: rgba(70, 102, 229, 0.08);
+    /* The name of an option: a dark amber on a pale yellow chip, apart from the blues of the nodes and the lines; on the dark ground, a light amber on the tinted chip. */
+    --option-text: #9A6700;
+    --option-chip: #FFF1C2;
     --tooltip-bg: #222222;
     --tooltip-text: #FFFFFF;
     /* The shadow under the nodes; the softer one under the panels. */
@@ -94,6 +97,8 @@
     --code-muted: #7C8399;
     --map-step: #4A5A94;
     --view-tint: rgba(91, 124, 240, 0.18);
+    --option-text: #F2C46B;
+    --option-chip: var(--blue-tint);
     --tooltip-bg: #0F1117;
     --tooltip-text: #E6E8EF;
     --shadow: rgba(0, 0, 0, 0.5);
@@ -311,7 +316,7 @@ body {
     height: 18px;
     padding: 0;
     border: 1.5px solid var(--surface);
-    /* On a pill, the outline is that of the text on it (see `.pill-add` below). */
+    /* On a pill, the outline is the darker blue (see `.pill-add` below). */
     border-radius: 3px;
     background: var(--blue);
     color: var(--on-blue);
@@ -337,7 +342,8 @@ body {
     justify-self: end;
     align-self: center;
     margin-right: -35px;
-    border-color: var(--on-blue);
+    /* Outlined like the toggle, in the darker blue that sets a button off the blue pill in both themes. */
+    border-color: var(--blue-deep);
 }
 
 /* On the bottom edge of the pill, centered: a row of its own, of no height, the button pulled down over the padding (8px) and the border (1.5px) to sit on the edge. */
@@ -498,14 +504,14 @@ body {
 }
 
 .option-name rect {
-    fill: var(--blue-tint);
+    fill: var(--option-chip);
 }
 
 .option-name text {
     font-family: var(--font);
     font-size: 12px;
     font-weight: 600;
-    fill: var(--blue);
+    fill: var(--option-text);
 }
 
 .return-arrow {
