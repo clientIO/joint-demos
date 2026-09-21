@@ -192,8 +192,8 @@ export function getInsertButtonPoint(points: g.PlainPoint[], source: dia.Element
     return longest.midpoint();
 }
 
-/** The name of an option sits above the insert button, right next to the line: bold, in the blue of the nodes, on a tinted chip that fits it (see `index.css`). */
-const OPTION_NAME_OFFSET = { x: 8, y: -17 };
+/** The name of an option sits above the insert button, centered on the line, a few pixels clear of the button: bold, in the blue of the nodes, on a tinted chip that fits it and covers the line behind it (see `index.css`). */
+const OPTION_NAME_OFFSET_Y = -22;
 const OPTION_CHIP = { paddingX: 6, height: 18, radius: 4 };
 const OPTION_FONT = '600 12px sans-serif';
 
@@ -233,20 +233,21 @@ export function LinkContent(): ReactNode {
     const point = getInsertButtonPoint(points, source, target);
     if (!point) return null;
     const half = INSERT_BUTTON_SIZE / 2;
+    const chipWidth = data.optionName ? Math.ceil(measureText(data.optionName, OPTION_FONT)) + 2 * OPTION_CHIP.paddingX : 0;
 
     return (
         <g transform={`translate(${point.x}, ${point.y})`}>
             {data.optionName ? (
                 <g className="option-name">
                     <rect
-                        x={OPTION_NAME_OFFSET.x}
-                        y={OPTION_NAME_OFFSET.y - OPTION_CHIP.height / 2}
-                        width={Math.ceil(measureText(data.optionName, OPTION_FONT)) + 2 * OPTION_CHIP.paddingX}
+                        x={-chipWidth / 2}
+                        y={OPTION_NAME_OFFSET_Y - OPTION_CHIP.height / 2}
+                        width={chipWidth}
                         height={OPTION_CHIP.height}
                         rx={OPTION_CHIP.radius}
                         ry={OPTION_CHIP.radius}
                     />
-                    <text x={OPTION_NAME_OFFSET.x + OPTION_CHIP.paddingX} y={OPTION_NAME_OFFSET.y} dominantBaseline="central">{data.optionName}</text>
+                    <text x={0} y={OPTION_NAME_OFFSET_Y} textAnchor="middle" dominantBaseline="central">{data.optionName}</text>
                 </g>
             ) : null}
             {withButton ? <g

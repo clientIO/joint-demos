@@ -40,10 +40,11 @@ export function isCellVisible(cell: dia.Cell): boolean {
 
 /**
  * Extra room between a decision (or the start of a fork) and its children,
- * so that the name of an option fits next to the insert button of its link.
- * The tree layout reads it from the `offset` attribute of the child.
+ * so that the name of an option fits above the insert button of its link,
+ * clear of the bar. The tree layout reads it from the `offset` attribute of
+ * the child.
  */
-const OPTION_ROOM = 30;
+const OPTION_ROOM = 45;
 
 /** The kind of the group `element` is the start of, if it is one. */
 function getStartedKind(element: dia.Element): GroupKind | null {

@@ -21,9 +21,8 @@ const TARGET_MARKER = {
  * has; the insert button is a link tool (see `placeLinkTools()`).
  */
 const BRANCH_LABEL_INDEX = 0;
-/** The name sits above the insert button, right next to the line. */
-const BRANCH_LABEL_OFFSET_X = 8;
-export const BRANCH_LABEL_OFFSET_ALONG = -17;
+/** The name sits above the insert button, centered on the line - a few pixels clear of the button; the chip covers the line behind it. */
+export const BRANCH_LABEL_OFFSET_ALONG = -22;
 const BRANCH_FONT_SIZE = 12;
 const BRANCH_FONT_WEIGHT = 600;
 const BRANCH_FONT = `${BRANCH_FONT_WEIGHT} ${BRANCH_FONT_SIZE}px ${LABEL_FONT_FAMILY}`;
@@ -35,7 +34,6 @@ const BRANCH_LABEL = {
     `,
     attrs: {
         branchChip: {
-            x: 0,
             y: -BRANCH_CHIP.height / 2,
             height: BRANCH_CHIP.height,
             rx: BRANCH_CHIP.radius,
@@ -44,17 +42,17 @@ const BRANCH_LABEL = {
             pointerEvents: 'none'
         },
         branchText: {
-            x: BRANCH_CHIP.paddingX,
+            x: 0,
             fontFamily: LABEL_FONT_FAMILY,
             fontSize: BRANCH_FONT_SIZE,
             fontWeight: BRANCH_FONT_WEIGHT,
             fill: COLORS.node.stroke,
-            textAnchor: 'start',
+            textAnchor: 'middle',
             textVerticalAnchor: 'middle',
             pointerEvents: 'none'
         }
     },
-    position: { distance: 0.5, offset: { x: BRANCH_LABEL_OFFSET_X, y: 0 }}
+    position: { distance: 0.5 }
 };
 
 /**
@@ -157,8 +155,9 @@ export class LinkModel extends dia.Link {
             this.label(BRANCH_LABEL_INDEX, util.cloneDeep(BRANCH_LABEL));
         }
         this.prop(['labels', BRANCH_LABEL_INDEX, 'attrs', 'branchText', 'text'], name);
-        // The chip fits the name.
-        this.prop(['labels', BRANCH_LABEL_INDEX, 'attrs', 'branchChip', 'width'], Math.ceil(measureText(name, BRANCH_FONT)) + 2 * BRANCH_CHIP.paddingX);
+        // The chip fits the name, centered on the line.
+        const width = Math.ceil(measureText(name, BRANCH_FONT)) + 2 * BRANCH_CHIP.paddingX;
+        this.prop(['labels', BRANCH_LABEL_INDEX, 'attrs', 'branchChip'], { width, x: -width / 2 });
     }
 
     /** Whether a link from `source` to `target` is the return link of a loop: from its `end` back to its `start`. */
