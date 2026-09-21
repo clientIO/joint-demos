@@ -1,5 +1,4 @@
 import { Diagram, Paper, PaperScroller } from '@joint/react-plus';
-import type { dia } from '@joint/plus';
 import type { CellVisibility, InteractionsOptions } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 import { Tooltip } from 'react-tooltip';
@@ -18,15 +17,6 @@ import { TOOLTIP_ID } from './components/use-tooltip';
 /** Captures nothing, so a module-level constant keeps a stable identity. */
 const cellVisibility: CellVisibility = ({ model }) => isCellVisible(model);
 
-/**
- * Where a link meets an element: the box of the model - a view may not be
- * rendered, or measured, yet when the link is routed. The preset's own
- * connection point backs off by the length of its markers; ours end at the
- * tip of the arrowhead. (The preset's anchor reads the model already.)
- */
-const PAPER_OPTIONS: dia.Paper.Options = {
-    defaultConnectionPoint: { name: 'bbox', args: { useModelGeometry: true }}
-};
 
 /** The scroller pans and zooms; the selection, the history and the clipboard of the diagram are the editor's own. */
 const INTERACTIONS: InteractionsOptions = {
@@ -75,7 +65,6 @@ export function App(): ReactNode {
                                     renderLink={renderLink}
                                     cellVisibility={cellVisibility}
                                     interactive={false}
-                                    options={PAPER_OPTIONS}
                                     overflow
                                     drawGrid={false}
                                     background={{ color: COLORS.background }}
