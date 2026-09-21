@@ -1,0 +1,950 @@
+/*
+    The stylesheets of the libraries go into a cascade layer: the rules
+    below win over any layered rule whatever its specificity, so they can
+    name things simply.
+*/
+@import '@joint/react-plus/styles.css' layer(joint);
+@import '@joint/plus/joint-plus.css' layer(joint);
+@import 'react-tooltip/dist/react-tooltip.css' layer(joint);
+
+/*
+    The colors, for the light theme and, under `data-theme="dark"` (set on
+    the document by `theme.ts`), for the dark one. Everything colored - the
+    stylesheet below, and the models and the map through `COLORS` in
+    `shapes/constants.ts` - reads these, so the whole picture follows a
+    switch of the theme.
+*/
+:root {
+    color-scheme: light;
+    --blue: #4666E5;
+    /* The stronger blue: the hover of the blue buttons. */
+    --blue-dark: #3552C4;
+    /* The frame of the selected element (`.selection-frame`): the teal, apart from the blues of the nodes and the lines, in both themes. */
+    --selection: var(--teal);
+    /* A darker blue in both themes: the outline of the toggle, which sets it off the blue pill. */
+    --blue-deep: #3552C4;
+    /* The outline of the `+` at the end of a pill: white on the light ground, the darker blue on the dark one, where a white ring glares. */
+    --pill-add-outline: #FFFFFF;
+    --blue-tint: #E8EDFF;
+    --link: #7A90EC;
+    /* The lines of the links, a grey; `--link` is their arrowheads and the return arrow. */
+    --link-line: #8A9EB0;
+    --line: #DCE2F5;
+    --text: #222222;
+    --muted: #6A6A75;
+    /* The previews on the cells: a deletion in red, a collapse in a light blue, a move in teal - the teal of the drop points. */
+    --red: #E54666;
+    --blue-light: #C8D3F2;
+    --teal: #2F9C95;
+    --teal-dark: #257C77;
+    /* The paper; the panels, the pills and the outlines that set a button off the paper. */
+    --background: #F3F7F6;
+    --surface: #FFFFFF;
+    /* Text and icons on a blue fill; the toggle on the start of a group is a disc of it, tinted on hover. */
+    --on-blue: #FFFFFF;
+    --on-blue-tint: #E8EDFF;
+    /* The ends of the diagram and the outline of its start; text on an end. */
+    --terminal: #2B3555;
+    --on-terminal: #FFFFFF;
+    /* The chip behind the command of a step, its program and its flags. */
+    --chip: #EEF2FF;
+    --chip-text: #3F4C74;
+    --chip-flag: #7A88B3;
+    /* A hovered item of a menu; the inputs of the inspector; the rule under its fields. */
+    --hover: #EEF2FF;
+    --input: #FAFBFD;
+    --input-hover: #B9C4F0;
+    --divider: #EEF1F8;
+    /* The comments and the punctuation of the text of the diagram. */
+    --code-muted: #8A8A95;
+    /* The steps on the map, and the tint of the viewport over it. */
+    --map-step: #AEBDEF;
+    --view-tint: rgba(70, 102, 229, 0.08);
+    /* The name of an option, and the trigger on the start - the labels on the flow: a dark amber on a pale yellow chip, apart from the blues of the nodes and the lines; on the dark ground, a light amber on the tinted chip. */
+    --option-text: #9A6700;
+    --option-chip: #FFF1C2;
+    --tooltip-bg: #222222;
+    --tooltip-text: #FFFFFF;
+    /* The shadow under the nodes; the softer one under the panels. */
+    --shadow: rgba(34, 34, 34, 0.18);
+    --shadow-soft: rgba(34, 34, 34, 0.1);
+    --font: sans-serif;
+    --code-font: Menlo, Consolas, monospace;
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --blue: #5B7CF0;
+    /* Stronger reads lighter on a dark ground. */
+    --blue-dark: #7F9AF5;
+    --blue-deep: #3A55C0;
+    --pill-add-outline: var(--blue-deep);
+    --blue-tint: #2A3350;
+    --link: #6E82C9;
+    --link-line: #8A9EB0;
+    --line: #343B4E;
+    --text: #E6E8EF;
+    --muted: #9AA0B4;
+    --red: #F05A78;
+    --blue-light: #3E4A6E;
+    --teal: #3BB3AA;
+    --teal-dark: #58C7BF;
+    --background: #1B1E27;
+    --surface: #262B38;
+    --on-blue: #FFFFFF;
+    --on-blue-tint: #D9E0F5;
+    --terminal: #C9D2EE;
+    --on-terminal: #1B1E27;
+    --chip: #303748;
+    --chip-text: #C3CBE6;
+    --chip-flag: #8C98C0;
+    --hover: #303748;
+    --input: #20242F;
+    --input-hover: #4A5580;
+    --divider: #303748;
+    --code-muted: #7C8399;
+    --map-step: #4A5A94;
+    --view-tint: rgba(91, 124, 240, 0.18);
+    --option-text: #F2C46B;
+    --option-chip: var(--blue-tint);
+    --tooltip-bg: #0F1117;
+    --tooltip-text: #E6E8EF;
+    --shadow: rgba(0, 0, 0, 0.5);
+    --shadow-soft: rgba(0, 0, 0, 0.45);
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    font-family: var(--font);
+    color: var(--text);
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+}
+
+/* The toolbar above; below it the paper, filling the rest, and the inspector on the right. */
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.main {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+.stage {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.scroller,
+.paper {
+    width: 100%;
+    height: 100%;
+}
+
+.scroller {
+    background: var(--background);
+}
+
+/* The React content of an element hangs off its box: the buttons on the edges of a pill. */
+.paper foreignObject {
+    overflow: visible;
+}
+
+/* The toolbar. */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 44px;
+    padding: 0 10px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+    box-sizing: border-box;
+}
+
+.toolbar .separator {
+    width: 1px;
+    height: 20px;
+    margin: 0 6px;
+    background: var(--line);
+}
+
+.tool-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: var(--blue);
+    cursor: pointer;
+    transition: background-color 100ms ease-out, opacity 100ms ease-out;
+}
+
+.tool-button:hover:not(:disabled) {
+    background: var(--blue-tint);
+}
+
+.tool-button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+/*
+    The pills: a step, a decision and the start of a group. A pill is as
+    wide as its label needs and as tall as its lines, the size of a node at
+    least; `HTMLHost` measures it and sizes the element to it.
+
+    A pill is a grid: the icon, then the text. Its buttons take no room of
+    their own - they share the cell of the text and the row below it - and
+    are placed by their alignment and margins, past the padding and the
+    border where they overhang the edge. Nothing is positioned: Safari
+    misplaces positioned content of a transformed `<foreignObject>`.
+*/
+.pill {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    align-items: center;
+    column-gap: 9px;
+    min-width: 160px;
+    min-height: 40px;
+    padding: 8px 26px 8px 10px;
+    border: 1.5px solid var(--blue);
+    border-radius: 4px;
+    background: var(--surface);
+    box-sizing: border-box;
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.3;
+    user-select: none;
+    /* The nodes stand a little off the paper. */
+    box-shadow: 0 1px 3px var(--shadow);
+    transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+
+.pill .kind-icon {
+    grid-area: 1 / 1;
+    color: var(--blue);
+    transition: color 150ms ease-out;
+}
+
+.pill .text {
+    grid-area: 1 / 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    white-space: pre;
+}
+
+/* The command a step runs: code on a chip, the programs in bold, the flags tinted; several lines stay left-aligned, as typed. */
+.pill .run {
+    margin-top: 4px;
+    padding: 1px 7px;
+    text-align: left;
+    border-radius: 4px;
+    background: var(--chip);
+    font-family: var(--code-font);
+    font-size: 12px;
+    color: var(--chip-text);
+}
+
+.pill .run .cmd {
+    font-weight: 600;
+    color: var(--blue-dark);
+}
+
+.pill .run .flag {
+    color: var(--chip-flag);
+}
+
+.pill.filled {
+    /* Round by half its height, however tall the label makes it. */
+    border-radius: 9999px;
+    background: var(--blue);
+    color: var(--on-blue);
+}
+
+.pill.filled .kind-icon {
+    color: var(--on-blue);
+}
+
+/*
+    The start and the ends of the diagram: circles with their label inside -
+    the start white with a dark outline, an end filled dark. The host is a
+    grid of three columns: the circle (`disc`) in the middle, the size of a
+    terminal, and two columns of no width beside it, so that the box
+    `HTMLHost` measures is the circle's. The last one holds the trigger of
+    the flow, aligned to its start, hanging out to the right. The circle is
+    a grid too: the label and the "more" button share its one cell.
+*/
+.terminal {
+    display: grid;
+    grid-template-columns: 0 52px 0;
+    align-items: center;
+    user-select: none;
+}
+
+.terminal .disc {
+    grid-area: 1 / 2;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    box-sizing: border-box;
+    color: var(--on-terminal);
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 1px 3px var(--shadow);
+    transition: background-color 150ms ease-out;
+}
+
+.terminal.start .disc {
+    background: var(--surface);
+    border: 1.5px solid var(--terminal);
+    color: var(--terminal);
+}
+
+.terminal.end .disc {
+    background: var(--terminal);
+}
+
+/*
+    The buttons of the elements: the add button below a leaf and the button
+    at the right end of a decision or the start of a fork are squares; the
+    collapse/expand button on the bottom edge of the start of a group and
+    the "more" button are round. A blue button darkens on hover, the white
+    toggle tints.
+*/
+.square-button,
+.pill-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: 1.5px solid var(--surface);
+    /* On a pill, the outline follows the theme (see `.pill-add` below). */
+    border-radius: 3px;
+    background: var(--blue);
+    color: var(--on-blue);
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background-color 100ms ease-out;
+}
+
+.square-button:hover,
+.pill-add:hover {
+    background: var(--blue-dark);
+}
+
+.add-button-host {
+    display: flex;
+    min-width: 18px;
+    min-height: 18px;
+}
+
+/* At the right end of the pill, half over its edge: past the padding (26px) by 9px. */
+.pill-add {
+    grid-area: 1 / 2;
+    justify-self: end;
+    align-self: center;
+    margin-right: -35px;
+    border-color: var(--pill-add-outline);
+}
+
+/* On the bottom edge of the pill, centered: a row of its own, of no height, the button pulled down over the padding (8px) and the border (1.5px) to sit on the edge. */
+.toggle {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+    /* Centered on the pill, not on its content: the padding is 10px on the left and 26px on the right. */
+    margin: -1.5px 0 -20.5px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1.5px solid var(--blue-deep);
+    border-radius: 50%;
+    background: var(--on-blue);
+    color: var(--blue);
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background-color 100ms ease-out;
+}
+
+.toggle:hover {
+    background: var(--on-blue-tint);
+}
+
+/*
+    The "more" button: three dots at the top right of the element, inside
+    it, shown on hover - on a step at the same gap (4px) from the top and
+    from the right edge: the top row of the pill, aligned to its end, pulled
+    into the padding (8px above, 26px on the right) by the margins.
+*/
+.more {
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 100ms ease-out, background-color 100ms ease-out;
+}
+
+.pill .more {
+    grid-area: 1 / 2;
+    justify-self: end;
+    align-self: start;
+    margin: -4px -22px 0 0;
+}
+
+/* On a pill further from the right, inside its round end (1px from the top, 13px from the right); on the end at the top, centered. */
+.pill.filled .more {
+    margin: -7px -13px 0 0;
+}
+
+.terminal .label {
+    grid-area: 1 / 1;
+}
+
+.terminal .more {
+    grid-area: 1 / 1;
+    align-self: start;
+    justify-self: center;
+    margin-top: 4px;
+}
+
+.pill:hover .more,
+.terminal:hover .more {
+    opacity: 1;
+}
+
+.more:hover {
+    background: var(--blue-tint);
+}
+
+.more.on-filled:hover,
+.terminal .more:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* The three dots: one, centered by the button (a flex box), with a copy on each side as shadows - nothing positioned. */
+.more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--blue);
+}
+
+.more .dots {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: -4.5px 0 0 currentColor, 4.5px 0 0 currentColor;
+}
+
+.more.on-filled,
+.terminal .more {
+    color: var(--on-blue);
+}
+
+.terminal.end .more {
+    color: var(--on-terminal);
+}
+
+.terminal.start .more {
+    color: var(--terminal);
+}
+
+/* The trigger of the flow: `On <event>` with the event's icon on a chip 8px right of the circle. */
+.terminal .trigger {
+    grid-area: 1 / 3;
+    justify-self: start;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 20px;
+    margin-left: 8px;
+    padding: 0 7px;
+    border-radius: 4px;
+    background: var(--option-chip);
+    color: var(--option-text);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.terminal .trigger .on {
+    font-weight: 400;
+}
+
+/* A move in progress: the buttons are the drop points - teal, so that they read as the targets to click. */
+.moving-mode .square-button,
+.moving-mode .pill-add {
+    background: var(--teal);
+}
+
+.moving-mode .square-button:hover,
+.moving-mode .pill-add:hover {
+    background: var(--teal-dark);
+}
+
+.moving-mode .link-button rect {
+    fill: var(--teal);
+}
+
+.moving-mode .link-button:hover rect {
+    fill: var(--teal-dark);
+}
+
+/*
+    The links, drawn by React along the route JointJS computed: the line, a
+    copy of it in the color of the background right below (the gaps of a
+    dashed line over another line show the background), the arrowhead, the
+    insert button, the name of an option, the arrow of a return link.
+*/
+.link-line,
+.link-wrapper {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.link-wrapper {
+    stroke: var(--background);
+}
+
+.link-line {
+    stroke: var(--link-line);
+    transition: stroke 150ms ease-out;
+}
+
+/* The return link of a loop runs against the flow: dashed. */
+.link-line.backward {
+    stroke-dasharray: 6 4;
+}
+
+.link-arrow {
+    fill: var(--link);
+    pointer-events: none;
+    transition: fill 150ms ease-out;
+}
+
+.link-button {
+    cursor: pointer;
+}
+
+.link-button rect {
+    fill: var(--blue);
+    stroke: var(--surface);
+    stroke-width: 1.5;
+    transition: fill 100ms ease-out;
+}
+
+.link-button:hover rect {
+    fill: var(--blue-dark);
+}
+
+.link-button path {
+    fill: none;
+    stroke: var(--on-blue);
+    stroke-width: 2;
+    pointer-events: none;
+}
+
+/* The name of an option: bold, in the blue of the nodes, on a tinted chip. Its font is what `shapes/link.tsx` measures the chip with. */
+.option-name {
+    pointer-events: none;
+}
+
+.option-name rect {
+    fill: var(--option-chip);
+}
+
+.option-name text {
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    fill: var(--option-text);
+}
+
+.return-arrow {
+    fill: var(--link);
+    stroke: var(--background);
+    stroke-width: 1.5;
+    pointer-events: none;
+}
+
+/* The frame of the selected element (see `shapes/selection-frame.tsx`). */
+.selection-frame {
+    fill: none;
+    stroke: var(--selection);
+    stroke-width: 1.5;
+    pointer-events: none;
+}
+
+/* A move in progress: the subtree that moves is out of reach (and marked, see the previews); a button that cannot take it is gone. */
+.moving {
+    pointer-events: none;
+}
+
+/*
+    The previews on the cells - a deletion about to happen, what a collapse
+    would hide, what a move would take or takes - are one thing in three
+    colors: a class on the content of a cell sets `--mark`, and the rules below
+    paint the outline and the icon of a node, the fill of a pill and of an
+    end, and the lines of the links in it; the buttons on the cells keep
+    their colors. The colors fade in and out (see the transitions of the
+    pills and the lines). The mark is a class on the React content of
+    the cell (`useCellMark()`).
+*/
+.to-be-deleted {
+    --mark: var(--red);
+}
+
+.faded {
+    --mark: var(--blue-light);
+}
+
+.moving,
+.to-be-moved {
+    --mark: var(--teal);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .pill {
+    border-color: var(--mark);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .pill.filled,
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .terminal .disc {
+    background: var(--mark);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .pill .kind-icon {
+    color: var(--mark);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .pill.filled .kind-icon {
+    color: var(--on-blue);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .link-line {
+    stroke: var(--mark);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) .link-arrow {
+    fill: var(--mark);
+}
+
+.no-drop .pill-add,
+.no-drop .square-button,
+.link.no-drop {
+    display: none;
+}
+
+/* The hint while a move is on, floating over the top of the paper. */
+.move-hint {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    z-index: 1;
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    box-shadow: 0 4px 14px var(--shadow-soft);
+    font-size: 12px;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.moving-mode .move-hint {
+    display: block;
+}
+
+.move-hint kbd {
+    padding: 1px 4px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 11px;
+}
+
+/* The menus: a small panel with an icon and a label per item, below the button that opened it. */
+.menu {
+    position: fixed;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: 0 6px 20px var(--shadow-soft);
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 120px;
+    padding: 6px 14px 6px 8px;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--text);
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.menu-item:hover:not(:disabled) {
+    background: var(--hover);
+}
+
+.menu-item:active:not(:disabled) {
+    background: var(--line);
+}
+
+.menu-item:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.menu-item svg {
+    flex: none;
+    pointer-events: none;
+}
+
+/* The tooltips of the buttons: a small dark label with an arrow, below the button. The library reads its colors from these variables. */
+.tooltip {
+    --rt-color-dark: var(--tooltip-bg);
+    --rt-color-white: var(--tooltip-text);
+    --rt-opacity: 1;
+    z-index: 20;
+    padding: 0;
+    border-radius: 4px;
+    font-family: var(--font);
+    font-size: 11px;
+}
+
+/* The library pads the content wrapper inside, not the box. */
+.tooltip .react-tooltip-content-wrapper {
+    padding: 4px 8px;
+}
+
+/* The column on the right: the inspector, and the map of the diagram under it. */
+.side {
+    display: flex;
+    flex-direction: column;
+    width: 440px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--line);
+    background: var(--surface);
+}
+
+/*
+    The inspector panel: a header with the kind of the selected element and,
+    below it, its fields - or the diagram as YAML with nothing selected.
+*/
+.inspector {
+    flex: 1;
+    min-height: 0;
+    padding-bottom: 16px;
+    font-size: 13px;
+    overflow-y: auto;
+}
+
+/* The map of the diagram: small, floating over the bottom right corner of the paper. */
+.navigator {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1;
+    width: 200px;
+    height: 140px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--background);
+    box-shadow: 0 4px 14px var(--shadow-soft);
+}
+
+.navigator .current-view {
+    border: 1.5px solid var(--blue-dark);
+    background: var(--view-tint);
+    cursor: move;
+}
+
+.inspector .title {
+    padding: 18px 16px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.inspector .message {
+    padding: 4px 16px 18px;
+    color: var(--muted);
+}
+
+.field {
+    display: block;
+    padding: 6px 16px 10px;
+}
+
+.field-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.field input,
+.field textarea {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--input);
+    font: inherit;
+    line-height: 1.4;
+    color: inherit;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 100ms ease-out, background-color 100ms ease-out, box-shadow 100ms ease-out;
+}
+
+.field textarea {
+    min-height: 56px;
+    resize: vertical;
+}
+
+.field .code {
+    font-family: var(--code-font);
+    font-size: 12px;
+}
+
+.field input:hover,
+.field textarea:hover {
+    border-color: var(--input-hover);
+}
+
+.field input:focus,
+.field textarea:focus {
+    border-color: var(--blue);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px var(--blue-tint);
+}
+
+/* The options of a decision, the branches of a fork: under a heading of their own. */
+.inspector .options {
+    margin: 10px 16px 0;
+    border-top: 1px solid var(--divider);
+}
+
+.inspector .options .title {
+    padding: 16px 0 6px;
+}
+
+.inspector .options .field {
+    padding: 6px 0 10px;
+}
+
+/* The tabs over the text of the diagram - YAML, JSON - styled like the title of the panel; the chosen one dark, underlined in blue. */
+.inspector .tabs {
+    display: flex;
+    gap: 16px;
+    padding: 18px 16px 6px;
+}
+
+.inspector .tab {
+    padding: 0 0 3px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.inspector .tab:hover {
+    color: var(--text);
+}
+
+.inspector .tab.active {
+    color: var(--text);
+    border-bottom-color: var(--blue);
+}
+
+/* The diagram as YAML or JSON, highlighted by highlight.js: a small theme of its classes in the colors of the diagram. */
+pre.code {
+    margin: 0;
+    padding: 4px 16px 16px;
+    font-family: var(--code-font);
+    font-size: 11px;
+    line-height: 1.5;
+    white-space: pre;
+    overflow-x: auto;
+}
+
+.code .hljs-attr {
+    color: var(--blue);
+}
+
+.code .hljs-bullet {
+    color: var(--link);
+}
+
+.code .hljs-string {
+    color: var(--text);
+}
+
+.code .hljs-number,
+.code .hljs-literal {
+    color: var(--terminal);
+}
+
+.code .hljs-comment {
+    color: var(--code-muted);
+    font-style: italic;
+}
+
+.code .hljs-punctuation {
+    color: var(--code-muted);
+}

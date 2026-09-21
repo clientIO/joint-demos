@@ -40,6 +40,13 @@
       "variant": "react",
       "query": "?seed=1234&clock=off"
     },
+    "ci-pipeline-editor": {
+      "variant": "react",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      }
+    },
     "force-directed-layout": {
       "screenshotThreshold": 5
     },
