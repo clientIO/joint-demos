@@ -350,8 +350,7 @@ function isLoopEnd(element: dia.Element): boolean {
 }
 
 /**
- * Where the insert button of a rendered link goes, as a distance along the
- * link: the middle of its longest vertical part - the part the link has of
+ * Where the insert button of a link goes, as a distance along its route: the middle of its longest vertical part - the part the link has of
  * its own, not the one it shares with its siblings on a bar, and never a
  * horizontal part. When the link leaves an element with something right
  * below it (see `hasSomethingBelow()`) - the collapse button of a collapsed
@@ -360,8 +359,8 @@ function isLoopEnd(element: dia.Element): boolean {
  * it joins the end of a loop, a fixed distance from the source (see
  * `isLoopEnd()`). `null` for a link without a vertical part.
  */
-function getInsertButtonDistance(view: dia.LinkView): number | null {
-    const points = [view.sourcePoint, ...view.route, view.targetPoint];
+function getInsertButtonDistance(link: LinkModel): number | null {
+    const { points, path } = link.getConnection();
     let longest: g.Line | null = null;
     let longestIndex = -1;
     for (let i = 0; i < points.length - 1; i++) {
@@ -373,40 +372,40 @@ function getInsertButtonDistance(view: dia.LinkView): number | null {
         }
     }
     if (!longest) return null;
-    const source = view.model.getSourceElement();
-    const target = view.model.getTargetElement();
+    const source = link.getSourceElement();
+    const target = link.getTargetElement();
     if (longestIndex === 0 && source && hasSomethingBelow(source)) {
         // Such a link is straight: the button sits a fixed distance above the child.
-        return Math.max(view.getConnectionLength() - INSERT_BUTTON_FROM_TARGET, INSERT_BUTTON_SIZE);
+        return Math.max(path.length() - INSERT_BUTTON_FROM_TARGET, INSERT_BUTTON_SIZE);
     }
     if (longestIndex === 0 && target && isLoopEnd(target)) {
         // The vertical part leaves the leaf: the button sits a fixed distance below it.
         return Math.min(INSERT_BUTTON_FROM_TARGET, longest.length() - INSERT_BUTTON_SIZE);
     }
     const point = longest.pointAtLength(longest.length() / 2);
-    return view.getConnection().closestPointLength(point);
+    return path.closestPointLength(point);
 }
 
 /**
- * Gives every rendered link that can be split its insert button, a link tool
+ * Gives every visible link that can be split its insert button, a link tool
  * that stays on: not a hover tool. The button sits on the longest vertical
  * part of the link, and so does the name of an option, a label above it.
  * (The return link of a loop cannot be split; its own label, an arrow, keeps
  * its place in the middle of the link.)
- * The routes are read from the rendered views, so this runs after every
- * layout has been rendered - and after `paper.removeTools()`, which takes
- * the buttons of the previous layout away.
+ * The routes are read from the models (see `LinkModel.getConnection()`), so
+ * this runs right after every layout - and after `paper.removeTools()`,
+ * which takes the buttons of the previous layout away.
  */
 export function placeLinkTools(paper: dia.Paper, actions: ToolActions): void {
     for (const link of paper.model.getLinks()) {
         if (!(link instanceof LinkModel) || !isCellVisible(link)) continue;
-        const view = paper.findViewByModel(link) as dia.LinkView | undefined;
-        if (!view) continue;
         if (!canSplit(link)) continue;
         // While a move is on, only the links that can take it get a button.
         if (actions.getMoved() && !actions.canDropOnLink(link)) continue;
-        const distance = getInsertButtonDistance(view);
+        const distance = getInsertButtonDistance(link);
         if (distance === null) continue;
+        const view = paper.findViewByModel(link) as dia.LinkView | undefined;
+        if (!view) continue;
         // The name of an option sits a little above the button, on the same vertical part.
         link.labels().forEach((_label, index) => {
             link.prop(['labels', index, 'position', 'distance'], Math.max(0, distance + BRANCH_LABEL_OFFSET_ALONG));

@@ -44,6 +44,8 @@ export function init(): void {
         clickThreshold: 10,
         // The layout owns the positions.
         interactive: false,
+        // A build changes every cell; the views are rendered once, on the next frame.
+        async: true,
         background: { color: COLORS.background },
         // Both ends of a link are computed from the models, not the views: a
         // group has no view, and the view of the start overhangs its box by
@@ -126,17 +128,15 @@ export function init(): void {
         clearDeletionHighlight();
         clearMoveHighlight();
         clearFaded();
-        paper.freeze();
         buildGraph(graph, data.getData());
         contentBBox = runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
-        paper.unfreeze();
         // A move whose element the edit removed - an undo, a redo, `Delete` - is off.
         if (moved && graph.getCell(moved.id) !== moved) setMoved(null);
         paper.updateCellsVisibility();
         // The map hides the content of the collapsed groups like the paper does.
         navigator.targetPaper.updateCellsVisibility();
-        // The routes are known once rendered: the insert buttons and the
-        // option names are placed in a second, cheap pass.
+        // The insert buttons and the option names are placed along the routes
+        // of the layout in a second, cheap pass.
         placeLinkTools(paper, actions);
         markMove(paper, actions);
         // A selected element that the edit removed, or hid, leaves the selection.
@@ -185,7 +185,10 @@ export function init(): void {
     });
     paper.on('blank:pointerclick', () => {
         selection.collection.reset([]);
-        if (moved) setMoved(null);
+        if (moved) {
+            setMoved(null);
+            placeTools();
+        }
     });
 
     // The move: "Move to…" in the menu of an element starts it; the drop
@@ -195,11 +198,14 @@ export function init(): void {
     let moved: dia.Element | null = null;
     const moveHintEl = document.getElementById('move-hint')!;
     const appEl = document.querySelector('.app')!;
-    /** Starts or cancels the move; the tools of the diagram follow: drop points, or insert buttons. The app marks the mode: the buttons turn into drop points. */
+    /** The move in progress, or none. The app marks the mode: the buttons turn into drop points. */
     function setMoved(element: dia.Element | null): void {
         moved = element;
         moveHintEl.hidden = element === null;
         appEl.classList.toggle('moving-mode', element !== null);
+    }
+    /** The tools of the rendered diagram follow the move: drop points, or insert buttons. */
+    function placeTools(): void {
         paper.removeTools();
         placeLinkTools(paper, actions);
         markMove(paper, actions);
@@ -220,7 +226,10 @@ export function init(): void {
         delete: (element) => deleteElement(graph, data, element),
         toggleGroup: (group) => toggleGroup(data, group),
         canMove: (element) => hasMoveTarget(graph, data, getId(element)),
-        startMove: (element) => setMoved(element),
+        startMove: (element) => {
+            setMoved(element);
+            placeTools();
+        },
         getMoved: () => moved,
         getMovedCells: () => getMovedCells(graph, data, movedId()),
         getMovedCellsOf: (element) => getMovedCells(graph, data, getId(element)),
@@ -277,8 +286,10 @@ export function init(): void {
     keyboard.on('escape', () => {
         // An open menu goes first; then the move, then the selection.
         if (ui.ContextToolbar.opened) ui.ContextToolbar.close();
-        else if (moved) setMoved(null);
-        else selection.collection.reset([]);
+        else if (moved) {
+            setMoved(null);
+            placeTools();
+        } else selection.collection.reset([]);
     });
     // `Delete` on the selected element does what the "remove" item of its
     // menu does: the start of a group deletes the group; what cannot be

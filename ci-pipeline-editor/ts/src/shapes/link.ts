@@ -1,4 +1,4 @@
-import { dia, util } from '@joint/plus';
+import { connectors, dia, g, util } from '@joint/plus';
 
 import { AddButtonModel } from './add-button';
 import { BACKWARD_LINK_Z, COLORS, LINK_Z } from './constants';
@@ -6,6 +6,8 @@ import { GroupEndModel, GroupStartModel } from './group';
 import { LABEL_FONT_FAMILY, measureText } from './pill';
 
 const LINK_WIDTH = 1.5;
+/** The routes of the layout are orthogonal; the corners are rounded. */
+const CONNECTOR_ARGS = { cornerType: 'cubic', cornerRadius: 6 } as const;
 
 const TARGET_MARKER = {
     type: 'path',
@@ -82,8 +84,7 @@ export class LinkModel extends dia.Link {
         return util.defaultsDeep({
             type: 'tbg.Link',
             z: LINK_Z,
-            // The routes of the layout are orthogonal; the corners are rounded.
-            connector: { name: 'straight', args: { cornerType: 'cubic', cornerRadius: 6 }},
+            connector: { name: 'straight', args: CONNECTOR_ARGS },
             attrs: {
                 // A copy of the line in the color of the background, right
                 // below it: where two links run on top of each other, the
@@ -176,4 +177,38 @@ export class LinkModel extends dia.Link {
     isBackward(): boolean {
         return Boolean(this.get('backward'));
     }
+
+    /**
+     * The connection of the link as the paper renders it, from the models
+     * alone - nothing has to be rendered first: the anchor of each end
+     * (`center` unless the layout set one; see `anchorGroupLinks()`),
+     * clipped to the box of its element like the paper's `bbox` connection
+     * point does, the vertices of the layout in between - `points` - and
+     * `path`, the connector run over them, corners rounded.
+     */
+    getConnection(): { points: g.Point[]; path: g.Path } {
+        const source = this.getSourceElement()!;
+        const target = this.getTargetElement()!;
+        const vertices = this.vertices().map((vertex) => new g.Point(vertex));
+        const sourceAnchor = getAnchorPoint(source, this.source().anchor);
+        const targetAnchor = getAnchorPoint(target, this.target().anchor);
+        const sourcePoint = clipToElement(source, sourceAnchor, vertices[0] ?? targetAnchor);
+        const targetPoint = clipToElement(target, targetAnchor, vertices[vertices.length - 1] ?? sourceAnchor);
+        const path = connectors.straight(sourcePoint, targetPoint, vertices, { ...CONNECTOR_ARGS, raw: true }) as g.Path;
+        return { points: [sourcePoint, ...vertices, targetPoint], path };
+    }
+}
+
+/** The anchor of an end on `element`: its center, or the middle of its top or bottom edge, moved by `dx`, `dy` - the anchors this app uses, read from the models. */
+function getAnchorPoint(element: dia.Element, anchor: dia.Link.EndJSON['anchor']): g.Point {
+    const bbox = element.getBBox();
+    const { dx = 0, dy = 0 } = (anchor?.args ?? {}) as { dx?: number; dy?: number };
+    const point = anchor?.name === 'top' ? bbox.topMiddle() : anchor?.name === 'bottom' ? bbox.bottomMiddle() : bbox.center();
+    return point.offset(dx, dy);
+}
+
+/** Where the line from `reference` to `anchor` enters the box of `element` - the anchor itself when it lies on the edge, or outside. */
+function clipToElement(element: dia.Element, anchor: g.Point, reference: g.Point): g.Point {
+    const intersections = new g.Line(reference, anchor).intersect(element.getBBox());
+    return intersections ? reference.chooseClosest(intersections)! : anchor;
 }
