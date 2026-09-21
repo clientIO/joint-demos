@@ -3,12 +3,13 @@ import type { CellVisibility, InteractionsOptions } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 import { Tooltip } from 'react-tooltip';
 
-import { EditorProvider, EditorWiring } from './editor';
+import { EditorProvider } from './editor-provider';
 import { PAPER_ID, useEditor } from './editor-context';
 import { isCellVisible } from './layout';
 import { Inspector } from './components/inspector';
 import { Menu } from './components/menu';
 import { Minimap } from './components/minimap';
+import { PaperInteractions } from './components/paper-interactions';
 import { DiagramSelection } from './components/selection';
 import { COLORS, ElementContent, LinkContent, cellNamespace } from './shapes';
 import { Toolbar } from './components/toolbar';
@@ -16,7 +17,6 @@ import { TOOLTIP_ID } from './components/use-tooltip';
 
 /** Captures nothing, so a module-level constant keeps a stable identity. */
 const cellVisibility: CellVisibility = ({ model }) => isCellVisible(model);
-
 
 /** The scroller pans and zooms; the selection, the history and the clipboard of the diagram are the editor's own. */
 const INTERACTIONS: InteractionsOptions = {
@@ -69,7 +69,7 @@ export function App(): ReactNode {
                                     drawGrid={false}
                                     background={{ color: COLORS.background }}
                                 >
-                                    <EditorWiring />
+                                    <PaperInteractions />
                                     <DiagramSelection />
                                 </Paper>
                             </PaperScroller>
