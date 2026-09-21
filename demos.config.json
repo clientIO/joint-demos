@@ -40,6 +40,9 @@
       "variant": "react",
       "query": "?seed=1234&clock=off"
     },
+    "ci-pipeline-editor": {
+      "variant": "react"
+    },
     "force-directed-layout": {
       "screenshotThreshold": 5
     },
