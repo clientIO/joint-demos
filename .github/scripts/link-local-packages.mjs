@@ -145,11 +145,9 @@ function main() {
     const modifiedDirs = [];
     let filesChanged = 0;
 
-    // Which @joint/* packages have a local stand-in is resolved once, over the
-    // names the whole repo mentions, rather than per demo. A demo is then
-    // pointed at every one of them - not just the ones it names - because the
-    // package most likely to be wrong is the one no demo declares: @joint/core
-    // arrives transitively through @joint/plus.
+    // Which `@joint/*` packages have a local stand-in is resolved once.
+    // - Each demo is then pointed at all of those (not only the ones named).
+    // - This resolves problems with transitive deps like `@joint/core`.
     const parsed = pkgFiles.map((pkgPath) => {
         const original = readFileSync(pkgPath, 'utf-8');
         return { pkgPath, original, pkg: JSON.parse(original) };

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: build-demos.sh [--force] [--jobs N] [--demos a,b,c] [demo-name]
-# When demo-name or --demos is provided, only those demos are built.
-# When neither is, all demos are built.
+# Usage: build-demos.sh [--force] [--jobs N] [--demos a,b,c] [demo-name...]
+# When demo names or --demos are provided, only those demos are built.
+# When neither is, all demos are built. Both forms add to the same list.
 # --force:      keep building after a demo fails (default: stop starting new ones)
 # --jobs N:     how many demos to build at once (default: the machine's cores, max 4)
 # --demos a,b:  build only these demos (repeatable, comma-separated)
@@ -22,7 +22,6 @@ set -euo pipefail
 # because it is destructive to a local checkout.
 
 FORCE=false
-FILTER=""
 JOBS=""
 SELECTED=()
 while [[ $# -gt 0 ]]; do
@@ -48,15 +47,11 @@ while [[ $# -gt 0 ]]; do
         --demos=*)
             IFS=',' read -r -a _added <<< "${1#--demos=}"
             SELECTED+=(${_added[@]+"${_added[@]}"}); shift ;;
-        # A bare name still works, and is kept separate from --demos so that the
-        # long-standing single-demo form keeps its exact meaning.
-        *) FILTER="$1"; shift ;;
+        # Bare names join the same list as --demos, so the two combine cleanly
+        # (`charts kanban` = `--demos charts,kanban`).
+        *) SELECTED+=("$1"); shift ;;
     esac
 done
-
-if [[ -n "$FILTER" ]]; then
-    SELECTED+=("$FILTER")
-fi
 
 # Empty entries come from a stray comma (`--demos a,,b`) and would otherwise
 # silently match nothing, so they are dropped rather than carried into the plan.
