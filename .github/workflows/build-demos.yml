@@ -1,5 +1,7 @@
 # Builds the demos and reports which ones failed.
-# - Runs on a push to main, by hand, and on `workflow_call` from another repo.
+# - Runs by hand, and on `workflow_call` from another repo.
+# - NOTE: deliberately not on push to main. Building every demo is far too slow
+#   and costly per merge; joint-plus calls this weekly instead.
 #
 # WHICH JOINT PACKAGES ARE USED TO BUILD DEMOS:
 # No `packages_artifact` provided:
@@ -50,15 +52,6 @@ on:
       JOINTJS_NPM_TOKEN:
         description: 'Token for https://npm.jointjs.com. Required even when a caller supplies tarballs: those need not cover every @joint/* package the demos use.'
         required: true
-  push:
-    branches:
-      - main
-    # A merge that only touches prose cannot break a build, and this builds
-    # every demo. `paths-ignore` skips only when *every* changed file matches,
-    # so a commit that touches both a demo and its README still runs.
-    paths-ignore:
-      - '**/*.md'
-      - 'LICENSE'
   workflow_dispatch:
     inputs:
       demos:
