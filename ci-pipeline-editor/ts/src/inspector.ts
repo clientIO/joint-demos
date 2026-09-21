@@ -30,7 +30,7 @@ interface InspectorConfig {
 const LABEL_INPUT = { type: 'textarea', label: 'Label', index: 1 };
 /** The command a step runs: code below its label, on as many lines as typed. */
 const RUN_INPUT = { type: 'textarea', label: 'Run', index: 2 };
-/** The trigger of the flow, on the start: the event of a CI file (`pull_request`, `push`, `schedule: 0 6 * * 1`), on a chip left of the circle and first in the YAML. */
+/** The trigger of the flow, on the start: the event of a CI file (`pull_request`, `push`, `schedule: 0 6 * * 1`), on a chip right of the circle and first in the YAML. */
 const TRIGGER_INPUT = { type: 'text', label: 'Trigger', index: 1 };
 /** A comment on a node: shown in the YAML above it, nowhere on the diagram. */
 const COMMENT_INPUT = { type: 'textarea', label: 'Comment', index: 9 };
