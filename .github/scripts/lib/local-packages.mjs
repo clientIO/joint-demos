@@ -3,8 +3,9 @@
 // per-run overrides) and link-local-packages.mjs (persistent repo-wide
 // relinking).
 
-import { existsSync, readdirSync, statSync } from 'fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join, resolve } from 'path';
+import { execFileSync } from 'child_process';
 
 // npm's file: specifier accepts an absolute path with forward slashes on
 // every platform, including Windows drive-letter paths (file:C:/...).
@@ -42,6 +43,44 @@ export function findLocalPackageInDir(dirPath, depName) {
         if (dirMatch) return join(dirPath, dirMatch.name);
     }
     return null;
+}
+
+// Reads the `name` a local package declares for itself. Authoritative, unlike
+// the filename, which may be hand-chosen. Returns null if it cannot be read.
+function localPackageName(path) {
+    try {
+        if (statSync(path).isDirectory()) {
+            return JSON.parse(readFileSync(join(path, 'package.json'), 'utf8')).name ?? null;
+        }
+        // npm tarballs keep the manifest at `package/package.json`.
+        const manifest = execFileSync('tar', ['-xzOf', path, 'package/package.json'], {
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'ignore'],
+        });
+        return JSON.parse(manifest).name ?? null;
+    } catch {
+        return null;
+    }
+}
+
+// Every @joint/* package staged in a local packages directory, as
+// { name: path }.
+//
+// Read from the directory rather than inferred from what the demos declare: a
+// package reached only *through* another local package is named by no manifest
+// here - @joint/react arrives via @joint/react-plus - so a map built from this
+// checkout alone would leave it resolving from the registry.
+export function localPackagesInDir(dirPath) {
+    const found = {};
+    if (!existsSync(dirPath)) return found;
+
+    for (const entry of readdirSync(dirPath, { withFileTypes: true })) {
+        if (entry.isFile() && !entry.name.toLowerCase().endsWith('.tgz')) continue;
+        const path = join(dirPath, entry.name);
+        const name = localPackageName(path);
+        if (name?.startsWith('@joint/')) found[name] = path;
+    }
+    return found;
 }
 
 // Fields that count as "this demo reaches @joint/*".

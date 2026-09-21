@@ -24,9 +24,14 @@
  *
  * Every demo that uses @joint/* also gets an "overrides" block covering all
  * the local packages, so that a package reached only transitively is caught
- * too. Without it @joint/core - which @joint/plus depends on by range and
- * almost no demo declares - still comes from the registry, and the run tests a
- * released core against a local @joint/plus while reporting success.
+ * too. @joint/core is the usual case: without an override it comes from the
+ * registry and the run tests a released core against a local @joint/plus while
+ * reporting success.
+ *
+ * The set of local packages is read from the packages directory itself, not
+ * from what the demos declare - otherwise a package reached only through
+ * another local package (@joint/react, via @joint/react-plus) is named by no
+ * manifest here and would be left resolving from the registry.
  *
  * A manifest of every file this tool has changed is kept at
  * <packages-dir>/.link-manifest.json so --restore can put things back
@@ -36,7 +41,7 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, rmSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 import { execSync } from 'child_process';
-import { applyLocalPackages, findLocalPackageInDir, jointDepNames, toFileSpec } from './lib/local-packages.mjs';
+import { applyLocalPackages, findLocalPackageInDir, jointDepNames, localPackagesInDir, toFileSpec } from './lib/local-packages.mjs';
 
 const ROOT = resolve(import.meta.dirname, '..', '..');
 const DEFAULT_PACKAGES_DIR = join(ROOT, '.packages');
@@ -147,13 +152,23 @@ function main() {
 
     // Which `@joint/*` packages have a local stand-in is resolved once.
     // - Each demo is then pointed at all of those (not only the ones named).
-    // - This resolves problems with transitive deps like `@joint/core`.
+    // - This covers transitive deps (e.g. `@joint/core` via `@joint/plus`).
     const parsed = pkgFiles.map((pkgPath) => {
         const original = readFileSync(pkgPath, 'utf-8');
         return { pkgPath, original, pkg: JSON.parse(original) };
     });
 
+    // Seeded from what is actually staged, not from what the demos declare.
+    // A package reached only through another local package is named by no
+    // manifest here - e.g. `@joint/react` arrives via `@joint/react-plus` - and
+    // would otherwise be left resolving from the registry.
     const specs = {};
+    for (const [name, path] of Object.entries(localPackagesInDir(PACKAGES_DIR))) {
+        specs[name] = toFileSpec(path);
+    }
+
+    // The declared names are still walked, to report the ones with no local
+    // stand-in and to match a tarball whose own manifest could not be read.
     const unresolvedDeps = new Set();
     for (const { pkg } of parsed) {
         for (const depName of jointDepNames(pkg)) {
