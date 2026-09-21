@@ -153,9 +153,12 @@ function main() {
     // Which `@joint/*` packages have a local stand-in is resolved once.
     // - Each demo is then pointed at all of those (not only the ones named).
     // - This covers transitive deps (e.g. `@joint/core` via `@joint/plus`).
+    // `unchanged` is rewritten as if nothing was changed.
+    // - Allows us to ignore differences in indentation, unlike `original`.
     const parsed = pkgFiles.map((pkgPath) => {
         const original = readFileSync(pkgPath, 'utf-8');
-        return { pkgPath, original, pkg: JSON.parse(original) };
+        const pkg = JSON.parse(original);
+        return { pkgPath, original, unchanged: JSON.stringify(pkg, null, 2), pkg };
     });
 
     // Seeded from what is actually staged, not from what the demos declare.
@@ -188,15 +191,17 @@ function main() {
     }
     console.log('');
 
-    for (const { pkgPath, original, pkg } of parsed) {
-        const applied = applyLocalPackages(pkg, specs);
-        if (applied.length === 0) continue;
+    for (const { pkgPath, original, unchanged, pkg } of parsed) {
+        const rewritten = applyLocalPackages(pkg, specs);
 
+        // The text decides whether anything happened, not `rewritten`.
+        // - (A manifest can change by gaining only an `overrides` block.)
         const updated = JSON.stringify(pkg, null, 2);
-        if (updated === original) continue;
+        if (updated === unchanged) continue;
 
         console.log(pkgPath);
-        for (const depName of applied) console.log(`   ${depName} -> ${specs[depName]}`);
+        if (rewritten.length === 0) console.log('   (overrides only)');
+        for (const depName of rewritten) console.log(`   ${depName} -> ${specs[depName]}`);
 
         if (!DRY_RUN) {
             if (!(pkgPath in manifest)) manifest[pkgPath] = original;

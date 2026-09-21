@@ -125,24 +125,27 @@ const REWRITE_FIELDS = SCAN_FIELDS.filter((field) => {
 //     - (Avoids using released `@joint/core` against local `@joint/plus`.)
 // - The rewritten dependencies and overrides must agree.
 //   - (NPM rejects the override otherwise.)
-// Returns names of packages pointed at something local (rewrites + overrides).
+// Returns the names rewritten in place.
+// - NOTE: An empty return does not mean "nothing changed" (due to `overrides`)!
 export function applyLocalPackages(pkg, specs) {
+    const rewritten = [];
     for (const field of REWRITE_FIELDS) {
         if (!pkg[field]) continue;
         for (const depName of Object.keys(pkg[field])) {
             const spec = specs[depName];
-            if (spec && pkg[field][depName] !== spec) pkg[field][depName] = spec;
+            if (!spec) continue;
+            if (pkg[field][depName] !== spec) pkg[field][depName] = spec;
+            rewritten.push(depName);
         }
     }
 
-    // Must count across every scanned field, not just rewritten ones.
-    // - Package declared in `peerDependencies` still needs `overrides`.
-    const applied = [...jointDepNames(pkg)].filter((name) => specs[name]);
-
-    // Only write `overrides` if `@joint/*` is used at all.
-    if (applied.length > 0) {
+    // `overrides` are written whenever the manifest reaches `@joint/*` at all.
+    // - Demo declaring just `@joint/plus` pulls in `@joint/core` transitively.
+    //   - So locally staged core has to be overridden there too.
+    // - If genuinely no `@joint/*` package is reached, `overrides` are skipped.
+    if (jointDepNames(pkg).size > 0) {
         pkg.overrides = { ...pkg.overrides, ...specs };
     }
 
-    return applied;
+    return rewritten;
 }
