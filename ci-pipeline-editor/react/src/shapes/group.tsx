@@ -69,7 +69,7 @@ export class GroupEndModel extends dia.Element {
     }
 
     defaults() {
-        return { ...super.defaults, type: GROUP_END_TYPE, z: ELEMENT_Z, size: { width: 0, height: 0 } };
+        return { ...super.defaults, type: GROUP_END_TYPE, z: ELEMENT_Z, size: { width: 0, height: 0 }};
     }
 
     static create(): GroupEndModel {
