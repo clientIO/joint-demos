@@ -135,6 +135,7 @@ body {
 }
 
 .main {
+    position: relative;
     display: flex;
     flex: 1;
     min-height: 0;
@@ -802,6 +803,37 @@ body {
     border: 1.5px solid var(--blue-dark);
     background: var(--view-tint);
     cursor: move;
+}
+
+/*
+    A small screen: the paper takes the whole width, the map goes, and the
+    panel is a sheet over the bottom of the paper, shown while an element is
+    selected - its fields - and gone with the selection; the diagram as text
+    is not offered.
+*/
+@media (max-width: 720px) {
+    .side {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2;
+        display: none;
+        width: auto;
+        max-height: 55%;
+        border-left: none;
+        border-top: 1px solid var(--line);
+        box-shadow: 0 -4px 14px var(--shadow-soft);
+    }
+
+    .app.has-selection .side {
+        display: flex;
+    }
+
+    /* The component sets its `display` inline: the rule has to insist. */
+    .navigator {
+        display: none !important;
+    }
 }
 
 .inspector .title {

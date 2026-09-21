@@ -1,4 +1,4 @@
-import { Diagram, Paper, PaperScroller } from '@joint/react-plus';
+import { Diagram, Paper, PaperScroller, useCells, useSelectionCollection } from '@joint/react-plus';
 import type { CellVisibility, InteractionsOptions } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 import { Tooltip } from 'react-tooltip';
@@ -39,11 +39,13 @@ function MenuLayer(): ReactNode {
     return menu ? <Menu request={menu} onClose={closeMenu} /> : null;
 }
 
-/** The class on the stage while a move is on: the hint shows, the "more" buttons hide. */
+/** The classes on the app: while a move is on, the hint shows and the "more" buttons hide; while something is selected, a small screen shows the panel (see `index.css`). */
 function Stage({ children }: { children: ReactNode }): ReactNode {
     const { moved } = useEditor();
+    const { collection } = useSelectionCollection();
+    const hasSelection = useCells(collection, (cells) => cells.length > 0);
     return (
-        <div className={`app${moved ? ' moving-mode' : ''}`}>
+        <div className={`app${moved ? ' moving-mode' : ''}${hasSelection ? ' has-selection' : ''}`}>
             {children}
         </div>
     );
