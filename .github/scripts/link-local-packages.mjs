@@ -18,9 +18,13 @@
  *                           this tool modified from its saved manifest
  *
  * Matching convention (shared with compare-screenshots.mjs's --local-dir):
- * for a dependency @joint/<name>, looks for joint-<name>*.tgz, <name>*.tgz,
- * joint-<name>/ or <name>/ inside the packages directory. Dependencies with
- * no match are left untouched.
+ * for a dependency @joint/<name>, looks for joint-<name>.tgz, <name>.tgz, a
+ * versioned joint-<name>-<version>.tgz or <name>-<version>.tgz, joint-<name>/
+ * or <name>/ inside the packages directory. The version must start with a
+ * digit, so joint-react-plus-4.3.1.tgz is not read as a versioned joint-react.
+ * A candidate whose own manifest names a different package is skipped, so a
+ * filename can never point a dependency at the wrong tarball. Dependencies
+ * with no match are left untouched.
  *
  * Every demo that uses @joint/* also gets an "overrides" block covering all
  * the local packages, so that a package reached only transitively is caught

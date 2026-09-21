@@ -23,6 +23,15 @@ export function resolveLocalSpec(rawPath) {
     return toFileSpec(abs);
 }
 
+// `<candidate>-<version>.tgz`, which is what `npm pack` writes.
+// - The version is bounded to start with a digit, so that a longer package name
+//   is not read as a version: `joint-react-plus-4.3.1.tgz` begins with
+//   `joint-react-`, and a plain prefix test makes it a versioned `@joint/react`.
+function isVersionedTarball(fileName, candidate) {
+    if (!fileName.startsWith(`${candidate}-`) || !fileName.endsWith('.tgz')) return false;
+    return /^[0-9]/.test(fileName.slice(candidate.length + 1));
+}
+
 // Looks for a tarball or unpacked directory matching a @joint/<name> package
 // inside dirPath, accepting both the "npm pack" naming convention
 // (joint-<name>-<version>.tgz) and plain hand-named files (<name>.tgz).
@@ -30,17 +39,40 @@ export function findLocalPackageInDir(dirPath, depName) {
     const suffix = depName.replace(/^@joint\//, '').toLowerCase();
     const entries = readdirSync(dirPath, { withFileTypes: true });
 
+    // A filename is a convention; the manifest inside is the fact. An artifact
+    // that says it is some other package is never returned for this one - the
+    // spec would otherwise install a tarball under the wrong name and fail.
+    // An unreadable manifest is not treated as a mismatch, so a hand-named or
+    // unusual artifact still resolves the way it always did.
+    const declaresThis = (path) => {
+        const name = localPackageName(path);
+        return name === null || name === depName;
+    };
+    const accept = (entryName) => {
+        const path = join(dirPath, entryName);
+        return declaresThis(path) ? path : null;
+    };
+
     for (const candidate of [`joint-${suffix}`, suffix]) {
         const exactTgz = entries.find(e => e.isFile() && e.name.toLowerCase() === `${candidate}.tgz`);
-        if (exactTgz) return join(dirPath, exactTgz.name);
+        if (exactTgz) {
+            const path = accept(exactTgz.name);
+            if (path) return path;
+        }
 
         const versioned = entries
-            .filter(e => e.isFile() && e.name.toLowerCase().startsWith(`${candidate}-`) && e.name.toLowerCase().endsWith('.tgz'))
+            .filter(e => e.isFile() && isVersionedTarball(e.name.toLowerCase(), candidate))
             .sort((a, b) => statSync(join(dirPath, b.name)).mtimeMs - statSync(join(dirPath, a.name)).mtimeMs);
-        if (versioned.length > 0) return join(dirPath, versioned[0].name);
+        for (const entry of versioned) {
+            const path = accept(entry.name);
+            if (path) return path;
+        }
 
         const dirMatch = entries.find(e => e.isDirectory() && e.name.toLowerCase() === candidate);
-        if (dirMatch) return join(dirPath, dirMatch.name);
+        if (dirMatch) {
+            const path = accept(dirMatch.name);
+            if (path) return path;
+        }
     }
     return null;
 }
