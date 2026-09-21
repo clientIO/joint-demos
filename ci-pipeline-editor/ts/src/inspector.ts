@@ -4,12 +4,12 @@ import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import yaml from 'highlight.js/lib/languages/yaml';
 
+import { getId } from './data/build';
 import { getEdges } from './data/diagram-data';
 import type { DiagramData } from './data/diagram-data';
 import type { NodeData, Slot } from './data/types';
 import { toYAML } from './data/yaml';
 import { DecisionModel, EndModel, GROUP_LABELS, GroupStartModel, StartModel, StepModel } from './shapes';
-import { getId } from './data/build';
 
 /** What can be selected: every element with a picture - not the end of a group, not an add button. */
 export type Selectable = StepModel | DecisionModel | StartModel | EndModel | GroupStartModel;

@@ -1,7 +1,7 @@
 import { dia, util } from '@joint/plus';
 
 import { ADD_BUTTON_SELECTOR, DECISION_ICON } from './constants';
-import { ADD_BUTTON_ATTRS, FILLED_PILL_ATTRS, addButtonMarkup, pillDefaults, pillMarkup, setPillLabel } from './pill';
+import { ADD_BUTTON_ATTRS, FILLED_PILL_ATTRS, addButtonMarkup, pillDefaults, pillMarkup, setPillLabel, showAddButton } from './pill';
 
 /**
  * A decision: a node of the tree that branches out - without a merge,
@@ -32,10 +32,7 @@ export class DecisionModel extends dia.Element {
     }
 
     setAddButtonVisible(visible: boolean): void {
-        this.attr({
-            [ADD_BUTTON_SELECTOR]: { display: visible ? null : 'none' },
-            addIcon: { display: visible ? null : 'none' }
-        });
+        showAddButton(this, visible);
     }
 
     static isDecision(cell: dia.Cell): cell is DecisionModel {

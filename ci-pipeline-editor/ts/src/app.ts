@@ -1,17 +1,19 @@
 import { dia, ui } from '@joint/plus';
 import type { g } from '@joint/plus';
 
-import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup, getActionTarget } from './actions';
+import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getActionTarget, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
 import { buildGraph, getId } from './data/build';
-import type { Id } from './data/types';
 import { DiagramData } from './data/diagram-data';
+import { example } from './data/example';
+import type { Id } from './data/types';
 import { FrameHighlighter } from './frame';
+import type { FrameRadius } from './frame';
 import { isSelectable, syncInspector } from './inspector';
 import { isCellVisible, runLayout } from './layout';
 import { createNavigator } from './navigator';
-import { example } from './data/example';
 import { COLORS, STEP_RADIUS, StepModel, cellNamespace } from './shapes';
-import { addHoverTools, addTooltips, clearDeletionHighlight, clearFaded, clearMoveHighlight, markMove, placeLinkTools } from './tools';
+import { getTheme, setTheme } from './theme';
+import { addHoverTools, addTooltips, clearPreviews, markMove, placeLinkTools } from './tools';
 import type { ToolActions } from './tools';
 
 /** How far the frame of the selected element stands from its edge. */
@@ -44,7 +46,7 @@ export function init(): void {
         clickThreshold: 10,
         // The layout owns the positions.
         interactive: false,
-        // A build changes every cell; the views are rendered once, on the next frame.
+        // A build changes every cell: the updates of the views are scheduled, and `refresh()` renders them all at once.
         async: true,
         background: { color: COLORS.background },
         // Both ends of a link are computed from the models, not the views: a
@@ -125,9 +127,7 @@ export function init(): void {
         // to be removed; the hover tools come back on hover - and so do the
         // previews of a deletion or a collapse, which sit on views too.
         paper.removeTools();
-        clearDeletionHighlight();
-        clearMoveHighlight();
-        clearFaded();
+        clearPreviews();
         buildGraph(graph, data.getData());
         contentBBox = runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
         // A move whose element the edit removed - an undo, a redo, `Delete` - is off.
@@ -168,8 +168,8 @@ export function init(): void {
         frames: new ui.HighlighterSelectionFrameList({
             highlighter: FrameHighlighter,
             options: (cell: dia.Cell) => {
-                const radius = StepModel.isStep(cell) ? STEP_RADIUS : (cell as dia.Element).size().height / 2;
-                return { layer: dia.Paper.Layers.BACK, padding: SELECTION_PADDING, rx: radius, ry: radius, attrs: { stroke: COLORS.selection, strokeWidth: 1.5 }};
+                const radius: FrameRadius = StepModel.isStep(cell) ? STEP_RADIUS : 'round';
+                return { layer: dia.Paper.Layers.BACK, padding: SELECTION_PADDING, radius, attrs: { stroke: COLORS.selection, strokeWidth: 1.5 }};
             }
         })
     });
@@ -213,9 +213,7 @@ export function init(): void {
     /** Ends the move with a drop: the edit that follows rebuilds the diagram, tools included. */
     function takeMoved(): string {
         const id = getId(moved!);
-        moved = null;
-        moveHintEl.hidden = true;
-        appEl.classList.remove('moving-mode');
+        setMoved(null);
         return id;
     }
     const movedId = (): Id => getId(moved!);
@@ -250,6 +248,7 @@ export function init(): void {
     // which fits the width and puts the start at the top. (The `attrs` of a
     // widget are set on the DOM as they are, hence the dashed `data-tooltip`;
     // the attributes of the cells are camel-cased.)
+    const themeTooltip = (): string => getTheme() === 'dark' ? 'Light theme' : 'Dark theme';
     const toolbar = new ui.Toolbar({
         autoToggle: true,
         references: { commandManager: history, paperScroller: scroller },
@@ -261,12 +260,19 @@ export function init(): void {
             { type: 'separator' },
             { type: 'zoomOut', min: MIN_ZOOM, max: MAX_ZOOM, attrs: { button: { 'data-tooltip': 'Zoom out' }}},
             { type: 'zoomIn', min: MIN_ZOOM, max: MAX_ZOOM, attrs: { button: { 'data-tooltip': 'Zoom in' }}},
-            { type: 'button', name: 'zoomToFit', attrs: { button: { 'data-tooltip': 'Zoom to fit' }}}
+            { type: 'button', name: 'zoomToFit', attrs: { button: { 'data-tooltip': 'Zoom to fit' }}},
+            { type: 'separator' },
+            { type: 'button', name: 'theme', attrs: { button: { 'data-tooltip': themeTooltip() }}}
         ]
     });
     document.getElementById('toolbar')!.appendChild(toolbar.el);
     toolbar.render();
     toolbar.on('zoomToFit:pointerclick', zoomToFit);
+    // The last button switches the theme: the stylesheet follows `data-theme` on the document, its icon included; the tooltip names the other theme.
+    toolbar.on('theme:pointerclick', () => {
+        setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+        toolbar.getWidgetByName('theme').el.setAttribute('data-tooltip', themeTooltip());
+    });
     // Everything but the start goes: one edit of the data like any other, so it can be undone; the view is fitted again.
     toolbar.on('reset:pointerclick', () => {
         if (moved) setMoved(null);

@@ -2,7 +2,7 @@ import type { dia, g } from '@joint/plus';
 
 import { layoutForkGroup } from './fork';
 import { LOOP_GAP, LOOP_START_ROOM, layoutLoopGroup } from './loop';
-import { AddButtonModel, DecisionModel, GroupModel, GroupStartModel, LinkModel, NODE_SIZE, isGate } from '../shapes';
+import { AddButtonModel, DecisionModel, GroupModel, GroupStartModel, LinkModel, isGate } from '../shapes';
 import type { GroupKind } from '../shapes';
 import { createTreeLayout } from './tree';
 import { getDefaultOptionName } from '../data/diagram-data';
@@ -230,9 +230,10 @@ export function runLayout(graph: dia.Graph, root: dia.Element): g.Rect | null {
 
     for (const group of groups) {
         if (group.isCollapsed()) {
-            // A node-sized group with its `start` in its place, standing in for it.
-            group.resize(NODE_SIZE.width, NODE_SIZE.height);
-            group.getStart().position(group.position().x, group.position().y);
+            // A group the size of its `start`, which stands in for it, in its place.
+            const start = group.getStart();
+            group.resize(start.size().width, start.size().height);
+            start.position(group.position().x, group.position().y);
         } else {
             layoutGroup(graph, group);
         }

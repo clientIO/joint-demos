@@ -2,7 +2,7 @@ import { dia, util } from '@joint/plus';
 
 import { ADD_BUTTON_SELECTOR, ELEMENT_Z, GROUP_END_SIZE, GROUP_ICONS, GROUP_LABELS, NODE_SIZE } from './constants';
 import type { GroupKind } from './constants';
-import { ADD_BUTTON_ATTRS, COLLAPSE_ICON, EXPAND_ICON, FILLED_PILL_ATTRS, TOGGLE_ATTRS, addButtonMarkup, pillDefaults, pillMarkup, toggleMarkup } from './pill';
+import { ADD_BUTTON_ATTRS, COLLAPSE_ICON, EXPAND_ICON, FILLED_PILL_ATTRS, TOGGLE_ATTRS, addButtonMarkup, pillDefaults, pillMarkup, showAddButton, toggleMarkup } from './pill';
 
 /*
     A group - a fork or a loop - and its gates: the group itself, never
@@ -52,11 +52,7 @@ export class GroupStartModel extends dia.Element {
 
     /** Shows or hides the add button of the start of a fork; the start of a loop has none. */
     setAddButtonVisible(visible: boolean): void {
-        if (this.getKind() !== 'fork') return;
-        this.attr({
-            [ADD_BUTTON_SELECTOR]: { display: visible ? null : 'none' },
-            addIcon: { display: visible ? null : 'none' }
-        });
+        if (this.getKind() === 'fork') showAddButton(this, visible);
     }
 
     /** Flips the icon and the tooltip of the collapse/expand button. */
@@ -122,9 +118,9 @@ export function isGate(cell: dia.Cell): cell is Gate {
  * connect to them. The group is never rendered: the paper's `cellVisibility`
  * hides it, so it is only a node of the layout.
  *
- * A collapsed group shrinks to the size of a node and hides its content. Its
- * `start` node, labelled with the kind of the group, stays visible in its
- * place and stands in for it.
+ * A collapsed group shrinks to the size of its `start` node and hides its
+ * content. The `start`, labelled with the kind of the group, stays visible in
+ * its place and stands in for it.
  *
  * The content of each kind is created and laid out by its own module
  * (`layout/fork.ts`, `layout/loop.ts`); the group only knows its gates.

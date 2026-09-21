@@ -6,9 +6,10 @@ import { openAddMenu, openMenu } from './menu';
 import type { AddChoice } from './menu';
 import { ADD_BUTTON_SELECTOR, ADD_BUTTON_SIZE, AddButtonModel, BRANCH_LABEL_OFFSET_ALONG, COLORS, DecisionModel, EndModel, GroupModel, GroupEndModel, GroupStartModel, INSERT_BUTTON_FROM_TARGET, LinkModel, PLUS_ICON, TOGGLE_EVENT } from './shapes';
 
-/** The insert buttons are squares, so that they differ from the round toggle and "more" buttons: blue, marked in white like every add button. */
+/** The insert buttons are squares, so that they differ from the round toggle and "more" buttons: blue, marked in white like every add button, outlined in the color of the paper. */
 const ADD_FILL = COLORS.button.fill;
-const ADD_STROKE = COLORS.button.text;
+const ADD_OUTLINE = COLORS.button.outline;
+const ADD_MARK = COLORS.button.text;
 const ADD_ICON = PLUS_ICON;
 const INSERT_BUTTON_SIZE = ADD_BUTTON_SIZE.width;
 /** The "remove" item of the menu of an element: a cross, in red. */
@@ -44,8 +45,8 @@ function createInsertButtonMarkup(title: string): dia.MarkupJSON {
     const half = INSERT_BUTTON_SIZE / 2;
     // The class picks the hover color in the stylesheet.
     return util.svg/* xml */`
-        <rect @selector="body" class="button add" x="${-half}" y="${-half}" width="${INSERT_BUTTON_SIZE}" height="${INSERT_BUTTON_SIZE}" rx="3" ry="3" fill="${ADD_FILL}" stroke="${ADD_STROKE}" stroke-width="1.5" cursor="pointer" data-tooltip="${title}"/>
-        <path d="${ADD_ICON}" fill="none" stroke="${ADD_STROKE}" stroke-width="2" pointer-events="none"/>
+        <rect @selector="body" class="button add" x="${-half}" y="${-half}" width="${INSERT_BUTTON_SIZE}" height="${INSERT_BUTTON_SIZE}" rx="3" ry="3" fill="${ADD_FILL}" stroke="${ADD_OUTLINE}" stroke-width="1.5" cursor="pointer" data-tooltip="${title}"/>
+        <path d="${ADD_ICON}" fill="none" stroke="${ADD_MARK}" stroke-width="2" pointer-events="none"/>
     `;
 }
 
@@ -89,82 +90,56 @@ function handleElementClick(view: dia.ElementView, evt: dia.Event, actions: Tool
     openAddMenu(target, getAddChoices(parent), (choice) => actions.addBelow(parent, choice));
 }
 
-/** The id of the highlighter, and the class it adds, on the cells a hovered "remove" item would remove. */
-const DELETE_HIGHLIGHT = 'to-be-deleted';
-
-/** The views highlighted at the moment, to take the highlight off again. */
-let highlightedViews: dia.CellView[] = [];
-
 /**
- * Turns the cells a deletion of `target` would remove red, by a class on
- * their views - the visible ones; the content of a collapsed group has none.
- * The add buttons among them are left alone: buttons do not turn red.
+ * A mark on cells: a class on their views - the visible ones; the content
+ * of a collapsed group has none - which the stylesheet colors (see the
+ * previews and the marks of a move there). The marker remembers the views
+ * it marked, to take the mark off again.
  */
-function highlightDeletion(paper: dia.Paper, target: dia.Element): void {
-    clearDeletionHighlight();
-    for (const cell of getDeletedCells(paper.model, target)) {
-        // The buttons keep their color: only the elements and the links turn red.
-        if (!isCellVisible(cell) || AddButtonModel.isAddButton(cell)) continue;
-        const view = paper.findViewByModel(cell);
-        if (!view) continue;
-        highlighters.addClass.add(view, 'root', DELETE_HIGHLIGHT, { className: DELETE_HIGHLIGHT });
-        highlightedViews.push(view);
+class ViewMarker {
+    private marked: { view: dia.CellView; id: string }[] = [];
+
+    constructor(private readonly className: string) {}
+
+    /** Marks `cells` on `selector` of their views - the whole view by default - on top of what is marked. */
+    add(paper: dia.Paper, cells: Iterable<dia.Cell>, selector = 'root'): void {
+        const id = `${this.className}-${selector}`;
+        for (const cell of cells) {
+            if (!isCellVisible(cell)) continue;
+            const view = paper.findViewByModel(cell);
+            if (!view) continue;
+            highlighters.addClass.add(view, selector, id, { className: this.className });
+            this.marked.push({ view, id });
+        }
+    }
+
+    /** Marks `cells` alone: what was marked before is unmarked first. */
+    set(paper: dia.Paper, cells: Iterable<dia.Cell>): void {
+        this.clear();
+        this.add(paper, cells);
+    }
+
+    clear(): void {
+        for (const { view, id } of this.marked) highlighters.addClass.remove(view, id);
+        this.marked = [];
     }
 }
 
-/** Takes the deletion highlight off. */
-export function clearDeletionHighlight(): void {
-    for (const view of highlightedViews) highlighters.addClass.remove(view, DELETE_HIGHLIGHT);
-    highlightedViews = [];
+/** The previews of the menu of an element and of the collapse button: what a hovered "remove" item would remove, in red; what a hovered "move" item would move, in teal; what a collapse would hide, faded. */
+const deletionPreview = new ViewMarker('to-be-deleted');
+const movePreview = new ViewMarker('to-be-moved');
+const collapsePreview = new ViewMarker('faded');
+
+/** Takes every preview off: on a rebuild, and when the pointer leaves the element. */
+export function clearPreviews(): void {
+    deletionPreview.clear();
+    movePreview.clear();
+    collapsePreview.clear();
 }
 
-
-/** The class on the cells a hovered "move" item would move: the teal of a move in progress (see the stylesheet). */
-const MOVE_HIGHLIGHT = 'to-be-moved';
-
-/** The views marked at the moment as about to move, to unmark them. */
-let moveHighlightedViews: dia.CellView[] = [];
-
-/** Marks `cells` - the visible ones - as what a move would take, by a class on their views; what was marked before is unmarked first. */
-function highlightMove(paper: dia.Paper, cells: Iterable<dia.Cell>): void {
-    clearMoveHighlight();
-    for (const cell of cells) {
-        if (!isCellVisible(cell)) continue;
-        const view = paper.findViewByModel(cell);
-        if (!view) continue;
-        highlighters.addClass.add(view, 'root', MOVE_HIGHLIGHT, { className: MOVE_HIGHLIGHT });
-        moveHighlightedViews.push(view);
-    }
-}
-
-/** Takes the mark of a move about to happen off. */
-export function clearMoveHighlight(): void {
-    for (const view of moveHighlightedViews) highlighters.addClass.remove(view, MOVE_HIGHLIGHT);
-    moveHighlightedViews = [];
-}
-
-/** The class on the faded cells - what a hovered collapse button would hide: light colors (see the stylesheet). */
-const FADED_CLASS = 'faded';
-
-/** The views faded at the moment, to restore them. */
-let fadedViews: dia.CellView[] = [];
-
-/** Fades `cells` - the visible ones - by a class on their views; what was faded before is restored first. */
-function fadeCells(paper: dia.Paper, cells: Iterable<dia.Cell>): void {
-    clearFaded();
-    for (const cell of cells) {
-        if (!isCellVisible(cell)) continue;
-        const view = paper.findViewByModel(cell);
-        if (!view) continue;
-        highlighters.addClass.add(view, 'root', FADED_CLASS, { className: FADED_CLASS });
-        fadedViews.push(view);
-    }
-}
-
-/** Restores the faded cells. */
-export function clearFaded(): void {
-    for (const view of fadedViews) highlighters.addClass.remove(view, FADED_CLASS);
-    fadedViews = [];
+/** Turns the cells a deletion of `target` would remove red. The add buttons among them are left alone: buttons do not turn red. */
+function previewDeletion(paper: dia.Paper, target: dia.Element): void {
+    deletionPreview.set(paper, getDeletedCells(paper.model, target).filter((cell) => !AddButtonModel.isAddButton(cell)));
 }
 
 /**
@@ -172,15 +147,15 @@ export function clearFaded(): void {
  * included, and the links of the content. The start of the group stays: it
  * stands in for the collapsed group. Nothing for a group already collapsed.
  */
-function highlightCollapse(paper: dia.Paper, group: GroupModel): void {
+function previewCollapse(paper: dia.Paper, group: GroupModel): void {
     if (group.isCollapsed()) {
-        clearFaded();
+        collapsePreview.clear();
         return;
     }
     const start = group.getStart();
     const content = group.getEmbeddedCells({ deep: true }).filter((cell) => cell !== start);
     const links = content.filter((cell) => cell.isElement()).flatMap((cell) => paper.model.getConnectedLinks(cell));
-    fadeCells(paper, new Set([...content, ...links]));
+    collapsePreview.set(paper, new Set([...content, ...links]));
 }
 
 /** The "more" button: three dots at the top right of the hovered element, inside it; a click opens the menu of the element. */
@@ -244,8 +219,8 @@ function openElementMenu(paper: dia.Paper, target: dia.Element, anchor: HTMLElem
         onChoose: (action) => (action === 'move' ? actions.startMove(target) : actions.delete(target)),
         // The hovered item shows what it would do: "remove" turns the cells red, "move" marks what would move.
         onHover: (action) => {
-            if (action === 'remove') highlightDeletion(paper, target); else clearDeletionHighlight();
-            if (action === 'move') highlightMove(paper, actions.getMovedCellsOf(target)); else clearMoveHighlight();
+            if (action === 'remove') previewDeletion(paper, target); else deletionPreview.clear();
+            if (action === 'move') movePreview.set(paper, actions.getMovedCellsOf(target)); else movePreview.clear();
         }
     });
 }
@@ -285,12 +260,9 @@ function createInsertTool(link: LinkModel, distance: number, actions: ToolAction
     });
 }
 
-/** The class on the cells of the subtree being moved, and on the buttons that cannot take it - hidden. */
-const MOVING_CLASS = 'moving';
-const NO_DROP_CLASS = 'no-drop';
-
-/** The views marked for the move at the moment, to unmark them. */
-let markedViews: { view: dia.CellView; className: string }[] = [];
+/** The marks of a move in progress: the subtree being moved - faded - and the buttons that cannot take it - hidden. */
+const movingMark = new ViewMarker('moving');
+const noDropMark = new ViewMarker('no-drop');
 
 /**
  * Marks the move in progress: the subtree that moves - faded, its links
@@ -298,32 +270,25 @@ let markedViews: { view: dia.CellView; className: string }[] = [];
  * while no move is on: the marks of the last one come off.
  */
 export function markMove(paper: dia.Paper, actions: ToolActions): void {
-    for (const { view, className } of markedViews) highlighters.addClass.remove(view, className);
-    markedViews = [];
+    movingMark.clear();
+    noDropMark.clear();
     const moved = actions.getMoved();
     if (!moved) return;
-    const mark = (cell: dia.Cell, className: string, selector: string = 'root'): void => {
-        const view = isCellVisible(cell) ? paper.findViewByModel(cell) : undefined;
-        if (!view) return;
-        highlighters.addClass.add(view, selector, `${className}-${selector}`, { className });
-        markedViews.push({ view, className: `${className}-${selector}` });
-    };
-    for (const cell of actions.getMovedCells()) mark(cell, MOVING_CLASS);
+    movingMark.add(paper, actions.getMovedCells());
     for (const element of paper.model.getElements()) {
         const hasPillButton = GroupStartModel.isGroupStart(element) ? element.getKind() === 'fork' : DecisionModel.isDecision(element);
         if (hasPillButton) {
             // The button at the right end of a decision or of the start of a fork: only that button, not the pill.
             if (!actions.canDropBelow(element)) {
-                mark(element, NO_DROP_CLASS, ADD_BUTTON_SELECTOR);
-                mark(element, NO_DROP_CLASS, 'addIcon');
+                noDropMark.add(paper, [element], ADD_BUTTON_SELECTOR);
+                noDropMark.add(paper, [element], 'addIcon');
             }
         } else if (AddButtonModel.isAddButton(element)) {
             // The button below a leaf.
             const [parent] = paper.model.getNeighbors(element, { inbound: true });
             if (parent && !actions.canDropBelow(parent)) {
                 // The button goes with its link: a link into nothing would hang from the leaf.
-                mark(element, NO_DROP_CLASS);
-                for (const link of paper.model.getConnectedLinks(element, { inbound: true })) mark(link, NO_DROP_CLASS);
+                noDropMark.add(paper, [element, ...paper.model.getConnectedLinks(element, { inbound: true })]);
             }
         }
     }
@@ -350,8 +315,9 @@ function isLoopEnd(element: dia.Element): boolean {
 }
 
 /**
- * Where the insert button of a link goes, as a distance along its route: the middle of its longest vertical part - the part the link has of
- * its own, not the one it shares with its siblings on a bar, and never a
+ * Where the insert button of a link goes, as a distance along its route:
+ * the middle of its longest vertical part - the part the link has of its
+ * own, not the one it shares with its siblings on a bar, and never a
  * horizontal part. When the link leaves an element with something right
  * below it (see `hasSomethingBelow()`) - the collapse button of a collapsed
  * group, the return link of a loop - the button sits near the child instead,
@@ -445,7 +411,7 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
     // The collapse/expand button on the `start` node of a group is a part of its markup.
     paper.on(TOGGLE_EVENT, (elementView: dia.ElementView, evt: dia.Event) => {
         evt.stopPropagation();
-        clearFaded();
+        collapsePreview.clear();
         const group = elementView.model.getParentCell();
         if (group && GroupModel.isGroup(group)) actions.toggleGroup(group);
     });
@@ -455,13 +421,13 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
     paper.on('element:mouseover', (elementView: dia.ElementView, evt: dia.Event) => {
         const group = elementView.model.getParentCell();
         if (isToggle(evt) && GroupStartModel.isGroupStart(elementView.model) && group && GroupModel.isGroup(group)) {
-            highlightCollapse(paper, group);
+            previewCollapse(paper, group);
         } else {
-            clearFaded();
+            collapsePreview.clear();
         }
     });
     paper.on('element:mouseout', (_elementView: dia.ElementView, evt: dia.Event) => {
-        if (isToggle(evt)) clearFaded();
+        if (isToggle(evt)) collapsePreview.clear();
     });
 
     paper.on('element:pointerclick', (elementView: dia.ElementView, evt: dia.Event) => {
@@ -486,9 +452,7 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
 
     paper.on('element:mouseleave', (elementView: dia.ElementView) => {
         // The "more" tool goes with the hover; so do the previews of its menu and of the collapse button.
-        clearDeletionHighlight();
-        clearMoveHighlight();
-        clearFaded();
+        clearPreviews();
         elementView.removeTools();
     });
 }
