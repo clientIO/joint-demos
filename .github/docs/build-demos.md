@@ -16,22 +16,6 @@ bash .github/scripts/build-demos.sh --force
 
 # Build several named demos
 bash .github/scripts/build-demos.sh --demos charts,kitchen-sink
-
-# Build only the demos that depend on a JointJS+ package
-bash .github/scripts/build-demos.sh --plus-only
-
-# Print what would be built, without building it
-bash .github/scripts/build-demos.sh --plus-only --list-only
-```
-
-`--list-only` prints nothing but demo names to stdout, comma-separated — every
-other message goes to stderr — so its output is exactly what `--demos` parses
-and the two compose directly:
-
-```bash
-# Build every JointJS+ demo, having first checked which ones those are
-bash .github/scripts/build-demos.sh \
-  --demos "$(bash .github/scripts/build-demos.sh --plus-only --list-only)"
 ```
 
 ## How it works
@@ -57,14 +41,6 @@ bash .github/scripts/build-demos.sh \
 | `--force` | Continue building remaining demos when a build fails. Without this flag no further demo is started after a failure (the ones already running are left to finish). |
 | `--jobs N` | How many demos to build at once. Defaults to the machine's core count, capped at 4. |
 | `--demos a,b,c` | Build only these demos. Repeatable, and combines with a bare demo name. |
-| `--plus-only` | Build only demos that depend on a JointJS+ package (`@joint/plus`, `@joint/react-plus`, `@joint/format-*`, `@joint/shapes-vsm`). Open-source-only demos are left out. |
-| `--list-only` | Print the demos that would be built as a comma-separated list, and exit without building or touching `_site/`. |
-
-`--plus-only` reads the `dependencies` and `devDependencies` of the variant that
-would actually be built, not the text of `package.json`. That matters after
-[`link-local-packages.mjs`](../scripts/link-local-packages.mjs) has run: the
-`overrides` block it adds names every local package, so matching on text would
-select every demo.
 
 ## Environment variables
 

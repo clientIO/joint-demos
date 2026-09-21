@@ -48,11 +48,6 @@ on:
         type: string
         required: false
         default: ''
-      plus_only:
-        description: 'Build only the demos that depend on a JointJS+ package.'
-        type: boolean
-        required: false
-        default: false
       demos:
         description: 'Comma-separated demo names to build. Empty means all of them.'
         type: string
@@ -83,11 +78,6 @@ on:
       - 'LICENSE'
   workflow_dispatch:
     inputs:
-      plus_only:
-        description: 'Build only the demos that depend on a JointJS+ package.'
-        type: boolean
-        required: false
-        default: false
       demos:
         description: 'Comma-separated demo names to build. Empty means all of them.'
         type: string
@@ -223,15 +213,11 @@ jobs:
           # - inline interpolation with `${{ }}` is not secure
           DEMOS: ${{ inputs.demos }}
           JOBS: ${{ inputs.jobs || 4 }}
-          PLUS_ONLY: ${{ inputs.plus_only || false }}
           JOINTJS_NPM_TOKEN: ${{ secrets.JOINTJS_NPM_TOKEN }}
           CLEANUP: '1' # Reclaim every demo's node_modules once output is copied
         run: |
           set -o pipefail
           args=(--force --jobs "$JOBS")
-          if [ "$PLUS_ONLY" = "true" ]; then
-            args+=(--plus-only)
-          fi
           if [ -n "$DEMOS" ]; then
             args+=(--demos "$DEMOS")
           fi
@@ -247,7 +233,6 @@ jobs:
           RESOLVED_REF: ${{ steps.resolve.outputs.ref }}
           RESOLVED_WHY: ${{ steps.resolve.outputs.why }}
           PACKAGES_ARTIFACT: ${{ inputs.packages_artifact }}
-          PLUS_ONLY: ${{ inputs.plus_only }}
           DEMOS: ${{ inputs.demos }}
         run: |
           if [ -n "$PACKAGES_ARTIFACT" ]; then
@@ -256,13 +241,10 @@ jobs:
             packages='as pinned by each demo'
           fi
 
-          if [ "$PLUS_ONLY" = "true" ]; then
-            selection='JointJS+ demos'
+          if [ -n "$DEMOS" ]; then
+            selection="$(printf '%s' "$DEMOS")"
           else
             selection='all demos'
-          fi
-          if [ -n "$DEMOS" ]; then
-            selection="$(printf '%s (%s)' "$selection" "$DEMOS")"
           fi
 
           {

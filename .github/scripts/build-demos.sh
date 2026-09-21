@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: build-demos.sh [--force] [--jobs N] [--demos a,b,c] [--plus-only]
-#                       [--list-only] [demo-name]
+# Usage: build-demos.sh [--force] [--jobs N] [--demos a,b,c] [demo-name]
 # When demo-name or --demos is provided, only those demos are built.
 # When neither is, all demos are built.
 # --force:      keep building after a demo fails (default: stop starting new ones)
 # --jobs N:     how many demos to build at once (default: the machine's cores, max 4)
 # --demos a,b:  build only these demos (repeatable, comma-separated)
-# --plus-only:  build only demos that depend on a JointJS+ package
-# --list-only:  print the demos that would be built, comma-separated, and stop
 #
 # Demos are independent — each installs and builds inside its own directory and
 # copies its own output into _site — so they are built several at a time. The
@@ -27,14 +24,10 @@ set -euo pipefail
 FORCE=false
 FILTER=""
 JOBS=""
-PLUS_ONLY=false
-LIST_ONLY=false
 SELECTED=()
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --force) FORCE=true; shift ;;
-        --plus-only) PLUS_ONLY=true; shift ;;
-        --list-only) LIST_ONLY=true; shift ;;
         --jobs)
             # Each branch shifts what it consumed, rather than shifting once at
             # the bottom for everyone: `--jobs` eats two arguments, and a shared
@@ -162,8 +155,8 @@ for demo_dir in */; do
 
     # Check demos.config.json for skip flag
     if [[ "$(demo_config "$demo_name" skip)" == "true" ]]; then
-        # Planning diagnostics go to stderr so that --list-only's stdout is
-        # nothing but demo names, and stays usable as input to --demos.
+        # Planning diagnostics go to stderr, alongside the rest of the run's
+        # warnings, and are repeated in the summary at the end.
         echo ":: Skipping $demo_name (skip=true in demos.config.json)" >&2
         SKIPPED+=("$demo_name")
         continue
@@ -206,41 +199,7 @@ for demo_dir in */; do
     printf '%s\t%s\t%s\n' "$demo_name" "$build_dir" "$build_flags" >> "$PLAN"
 done
 
-# Applied to the finished plan, in one node pass, because it has to read the
-# dependency fields rather than the text of package.json: the `overrides` block
-# that link-local-packages.mjs adds names every local package, so a demo that
-# uses only @joint/core still mentions @joint/plus once it has been linked.
-if [[ "$PLUS_ONLY" == true ]]; then
-    node -e "
-        const { readFileSync, writeFileSync } = require('fs');
-        const plus = /^@joint\/(plus|react-plus|format-visio|format-bpmn-import|format-bpmn-export|shapes-vsm)$/;
-        const kept = readFileSync(process.argv[1], 'utf8').split('\n').filter(Boolean).filter((line) => {
-            const buildDir = line.split('\t')[1];
-            let pkg;
-            try {
-                pkg = JSON.parse(readFileSync(buildDir + '/package.json', 'utf8'));
-            } catch {
-                return false;
-            }
-            return ['dependencies', 'devDependencies']
-                .some((f) => Object.keys(pkg[f] ?? {}).some((name) => plus.test(name)));
-        });
-        writeFileSync(process.argv[1], kept.map((l) => l + '\n').join(''));
-    " "$PLAN"
-fi
-
 PLANNED=$(wc -l < "$PLAN" | tr -d ' ')
-
-# Printed before anything is removed or built, so that checking what a set of
-# filters selects stays a read-only operation.
-if [[ "$LIST_ONLY" == true ]]; then
-    # Comma-separated, which is exactly what --demos parses, so the two compose
-    # without reshaping: `--demos "$(... --list-only)"`. One name per line would
-    # read better on a terminal, but --demos splits on commas only, so feeding
-    # it back would produce a single name with newlines in it and build nothing.
-    cut -f1 "$PLAN" | paste -sd, -
-    exit 0
-fi
 
 rm -rf "$SITE_DIR"
 mkdir -p "$SITE_DIR"
