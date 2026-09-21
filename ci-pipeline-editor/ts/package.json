@@ -1,7 +1,7 @@
 {
-  "name": "@joint/demo-tree-branch-groups",
+  "name": "@joint/demo-ci-pipeline-editor",
   "version": "4.3.3",
-  "description": "JointJS+ - Tree Layout with Branch Groups",
+  "description": "JointJS+ - CI Pipeline Editor",
   "main": "src/main.ts",
   "homepage": "https://jointjs.com",
   "author": {
@@ -17,7 +17,8 @@
     "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
-    "@joint/plus": "4.3.3"
+    "@joint/plus": "4.3.3",
+    "highlight.js": "^11.12.0"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

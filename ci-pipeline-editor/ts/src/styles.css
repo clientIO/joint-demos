@@ -1,0 +1,589 @@
+/*
+    The stylesheet of JointJS+ goes into a cascade layer. Rules outside of a
+    layer win over any layered rule whatever its specificity, so the rules
+    below can name things simply, without matching the theme selectors of
+    the library.
+*/
+@import '@joint/plus/joint-plus.css' layer(joint);
+
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* The toolbar above; below it the paper, filling the rest, and the inspector on the right. */
+/* The colors of the previews on the cells: a deletion in red, a collapse in a light blue, a move in teal - the teal of the drop points. */
+:root {
+    --red: #E54666;
+    --blue-light: #C8D3F2;
+    --teal: #2F9C95;
+    --teal-dark: #257C77;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.main {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+.paper {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+/* The hint while a move is on, floating over the top of the paper. */
+.move-hint {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    z-index: 1;
+    transform: translateX(-50%);
+    padding: 6px 12px;
+    border: 1px solid #DCE2F5;
+    border-radius: 6px;
+    background: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(34, 34, 34, 0.1);
+    font-family: sans-serif;
+    font-size: 12px;
+    color: #222222;
+    pointer-events: none;
+}
+
+.move-hint kbd {
+    padding: 1px 4px;
+    border: 1px solid #DCE2F5;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 11px;
+}
+
+/* A move in progress: the subtree that moves is out of reach (and marked, see the previews); a button that cannot take it is gone. */
+.moving {
+    pointer-events: none;
+}
+
+.no-drop {
+    display: none;
+}
+
+/* The column on the right: the inspector, and the map of the diagram under it. */
+.side {
+    display: flex;
+    flex-direction: column;
+    width: 440px;
+    flex-shrink: 0;
+    border-left: 1px solid #DCE2F5;
+    background: #FFFFFF;
+}
+
+/*
+    The inspector panel: a header with the kind of the selected element and,
+    below it, the fields of a `ui.Inspector` on its data - or a line of text:
+    the hint with nothing selected, a note for an element with nothing to
+    edit.
+*/
+.inspector {
+    /* The theme places the inspector absolutely: it fills the panel. */
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    font-family: sans-serif;
+    font-size: 13px;
+    color: #222222;
+    overflow-y: auto;
+}
+
+/* The map of the diagram (see `navigator.ts`): small, floating over the bottom right corner of the paper. */
+.navigator-panel {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1;
+    width: 200px;
+    height: 140px;
+    overflow: hidden;
+    border: 1px solid #DCE2F5;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(34, 34, 34, 0.1);
+}
+
+.navigator-panel .joint-navigator {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #F3F7F6;
+}
+
+/* The labels of the links - the names of the options - are not for the map. */
+.navigator-panel .joint-link .label {
+    display: none;
+}
+
+.navigator-panel .current-view {
+    border: 1.5px solid #3552C4;
+    background: rgba(70, 102, 229, 0.08);
+    cursor: move;
+}
+
+.inspector .title {
+    padding: 18px 16px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6A6A75;
+}
+
+.inspector .message {
+    padding: 18px 16px;
+    color: #6A6A75;
+}
+
+.inspector .title + .message {
+    padding-top: 4px;
+}
+
+/*
+    The diagram as YAML, with nothing selected, highlighted by highlight.js:
+    a small theme of its classes in the colors of the diagram.
+*/
+/* The tabs over the text of the diagram - YAML, JSON - styled like the title of the panel; the chosen one dark, underlined in blue. */
+.inspector .tabs {
+    display: flex;
+    gap: 16px;
+    padding: 18px 16px 6px;
+}
+
+.inspector .tab {
+    padding: 0 0 3px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6A6A75;
+    cursor: pointer;
+}
+
+.inspector .tab:hover {
+    color: #222222;
+}
+
+.inspector .tab.active {
+    color: #222222;
+    border-bottom-color: #4666E5;
+}
+
+.inspector .code {
+    margin: 0;
+    padding: 4px 16px 16px;
+    font-family: Menlo, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #222222;
+    white-space: pre;
+    overflow-x: auto;
+}
+
+.inspector .code .hljs-attr {
+    color: #4666E5;
+}
+
+.inspector .code .hljs-bullet {
+    color: #7A90EC;
+}
+
+.inspector .code .hljs-string {
+    color: #222222;
+}
+
+.inspector .code .hljs-number,
+.inspector .code .hljs-literal {
+    color: #2B3555;
+}
+
+.inspector .code .hljs-comment {
+    color: #8A8A95;
+    font-style: italic;
+}
+
+.inspector .code .hljs-punctuation {
+    color: #8A8A95;
+}
+
+.inspector .joint-inspector {
+    position: static;
+    padding: 0 0 16px;
+    border: none;
+    background: none;
+}
+
+/* A field: a small muted label over its input; the theme's trailing colon goes. */
+.inspector .joint-inspector .field {
+    margin: 0;
+    padding: 6px 16px 10px;
+}
+
+.inspector .joint-inspector .field label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #6A6A75;
+}
+
+.inspector .joint-inspector .field label::after {
+    content: none;
+}
+
+.inspector .joint-inspector .field input[type="text"],
+.inspector .joint-inspector .field textarea {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid #DCE2F5;
+    border-radius: 6px;
+    background: #FAFBFD;
+    font: inherit;
+    line-height: 1.4;
+    color: inherit;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 100ms ease-out, background-color 100ms ease-out, box-shadow 100ms ease-out;
+}
+
+.inspector .joint-inspector .field textarea {
+    min-height: 56px;
+    resize: vertical;
+}
+
+.inspector .joint-inspector .field input[type="text"]:hover,
+.inspector .joint-inspector .field textarea:hover {
+    border-color: #B9C4F0;
+}
+
+.inspector .joint-inspector .field input[type="text"]:focus,
+.inspector .joint-inspector .field textarea:focus {
+    border-color: #4666E5;
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px #E8EDFF;
+}
+
+/* The command a step runs: code, as on the pill. */
+.inspector .joint-inspector .field[data-field$="/run"] input {
+    font-family: Menlo, Consolas, monospace;
+    font-size: 12px;
+}
+
+/*
+    The options of a decision, the branches of a fork: their name fields
+    follow the fields of the node, under a heading of their own - the first
+    of them carries it, keyed by the path of its field.
+*/
+.inspector .joint-inspector .field[data-field$="/to/0/name"],
+.inspector .joint-inspector .field[data-field$="/branches/0/name"] {
+    margin: 10px 16px 0;
+    padding: 16px 0 10px;
+    border-top: 1px solid #EEF1F8;
+}
+
+.inspector .joint-inspector .field[data-field$="/to/0/name"]::before,
+.inspector .joint-inspector .field[data-field$="/branches/0/name"]::before {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6A6A75;
+}
+
+.inspector .joint-inspector .field[data-field$="/to/0/name"]::before {
+    content: 'Options';
+}
+
+.inspector .joint-inspector .field[data-field$="/branches/0/name"]::before {
+    content: 'Branches';
+}
+
+/* The scroller shows through around a paper smaller than the view: the same color as the paper. */
+.paper,
+.joint-paper-scroller {
+    width: 100%;
+    height: 100%;
+    background: #F3F7F6;
+}
+
+/*
+    The toolbar: undo, redo and the zoom, built-in widgets of `ui.Toolbar`
+    drawn with the icons of this demo instead of the text of the default
+    theme - a stroke glyph as a mask over the color of the button, in the
+    blue of the nodes; a disabled button fades.
+*/
+.toolbar .joint-toolbar {
+    height: 44px;
+    padding: 0 10px;
+    gap: 4px;
+    border: none;
+    border-bottom: 1px solid #DCE2F5;
+    background: #FFFFFF;
+    box-sizing: border-box;
+}
+
+.toolbar .joint-widget[data-type="separator"] {
+    width: 1px;
+    height: 20px;
+    margin: 0 6px;
+    background: #DCE2F5;
+}
+
+.toolbar button.joint-widget {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: #4666E5;
+    cursor: pointer;
+    transition: background-color 100ms ease-out, opacity 100ms ease-out;
+}
+
+.toolbar button.joint-widget:hover:not(:disabled) {
+    background: #E8EDFF;
+}
+
+.toolbar button.joint-widget:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.toolbar button.joint-widget::after {
+    display: block;
+    width: 28px;
+    height: 28px;
+    content: '';
+    background: currentColor;
+    mask: var(--icon) center / 18px 18px no-repeat;
+    -webkit-mask: var(--icon) center / 18px 18px no-repeat;
+}
+
+.toolbar .joint-widget[data-type="undo"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -7 -2 L -3 -6 M -7 -2 L -3 2 M -7 -2 H 2 A 4.5 4.5 0 0 1 2 7 H -2' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+.toolbar .joint-widget[data-type="redo"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M 7 -2 L 3 -6 M 7 -2 L 3 2 M 7 -2 H -2 A 4.5 4.5 0 0 0 -2 7 H 2' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+.toolbar .joint-widget[data-type="zoomIn"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -1.5 -1.5 m -5.5 0 a 5.5 5.5 0 1 0 11 0 a 5.5 5.5 0 1 0 -11 0 M 2.5 2.5 L 7 7 M -4 -1.5 H 1 M -1.5 -4 V 1' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+.toolbar .joint-widget[data-type="zoomOut"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -1.5 -1.5 m -5.5 0 a 5.5 5.5 0 1 0 11 0 a 5.5 5.5 0 1 0 -11 0 M 2.5 2.5 L 7 7 M -4 -1.5 H 1' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+.toolbar .joint-widget[data-name="reset"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -6 -8 H 2 L 6 -4 V 8 H -6 Z M 2 -8 V -4 H 6' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+.toolbar .joint-widget[data-name="zoomToFit"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -7 -3 V -7 H -3 M 3 -7 H 7 V -3 M 7 3 V 7 H 3 M -3 7 H -7 V 3 M -3 -3 H 3 V 3 H -3 Z' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+/*
+    The buttons: the collapse/expand button and the add button on a pill, the
+    add button below a leaf, the insert button of a link and the "more" tool.
+    A stylesheet rule wins over the presentation attribute set by the shape,
+    so the hover state does not depend on the views. The same feedback
+    everywhere: a blue button darkens, the white toggle tints.
+*/
+[joint-selector="toggle"],
+[joint-selector="addButton"],
+.joint-type-tbg-addbutton [joint-selector="body"],
+.joint-tool .button {
+    transition: fill 100ms ease-out;
+}
+
+[joint-selector="toggle"]:hover {
+    fill: #E8EDFF;
+}
+
+[joint-selector="addButton"]:hover,
+.joint-type-tbg-addbutton:hover [joint-selector="body"],
+.joint-tool .button.add:hover {
+    fill: #3552C4;
+}
+
+/* A move in progress: the buttons are the drop points - teal, so that they read as the targets to click. */
+.moving-mode [joint-selector="addButton"],
+.moving-mode .joint-type-tbg-addbutton [joint-selector="body"],
+.moving-mode .joint-tool .button.add {
+    fill: var(--teal);
+}
+
+.moving-mode [joint-selector="addButton"]:hover,
+.moving-mode .joint-type-tbg-addbutton:hover [joint-selector="body"],
+.moving-mode .joint-tool .button.add:hover {
+    fill: var(--teal-dark);
+}
+
+/* The "more" button: a transparent disc that tints on hover, on a light pill and on a filled one. */
+.joint-tool .button.menu:hover {
+    fill: rgba(70, 102, 229, 0.12);
+}
+
+.joint-type-tbg-decision .joint-tool .button.menu:hover,
+.joint-type-tbg-groupstart .joint-tool .button.menu:hover {
+    fill: rgba(255, 255, 255, 0.25);
+}
+
+/*
+    The menus - the add menu, the menu of an element: a context toolbar of
+    JointJS+, restyled as a small panel with an icon and a label per item.
+    The `data-type` comes from the `type` option of the toolbar.
+*/
+.joint-context-toolbar[data-type="menu"] .tools {
+    padding: 4px;
+    border: 1px solid #DCE2F5;
+    border-radius: 8px;
+    background: #FFFFFF;
+    box-shadow: 0 6px 20px rgba(34, 34, 34, 0.12);
+}
+
+.joint-context-toolbar[data-type="menu"] .tool {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 120px;
+    padding: 6px 14px 6px 8px;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    font-family: sans-serif;
+    font-size: 13px;
+    color: #222222;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 100ms ease-out;
+}
+
+.joint-context-toolbar[data-type="menu"] .tool:hover {
+    background-color: #EEF2FF;
+}
+
+.joint-context-toolbar[data-type="menu"] .tool:active {
+    background-color: #DCE2F5;
+}
+
+.joint-context-toolbar[data-type="menu"] .tool:disabled {
+    opacity: 0.4;
+    background: none;
+    cursor: default;
+}
+
+.joint-context-toolbar[data-type="menu"] .tool svg {
+    flex: none;
+    pointer-events: none;
+}
+
+/*
+    The previews on the cells - a deletion about to happen, what a collapse
+    would hide, what a move would take or takes - are one thing in three
+    colors: a class on the view of a cell sets `--mark`, and the rules below
+    paint the outline and the icon of a node, the fill of a pill and of an
+    end, and the lines of the links in it; the buttons on the cells keep
+    their colors. The kinds of cells are told apart by the type classes of
+    their views (`joint-type-tbg-decision`, ...), so the rules hold whatever
+    the colors of the shapes are. The colors fade in and out.
+*/
+[joint-selector="body"],
+[joint-selector="line"],
+[joint-selector="kindIcon"] {
+    transition: fill 150ms ease-out, stroke 150ms ease-out;
+}
+
+/* The nodes stand a little off the paper: a subtle shadow under the pills and the circles. */
+.joint-type-tbg-step [joint-selector="body"],
+.joint-type-tbg-decision [joint-selector="body"],
+.joint-type-tbg-groupstart [joint-selector="body"],
+.joint-type-tbg-start [joint-selector="body"],
+.joint-type-tbg-end [joint-selector="body"] {
+    filter: drop-shadow(0 1px 3px rgba(34, 34, 34, 0.18));
+}
+
+.to-be-deleted {
+    --mark: var(--red);
+}
+
+.faded {
+    --mark: var(--blue-light);
+}
+
+.moving,
+.to-be-moved {
+    --mark: var(--teal);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) [joint-selector="body"],
+:is(.to-be-deleted, .faded, .moving, .to-be-moved) [joint-selector="line"] {
+    stroke: var(--mark);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved).joint-type-tbg-decision [joint-selector="body"],
+:is(.to-be-deleted, .faded, .moving, .to-be-moved).joint-type-tbg-groupstart [joint-selector="body"],
+:is(.to-be-deleted, .faded, .moving, .to-be-moved).joint-type-tbg-end [joint-selector="body"] {
+    fill: var(--mark);
+}
+
+:is(.to-be-deleted, .faded, .moving, .to-be-moved).joint-type-tbg-step [joint-selector="kindIcon"] {
+    stroke: var(--mark);
+}
+
+/* The tooltips of the buttons: a small dark label. */
+.joint-tooltip {
+    padding: 0;
+    border-radius: 4px;
+    background-color: #222222;
+    color: #FFFFFF;
+    font-family: sans-serif;
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+.joint-tooltip .tooltip-content {
+    padding: 6px 10px;
+}
+
+.joint-tooltip.top .tooltip-arrow,
+.joint-tooltip.top .tooltip-arrow-mask {
+    border-bottom-color: #222222;
+}
+
+.joint-tooltip.bottom .tooltip-arrow,
+.joint-tooltip.bottom .tooltip-arrow-mask {
+    border-top-color: #222222;
+}
+
+.joint-tooltip.left .tooltip-arrow,
+.joint-tooltip.left .tooltip-arrow-mask {
+    border-right-color: #222222;
+}
+
+.joint-tooltip.right .tooltip-arrow,
+.joint-tooltip.right .tooltip-arrow-mask {
+    border-left-color: #222222;
+}

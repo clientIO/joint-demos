@@ -34,7 +34,7 @@ function createButton(icon: string, title: string, offsetX: number, action: () =
  * below a group from the group element, so the `end` node of a group stands
  * in for its group. The `start` node has no tools - it has its two branches.
  */
-function getToolsTarget(element: dia.Element): dia.Element | null {
+export function getToolsTarget(element: dia.Element): dia.Element | null {
     if (!Node.isNode(element)) return element;
     switch (element.getRole()) {
         case 'start': return null;
@@ -44,24 +44,14 @@ function getToolsTarget(element: dia.Element): dia.Element | null {
 }
 
 /**
- * Shows two buttons at the bottom edge of the hovered element: add a child
- * node, add a branch group as a child.
+ * Two buttons at the bottom edge of an element: add a child node, add a
+ * branch group as a child - both acting on `target`.
  */
-export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
-
-    paper.on('element:mouseenter', (elementView: dia.ElementView) => {
-        const target = getToolsTarget(elementView.model);
-        if (!target) return;
-        elementView.removeTools();
-        elementView.addTools(new dia.ToolsView({
-            tools: [
-                createButton(ADD_CHILD_ICON, 'Add a child', -14, () => actions.addChild(target)),
-                createButton(ADD_GROUP_ICON, 'Add a branch group', 14, () => actions.addBranchGroup(target))
-            ]
-        }));
-    });
-
-    paper.on('element:mouseleave', (elementView: dia.ElementView) => {
-        elementView.removeTools();
+export function createHoverTools(target: dia.Element, actions: ToolActions): dia.ToolsView {
+    return new dia.ToolsView({
+        tools: [
+            createButton(ADD_CHILD_ICON, 'Add a child', -14, () => actions.addChild(target)),
+            createButton(ADD_GROUP_ICON, 'Add a branch group', 14, () => actions.addBranchGroup(target))
+        ]
     });
 }

@@ -22,6 +22,15 @@ export default defineConfig([
         },
     },
 
+    // A shape module exports its model next to its component: Fast Refresh
+    // reloads the page for a change there, which is fine for a demo.
+    {
+        files: ['src/shapes/*.tsx'],
+        rules: {
+            'react-refresh/only-export-components': 'off',
+        },
+    },
+
     // Config files run in Node.
     {
         files: ['vite.config.ts', 'eslint.config.js'],

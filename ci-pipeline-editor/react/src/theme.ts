@@ -3,7 +3,7 @@ import { useSyncExternalStore } from 'react';
 /** The two looks of the app; the stylesheet keys every color off `data-theme` on the document (see `index.css`). */
 export type Theme = 'light' | 'dark';
 
-const STORAGE_KEY = 'tree-branch-groups-theme';
+const STORAGE_KEY = 'ci-pipeline-editor-theme';
 
 const listeners = new Set<() => void>();
 let theme: Theme = readTheme();

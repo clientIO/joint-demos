@@ -1,8 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import '@joint/react-plus/styles.css';
 import './index.css';
 import { App } from './app';
+import { applyTheme } from './theme';
+
+applyTheme();
 
 const container = document.querySelector('#root');
 if (!container) throw new Error('Missing #root element.');

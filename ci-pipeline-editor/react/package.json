@@ -1,9 +1,9 @@
 {
-  "name": "@joint/demo-tree-branch-groups-react",
+  "name": "@joint/demo-ci-pipeline-editor-react",
   "private": true,
   "version": "4.3.3",
   "type": "module",
-  "description": "A tree layout with fork/join branch groups built with @joint/react-plus (JointJS).",
+  "description": "A CI/CD pipeline editor built with @joint/react-plus (JointJS).",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15,8 +15,10 @@
   "dependencies": {
     "@joint/plus": "4.3.3",
     "@joint/react-plus": "4.3.3",
+    "highlight.js": "^11.12.0",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "react-tooltip": "^5.30.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
