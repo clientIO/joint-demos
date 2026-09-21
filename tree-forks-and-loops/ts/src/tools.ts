@@ -11,8 +11,9 @@ const ADD_CHILD_ICON = 'M -5 0 5 0 M 0 -5 0 5';
 const ADD_FORK_ICON = 'M 0 5 0 0 M 0 0 -4 -5 M 0 0 4 -5';
 // A loop: a box of a path that returns to its start.
 const ADD_LOOP_ICON = 'M -1 -5 H 4 V 5 H -4 V 0 M -6 2 L -4 0 L -2 2';
-const COLLAPSE_ICON = 'M -4 0 4 0';
-const EXPAND_ICON = 'M -4 0 4 0 M 0 -4 0 4';
+// Chevrons: up folds the content of the group away, down brings it back.
+const COLLAPSE_ICON = 'M -4 2 L 0 -2 L 4 2';
+const EXPAND_ICON = 'M -4 -2 L 0 2 L 4 -2';
 
 export interface ToolActions {
     addChild(element: dia.Element): void;
@@ -131,6 +132,10 @@ function updateTools(elementView: dia.ElementView, actions: ToolActions, hovered
     for (const button of tools.hoverButtons) {
         if (hovered) button.show(); else button.hide();
     }
+    // A tools view mounts on its first update with a visible tool: one with
+    // every tool hidden - a node's, until its first hover - is not in the
+    // DOM yet, and `show()` alone does not put it there.
+    elementView.updateTools();
 }
 
 /**
