@@ -2,7 +2,8 @@ import { dia } from '@joint/plus';
 
 import { addChild, insertGroup } from './actions';
 import { isCellVisible, runLayout } from './layout';
-import { Group, Node, cellNamespace } from './shapes';
+import type { Group } from './shapes';
+import { Node, cellNamespace } from './shapes';
 import { addHoverTools, addTools } from './tools';
 import type { ToolActions } from './tools';
 
