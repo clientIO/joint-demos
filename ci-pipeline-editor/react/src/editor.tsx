@@ -114,6 +114,12 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
         paperScroller.positionRect(bbox, 'top', { padding: PAPER_PADDING });
     }, [graph, scroller]);
 
+    /** The whole visible content in the view, centered - the toolbar's "zoom to fit". Not closer than 1:1 either. */
+    const zoomToFit = useCallback(() => {
+        const bbox = getVisibleBBox(graph);
+        if (bbox) scroller.paperScroller?.zoomToRect(bbox, { padding: PAPER_PADDING, minScale: MIN_ZOOM, maxScale: FIT_MAX_ZOOM });
+    }, [graph, scroller]);
+
     const editor = useMemo<EditorApi>(() => {
         const movedId = (): Id => getId(moved!);
         const endMove = (): string => {
@@ -170,9 +176,10 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             },
             zoomIn: () => scroller.setZoom((zoom) => Math.min(MAX_ZOOM, zoom + ZOOM_STEP)),
             zoomOut: () => scroller.setZoom((zoom) => Math.max(MIN_ZOOM, zoom - ZOOM_STEP)),
+            zoomToFit,
             fit
         };
-    }, [data, graph, paper, scroller, version, selectCells, moved, menu, history, canUndo, canRedo, fit]);
+    }, [data, graph, paper, scroller, version, selectCells, moved, menu, history, canUndo, canRedo, zoomToFit, fit]);
 
     return <EditorContext.Provider value={editor}>{children}</EditorContext.Provider>;
 }

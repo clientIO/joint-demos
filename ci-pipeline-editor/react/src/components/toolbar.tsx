@@ -43,7 +43,7 @@ export function Toolbar(): ReactNode {
             <span className="separator" />
             <ToolButton icon="zoomOut" title="Zoom out" onClick={editor.zoomOut} />
             <ToolButton icon="zoomIn" title="Zoom in" onClick={editor.zoomIn} />
-            <ToolButton icon="fit" title="Zoom to fit" onClick={editor.fit} />
+            <ToolButton icon="fit" title="Zoom to fit" onClick={editor.zoomToFit} />
             <span className="separator" />
             <ToolButton icon="reset" title="New diagram" onClick={editor.reset} />
             <span className="separator" />

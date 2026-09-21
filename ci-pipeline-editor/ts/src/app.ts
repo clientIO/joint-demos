@@ -89,9 +89,9 @@ export function init(): void {
     let contentBBox: g.Rect | null = null;
 
     /**
-     * Fits the visible content into the view - at the start, and from the
-     * toolbar: centered horizontally, and at the top, where the flow starts,
-     * even when it is short.
+     * Fits the width of the visible content into the view - at the start,
+     * and after a reset: centered horizontally, and at the top, where the
+     * flow starts, even when it is short.
      */
     function fit(): void {
         if (!contentBBox) return;
@@ -102,6 +102,11 @@ export function init(): void {
         const scale = Math.min(FIT_MAX_ZOOM, Math.max(MIN_ZOOM, (width - 2 * PAPER_PADDING) / contentBBox.width));
         scroller.zoom(scale, { absolute: true });
         scroller.positionRect(contentBBox, 'top', { padding: PAPER_PADDING });
+    }
+
+    /** The whole visible content in the view, centered - the toolbar's "zoom to fit". Not closer than 1:1 either. */
+    function zoomToFit(): void {
+        if (contentBBox) scroller.zoomToRect(contentBBox, { padding: PAPER_PADDING, minScale: MIN_ZOOM, maxScale: FIT_MAX_ZOOM });
     }
 
     /**
@@ -227,8 +232,9 @@ export function init(): void {
     // there is nothing to undo or redo; the zoom, driven by the scroller -
     // except "zoom to fit", a plain button: the built-in widget would fit
     // every cell of the graph, the never-rendered groups and the hidden
-    // content of collapsed groups included, and not center. `fit()` fits
-    // what is visible, the same way as at the start. (The `attrs` of a
+    // content of collapsed groups included. `zoomToFit()` fits what is
+    // visible, the whole of it, centered - unlike the view at the start,
+    // which fits the width and puts the start at the top. (The `attrs` of a
     // widget are set on the DOM as they are, hence the dashed `data-tooltip`;
     // the attributes of the cells are camel-cased.)
     const toolbar = new ui.Toolbar({
@@ -247,7 +253,7 @@ export function init(): void {
     });
     document.getElementById('toolbar')!.appendChild(toolbar.el);
     toolbar.render();
-    toolbar.on('zoomToFit:pointerclick', fit);
+    toolbar.on('zoomToFit:pointerclick', zoomToFit);
     // Everything but the start goes: one edit of the data like any other, so it can be undone; the view is fitted again.
     toolbar.on('reset:pointerclick', () => {
         if (moved) setMoved(null);

@@ -63,6 +63,9 @@ export interface EditorApi {
 
     zoomIn(): void;
     zoomOut(): void;
+    /** The whole diagram in the view, centered. */
+    zoomToFit(): void;
+    /** The width of the diagram in the view, the start at the top: the view at the start, and after a reset. */
     fit(): void;
 }
 
