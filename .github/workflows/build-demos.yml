@@ -132,7 +132,7 @@ jobs:
 
           echo "ref=$ref" >> "$GITHUB_OUTPUT"
           echo "why=$why" >> "$GITHUB_OUTPUT"
-          echo ":: Building $DEMOS_REPO at $ref ($why)"
+          echo "Building $DEMOS_REPO at $ref ($why)"
 
       # `actions/checkout` defaults to the *calling* repository: inside a
       # reusable workflow the `github` context belongs to the caller, so a bare
