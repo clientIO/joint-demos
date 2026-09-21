@@ -2,6 +2,7 @@ import { util } from '@joint/plus';
 import type { dia } from '@joint/plus';
 
 import { ADD_BUTTON_SELECTOR, ADD_BUTTON_SIZE, COLORS, ELEMENT_Z, NODE_SIZE, PLUS_ICON, STEP_RADIUS, TOGGLE_EVENT } from './constants';
+import { tokenizeCommand } from './command';
 
 /** The icon sits at the left end of the pill, the label is centered in the rest. */
 const KIND_ICON_X = 18;
@@ -40,12 +41,13 @@ export const EXPAND_ICON = PLUS_ICON;
     together the markup it needs from these parts.
 */
 
-/** The chip behind the code of a step that runs a command, under the label, is part of every pill and shown on a step with a command only: a step keeps its view when it gains or loses its command. */
+/** The chip behind the code of a step that runs a command, and the code on it, under the label, are part of every pill and shown on a step with a command only: a step keeps its view when it gains or loses its command. The code is a text of its own: left-aligned, where the label is centered. */
 export const pillMarkup = util.svg/* xml */`
     <rect @selector="body"/>
     <path @selector="kindIcon"/>
     <rect @selector="runChip"/>
     <text @selector="label"/>
+    <text @selector="code"/>
 `;
 export const addButtonMarkup = util.svg/* xml */`
     <rect @selector="addButton"/>
@@ -58,6 +60,16 @@ export const toggleMarkup = util.svg/* xml */`
 
 const PILL_ATTRS = {
     runChip: { display: 'none' },
+    code: {
+        display: 'none',
+        textAnchor: 'start',
+        textVerticalAnchor: 'middle',
+        fontFamily: CODE_FONT_FAMILY,
+        fontSize: CODE_FONT_SIZE,
+        lineHeight: `${LABEL_LINE_HEIGHT}px`,
+        fill: CODE_COLOR,
+        pointerEvents: 'none'
+    },
     body: {
         width: 'calc(w)',
         height: 'calc(h)',
@@ -109,58 +121,63 @@ export function measureText(text: string, font: string): number {
 }
 
 /**
- * The annotations of a command line, `offset` characters into the text of
- * the pill: the whole line as code, its program in bold, its flags tinted.
- * No grammar: a command line is a program and its arguments.
+ * The annotations of a command - one line or several: its programs in
+ * bold, its flags tinted (see `command.ts`).
  */
-function annotateCommand(code: string, offset: number): LabelAnnotation[] {
-    const annotations: LabelAnnotation[] = [
-        { start: offset, end: offset + code.length, attrs: { fontFamily: CODE_FONT_FAMILY, fontSize: CODE_FONT_SIZE, fill: CODE_COLOR }}
-    ];
-    let first = true;
-    for (const match of code.matchAll(/\S+/g)) {
-        const start = offset + match.index;
-        const end = start + match[0].length;
-        if (first) {
-            first = false;
-            annotations.push({ start, end, attrs: { fontWeight: 600, fill: CODE_COMMAND_COLOR }});
-        } else if (match[0].startsWith('-')) {
-            annotations.push({ start, end, attrs: { fill: CODE_FLAG_COLOR }});
-        }
+function annotateCommand(code: string): LabelAnnotation[] {
+    const annotations: LabelAnnotation[] = [];
+    let position = 0;
+    for (const token of tokenizeCommand(code)) {
+        const start = position;
+        position += token.text.length;
+        if (token.kind === 'cmd') annotations.push({ start, end: position, attrs: { fontWeight: 600, fill: CODE_COMMAND_COLOR }});
+        if (token.kind === 'flag') annotations.push({ start, end: position, attrs: { fill: CODE_FLAG_COLOR }});
     }
     return annotations;
 }
 
 /**
- * Sets the text of a pill - its label and, below it, its code, if any: the
- * command a step runs, monospaced, a little smaller, on a chip, through
- * annotations of the `text` attribute - and sizes the pill to it: the size
- * of a node at least, wider for a long line and taller for several (a
- * newline breaks a line). Each part is measured in its own font.
+ * Sets the text of a pill - its label, centered, and below it its code, if
+ * any: the command a step runs, monospaced, a little smaller, on a chip,
+ * left-aligned, its programs and flags marked through annotations - and
+ * sizes the pill to it: the size of a node at least, wider for a long line
+ * and taller for several (a newline breaks a line, in the label and in the
+ * command alike). Each part is measured in its own font. The lines of both
+ * are stacked and centered on the pill as one block.
  */
 export function setPillLabel(pill: dia.Element, label: string, code?: string): void {
-    const text = code ? `${label}\n${code}` : label;
-    const annotations = code ? annotateCommand(code, label.length + 1) : [];
-    pill.attr('label', { text, annotations });
+    const labelLines = label.split('\n').length;
+    const codeLines = code ? code.split('\n').length : 0;
+    // The label's block sits above the middle by half the code's block.
+    pill.attr('label', { text: label, y: `calc(h / 2 - ${codeLines * LABEL_LINE_HEIGHT / 2})` });
     if (code) {
-        // The chip behind the code, the second line of the text: the text is
-        // centered on the pill, the second line half a line below the middle.
+        // The code's block sits below the middle by half the label's block; the chip is drawn around it.
+        const codeCenterOffset = labelLines * LABEL_LINE_HEIGHT / 2;
         const codeWidth = Math.ceil(measureText(code, CODE_FONT)) + 2 * CODE_CHIP.paddingX;
+        const chipX = `calc(w / 2 + ${KIND_LABEL_OFFSET - codeWidth / 2})`;
         pill.attr('runChip', {
             display: 'inline',
-            x: `calc(w / 2 + ${KIND_LABEL_OFFSET - codeWidth / 2})`,
-            y: `calc(h / 2 + ${LABEL_LINE_HEIGHT / 2 - CODE_CHIP.height / 2})`,
+            x: chipX,
+            y: `calc(h / 2 + ${codeCenterOffset - (CODE_CHIP.height + (codeLines - 1) * LABEL_LINE_HEIGHT) / 2})`,
             width: codeWidth,
-            height: CODE_CHIP.height,
+            height: CODE_CHIP.height + (codeLines - 1) * LABEL_LINE_HEIGHT,
             rx: CODE_CHIP.radius,
             ry: CODE_CHIP.radius,
             fill: CODE_CHIP.fill
         });
+        pill.attr('code', {
+            display: 'inline',
+            text: code,
+            annotations: annotateCommand(code),
+            x: `calc(w / 2 + ${KIND_LABEL_OFFSET - codeWidth / 2 + CODE_CHIP.paddingX})`,
+            y: `calc(h / 2 + ${codeCenterOffset})`
+        });
     } else {
         pill.attr('runChip', { display: 'none' });
+        pill.attr('code', { display: 'none' });
     }
     const width = Math.max(measureText(label, LABEL_FONT), code ? measureText(code, CODE_FONT) : 0);
-    const lines = text.split('\n').length;
+    const lines = labelLines + codeLines;
     pill.resize(
         Math.max(NODE_SIZE.width, Math.ceil(width) + 2 * LABEL_PADDING_X),
         Math.max(NODE_SIZE.height, Math.ceil(lines * LABEL_LINE_HEIGHT) + 2 * LABEL_PADDING_Y + (code ? CODE_ROOM : 0))

@@ -14,6 +14,10 @@ import type { DiagramJSON, Edge, Id, NodeData } from './types';
  *       - fork:
  *           Quality:
  *             - name: Lint
+ *       - name: Deploy
+ *         run: |-
+ *           npm run build
+ *           npm run deploy
  *       - decision: Deploy target
  *         options:
  *           Staging:
@@ -32,6 +36,16 @@ export function toYAML(json: DiagramJSON): string {
 }
 
 const INDENT = '  ';
+
+/**
+ * The lines of `key: value`, indented by `pad`: a value of several lines as
+ * a literal block, `key: |-` and the lines one level deeper (`|-`: the
+ * value has no final newline); a value of one line as a scalar after the key.
+ */
+function keyed(key: string, value: string, pad: string): string[] {
+    if (!value.includes('\n')) return [`${pad}${key}: ${scalar(value)}`];
+    return [`${pad}${key}: |-`, ...value.split('\n').map((line) => (line === '' ? '' : `${pad}${INDENT}${line}`))];
+}
 
 /** A scalar, quoted where YAML would read it as something else - or as several lines, or with a control character. */
 function scalar(value: string): string {
@@ -89,7 +103,7 @@ function item(json: DiagramJSON, node: NodeData, depth: number): string[] {
     const pad = INDENT.repeat(depth);
     switch (node.type) {
         case 'step':
-            return [`name: ${scalar(node.label)}`, ...(node.run ? [`${pad}run: ${scalar(node.run)}`] : [])];
+            return [`name: ${scalar(node.label)}`, ...(node.run ? keyed('run', node.run, pad) : [])];
         case 'decision': {
             const options = getEdges(node, 'to');
             return [`decision: ${scalar(node.label)}`, ...(options.length > 0 ? [`${pad}options:`, ...branches(json, options, depth + 1, node.type)] : [`${pad}options: {}`])];

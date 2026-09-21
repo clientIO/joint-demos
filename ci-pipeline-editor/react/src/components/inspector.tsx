@@ -47,7 +47,7 @@ function Field({ label, value, multiline, code, onCommit }: FieldProps): ReactNo
         <label className="field">
             <span className="field-label">{label}</span>
             {multiline ? (
-                <textarea value={draft} onChange={(evt) => setDraft(evt.target.value)} onBlur={commit} onKeyDown={onKeyDown} />
+                <textarea className={code ? 'code' : undefined} value={draft} onChange={(evt) => setDraft(evt.target.value)} onBlur={commit} onKeyDown={onKeyDown} />
             ) : (
                 <input type="text" className={code ? 'code' : undefined} value={draft} onChange={(evt) => setDraft(evt.target.value)} onBlur={commit} onKeyDown={onKeyDown} />
             )}
@@ -93,7 +93,7 @@ function NodeFields({ id }: { id: dia.Cell.ID }): ReactNode {
                 <>
                     <div className="title">Step</div>
                     <Field label="Label" value={node.label} multiline onCommit={(label) => change({ label })} />
-                    <Field label="Run" value={node.run ?? ''} code onCommit={(run) => change({ run: run || undefined })} />
+                    <Field label="Run" value={node.run ?? ''} multiline code onCommit={(run) => change({ run: run || undefined })} />
                     <Field label="Comment" value={node.comment ?? ''} multiline onCommit={(comment) => change({ comment: comment || undefined })} />
                 </>
             );

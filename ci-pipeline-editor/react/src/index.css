@@ -246,10 +246,11 @@ body {
     white-space: pre;
 }
 
-/* The command a step runs: code on a chip, the program in bold, its flags tinted. */
+/* The command a step runs: code on a chip, the programs in bold, the flags tinted; several lines stay left-aligned, as typed. */
 .pill .run {
     margin-top: 4px;
     padding: 1px 7px;
+    text-align: left;
     border-radius: 4px;
     background: var(--chip);
     font-family: var(--code-font);
@@ -771,7 +772,7 @@ body {
     resize: vertical;
 }
 
-.field input.code {
+.field .code {
     font-family: var(--code-font);
     font-size: 12px;
 }

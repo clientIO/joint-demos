@@ -41,7 +41,7 @@ export const example: DiagramJSON = {
     results: { type: 'step', label: 'Collect results' },
     promote: { type: 'step', label: 'Promote build', run: 'git tag -f candidate', to: [{ id: 'staging-end' }] },
     'staging-end': { type: 'end' },
-    production: { type: 'step', label: 'Deploy to production', to: [{ id: 'notify' }] },
+    production: { type: 'step', label: 'Deploy to production', run: 'sudo apt-get update\nsudo apt-get install -y rsync \\\n  libcairo2-dev libpango1.0-dev\nrsync -az dist/ deploy@prod:/srv/app', to: [{ id: 'notify' }] },
     notify: { type: 'step', label: 'Notify team', run: 'slack post --channel releases', to: [{ id: 'production-end' }] },
     'production-end': { type: 'end' },
     skip: { type: 'step', label: 'Skip deployment', to: [{ id: 'skip-end' }] },

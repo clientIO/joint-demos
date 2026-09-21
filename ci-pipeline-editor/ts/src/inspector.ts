@@ -28,8 +28,8 @@ interface InspectorConfig {
 
 /** A text area: a newline in the label breaks a line on the pill. */
 const LABEL_INPUT = { type: 'textarea', label: 'Label', index: 1 };
-/** The command a step runs: a line of code below its label. */
-const RUN_INPUT = { type: 'text', label: 'Run', index: 2 };
+/** The command a step runs: code below its label, on as many lines as typed. */
+const RUN_INPUT = { type: 'textarea', label: 'Run', index: 2 };
 /** A comment on a node: shown in the YAML above it, nowhere on the diagram. */
 const COMMENT_INPUT = { type: 'textarea', label: 'Comment', index: 9 };
 
