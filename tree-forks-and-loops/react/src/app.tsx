@@ -1,13 +1,14 @@
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useMemo } from 'react';
 import { Diagram, Paper, useGraph, useOnGraphEvents, useOnPaperEvents, usePaper } from '@joint/react-plus';
 import type { CellVisibility } from '@joint/react-plus';
 import type { dia } from '@joint/plus';
 
-import { addChild, insertBranchGroup } from './actions';
+import { addChild, insertGroup } from './actions';
 import { isCellVisible, runLayout } from './layout';
 import { renderElement } from './render-element';
 import { Group, Node, cellNamespace } from './shapes';
-import { createHoverTools, getToolsTarget } from './tools';
+import { addTools, updateTools } from './tools';
+import type { ToolActions } from './tools';
 
 const PAPER_PADDING = 40;
 
@@ -34,25 +35,29 @@ function getRoot(graph: dia.Graph): dia.Element | undefined {
 }
 
 /**
- * A root with three children. The middle child is a branch group with a
- * branch group nested in its first branch. Every leaf gets a child of its
- * own, so that the join below the branches is visible.
+ * A root with three children. The middle child is a fork group with a
+ * fork group nested in its first branch; the left child continues into a
+ * loop group. Every leaf gets a child of its own, so that the join below
+ * the branches is visible.
  */
 function createInitialDiagram(graph: dia.Graph): void {
     const root = Node.create('Root');
     graph.addCell(root);
 
     const left = addChild(graph, root);
-    const group = insertBranchGroup(graph, root);
+    const group = insertGroup(graph, root, 'fork');
     const right = addChild(graph, root);
 
-    addChild(graph, left);
+    const loop = insertGroup(graph, left, 'loop');
     addChild(graph, right);
     addChild(graph, right);
 
     const [branchA, branchB] = graph.getNeighbors(group.getStart(), { outbound: true });
-    const nested = insertBranchGroup(graph, branchA);
+    const nested = insertGroup(graph, branchA, 'fork');
     addChild(graph, branchB);
+
+    const [loopNode] = graph.getNeighbors(loop.getStart(), { outbound: true });
+    addChild(graph, loopNode);
 
     const [nestedA] = graph.getNeighbors(nested.getStart(), { outbound: true });
     addChild(graph, nestedA);
@@ -61,7 +66,8 @@ function createInitialDiagram(graph: dia.Graph): void {
 }
 
 function fitContent(paper: dia.Paper, graph: dia.Graph): void {
-    const contentArea = graph.getCellsBBox(graph.getElements().filter(isCellVisible));
+    // The links count: the return link of a loop runs outside of its group.
+    const contentArea = graph.getCellsBBox(graph.getCells().filter(isCellVisible));
     if (!contentArea) return;
     paper.transformToFitContent({
         contentArea,
@@ -73,67 +79,72 @@ function fitContent(paper: dia.Paper, graph: dia.Graph): void {
     });
 }
 
-/** Lays the whole tree out again and fits it into the paper. */
-function refresh(paper: dia.Paper, graph: dia.Graph): void {
+/** Lays the whole tree out again, fits it into the paper and puts the toggles of the groups back. */
+function refresh(paper: dia.Paper, graph: dia.Graph, actions: ToolActions): void {
     const root = getRoot(graph);
     if (!root) return;
+    // A hidden view is not disposed while it has tools; the tools come back below.
+    paper.removeTools();
     paper.freeze();
     runLayout(graph, root);
     paper.unfreeze();
     paper.updateCellsVisibility();
+    addTools(paper, actions);
     fitContent(paper, graph);
+}
+
+/** Every edit changes the graph; the tree is laid out again. A toggle changes the model, which the editor listens to. */
+function createActions(paper: dia.Paper, graph: dia.Graph): ToolActions {
+    const actions: ToolActions = {
+        addChild: (element) => {
+            addChild(graph, element);
+            refresh(paper, graph, actions);
+        },
+        addGroup: (element, kind) => {
+            insertGroup(graph, element, kind);
+            refresh(paper, graph, actions);
+        },
+        toggleGroup: (group) => group.toggle()
+    };
+    return actions;
 }
 
 /**
  * Headless: seeds the diagram, runs the layout, and wires the interactions -
- * the collapse of a group and the hover tools of the elements.
+ * the toggle of a group and the hover tools of the elements.
  */
 function Editor() {
     const { graph } = useGraph();
     const { paper } = usePaper();
+    const actions = useMemo(() => (paper ? createActions(paper, graph) : null), [paper, graph]);
 
     useLayoutEffect(() => {
-        if (!paper) return;
+        if (!paper || !actions) return;
         // Strict mode runs the effect twice; the diagram is seeded once.
         if (graph.getCells().length === 0) createInitialDiagram(graph);
-        refresh(paper, graph);
+        refresh(paper, graph, actions);
 
         // The paper fills its container through CSS; a resize only needs a refit.
         const observer = new ResizeObserver(() => fitContent(paper, graph));
         observer.observe(paper.el);
         return () => observer.disconnect();
-    }, [paper, graph]);
+    }, [paper, graph, actions]);
 
-    // The collapse button of a group flips `data.collapsed` on the model;
+    // The toggle of a group flips `data.collapsed` on the model;
     // the tree is laid out again around the collapsed (or expanded) group.
     useOnGraphEvents({
         'change:data': (cell: dia.Cell) => {
-            if (!paper || !Group.isGroup(cell)) return;
-            // A hidden view is not disposed while it has tools.
-            paper.removeTools();
-            refresh(paper, graph);
+            if (!paper || !actions || !Group.isGroup(cell)) return;
+            refresh(paper, graph, actions);
         }
     });
 
     useOnPaperEvents({
-        onElementMouseEnter: ({ view, model }) => {
-            if (!paper) return;
-            const target = getToolsTarget(model);
-            if (!target) return;
-            view.removeTools();
-            view.addTools(createHoverTools(target, {
-                addChild: (element) => {
-                    addChild(graph, element);
-                    refresh(paper, graph);
-                },
-                addBranchGroup: (element) => {
-                    insertBranchGroup(graph, element);
-                    refresh(paper, graph);
-                }
-            }));
+        onElementMouseEnter: ({ view }) => {
+            if (actions) updateTools(view, actions, true);
         },
         onElementMouseLeave: ({ view }) => {
-            view.removeTools();
+            if (actions) updateTools(view, actions, false);
         }
     });
 
@@ -145,7 +156,7 @@ export function App() {
         <Diagram cellNamespace={cellNamespace} interactions={false}>
             <div className="stage">
                 <div className="hint">
-                    Hover a node to add a child or a branch group below it. The button in the corner of a group collapses it.
+                    Hover a node to add a child, a fork group or a loop group below it. The button on the start node of a group collapses it.
                 </div>
                 <Paper
                     className="paper"

@@ -7,9 +7,8 @@ export const SIBLING_GAP = 24;
 /** Horizontal breathing room of an expanded group. Vertically it fits its start and end exactly. */
 export const GROUP_PADDING = 12;
 export const COLLAPSED_SIZE = { width: 160, height: NODE_SIZE.height };
-
-/** Custom paper event triggered by the collapse/expand button of a group. */
-export const TOGGLE_EVENT = 'element:group:toggle';
+/** How far left of the box of a loop group its return link runs; a sibling on the left is kept that much further away. */
+export const LOOP_GAP = SIBLING_GAP;
 
 const COLORS = {
     node: { fill: '#FFFFFF', stroke: '#4666E5', text: '#222222' },
@@ -18,14 +17,15 @@ const COLORS = {
     link: '#7A90EC'
 };
 
-/** The stroke of an expanded group; also the right margin of the button of a collapsed one. */
+/** The stroke of an expanded group. */
 const GROUP_STROKE_WIDTH = 12;
-const BUTTON_SIZE = 18;
-
-const EXPANDED_ICON = 'M -4 0 4 0';
-const COLLAPSED_ICON = 'M -4 0 4 0 M 0 -4 0 4';
 
 export type NodeRole = 'start' | 'end';
+
+/** What a group stands in for: a fork of two branches that join again, or a loop whose end returns to its start. */
+export type GroupKind = 'fork' | 'loop';
+
+const GROUP_LABELS: Record<GroupKind, string> = { fork: 'Fork', loop: 'Loop' };
 
 const nodeMarkup = util.svg/* xml */`
     <rect @selector="body"/>
@@ -41,7 +41,7 @@ export class Node extends dia.Element {
 
     defaults() {
         return util.defaultsDeep({
-            type: 'tbg.Node',
+            type: 'Node',
             size: NODE_SIZE,
             attrs: {
                 body: {
@@ -95,8 +95,6 @@ export class Node extends dia.Element {
 const groupMarkup = util.svg/* xml */`
     <rect @selector="body"/>
     <text @selector="header"/>
-    <rect @selector="button"/>
-    <path @selector="buttonIcon"/>
 `;
 
 /** The look of a group in each of its states: a translucent slab, expanded or shrunk to a node. */
@@ -111,10 +109,7 @@ const EXPANDED_ATTRS = {
         opacity: 0.2,
         pointerEvents: 'none'
     },
-    header: { display: 'none' },
-    // The button sits in the top right corner.
-    button: { x: `calc(w - ${BUTTON_SIZE})`, y: 0, 'aria-label': 'Collapse the branches', 'aria-expanded': 'true' },
-    buttonIcon: { d: EXPANDED_ICON, transform: `translate(calc(w - ${BUTTON_SIZE / 2}), ${BUTTON_SIZE / 2})` }
+    header: { display: 'none' }
 };
 const COLLAPSED_ATTRS = {
     // The same slab, shrunk to a labelled node - without the stroke.
@@ -126,19 +121,19 @@ const COLLAPSED_ATTRS = {
         opacity: 0.3,
         pointerEvents: 'auto'
     },
-    header: { display: null },
-    // The button is centered vertically, next to the label.
-    button: { x: `calc(w - ${BUTTON_SIZE + GROUP_STROKE_WIDTH / 2})`, y: `calc(h / 2 - ${BUTTON_SIZE / 2})`, 'aria-label': 'Expand the branches', 'aria-expanded': 'false' },
-    buttonIcon: { d: COLLAPSED_ICON, transform: `translate(calc(w - ${BUTTON_SIZE / 2 + GROUP_STROKE_WIDTH / 2}), calc(h / 2))` }
+    header: { display: null }
 };
 
 /**
- * A container that stands in for a fork/join subgraph in the tree:
- * a `start` node, two branches and an `end` node they converge into.
- * The outer tree links connect to the group itself, but the group is
- * sized so that its top center is the top center of `start` and its
- * bottom center is the bottom center of `end` - the tree appears to
- * connect to those two nodes. The group is drawn as a translucent slab.
+ * A container that stands in for a subgraph the tree cannot hold: a `start`
+ * node, some content and an `end` node the content converges into. A
+ * *fork* group holds two branches that join again. A *loop* group holds a
+ * tree whose `end` links back to its `start` - the return path, a dashed
+ * link up the left side of the group. The outer tree links connect to the
+ * group itself, but the group is sized so that its top center is the top
+ * center of `start` and its bottom center is the bottom center of `end` -
+ * the tree appears to connect to those two nodes. The group is drawn as a
+ * translucent slab; its toggle is a tool (see `tools.ts`).
  */
 export class Group extends dia.Element {
 
@@ -148,8 +143,9 @@ export class Group extends dia.Element {
 
     defaults() {
         return util.defaultsDeep({
-            type: 'tbg.Group',
+            type: 'Group',
             size: COLLAPSED_SIZE,
+            kind: 'fork',
             collapsed: false,
             attrs: {
                 body: {
@@ -160,8 +156,7 @@ export class Group extends dia.Element {
                     ...EXPANDED_ATTRS.body
                 },
                 header: {
-                    // Centered in the space left of the button.
-                    x: `calc(w / 2 - ${(BUTTON_SIZE + GROUP_STROKE_WIDTH) / 2})`,
+                    x: 'calc(w / 2)',
                     y: 'calc(h / 2)',
                     textVerticalAnchor: 'middle',
                     textAnchor: 'middle',
@@ -169,30 +164,21 @@ export class Group extends dia.Element {
                     fontSize: 12,
                     fontWeight: 'bold',
                     fill: COLORS.group.header,
-                    text: 'Branches',
+                    text: 'Fork',
                     ...EXPANDED_ATTRS.header
-                },
-                button: {
-                    event: TOGGLE_EVENT,
-                    cursor: 'pointer',
-                    // A focusable control: Enter and Space are handled by the app.
-                    role: 'button',
-                    tabindex: 0,
-                    width: BUTTON_SIZE,
-                    height: BUTTON_SIZE,
-                    rx: 3,
-                    ry: 3,
-                    fill: COLORS.group.header,
-                    ...EXPANDED_ATTRS.button
-                },
-                buttonIcon: {
-                    stroke: '#FFFFFF',
-                    strokeWidth: 2,
-                    pointerEvents: 'none',
-                    ...EXPANDED_ATTRS.buttonIcon
                 }
             }
         }, super.defaults);
+    }
+
+    static create(kind: GroupKind): Group {
+        const group = new Group({ kind });
+        group.attr('header/text', GROUP_LABELS[kind]);
+        return group;
+    }
+
+    getKind(): GroupKind {
+        return this.get('kind');
     }
 
     isCollapsed(): boolean {
@@ -228,7 +214,7 @@ export class Link extends dia.Link {
 
     defaults() {
         return util.defaultsDeep({
-            type: 'tbg.Link',
+            type: 'Link',
             attrs: {
                 line: {
                     connection: true,
@@ -259,8 +245,13 @@ export class Link extends dia.Link {
             target: { id: target.id }
         });
     }
+
+    /** The return link of a loop group, from its `end` back to its `start`: dashed, as it runs against the flow. */
+    static createReturn(source: dia.Element, target: dia.Element): Link {
+        const link = Link.create(source, target);
+        link.attr('line/strokeDasharray', '6 4');
+        return link;
+    }
 }
 
-export const cellNamespace = {
-    tbg: { Node, Group, Link }
-};
+export const cellNamespace = { Node, Group, Link };
