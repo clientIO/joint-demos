@@ -31,7 +31,7 @@ export class AddButtonModel extends dia.Element {
                     rx: 3,
                     ry: 3,
                     fill: COLORS.button.fill,
-                    stroke: COLORS.button.text,
+                    stroke: COLORS.button.outline,
                     strokeWidth: 1.5,
                     cursor: 'pointer',
                     dataTooltip: 'Add below'

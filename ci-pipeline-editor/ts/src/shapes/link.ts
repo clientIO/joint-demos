@@ -18,9 +18,9 @@ const TARGET_MARKER = {
 
 /**
  * The name above the insert button of a link to an option of a decision or a
- * fork (`Staging`) - bold, in the blue of the nodes, on a
- * tinted chip, so that it stands out from the lines. The only label a link
- * has; the insert button is a link tool (see `placeLinkTools()`).
+ * fork (`Staging`) - bold, amber on a tinted chip like the trigger on the
+ * start, so that it stands out from the lines. The only label a link has;
+ * the insert button is a link tool (see `placeLinkTools()`).
  */
 const BRANCH_LABEL_INDEX = 0;
 /** The name sits above the insert button, centered on the line - a few pixels clear of the button; the chip covers the line behind it. */
@@ -28,7 +28,7 @@ export const BRANCH_LABEL_OFFSET_ALONG = -22;
 const BRANCH_FONT_SIZE = 12;
 const BRANCH_FONT_WEIGHT = 600;
 const BRANCH_FONT = `${BRANCH_FONT_WEIGHT} ${BRANCH_FONT_SIZE}px ${LABEL_FONT_FAMILY}`;
-const BRANCH_CHIP = { fill: '#E8EDFF', paddingX: 6, height: 18, radius: 4 };
+const BRANCH_CHIP = { fill: COLORS.option.fill, paddingX: 6, height: 18, radius: 4 };
 const BRANCH_LABEL = {
     markup: util.svg/* xml */`
         <rect @selector="branchChip"/>
@@ -48,7 +48,7 @@ const BRANCH_LABEL = {
             fontFamily: LABEL_FONT_FAMILY,
             fontSize: BRANCH_FONT_SIZE,
             fontWeight: BRANCH_FONT_WEIGHT,
-            fill: COLORS.node.stroke,
+            fill: COLORS.option.text,
             textAnchor: 'middle',
             textVerticalAnchor: 'middle',
             pointerEvents: 'none'

@@ -22,10 +22,10 @@ const LABEL_PADDING_Y = 11;
 const CODE_FONT_FAMILY = 'Menlo, Consolas, monospace';
 const CODE_FONT_SIZE = 12;
 /** The code sits on a chip: the program in bold, its flags tinted. */
-const CODE_COLOR = '#3F4C74';
-const CODE_COMMAND_COLOR = '#3552C4';
-const CODE_FLAG_COLOR = '#7A88B3';
-const CODE_CHIP = { fill: '#EEF2FF', paddingX: 7, height: 17, radius: 4 };
+const CODE_COLOR = COLORS.code.text;
+const CODE_COMMAND_COLOR = COLORS.code.command;
+const CODE_FLAG_COLOR = COLORS.code.flag;
+const CODE_CHIP = { fill: COLORS.code.chip, paddingX: 7, height: 17, radius: 4 };
 /** A pill with a command is a little taller: room between the label, the chip and the border. */
 const CODE_ROOM = 4;
 const TOGGLE_RADIUS = 11;
@@ -206,7 +206,7 @@ export const ADD_BUTTON_ATTRS = {
         rx: 3,
         ry: 3,
         fill: COLORS.button.fill,
-        stroke: COLORS.button.text,
+        stroke: COLORS.button.pillOutline,
         strokeWidth: 1.5,
         cursor: 'pointer'
     },
@@ -220,6 +220,14 @@ export const ADD_BUTTON_ATTRS = {
     }
 };
 
+/** Shows or hides the add button of `pill` - the one at its right end. */
+export function showAddButton(pill: dia.Element, visible: boolean): void {
+    pill.attr({
+        [ADD_BUTTON_SELECTOR]: { display: visible ? null : 'none' },
+        addIcon: { display: visible ? null : 'none' }
+    });
+}
+
 /** The collapse/expand button of a group, on the bottom edge of its start. Inverted colors, so that it stands out on the pill. */
 export const TOGGLE_ATTRS = {
     toggle: {
@@ -227,7 +235,7 @@ export const TOGGLE_ATTRS = {
         cy: 'calc(h)',
         r: TOGGLE_RADIUS,
         fill: COLORS.gate.text,
-        stroke: COLORS.gate.fill,
+        stroke: COLORS.toggle.outline,
         strokeWidth: 1.5,
         cursor: 'pointer',
         event: TOGGLE_EVENT,

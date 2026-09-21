@@ -50,7 +50,7 @@ function terminalDefaults(type: string, label: string, colors: { fill: string; s
                 y: 'calc(h / 2)',
                 textAnchor: 'middle',
                 textVerticalAnchor: 'middle',
-                fontFamily: 'sans-serif',
+                fontFamily: LABEL_FONT_FAMILY,
                 fontSize: 12,
                 fontWeight: 600,
                 fill: colors.text
@@ -59,7 +59,7 @@ function terminalDefaults(type: string, label: string, colors: { fill: string; s
     }, superDefaults);
 }
 
-/** The start of the diagram, its root: a white circle with a dark outline, and the trigger of the flow on a chip to its left, if it names one. */
+/** The start of the diagram, its root: a white circle with a dark outline, and the trigger of the flow on a chip at its right, if it names one. */
 export class StartModel extends dia.Element {
 
     preinitialize() {
@@ -69,8 +69,8 @@ export class StartModel extends dia.Element {
     defaults() {
         return util.defaultsDeep({
             attrs: {
-                triggerChip: { display: 'none', x: `calc(w + ${TRIGGER_GAP})`, y: `calc(h / 2 - ${TRIGGER_CHIP.height / 2})`, height: TRIGGER_CHIP.height, rx: TRIGGER_CHIP.radius, ry: TRIGGER_CHIP.radius, fill: COLORS.trigger.fill, pointerEvents: 'none' },
-                triggerIcon: { display: 'none', stroke: COLORS.trigger.text, strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', fill: 'none', pointerEvents: 'none' },
+                triggerChip: { display: 'none', x: `calc(w + ${TRIGGER_GAP})`, y: `calc(h / 2 - ${TRIGGER_CHIP.height / 2})`, height: TRIGGER_CHIP.height, rx: TRIGGER_CHIP.radius, ry: TRIGGER_CHIP.radius, fill: COLORS.option.fill, pointerEvents: 'none' },
+                triggerIcon: { display: 'none', stroke: COLORS.option.text, strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round', fill: 'none', pointerEvents: 'none' },
                 triggerText: {
                     display: 'none',
                     x: `calc(w + ${TRIGGER_GAP + TRIGGER_CHIP.paddingX + TRIGGER_CHIP.iconRoom})`,
@@ -80,7 +80,7 @@ export class StartModel extends dia.Element {
                     fontFamily: LABEL_FONT_FAMILY,
                     fontSize: TRIGGER_FONT_SIZE,
                     fontWeight: 600,
-                    fill: COLORS.trigger.text,
+                    fill: COLORS.option.text,
                     pointerEvents: 'none'
                 }
             }
@@ -129,7 +129,7 @@ export class EndModel extends dia.Element {
     }
 
     defaults() {
-        return terminalDefaults('tbg.End', 'End', { fill: COLORS.terminal, stroke: COLORS.terminal, text: COLORS.gate.text }, super.defaults);
+        return terminalDefaults('tbg.End', 'End', { fill: COLORS.terminal, stroke: COLORS.terminal, text: COLORS.onTerminal }, super.defaults);
     }
 
     static create(): EndModel {

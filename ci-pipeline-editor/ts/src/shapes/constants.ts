@@ -32,24 +32,35 @@ export const BACKWARD_LINK_Z = 0;
 export const LINK_Z = 1;
 export const ELEMENT_Z = 2;
 
+/**
+ * The colors of the shapes, the map and the menus: the custom properties of
+ * `styles.css`, defined once per theme - a `var()` is a value like any
+ * other to an SVG attribute and to the background of a paper, so the
+ * picture follows a switch of the theme without a rebuild.
+ */
 export const COLORS = {
-    background: '#F3F7F6',
-    node: { fill: '#FFFFFF', stroke: '#4666E5', text: '#222222' },
-    /** The fills of the start of the diagram and of its ends; red is kept for what is about to be deleted. */
-    terminal: '#2B3555',
+    background: 'var(--background)',
+    node: { fill: 'var(--surface)', stroke: 'var(--blue)', text: 'var(--text)' },
+    /** The fills of the start of the diagram and of its ends, and the text on an end; red is kept for what is about to be deleted. */
+    terminal: 'var(--terminal)',
+    onTerminal: 'var(--on-terminal)',
     /** The pills that steer the flow: a decision, the start of a group. */
-    gate: { fill: '#4666E5', stroke: '#4666E5', text: '#FFFFFF' },
-    link: '#7A90EC',
+    gate: { fill: 'var(--blue)', stroke: 'var(--blue)', text: 'var(--on-blue)' },
+    link: 'var(--link)',
     /** What is about to be deleted, in the menus; the stylesheet repeats it for the preview on the cells. */
-    danger: '#E54666',
+    danger: 'var(--red)',
     /** What is about to move, in the menus - the teal of the drop points; the stylesheet repeats it for the marks on the cells. */
-    move: '#2F9C95',
-    /** The add buttons: the blue of the nodes, marked in white. */
-    button: { fill: '#4666E5', text: '#FFFFFF' },
-    /** The trigger of the flow, on a chip at the right of the start: the amber of the labels on the flow, like the names of the options. */
-    trigger: { fill: '#FFF1C2', text: '#9A6700' },
-    /** The frame around the selected element: a shade darker than the nodes. */
-    selection: '#3552C4'
+    move: 'var(--teal)',
+    /** The add buttons: the blue of the nodes, marked in white, outlined in the color of the surface they sit on - the one at the end of a pill in what sets it off the pill. */
+    button: { fill: 'var(--blue)', text: 'var(--on-blue)', outline: 'var(--surface)', pillOutline: 'var(--pill-add-outline)' },
+    /** The collapse/expand button of a group: a disc in the color of the text on a pill, outlined in the deeper blue. */
+    toggle: { outline: 'var(--blue-deep)' },
+    /** The code on a step - the command it runs - on a chip: its programs in the stronger blue, its flags muted. */
+    code: { chip: 'var(--chip)', text: 'var(--chip-text)', command: 'var(--blue-dark)', flag: 'var(--chip-flag)' },
+    /** The labels on the flow - the names of the options, the trigger of the flow on the start - amber on a tinted chip, so that they stand out from the blue of the nodes and the lines. */
+    option: { fill: 'var(--option-chip)', text: 'var(--option-text)' },
+    /** The frame around the selected element: the teal of the move, a color of its own next to the blue of the nodes. */
+    selection: 'var(--selection)'
 };
 
 /**

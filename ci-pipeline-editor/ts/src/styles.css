@@ -6,22 +6,122 @@
 */
 @import '@joint/plus/joint-plus.css' layer(joint);
 
+/*
+    The colors, for the light theme and, under `data-theme="dark"` (set on
+    the document by `theme.ts`), for the dark one. Everything colored - the
+    stylesheet below, and the shapes, the map and the menus through `COLORS`
+    in `shapes/constants.ts` - reads these, so the whole picture follows a
+    switch of the theme.
+*/
+:root {
+    color-scheme: light;
+    --blue: #4666E5;
+    /* The stronger blue: the hover of the blue buttons. */
+    --blue-dark: #3552C4;
+    /* The frame of the selected element (`.selection-frame`): the teal, apart from the blues of the nodes and the lines, in both themes. */
+    --selection: var(--teal);
+    /* A darker blue in both themes: the outline of the toggle, which sets it off the blue pill. */
+    --blue-deep: #3552C4;
+    /* The outline of the `+` at the end of a pill: white on the light ground, the darker blue on the dark one, where a white ring glares. */
+    --pill-add-outline: #FFFFFF;
+    --blue-tint: #E8EDFF;
+    --link: #7A90EC;
+    /* The lines of the links, a grey; `--link` is their arrowheads and the return arrow. */
+    --link-line: #8A9EB0;
+    --line: #DCE2F5;
+    --text: #222222;
+    --muted: #6A6A75;
+    /* The previews on the cells: a deletion in red, a collapse in a light blue, a move in teal - the teal of the drop points. */
+    --red: #E54666;
+    --blue-light: #C8D3F2;
+    --teal: #2F9C95;
+    --teal-dark: #257C77;
+    /* The paper; the panels, the pills and the outlines that set a button off the paper. */
+    --background: #F3F7F6;
+    --surface: #FFFFFF;
+    /* Text and icons on a blue fill; the toggle on the start of a group is a disc of it, tinted on hover. */
+    --on-blue: #FFFFFF;
+    --on-blue-tint: #E8EDFF;
+    /* The ends of the diagram and the outline of its start; text on an end. */
+    --terminal: #2B3555;
+    --on-terminal: #FFFFFF;
+    /* The chip behind the command of a step, its program and its flags. */
+    --chip: #EEF2FF;
+    --chip-text: #3F4C74;
+    --chip-flag: #7A88B3;
+    /* A hovered item of a menu; the inputs of the inspector; the rule under its fields. */
+    --hover: #EEF2FF;
+    --input: #FAFBFD;
+    --input-hover: #B9C4F0;
+    --divider: #EEF1F8;
+    /* The comments and the punctuation of the text of the diagram. */
+    --code-muted: #8A8A95;
+    /* The steps on the map, and the tint of the viewport over it. */
+    --map-step: #AEBDEF;
+    --view-tint: rgba(70, 102, 229, 0.08);
+    /* The name of an option, and the trigger on the start - the labels on the flow: a dark amber on a pale yellow chip, apart from the blues of the nodes and the lines; on the dark ground, a light amber on the tinted chip. */
+    --option-text: #9A6700;
+    --option-chip: #FFF1C2;
+    --tooltip-bg: #222222;
+    --tooltip-text: #FFFFFF;
+    /* The shadow under the nodes; the softer one under the panels. */
+    --shadow: rgba(34, 34, 34, 0.18);
+    --shadow-soft: rgba(34, 34, 34, 0.1);
+    --font: sans-serif;
+    --code-font: Menlo, Consolas, monospace;
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --blue: #5B7CF0;
+    /* Stronger reads lighter on a dark ground. */
+    --blue-dark: #7F9AF5;
+    --blue-deep: #3A55C0;
+    --pill-add-outline: var(--blue-deep);
+    --blue-tint: #2A3350;
+    --link: #6E82C9;
+    --link-line: #8A9EB0;
+    --line: #343B4E;
+    --text: #E6E8EF;
+    --muted: #9AA0B4;
+    --red: #F05A78;
+    --blue-light: #3E4A6E;
+    --teal: #3BB3AA;
+    --teal-dark: #58C7BF;
+    --background: #1B1E27;
+    --surface: #262B38;
+    --on-blue: #FFFFFF;
+    --on-blue-tint: #D9E0F5;
+    --terminal: #C9D2EE;
+    --on-terminal: #1B1E27;
+    --chip: #303748;
+    --chip-text: #C3CBE6;
+    --chip-flag: #8C98C0;
+    --hover: #303748;
+    --input: #20242F;
+    --input-hover: #4A5580;
+    --divider: #303748;
+    --code-muted: #7C8399;
+    --map-step: #4A5A94;
+    --view-tint: rgba(91, 124, 240, 0.18);
+    --option-text: #F2C46B;
+    --option-chip: var(--blue-tint);
+    --tooltip-bg: #0F1117;
+    --tooltip-text: #E6E8EF;
+    --shadow: rgba(0, 0, 0, 0.5);
+    --shadow-soft: rgba(0, 0, 0, 0.45);
+}
+
 body {
     width: 100vw;
     height: 100vh;
     margin: 0;
     overflow: hidden;
+    font-family: var(--font);
+    color: var(--text);
 }
 
 /* The toolbar above; below it the paper, filling the rest, and the inspector on the right. */
-/* The colors of the previews on the cells: a deletion in red, a collapse in a light blue, a move in teal - the teal of the drop points. */
-:root {
-    --red: #E54666;
-    --blue-light: #C8D3F2;
-    --teal: #2F9C95;
-    --teal-dark: #257C77;
-}
-
 .app {
     display: flex;
     flex-direction: column;
@@ -48,19 +148,19 @@ body {
     z-index: 1;
     transform: translateX(-50%);
     padding: 6px 12px;
-    border: 1px solid #DCE2F5;
+    border: 1px solid var(--line);
     border-radius: 6px;
-    background: #FFFFFF;
-    box-shadow: 0 4px 14px rgba(34, 34, 34, 0.1);
-    font-family: sans-serif;
+    background: var(--surface);
+    box-shadow: 0 4px 14px var(--shadow-soft);
+    font-family: var(--font);
     font-size: 12px;
-    color: #222222;
+    color: var(--text);
     pointer-events: none;
 }
 
 .move-hint kbd {
     padding: 1px 4px;
-    border: 1px solid #DCE2F5;
+    border: 1px solid var(--line);
     border-radius: 3px;
     font-family: inherit;
     font-size: 11px;
@@ -81,8 +181,8 @@ body {
     flex-direction: column;
     width: 440px;
     flex-shrink: 0;
-    border-left: 1px solid #DCE2F5;
-    background: #FFFFFF;
+    border-left: 1px solid var(--line);
+    background: var(--surface);
 }
 
 /*
@@ -96,9 +196,9 @@ body {
     position: relative;
     flex: 1;
     min-height: 0;
-    font-family: sans-serif;
+    font-family: var(--font);
     font-size: 13px;
-    color: #222222;
+    color: var(--text);
     overflow-y: auto;
 }
 
@@ -111,16 +211,16 @@ body {
     width: 200px;
     height: 140px;
     overflow: hidden;
-    border: 1px solid #DCE2F5;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    box-shadow: 0 4px 14px rgba(34, 34, 34, 0.1);
+    box-shadow: 0 4px 14px var(--shadow-soft);
 }
 
 .navigator-panel .joint-navigator {
     width: 100%;
     height: 100%;
     border: none;
-    background: #F3F7F6;
+    background: var(--background);
 }
 
 /* The labels of the links - the names of the options - are not for the map. */
@@ -129,8 +229,8 @@ body {
 }
 
 .navigator-panel .current-view {
-    border: 1.5px solid #3552C4;
-    background: rgba(70, 102, 229, 0.08);
+    border: 1.5px solid var(--blue-dark);
+    background: var(--view-tint);
     cursor: move;
 }
 
@@ -140,12 +240,12 @@ body {
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #6A6A75;
+    color: var(--muted);
 }
 
 .inspector .message {
     padding: 18px 16px;
-    color: #6A6A75;
+    color: var(--muted);
 }
 
 .inspector .title + .message {
@@ -173,54 +273,54 @@ body {
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #6A6A75;
+    color: var(--muted);
     cursor: pointer;
 }
 
 .inspector .tab:hover {
-    color: #222222;
+    color: var(--text);
 }
 
 .inspector .tab.active {
-    color: #222222;
-    border-bottom-color: #4666E5;
+    color: var(--text);
+    border-bottom-color: var(--blue);
 }
 
 .inspector .code {
     margin: 0;
     padding: 4px 16px 16px;
-    font-family: Menlo, Consolas, monospace;
+    font-family: var(--code-font);
     font-size: 11px;
     line-height: 1.5;
-    color: #222222;
+    color: var(--text);
     white-space: pre;
     overflow-x: auto;
 }
 
 .inspector .code .hljs-attr {
-    color: #4666E5;
+    color: var(--blue);
 }
 
 .inspector .code .hljs-bullet {
-    color: #7A90EC;
+    color: var(--link);
 }
 
 .inspector .code .hljs-string {
-    color: #222222;
+    color: var(--text);
 }
 
 .inspector .code .hljs-number,
 .inspector .code .hljs-literal {
-    color: #2B3555;
+    color: var(--terminal);
 }
 
 .inspector .code .hljs-comment {
-    color: #8A8A95;
+    color: var(--code-muted);
     font-style: italic;
 }
 
 .inspector .code .hljs-punctuation {
-    color: #8A8A95;
+    color: var(--code-muted);
 }
 
 .inspector .joint-inspector {
@@ -228,6 +328,8 @@ body {
     padding: 0 0 16px;
     border: none;
     background: none;
+    /* The theme of the library sets black; the fields inherit the text color of the panel. */
+    color: inherit;
 }
 
 /* A field: a small muted label over its input; the theme's trailing colon goes. */
@@ -241,7 +343,7 @@ body {
     margin-bottom: 5px;
     font-size: 12px;
     font-weight: 500;
-    color: #6A6A75;
+    color: var(--muted);
 }
 
 .inspector .joint-inspector .field label::after {
@@ -252,9 +354,9 @@ body {
 .inspector .joint-inspector .field textarea {
     width: 100%;
     padding: 7px 10px;
-    border: 1px solid #DCE2F5;
+    border: 1px solid var(--line);
     border-radius: 6px;
-    background: #FAFBFD;
+    background: var(--input);
     font: inherit;
     line-height: 1.4;
     color: inherit;
@@ -270,19 +372,19 @@ body {
 
 .inspector .joint-inspector .field input[type="text"]:hover,
 .inspector .joint-inspector .field textarea:hover {
-    border-color: #B9C4F0;
+    border-color: var(--input-hover);
 }
 
 .inspector .joint-inspector .field input[type="text"]:focus,
 .inspector .joint-inspector .field textarea:focus {
-    border-color: #4666E5;
-    background: #FFFFFF;
-    box-shadow: 0 0 0 3px #E8EDFF;
+    border-color: var(--blue);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px var(--blue-tint);
 }
 
 /* The command a step runs: code, as on the pill. */
 .inspector .joint-inspector .field[data-field$="/run"] input {
-    font-family: Menlo, Consolas, monospace;
+    font-family: var(--code-font);
     font-size: 12px;
 }
 
@@ -295,7 +397,7 @@ body {
 .inspector .joint-inspector .field[data-field$="/branches/0/name"] {
     margin: 10px 16px 0;
     padding: 16px 0 10px;
-    border-top: 1px solid #EEF1F8;
+    border-top: 1px solid var(--divider);
 }
 
 .inspector .joint-inspector .field[data-field$="/to/0/name"]::before,
@@ -306,7 +408,7 @@ body {
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #6A6A75;
+    color: var(--muted);
 }
 
 .inspector .joint-inspector .field[data-field$="/to/0/name"]::before {
@@ -322,22 +424,22 @@ body {
 .joint-paper-scroller {
     width: 100%;
     height: 100%;
-    background: #F3F7F6;
+    background: var(--background);
 }
 
 /*
-    The toolbar: undo, redo and the zoom, built-in widgets of `ui.Toolbar`
-    drawn with the icons of this demo instead of the text of the default
-    theme - a stroke glyph as a mask over the color of the button, in the
-    blue of the nodes; a disabled button fades.
+    The toolbar: undo, redo and the zoom, built-in widgets of `ui.Toolbar`,
+    and the plain buttons - drawn with the icons of this demo instead of the
+    text of the default theme: a stroke glyph as a mask over the color of the
+    button, in the blue of the nodes; a disabled button fades.
 */
 .toolbar .joint-toolbar {
     height: 44px;
     padding: 0 10px;
     gap: 4px;
     border: none;
-    border-bottom: 1px solid #DCE2F5;
-    background: #FFFFFF;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
     box-sizing: border-box;
 }
 
@@ -345,7 +447,7 @@ body {
     width: 1px;
     height: 20px;
     margin: 0 6px;
-    background: #DCE2F5;
+    background: var(--line);
 }
 
 .toolbar button.joint-widget {
@@ -355,13 +457,13 @@ body {
     border: none;
     border-radius: 6px;
     background: none;
-    color: #4666E5;
+    color: var(--blue);
     cursor: pointer;
     transition: background-color 100ms ease-out, opacity 100ms ease-out;
 }
 
 .toolbar button.joint-widget:hover:not(:disabled) {
-    background: #E8EDFF;
+    background: var(--blue-tint);
 }
 
 .toolbar button.joint-widget:disabled {
@@ -403,6 +505,15 @@ body {
     --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M -7 -3 V -7 H -3 M 3 -7 H 7 V -3 M 7 3 V 7 H 3 M -3 7 H -7 V 3 M -3 -3 H 3 V 3 H -3 Z' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 }
 
+/* The last button switches the theme: a moon offers the dark one, a sun the light one. */
+.toolbar .joint-widget[data-name="theme"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M 2 -7.5 A 7 7 0 1 0 7.5 1 A 5.5 5.5 0 0 1 2 -7.5 Z' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+:root[data-theme="dark"] .toolbar .joint-widget[data-name="theme"] {
+    --icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M 0 0 m -3.5 0 a 3.5 3.5 0 1 0 7 0 a 3.5 3.5 0 1 0 -7 0 M 0 -8 V -6 M 0 6 V 8 M -8 0 H -6 M 6 0 H 8 M -5.7 -5.7 L -4.2 -4.2 M 4.2 4.2 L 5.7 5.7 M -5.7 5.7 L -4.2 4.2 M 4.2 -4.2 L 5.7 -5.7' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
 /*
     The buttons: the collapse/expand button and the add button on a pill, the
     add button below a leaf, the insert button of a link and the "more" tool.
@@ -418,13 +529,13 @@ body {
 }
 
 [joint-selector="toggle"]:hover {
-    fill: #E8EDFF;
+    fill: var(--on-blue-tint);
 }
 
 [joint-selector="addButton"]:hover,
 .joint-type-tbg-addbutton:hover [joint-selector="body"],
 .joint-tool .button.add:hover {
-    fill: #3552C4;
+    fill: var(--blue-dark);
 }
 
 /* A move in progress: the buttons are the drop points - teal, so that they read as the targets to click. */
@@ -442,7 +553,7 @@ body {
 
 /* The "more" button: a transparent disc that tints on hover, on a light pill and on a filled one. */
 .joint-tool .button.menu:hover {
-    fill: rgba(70, 102, 229, 0.12);
+    fill: var(--view-tint);
 }
 
 .joint-type-tbg-decision .joint-tool .button.menu:hover,
@@ -457,10 +568,10 @@ body {
 */
 .joint-context-toolbar[data-type="menu"] .tools {
     padding: 4px;
-    border: 1px solid #DCE2F5;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #FFFFFF;
-    box-shadow: 0 6px 20px rgba(34, 34, 34, 0.12);
+    background: var(--surface);
+    box-shadow: 0 6px 20px var(--shadow-soft);
 }
 
 .joint-context-toolbar[data-type="menu"] .tool {
@@ -473,20 +584,20 @@ body {
     border: none;
     border-radius: 6px;
     background: none;
-    font-family: sans-serif;
+    font-family: var(--font);
     font-size: 13px;
-    color: #222222;
+    color: var(--text);
     text-align: left;
     cursor: pointer;
     transition: background-color 100ms ease-out;
 }
 
 .joint-context-toolbar[data-type="menu"] .tool:hover {
-    background-color: #EEF2FF;
+    background-color: var(--hover);
 }
 
 .joint-context-toolbar[data-type="menu"] .tool:active {
-    background-color: #DCE2F5;
+    background-color: var(--line);
 }
 
 .joint-context-toolbar[data-type="menu"] .tool:disabled {
@@ -522,7 +633,7 @@ body {
 .joint-type-tbg-groupstart [joint-selector="body"],
 .joint-type-tbg-start [joint-selector="body"],
 .joint-type-tbg-end [joint-selector="body"] {
-    filter: drop-shadow(0 1px 3px rgba(34, 34, 34, 0.18));
+    filter: drop-shadow(0 1px 3px var(--shadow));
 }
 
 .to-be-deleted {
@@ -557,9 +668,9 @@ body {
 .joint-tooltip {
     padding: 0;
     border-radius: 4px;
-    background-color: #222222;
-    color: #FFFFFF;
-    font-family: sans-serif;
+    background-color: var(--tooltip-bg);
+    color: var(--tooltip-text);
+    font-family: var(--font);
     font-size: 12px;
     line-height: 1.3;
 }
@@ -570,20 +681,20 @@ body {
 
 .joint-tooltip.top .tooltip-arrow,
 .joint-tooltip.top .tooltip-arrow-mask {
-    border-bottom-color: #222222;
+    border-bottom-color: var(--tooltip-bg);
 }
 
 .joint-tooltip.bottom .tooltip-arrow,
 .joint-tooltip.bottom .tooltip-arrow-mask {
-    border-top-color: #222222;
+    border-top-color: var(--tooltip-bg);
 }
 
 .joint-tooltip.left .tooltip-arrow,
 .joint-tooltip.left .tooltip-arrow-mask {
-    border-right-color: #222222;
+    border-right-color: var(--tooltip-bg);
 }
 
 .joint-tooltip.right .tooltip-arrow,
 .joint-tooltip.right .tooltip-arrow-mask {
-    border-left-color: #222222;
+    border-left-color: var(--tooltip-bg);
 }
