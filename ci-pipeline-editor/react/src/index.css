@@ -273,7 +273,8 @@ body {
 }
 
 .pill.filled {
-    border-radius: 20px;
+    /* Round by half its height, however tall the label makes it. */
+    border-radius: 9999px;
     background: var(--blue);
     color: var(--on-blue);
 }
