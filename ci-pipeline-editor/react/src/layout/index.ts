@@ -195,7 +195,8 @@ export function getVisibleBBox(graph: dia.Graph): g.Rect | null {
  * so the tree appears to connect to the gates, although the links connect
  * to the group, which may be wider on one side of the axis. Set after the
  * layout, which decides where the gates are; a collapsed group is the size
- * of its `start`, so the offset is nought.
+ * of its `start`, so the offset is nought. The anchors read the model: a
+ * group is never rendered, on the paper or on the map.
  */
 function anchorGroupLinks(graph: dia.Graph, groups: GroupModel[]): void {
     for (const group of groups) {
@@ -203,10 +204,10 @@ function anchorGroupLinks(graph: dia.Graph, groups: GroupModel[]): void {
         const startDx = group.getStart().getBBox().center().x - center.x;
         const endDx = (group.isCollapsed() ? group.getStart() : group.getEnd()).getBBox().center().x - center.x;
         for (const link of graph.getConnectedLinks(group, { inbound: true })) {
-            link.prop('target/anchor', { name: 'top', args: { dx: startDx }});
+            link.prop('target/anchor', { name: 'top', args: { dx: startDx, useModelGeometry: true }});
         }
         for (const link of graph.getConnectedLinks(group, { outbound: true })) {
-            link.prop('source/anchor', { name: 'bottom', args: { dx: endDx }});
+            link.prop('source/anchor', { name: 'bottom', args: { dx: endDx, useModelGeometry: true }});
         }
     }
 }
