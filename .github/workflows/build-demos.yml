@@ -1,46 +1,29 @@
 # Builds the demos and reports which ones failed.
+# - Runs on a push to main, by hand, and on `workflow_call` from another repo.
 #
-# Runs on a push to main, by hand, and on `workflow_call` from another
-# repository. The only thing that differs between callers is
-# `packages_artifact`:
+# WHICH JOINT PACKAGES ARE USED TO BUILD DEMOS:
+# No `packages_artifact` provided:
+# - Demos build against pinned `@joint/*` versions (= from public/private NPM).
+# Otherwise, if `packages_artifact` is provided:
+# - Demos are built against the tarballs in that artifact (= built by caller).
 #
-#   - empty, and every demo installs the @joint/* versions it pins;
-#   - set, and the tarballs in that artifact take their place, so the demos are
-#     built against @joint/* packages the caller built itself.
+# WHICH COMMIT OF THE DEMOS GETS BUILT:
+# - Run summary records which ref was used and why.
 #
-# It lives here rather than in a caller because which demos exist, which variant
-# of each is canonical and which are skipped is knowledge that belongs next to
-# the demos. A caller only has to produce tarballs.
-#
-# WHICH COMMIT OF THE DEMOS GETS BUILT
-#
-#   - no `demos_ref`, and the commit under test, which is what our own runs
-#     want;
-#   - a `demos_ref` that exists here, and that ref;
-#   - a `demos_ref` that does not, and the default branch.
-#
-# Asking for a ref that does not exist is therefore not an error, just a
-# fallback. That is deliberate: it lets a caller request some branch
-# unconditionally, and get the default whenever that branch is absent, without
-# either side having to track whether it exists. The last case resolves the
-# default branch rather than reusing the commit this workflow file came from,
-# so that a caller pinning `uses:` to a commit - to control which version of
-# this workflow runs - does not thereby freeze which demos get built. The run
-# summary records which ref was used and why.
-#
-# NOTE: there is deliberately no `pull_request` trigger. Building a demo runs
-# `npm install --ignore-scripts=false` and then its build script, both of which
-# execute code from the commit under test - and this job needs
-# JOINTJS_NPM_TOKEN, the credential for the private registry. A pull request
-# from a branch of this repository *does* receive repository secrets, so a
-# `pull_request` trigger would hand that token to unreviewed code and let it be
-# read out. Every trigger below is one where the code has already been reviewed
-# and merged, or is started by hand by someone who can push. Demo breakage is
-# therefore caught just after merge rather than before it; that is the trade
-# being made, and it is the same trust model `deploy.yml` already relies on.
+# No `demos_ref` provided:
+# - The commit this workflow came from (= the commit under test).
+# Otherwise, if `demos_ref` is provided and it exists in this repo:
+# - That ref (= branch or tag).
+# Otherwise, if `demos_ref` is provided and it does not exist in this repo:
+# - This repo's default branch (= a missing ref is a fallback, not an error).
+# - (The fallback lets caller ask for a branch without tracking if it exists.)
+# - (Decouples workflow commit and default branch so caller can pin via`uses:`.)
+# Otherwise, if the remote cannot be checked (= e.g. network failure):
+# - The job fails (could build default instead of `demos_ref` otherwise).
 name: Build demos
 
 on:
+  # NOTE: Deliberately no `pull_request` trigger
   workflow_call:
     inputs:
       packages_artifact:

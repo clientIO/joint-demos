@@ -44,15 +44,15 @@ export function findLocalPackageInDir(dirPath, depName) {
     return null;
 }
 
-// The fields a demo declares its @joint/* packages in. Nothing here looks at
-// peerDependencies: no demo has any, and overriding one would change what npm
-// considers satisfied rather than what it installs.
-const DEP_FIELDS = ['dependencies', 'devDependencies'];
+// Fields that count as "this demo reaches @joint/*".
+// - NOTE: `peerDependencies` must be included, since NPM 7+ installs them.
+const SCAN_FIELDS = ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies'];
 
-// Every @joint/* package a parsed package.json depends on directly.
+// Find every directly depended `@joint/*` package in a parsed `package.json`.
+// Returns names of those packages.
 export function jointDepNames(pkg) {
     const names = new Set();
-    for (const field of DEP_FIELDS) {
+    for (const field of SCAN_FIELDS) {
         if (!pkg[field]) continue;
         for (const name of Object.keys(pkg[field])) {
             if (name.startsWith('@joint/')) names.add(name);
@@ -61,39 +61,36 @@ export function jointDepNames(pkg) {
     return names;
 }
 
-// Points a parsed package.json at local packages, in place.
-//
-// `specs` maps a @joint/* package name to the file: specifier standing in for
-// it. Two things happen for each one, and both are needed:
-//
-//   - a direct dependency on it is rewritten, which is what makes the demo
-//     build against the local copy;
-//   - an `overrides` entry is written, which is what catches the package when
-//     nothing declares it directly. @joint/core is the case that matters:
-//     @joint/plus depends on it by range, and almost no demo declares it, so
-//     without an override npm resolves it from the registry and the run
-//     quietly tests a released core against a local @joint/plus.
-//
-// The two must agree. npm rejects an override that conflicts with a direct
-// dependency on the same package unless the specs are identical - which they
-// are here, because both come from `specs`.
-//
-// Returns the names that were pointed at something local.
-export function applyLocalPackages(pkg, specs) {
-    const applied = [];
+// Fields that get rewritten to `file:` spec.
+// - NOTE: `peerDependencies` aren't resolution targets = `file:` means nothing.
+const REWRITE_FIELDS = SCAN_FIELDS.filter((field) => {
+    return (field !== 'peerDependencies');
+});
 
-    for (const field of DEP_FIELDS) {
+// Point a parsed `package.json` to local packages, in place.
+// - `specs` maps `@joint/*` package names to `file:` specifiers for them.
+// - Two things must happen for each:
+//   - Rewrite dependency (= make the demo build against local copy).
+//   - Add `overrides` entry (= relevant when nothing rewritable refers to it).vis written, which is what catches the package when
+//     - (Relevant for `@joint/core`.)
+//     - (Avoids using released `@joint/core` against local `@joint/plus`.)
+// - The rewritten dependencies and overrides must agree.
+//   - (NPM rejects the override otherwise.)
+// Returns names of packages pointed at something local (rewrites + overrides).
+export function applyLocalPackages(pkg, specs) {
+    for (const field of REWRITE_FIELDS) {
         if (!pkg[field]) continue;
         for (const depName of Object.keys(pkg[field])) {
             const spec = specs[depName];
-            if (!spec) continue;
-            if (pkg[field][depName] !== spec) pkg[field][depName] = spec;
-            applied.push(depName);
+            if (spec && pkg[field][depName] !== spec) pkg[field][depName] = spec;
         }
     }
 
-    // Overrides are only worth writing for a demo that reaches @joint/* at all;
-    // on anything else they are noise npm would never consult.
+    // Must count across every scanned field, not just rewritten ones.
+    // - Package declared in `peerDependencies` still needs `overrides`.
+    const applied = [...jointDepNames(pkg)].filter((name) => specs[name]);
+
+    // Only write `overrides` if `@joint/*` is used at all.
     if (applied.length > 0) {
         pkg.overrides = { ...pkg.overrides, ...specs };
     }
