@@ -1,4 +1,5 @@
-import { dia, g } from '@joint/plus';
+import type { dia } from '@joint/plus';
+import { g } from '@joint/plus';
 import { LinkModel as ReactLinkModel, useCell, useLinkLayout } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 

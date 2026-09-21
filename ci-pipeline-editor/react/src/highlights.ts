@@ -3,7 +3,8 @@ import type { dia } from '@joint/plus';
 
 import { getDeletedCells } from './actions';
 import { isCellVisible } from './layout';
-import { AddButtonModel, DecisionModel, GroupModel, GroupStartModel } from './shapes';
+import type { GroupModel } from './shapes';
+import { AddButtonModel, DecisionModel, GroupStartModel } from './shapes';
 
 /**
  * The state of the picture that is not the data: the highlights of a
