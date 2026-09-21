@@ -3,12 +3,12 @@ import { useGraph, usePaper, usePaperScroller, useSelectionCollection } from '@j
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 
-import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
+import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, getNodeElement, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
 import type { MenuRequest } from './components/menu';
 import { buildGraph, getId } from './data/build';
 import type { Id } from './data/types';
 import { DiagramData } from './data/diagram-data';
-import { EditorContext, MAX_ZOOM, MIN_ZOOM, PAPER_ID } from './editor-context';
+import { EditorContext, MAX_ZOOM, MIN_ZOOM, PAPER_ID, isSelectable } from './editor-context';
 import type { EditorApi } from './editor-context';
 import { getVisibleBBox, isCellVisible, runLayout } from './layout';
 import { example } from './data/example';
@@ -157,6 +157,11 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             setMove(null);
             return id;
         };
+        // The element of the node `id` just added - the graph has it, rebuilt on the push of the edit - is selected: its fields open in the inspector.
+        const selectNode = (id: Id): void => {
+            const element = getNodeElement(graph, id);
+            if (element && isSelectable(element)) selectCells([element]);
+        };
         return {
             data,
             graph,
@@ -169,8 +174,8 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             canDropOnLink: (link) => moved !== null && canMoveOnLink(graph, data, movedId(), link),
             dropBelow: (parent) => moveBelow(data, endMove(), parent),
             dropOnLink: (link) => moveOnLink(data, endMove(), link),
-            addBelow: (parent, choice) => addBelow(data, parent, choice),
-            insertOnLink: (link, choice) => insertOnLink(data, link, choice),
+            addBelow: (parent, choice) => selectNode(addBelow(data, parent, choice)),
+            insertOnLink: (link, choice) => selectNode(insertOnLink(data, link, choice)),
             remove: (target) => {
                 preview('deletion', NO_MARKS);
                 if (!canDelete(graph, target)) return;

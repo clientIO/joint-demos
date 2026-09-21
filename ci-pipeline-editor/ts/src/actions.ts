@@ -278,6 +278,17 @@ export function moveOnLink(data: DiagramData, movedId: Id, link: LinkModel): voi
     data.moveNode(movedId, id, slot, GroupEndModel.isGroupEnd(target) ? null : getId(target));
 }
 
+/**
+ * The element that stands for node `id` on the diagram: the node's own, or
+ * the start of a group, which stands in for it - a group is never rendered.
+ * What to select for the node; `undefined` while the graph has no cell for it.
+ */
+export function getNodeElement(graph: dia.Graph, id: Id): dia.Element | undefined {
+    const cell = graph.getCell(id);
+    if (!cell?.isElement()) return undefined;
+    return GroupModel.isGroup(cell) ? cell.getStart() : cell;
+}
+
 /** Collapses an expanded group, expands a collapsed one. */
 export function toggleGroup(data: DiagramData, group: GroupModel): void {
     data.changeNode(getId(group), { collapsed: !group.isCollapsed() });

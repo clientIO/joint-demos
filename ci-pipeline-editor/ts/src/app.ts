@@ -1,7 +1,7 @@
 import { dia, ui } from '@joint/plus';
 import type { g } from '@joint/plus';
 
-import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getActionTarget, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
+import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getActionTarget, getMovedCells, getNodeElement, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
 import { buildGraph, getId } from './data/build';
 import { DiagramData } from './data/diagram-data';
 import { example } from './data/example';
@@ -174,9 +174,17 @@ export function init(): void {
         })
     });
     const inspectorEl = document.getElementById('inspector')!;
+    const appEl = document.querySelector('.app')!;
     function updateInspector(): void {
         const selected = selection.collection.at(0);
+        // On a small screen the panel shows only while something is selected (see the stylesheet).
+        appEl.classList.toggle('has-selection', selected !== undefined);
         syncInspector(inspectorEl, data, selected && isSelectable(selected) ? selected : null);
+    }
+    /** Selects the element of the node `id` just added - the graph has it, rebuilt on the push of the edit - so that its fields open in the inspector. */
+    function selectNode(id: Id): void {
+        const element = getNodeElement(graph, id);
+        if (element && isSelectable(element)) selection.collection.reset([element]);
     }
     selection.collection.on('reset add remove', updateInspector);
     updateInspector();
@@ -197,7 +205,6 @@ export function init(): void {
     // blank area cancels it.
     let moved: dia.Element | null = null;
     const moveHintEl = document.getElementById('move-hint')!;
-    const appEl = document.querySelector('.app')!;
     /** The move in progress, or none. The app marks the mode: the buttons turn into drop points. */
     function setMoved(element: dia.Element | null): void {
         moved = element;
@@ -219,8 +226,8 @@ export function init(): void {
     const movedId = (): Id => getId(moved!);
 
     const actions: ToolActions = {
-        addBelow: (element, choice) => addBelow(data, element, choice),
-        insertOnLink: (link, choice) => insertOnLink(data, link, choice),
+        addBelow: (element, choice) => selectNode(addBelow(data, element, choice)),
+        insertOnLink: (link, choice) => selectNode(insertOnLink(data, link, choice)),
         delete: (element) => deleteElement(graph, data, element),
         toggleGroup: (group) => toggleGroup(data, group),
         canMove: (element) => hasMoveTarget(graph, data, getId(element)),
