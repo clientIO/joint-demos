@@ -45,8 +45,12 @@ export function init(): void {
         // The layout owns the positions.
         interactive: false,
         background: { color: COLORS.background },
-        // The links meet a group where its gates are. Both ends are computed
-        // from the models: a group has no view.
+        // Both ends of a link are computed from the models, not the views: a
+        // group has no view, and the view of the start overhangs its box by
+        // the chip of the trigger. The layout puts special anchors on the
+        // links of the groups (see `anchorGroupLinks()`).
+        defaultAnchor: { name: 'center', args: { useModelGeometry: true }},
+        defaultConnectionPoint: { name: 'bbox', args: { useModelGeometry: true }},
         viewManagement: {
             lazyInitialize: true,
             disposeHidden: true

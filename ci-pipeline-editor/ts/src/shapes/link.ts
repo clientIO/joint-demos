@@ -76,13 +76,6 @@ const RETURN_ARROW_LABEL = {
     position: { distance: 0.5, args: { keepGradient: true, ensureLegibility: false }}
 };
 
-/**
- * Where a link meets an element: the box of the model, not of the view - a
- * view may not be rendered yet when the link is routed, the paper being
- * frozen for the layout.
- */
-const LINK_CONNECTION_POINT = { name: 'bbox', args: { useModelGeometry: true }};
-
 export class LinkModel extends dia.Link {
 
     defaults() {
@@ -121,7 +114,7 @@ export class LinkModel extends dia.Link {
     }
 
     static create(source: dia.Element, target: dia.Element): LinkModel {
-        const link = new LinkModel({ source: { id: source.id, connectionPoint: LINK_CONNECTION_POINT }});
+        const link = new LinkModel({ source: { id: source.id }});
         link.connectTo(target);
         return link;
     }
@@ -131,7 +124,7 @@ export class LinkModel extends dia.Link {
      * an add button has no arrowhead: neither is a step.
      */
     connectTo(target: dia.Element): void {
-        this.target({ id: target.id, connectionPoint: LINK_CONNECTION_POINT });
+        this.target({ id: target.id });
         if (GroupEndModel.isGroupEnd(target) || AddButtonModel.isAddButton(target)) {
             this.removeAttr('line/targetMarker');
         } else {

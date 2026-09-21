@@ -26,12 +26,6 @@ const TARGET_MARKER = {
 };
 
 /**
- * Where a link meets an element: the box of the model, not of the view - a
- * view may not be rendered, or measured, yet when the link is routed.
- */
-const LINK_CONNECTION_POINT = { name: 'bbox', args: { useModelGeometry: true }};
-
-/**
  * The React-facing state of a link: whether it runs against the flow (the
  * return link of a loop, which shows an arrow in its middle) and the name of
  * the option it leads to, for a link from a decision or from the start of a
@@ -78,7 +72,7 @@ export class LinkModel extends ReactLinkModel {
     }
 
     static create(source: dia.Element, target: dia.Element): LinkModel {
-        const link = new LinkModel({ source: { id: source.id, connectionPoint: LINK_CONNECTION_POINT }});
+        const link = new LinkModel({ source: { id: source.id }});
         link.connectTo(target);
         return link;
     }
@@ -88,7 +82,7 @@ export class LinkModel extends ReactLinkModel {
      * an add button has no arrowhead: neither is a step.
      */
     connectTo(target: dia.Element): void {
-        this.target({ id: target.id, connectionPoint: LINK_CONNECTION_POINT });
+        this.target({ id: target.id });
         if (GroupEndModel.isGroupEnd(target) || AddButtonModel.isAddButton(target)) {
             this.removeAttr('line/targetMarker');
         } else {
