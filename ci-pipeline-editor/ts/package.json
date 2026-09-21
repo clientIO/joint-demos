@@ -1,0 +1,27 @@
+{
+  "name": "@joint/demo-ci-pipeline-editor",
+  "version": "4.3.3",
+  "description": "JointJS+ - CI Pipeline Editor",
+  "main": "src/main.ts",
+  "homepage": "https://jointjs.com",
+  "author": {
+    "name": "client IO",
+    "url": "https://client.io"
+  },
+  "license": "http://jointjs.com/license",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@joint/plus": "4.3.3",
+    "highlight.js": "^11.12.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}

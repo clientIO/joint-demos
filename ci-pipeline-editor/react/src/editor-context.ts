@@ -1,0 +1,81 @@
+import type { dia } from '@joint/plus';
+import { createContext, useContext } from 'react';
+
+import type { AddChoice } from './add-menu';
+import type { MenuRequest } from './components/menu';
+import type { DiagramData } from './data/diagram-data';
+import { DecisionModel, EndModel, GroupStartModel, StartModel, StepModel } from './shapes';
+import type { GroupModel, LinkModel } from './shapes';
+
+export const MIN_ZOOM = 0.2;
+export const MAX_ZOOM = 3;
+
+/** What can be selected: every element with a picture - not the end of a group, not an add button. */
+export type Selectable = StepModel | DecisionModel | StartModel | EndModel | GroupStartModel;
+
+export function isSelectable(cell: dia.Cell): cell is Selectable {
+    return StepModel.isStep(cell) || DecisionModel.isDecision(cell) || StartModel.isStart(cell) || EndModel.isEnd(cell) || GroupStartModel.isGroupStart(cell);
+}
+
+/**
+ * The editor, for every component of the app: the data and the graph, the
+ * history, the move in progress, the menu that is open, and the edits -
+ * each a change of the data, after which the graph is rebuilt. The
+ * selection is the diagram's own (`useSelectionCollection()`).
+ */
+export interface EditorApi {
+    data: DiagramData;
+    graph: dia.Graph;
+    /** Bumped after every change of the data: what reads the data re-renders on it. */
+    version: number;
+
+    /** The element being moved, if any. While one is, the drop points take it and add nothing. */
+    moved: dia.Element | null;
+    canMove(element: dia.Element): boolean;
+    startMove(element: dia.Element): void;
+    cancelMove(): void;
+    canDropBelow(parent: dia.Element): boolean;
+    canDropOnLink(link: LinkModel): boolean;
+    dropBelow(parent: dia.Element): void;
+    dropOnLink(link: LinkModel): void;
+
+    addBelow(parent: dia.Element, choice: AddChoice): void;
+    insertOnLink(link: LinkModel, choice: AddChoice): void;
+    remove(target: dia.Element): void;
+    toggleGroup(group: GroupModel): void;
+    /** Turns what a deletion of `target` would remove red, or takes the red off with `null`. */
+    previewDeletion(target: dia.Element | null): void;
+    /** Fades what a collapse of `group` would hide - or restores it, with `null`. */
+    previewCollapse(group: GroupModel | null): void;
+    /** Fades what a move of `target` would take along - or restores it, with `null`. */
+    previewMove(target: dia.Element | null): void;
+
+    menu: MenuRequest | null;
+    openMenu(request: MenuRequest): void;
+    closeMenu(): void;
+
+    undo(): void;
+    redo(): void;
+    canUndo: boolean;
+    canRedo: boolean;
+    /** Everything but the start goes. */
+    reset(): void;
+
+    zoomIn(): void;
+    zoomOut(): void;
+    /** The whole diagram in the view, centered. */
+    zoomToFit(): void;
+    /** The width of the diagram in the view, the start at the top: the view at the start, and after a reset. */
+    fit(): void;
+}
+
+export const EditorContext = createContext<EditorApi | null>(null);
+
+export function useEditor(): EditorApi {
+    const editor = useContext(EditorContext);
+    if (!editor) throw new Error('useEditor() needs an <EditorProvider>.');
+    return editor;
+}
+
+/** The id of the paper of the diagram: the provider reaches the paper and its scroller by it, from outside of `<Paper>`. */
+export const PAPER_ID = 'diagram';
