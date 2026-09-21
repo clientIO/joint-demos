@@ -2,7 +2,9 @@
 
 An editor of a CI/CD pipeline, built with JointJS+: a tree laid out by `layout.TreeLayout` in which a node can be a *group*: a container with a start node, some content and an end node. A *fork group* holds branches - any number of them - that converge into the end node — a fork/join. A *loop group* holds a tree that grows down on the right and a return link that climbs back up on the left, from the end node to the start node — a loop. The tree connects to a group as a single node, so subgraphs that a tree layout cannot handle on its own fit into the tree. Groups nest and collapse.
 
-![The initial diagram: a CI/CD pipeline with a fork of parallel jobs, a decision on the target and a loop polling the smoke tests](../screenshot.png)
+![The editor in the light theme: a CI/CD pipeline with a fork of parallel jobs, a decision on the target and a loop polling the smoke tests, the YAML alongside](../screenshot.png)
+
+![The same diagram in the dark theme](../screenshot-dark.png)
 
 ## Features
 

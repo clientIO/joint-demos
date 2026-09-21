@@ -7,6 +7,8 @@ An editor of a CI/CD pipeline: steps that run commands, forks of parallel branch
 - [TypeScript](./ts/)
 - [React](./react/)
 
-## Screenshot
+## Screenshots
 
-![screenshot](./screenshot.png)
+![The editor in the light theme: a CI/CD pipeline with a fork of parallel jobs, a decision on the target and a loop polling the smoke tests, the YAML alongside](./screenshot.png)
+
+![The same diagram in the dark theme](./screenshot-dark.png)
