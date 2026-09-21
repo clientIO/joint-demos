@@ -135,6 +135,7 @@ demo_config() {
 # ---------------------------------------------------------------------------
 
 SKIPPED=()
+KNOWN=()
 
 for demo_dir in */; do
     demo_name="${demo_dir%/}"
@@ -143,6 +144,8 @@ for demo_dir in */; do
     case "$demo_name" in
         .* | _site | node_modules) continue ;;
     esac
+
+    KNOWN+=("$demo_name")
 
     # If a selection is provided, skip demos that are not in it
     if ! is_selected "$demo_name"; then
@@ -153,7 +156,7 @@ for demo_dir in */; do
     if [[ "$(demo_config "$demo_name" skip)" == "true" ]]; then
         # Planning diagnostics go to stderr, alongside the rest of the run's
         # warnings. Skips are also counted into the summary at the end.
-        echo ":: Skipping $demo_name (skip=true in demos.config.json)" >&2
+        echo "Skipping $demo_name (skip=true in demos.config.json)" >&2
         SKIPPED+=("$demo_name")
         continue
     fi
@@ -164,7 +167,7 @@ for demo_dir in */; do
         if [[ -d "$demo_dir/$config_variant" ]]; then
             build_dir="$demo_dir/$config_variant"
         else
-            echo ":: WARNING: $demo_name variant '$config_variant' not found, falling back to default" >&2
+            echo "WARNING: $demo_name variant '$config_variant' not found, falling back to default" >&2
             config_variant=""
         fi
     fi
@@ -176,7 +179,7 @@ for demo_dir in */; do
         elif [[ -d "$demo_dir/js" ]]; then
             build_dir="$demo_dir/js"
         else
-            echo ":: Skipping $demo_name (no ts/ or js/ subdirectory — add a variant to demos.config.json)" >&2
+            echo "Skipping $demo_name (no ts/ or js/ subdirectory — add a variant to demos.config.json)" >&2
             SKIPPED+=("$demo_name")
             continue
         fi
@@ -195,12 +198,32 @@ for demo_dir in */; do
     printf '%s\t%s\t%s\n' "$demo_name" "$build_dir" "$build_flags" >> "$PLAN"
 done
 
+# A selected name matching no directory is a typo or a stale name, and silence
+# here is the expensive kind: the run would build whatever else matched and exit
+# 0, so CI reports success for a demo it never built. Callers are especially
+# exposed - joint-plus asks for a `demos_ref` that falls back to the default
+# branch, where a name added on another branch does not exist yet.
+# A selected demo that exists but is skipped by demos.config.json is not this:
+# that is deliberate, and the summary already counts it.
+UNKNOWN=()
+for name in ${SELECTED[@]+"${SELECTED[@]}"}; do
+    matched=false
+    for known in ${KNOWN[@]+"${KNOWN[@]}"}; do
+        [[ "$name" == "$known" ]] && { matched=true; break; }
+    done
+    [[ "$matched" == true ]] || UNKNOWN+=("$name")
+done
+if [[ ${#UNKNOWN[@]} -gt 0 ]]; then
+    echo "build-demos.sh: no such demo: ${UNKNOWN[*]}" >&2
+    exit 2
+fi
+
 PLANNED=$(wc -l < "$PLAN" | tr -d ' ')
 
 rm -rf "$SITE_DIR"
 mkdir -p "$SITE_DIR"
 
-echo ":: Building $PLANNED demos, $JOBS at a time"
+echo "Building $PLANNED demos, $JOBS at a time"
 echo ""
 
 # ---------------------------------------------------------------------------
@@ -214,7 +237,7 @@ build_demo() {
     local log="$WORK_DIR/logs/$demo_name" status="$WORK_DIR/status/$demo_name"
 
     {
-        echo ":: Building $demo_name from $build_dir ($build_flags)"
+        echo "Building $demo_name from $build_dir ($build_flags)"
         if (
             cd "$build_dir"
             npm install --ignore-scripts=false
@@ -226,14 +249,14 @@ build_demo() {
                 # and it costs nothing to not depend on it.
                 mkdir -p "$SITE_DIR/$demo_name"
                 cp -r "$build_dir/dist/." "$SITE_DIR/$demo_name/"
-                echo ":: Done $demo_name"
+                echo "Done $demo_name"
                 echo built > "$status"
             else
-                echo ":: FAILED: $demo_name built but no dist/ found"
+                echo "FAILED: $demo_name built but no dist/ found"
                 echo failed > "$status"
             fi
         else
-            echo ":: FAILED: $demo_name build failed"
+            echo "FAILED: $demo_name build failed"
             echo failed > "$status"
         fi
 

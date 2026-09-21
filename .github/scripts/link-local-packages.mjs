@@ -195,7 +195,7 @@ function main() {
         const updated = JSON.stringify(pkg, null, 2);
         if (updated === original) continue;
 
-        console.log(`:: ${pkgPath}`);
+        console.log(pkgPath);
         for (const depName of applied) console.log(`   ${depName} -> ${specs[depName]}`);
 
         if (!DRY_RUN) {
@@ -219,7 +219,7 @@ function main() {
 
     console.log(`\nInstalling dependencies in ${modifiedDirs.length} demo(s)...`);
     for (const dir of modifiedDirs) {
-        console.log(`:: npm install (${dir})`);
+        console.log(`npm install (${dir})`);
         try {
             execSync(`${resolveCommand('npm')} install`, { cwd: dir, stdio: 'inherit' });
         } catch (err) {
