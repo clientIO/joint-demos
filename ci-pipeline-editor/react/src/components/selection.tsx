@@ -1,48 +1,22 @@
-import { dia, ui } from '@joint/plus';
-import { Selection, useOnKeyboardEvents, useOnPaperEvents, useSelectionCollection } from '@joint/react-plus';
-import { useState } from 'react';
-import type { ReactNode } from 'react';
+import { useOnKeyboardEvents, useOnPaperEvents, useSelectionCollection } from '@joint/react-plus';
 
 import { isSelectable, useEditor } from '../editor-context';
-import { FrameHighlighter } from '../frame';
-import { COLORS, GroupStartModel, STEP_RADIUS, StepModel } from '../shapes';
-
-/** How far the frame of the selected element stands from its edge. */
-const SELECTION_PADDING = 5;
+import { GroupStartModel } from '../shapes';
 
 /**
- * The frames of the selection: the selected element is framed in the layer
- * below the cells - behind the links, and behind the buttons that overhang
- * the element - a shade darker than the nodes, a little away from the
- * edge, in the shape of the element (see `frame.ts`): a step is a box with
- * small corners, everything else selectable is round by half its height -
- * a decision, the start of a group, the start and an end.
+ * The selection of the diagram, wired inside `<Paper>`: one element at a
+ * time, in the selection collection of `<Diagram>` (read anywhere with
+ * `useSelectionCollection()`; the selected element draws its own frame,
+ * see `shapes/selection-frame.tsx`). The clicks are the editor's own
+ * (`selection: false` in the interactions of the diagram): a click selects
+ * an element with a picture (see `isSelectable()`), a click on the blank
+ * area or `Escape` clears the selection - unless a move is on, which
+ * `Escape` cancels first - and `Delete` removes the selected element as
+ * the "remove" item of its menu would.
  */
-function createSelectionFrames(): ui.HighlighterSelectionFrameList {
-    return new ui.HighlighterSelectionFrameList({
-        highlighter: FrameHighlighter,
-        options: (cell: dia.Cell) => {
-            const radius = StepModel.isStep(cell) ? STEP_RADIUS : (cell as dia.Element).size().height / 2;
-            return { layer: dia.Paper.Layers.BACK, padding: SELECTION_PADDING, rx: radius, ry: radius, attrs: { stroke: COLORS.selection, strokeWidth: 1.5, fill: 'none' }};
-        }
-    });
-}
-
-/**
- * The selection of the diagram, rendered inside `<Paper>`: one element at
- * a time, in the selection collection of `<Diagram>` (read anywhere with
- * `useSelectionCollection()`), drawn by `<Selection>` - no wrapper, no
- * handles, no dragging: the layout owns the positions. The clicks are the
- * editor's own (`selection: false` in the interactions of the diagram): a
- * click selects an element with a picture (see `isSelectable()`), a click
- * on the blank area or `Escape` clears the selection - unless a move is
- * on, which `Escape` cancels first - and `Delete` removes the selected
- * element as the "remove" item of its menu would.
- */
-export function DiagramSelection(): ReactNode {
+export function DiagramSelection(): null {
     const editor = useEditor();
     const { collection: selection, selectCells } = useSelectionCollection();
-    const [frames] = useState(createSelectionFrames);
 
     useOnPaperEvents({
         onElementPointerClick: ({ model }) => {
@@ -64,5 +38,5 @@ export function DiagramSelection(): ReactNode {
         }
     });
 
-    return <Selection frames={frames} wrapper={false} allowTranslate={false} options={{ allowCellInteraction: true }} />;
+    return null;
 }

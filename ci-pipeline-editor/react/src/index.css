@@ -17,8 +17,10 @@
 :root {
     color-scheme: light;
     --blue: #4666E5;
-    /* The stronger blue: the hover of the blue buttons, the frame of the selection. */
+    /* The stronger blue: the hover of the blue buttons. */
     --blue-dark: #3552C4;
+    /* The frame of the selected element (`.selection-frame`): the teal, apart from the blues of the nodes and the lines, in both themes. */
+    --selection: var(--teal);
     /* A darker blue in both themes: the outline of the toggle, which sets it off the blue pill. */
     --blue-deep: #3552C4;
     /* The outline of the `+` at the end of a pill: white on the light ground, the darker blue on the dark one, where a white ring glares. */
@@ -567,6 +569,14 @@ body {
 /* The return link of a loop runs against the flow: dashed. */
 .jj-link-line.backward {
     stroke-dasharray: 6 4;
+}
+
+/* The frame of the selected element (see `shapes/selection-frame.tsx`). */
+.selection-frame {
+    fill: none;
+    stroke: var(--selection);
+    stroke-width: 1.5;
+    pointer-events: none;
 }
 
 /* A move in progress: the subtree that moves is out of reach (and marked, see the previews); a button that cannot take it is gone. */

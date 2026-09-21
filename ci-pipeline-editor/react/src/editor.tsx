@@ -72,9 +72,7 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
         paper?.freeze();
         buildGraph(graph, data.getData());
         runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
-        // A selected element that the edit removed, or hid, leaves the
-        // selection - while the paper is frozen: the frame of a hidden
-        // element comes off its view, which is gone once the paper hides it.
+        // A selected element that the edit removed, or hid, leaves the selection.
         const kept = selection.filter((cell) => graph.getCell(cell.id) === cell && isCellVisible(cell));
         if (kept.length < selection.length) selection.reset(kept);
         paper?.unfreeze();

@@ -50,8 +50,6 @@ export const COLORS = {
     link: 'var(--link)',
     /** What is about to move, in the menus - the teal of the drop points and of the marks on the cells. */
     move: 'var(--teal)',
-    /** The frame around the selected element: a shade stronger than the nodes. */
-    selection: 'var(--blue-dark)',
     /** The steps on the map: a lighter blue. */
     mapStep: 'var(--map-step)'
 };
