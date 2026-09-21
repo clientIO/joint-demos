@@ -1,9 +1,9 @@
 {
-  "name": "@joint/demo-tree-branch-groups-react",
+  "name": "@joint/demo-tree-forks-and-loops-react",
   "private": true,
   "version": "4.3.3",
   "type": "module",
-  "description": "A tree layout with fork/join branch groups built with @joint/react-plus (JointJS).",
+  "description": "A tree layout with fork and loop groups built with @joint/react-plus (JointJS).",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

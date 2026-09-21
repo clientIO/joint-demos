@@ -8,9 +8,11 @@ export const SIBLING_GAP = 24;
 /** Horizontal breathing room of an expanded group. Vertically it fits its start and end exactly. */
 export const GROUP_PADDING = 12;
 export const COLLAPSED_SIZE = { width: 160, height: NODE_SIZE.height };
+/** How far left of the box of a loop group its return link runs; a sibling on the left is kept that much further away. */
+export const LOOP_GAP = SIBLING_GAP;
 
-export const NODE_TYPE = 'tbg.Node';
-export const GROUP_TYPE = 'tbg.Group';
+export const NODE_TYPE = 'Node';
+export const GROUP_TYPE = 'Group';
 
 export const COLORS = {
     node: { fill: '#FFFFFF', stroke: '#4666E5', text: '#222222' },
@@ -21,6 +23,11 @@ export const COLORS = {
 
 export type NodeRole = 'start' | 'end';
 
+/** What a group stands in for: a fork of two branches that join again, or a loop whose end returns to its start. */
+export type GroupKind = 'fork' | 'loop';
+
+export const GROUP_LABELS: Record<GroupKind, string> = { fork: 'Fork', loop: 'Loop' };
+
 /** The React-facing state of a node: what the component renders. */
 export interface NodeData {
     label: string;
@@ -29,6 +36,7 @@ export interface NodeData {
 
 /** The React-facing state of a group. */
 export interface GroupData {
+    kind: GroupKind;
     collapsed: boolean;
 }
 
@@ -71,12 +79,15 @@ export class Node extends ElementModel {
 }
 
 /**
- * A container that stands in for a fork/join subgraph in the tree:
- * a `start` node, two branches and an `end` node they converge into.
- * The outer tree links connect to the group itself, but the group is
- * sized so that its top center is the top center of `start` and its
- * bottom center is the bottom center of `end` - the tree appears to
- * connect to those two nodes. Drawn by the `GroupView` component.
+ * A container that stands in for a subgraph the tree cannot hold: a `start`
+ * node, some content and an `end` node the content converges into. A
+ * *fork* group holds two branches that join again. A *loop* group holds a
+ * tree whose `end` links back to its `start` - the return path, a dashed
+ * link up the left side of the group. The outer tree links connect to the
+ * group itself, but the group is sized so that its top center is the top
+ * center of `start` and its bottom center is the bottom center of `end` -
+ * the tree appears to connect to those two nodes. Drawn by the `GroupView`
+ * component.
  */
 export class Group extends ElementModel {
 
@@ -85,12 +96,20 @@ export class Group extends ElementModel {
             ...super.defaults(),
             type: GROUP_TYPE,
             size: COLLAPSED_SIZE,
-            data: { collapsed: false } satisfies GroupData
+            data: { kind: 'fork', collapsed: false } satisfies GroupData
         };
+    }
+
+    static create(kind: GroupKind): Group {
+        return new Group({ data: { kind, collapsed: false } satisfies GroupData });
     }
 
     getData(): GroupData {
         return this.get('data') as GroupData;
+    }
+
+    getKind(): GroupKind {
+        return this.getData().kind;
     }
 
     isCollapsed(): boolean {
@@ -126,7 +145,7 @@ export class Link extends dia.Link {
 
     defaults() {
         return util.defaultsDeep({
-            type: 'tbg.Link',
+            type: 'Link',
             attrs: {
                 line: {
                     connection: true,
@@ -157,8 +176,13 @@ export class Link extends dia.Link {
             target: { id: target.id }
         });
     }
+
+    /** The return link of a loop group, from its `end` back to its `start`: dashed, as it runs against the flow. */
+    static createReturn(source: dia.Element, target: dia.Element): Link {
+        const link = Link.create(source, target);
+        link.attr('line/strokeDasharray', '6 4');
+        return link;
+    }
 }
 
-export const cellNamespace = {
-    tbg: { Node, Group, Link }
-};
+export const cellNamespace = { Node, Group, Link };
