@@ -9,6 +9,16 @@ import { GroupModel } from '../shapes';
 import { getElementMenu } from '../shapes/buttons';
 
 /**
+ * Keeps the browser's own context menu from opening on the right click that
+ * opens ours. JointJS reports the click on the press, and the `contextmenu`
+ * event follows - by then our menu is under the pointer, outside the paper,
+ * and the paper's own `preventDefault()` no longer reaches it.
+ */
+function suppressNativeContextMenu(): void {
+    document.addEventListener('contextmenu', (evt) => evt.preventDefault(), { once: true, capture: true });
+}
+
+/**
  * The interactions with the paper, rendered inside `<Paper>` (and inside
  * `<PaperScroller>`), where the hooks on the paper's events live: lays the
  * diagram out once the sizes of the elements are measured, opens the menu
@@ -56,6 +66,7 @@ export function PaperInteractions(): null {
             const target = getActionTarget(model);
             if (!target || !canDelete(graph, target)) return;
             editor.openMenu(getElementMenu(editor, target, new DOMRect(event.clientX, event.clientY, 0, 0)));
+            suppressNativeContextMenu();
         },
         onBlankPointerDown: ({ event }) => {
             fitPending.current = false;
