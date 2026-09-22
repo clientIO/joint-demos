@@ -57,7 +57,7 @@ export function openMenu<A extends string>(target: HTMLElement | SVGElement | g.
     }
     menu.render();
     if (onHover) {
-        // The items that cannot be chosen show nothing on hover either.
+        // An item that cannot be chosen shows nothing on hover: a disabled button takes no click, but it still reports the pointer.
         for (const button of Array.from(menu.el.querySelectorAll<HTMLElement>('.tool[data-action]:not([disabled])'))) {
             button.addEventListener('mouseenter', () => onHover(button.dataset.action as A));
             button.addEventListener('mouseleave', () => onHover(null));

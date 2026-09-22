@@ -78,26 +78,29 @@ export function Menu({ request, onClose }: MenuProps): ReactNode {
 
     return (
         <div ref={ref} className="menu" style={position} role="menu">
-            {items.map((item) => (
-                <button
-                    key={item.action}
-                    type="button"
-                    role="menuitem"
-                    className="menu-item"
-                    disabled={item.disabled}
-                    // The items that cannot be chosen show nothing on hover either.
-                    onMouseEnter={item.disabled ? undefined : () => onHover?.(item.action)}
-                    onMouseLeave={item.disabled ? undefined : () => onHover?.(null)}
-                    onClick={() => {
-                        onHover?.(null);
-                        onClose();
-                        onChoose(item.action);
-                    }}
-                >
-                    <MenuIcon d={item.icon} color={item.color} />
-                    <span>{item.label}</span>
-                </button>
-            ))}
+            {items.map((item) => {
+                // An item that cannot be chosen shows nothing on hover: a disabled button takes no click, but it still reports the pointer.
+                const hover = item.disabled ? null : onHover;
+                return (
+                    <button
+                        key={item.action}
+                        type="button"
+                        role="menuitem"
+                        className="menu-item"
+                        disabled={item.disabled}
+                        onMouseEnter={() => hover?.(item.action)}
+                        onMouseLeave={() => hover?.(null)}
+                        onClick={() => {
+                            onHover?.(null);
+                            onClose();
+                            onChoose(item.action);
+                        }}
+                    >
+                        <MenuIcon d={item.icon} color={item.color} />
+                        <span>{item.label}</span>
+                    </button>
+                );
+            })}
         </div>
     );
 }
