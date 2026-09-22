@@ -68,6 +68,8 @@
     /* The shadow under the nodes; the softer one under the panels. */
     --shadow: rgba(34, 34, 34, 0.18);
     --shadow-soft: rgba(34, 34, 34, 0.1);
+    /* The size of a drop point, the same as `DROP_POINT_SIZE` of `shapes/constants.ts`, which the SVG buttons of the links are drawn with. */
+    --drop-point-size: 20px;
     --font: sans-serif;
     --code-font: Menlo, Consolas, monospace;
 }
@@ -502,14 +504,14 @@ body {
     font-weight: 400;
 }
 
-/* A move in progress: the buttons are the drop points - teal, so that they read as the targets to click. */
 /*
-    The drop points pulse: a ring of the teal spreads from every button and
-    fades, over and over, so that the eye finds where the subtree can go.
-    The ring of an HTML button is its shadow; of the SVG button of a link,
-    the stroke of a rect behind it of the same box (the button covers the
-    inner half), so the button keeps its own outline. No transform: the
-    icons and the positions of the tools stay put.
+    A move in progress: the buttons are the drop points - teal, so that they
+    read as the targets to click - and they pulse: a ring of the teal spreads
+    from every button and fades, over and over, so that the eye finds where
+    the subtree can go. The ring of an HTML button is its shadow; of the SVG
+    button of a link, the stroke of a rect behind it of the same box (the
+    button covers the inner half), so the button keeps its own outline. No
+    transform: the icons and the positions of the tools stay put.
 */
 @keyframes drop-point-pulse {
     from {
@@ -538,8 +540,8 @@ body {
     background: var(--teal);
     animation: drop-point-pulse 1.4s ease-out infinite;
     /* Larger, around the same center: easier to hit. The host of an add button keeps its 18px, so the layout does not move. */
-    width: 20px;
-    height: 20px;
+    width: var(--drop-point-size);
+    height: var(--drop-point-size);
 }
 
 .moving-mode .square-button {
@@ -554,8 +556,8 @@ body {
 
 .moving-mode .square-button svg,
 .moving-mode .pill-add svg {
-    width: 20px;
-    height: 20px;
+    width: var(--drop-point-size);
+    height: var(--drop-point-size);
 }
 
 .moving-mode .square-button:hover,

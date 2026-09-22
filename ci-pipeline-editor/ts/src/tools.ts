@@ -471,12 +471,18 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
         openElementMenu(paper, target, { x: evt.clientX!, y: evt.clientY! }, actions);
     });
 
-    paper.on('element:mouseenter', (elementView: dia.ElementView) => {
+    // The pointer resting on an element brings its tools up - and so does a
+    // press, which is all a touch screen has: it reports no hover. The tools
+    // an element already has stay as they are: a press on a tool is reported
+    // for the element behind it, and rebuilding them would take the tool out
+    // from under the pointer before it acts.
+    const showTools = (elementView: dia.ElementView): void => {
+        if (elementView.hasTools()) return;
         const tools = createHoverTools(paper, elementView.model, actions);
-        if (!tools) return;
-        elementView.removeTools();
-        elementView.addTools(tools);
-    });
+        if (tools) elementView.addTools(tools);
+    };
+    paper.on('element:mouseenter', showTools);
+    paper.on('element:pointerdown', showTools);
 
     paper.on('element:mouseleave', (elementView: dia.ElementView) => {
         // The "more" tool goes with the hover; so do the previews of its menu and of the collapse button.

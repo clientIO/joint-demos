@@ -1,7 +1,7 @@
 import { dia, ui } from '@joint/plus';
 import type { g } from '@joint/plus';
 
-import { addBelow, canMove, canMoveBelow, canMoveOnLink, canRemoveBranch, deleteElement, describeMoved, getActionTarget, getMovedCells, getNodeElement, insertOnLink, moveBelow, moveOnLink, removeBranch, removeNode, toggleGroup } from './actions';
+import { addBelow, canMove, canMoveBelow, canMoveOnLink, canRemoveBranch, describeMoved, getActionTarget, getDeleteScope, getMovedCells, getNodeElement, insertOnLink, moveBelow, moveOnLink, removeBranch, removeNode, toggleGroup } from './actions';
 import type { MoveScope } from './actions';
 import { buildGraph, getId } from './data/build';
 import { DiagramData } from './data/diagram-data';
@@ -226,7 +226,7 @@ export function init(): void {
         const what = document.createElement('div');
         const strong = document.createElement('strong');
         strong.textContent = subject;
-        what.append('Moving ', strong, scope === 'branch' ? ' and everything below it' : ' alone');
+        what.append('Moving ', strong, scope === 'branch' ? ' and everything below it' : ' without what follows it');
         const how = document.createElement('div');
         how.className = 'move-hint-how';
         // The drop point itself, small, in the sentence.
@@ -348,8 +348,8 @@ export function init(): void {
         if (!selected) return;
         evt.preventDefault();
         const target = getActionTarget(selected);
-        // What the menu's first "remove" item would do: the element alone where its children can move up, the branch below it where they cannot.
-        if (target && canRemoveBranch(graph, target)) deleteElement(graph, data, target);
+        // The same as the first "remove" item of its menu.
+        if (target && canRemoveBranch(graph, target)) actions.remove(target, getDeleteScope(graph, target));
     });
 
     refresh({ fit: true });

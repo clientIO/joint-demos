@@ -1,6 +1,6 @@
 import { useOnKeyboardEvents, useOnPaperEvents, useSelectionCollection } from '@joint/react-plus';
 
-import { canRemoveBranch, canRemoveNode } from '../actions';
+import { canRemoveBranch, getDeleteScope } from '../actions';
 import { isSelectable, useEditor } from '../editor-context';
 import { GroupStartModel } from '../shapes';
 
@@ -36,8 +36,8 @@ export function DiagramSelection(): null {
             evt.preventDefault();
             const target = GroupStartModel.isGroupStart(selected) ? selected.getParentCell() : selected;
             if (!target?.isElement() || !canRemoveBranch(editor.graph, target)) return;
-            // What the menu's first "remove" item would do: the element alone where its children can move up, the branch below it where they cannot.
-            editor.remove(target, canRemoveNode(editor.graph, target) ? 'node' : 'branch');
+            // The same as the first "remove" item of its menu.
+            editor.remove(target, getDeleteScope(editor.graph, target));
         }
     });
 

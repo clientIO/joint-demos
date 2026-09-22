@@ -61,10 +61,9 @@ export function openMenu<A extends string>(target: HTMLElement | SVGElement | g.
         });
     }
     menu.render();
-    // The menu of a right click opens on the press and covers the pointer, so
-    // the `contextmenu` event that follows lands on the menu - outside the
-    // paper, whose `preventContextMenu` would otherwise have kept the
-    // browser's own menu shut. The menu keeps it shut itself.
+    // A right click inside the menu opens no menu of the browser: the paper
+    // keeps its own shut the same way, and the menu hangs clear of the
+    // pointer so that the right click which opened it stays with the paper.
     menu.el.addEventListener('contextmenu', (evt) => evt.preventDefault());
     if (onHover) {
         // An item that cannot be chosen shows nothing on hover: a disabled button takes no click, but it still reports the pointer.

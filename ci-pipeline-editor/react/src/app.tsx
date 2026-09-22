@@ -42,7 +42,7 @@ function MoveHint(): ReactNode {
     if (!moved) return null;
     return (
         <div className="move-hint">
-            <div>Moving <strong>{describeMoved(data, getId(moved))}</strong>{movedScope === 'branch' ? ' and everything below it' : ' alone'}</div>
+            <div>Moving <strong>{describeMoved(data, getId(moved))}</strong>{movedScope === 'branch' ? ' and everything below it' : ' without what follows it'}</div>
             <div className="move-hint-how">
                 Click a{' '}
                 {/* The drop point itself, small, in the sentence. */}

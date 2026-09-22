@@ -231,10 +231,9 @@ export function removeBranch(graph: dia.Graph, data: DiagramData, element: dia.E
     data.removeSubtree(getId(element));
 }
 
-/** What `Delete` takes away: `element` alone where its children can move up, with the branch below it where they cannot. */
-export function deleteElement(graph: dia.Graph, data: DiagramData, element: dia.Element): void {
-    if (canRemoveNode(graph, element)) removeNode(graph, data, element);
-    else removeBranch(graph, data, element);
+/** What `Delete` takes away, and what the first "remove" item of the menu offers: `element` alone where its children can move up, the branch below it where they cannot. */
+export function getDeleteScope(graph: dia.Graph, element: dia.Element): MoveScope {
+    return canRemoveNode(graph, element) ? 'node' : 'branch';
 }
 
 /** The node of the data `element` stands for: the group, for a gate; the owner, for an add button. */
