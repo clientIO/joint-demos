@@ -223,11 +223,21 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
      * `childId`, which the open leaf of the moved subtree then leads to
      * (see `insertNode()`). A name belongs to the edge, not to the node: the
      * edge the node lands in keeps its name, so an option stays the option
-     * it was named; the name of the edge the node leaves stays behind.
+     * it was named; the name of the edge the node leaves stays behind. With
+     * `dropEnds` the ends of the diagram inside the branch are deleted on the
+     * way: no end may stand inside a group, and nothing can follow one, so
+     * the flow continues from the leaves they hung on.
      */
-    moveNode(id: Id, parentId: Id, slot: Slot, childId: Id | null): void {
+    moveNode(id: Id, parentId: Id, slot: Slot, childId: Id | null, dropEnds: boolean): void {
         this.setData((json) => {
             detach(json, id);
+            if (dropEnds) {
+                for (const member of collectSubtree(json, id)) {
+                    if (json[member].type !== 'end') continue;
+                    detach(json, member);
+                    delete json[member];
+                }
+            }
             this.attachNode(json, id, parentId, slot, childId);
         });
     }
@@ -252,7 +262,7 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
             edges.push({ id });
         } else {
             edges[index] = { ...edges[index], id };
-            const [leaf] = this.getOpenLeaves(id, json);
+            const [leaf] = this.getOpenLeaves(id, { json });
             if (!leaf) throw new Error(`Nothing below ${id} can lead on to ${childId}.`);
             setEdges(json[leaf], 'to', [{ id: childId! }]);
         }
@@ -276,12 +286,22 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
         return [id, ...getEdges(node, 'branches').flatMap((edge) => collectSubtree(json, edge.id))];
     }
 
-    /** The leaves of the path from `id` that the flow can continue from: those that are not an end. */
-    getOpenLeaves(id: Id, json: DiagramJSON = this.getData()): Id[] {
-        return collectPath(json, id).filter((member) => json[member].type !== 'end' && getEdges(json[member], 'to').length === 0);
+    /**
+     * The leaves of the path from `id` that the flow can continue from: those
+     * that are not an end. `withoutEnds` answers for the path as it would be
+     * with the ends of the diagram taken out of it - a node that leads to one
+     * is a leaf then (see `moveNode()`).
+     */
+    getOpenLeaves(id: Id, { json = this.getData(), withoutEnds = false } = {}): Id[] {
+        return collectPath(json, id).filter((member) => {
+            const node = json[member];
+            if (node.type === 'end') return false;
+            const children = getEdges(node, 'to');
+            return withoutEnds ? children.every((edge) => json[edge.id].type === 'end') : children.length === 0;
+        });
     }
 
-    /** Whether the path from `id` reaches an end of the diagram - which cannot be inside a fork or a loop. */
+    /** Whether the path from `id` reaches an end of the diagram - which cannot be inside a fork or a loop, and which a move into one drops (see `moveNode()`). */
     hasEnd(id: Id): boolean {
         return collectPath(this.getData(), id).some((member) => this.getData()[member].type === 'end');
     }

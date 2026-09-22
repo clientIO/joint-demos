@@ -244,46 +244,63 @@ function getDataId(graph: dia.Graph, element: dia.Element): Id {
     return id;
 }
 
-/**
- * What a move takes along, as the data sees it: the nodes that move, the
- * leaves the flow can continue from - the node itself, when it moves alone -
- * and whether an end of the diagram is among them, which cannot go into a
- * group.
- */
-function getMovedNodes(data: DiagramData, movedId: Id, scope: MoveScope): { ids: Id[]; openLeaves: Id[]; hasEnd: boolean } {
-    if (scope === 'branch') {
-        return { ids: data.getSubtree(movedId), openLeaves: data.getOpenLeaves(movedId), hasEnd: data.hasEnd(movedId) };
-    }
+/** What a move takes along, as the data sees it: the nodes that move, and whether the moved element is itself an end of the diagram - which cannot go into a group, and which nothing can follow. */
+function getMovedNodes(data: DiagramData, movedId: Id, scope: MoveScope): { ids: Id[]; isEnd: boolean } {
     const isEnd = data.getNode(movedId)?.type === 'end';
-    return { ids: data.getContent(movedId), openLeaves: isEnd ? [] : [movedId], hasEnd: isEnd };
+    return { ids: scope === 'branch' ? data.getSubtree(movedId) : data.getContent(movedId), isEnd };
+}
+
+/**
+ * What a drop leaves the flow to continue from, and whether it takes the
+ * ends of the diagram out of the moved branch on the way: no end may stand
+ * inside a group, and nothing can follow one, so a drop into a group and a
+ * drop that has to continue - one into a link - delete them, and the flow
+ * goes on from the leaves they hung on. An element moved alone carries no
+ * ends: the flow continues from the element itself.
+ */
+function getDrop(data: DiagramData, movedId: Id, scope: MoveScope, { intoGroup, mustContinue }: { intoGroup: boolean; mustContinue: boolean }): { leaves: Id[]; dropEnds: boolean } {
+    if (scope === 'node') {
+        const isEnd = data.getNode(movedId)?.type === 'end';
+        return { leaves: isEnd ? [] : [movedId], dropEnds: false };
+    }
+    const leaves = data.getOpenLeaves(movedId);
+    const dropEnds = intoGroup ? data.hasEnd(movedId) : mustContinue && leaves.length === 0;
+    return { leaves: dropEnds ? data.getOpenLeaves(movedId, { withoutEnds: true }) : leaves, dropEnds };
+}
+
+/** Whether `parent` takes its children inside a group: a gate of one, or a node of its content. */
+function isInGroup(parent: dia.Element): boolean {
+    return getContainer(parent) !== null || GroupStartModel.isGroupStart(parent);
 }
 
 /**
  * Whether what `scope` takes of `movedId` can be dropped where `parent`
- * gets its children: not into itself, and not with an end of the diagram
- * into a fork or a loop.
+ * gets its children: not into itself, and an end of the diagram not into a
+ * fork or a loop - the ends inside a branch go with the drop instead (see
+ * `getDrop()`).
  */
 export function canMoveBelow(graph: dia.Graph, data: DiagramData, movedId: Id, scope: MoveScope, parent: dia.Element): boolean {
-    const { ids, hasEnd } = getMovedNodes(data, movedId, scope);
+    const { ids, isEnd } = getMovedNodes(data, movedId, scope);
     if (ids.includes(getDataId(graph, parent))) return false;
-    const intoGroup = getContainer(parent) !== null || GroupStartModel.isGroupStart(parent);
-    return !(intoGroup && hasEnd);
+    return !(isInGroup(parent) && isEnd);
 }
 
 /**
  * Whether what `scope` takes of `movedId` can be dropped into `link`: into
  * a link that takes an insertion, outside of what moves, with exactly one
  * leaf the flow can continue from - the former target of the link follows
- * it - and not with an end into a fork or a loop.
+ * it, so an end of the diagram cannot be what moves. A branch that ends in
+ * one drops it and continues from the node it hung on.
  */
 export function canMoveOnLink(graph: dia.Graph, data: DiagramData, movedId: Id, scope: MoveScope, link: dia.Link): boolean {
     if (!canSplit(link)) return false;
     const source = link.getSourceElement()!;
     const target = link.getTargetElement()!;
-    const { ids, openLeaves, hasEnd } = getMovedNodes(data, movedId, scope);
+    const { ids, isEnd } = getMovedNodes(data, movedId, scope);
     if (ids.includes(getDataId(graph, source)) || ids.includes(getDataId(graph, target))) return false;
-    if (openLeaves.length !== 1) return false;
-    return !(getContainer(source) !== null && hasEnd);
+    if (isEnd) return false;
+    const { leaves } = getDrop(data, movedId, scope, { intoGroup: getContainer(source) !== null, mustContinue: true });
+    return leaves.length === 1;
 }
 
 /**
@@ -333,23 +350,25 @@ export function getMovedCells(graph: dia.Graph, data: DiagramData, movedId: Id, 
     return graph.getSubgraph(elements, { deep: true });
 }
 
-/** Moves what `scope` takes of `movedId` below `parent`, as its last child. */
+/** Moves what `scope` takes of `movedId` below `parent`, as its last child; into a group, the ends of the branch go with the move. */
 export function moveBelow(data: DiagramData, movedId: Id, scope: MoveScope, parent: dia.Element): void {
     const { id, slot } = getSlot(parent);
-    move(data, movedId, scope, id, slot, null);
+    const { dropEnds } = getDrop(data, movedId, scope, { intoGroup: isInGroup(parent), mustContinue: false });
+    move(data, movedId, scope, id, slot, null, dropEnds);
 }
 
-/** Moves what `scope` takes of `movedId` into `link`: the link leads to it, and its open leaf on to the former target. */
+/** Moves what `scope` takes of `movedId` into `link`: the link leads to it, and its open leaf on to the former target - the leaf an end hung on, where the branch ended in one. */
 export function moveOnLink(data: DiagramData, movedId: Id, scope: MoveScope, link: LinkModel): void {
     const source = link.getSourceElement()!;
     const target = link.getTargetElement()!;
     const { id, slot } = getSlot(source);
-    move(data, movedId, scope, id, slot, GroupEndModel.isGroupEnd(target) ? null : getId(target));
+    const { dropEnds } = getDrop(data, movedId, scope, { intoGroup: getContainer(source) !== null, mustContinue: true });
+    move(data, movedId, scope, id, slot, GroupEndModel.isGroupEnd(target) ? null : getId(target), dropEnds);
 }
 
 /** The edit a drop makes: the branch moves as a whole, the node alone leaves its children behind, in its place. */
-function move(data: DiagramData, movedId: Id, scope: MoveScope, parentId: Id, slot: Slot, childId: Id | null): void {
-    if (scope === 'branch') data.moveNode(movedId, parentId, slot, childId);
+function move(data: DiagramData, movedId: Id, scope: MoveScope, parentId: Id, slot: Slot, childId: Id | null, dropEnds: boolean): void {
+    if (scope === 'branch') data.moveNode(movedId, parentId, slot, childId, dropEnds);
     else data.moveNodeAlone(movedId, parentId, slot, childId);
 }
 
