@@ -26,7 +26,7 @@ interface InspectorConfig {
     note?: string;
 }
 
-/** A text area: a newline in the label breaks a line on the pill. */
+/** A text area: a newline in the label breaks a line on the pill. A group takes one too - its kind, `Fork` or `Loop`, stands in until it is given a name, which a collapsed group shows in its place. */
 const LABEL_INPUT = { type: 'textarea', label: 'Label', index: 1 };
 /** The command a step runs: code below its label, on as many lines as typed. */
 const RUN_INPUT = { type: 'textarea', label: 'Run', index: 2 };
@@ -62,8 +62,8 @@ function getConfig(data: DiagramData, element: Selectable): InspectorConfig {
     if (GroupStartModel.isGroupStart(element)) {
         const groupId = getId(element.getParentCell()!);
         const kind = element.getKind();
-        if (kind === 'loop') return { title: GROUP_LABELS.loop, inputs: { [groupId]: { comment: COMMENT_INPUT }}};
-        return { title: GROUP_LABELS.fork, inputs: { [groupId]: { comment: COMMENT_INPUT, ...getOptionInputs(data.getNode(groupId)!, 'branches') }}};
+        if (kind === 'loop') return { title: GROUP_LABELS.loop, inputs: { [groupId]: { label: LABEL_INPUT, comment: COMMENT_INPUT }}};
+        return { title: GROUP_LABELS.fork, inputs: { [groupId]: { label: LABEL_INPUT, comment: COMMENT_INPUT, ...getOptionInputs(data.getNode(groupId)!, 'branches') }}};
     }
     if (DecisionModel.isDecision(element)) {
         return { title: 'Decision', inputs: { [id]: { label: LABEL_INPUT, comment: COMMENT_INPUT, ...getOptionInputs(data.getNode(id)!, 'to') }}};

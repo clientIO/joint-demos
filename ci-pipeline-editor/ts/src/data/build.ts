@@ -119,7 +119,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
         embed(element, containers.get(id));
 
         if (!isGroupData(node)) continue;
-        const start = GroupStartModel.create(node.type);
+        const start = GroupStartModel.create(node.type, node.label);
         // A fork with a branch shows its own add button, which adds another; an empty one gets its first branch through the link from its start to its end.
         start.setAddButtonVisible(getEdges(node, 'branches').length >= 1);
         start.set({ id: cellId.start(id) });

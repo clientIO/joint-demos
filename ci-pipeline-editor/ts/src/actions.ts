@@ -383,14 +383,14 @@ export function getNodeElement(graph: dia.Graph, id: Id): dia.Element | null {
     return GroupModel.isGroup(cell) ? cell.getStart() : cell;
 }
 
-/** What a move of the node `id` takes along, named for the hint: `“Lint”` for a step or a decision, `the fork`, `the loop`, `the end`. */
+/** What a move of the node `id` takes along, named for the hint: `“Lint”` for a step, a decision or a group that carries a name, `the fork`, `the loop`, `the end` for the rest. */
 export function describeMoved(data: DiagramData, id: Id): string {
     const node = data.getNode(id);
     switch (node?.type) {
         case 'step':
         case 'decision': return `“${node.label}”`;
-        case 'fork': return 'the fork';
-        case 'loop': return 'the loop';
+        case 'fork':
+        case 'loop': return node.label ? `“${node.label}”` : `the ${node.type}`;
         case 'end': return 'the end';
         default: return 'it';
     }

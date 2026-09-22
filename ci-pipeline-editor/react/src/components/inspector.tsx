@@ -111,6 +111,8 @@ function NodeFields({ id }: { id: dia.Cell.ID }): ReactNode {
             return (
                 <>
                     <div className="title">{GROUP_LABELS[node.type]}</div>
+                    {/* The kind of the group stands in until it is given a name, which a collapsed group shows in its place. */}
+                    <Field label="Label" value={node.label ?? ''} multiline onCommit={(label) => change({ label: label || undefined })} />
                     <Field label="Comment" value={node.comment ?? ''} multiline onCommit={(comment) => change({ comment: comment || undefined })} />
                     {node.type === 'fork' ? <OptionFields id={nodeId} node={node} slot="branches" heading="Branches" /> : null}
                 </>

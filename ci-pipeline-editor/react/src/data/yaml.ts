@@ -105,6 +105,13 @@ function branches(json: DiagramJSON, edges: Edge[], depth: number, type: NodeDat
     return edges.flatMap((edge, index) => [`${INDENT.repeat(depth)}${names[index]}:`, ...sequence(json, edge.id, depth + 1)]);
 }
 
+/** The lines of a group, under its name where it has one: `- name: Smoke tests` and `loop:` below it, as a step carries its `run`. */
+function named(label: string | undefined, lines: string[], pad: string): string[] {
+    if (!label) return lines;
+    const [first, ...rest] = lines;
+    return [`name: ${scalar(label)}`, `${pad}${first}`, ...rest];
+}
+
 /** The lines of one item of a sequence: the first goes after the dash; the rest are indented by `depth` levels. */
 function item(json: DiagramJSON, node: NodeData, depth: number): string[] {
     const pad = INDENT.repeat(depth);
@@ -117,13 +124,15 @@ function item(json: DiagramJSON, node: NodeData, depth: number): string[] {
         }
         case 'fork': {
             const edges = getEdges(node, 'branches');
-            return edges.length > 0 ? ['fork:', ...branches(json, edges, depth + 1, node.type)] : ['fork: {}'];
+            const fork = edges.length > 0 ? ['fork:', ...branches(json, edges, depth + 1, node.type)] : ['fork: {}'];
+            return named(node.label, fork, pad);
         }
         case 'loop': {
             const edges = getEdges(node, 'branches');
-            if (edges.length === 0) return ['loop: []'];
+            if (edges.length === 0) return named(node.label, ['loop: []'], pad);
             // A loop with one body is the common case: its body straight away; several bodies, a map like a fork.
-            return edges.length === 1 ? ['loop:', ...sequence(json, edges[0].id, depth + 1)] : ['loop:', ...branches(json, edges, depth + 1, node.type)];
+            const loop = edges.length === 1 ? ['loop:', ...sequence(json, edges[0].id, depth + 1)] : ['loop:', ...branches(json, edges, depth + 1, node.type)];
+            return named(node.label, loop, pad);
         }
         case 'end':
             return ['end'];

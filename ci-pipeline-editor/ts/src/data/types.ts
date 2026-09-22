@@ -27,8 +27,8 @@ export type NodeData =
     | { type: 'start'; on?: string; to?: Edge[] }
     | { type: 'step'; label: string; run?: string; comment?: string; to?: Edge[] }
     | { type: 'decision'; label: string; comment?: string; to?: Edge[] }
-    | { type: 'fork'; branches?: Edge[]; collapsed?: boolean; comment?: string; to?: Edge[] }
-    | { type: 'loop'; branches?: Edge[]; collapsed?: boolean; comment?: string; to?: Edge[] }
+    | { type: 'fork'; label?: string; branches?: Edge[]; collapsed?: boolean; comment?: string; to?: Edge[] }
+    | { type: 'loop'; label?: string; branches?: Edge[]; collapsed?: boolean; comment?: string; to?: Edge[] }
     | { type: 'end' };
 
 export type GroupData = Extract<NodeData, { type: 'fork' | 'loop' }>;

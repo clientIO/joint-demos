@@ -21,18 +21,20 @@ export const GROUP_TYPE = 'Group';
 export const GROUP_START_TYPE = 'GroupStart';
 export const GROUP_END_TYPE = 'GroupEnd';
 
-/** The React-facing state of the start of a group: the kind of the group, whether it is collapsed and, for a fork, whether it has a branch - its add button shows once it has one. */
+/** The React-facing state of the start of a group: the kind of the group, the name it carries - the kind itself, until it is given one - whether it is collapsed and, for a fork, whether it has a branch: its add button shows once it has one. */
 export interface GroupStartData {
     kind: GroupKind;
+    label: string;
     collapsed: boolean;
     hasBranches: boolean;
 }
 
 /**
- * The start of a group: a filled pill labelled with the kind of the group,
- * with the icon of the kind and the collapse/expand button of the group on
- * its bottom edge. The start of a fork also carries, at its right end, the
- * button that adds a branch. When the group is collapsed the start stays
+ * The start of a group: a filled pill labelled with the name of the group -
+ * the kind of it, `Fork` or `Loop`, until it is given one - with the icon of
+ * the kind and the collapse/expand button of the group on its bottom edge.
+ * The start of a fork also carries, at its right end, the button that adds a
+ * branch. When the group is collapsed the start stays
  * visible in its place and stands in for it.
  */
 export class GroupStartModel extends ElementModel {
@@ -41,8 +43,8 @@ export class GroupStartModel extends ElementModel {
         return { ...super.defaults(), type: GROUP_START_TYPE, z: ELEMENT_Z, size: NODE_SIZE };
     }
 
-    static create(kind: GroupKind, collapsed: boolean = false, hasBranches: boolean = false): GroupStartModel {
-        const data: GroupStartData = { kind, collapsed, hasBranches };
+    static create(kind: GroupKind, label: string | undefined, collapsed: boolean, hasBranches: boolean): GroupStartModel {
+        const data: GroupStartData = { kind, label: label || GROUP_LABELS[kind], collapsed, hasBranches };
         return new GroupStartModel({ data });
     }
 
@@ -165,7 +167,7 @@ export class GroupModel extends dia.Element {
  * Collapsed, it stands in for the group.
  */
 export function GroupStart(): ReactNode {
-    const { kind, collapsed, hasBranches } = useCell(selectElementData<GroupStartData>);
+    const { kind, label, collapsed, hasBranches } = useCell(selectElementData<GroupStartData>);
     const model = useCellModel<GroupStartModel>();
     const editor = useEditor();
     const add = useAddBelow(model);
@@ -173,7 +175,7 @@ export function GroupStart(): ReactNode {
     return (
         <HTMLHost className="pill group-start filled">
             <KindIcon d={GROUP_ICONS[kind]} />
-            <span className="text"><span className="label">{GROUP_LABELS[kind]}</span></span>
+            <span className="text"><span className="label">{label}</span></span>
             {kind === 'fork' && hasBranches && !add.hidden ? (
                 <TipButton tip={editor.moved ? 'Move here' : 'Add a branch'} className="pill-add" onClick={add.onClick}>
                     <PlusIcon />
