@@ -1,6 +1,7 @@
 import { dia } from '@joint/plus';
 import { useGraph, usePaper, usePaperScroller, useSelectionCollection } from '@joint/react-plus';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { flushSync } from 'react-dom';
 import type { ReactNode } from 'react';
 
 import { addBelow, canMove, canMoveBelow, canMoveOnLink, canRemoveBranch, canRemoveNode, getMovedCells, getNodeElement, insertOnLink, moveBelow, moveOnLink, removeBranch, removeNode, toggleGroup } from './actions';
@@ -80,8 +81,6 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     const { paperScroller, setZoom } = usePaperScroller(PAPER_ID);
     // The selection is `<Diagram>`'s collection (see `components/selection.tsx`).
     const { collection: selection, selectCells } = useSelectionCollection();
-    /** The element just added that wants the cursor in its first field, until the inspector takes it. */
-    const wantsFocus = useRef<dia.Cell.ID | null>(null);
     // The move in progress: the element, what it takes along, and the marks of the move - what is dimmed, the buttons that cannot take it. Set where the state changes: a move starts or ends, or the graph is rebuilt.
     const [move, setMove] = useState<{ element: dia.Element; scope: MoveScope; marks: Marks } | null>(null);
     const getMoveState = useCallback((element: dia.Element, scope: MoveScope) => ({
@@ -160,12 +159,20 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             setMove(null);
             return { id: getId(element), scope };
         };
-        // The element of the node `id` just added - the graph has it, rebuilt on the push of the edit - is selected: its fields open in the inspector, the first one with the cursor.
+        /**
+         * Selects the element of the node `id` just added - the graph has it,
+         * rebuilt on the push of the edit - and puts the cursor in the first
+         * field of the inspector, its text selected: typing names the node
+         * right away. The selection is flushed first, so the fields are
+         * there to take the cursor.
+         */
         const selectNode = (id: Id): void => {
             const element = getNodeElement(graph, id);
             if (!element || !isSelectable(element)) return;
-            wantsFocus.current = element.id;
-            selectCells([element]);
+            flushSync(() => selectCells([element]));
+            const field = document.querySelector<HTMLInputElement | HTMLTextAreaElement>('.inspector input, .inspector textarea');
+            field?.focus();
+            field?.select();
         };
         return {
             data,
@@ -188,11 +195,6 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             },
             addBelow: (parent, choice) => selectNode(addBelow(data, parent, choice)),
             insertOnLink: (link, choice) => selectNode(insertOnLink(data, link, choice)),
-            takeFocus: (id) => {
-                if (wantsFocus.current !== id) return false;
-                wantsFocus.current = null;
-                return true;
-            },
             remove: (target, scope) => {
                 preview('deletion', NO_MARKS);
                 if (!(scope === 'branch' ? canRemoveBranch(graph, target) : canRemoveNode(graph, target))) return;

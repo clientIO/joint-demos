@@ -49,8 +49,6 @@ export interface EditorApi {
 
     addBelow(parent: dia.Element, choice: AddChoice): void;
     insertOnLink(link: LinkModel, choice: AddChoice): void;
-    /** Whether the element `id`, just added and selected, still wants the cursor in its first field - once: the inspector asks after it renders the fields. */
-    takeFocus(id: dia.Cell.ID): boolean;
     /** Removes `target`: alone - its children move up in its place - or with the branch below it. */
     remove(target: dia.Element, scope: MoveScope): void;
     toggleGroup(group: GroupModel): void;

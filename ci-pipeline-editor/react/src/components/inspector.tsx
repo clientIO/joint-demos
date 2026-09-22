@@ -3,7 +3,7 @@ import { useCells, useSelectionCollection } from '@joint/react-plus';
 import hljs from 'highlight.js/lib/core';
 import json from 'highlight.js/lib/languages/json';
 import yaml from 'highlight.js/lib/languages/yaml';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
 
 import { getId } from '../data/build';
@@ -159,21 +159,12 @@ function CodePanel({ tab, onTab }: { tab: CodeTab; onTab: (tab: CodeTab) => void
  * chosen through the edits and the selections.
  */
 export function Inspector(): ReactNode {
-    const editor = useEditor();
-    const { version } = editor;
+    const { version } = useEditor();
     const { collection } = useSelectionCollection();
     const selectedId = useCells(collection, (cells) => cells[0]?.id ?? null);
     const [tab, setTab] = useState<CodeTab>('yaml');
-    const panel = useRef<HTMLDivElement>(null);
-    // An element just added gets the cursor in its first field, its text selected: typing replaces the default label.
-    useEffect(() => {
-        if (selectedId === null || !editor.takeFocus(selectedId)) return;
-        const field = panel.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>('input, textarea');
-        field?.focus();
-        field?.select();
-    }, [editor, selectedId]);
     return (
-        <div className="inspector" ref={panel}>
+        <div className="inspector">
             {selectedId ? <NodeFields key={`${selectedId}-${version}`} id={selectedId} /> : <CodePanel key={version} tab={tab} onTab={setTab} />}
         </div>
     );
