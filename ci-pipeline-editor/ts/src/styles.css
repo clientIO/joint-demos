@@ -569,11 +569,40 @@ body {
     fill: var(--blue-dark);
 }
 
-/* A move in progress: the buttons are the drop points - teal, so that they read as the targets to click. */
+/*
+    A move in progress: the buttons are the drop points - teal, so that they
+    read as the targets to click - and they pulse: a ring of the teal spreads
+    from every button and fades, over and over, so that the eye finds where
+    the subtree can go. The ring is the stroke, painted under the fill so
+    that only the outer half shows; no transform, the icons stay put.
+*/
+@keyframes drop-point-pulse {
+    from {
+        stroke-width: 0;
+        stroke-opacity: 0.6;
+    }
+
+    to {
+        stroke-width: 20px;
+        stroke-opacity: 0;
+    }
+}
+
 .moving-mode [joint-selector="addButton"],
 .moving-mode .joint-type-tbg-addbutton [joint-selector="body"],
 .moving-mode .joint-tool .button.add {
     fill: var(--teal);
+    stroke: var(--teal);
+    paint-order: stroke;
+    animation: drop-point-pulse 1.4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .moving-mode [joint-selector="addButton"],
+    .moving-mode .joint-type-tbg-addbutton [joint-selector="body"],
+    .moving-mode .joint-tool .button.add {
+        animation: none;
+    }
 }
 
 .moving-mode [joint-selector="addButton"]:hover,

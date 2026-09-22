@@ -503,9 +503,39 @@ body {
 }
 
 /* A move in progress: the buttons are the drop points - teal, so that they read as the targets to click. */
+/*
+    The drop points pulse: a ring of the teal spreads from every button and
+    fades, over and over, so that the eye finds where the subtree can go.
+    A halo of the HTML buttons is their shadow; of the SVG buttons of the
+    links, their stroke, painted under the fill so that only the outer half
+    shows. No transform: the icons and the positions of the tools stay put.
+*/
+@keyframes drop-point-pulse {
+    from {
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--teal) 60%, transparent);
+    }
+
+    to {
+        box-shadow: 0 0 0 10px color-mix(in srgb, var(--teal) 0%, transparent);
+    }
+}
+
+@keyframes drop-point-pulse-stroke {
+    from {
+        stroke-width: 0;
+        stroke-opacity: 0.6;
+    }
+
+    to {
+        stroke-width: 20px;
+        stroke-opacity: 0;
+    }
+}
+
 .moving-mode .square-button,
 .moving-mode .pill-add {
     background: var(--teal);
+    animation: drop-point-pulse 1.4s ease-out infinite;
 }
 
 .moving-mode .square-button:hover,
@@ -515,10 +545,21 @@ body {
 
 .moving-mode .link-button rect {
     fill: var(--teal);
+    stroke: var(--teal);
+    paint-order: stroke;
+    animation: drop-point-pulse-stroke 1.4s ease-out infinite;
 }
 
 .moving-mode .link-button:hover rect {
     fill: var(--teal-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .moving-mode .square-button,
+    .moving-mode .pill-add,
+    .moving-mode .link-button rect {
+        animation: none;
+    }
 }
 
 /*
