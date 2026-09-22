@@ -322,7 +322,7 @@ export function markMove(paper: dia.Paper, actions: ToolActions): void {
         } else if (AddButtonModel.isAddButton(element)) {
             // The button below a leaf.
             const [parent] = paper.model.getNeighbors(element, { inbound: true });
-            const takes = moved !== null && parent !== undefined && actions.canDropBelow(parent);
+            const takes = Boolean(moved && parent && actions.canDropBelow(parent));
             element.setDropPoint(takes);
             if (moved && !takes) {
                 // The button goes with its link: a link into nothing would hang from the leaf.

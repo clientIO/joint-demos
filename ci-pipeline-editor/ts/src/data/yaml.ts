@@ -32,8 +32,8 @@ import type { DiagramJSON, Edge, Id, NodeData } from './types';
  */
 export function toYAML(json: DiagramJSON): string {
     const root = Object.entries(json).find(([, node]) => node.type === 'start');
-    const first = root ? getEdges(root[1], 'to')[0] : undefined;
-    const on = root?.[1].type === 'start' ? root[1].on : undefined;
+    const first = (root && getEdges(root[1], 'to')[0]) ?? null;
+    const on = (root?.[1].type === 'start' && root[1].on) || null;
     const lines = [
         ...(on ? keyed('on', on, '') : []),
         ...(first ? ['steps:', ...sequence(json, first.id, 1)] : ['steps: []'])
@@ -84,17 +84,17 @@ function keys(edges: Edge[], type: NodeData['type']): string[] {
  * one another, until a decision (whose options are sequences of their own)
  * or an end. Indented by `depth` levels.
  */
-function sequence(json: DiagramJSON, id: Id | undefined, depth: number): string[] {
+function sequence(json: DiagramJSON, id: Id | null, depth: number): string[] {
     const lines: string[] = [];
-    let current: Id | undefined = id;
-    while (current !== undefined) {
+    let current: Id | null = id;
+    while (current) {
         const node: NodeData = json[current];
         const comment = 'comment' in node ? node.comment : undefined;
         if (comment) lines.push(...comment.split(/\r\n?|\n/).map((line) => `${INDENT.repeat(depth)}# ${line}`));
         const [first, ...rest] = item(json, node, depth + 1);
         lines.push(`${INDENT.repeat(depth)}- ${first}`, ...rest);
         if (node.type === 'decision' || node.type === 'end') break;
-        current = getEdges(node, 'to')[0]?.id;
+        current = getEdges(node, 'to')[0]?.id ?? null;
     }
     return lines;
 }

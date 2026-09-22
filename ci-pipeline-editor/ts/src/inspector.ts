@@ -82,8 +82,8 @@ function getConfig(data: DiagramData, element: Selectable): InspectorConfig {
 let inspector: ui.Inspector | null = null;
 /** The id of the element the inspector is open for. */
 let openId: string | null = null;
-/** What the panel shows - the inspector of an element, or the text of the diagram - to leave it alone when asked for the same; `undefined` before the first sync. */
-let signature: string | null | undefined;
+/** What the panel shows - the inspector of an element, or the text of the diagram - to leave it alone when asked for the same; `null` before the first sync. */
+let signature: string | null = null;
 
 /** Fills the panel: a header and a body - the hint, a note, or the inspector. */
 function renderPanel(container: HTMLElement, title: string | null, body: string | HTMLElement): void {
@@ -185,7 +185,7 @@ function sync(container: HTMLElement, data: DiagramData, element: Selectable | n
     closeInspector(data);
     if (!config) {
         renderCodePanel(container, data);
-    } else if (config.note !== undefined) {
+    } else if (config.note) {
         renderPanel(container, config.title, config.note);
     } else {
         inspector = new ui.Inspector({ cell: data, inputs: config.inputs });

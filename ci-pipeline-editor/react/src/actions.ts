@@ -29,9 +29,14 @@ function getContainer(element: dia.Element): GroupModel | null {
     return container && GroupModel.isGroup(container) ? container : null;
 }
 
-/** The parent of `element` in the tree: the source of its inbound link. */
-function getParent(graph: dia.Graph, element: dia.Element): dia.Element | undefined {
-    return graph.getNeighbors(element, { inbound: true })[0];
+/** The parent of `element` in the tree: the source of its inbound link; `null` for the root. */
+function getParent(graph: dia.Graph, element: dia.Element): dia.Element | null {
+    return graph.getNeighbors(element, { inbound: true })[0] ?? null;
+}
+
+/** Whether `element` is the root of the tree: nothing leads to it. */
+function isRoot(graph: dia.Graph, element: dia.Element): boolean {
+    return !getParent(graph, element);
 }
 
 /** The children of `element` in the tree: its outbound neighbors that are neither the end of its group nor its add button. */
@@ -40,9 +45,9 @@ function getChildren(graph: dia.Graph, element: dia.Element): dia.Element[] {
         .filter((child) => !isGate(child) && !AddButtonModel.isAddButton(child));
 }
 
-/** The add button below `element`, if it has one. */
-function getAddButton(graph: dia.Graph, element: dia.Element): AddButtonModel | undefined {
-    return graph.getNeighbors(element, { outbound: true }).find(AddButtonModel.isAddButton);
+/** The add button below `element`, or `null` where it has none. */
+function getAddButton(graph: dia.Graph, element: dia.Element): AddButtonModel | null {
+    return graph.getNeighbors(element, { outbound: true }).find(AddButtonModel.isAddButton) ?? null;
 }
 
 /**
@@ -119,7 +124,7 @@ export function canRemoveNode(graph: dia.Graph, element: dia.Element): boolean {
  * a menu at all - every item of it acts on one scope or the other.
  */
 export function canRemoveBranch(graph: dia.Graph, element: dia.Element): boolean {
-    return !isGate(element) && getParent(graph, element) !== undefined;
+    return !isGate(element) && !isRoot(graph, element);
 }
 
 /**
@@ -283,6 +288,19 @@ export function canMoveOnLink(graph: dia.Graph, data: DiagramData, movedId: Id, 
 }
 
 /**
+ * The element a drop point would add below: a decision with options and a
+ * fork with branches have their own, the `+` at their right end; an add
+ * button adds below the leaf it hangs from. `null` for everything else -
+ * it is no drop point.
+ */
+function getDropParent(graph: dia.Graph, element: dia.Element): dia.Element | null {
+    if (GroupStartModel.isGroupStart(element)) return element.getKind() === 'fork' && getChildren(graph, element).length > 0 ? element : null;
+    if (DecisionModel.isDecision(element)) return getChildren(graph, element).length > 0 ? element : null;
+    if (AddButtonModel.isAddButton(element)) return getParent(graph, element);
+    return null;
+}
+
+/**
  * Whether the subtree of `movedId` has anywhere to go: a visible link that
  * takes it, or a visible drop point below an element - the add button of a
  * leaf, the `+` of a decision with options or of a fork. The move is
@@ -292,12 +310,9 @@ export function hasMoveTarget(graph: dia.Graph, data: DiagramData, movedId: Id, 
     if (graph.getLinks().some((link) => isCellVisible(link) && canMoveOnLink(graph, data, movedId, scope, link))) return true;
     return graph.getElements().some((element) => {
         if (!isCellVisible(element)) return false;
-        let parent: dia.Element | undefined;
-        // A decision with options and a fork with branches have their own drop point, the `+`; without, the add button below is the target.
-        if (GroupStartModel.isGroupStart(element)) parent = element.getKind() === 'fork' && getChildren(graph, element).length > 0 ? element : undefined;
-        else if (DecisionModel.isDecision(element)) parent = getChildren(graph, element).length > 0 ? element : undefined;
-        else if (AddButtonModel.isAddButton(element)) parent = getParent(graph, element);
-        return parent !== undefined && canMoveBelow(graph, data, movedId, scope, parent);
+        const parent = getDropParent(graph, element);
+        if (!parent) return false;
+        return canMoveBelow(graph, data, movedId, scope, parent);
     });
 }
 
@@ -315,7 +330,7 @@ export function canMove(graph: dia.Graph, data: DiagramData, element: dia.Elemen
 export function getMovedCells(graph: dia.Graph, data: DiagramData, movedId: Id, scope: MoveScope): dia.Cell[] {
     const elements = getMovedNodes(data, movedId, scope).ids
         .flatMap((id) => [graph.getCell(id), graph.getCell(cellId.addButton(id))])
-        .filter((cell): cell is dia.Element => cell !== undefined && cell.isElement());
+        .filter((cell): cell is dia.Element => Boolean(cell?.isElement()));
     return graph.getSubgraph(elements, { deep: true });
 }
 
@@ -342,11 +357,11 @@ function move(data: DiagramData, movedId: Id, scope: MoveScope, parentId: Id, sl
 /**
  * The element that stands for node `id` on the diagram: the node's own, or
  * the start of a group, which stands in for it - a group is never rendered.
- * What to select for the node; `undefined` while the graph has no cell for it.
+ * What to select for the node; `null` while the graph has no cell for it.
  */
-export function getNodeElement(graph: dia.Graph, id: Id): dia.Element | undefined {
+export function getNodeElement(graph: dia.Graph, id: Id): dia.Element | null {
     const cell = graph.getCell(id);
-    if (!cell?.isElement()) return undefined;
+    if (!cell?.isElement()) return null;
     return GroupModel.isGroup(cell) ? cell.getStart() : cell;
 }
 

@@ -108,8 +108,9 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
 
     private idCounter = 0;
 
-    getNode(id: Id): NodeData | undefined {
-        return this.get(id);
+    /** The node `id`, or `null` where the diagram has none. */
+    getNode(id: Id): NodeData | null {
+        return this.get(id) ?? null;
     }
 
     /** The whole diagram, as it is: not a copy. */
@@ -253,7 +254,7 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
         } else {
             edges[index] = { ...edges[index], id };
             const [leaf] = this.getOpenLeaves(id, json);
-            if (leaf === undefined) throw new Error(`Nothing below ${id} can lead on to ${childId}.`);
+            if (!leaf) throw new Error(`Nothing below ${id} can lead on to ${childId}.`);
             setEdges(json[leaf], 'to', [{ id: childId! }]);
         }
         setEdges(json[parentId], slot, edges);

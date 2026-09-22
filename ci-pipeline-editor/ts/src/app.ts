@@ -179,7 +179,7 @@ export function init(): void {
     function updateInspector(): void {
         const selected = selection.collection.at(0);
         // On a small screen the panel shows only while something is selected (see the stylesheet).
-        appEl.classList.toggle('has-selection', selected !== undefined);
+        appEl.classList.toggle('has-selection', Boolean(selected));
         syncInspector(inspectorEl, data, selected && isSelectable(selected) ? selected : null);
     }
     /**
