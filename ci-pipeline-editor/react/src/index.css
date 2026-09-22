@@ -536,6 +536,23 @@ body {
 .moving-mode .pill-add {
     background: var(--teal);
     animation: drop-point-pulse 1.4s ease-out infinite;
+    /* Larger, around the same center: easier to hit. The host of an add button keeps its 18px, so the layout does not move. */
+    width: 24px;
+    height: 24px;
+}
+
+.moving-mode .square-button {
+    margin: -3px;
+}
+
+.moving-mode .pill-add {
+    margin: -3px -38px -3px -3px;
+}
+
+.moving-mode .square-button svg,
+.moving-mode .pill-add svg {
+    width: 24px;
+    height: 24px;
 }
 
 .moving-mode .square-button:hover,

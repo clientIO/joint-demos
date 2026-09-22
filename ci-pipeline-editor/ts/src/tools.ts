@@ -4,7 +4,8 @@ import { canAddTerminal, canDelete, canSplit, getActionTarget, getDeleteTitle, g
 import { isCellVisible } from './layout';
 import { openAddMenu, openMenu } from './menu';
 import type { AddChoice } from './menu';
-import { ADD_BUTTON_SELECTOR, ADD_BUTTON_SIZE, AddButtonModel, BRANCH_LABEL_OFFSET_ALONG, COLORS, DecisionModel, EndModel, GroupModel, GroupEndModel, GroupStartModel, INSERT_BUTTON_FROM_TARGET, LinkModel, PLUS_ICON, TOGGLE_EVENT } from './shapes';
+import { ADD_BUTTON_SELECTOR, ADD_BUTTON_SIZE, AddButtonModel, BRANCH_LABEL_OFFSET_ALONG, COLORS, DROP_POINT_SIZE, DecisionModel, EndModel, GroupModel, GroupEndModel, GroupStartModel, INSERT_BUTTON_FROM_TARGET, LinkModel, PLUS_ICON, TOGGLE_EVENT } from './shapes';
+import { setAddButtonSize } from './shapes/pill';
 
 /** The insert buttons are squares, so that they differ from the round toggle and "more" buttons: blue, marked in white like every add button, outlined in the color of the paper. */
 const ADD_FILL = COLORS.button.fill;
@@ -40,13 +41,13 @@ export interface ToolActions {
 /** The "move to" item of the menu of an element: an arrow out and down, in the teal of a move. */
 const MOVE_ICON = 'M -6 -6 V 6 H 6 M 6 6 L 2 2 M 6 6 L 2 10';
 
-/** The markup of the square button of a link: a plus, named by its tooltip (see `addTooltips()`). */
-function createInsertButtonMarkup(title: string): dia.MarkupJSON {
-    const half = INSERT_BUTTON_SIZE / 2;
+/** The markup of the square button of a link, `size` wide and high: a plus, named by its tooltip (see `addTooltips()`). */
+function createInsertButtonMarkup(title: string, size: number): dia.MarkupJSON {
+    const half = size / 2;
     // The class picks the hover color in the stylesheet.
     return util.svg/* xml */`
-        <rect @selector="body" class="button add" x="${-half}" y="${-half}" width="${INSERT_BUTTON_SIZE}" height="${INSERT_BUTTON_SIZE}" rx="3" ry="3" fill="${ADD_FILL}" stroke="${ADD_OUTLINE}" stroke-width="1.5" cursor="pointer" data-tooltip="${title}"/>
-        <path d="${ADD_ICON}" fill="none" stroke="${ADD_MARK}" stroke-width="2" pointer-events="none"/>
+        <rect @selector="body" class="button add" x="${-half}" y="${-half}" width="${size}" height="${size}" rx="3" ry="3" fill="${ADD_FILL}" stroke="${ADD_OUTLINE}" stroke-width="1.5" cursor="pointer" data-tooltip="${title}"/>
+        <path d="${ADD_ICON}" transform="scale(${size / INSERT_BUTTON_SIZE})" fill="none" stroke="${ADD_MARK}" stroke-width="2" pointer-events="none"/>
     `;
 }
 
@@ -252,14 +253,13 @@ function createHoverTools(paper: dia.Paper, element: dia.Element, actions: ToolA
 /**
  * The button of a link, a `linkTools.Button` at `distance` along it: a
  * square plus that inserts - or, while a move is on, drops the moved
- * subtree into the link. The same plus as every other drop point; only
- * the tooltip tells.
+ * subtree into the link: larger then, like every other drop point.
  */
 function createInsertTool(link: LinkModel, distance: number, actions: ToolActions): dia.ToolView {
     const moving = actions.getMoved() !== null;
     return new linkTools.Button({
         distance,
-        markup: createInsertButtonMarkup(moving ? 'Move here' : 'Insert here'),
+        markup: createInsertButtonMarkup(moving ? 'Move here' : 'Insert here', moving ? DROP_POINT_SIZE : INSERT_BUTTON_SIZE),
         action: (_evt, _view, tool) => {
             if (moving) {
                 actions.dropOnLink(link);
@@ -276,27 +276,32 @@ const noDropMark = new ViewMarker('no-drop');
 
 /**
  * Marks the move in progress: the subtree that moves - faded, its links
- * and buttons included - and the buttons that cannot take it - hidden. Nothing
- * while no move is on: the marks of the last one come off.
+ * and buttons included - the buttons that cannot take it - hidden - and the
+ * buttons that can, the drop points - larger. With no move on, the marks of
+ * the last one come off and the buttons are their usual size.
  */
 export function markMove(paper: dia.Paper, actions: ToolActions): void {
     movingMark.clear();
     noDropMark.clear();
     const moved = actions.getMoved();
-    if (!moved) return;
-    movingMark.add(paper, actions.getMovedCells());
+    if (moved) movingMark.add(paper, actions.getMovedCells());
+    const buttonSize = (takes: boolean): number => (takes ? DROP_POINT_SIZE : ADD_BUTTON_SIZE.width);
     for (const element of paper.model.getElements()) {
         const hasPillButton = GroupStartModel.isGroupStart(element) ? element.getKind() === 'fork' : DecisionModel.isDecision(element);
         if (hasPillButton) {
             // The button at the right end of a decision or of the start of a fork: only that button, not the pill.
-            if (!actions.canDropBelow(element)) {
+            const takes = moved !== null && actions.canDropBelow(element);
+            setAddButtonSize(element, buttonSize(takes));
+            if (moved && !takes) {
                 noDropMark.add(paper, [element], ADD_BUTTON_SELECTOR);
                 noDropMark.add(paper, [element], 'addIcon');
             }
         } else if (AddButtonModel.isAddButton(element)) {
             // The button below a leaf.
             const [parent] = paper.model.getNeighbors(element, { inbound: true });
-            if (parent && !actions.canDropBelow(parent)) {
+            const takes = moved !== null && parent !== undefined && actions.canDropBelow(parent);
+            element.setButtonSize(buttonSize(takes));
+            if (moved && !takes) {
                 // The button goes with its link: a link into nothing would hang from the leaf.
                 noDropMark.add(paper, [element, ...paper.model.getConnectedLinks(element, { inbound: true })]);
             }

@@ -48,6 +48,15 @@ export class AddButtonModel extends dia.Element {
         }, super.defaults);
     }
 
+    /** Draws the button `size` wide and high around the center of the element, whose own size - what the layout goes by - stays. */
+    setButtonSize(size: number): void {
+        const { width, height } = ADD_BUTTON_SIZE;
+        this.attr({
+            body: { x: (width - size) / 2, y: (height - size) / 2, width: size, height: size },
+            icon: { transform: `translate(calc(w / 2), calc(h / 2)) scale(${size / width})` }
+        });
+    }
+
     static isAddButton(cell: dia.Cell): cell is AddButtonModel {
         return cell instanceof AddButtonModel;
     }

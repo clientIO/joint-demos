@@ -15,6 +15,8 @@ export const TERMINAL_SIZE = { width: 52, height: 52 };
 /** The add button below a leaf of the tree, the same square as the insert button of a link. */
 export const ADD_BUTTON_SIZE = { width: 18, height: 18 };
 export const INSERT_BUTTON_SIZE = 18;
+/** The drop points - the add and insert buttons that can take the moved subtree - grow to this while a move is on: easier to hit. */
+export const DROP_POINT_SIZE = 24;
 /**
  * How far from its target the insert button of a link sits when something is
  * in the way below the source (see `getInsertButtonPoint()`); a layout metric

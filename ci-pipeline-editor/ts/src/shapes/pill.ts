@@ -220,6 +220,14 @@ export const ADD_BUTTON_ATTRS = {
     }
 };
 
+/** Draws the add button of `pill` `size` wide and high, around the same center - the size of a node's button, or larger as a drop point. */
+export function setAddButtonSize(pill: dia.Element, size: number): void {
+    pill.attr({
+        [ADD_BUTTON_SELECTOR]: { x: `calc(w - ${size / 2})`, y: `calc(h / 2 - ${size / 2})`, width: size, height: size },
+        addIcon: { transform: `translate(calc(w), calc(h / 2)) scale(${size / ADD_BUTTON_SIZE.width})` }
+    });
+}
+
 /** Shows or hides the add button of `pill` - the one at its right end. */
 export function showAddButton(pill: dia.Element, visible: boolean): void {
     pill.attr({
