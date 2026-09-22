@@ -205,10 +205,18 @@ const paper = new dia.Paper({
     // carry it, since the element roots are `magnet: false`.
     markAvailable: true,
     cellViewNamespace: shapes,
+    // Explicit rather than relying on the (already-transparent) default - the
+    // canvas's own radial-glow background (#paper-container in styles.css)
+    // shows through the paper itself, rather than the paper painting a solid
+    // color over it.
+    background: { color: 'transparent' },
     // The same grid @joint/react's Paper preset draws by default: a 1px dot on
     // every 10px step. Denser and in a tone with some contrast against the
     // canvas (see --uc-grid-dot), so the canvas reads as a work surface
-    // instead of near-blank paper.
+    // instead of near-blank paper. In plain @joint/core, `gridSize` drives
+    // both the grid's visual spacing and its (currently unused - nothing in
+    // this demo snaps to it) snap-to-grid step; there's no separate option to
+    // set them independently the way some wrapper packages offer.
     gridSize: 10,
     // Hoisted function declaration - the grid color has to be re-read whenever
     // the theme changes, so it is built in one place both this and the theme
