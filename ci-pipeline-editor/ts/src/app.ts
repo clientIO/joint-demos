@@ -181,10 +181,19 @@ export function init(): void {
         appEl.classList.toggle('has-selection', selected !== undefined);
         syncInspector(inspectorEl, data, selected && isSelectable(selected) ? selected : null);
     }
-    /** Selects the element of the node `id` just added - the graph has it, rebuilt on the push of the edit - so that its fields open in the inspector. */
+    /**
+     * Selects the element of the node `id` just added - the graph has it,
+     * rebuilt on the push of the edit - so that its fields open in the
+     * inspector, and puts the cursor in the first of them, its text selected:
+     * typing replaces the default label.
+     */
     function selectNode(id: Id): void {
         const element = getNodeElement(graph, id);
-        if (element && isSelectable(element)) selection.collection.reset([element]);
+        if (!element || !isSelectable(element)) return;
+        selection.collection.reset([element]);
+        const field = inspectorEl.querySelector<HTMLInputElement | HTMLTextAreaElement>('input, textarea');
+        field?.focus();
+        field?.select();
     }
     selection.collection.on('reset add remove', updateInspector);
     updateInspector();

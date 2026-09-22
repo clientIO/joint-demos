@@ -79,6 +79,8 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     const { paperScroller, setZoom } = usePaperScroller(PAPER_ID);
     // The selection is `<Diagram>`'s collection (see `components/selection.tsx`).
     const { collection: selection, selectCells } = useSelectionCollection();
+    /** The element just added that wants the cursor in its first field, until the inspector takes it. */
+    const wantsFocus = useRef<dia.Cell.ID | null>(null);
     // The move in progress: the element, and the marks of the move - the dimmed subtree, the buttons that cannot take it. Set where the state changes: a move starts or ends, or the graph is rebuilt.
     const [move, setMove] = useState<{ element: dia.Element; marks: Marks } | null>(null);
     const getMoveState = useCallback((element: dia.Element) => ({
@@ -157,10 +159,12 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             setMove(null);
             return id;
         };
-        // The element of the node `id` just added - the graph has it, rebuilt on the push of the edit - is selected: its fields open in the inspector.
+        // The element of the node `id` just added - the graph has it, rebuilt on the push of the edit - is selected: its fields open in the inspector, the first one with the cursor.
         const selectNode = (id: Id): void => {
             const element = getNodeElement(graph, id);
-            if (element && isSelectable(element)) selectCells([element]);
+            if (!element || !isSelectable(element)) return;
+            wantsFocus.current = element.id;
+            selectCells([element]);
         };
         return {
             data,
@@ -176,6 +180,11 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             dropOnLink: (link) => moveOnLink(data, endMove(), link),
             addBelow: (parent, choice) => selectNode(addBelow(data, parent, choice)),
             insertOnLink: (link, choice) => selectNode(insertOnLink(data, link, choice)),
+            takeFocus: (id) => {
+                if (wantsFocus.current !== id) return false;
+                wantsFocus.current = null;
+                return true;
+            },
             remove: (target) => {
                 preview('deletion', NO_MARKS);
                 if (!canDelete(graph, target)) return;

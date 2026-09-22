@@ -46,6 +46,8 @@ export interface EditorApi {
 
     addBelow(parent: dia.Element, choice: AddChoice): void;
     insertOnLink(link: LinkModel, choice: AddChoice): void;
+    /** Whether the element `id`, just added and selected, still wants the cursor in its first field - once: the inspector asks after it renders the fields. */
+    takeFocus(id: dia.Cell.ID): boolean;
     remove(target: dia.Element): void;
     toggleGroup(group: GroupModel): void;
     /** Turns what a deletion of `target` would remove red, or takes the red off with `null`. */
