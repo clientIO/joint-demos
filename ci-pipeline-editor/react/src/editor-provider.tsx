@@ -1,14 +1,16 @@
 import { dia } from '@joint/plus';
 import { useGraph, usePaper, usePaperScroller, useSelectionCollection } from '@joint/react-plus';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { flushSync } from 'react-dom';
 import type { ReactNode } from 'react';
 
-import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getMovedCells, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
+import { addBelow, canMove, canMoveBelow, canMoveOnLink, canRemoveBranch, canRemoveNode, getMovedCells, getNodeElement, insertOnLink, moveBelow, moveOnLink, removeBranch, removeNode, toggleGroup } from './actions';
+import type { MoveScope } from './actions';
 import type { MenuRequest } from './components/menu';
 import { buildGraph, getId } from './data/build';
 import type { Id } from './data/types';
 import { DiagramData } from './data/diagram-data';
-import { EditorContext, MAX_ZOOM, MIN_ZOOM, PAPER_ID } from './editor-context';
+import { EditorContext, MAX_ZOOM, MIN_ZOOM, PAPER_ID, isSelectable } from './editor-context';
 import type { EditorApi } from './editor-context';
 import { getVisibleBBox, isCellVisible, runLayout } from './layout';
 import { example } from './data/example';
@@ -79,11 +81,12 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     const { paperScroller, setZoom } = usePaperScroller(PAPER_ID);
     // The selection is `<Diagram>`'s collection (see `components/selection.tsx`).
     const { collection: selection, selectCells } = useSelectionCollection();
-    // The move in progress: the element, and the marks of the move - the dimmed subtree, the buttons that cannot take it. Set where the state changes: a move starts or ends, or the graph is rebuilt.
-    const [move, setMove] = useState<{ element: dia.Element; marks: Marks } | null>(null);
-    const getMoveState = useCallback((element: dia.Element) => ({
+    // The move in progress: the element, what it takes along, and the marks of the move - what is dimmed, the buttons that cannot take it. Set where the state changes: a move starts or ends, or the graph is rebuilt.
+    const [move, setMove] = useState<{ element: dia.Element; scope: MoveScope; marks: Marks } | null>(null);
+    const getMoveState = useCallback((element: dia.Element, scope: MoveScope) => ({
         element,
-        marks: getMovingMarks(graph, getMovedCells(graph, data, getId(element)), (parent) => canMoveBelow(graph, data, getId(element), parent))
+        scope,
+        marks: getMovingMarks(graph, getMovedCells(graph, data, getId(element), scope), (parent) => canMoveBelow(graph, data, getId(element), scope, parent))
     }), [graph, data]);
     // The marks of the previews, one set each: a hovered "remove" item, a hovered collapse button, a hovered "move" item.
     const [previews, setPreviews] = useState<{ deletion: Marks; collapse: Marks; move: Marks }>({ deletion: NO_MARKS, collapse: NO_MARKS, move: NO_MARKS });
@@ -113,7 +116,7 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
      */
     const rebuild = useCallback(() => {
         build();
-        setMove((current) => (current && graph.getCell(current.element.id) === current.element ? getMoveState(current.element) : null));
+        setMove((current) => (current && graph.getCell(current.element.id) === current.element ? getMoveState(current.element, current.scope) : null));
     }, [build, graph, getMoveState]);
 
     // The first build - no move is on yet; then one after every command of the history.
@@ -151,40 +154,61 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     }, [graph, paperScroller]);
 
     const editor = useMemo<EditorApi>(() => {
-        const movedId = (): Id => getId(moved!);
-        const endMove = (): string => {
-            const id = movedId();
+        const endMove = (): { id: Id; scope: MoveScope } => {
+            const { element, scope } = move!;
             setMove(null);
-            return id;
+            return { id: getId(element), scope };
+        };
+        /**
+         * Selects the element of the node `id` just added - the graph has it,
+         * rebuilt on the push of the edit - and puts the cursor in the first
+         * field of the inspector, its text selected: typing names the node
+         * right away. The selection is flushed first, so the fields are
+         * there to take the cursor.
+         */
+        const selectNode = (id: Id): void => {
+            const element = getNodeElement(graph, id);
+            if (!element || !isSelectable(element)) return;
+            flushSync(() => selectCells([element]));
+            const field = document.querySelector<HTMLInputElement | HTMLTextAreaElement>('.inspector input, .inspector textarea');
+            field?.focus();
+            field?.select();
         };
         return {
             data,
             graph,
             version,
             moved,
-            canMove: (element) => hasMoveTarget(graph, data, getId(element)),
-            startMove: (element) => setMove(getMoveState(element)),
+            movedScope: move?.scope ?? null,
+            canMove: (element, scope) => canMove(graph, data, element, scope),
+            startMove: (element, scope) => setMove(getMoveState(element, scope)),
             cancelMove: () => setMove(null),
-            canDropBelow: (parent) => moved !== null && canMoveBelow(graph, data, movedId(), parent),
-            canDropOnLink: (link) => moved !== null && canMoveOnLink(graph, data, movedId(), link),
-            dropBelow: (parent) => moveBelow(data, endMove(), parent),
-            dropOnLink: (link) => moveOnLink(data, endMove(), link),
-            addBelow: (parent, choice) => addBelow(data, parent, choice),
-            insertOnLink: (link, choice) => insertOnLink(data, link, choice),
-            remove: (target) => {
+            canDropBelow: (parent) => move !== null && canMoveBelow(graph, data, getId(move.element), move.scope, parent),
+            canDropOnLink: (link) => move !== null && canMoveOnLink(graph, data, getId(move.element), move.scope, link),
+            dropBelow: (parent) => {
+                const { id, scope } = endMove();
+                moveBelow(data, id, scope, parent);
+            },
+            dropOnLink: (link) => {
+                const { id, scope } = endMove();
+                moveOnLink(data, id, scope, link);
+            },
+            addBelow: (parent, choice) => selectNode(addBelow(data, parent, choice)),
+            insertOnLink: (link, choice) => selectNode(insertOnLink(data, link, choice)),
+            remove: (target, scope) => {
                 preview('deletion', NO_MARKS);
-                if (!canDelete(graph, target)) return;
+                if (!(scope === 'branch' ? canRemoveBranch(graph, target) : canRemoveNode(graph, target))) return;
                 // The selection goes with what is removed: an undo brings the element back, not the selection.
                 selectCells([]);
-                deleteElement(graph, data, target);
+                if (scope === 'branch') removeBranch(graph, data, target); else removeNode(graph, data, target);
             },
             toggleGroup: (group) => {
                 preview('collapse', NO_MARKS);
                 toggleGroup(data, group);
             },
-            previewDeletion: (target) => preview('deletion', target ? getDeletionMarks(graph, target) : NO_MARKS),
+            previewDeletion: (target, scope) => preview('deletion', target ? getDeletionMarks(graph, target, scope) : NO_MARKS),
             previewCollapse: (group) => preview('collapse', group ? getCollapseMarks(graph, group) : NO_MARKS),
-            previewMove: (target) => preview('move', target ? getMoveMarks(getMovedCells(graph, data, getId(target))) : NO_MARKS),
+            previewMove: (target, scope) => preview('move', target ? getMoveMarks(getMovedCells(graph, data, getId(target), scope)) : NO_MARKS),
             marks,
             menu,
             openMenu: setMenu,
@@ -204,7 +228,7 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
             zoomToFit,
             fit
         };
-    }, [data, graph, setZoom, version, selectCells, moved, marks, menu, history, canUndo, canRedo, zoomToFit, fit, getMoveState, preview]);
+    }, [data, graph, setZoom, version, selectCells, move, moved, marks, menu, history, canUndo, canRedo, zoomToFit, fit, getMoveState, preview]);
 
     return <EditorContext.Provider value={editor}>{children}</EditorContext.Provider>;
 }

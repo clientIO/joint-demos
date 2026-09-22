@@ -34,6 +34,11 @@ function getParent(graph: dia.Graph, element: dia.Element): dia.Element | undefi
     return graph.getNeighbors(element, { inbound: true })[0];
 }
 
+/** Whether `element` is the root of the tree: nothing leads to it. */
+function isRoot(graph: dia.Graph, element: dia.Element): boolean {
+    return !getParent(graph, element);
+}
+
 /** The children of `element` in the tree: its outbound neighbors that are neither the end of its group nor its add button. */
 function getChildren(graph: dia.Graph, element: dia.Element): dia.Element[] {
     return graph.getNeighbors(element, { outbound: true })
@@ -69,27 +74,57 @@ export function getActionTarget(element: dia.Element): dia.Element | null {
     return element;
 }
 
-/** The item of the menu that removes `target`: "Remove" and what it is - a loop, a fork, a decision, an end, a step. */
-export function getDeleteTitle(target: dia.Element): string {
-    if (GroupModel.isGroup(target)) return `Remove the ${target.getKind()}`;
-    if (DecisionModel.isDecision(target)) return 'Remove the decision';
-    if (EndModel.isEnd(target)) return 'Remove the end';
-    return 'Remove the step';
+/**
+ * What a move or a removal takes along: the element alone - the content of
+ * a group goes with it, what follows it does not - or the branch: the
+ * element and everything below it. The menu of an element offers both.
+ */
+export type MoveScope = 'node' | 'branch';
+
+/** What the menu calls `target` itself: `the step`, `the decision`, `the fork`, `the loop`, `the end`. */
+function getElementName(target: dia.Element): string {
+    if (GroupModel.isGroup(target)) return `the ${target.getKind()}`;
+    if (DecisionModel.isDecision(target)) return 'the decision';
+    if (EndModel.isEnd(target)) return 'the end';
+    return 'the step';
+}
+
+/** The "move" items of the menu: the element alone, or the branch below it too. */
+export function getMoveTitle(scope: MoveScope): string {
+    return scope === 'branch' ? 'Move the branch to…' : 'Move to…';
+}
+
+/** The "remove" items of the menu: the element alone - its children move up in its place - or the branch below it too. */
+export function getRemoveTitle(target: dia.Element, scope: MoveScope): string {
+    return scope === 'branch' ? 'Remove the branch' : `Remove ${getElementName(target)}`;
+}
+
+/** Whether anything follows `element` in the tree: only then is the branch below it more than the element itself, and the items that act on the branch worth offering. */
+export function hasBranch(graph: dia.Graph, element: dia.Element): boolean {
+    return getChildren(graph, element).length > 0;
 }
 
 /**
- * Whether `element` can be deleted: not the root, not a gate. A decision
- * goes with everything below it; a node with several children only where
- * its parent can take them all - a decision or a gate. The last node of a
- * group may go too: its `start` then links straight to its `end`, and the
- * group is refilled through that link.
+ * Whether `element` can leave its place alone - removed, or moved
+ * elsewhere: not the root, not a gate, and its children have to be able to
+ * move up to its parent, which takes several only where it can branch - a
+ * decision or a gate. The last node of a group may go too: its `start` then
+ * links straight to its `end`, and the group is refilled through that link.
  */
-export function canDelete(graph: dia.Graph, element: dia.Element): boolean {
+export function canRemoveNode(graph: dia.Graph, element: dia.Element): boolean {
     if (isGate(element)) return false;
     const parent = getParent(graph, element);
     if (!parent) return false;
-    if (DecisionModel.isDecision(element)) return true;
     return getChildren(graph, element).length <= 1 || canBranch(parent);
+}
+
+/**
+ * Whether `element` can go with the branch below it: everything but the
+ * root and the gates can. The same question decides whether an element has
+ * a menu at all - every item of it acts on one scope or the other.
+ */
+export function canRemoveBranch(graph: dia.Graph, element: dia.Element): boolean {
+    return !isGate(element) && !isRoot(graph, element);
 }
 
 /**
@@ -109,14 +144,15 @@ function getSubtree(graph: dia.Graph, element: dia.Element): dia.Element[] {
 }
 
 /**
- * The cells a deletion of `element` removes from the picture: the element -
- * a decision with everything below it, a group with its content - the links
- * between them, and the add button of a leaf that goes with it. What
- * `deleteElement()` takes away, for the highlight before the click.
+ * The cells a removal of `element` takes from the picture: with the branch
+ * below it, everything down to the gates of its group; alone, the element
+ * itself - a group with its content - and the add button of a leaf, which
+ * goes with it. The links between them in both cases. For the red preview
+ * before the click.
  */
-export function getDeletedCells(graph: dia.Graph, element: dia.Element): dia.Cell[] {
+export function getDeletedCells(graph: dia.Graph, element: dia.Element, scope: MoveScope): dia.Cell[] {
     let elements: dia.Element[];
-    if (DecisionModel.isDecision(element)) {
+    if (scope === 'branch') {
         elements = getSubtree(graph, element);
     } else {
         const button = getAddButton(graph, element);
@@ -183,19 +219,21 @@ export function insertOnLink(data: DiagramData, link: LinkModel, choice: AddChoi
     return data.insertNode(createNodeData(data, choice, label), id, slot, childId);
 }
 
-/**
- * Deletes `element`. A decision is deleted with everything below it, down to
- * the end of its group. Any other element is spliced out: its children take
- * its place; a group takes its content along.
- */
-export function deleteElement(graph: dia.Graph, data: DiagramData, element: dia.Element): void {
-    if (!canDelete(graph, element)) return;
-    const id = getId(element);
-    if (DecisionModel.isDecision(element)) {
-        data.removeSubtree(id);
-    } else {
-        data.spliceNode(id);
-    }
+/** Removes `element` alone: its children move up to its parent, in its place; a group takes its content along. */
+export function removeNode(graph: dia.Graph, data: DiagramData, element: dia.Element): void {
+    if (!canRemoveNode(graph, element)) return;
+    data.spliceNode(getId(element));
+}
+
+/** Removes `element` with the branch below it, down to the end of its group. */
+export function removeBranch(graph: dia.Graph, data: DiagramData, element: dia.Element): void {
+    if (!canRemoveBranch(graph, element)) return;
+    data.removeSubtree(getId(element));
+}
+
+/** What `Delete` takes away, and what the first "remove" item of the menu offers: `element` alone where its children can move up, the branch below it where they cannot. */
+export function getDeleteScope(graph: dia.Graph, element: dia.Element): MoveScope {
+    return canRemoveNode(graph, element) ? 'node' : 'branch';
 }
 
 /** The node of the data `element` stands for: the group, for a gate; the owner, for an add button. */
@@ -206,31 +244,76 @@ function getDataId(graph: dia.Graph, element: dia.Element): Id {
     return id;
 }
 
-/**
- * Whether the subtree of `movedId` can be dropped where `parent` gets its
- * children: not into itself, and not with an end of the diagram into a fork
- * or a loop.
- */
-export function canMoveBelow(graph: dia.Graph, data: DiagramData, movedId: Id, parent: dia.Element): boolean {
-    if (data.getSubtree(movedId).includes(getDataId(graph, parent))) return false;
-    const intoGroup = getContainer(parent) !== null || GroupStartModel.isGroupStart(parent);
-    return !(intoGroup && data.hasEnd(movedId));
+/** What a move takes along, as the data sees it: the nodes that move, and whether the moved element is itself an end of the diagram - which cannot go into a group, and which nothing can follow. */
+function getMovedNodes(data: DiagramData, movedId: Id, scope: MoveScope): { ids: Id[]; isEnd: boolean } {
+    const isEnd = data.getNode(movedId)?.type === 'end';
+    return { ids: scope === 'branch' ? data.getSubtree(movedId) : data.getContent(movedId), isEnd };
 }
 
 /**
- * Whether the subtree of `movedId` can be dropped into `link`: into a link
- * that takes an insertion, outside of the subtree, with exactly one leaf
- * the flow can continue from - the former target of the link follows it -
- * and not with an end into a fork or a loop.
+ * What a drop leaves the flow to continue from, and whether it takes the
+ * ends of the diagram out of the moved branch on the way: no end may stand
+ * inside a group, and nothing can follow one, so a drop into a group and a
+ * drop that has to continue - one into a link - delete them, and the flow
+ * goes on from the leaves they hung on. An element moved alone carries no
+ * ends: the flow continues from the element itself.
  */
-export function canMoveOnLink(graph: dia.Graph, data: DiagramData, movedId: Id, link: dia.Link): boolean {
+function getDrop(data: DiagramData, movedId: Id, scope: MoveScope, { intoGroup, mustContinue }: { intoGroup: boolean; mustContinue: boolean }): { leaves: Id[]; dropEnds: boolean } {
+    if (scope === 'node') {
+        const isEnd = data.getNode(movedId)?.type === 'end';
+        return { leaves: isEnd ? [] : [movedId], dropEnds: false };
+    }
+    const leaves = data.getOpenLeaves(movedId);
+    const dropEnds = intoGroup ? data.hasEnd(movedId) : mustContinue && leaves.length === 0;
+    return { leaves: dropEnds ? data.getOpenLeaves(movedId, { withoutEnds: true }) : leaves, dropEnds };
+}
+
+/** Whether `parent` takes its children inside a group: a gate of one, or a node of its content. */
+function isInGroup(parent: dia.Element): boolean {
+    return getContainer(parent) !== null || GroupStartModel.isGroupStart(parent);
+}
+
+/**
+ * Whether what `scope` takes of `movedId` can be dropped where `parent`
+ * gets its children: not into itself, and an end of the diagram not into a
+ * fork or a loop - the ends inside a branch go with the drop instead (see
+ * `getDrop()`).
+ */
+export function canMoveBelow(graph: dia.Graph, data: DiagramData, movedId: Id, scope: MoveScope, parent: dia.Element): boolean {
+    const { ids, isEnd } = getMovedNodes(data, movedId, scope);
+    if (ids.includes(getDataId(graph, parent))) return false;
+    return !(isInGroup(parent) && isEnd);
+}
+
+/**
+ * Whether what `scope` takes of `movedId` can be dropped into `link`: into
+ * a link that takes an insertion, outside of what moves, with exactly one
+ * leaf the flow can continue from - the former target of the link follows
+ * it, so an end of the diagram cannot be what moves. A branch that ends in
+ * one drops it and continues from the node it hung on.
+ */
+export function canMoveOnLink(graph: dia.Graph, data: DiagramData, movedId: Id, scope: MoveScope, link: dia.Link): boolean {
     if (!canSplit(link)) return false;
     const source = link.getSourceElement()!;
     const target = link.getTargetElement()!;
-    const subtree = data.getSubtree(movedId);
-    if (subtree.includes(getDataId(graph, source)) || subtree.includes(getDataId(graph, target))) return false;
-    if (data.getOpenLeaves(movedId).length !== 1) return false;
-    return !(getContainer(source) !== null && data.hasEnd(movedId));
+    const { ids, isEnd } = getMovedNodes(data, movedId, scope);
+    if (ids.includes(getDataId(graph, source)) || ids.includes(getDataId(graph, target))) return false;
+    if (isEnd) return false;
+    const { leaves } = getDrop(data, movedId, scope, { intoGroup: getContainer(source) !== null, mustContinue: true });
+    return leaves.length === 1;
+}
+
+/**
+ * The element a drop point would add below: a decision with options and a
+ * fork with branches have their own, the `+` at their right end; an add
+ * button adds below the leaf it hangs from. `null` for everything else -
+ * it is no drop point.
+ */
+function getDropParent(graph: dia.Graph, element: dia.Element): dia.Element | null {
+    if (GroupStartModel.isGroupStart(element)) return element.getKind() === 'fork' && getChildren(graph, element).length > 0 ? element : null;
+    if (DecisionModel.isDecision(element)) return getChildren(graph, element).length > 0 ? element : null;
+    if (AddButtonModel.isAddButton(element)) return getParent(graph, element) ?? null;
+    return null;
 }
 
 /**
@@ -239,17 +322,20 @@ export function canMoveOnLink(graph: dia.Graph, data: DiagramData, movedId: Id, 
  * leaf, the `+` of a decision with options or of a fork. The move is
  * offered only then.
  */
-export function hasMoveTarget(graph: dia.Graph, data: DiagramData, movedId: Id): boolean {
-    if (graph.getLinks().some((link) => isCellVisible(link) && canMoveOnLink(graph, data, movedId, link))) return true;
+export function hasMoveTarget(graph: dia.Graph, data: DiagramData, movedId: Id, scope: MoveScope): boolean {
+    if (graph.getLinks().some((link) => isCellVisible(link) && canMoveOnLink(graph, data, movedId, scope, link))) return true;
     return graph.getElements().some((element) => {
         if (!isCellVisible(element)) return false;
-        let parent: dia.Element | undefined;
-        // A decision with options and a fork with branches have their own drop point, the `+`; without, the add button below is the target.
-        if (GroupStartModel.isGroupStart(element)) parent = element.getKind() === 'fork' && getChildren(graph, element).length > 0 ? element : undefined;
-        else if (DecisionModel.isDecision(element)) parent = getChildren(graph, element).length > 0 ? element : undefined;
-        else if (AddButtonModel.isAddButton(element)) parent = getParent(graph, element);
-        return parent !== undefined && canMoveBelow(graph, data, movedId, parent);
+        const parent = getDropParent(graph, element);
+        if (!parent) return false;
+        return canMoveBelow(graph, data, movedId, scope, parent);
     });
+}
+
+/** Whether the menu can offer to move `element` with `scope`: it has to be able to leave its place, and there has to be somewhere to drop it. */
+export function canMove(graph: dia.Graph, data: DiagramData, element: dia.Element, scope: MoveScope): boolean {
+    const canLeave = scope === 'branch' ? canRemoveBranch(graph, element) && hasBranch(graph, element) : canRemoveNode(graph, element);
+    return canLeave && hasMoveTarget(graph, data, getId(element), scope);
 }
 
 /**
@@ -257,25 +343,57 @@ export function hasMoveTarget(graph: dia.Graph, data: DiagramData, movedId: Id):
  * with the content of the groups among them, their add buttons, and the
  * links between all of those. For the marks of a move.
  */
-export function getMovedCells(graph: dia.Graph, data: DiagramData, movedId: Id): dia.Cell[] {
-    const elements = data.getSubtree(movedId)
+export function getMovedCells(graph: dia.Graph, data: DiagramData, movedId: Id, scope: MoveScope): dia.Cell[] {
+    const elements = getMovedNodes(data, movedId, scope).ids
         .flatMap((id) => [graph.getCell(id), graph.getCell(cellId.addButton(id))])
-        .filter((cell): cell is dia.Element => cell !== undefined && cell.isElement());
+        .filter((cell): cell is dia.Element => Boolean(cell?.isElement()));
     return graph.getSubgraph(elements, { deep: true });
 }
 
-/** Moves the subtree of `movedId` below `parent`, as its last child. */
-export function moveBelow(data: DiagramData, movedId: Id, parent: dia.Element): void {
+/** Moves what `scope` takes of `movedId` below `parent`, as its last child; into a group, the ends of the branch go with the move. */
+export function moveBelow(data: DiagramData, movedId: Id, scope: MoveScope, parent: dia.Element): void {
     const { id, slot } = getSlot(parent);
-    data.moveNode(movedId, id, slot, null);
+    const { dropEnds } = getDrop(data, movedId, scope, { intoGroup: isInGroup(parent), mustContinue: false });
+    move(data, movedId, scope, id, slot, null, dropEnds);
 }
 
-/** Moves the subtree of `movedId` into `link`: the link leads to it, and its open leaf on to the former target. */
-export function moveOnLink(data: DiagramData, movedId: Id, link: LinkModel): void {
+/** Moves what `scope` takes of `movedId` into `link`: the link leads to it, and its open leaf on to the former target - the leaf an end hung on, where the branch ended in one. */
+export function moveOnLink(data: DiagramData, movedId: Id, scope: MoveScope, link: LinkModel): void {
     const source = link.getSourceElement()!;
     const target = link.getTargetElement()!;
     const { id, slot } = getSlot(source);
-    data.moveNode(movedId, id, slot, GroupEndModel.isGroupEnd(target) ? null : getId(target));
+    const { dropEnds } = getDrop(data, movedId, scope, { intoGroup: getContainer(source) !== null, mustContinue: true });
+    move(data, movedId, scope, id, slot, GroupEndModel.isGroupEnd(target) ? null : getId(target), dropEnds);
+}
+
+/** The edit a drop makes: the branch moves as a whole, the node alone leaves its children behind, in its place. */
+function move(data: DiagramData, movedId: Id, scope: MoveScope, parentId: Id, slot: Slot, childId: Id | null, dropEnds: boolean): void {
+    if (scope === 'branch') data.moveNode(movedId, parentId, slot, childId, dropEnds);
+    else data.moveNodeAlone(movedId, parentId, slot, childId);
+}
+
+/**
+ * The element that stands for node `id` on the diagram: the node's own, or
+ * the start of a group, which stands in for it - a group is never rendered.
+ * What to select for the node; `null` while the graph has no cell for it.
+ */
+export function getNodeElement(graph: dia.Graph, id: Id): dia.Element | null {
+    const cell = graph.getCell(id);
+    if (!cell?.isElement()) return null;
+    return GroupModel.isGroup(cell) ? cell.getStart() : cell;
+}
+
+/** What a move of the node `id` takes along, named for the hint: `“Lint”` for a step, a decision or a group that carries a name, `the fork`, `the loop`, `the end` for the rest. */
+export function describeMoved(data: DiagramData, id: Id): string {
+    const node = data.getNode(id);
+    switch (node?.type) {
+        case 'step':
+        case 'decision': return `“${node.label}”`;
+        case 'fork':
+        case 'loop': return node.label ? `“${node.label}”` : `the ${node.type}`;
+        case 'end': return 'the end';
+        default: return 'it';
+    }
 }
 
 /** Collapses an expanded group, expands a collapsed one. */

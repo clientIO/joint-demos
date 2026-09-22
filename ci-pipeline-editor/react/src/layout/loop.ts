@@ -4,7 +4,7 @@ import type { dia } from '@joint/plus';
 import { LinkModel, isGate } from '../shapes';
 import { INSERT_BUTTON_FROM_TARGET, PARENT_GAP } from '../shapes/constants';
 import type { GroupModel } from '../shapes';
-import { createTreeLayout, fitGroupToContent, forkChildrenFrom, getAxisX } from './tree';
+import { createTreeLayout, fitGroupToContent, forkChildrenFrom, getAxisX, isSameAxis } from './tree';
 
 /**
  * A loop group. The children of the `start` node root the tree that grows
@@ -139,7 +139,7 @@ export function layoutLoopGroup(graph: dia.Graph, group: GroupModel): void {
         const leaf = link.getSourceElement();
         if (!leaf || isGate(leaf)) continue;
         const leafX = getAxisX(leaf);
-        link.vertices(leafX === endX ? [] : [{ x: leafX, y: endCenterY }]);
+        link.vertices(isSameAxis(leafX, endX) ? [] : [{ x: leafX, y: endCenterY }]);
     }
 
     // The return path: out of `end` down the link that leaves it, off to the

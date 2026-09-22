@@ -2,7 +2,7 @@ import { dia, util } from '@joint/plus';
 
 import { ADD_BUTTON_SELECTOR, ELEMENT_Z, GROUP_END_SIZE, GROUP_ICONS, GROUP_LABELS, NODE_SIZE } from './constants';
 import type { GroupKind } from './constants';
-import { ADD_BUTTON_ATTRS, COLLAPSE_ICON, EXPAND_ICON, FILLED_PILL_ATTRS, TOGGLE_ATTRS, addButtonMarkup, pillDefaults, pillMarkup, showAddButton, toggleMarkup } from './pill';
+import { ADD_BUTTON_ATTRS, COLLAPSE_ICON, EXPAND_ICON, FILLED_PILL_ATTRS, TOGGLE_ATTRS, addButtonMarkup, pillDefaults, pillMarkup, setPillLabel, showAddButton, toggleMarkup } from './pill';
 
 /*
     A group - a fork or a loop - and its gates: the group itself, never
@@ -11,9 +11,9 @@ import { ADD_BUTTON_ATTRS, COLLAPSE_ICON, EXPAND_ICON, FILLED_PILL_ATTRS, TOGGLE
 */
 
 /**
- * The start of a group: a filled pill labelled with the kind of the group,
- * with the icon of the kind and the collapse/expand button of the group on
- * its bottom edge. The start of a fork also carries, at its right end, the
+ * The start of a group: a filled pill labelled with the name of the group -
+ * the kind of it, `Fork` or `Loop`, until it is given one - with the icon of
+ * the kind and the collapse/expand button of the group on its bottom edge. The start of a fork also carries, at its right end, the
  * button that adds a branch - a fork may have any number of them; a loop
  * has one body, so its start has no such button. The button shows once the
  * fork has a branch (see `setAddButtonVisible()`); an empty fork gets its
@@ -37,12 +37,11 @@ export class GroupStartModel extends dia.Element {
         }, super.defaults);
     }
 
-    static create(kind: GroupKind): GroupStartModel {
+    /** The start of a group of `kind`, labelled with the name of the group or, with none, the kind itself. */
+    static create(kind: GroupKind, label?: string): GroupStartModel {
         const start = new GroupStartModel({ kind });
-        start.attr({
-            kindIcon: { d: GROUP_ICONS[kind] },
-            label: { text: GROUP_LABELS[kind] }
-        });
+        start.attr('kindIcon/d', GROUP_ICONS[kind]);
+        setPillLabel(start, label || GROUP_LABELS[kind]);
         return start;
     }
 

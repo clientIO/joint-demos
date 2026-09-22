@@ -31,9 +31,9 @@ import type { DiagramJSON, Edge, Id, NodeData } from './types';
  * be the only dependency of the demo.
  */
 export function toYAML(json: DiagramJSON): string {
-    const root = Object.entries(json).find(([, node]) => node.type === 'start');
-    const first = root ? getEdges(root[1], 'to')[0] : undefined;
-    const on = root?.[1].type === 'start' ? root[1].on : undefined;
+    const root = Object.entries(json).find(([, node]) => node.type === 'start')?.[1];
+    const first = root && getEdges(root, 'to')[0];
+    const on = root?.type === 'start' && root.on;
     const lines = [
         ...(on ? keyed('on', on, '') : []),
         ...(first ? ['steps:', ...sequence(json, first.id, 1)] : ['steps: []'])
@@ -84,12 +84,12 @@ function keys(edges: Edge[], type: NodeData['type']): string[] {
  * one another, until a decision (whose options are sequences of their own)
  * or an end. Indented by `depth` levels.
  */
-function sequence(json: DiagramJSON, id: Id | undefined, depth: number): string[] {
+function sequence(json: DiagramJSON, id: Id, depth: number): string[] {
     const lines: string[] = [];
     let current: Id | undefined = id;
-    while (current !== undefined) {
+    while (current) {
         const node: NodeData = json[current];
-        const comment = 'comment' in node ? node.comment : undefined;
+        const comment = 'comment' in node && node.comment;
         if (comment) lines.push(...comment.split(/\r\n?|\n/).map((line) => `${INDENT.repeat(depth)}# ${line}`));
         const [first, ...rest] = item(json, node, depth + 1);
         lines.push(`${INDENT.repeat(depth)}- ${first}`, ...rest);
@@ -105,6 +105,13 @@ function branches(json: DiagramJSON, edges: Edge[], depth: number, type: NodeDat
     return edges.flatMap((edge, index) => [`${INDENT.repeat(depth)}${names[index]}:`, ...sequence(json, edge.id, depth + 1)]);
 }
 
+/** The lines of a group, under its name where it has one: `- name: Smoke tests` and `loop:` below it, as a step carries its `run`. */
+function named(label: string | undefined, lines: string[], pad: string): string[] {
+    if (!label) return lines;
+    const [first, ...rest] = lines;
+    return [`name: ${scalar(label)}`, `${pad}${first}`, ...rest];
+}
+
 /** The lines of one item of a sequence: the first goes after the dash; the rest are indented by `depth` levels. */
 function item(json: DiagramJSON, node: NodeData, depth: number): string[] {
     const pad = INDENT.repeat(depth);
@@ -117,13 +124,15 @@ function item(json: DiagramJSON, node: NodeData, depth: number): string[] {
         }
         case 'fork': {
             const edges = getEdges(node, 'branches');
-            return edges.length > 0 ? ['fork:', ...branches(json, edges, depth + 1, node.type)] : ['fork: {}'];
+            const fork = edges.length > 0 ? ['fork:', ...branches(json, edges, depth + 1, node.type)] : ['fork: {}'];
+            return named(node.label, fork, pad);
         }
         case 'loop': {
             const edges = getEdges(node, 'branches');
-            if (edges.length === 0) return ['loop: []'];
+            if (edges.length === 0) return named(node.label, ['loop: []'], pad);
             // A loop with one body is the common case: its body straight away; several bodies, a map like a fork.
-            return edges.length === 1 ? ['loop:', ...sequence(json, edges[0].id, depth + 1)] : ['loop:', ...branches(json, edges, depth + 1, node.type)];
+            const loop = edges.length === 1 ? ['loop:', ...sequence(json, edges[0].id, depth + 1)] : ['loop:', ...branches(json, edges, depth + 1, node.type)];
+            return named(node.label, loop, pad);
         }
         case 'end':
             return ['end'];

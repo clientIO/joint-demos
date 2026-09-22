@@ -3,6 +3,7 @@ import { useCellId } from '@joint/react-plus';
 import { createContext, useContext } from 'react';
 
 import type { AddChoice } from './add-menu';
+import type { MoveScope } from './actions';
 import type { MenuRequest } from './components/menu';
 import type { DiagramData } from './data/diagram-data';
 import type { Mark, Marks } from './highlights';
@@ -36,8 +37,10 @@ export interface EditorApi {
 
     /** The element being moved, if any. While one is, the drop points take it and add nothing. */
     moved: dia.Element | null;
-    canMove(element: dia.Element): boolean;
-    startMove(element: dia.Element): void;
+    /** What the move in progress takes along: the element alone, or the branch below it too; `null` while no move is on. */
+    movedScope: MoveScope | null;
+    canMove(element: dia.Element, scope: MoveScope): boolean;
+    startMove(element: dia.Element, scope: MoveScope): void;
     cancelMove(): void;
     canDropBelow(parent: dia.Element): boolean;
     canDropOnLink(link: LinkModel): boolean;
@@ -46,14 +49,15 @@ export interface EditorApi {
 
     addBelow(parent: dia.Element, choice: AddChoice): void;
     insertOnLink(link: LinkModel, choice: AddChoice): void;
-    remove(target: dia.Element): void;
+    /** Removes `target`: alone - its children move up in its place - or with the branch below it. */
+    remove(target: dia.Element, scope: MoveScope): void;
     toggleGroup(group: GroupModel): void;
-    /** Turns what a deletion of `target` would remove red, or takes the red off with `null`. */
-    previewDeletion(target: dia.Element | null): void;
+    /** Turns what a removal of `target` with `scope` would take red, or takes the red off with `null`. */
+    previewDeletion(target: dia.Element | null, scope: MoveScope): void;
     /** Fades what a collapse of `group` would hide - or restores it, with `null`. */
     previewCollapse(group: GroupModel | null): void;
-    /** Fades what a move of `target` would take along - or restores it, with `null`. */
-    previewMove(target: dia.Element | null): void;
+    /** Fades what a move of `target` with `scope` would take along - or restores it, with `null`. */
+    previewMove(target: dia.Element | null, scope: MoveScope): void;
 
     menu: MenuRequest | null;
     openMenu(request: MenuRequest): void;

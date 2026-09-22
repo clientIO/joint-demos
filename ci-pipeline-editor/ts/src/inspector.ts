@@ -26,7 +26,7 @@ interface InspectorConfig {
     note?: string;
 }
 
-/** A text area: a newline in the label breaks a line on the pill. */
+/** A text area: a newline in the label breaks a line on the pill. A group takes one too - its kind, `Fork` or `Loop`, stands in until it is given a name, which a collapsed group shows in its place. */
 const LABEL_INPUT = { type: 'textarea', label: 'Label', index: 1 };
 /** The command a step runs: code below its label, on as many lines as typed. */
 const RUN_INPUT = { type: 'textarea', label: 'Run', index: 2 };
@@ -62,8 +62,8 @@ function getConfig(data: DiagramData, element: Selectable): InspectorConfig {
     if (GroupStartModel.isGroupStart(element)) {
         const groupId = getId(element.getParentCell()!);
         const kind = element.getKind();
-        if (kind === 'loop') return { title: GROUP_LABELS.loop, inputs: { [groupId]: { comment: COMMENT_INPUT }}};
-        return { title: GROUP_LABELS.fork, inputs: { [groupId]: { comment: COMMENT_INPUT, ...getOptionInputs(data.getNode(groupId)!, 'branches') }}};
+        if (kind === 'loop') return { title: GROUP_LABELS.loop, inputs: { [groupId]: { label: LABEL_INPUT, comment: COMMENT_INPUT }}};
+        return { title: GROUP_LABELS.fork, inputs: { [groupId]: { label: LABEL_INPUT, comment: COMMENT_INPUT, ...getOptionInputs(data.getNode(groupId)!, 'branches') }}};
     }
     if (DecisionModel.isDecision(element)) {
         return { title: 'Decision', inputs: { [id]: { label: LABEL_INPUT, comment: COMMENT_INPUT, ...getOptionInputs(data.getNode(id)!, 'to') }}};
@@ -82,8 +82,8 @@ function getConfig(data: DiagramData, element: Selectable): InspectorConfig {
 let inspector: ui.Inspector | null = null;
 /** The id of the element the inspector is open for. */
 let openId: string | null = null;
-/** What the panel shows - the inspector of an element, or the text of the diagram - to leave it alone when asked for the same; `undefined` before the first sync. */
-let signature: string | null | undefined;
+/** What the panel shows - the inspector of an element, or the text of the diagram - to leave it alone when asked for the same; `null` before the first sync. */
+let signature: string | null = null;
 
 /** Fills the panel: a header and a body - the hint, a note, or the inspector. */
 function renderPanel(container: HTMLElement, title: string | null, body: string | HTMLElement): void {
@@ -185,7 +185,7 @@ function sync(container: HTMLElement, data: DiagramData, element: Selectable | n
     closeInspector(data);
     if (!config) {
         renderCodePanel(container, data);
-    } else if (config.note !== undefined) {
+    } else if (config.note) {
         renderPanel(container, config.title, config.note);
     } else {
         inspector = new ui.Inspector({ cell: data, inputs: config.inputs });

@@ -1,5 +1,6 @@
 import { useOnKeyboardEvents, useOnPaperEvents, useSelectionCollection } from '@joint/react-plus';
 
+import { canRemoveBranch, getDeleteScope } from '../actions';
 import { isSelectable, useEditor } from '../editor-context';
 import { GroupStartModel } from '../shapes';
 
@@ -34,7 +35,9 @@ export function DiagramSelection(): null {
             if (!selected?.isElement()) return;
             evt.preventDefault();
             const target = GroupStartModel.isGroupStart(selected) ? selected.getParentCell() : selected;
-            if (target?.isElement()) editor.remove(target);
+            if (!target?.isElement() || !canRemoveBranch(editor.graph, target)) return;
+            // The same as the first "remove" item of its menu.
+            editor.remove(target, getDeleteScope(editor.graph, target));
         }
     });
 

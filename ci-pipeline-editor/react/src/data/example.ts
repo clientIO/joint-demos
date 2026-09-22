@@ -5,7 +5,8 @@ import type { DiagramJSON } from './types';
  * the tests and the build side by side; a decision picks the target: staging,
  * where a loop polls the smoke tests before the build is promoted, production,
  * or no deployment at all. A step `run`s a command, shown as code below
- * its label; the branches of the fork are named. Any id will do, but `source`, `target`,
+ * its label; the fork and the loop carry a name of their own, and the
+ * branches of the fork are named. Any id will do, but `source`, `target`,
  * `vertices`, `position`, `size` and `angle`: `ui.Inspector` takes a change
  * of an attribute of those names for a change of a cell's geometry and
  * ignores it, so a node with such an id would not refresh in the panel.
@@ -16,6 +17,7 @@ export const example: DiagramJSON = {
     install: { type: 'step', label: 'Install dependencies', run: 'npm ci', to: [{ id: 'jobs' }] },
     jobs: {
         type: 'fork',
+        label: 'Checks',
         branches: [
             { id: 'lint', name: 'Quality' },
             { id: 'tests', name: 'Tests' },
@@ -36,7 +38,7 @@ export const example: DiagramJSON = {
         ]
     },
     staging: { type: 'step', label: 'Deploy to staging', to: [{ id: 'poll' }] },
-    poll: { type: 'loop', branches: [{ id: 'smoke' }], comment: 'Until the smoke tests pass.', to: [{ id: 'promote' }] },
+    poll: { type: 'loop', label: 'Smoke tests', branches: [{ id: 'smoke' }], comment: 'Until the smoke tests pass.', to: [{ id: 'promote' }] },
     smoke: { type: 'step', label: 'Run smoke tests', run: 'playwright test --project smoke', to: [{ id: 'results' }] },
     results: { type: 'step', label: 'Collect results' },
     promote: { type: 'step', label: 'Promote build', run: 'git tag -f candidate', to: [{ id: 'staging-end' }] },

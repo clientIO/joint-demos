@@ -1,17 +1,21 @@
-import { Diagram, Paper, PaperScroller } from '@joint/react-plus';
+import { Diagram, Paper, PaperScroller, useCells, useSelectionCollection } from '@joint/react-plus';
 import type { CellVisibility, InteractionsOptions } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 import { Tooltip } from 'react-tooltip';
 
+import { describeMoved } from './actions';
+import { getId } from './data/build';
 import { EditorProvider } from './editor-provider';
 import { PAPER_ID, useEditor } from './editor-context';
 import { isCellVisible } from './layout';
 import { Inspector } from './components/inspector';
 import { Menu } from './components/menu';
+import { DiagramLayout } from './components/layout';
 import { Minimap } from './components/minimap';
 import { PaperInteractions } from './components/paper-interactions';
 import { DiagramSelection } from './components/selection';
 import { COLORS, ElementContent, LinkContent, cellNamespace } from './shapes';
+import { PLUS_PATH } from './shapes/buttons';
 import { Toolbar } from './components/toolbar';
 import { TOOLTIP_ID } from './components/use-tooltip';
 
@@ -33,17 +37,36 @@ const INTERACTIONS: InteractionsOptions = {
 const renderElement = (): ReactNode => <ElementContent />;
 const renderLink = (): ReactNode => <LinkContent />;
 
+/** The hint over the paper while a move is on: what moves, and what to do. */
+function MoveHint(): ReactNode {
+    const { moved, movedScope, data } = useEditor();
+    if (!moved) return null;
+    return (
+        <div className="move-hint">
+            <div>Moving <strong>{describeMoved(data, getId(moved))}</strong>{movedScope === 'branch' ? ' and everything below it' : ' without what follows it'}</div>
+            <div className="move-hint-how">
+                Click a{' '}
+                {/* The drop point itself, small, in the sentence. */}
+                <svg className="move-hint-button" viewBox="-9 -9 18 18" aria-label="plus"><rect x={-9} y={-9} width={18} height={18} rx={3} ry={3} /><path d={PLUS_PATH} /></svg>
+                {' '}button where it should go. <kbd>Esc</kbd> or a click on the blank area cancels.
+            </div>
+        </div>
+    );
+}
+
 /** The one menu of the app, when one is open (see `menu.tsx`). */
 function MenuLayer(): ReactNode {
     const { menu, closeMenu } = useEditor();
     return menu ? <Menu request={menu} onClose={closeMenu} /> : null;
 }
 
-/** The class on the stage while a move is on: the hint shows, the "more" buttons hide. */
+/** The classes on the app: while a move is on, the hint shows and the "more" buttons hide; while something is selected, a small screen shows the panel (see `index.css`). */
 function Stage({ children }: { children: ReactNode }): ReactNode {
     const { moved } = useEditor();
+    const { collection } = useSelectionCollection();
+    const hasSelection = useCells(collection, (cells) => cells.length > 0);
     return (
-        <div className={`app${moved ? ' moving-mode' : ''}`}>
+        <div className={`app${moved ? ' moving-mode' : ''}${hasSelection ? ' has-selection' : ''}`}>
             {children}
         </div>
     );
@@ -69,11 +92,12 @@ export function App(): ReactNode {
                                     drawGrid={false}
                                     background={{ color: COLORS.background }}
                                 >
+                                    <DiagramLayout />
                                     <PaperInteractions />
                                     <DiagramSelection />
                                 </Paper>
                             </PaperScroller>
-                            <div className="move-hint">Choose where to move it &mdash; <kbd>Esc</kbd> cancels</div>
+                            <MoveHint />
                             <Minimap />
                         </div>
                         <div className="side">

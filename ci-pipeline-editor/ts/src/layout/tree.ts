@@ -84,6 +84,16 @@ export function fitGroupToContent(group: GroupModel, content: g.Rect): void {
 }
 
 /**
+ * Whether two axes are one. The sizes a browser measures carry fractions,
+ * so two elements the layout put on the same axis can be a sliver apart: a
+ * bar narrower than a pixel is no bar, and the vertices of one would split
+ * the link into parts - the insert button sits on the longest of them.
+ */
+export function isSameAxis(one: number, other: number): boolean {
+    return Math.abs(one - other) < 1;
+}
+
+/**
  * The vertices of a link from `source` to `target` over a bar at `barY`:
  * the two corners of the bar. A link that runs straight, the two axes being
  * one, has none - unless the source has other children too, when it still
@@ -94,7 +104,7 @@ export function fitGroupToContent(group: GroupModel, content: g.Rect): void {
 function getBarVertices(graph: dia.Graph, source: dia.Element, target: dia.Element, barY: number): dia.Point[] {
     const sourceX = getAxisX(source);
     const targetX = getAxisX(target);
-    if (sourceX !== targetX) return [{ x: sourceX, y: barY }, { x: targetX, y: barY }];
+    if (!isSameAxis(sourceX, targetX)) return [{ x: sourceX, y: barY }, { x: targetX, y: barY }];
     const siblings = graph.getNeighbors(source, { outbound: true }).filter((child) => !isGate(child));
     return siblings.length > 1 ? [{ x: sourceX, y: barY }] : [];
 }
@@ -116,7 +126,7 @@ export function joinLeavesInto(graph: dia.Graph, gate: dia.Element): void {
         const leaf = link.getSourceElement();
         if (!leaf || isGate(leaf)) continue;
         const leafX = getAxisX(leaf);
-        if (leafX !== gateX) {
+        if (!isSameAxis(leafX, gateX)) {
             link.vertices([{ x: leafX, y: barY }, { x: gateX, y: barY }]);
         } else {
             // Straight, but with the stretch below the bar in common with the other leaves.

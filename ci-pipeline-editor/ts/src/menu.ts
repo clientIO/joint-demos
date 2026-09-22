@@ -32,15 +32,20 @@ function renderItem<A extends string>({ label, icon, color }: MenuItem<A>): stri
     `;
 }
 
+/** How far below the pointer a menu it opened hangs: the pointer stays clear of the menu, so the paper still sees the right click and keeps the browser's own menu shut. */
+const POINTER_GAP = 6;
+
 /**
- * Opens a small vertical menu next to `target` with `items`. Closes on a
+ * Opens a small vertical menu next to `target` with `items`: below a button,
+ * or below the point of a right click, clear of the pointer. Closes on a
  * choice, or on a click anywhere else. Only one menu is open at a time.
  * Styled by `styles.css` through its `data-type`.
  */
 export function openMenu<A extends string>(target: HTMLElement | SVGElement | g.PlainPoint, items: MenuItem<A>[], { onChoose, onHover }: MenuHandlers<A>): void {
     ui.ContextToolbar.close();
+    const point = target instanceof Element ? null : target;
     const menu = new ui.ContextToolbar({
-        target,
+        target: point ? { x: point.x, y: point.y + POINTER_GAP } : target,
         type: 'menu',
         vertical: true,
         autoClose: true,
@@ -56,8 +61,13 @@ export function openMenu<A extends string>(target: HTMLElement | SVGElement | g.
         });
     }
     menu.render();
+    // A right click inside the menu opens no menu of the browser: the paper
+    // keeps its own shut the same way, and the menu hangs clear of the
+    // pointer so that the right click which opened it stays with the paper.
+    menu.el.addEventListener('contextmenu', (evt) => evt.preventDefault());
     if (onHover) {
-        for (const button of Array.from(menu.el.querySelectorAll<HTMLElement>('.tool[data-action]'))) {
+        // An item that cannot be chosen shows nothing on hover: a disabled button takes no click, but it still reports the pointer.
+        for (const button of Array.from(menu.el.querySelectorAll<HTMLElement>('.tool[data-action]:not([disabled])'))) {
             button.addEventListener('mouseenter', () => onHover(button.dataset.action as A));
             button.addEventListener('mouseleave', () => onHover(null));
         }

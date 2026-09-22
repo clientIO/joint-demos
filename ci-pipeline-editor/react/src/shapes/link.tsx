@@ -10,7 +10,7 @@ import type { AddChoice } from '../add-menu';
 import { useTooltip } from '../components/use-tooltip';
 import { useCellMark, useEditor } from '../editor-context';
 import { AddButtonModel } from './add-button';
-import { BACKWARD_LINK_Z, INSERT_BUTTON_FROM_TARGET, INSERT_BUTTON_SIZE, LINK_Z } from './constants';
+import { BACKWARD_LINK_Z, DROP_POINT_SIZE, INSERT_BUTTON_FROM_TARGET, INSERT_BUTTON_SIZE, LINK_Z } from './constants';
 import { GroupEndModel, GroupModel, GroupStartModel } from './group';
 import { measureText } from './measure';
 import { useCellModel } from './use-cell-model';
@@ -189,7 +189,9 @@ function InsertButton({ model, layout, optionName }: { model: LinkModel; layout:
     const points = [{ x: layout.sourceX, y: layout.sourceY }, ...model.vertices(), { x: layout.targetX, y: layout.targetY }];
     const point = getInsertButtonPoint(points, source, target);
     if (!point) return null;
-    const half = INSERT_BUTTON_SIZE / 2;
+    // A drop point is larger than an insert button.
+    const size = moving ? DROP_POINT_SIZE : INSERT_BUTTON_SIZE;
+    const half = size / 2;
     const chipWidth = optionName ? Math.ceil(measureText(optionName, OPTION_FONT)) + 2 * OPTION_CHIP.paddingX : 0;
 
     return (
@@ -226,8 +228,10 @@ function InsertButton({ model, layout, optionName }: { model: LinkModel; layout:
                     });
                 }}
             >
-                <rect x={-half} y={-half} width={INSERT_BUTTON_SIZE} height={INSERT_BUTTON_SIZE} rx={3} ry={3} />
-                <path d="M -4 0 4 0 M 0 -4 0 4" />
+                {/* The ring that pulses behind a drop point (see the stylesheet). */}
+                {moving ? <rect className="pulse" x={-half} y={-half} width={size} height={size} rx={3} ry={3} /> : null}
+                <rect x={-half} y={-half} width={size} height={size} rx={3} ry={3} />
+                <path d="M -4 0 4 0 M 0 -4 0 4" transform={`scale(${size / INSERT_BUTTON_SIZE})`} />
             </g> : null}
         </g>
     );

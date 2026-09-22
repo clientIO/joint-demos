@@ -85,16 +85,16 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
     const gatesOf = new Map<Id, { start: GroupStartModel; end: GroupEndModel }>();
     const contentOf = new Map<Id, dia.Cell[]>();
 
-    /** Puts `cell` inside the group `groupId`, if any. */
-    function embed(cell: dia.Cell, groupId: Id | undefined): void {
-        if (groupId === undefined) return;
+    /** Puts `cell` inside the group `groupId`, if it is in one. */
+    function embed(cell: dia.Cell, groupId?: Id): void {
+        if (!groupId) return;
         cell.set({ parent: groupId });
         const content = contentOf.get(groupId) ?? [];
         content.push(cell);
         contentOf.set(groupId, content);
     }
 
-    function link(source: dia.Element, target: dia.Element, groupId: Id | undefined): LinkModel {
+    function link(source: dia.Element, target: dia.Element, groupId?: Id): LinkModel {
         const cell = LinkModel.create(source, target);
         cell.set({ id: cellId.link(source.id, target.id) });
         embed(cell, groupId);
@@ -102,7 +102,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
         return cell;
     }
 
-    function connect(source: dia.Element, edge: Edge, index: number, groupId: Id | undefined): void {
+    function connect(source: dia.Element, edge: Edge, index: number, groupId?: Id): void {
         const child = elementOf.get(edge.id);
         if (!child) throw new Error(`Node ${edge.id} is missing.`);
         // The layout orders the siblings by rank; the names go on the links after the layout.
@@ -119,7 +119,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
         embed(element, containers.get(id));
 
         if (!isGroupData(node)) continue;
-        const start = GroupStartModel.create(node.type);
+        const start = GroupStartModel.create(node.type, node.label);
         // A fork with a branch shows its own add button, which adds another; an empty one gets its first branch through the link from its start to its end.
         start.setAddButtonVisible(getEdges(node, 'branches').length >= 1);
         start.set({ id: cellId.start(id) });
@@ -150,7 +150,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
         }
 
         if (to.length > 0 || node.type === 'end') continue;
-        if (groupId !== undefined) {
+        if (groupId) {
             // A leaf inside a group leads to the end of the group.
             link(element, gatesOf.get(groupId)!.end, groupId);
         } else {
@@ -158,7 +158,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
             const button = new AddButtonModel();
             button.set({ id: cellId.addButton(id) });
             elements.push(button);
-            link(element, button, undefined);
+            link(element, button);
         }
     }
 

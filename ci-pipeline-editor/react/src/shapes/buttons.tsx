@@ -2,7 +2,8 @@ import type { dia } from '@joint/plus';
 import { useGraph } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 
-import { canDelete, getActionTarget, getDeleteTitle } from '../actions';
+import { canRemoveBranch, canRemoveNode, getActionTarget, getMoveTitle, getRemoveTitle, hasBranch } from '../actions';
+import type { MoveScope } from '../actions';
 import type { MenuRequest } from '../components/menu';
 import { TipButton } from '../components/tooltip';
 import { useEditor } from '../editor-context';
@@ -10,11 +11,14 @@ import type { EditorApi } from '../editor-context';
 import { COLORS } from './constants';
 import { useCellModel } from './use-cell-model';
 
+/** The plus every add button is marked with. */
+export const PLUS_PATH = 'M -4 0 4 0 M 0 -4 0 4';
+
 /** A plus, in the size of the buttons: the add button below a leaf, the button of a pill. */
 export function PlusIcon(): ReactNode {
     return (
         <svg viewBox="-9 -9 18 18" width="18" height="18" aria-hidden="true">
-            <path d="M -4 0 4 0 M 0 -4 0 4" stroke="currentColor" strokeWidth={2} fill="none" />
+            <path d={PLUS_PATH} stroke="currentColor" strokeWidth={2} fill="none" />
         </svg>
     );
 }
@@ -38,7 +42,7 @@ export function MoreButton({ filled = false }: { filled?: boolean }): ReactNode 
     const model = useCellModel();
     if (!model.isElement() || editor.moved) return null;
     const target = getActionTarget(model);
-    if (!target || !canDelete(graph, target)) return null;
+    if (!target || !canRemoveBranch(graph, target)) return null;
     return (
         <TipButton
             tip="More"
@@ -50,24 +54,45 @@ export function MoreButton({ filled = false }: { filled?: boolean }): ReactNode 
     );
 }
 
+/** The items of the menu of an element: a move or a removal, of the element alone or of the branch below it. */
+type ElementAction = 'move' | 'remove' | 'move-branch' | 'remove-branch';
+
+/** What each item does: start a move, or remove - and how much it takes along. */
+const ELEMENT_ACTIONS: Record<ElementAction, { moves: boolean; scope: MoveScope }> = {
+    'move': { moves: true, scope: 'node' },
+    'remove': { moves: false, scope: 'node' },
+    'move-branch': { moves: true, scope: 'branch' },
+    'remove-branch': { moves: false, scope: 'branch' }
+};
+
 /**
  * The menu of an element, acting on `target` (see `getActionTarget()`),
- * below `anchor` - the "more" button, or the pointer of a right click: its
- * move and its removal; hovering an item shows what it would do.
+ * below `anchor` - the "more" button, or the pointer of a right click: it
+ * moves or removes the element alone - its children move up in its place -
+ * or the branch below it along with it. An item that cannot be chosen is
+ * greyed out: nowhere to move to, nothing below it, or children its parent
+ * could not take. Hovering an item shows what it would do.
  */
 export function getElementMenu(editor: EditorApi, target: dia.Element, anchor: DOMRect): MenuRequest {
+    const { graph } = editor;
+    const branch = hasBranch(graph, target);
     return {
         anchor,
         items: [
-            // Greyed out when there is nowhere to move the element to.
-            { action: 'move', label: 'Move to…', icon: MOVE_ICON, color: COLORS.move, disabled: !editor.canMove(target) },
-            { action: 'remove', label: getDeleteTitle(target), icon: DELETE_ICON, color: DELETE_COLOR }
+            { action: 'move', label: getMoveTitle('node'), icon: MOVE_ICON, color: COLORS.move, disabled: !editor.canMove(target, 'node') },
+            { action: 'remove', label: getRemoveTitle(target, 'node'), icon: DELETE_ICON, color: DELETE_COLOR, disabled: !canRemoveNode(graph, target) },
+            { action: 'move-branch', label: getMoveTitle('branch'), icon: MOVE_ICON, color: COLORS.move, disabled: !branch || !editor.canMove(target, 'branch') },
+            { action: 'remove-branch', label: getRemoveTitle(target, 'branch'), icon: DELETE_ICON, color: DELETE_COLOR, disabled: !branch || !canRemoveBranch(graph, target) }
         ],
-        onChoose: (action) => (action === 'move' ? editor.startMove(target) : editor.remove(target)),
-        // The hovered item shows what it would do: "remove" turns the cells red, "move" marks what would move.
+        onChoose: (action) => {
+            const { moves, scope } = ELEMENT_ACTIONS[action as ElementAction];
+            if (moves) editor.startMove(target, scope); else editor.remove(target, scope);
+        },
+        // The hovered item shows what it would do: a removal turns the cells red, a move marks what would move.
         onHover: (action) => {
-            editor.previewDeletion(action === 'remove' ? target : null);
-            editor.previewMove(action === 'move' ? target : null);
+            const item = action === null ? null : ELEMENT_ACTIONS[action as ElementAction];
+            editor.previewDeletion(item && !item.moves ? target : null, item?.scope ?? 'node');
+            editor.previewMove(item?.moves ? target : null, item?.scope ?? 'node');
         }
     };
 }
