@@ -10,6 +10,7 @@ import { PAPER_ID, useEditor } from './editor-context';
 import { isCellVisible } from './layout';
 import { Inspector } from './components/inspector';
 import { Menu } from './components/menu';
+import { DiagramLayout } from './components/layout';
 import { Minimap } from './components/minimap';
 import { PaperInteractions } from './components/paper-interactions';
 import { DiagramSelection } from './components/selection';
@@ -91,6 +92,7 @@ export function App(): ReactNode {
                                     drawGrid={false}
                                     background={{ color: COLORS.background }}
                                 >
+                                    <DiagramLayout />
                                     <PaperInteractions />
                                     <DiagramSelection />
                                 </Paper>

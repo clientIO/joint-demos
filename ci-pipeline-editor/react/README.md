@@ -63,7 +63,8 @@ An editor of a CI/CD pipeline, built with `@joint/react-plus`: a tree laid out b
 | `src/main.tsx` | App entry point |
 | `src/app.tsx` | `<Diagram>` with the scroller and the paper, the toolbar, the inspector, the menu layer and the tooltip; `renderElement` and `renderLink` |
 | `src/editor-provider.tsx` | `EditorProvider`: the data, the history, the marks, the move in progress and the menu, and every edit |
-| `src/components/paper-interactions.tsx` | `<PaperInteractions>`, inside the paper: the layout on measured sizes, the first fit, the menu on a right click, panning, the keys of the history |
+| `src/components/layout.tsx` | `<DiagramLayout>`, inside the paper: the layout on measured sizes and the first fit |
+| `src/components/paper-interactions.tsx` | `<PaperInteractions>`, inside the paper: the menu on a right click, panning, the keys of the history |
 | `src/components/selection.tsx` | `<DiagramSelection>`: selection on click, `Escape` and `Delete` |
 | `src/editor-context.ts` | The `EditorApi` every component reads with `useEditor()` |
 | `src/components/tooltip.tsx`, `src/components/use-tooltip.ts` | A button with a tooltip; how an element registers with the one tooltip of the app |
