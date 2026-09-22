@@ -14,13 +14,16 @@ export interface MenuItem {
 
 /** A menu to open: where, with what, and what to do. */
 export interface MenuRequest {
-    /** The box of the button that opened the menu, on the screen: the menu opens below it. */
+    /** The box the menu opens below, on the screen: the button that asked for it, or the point of a right click. */
     anchor: DOMRect;
     items: MenuItem[];
     onChoose: (action: string) => void;
     /** Called with the hovered item, and with `null` when the pointer leaves it. */
     onHover?: (action: string | null) => void;
 }
+
+/** How far the menu keeps from what opened it. */
+const MENU_GAP = 6;
 
 /** An icon of a menu item, drawn the way the nodes draw theirs. */
 function MenuIcon({ d, color }: { d: string; color: string }): ReactNode {
@@ -45,15 +48,16 @@ interface MenuProps {
 export function Menu({ request, onClose }: MenuProps): ReactNode {
     const { anchor, items, onChoose, onHover } = request;
     const ref = useRef<HTMLDivElement>(null);
-    const [position, setPosition] = useState({ left: anchor.left, top: anchor.bottom + 6 });
+    const [position, setPosition] = useState({ left: anchor.left, top: anchor.bottom + MENU_GAP });
 
     useLayoutEffect(() => {
         const el = ref.current;
         if (!el) return;
         const { width, height } = el.getBoundingClientRect();
+        // Below the anchor, or above it where the bottom of the window is in the way; kept on the screen either way.
         setPosition({
             left: Math.max(8, Math.min(anchor.left, window.innerWidth - width - 8)),
-            top: anchor.bottom + height + 6 > window.innerHeight ? anchor.top - height - 6 : anchor.bottom + 6
+            top: anchor.bottom + height + MENU_GAP > window.innerHeight ? anchor.top - height - MENU_GAP : anchor.bottom + MENU_GAP
         });
     }, [anchor]);
 
@@ -77,7 +81,8 @@ export function Menu({ request, onClose }: MenuProps): ReactNode {
     }, [onClose]);
 
     return (
-        <div ref={ref} className="menu" style={position} role="menu">
+        // A right click inside the menu opens no menu of the browser: the paper keeps its own shut the same way.
+        <div ref={ref} className="menu" style={position} role="menu" onContextMenu={(evt) => evt.preventDefault()}>
             {items.map((item) => {
                 // An item that cannot be chosen shows nothing on hover: a disabled button takes no click, but it still reports the pointer.
                 const hover = item.disabled ? null : onHover;

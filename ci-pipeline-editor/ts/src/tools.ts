@@ -95,16 +95,6 @@ function handleElementClick(view: dia.ElementView, evt: dia.Event, actions: Tool
 }
 
 /**
- * Keeps the browser's own context menu from opening on the right click that
- * opens ours. JointJS reports the click on the press, and the `contextmenu`
- * event follows - by then our menu is under the pointer, outside the paper,
- * and the paper's own `preventDefault()` no longer reaches it.
- */
-function suppressNativeContextMenu(): void {
-    document.addEventListener('contextmenu', (evt) => evt.preventDefault(), { once: true, capture: true });
-}
-
-/**
  * A mark on cells: a class on their views - the visible ones; the content
  * of a collapsed group has none - which the stylesheet colors (see the
  * previews and the marks of a move there). The marker remembers the views
@@ -479,7 +469,6 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
         const target = getActionTarget(elementView.model);
         if (!target || !canRemoveBranch(paper.model, target)) return;
         openElementMenu(paper, target, { x: evt.clientX!, y: evt.clientY! }, actions);
-        suppressNativeContextMenu();
     });
 
     paper.on('element:mouseenter', (elementView: dia.ElementView) => {
