@@ -1,32 +1,12 @@
 import type { dia } from '@joint/plus';
-import { useCells, useGraph, useOnKeyboardEvents, useOnPaperEvents, usePaperScroller } from '@joint/react-plus';
-import type { Computed, ElementRecord } from '@joint/react-plus';
+import { useGraph, useOnElementsMeasured, useOnKeyboardEvents, useOnPaperEvents, usePaperScroller } from '@joint/react-plus';
 import { useEffect, useRef } from 'react';
 
 import { canDelete, getActionTarget } from '../actions';
 import { useEditor } from '../editor-context';
 import { runLayout } from '../layout';
-import { GROUP_TYPE, LINK_TYPE } from '../shapes';
+import { GroupModel } from '../shapes';
 import { getElementMenu } from '../shapes/buttons';
-
-/**
- * The measured sizes of the nodes as one string, from the records of the
- * cells - what React rendered and the store measured. It changes only when
- * the rounded size of a node changes: a drag moves a position, the layout
- * sizes the groups (`GROUP_TYPE`), and neither is in it. A module-level
- * selector, so `useCells` keeps one subscription; the walk is O(n) per store
- * commit, for a few dozen nodes.
- */
-const selectNodeSizes = (cells: ReadonlyArray<Computed<ElementRecord>>): string => {
-    let signature = '';
-    for (const cell of cells) {
-        // The records are typed as the built-in `'element'`; the diagram's cells are `shapes/`' types.
-        const type: string = cell.type;
-        if (type === GROUP_TYPE || type === LINK_TYPE) continue;
-        signature += `${cell.id}:${Math.round(cell.size.width)}x${Math.round(cell.size.height)} `;
-    }
-    return signature;
-};
 
 /**
  * The interactions with the paper, rendered inside `<Paper>` (and inside
@@ -42,29 +22,27 @@ export function PaperInteractions(): null {
 
     // The sizes of the elements come from what React renders (see `shapes/`):
     // once they are measured, the diagram is laid out - and fitted into the
-    // view the first time. `nodeSizes` is the sizes of the nodes as the store
-    // holds them, and this re-renders only when one of them changed - the
-    // layout's own writes (the groups are sized around their content) leave it
-    // alone - so the layout runs once per change of a measured size. The paper
-    // mounts the views in batches, so the sizes land over several passes: the
-    // view is fitted after each of them, until the user takes over.
-    const nodeSizes = useCells<ElementRecord, string>(selectNodeSizes);
+    // view the first time. The store reports every change of a size, the
+    // layout's own included - the groups are sized around their content -
+    // so the layout runs only when a measured size changed since the last.
+    // The paper mounts the views in batches, so the sizes land over several
+    // passes: the view is fitted after each of them, until the user takes over.
+    const laidOut = useRef('');
     const fitPending = useRef(true);
     useEffect(() => {
         if (editor.version > 0) fitPending.current = false;
     }, [editor.version]);
-    // The editor is rebuilt on every edit; the layout must not re-run for that,
-    // only for `nodeSizes`, so it reads the latest editor through a ref.
-    const latestEditor = useRef(editor);
-    useEffect(() => {
-        latestEditor.current = editor;
-    }, [editor]);
-    useEffect(() => {
-        const { current } = latestEditor;
-        const root = graph.getCell(current.data.getRootId());
+    useOnElementsMeasured(() => {
+        const signature = graph.getElements()
+            .filter((element) => !GroupModel.isGroup(element))
+            .map((element) => `${element.id}:${Math.round(element.size().width)}x${Math.round(element.size().height)}`)
+            .join(' ');
+        if (signature === laidOut.current) return;
+        laidOut.current = signature;
+        const root = graph.getCell(editor.data.getRootId());
         if (root) runLayout(graph, root as dia.Element);
-        if (fitPending.current) current.fit();
-    }, [nodeSizes, graph]);
+        if (fitPending.current) editor.fit();
+    });
 
     useOnPaperEvents({
         onElementPointerClick: () => {
