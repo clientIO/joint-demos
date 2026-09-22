@@ -29,9 +29,9 @@ function getContainer(element: dia.Element): GroupModel | null {
     return container && GroupModel.isGroup(container) ? container : null;
 }
 
-/** The parent of `element` in the tree: the source of its inbound link; `null` for the root. */
-function getParent(graph: dia.Graph, element: dia.Element): dia.Element | null {
-    return graph.getNeighbors(element, { inbound: true })[0] ?? null;
+/** The parent of `element` in the tree: the source of its inbound link. */
+function getParent(graph: dia.Graph, element: dia.Element): dia.Element | undefined {
+    return graph.getNeighbors(element, { inbound: true })[0];
 }
 
 /** Whether `element` is the root of the tree: nothing leads to it. */
@@ -45,9 +45,9 @@ function getChildren(graph: dia.Graph, element: dia.Element): dia.Element[] {
         .filter((child) => !isGate(child) && !AddButtonModel.isAddButton(child));
 }
 
-/** The add button below `element`, or `null` where it has none. */
-function getAddButton(graph: dia.Graph, element: dia.Element): AddButtonModel | null {
-    return graph.getNeighbors(element, { outbound: true }).find(AddButtonModel.isAddButton) ?? null;
+/** The add button below `element`, if it has one. */
+function getAddButton(graph: dia.Graph, element: dia.Element): AddButtonModel | undefined {
+    return graph.getNeighbors(element, { outbound: true }).find(AddButtonModel.isAddButton);
 }
 
 /**
@@ -296,7 +296,7 @@ export function canMoveOnLink(graph: dia.Graph, data: DiagramData, movedId: Id, 
 function getDropParent(graph: dia.Graph, element: dia.Element): dia.Element | null {
     if (GroupStartModel.isGroupStart(element)) return element.getKind() === 'fork' && getChildren(graph, element).length > 0 ? element : null;
     if (DecisionModel.isDecision(element)) return getChildren(graph, element).length > 0 ? element : null;
-    if (AddButtonModel.isAddButton(element)) return getParent(graph, element);
+    if (AddButtonModel.isAddButton(element)) return getParent(graph, element) ?? null;
     return null;
 }
 

@@ -108,9 +108,8 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
 
     private idCounter = 0;
 
-    /** The node `id`, or `null` where the diagram has none. */
-    getNode(id: Id): NodeData | null {
-        return this.get(id) ?? null;
+    getNode(id: Id): NodeData | undefined {
+        return this.get(id);
     }
 
     /** The whole diagram, as it is: not a copy. */

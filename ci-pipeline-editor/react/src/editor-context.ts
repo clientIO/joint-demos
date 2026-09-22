@@ -88,9 +88,9 @@ export function useEditor(): EditorApi {
     return editor;
 }
 
-/** The mark on the cell a component renders, or `null` - worn as a class on its content, which the stylesheet paints. */
-export function useCellMark(): Mark | null {
-    return useEditor().marks.get(useCellId()) ?? null;
+/** The mark on the cell a component renders, if any - worn as a class on its content, which the stylesheet paints. */
+export function useCellMark(): Mark | undefined {
+    return useEditor().marks.get(useCellId());
 }
 
 /** The id of the paper of the diagram: the provider reaches the paper and its scroller by it, from outside of `<Paper>`. */

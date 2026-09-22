@@ -83,7 +83,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
     const contentOf = new Map<Id, dia.Cell[]>();
 
     /** Puts `cell` inside the group `groupId`, if it is in one. */
-    function embed(cell: dia.Cell, groupId: Id | null): void {
+    function embed(cell: dia.Cell, groupId?: Id): void {
         if (!groupId) return;
         cell.set({ parent: groupId });
         const content = contentOf.get(groupId) ?? [];
@@ -91,7 +91,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
         contentOf.set(groupId, content);
     }
 
-    function link(source: dia.Element, target: dia.Element, groupId: Id | null): LinkModel {
+    function link(source: dia.Element, target: dia.Element, groupId?: Id): LinkModel {
         const cell = LinkModel.create(source, target);
         cell.set({ id: cellId.link(source.id, target.id) });
         embed(cell, groupId);
@@ -99,7 +99,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
         return cell;
     }
 
-    function connect(source: dia.Element, edge: Edge, index: number, groupId: Id | null): void {
+    function connect(source: dia.Element, edge: Edge, index: number, groupId?: Id): void {
         const child = elementOf.get(edge.id);
         if (!child) throw new Error(`Node ${edge.id} is missing.`);
         // The layout orders the siblings by rank; the names go on the links after the layout.
@@ -113,7 +113,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
         element.set({ id });
         elementOf.set(id, element);
         elements.push(element);
-        embed(element, containers.get(id) ?? null);
+        embed(element, containers.get(id));
 
         if (!isGroupData(node)) continue;
         // A fork with a branch shows its own add button, which adds another; an empty one gets its first branch through the link from its start to its end.
@@ -130,7 +130,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
     // The links: one per edge, and those the structure implies.
     for (const [id, node] of Object.entries(json)) {
         const element = elementOf.get(id)!;
-        const groupId = containers.get(id) ?? null;
+        const groupId = containers.get(id);
         const to = getEdges(node, 'to');
         to.forEach((edge, index) => connect(element, edge, index, groupId));
 
@@ -153,7 +153,7 @@ export function buildGraph(graph: dia.Graph, json: DiagramJSON): void {
             const button = new AddButtonModel();
             button.set({ id: cellId.addButton(id) });
             elements.push(button);
-            link(element, button, null);
+            link(element, button);
         }
     }
 

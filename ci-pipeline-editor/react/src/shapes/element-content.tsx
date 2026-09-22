@@ -31,5 +31,5 @@ function ElementByType({ type }: { type: string }): ReactNode {
 export function ElementContent(): ReactNode {
     const type: string = useCell(selectCellType);
     const mark = useCellMark();
-    return <g className={mark ?? ''}><ElementByType type={type} /></g>;
+    return <g className={mark}><ElementByType type={type} /></g>;
 }

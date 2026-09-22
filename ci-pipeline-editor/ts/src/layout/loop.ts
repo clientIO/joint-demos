@@ -54,11 +54,11 @@ const RETURN_ARROW_BELOW_START = RETURN_DROP_BELOW_START + 12;
 export const LOOP_START_ROOM = 40;
 const LOOP_JOIN_GAP = PARENT_GAP + LOOP_START_ROOM - RETURN_DROP_BELOW_START - RETURN_DROP_BELOW_END;
 
-/** The link from `end` straight back to `start`: the return path, or `null` while the group has none. */
-function getReturnLink(graph: dia.Graph, group: GroupModel): LinkModel | null {
+/** The link from `end` straight back to `start`: the return path. */
+function getReturnLink(graph: dia.Graph, group: GroupModel): LinkModel | undefined {
     const start = group.getStart();
     return graph.getConnectedLinks(group.getEnd(), { outbound: true })
-        .find((link): link is LinkModel => link instanceof LinkModel && link.getTargetElement() === start) ?? null;
+        .find((link): link is LinkModel => link instanceof LinkModel && link.getTargetElement() === start);
 }
 
 /**
