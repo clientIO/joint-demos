@@ -24,10 +24,6 @@
        card reads like a sticker outline, so dark mode gets a translucent
        black edge instead, for quiet definition without extra brightness. */
     --uc-node-border: var(--uc-ink);
-    /* Actor's colored wash-over-card tint (see .uc-actor-wash): a dark tint
-       barely registers against an already-dark card, so it's boosted for
-       dark mode - kept subtle here since white cards show tint easily. */
-    --uc-wash-opacity: 0.07;
 
     --uc-include-text: #0f766e;
     --uc-include-bg: #f0fdfa;
@@ -61,7 +57,6 @@
     --uc-card-border: #2a3348;
     --uc-ink: #dbe1ea;
     --uc-line: #4b5768;
-    --uc-wash-opacity: 0.22;
     --uc-node-border: rgba(0, 0, 0, 0.45);
 
     --uc-include-text: #5eead4;
@@ -168,21 +163,6 @@ body {
     fill: var(--uc-card-bg);
     stroke: var(--uc-card-border);
     transition: fill 0.2s ease, stroke 0.2s ease;
-}
-
-/* Actor card: fill only - its border color is the actor's own accent, set
-   per-instance in JS, so it must NOT be overridden by a class rule here. */
-.uc-actor-card {
-    fill: var(--uc-card-bg);
-    transition: fill 0.2s ease;
-}
-
-/* Wash's fill color is the actor's own accent (JS-driven, set per-instance);
-   only its opacity is themed here, so the tint stays visible against a dark
-   card and stays subtle against a light one. */
-.uc-actor-wash {
-    fill-opacity: var(--uc-wash-opacity);
-    transition: fill-opacity 0.2s ease;
 }
 
 /* Use-case card: fill is the per-instance accent (JS-driven, see

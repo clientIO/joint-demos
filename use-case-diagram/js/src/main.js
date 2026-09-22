@@ -5,11 +5,13 @@ const paperContainer = document.getElementById('paper-container');
 
 const FONT_FAMILY = 'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
 
-// Actor accents, each a light->deep pair of the same hue rather than one flat
-// tone - every accent surface (actor chip, card background) renders as a
-// smooth diagonal gradient instead of a flat, dated-looking solid fill. Kept
-// as literal hex (not theme CSS variables): these need real color values,
-// both for the gradient stops and to blend across actors (see getAccentColor).
+// Actor accents, each a light->deep pair of the same hue. A single flat tone
+// is used directly on the actor's own stick-figure stroke (see createActor);
+// the pair itself only comes into play on the use-case ellipse it connects
+// to, which blends the accents of every actor that uses it (see
+// getAccentColor) - a two-stop gradient there instead of a flat fill. Kept as
+// literal hex (not theme CSS variables): these need real color values, both
+// for the gradient stops and to blend across actors.
 //
 // Hues are spread far apart on purpose (blue/rose/emerald/violet/amber, not
 // e.g. indigo+violet+sky which all cluster in the same blue-purple range) so
@@ -24,16 +26,7 @@ const ACTOR_ACCENTS = [
     { from: '#f59e0b', to: '#b45309' } // amber
 ];
 
-// Mostly-horizontal gradient vector with a slight tilt - bands run
-// perpendicular to it (vertical-ish columns, left-to-right). Fractional
-// (objectBoundingBox) coordinates are fine here since this is the default
-// for makeGradient(), used on the actor's roughly-square icon chip where
-// there's no width/height mismatch to stretch the tilt unevenly; the wider,
-// shorter use-case card body needs its own real-pixel version of this same
-// idea instead (see CARD_GRADIENT_ATTRS, defined once CARD_WIDTH is known).
-const GRADIENT_ANGLE_ATTRS = { x1: 0, y1: 0, x2: 1, y2: 0.1 };
-
-function makeGradient(from, to, attrs = GRADIENT_ANGLE_ATTRS) {
+function makeGradient(from, to, attrs) {
     return {
         type: 'linearGradient',
         stops: [
@@ -107,70 +100,38 @@ const BOUNDARY_ICON_D = [
     squarePath(BOUNDARY_ICON_X + boundaryIconSquare + BOUNDARY_ICON_GAP, BOUNDARY_ICON_Y + boundaryIconSquare + BOUNDARY_ICON_GAP, boundaryIconSquare)
 ].join(' ');
 
-// --- Actor and UseCase share one "node card" recipe (icon chip + title row) -
-// modeled directly on the AI Workflow Builder's node header: a small tinted,
-// ring-outlined icon chip identifies the node, sized text sits to its right.
-// The card border/fill stays neutral (theme-driven); the accent color only
-// ever shows up on the chip fill/ring and the icon itself.
-const CARD_WIDTH = 180;
-const CARD_HEIGHT = 60;
+// --- UseCase: the UML notation for a use case is an ellipse containing only
+// its name - no icon or chip, just the centered title.
+const CARD_WIDTH = 220;
+const CARD_HEIGHT = 90;
 // Use-case body gradients (see getAccentColor) need this card's own real
-// pixel coordinates rather than GRADIENT_ANGLE_ATTRS's 0-1 fractional ones:
-// on this 3:1 (180x60) card, a fractional tilt gets stretched far more on
-// the short axis than the long one, so each band's boundary lands at a
-// noticeably different x between the card's top and bottom edge. Real
-// pixel coordinates don't have that distortion, so a "slight" y2 tilt here
-// stays genuinely slight and every band stays the same width top-to-bottom.
+// pixel coordinates rather than 0-1 fractional (objectBoundingBox) ones: on
+// this ~2.4:1 (220x90) card, a fractional tilt gets stretched far more on the
+// short axis than the long one, so each band's boundary lands at a noticeably
+// different x between the card's top and bottom edge. Real pixel coordinates
+// don't have that distortion, so a "slight" y2 tilt here stays genuinely
+// slight and every band stays the same width top-to-bottom.
 const CARD_GRADIENT_ATTRS = { gradientUnits: 'userSpaceOnUse', x1: 0, y1: 0, x2: CARD_WIDTH, y2: 20 };
 const NEUTRAL_GRADIENT = makeGradient('#64748b', '#475569', CARD_GRADIENT_ATTRS);
-// The chip sits on the card's own accent color/gradient (that's where the
-// "which actor(s) use this" half-color lives - see getAccentColor), so its
-// fill stays mostly-white for contrast rather than tinted the same accent
-// (which would just blend in); only its ring and icon pick up that accent.
-const CHIP_SIZE = 26;
-const CHIP_PAD_X = 10;
-const CHIP_Y = (CARD_HEIGHT - CHIP_SIZE) / 2;
-const TITLE_X = CHIP_PAD_X + CHIP_SIZE + 8;
-const CHIP_FILL_OPACITY = 0.92;
-const CHIP_STROKE_OPACITY = 0.55;
+// Plain centered text, no icon - the canonical UML use-case notation. How
+// wide the title can wrap before crowding the ellipse's own curve: checked
+// against the ellipse equation ((dx/rx)^2 + (dy/ry)^2 <= 1) for the
+// worst-case corner - the outer edge of a full 3-line title - with rx=110,
+// ry=45, half-title-height for 3 lines of a 14px/1.4em font (~19.6px each) =
+// 29.4: (80/110)^2 + (29.4/45)^2 =~ 0.96, safely (if snugly) inside.
+const UC_TITLE_WRAP_WIDTH = 160;
 
-// Icon glyph geometry lives inside the chip's own (fixed-size) box, so it
-// never needs a calc() expression - only the outer card scales with `w`/`h`.
-const ICON_BOX_X = CHIP_PAD_X + 4;
-const ICON_BOX_Y = CHIP_Y + 4;
-const ICON_BOX_SIZE = CHIP_SIZE - 8;
-
-// Use-case icons: each reflects what the action actually is, instead of one
-// checkmark repeated on every card. `createUseCase`'s last argument picks one
-// of these by key; `check` is the fallback for anything uncategorized.
-function circleD(cx, cy, r) {
-    return `M ${cx - r} ${cy} A ${r} ${r} 0 1 0 ${cx + r} ${cy} A ${r} ${r} 0 1 0 ${cx - r} ${cy}`;
-}
-
-const ICON_CX = ICON_BOX_X + ICON_BOX_SIZE / 2;
-const ICON_CY = ICON_BOX_Y + ICON_BOX_SIZE / 2;
-
-const USE_CASE_ICONS = {
-    // A goal/task accomplished - the fallback for anything uncategorized.
-    check: `M ${ICON_BOX_X + 2} ${ICON_CY} L ${ICON_BOX_X + ICON_BOX_SIZE * 0.42} ${ICON_BOX_Y + ICON_BOX_SIZE - 2} L ${ICON_BOX_X + ICON_BOX_SIZE - 1} ${ICON_BOX_Y + 2}`,
-    // Code brackets `</>`: reviewing or changing code.
-    code: `M ${ICON_BOX_X + ICON_BOX_SIZE * 0.42} ${ICON_BOX_Y + 2} L ${ICON_BOX_X + 2} ${ICON_CY} L ${ICON_BOX_X + ICON_BOX_SIZE * 0.42} ${ICON_BOX_Y + ICON_BOX_SIZE - 2} M ${ICON_BOX_X + ICON_BOX_SIZE * 0.58} ${ICON_BOX_Y + 2} L ${ICON_BOX_X + ICON_BOX_SIZE - 2} ${ICON_CY} L ${ICON_BOX_X + ICON_BOX_SIZE * 0.58} ${ICON_BOX_Y + ICON_BOX_SIZE - 2}`,
-    // Clock face: scheduling or attending a call.
-    clock: `${circleD(ICON_CX, ICON_CY, ICON_BOX_SIZE * 0.42)} M ${ICON_CX} ${ICON_CY} L ${ICON_CX} ${ICON_CY - ICON_BOX_SIZE * 0.28} M ${ICON_CX} ${ICON_CY} L ${ICON_CX + ICON_BOX_SIZE * 0.22} ${ICON_CY}`,
-    // Envelope: contacting or responding through a support channel.
-    ticket: `M ${ICON_BOX_X + 1} ${ICON_BOX_Y + 3} L ${ICON_BOX_X + ICON_BOX_SIZE - 1} ${ICON_BOX_Y + 3} L ${ICON_BOX_X + ICON_BOX_SIZE - 1} ${ICON_BOX_Y + ICON_BOX_SIZE - 3} L ${ICON_BOX_X + 1} ${ICON_BOX_Y + ICON_BOX_SIZE - 3} Z M ${ICON_BOX_X + 1} ${ICON_BOX_Y + 3} L ${ICON_CX} ${ICON_BOX_Y + ICON_BOX_SIZE * 0.55} L ${ICON_BOX_X + ICON_BOX_SIZE - 1} ${ICON_BOX_Y + 3}`,
-    // Chat bubble: a discussion thread or a piece of feedback.
-    chat: `M ${ICON_BOX_X + 1} ${ICON_BOX_Y + 2} L ${ICON_BOX_X + ICON_BOX_SIZE - 1} ${ICON_BOX_Y + 2} L ${ICON_BOX_X + ICON_BOX_SIZE - 1} ${ICON_BOX_Y + ICON_BOX_SIZE * 0.72} L ${ICON_BOX_X + ICON_BOX_SIZE * 0.4} ${ICON_BOX_Y + ICON_BOX_SIZE * 0.72} L ${ICON_BOX_X + ICON_BOX_SIZE * 0.28} ${ICON_BOX_Y + ICON_BOX_SIZE - 1} L ${ICON_BOX_X + ICON_BOX_SIZE * 0.28} ${ICON_BOX_Y + ICON_BOX_SIZE * 0.72} L ${ICON_BOX_X + 1} ${ICON_BOX_Y + ICON_BOX_SIZE * 0.72} Z`
-};
-
-// Actor cards get their own layout: a bigger icon chip on its own row, name
-// centered below - distinct from the use case's left icon + inline title row.
+// --- Actor: the UML notation for an actor is a stick figure standing free on
+// the canvas, name centered below it - no card, no icon chip. `ACTOR_WIDTH`
+// is wider than the figure itself only so a long actor name still has room to
+// wrap across two lines beneath it; the figure and the ports both stay
+// centered on/near the figure's own narrower footprint (see ACTOR_PORTS),
+// not spread out to this wider box's edges.
 const ACTOR_WIDTH = 160;
 const ACTOR_HEIGHT = 120;
-const ACTOR_CHIP_SIZE = 32;
-const ACTOR_CHIP_X = (ACTOR_WIDTH - ACTOR_CHIP_SIZE) / 2;
-const ACTOR_GAP = 8;
-// How tall a reserved label area to center the icon+name block around - the
+const ACTOR_CX = ACTOR_WIDTH / 2;
+
+// How tall a reserved label area to center the figure+name block around - the
 // actual wrapped line count isn't known until render time, so callers with a
 // short one-line name (e.g. "Community") pass ACTOR_LABEL_ONE_LINE instead of
 // letting the two-line default push the block off-true-center (see
@@ -183,25 +144,38 @@ function centerY(offset) {
     return `calc(0.5 * h ${rounded < 0 ? '-' : '+'} ${Math.abs(rounded)})`;
 }
 
-const ACTOR_ICON_BOX_SIZE = ACTOR_CHIP_SIZE - 10;
-const ACTOR_ICON_BOX_X = ACTOR_CHIP_X + 5;
-
-// Person glyph (actor): a head circle plus a "shoulders" dome - no
-// stick-figure UML relic. X coordinates (unaffected by centering) are fixed;
-// Y coordinates depend on `labelAllowance` via computeActorGeometry() below.
-const ACTOR_PERSON_HEAD_R = ACTOR_ICON_BOX_SIZE * 0.23;
-const ACTOR_PERSON_HEAD_CX = ACTOR_ICON_BOX_X + ACTOR_ICON_BOX_SIZE / 2;
+// Stick figure proportions: a head circle, a vertical body line, a horizontal
+// arms line crossing it, and two legs splaying out from its foot - the
+// classic UML actor glyph, stroked in the actor's own accent color rather
+// than plain black (see createActor).
+const FIGURE_STROKE_WIDTH = 2.25;
+const FIGURE_HEAD_R = 9;
+const FIGURE_ARM_HALF = 14;
+const FIGURE_ARM_DROP = 7; // arms sit this far below the head
+const FIGURE_BODY_LEN = 20; // head-bottom to where the legs start
+const FIGURE_LEG_HALF = 11;
+const FIGURE_LEG_LEN = 18;
+const FIGURE_HEIGHT = FIGURE_HEAD_R * 2 + FIGURE_BODY_LEN + FIGURE_LEG_LEN;
+const FIGURE_GAP = 10; // figure-to-label gap
 
 function computeActorGeometry(labelAllowance) {
-    const blockHalf = (ACTOR_CHIP_SIZE + ACTOR_GAP + labelAllowance) / 2;
-    const iconInsetOffset = -blockHalf + 5;
-    const shouldersBaseYExpr = centerY(iconInsetOffset + ACTOR_ICON_BOX_SIZE - 1);
-    const shouldersCtrlYExpr = centerY(iconInsetOffset + ACTOR_ICON_BOX_SIZE * 0.55);
+    const blockHalf = (FIGURE_HEIGHT + FIGURE_GAP + labelAllowance) / 2;
+    const bodyTopExpr = centerY(-blockHalf + FIGURE_HEAD_R * 2);
+    const armYExpr = centerY(-blockHalf + FIGURE_HEAD_R * 2 + FIGURE_ARM_DROP);
+    const bodyBottomExpr = centerY(-blockHalf + FIGURE_HEAD_R * 2 + FIGURE_BODY_LEN);
+    const legBottomExpr = centerY(-blockHalf + FIGURE_HEIGHT);
     return {
-        chipYExpr: centerY(-blockHalf),
-        labelTopExpr: centerY(-blockHalf + ACTOR_CHIP_SIZE + ACTOR_GAP),
-        headCyExpr: centerY(iconInsetOffset + ACTOR_ICON_BOX_SIZE * 0.32),
-        shouldersD: `M ${ACTOR_ICON_BOX_X + 1} ${shouldersBaseYExpr} Q ${ACTOR_PERSON_HEAD_CX} ${shouldersCtrlYExpr} ${ACTOR_ICON_BOX_X + ACTOR_ICON_BOX_SIZE - 1} ${shouldersBaseYExpr} Z`
+        headCyExpr: centerY(-blockHalf + FIGURE_HEAD_R),
+        // Where the ports (see ACTOR_PORTS) attach - the figure's own arm
+        // height, a natural "shoulder" point to connect to, rather than the
+        // bounding box's generic vertical center (which sits well below the
+        // arms, down near the legs).
+        armYExpr,
+        labelTopExpr: centerY(-blockHalf + FIGURE_HEIGHT + FIGURE_GAP),
+        figureD: `M ${ACTOR_CX} ${bodyTopExpr} L ${ACTOR_CX} ${bodyBottomExpr} `
+            + `M ${ACTOR_CX - FIGURE_ARM_HALF} ${armYExpr} L ${ACTOR_CX + FIGURE_ARM_HALF} ${armYExpr} `
+            + `M ${ACTOR_CX} ${bodyBottomExpr} L ${ACTOR_CX - FIGURE_LEG_HALF} ${legBottomExpr} `
+            + `M ${ACTOR_CX} ${bodyBottomExpr} L ${ACTOR_CX + FIGURE_LEG_HALF} ${legBottomExpr}`
     };
 }
 
@@ -220,11 +194,11 @@ const paper = new dia.Paper({
     // Ports are the only magnets (every element root sets `magnet: false`), so
     // an arrowhead has to find one to connect. This keeps that easy: it snaps
     // to the nearest valid port within the radius, rather than asking anyone to
-    // hit the port itself. A radius of 100 covers a whole card - no point of a
-    // 180x60 card is more than 90 away from one of its own two ports - while
-    // staying well short of the next column's ports, 210 away from a card's
-    // center.
-    snapLinks: { radius: 100 },
+    // hit the port itself. A radius of 125 covers a whole use-case ellipse -
+    // its own two ports sit exactly at its left/right tips, so the farthest
+    // any point on its outline (top or bottom center) ever gets from its
+    // nearer port is sqrt(rx^2 + ry^2) = sqrt(110^2 + 45^2) =~ 119.
+    snapLinks: { radius: 125 },
     // Light up every port the dragged end could legally land on, so the valid
     // targets read before the pointer is anywhere near them. It marks them
     // with the `available-magnet` class (styles.css picks it up) - only ports
@@ -315,12 +289,16 @@ class Boundary extends dia.Element {
                 // shapes, not anything about this element's declared size.
                 // Small nodes (Actor/UseCase) are well under that ceiling and
                 // keep their own shadow via `nodeShadow()`.
+                // The UML system boundary is a plain rectangle - a small
+                // corner radius keeps it from looking harshly blunt, but
+                // nowhere near the fully-rounded "card" look the other
+                // shapes had before.
                 body: {
                     width: 'calc(w)',
                     height: 'calc(h)',
                     strokeWidth: 1.5,
-                    rx: 24,
-                    ry: 24
+                    rx: 6,
+                    ry: 6
                 },
                 icon: {
                     d: BOUNDARY_ICON_D
@@ -351,11 +329,13 @@ class Boundary extends dia.Element {
     }
 }
 
-// Small magnet dots on the left/right edge, shared by Actor and UseCase, via
+// Small magnet dots on the left/right side of Actor and UseCase, both via
 // JointJS's own ports API (`dia.Element` port groups) instead of splicing
 // custom circles into each shape's own markup - the 'left'/'right' port
 // layouts already center a single port vertically and reposition it on
-// resize, so no hand-written `calc(w)` position math is needed here. Each
+// resize, so no hand-written `calc(w)` position math is needed here. The two
+// shapes don't share one ports config, though (see PORTS vs ACTOR_PORTS
+// below): they do share this same dot/hit-circle markup and styling. Each
 // port's own markup carries two elements: a small visible dot (PORT_RADIUS)
 // plus a larger circle (PORT_HIT_RADIUS) stacked on top, so the area you can
 // grab is bigger than what's drawn - invisible until hovered, when it shows as
@@ -370,7 +350,7 @@ class Boundary extends dia.Element {
 // the side actually being hovered.
 const PORT_RADIUS = 5;
 // Wide enough to press without aiming, but no wider: the ports sit halfway up
-// a card that is only 60 tall, so a hit circle much bigger than this owns most
+// a card that is only 90 tall, so a hit circle much bigger than this owns most
 // of the card's left and right edge and the card gets hard to pick up by its
 // side. Dropping a link doesn't depend on this at all - snapLinks (see the
 // paper options) catches an arrowhead released anywhere on the card.
@@ -405,55 +385,78 @@ const PORTS = {
     ]
 };
 
+// The actor's own ports: same dot/hit markup and styling as PORTS above, but
+// repositioned in both directions rather than sitting at the box's default
+// left/right-edge-at-vertical-center spot:
+// - x is pulled in to sit just past the stick figure's own arm-span - the
+//   figure is much narrower than the box reserved for its (possibly
+//   two-line) name, so the box edges the way UseCase's ports use would leave
+//   the dots floating in empty space, far from the figure a connecting line
+//   is actually supposed to read as touching.
+// - y is raised to the figure's own arm height (see computeActorGeometry's
+//   armYExpr) instead of the box's generic vertical center, which sits well
+//   below the arms, down near the legs - the "shoulder" height a connecting
+//   line would naturally touch, not a point with no relation to the figure.
+//   This uses the two-line-name default for every actor (ports are one
+//   static config, not per-instance like the figure/label itself), so it's
+//   a few pixels off for the one one-line actor (see createActor's `lines`
+//   argument) - unnoticeable next to fixing the actual, much larger mismatch.
+const ACTOR_PORT_GAP = 14;
+const ACTOR_PORT_LEFT_X = ACTOR_CX - FIGURE_ARM_HALF - ACTOR_PORT_GAP;
+const ACTOR_PORT_RIGHT_X = ACTOR_CX + FIGURE_ARM_HALF + ACTOR_PORT_GAP;
+const ACTOR_PORT_Y = ACTOR_GEOMETRY_DEFAULT.armYExpr;
+
+const ACTOR_PORTS = {
+    groups: {
+        left: { position: { name: 'left', args: { x: ACTOR_PORT_LEFT_X, y: ACTOR_PORT_Y }}, markup: PORT_MARKUP, attrs: PORT_ATTRS },
+        right: { position: { name: 'right', args: { x: ACTOR_PORT_RIGHT_X, y: ACTOR_PORT_Y }}, markup: PORT_MARKUP, attrs: PORT_ATTRS }
+    },
+    items: [
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+    ]
+};
+
 class Actor extends dia.Element {
     defaults() {
         return {
             ...super.defaults,
             type: 'Actor',
             size: { width: ACTOR_WIDTH, height: ACTOR_HEIGHT },
-            ports: PORTS,
+            ports: ACTOR_PORTS,
             attrs: {
                 root: {
                     cursor: 'move',
                     // Only ports connect - see PORT_ATTRS.
                     magnet: false
                 },
-                // Actors stand apart from use cases: a solid-color chip + a
-                // border in that same accent (set per-instance in createActor),
-                // instead of the neutral card + faint tint use cases get - they
-                // read as the "external, colorful" role at a glance. Layout is
-                // also its own: a bigger icon on its own row, name centered below.
-                body: {
+                // A plain, invisible full-size rect purely so the actor stays
+                // easy to grab and drag anywhere in its bounding box - with no
+                // card body, only the thin figure lines and the label text
+                // would otherwise be clickable.
+                hitArea: {
                     width: 'calc(w)',
                     height: 'calc(h)',
-                    rx: 10,
-                    ry: 10,
-                    strokeWidth: 2,
-                    filter: nodeShadow('rest')
+                    fill: 'transparent'
                 },
-                wash: {
-                    width: 'calc(w)',
-                    height: 'calc(h)',
-                    rx: 10,
-                    ry: 10
-                },
-                chipBg: {
-                    x: ACTOR_CHIP_X,
-                    y: ACTOR_GEOMETRY_DEFAULT.chipYExpr,
-                    width: ACTOR_CHIP_SIZE,
-                    height: ACTOR_CHIP_SIZE,
-                    rx: 8,
-                    ry: 8
-                },
+                // Stick figure: stroked in the actor's own accent (set
+                // per-instance in createActor), no fill - the UML actor glyph,
+                // not a filled icon.
                 iconHead: {
-                    cx: ACTOR_PERSON_HEAD_CX,
+                    cx: ACTOR_CX,
                     cy: ACTOR_GEOMETRY_DEFAULT.headCyExpr,
-                    r: ACTOR_PERSON_HEAD_R,
-                    fill: '#ffffff'
+                    r: FIGURE_HEAD_R,
+                    fill: 'none',
+                    strokeWidth: FIGURE_STROKE_WIDTH,
+                    strokeLinecap: 'round',
+                    strokeLinejoin: 'round'
                 },
                 icon: {
-                    d: ACTOR_GEOMETRY_DEFAULT.shouldersD,
-                    fill: '#ffffff'
+                    d: ACTOR_GEOMETRY_DEFAULT.figureD,
+                    fill: 'none',
+                    strokeWidth: FIGURE_STROKE_WIDTH,
+                    strokeLinecap: 'round',
+                    strokeLinejoin: 'round'
                 },
                 label: {
                     x: 'calc(0.5 * w)',
@@ -477,9 +480,7 @@ class Actor extends dia.Element {
     preinitialize(...args) {
         super.preinitialize(...args);
         this.markup = util.svg`
-            <rect @selector="body" class="uc-actor-card" />
-            <rect @selector="wash" class="uc-actor-wash" />
-            <rect @selector="chipBg" />
+            <rect @selector="hitArea" />
             <path @selector="icon" />
             <circle @selector="iconHead" />
             <text @selector="label" class="uc-ink-text" />
@@ -502,57 +503,30 @@ class UseCase extends dia.Element {
                     magnet: false
                 },
                 // Like the original demo, the "which actor(s) use this" accent
-                // is the whole card's background (see fillUseCaseColors) - not
-                // just a small chip - so it stays unmistakable at a glance. The
-                // outline is a constant ink tone (theme-reactive, not per-instance)
-                // so the border still reads against any accent color/gradient.
+                // is the whole ellipse's background (see fillUseCaseColors),
+                // so it stays unmistakable at a glance. The outline is a
+                // constant ink tone (theme-reactive, not per-instance) so the
+                // border still reads against any accent color/gradient.
                 body: {
-                    width: 'calc(w)',
-                    height: 'calc(h)',
-                    rx: 10,
-                    ry: 10,
+                    cx: 'calc(0.5 * w)',
+                    cy: 'calc(0.5 * h)',
+                    rx: 'calc(0.5 * w)',
+                    ry: 'calc(0.5 * h)',
                     strokeWidth: 1.5,
                     filter: nodeShadow('rest')
                 },
-                chipBg: {
-                    x: CHIP_PAD_X,
-                    y: CHIP_Y,
-                    width: CHIP_SIZE,
-                    height: CHIP_SIZE,
-                    rx: 7,
-                    ry: 7,
-                    // Fill stays white and mostly opaque - it sits on the card's
-                    // own accent color/gradient, so tinting it the same accent
-                    // would just blend in; a sliver of translucency (not fully
-                    // opaque) lets a soft hint of that color through instead.
-                    fill: '#ffffff',
-                    fillOpacity: CHIP_FILL_OPACITY,
-                    strokeWidth: 1.5,
-                    strokeOpacity: CHIP_STROKE_OPACITY
-                },
-                // stroke (chipBg's ring) and stroke (icon) are set per-instance
-                // in fillUseCaseColors() to the same accent as the card body -
-                // a colored ring + colored icon on an (almost) white chip, not a
-                // flat dark icon on a plain white tile.
-                icon: {
-                    d: USE_CASE_ICONS.check,
-                    fill: 'none',
-                    strokeWidth: 2.4,
-                    strokeLinecap: 'round',
-                    strokeLinejoin: 'round'
-                },
                 label: {
-                    x: TITLE_X,
+                    x: 'calc(0.5 * w)',
                     y: 'calc(0.5 * h)',
-                    textAnchor: 'start',
+                    textAnchor: 'middle',
                     textVerticalAnchor: 'middle',
-                    fontSize: 12.5,
+                    fontSize: 14,
                     lineHeight: '1.4em',
                     fontFamily: FONT_FAMILY,
                     fontWeight: 600,
                     fill: '#ffffff',
                     textWrap: {
-                        width: `calc(w - ${TITLE_X + 14})`,
+                        width: UC_TITLE_WRAP_WIDTH,
                         height: 'calc(h - 12)',
                         ellipsis: true
                     }
@@ -564,9 +538,7 @@ class UseCase extends dia.Element {
     preinitialize(...args) {
         super.preinitialize(...args);
         this.markup = util.svg`
-            <rect @selector="body" class="uc-node-stroke" />
-            <rect @selector="chipBg" />
-            <path @selector="icon" />
+            <ellipse @selector="body" class="uc-node-stroke" />
             <text @selector="label" />
         `;
     }
@@ -734,21 +706,13 @@ function createActor(name, x, y, accent, lines = 2) {
             y
         },
         attrs: {
-            body: {
-                stroke: accent.to
-            },
-            wash: {
-                fill: accent.to
-            },
-            chipBg: {
-                fill: makeGradient(accent.from, accent.to),
-                y: geometry.chipYExpr
-            },
             iconHead: {
+                stroke: accent.to,
                 cy: geometry.headCyExpr
             },
             icon: {
-                d: geometry.shouldersD
+                stroke: accent.to,
+                d: geometry.figureD
             },
             label: {
                 text: name,
@@ -763,7 +727,7 @@ function createActor(name, x, y, accent, lines = 2) {
     return actor;
 }
 
-function createUseCase(useCase, x, y, icon = 'check') {
+function createUseCase(useCase, x, y) {
     return new UseCase({
         position: {
             x,
@@ -772,9 +736,6 @@ function createUseCase(useCase, x, y, icon = 'check') {
         attrs: {
             label: {
                 text: useCase
-            },
-            icon: {
-                d: USE_CASE_ICONS[icon] || USE_CASE_ICONS.check
             }
         }
     });
@@ -870,32 +831,17 @@ const community = createActor('JointJS Community', 1120, 900, ACTOR_ACCENTS[4], 
 // Y positions are shifted +95 from a naive top-packed layout so the use-case
 // block (150-1010 originally) centers within the boundary's own vertical
 // span (100-1250) instead of leaving nearly all the slack at the bottom.
-const requestCodeReview = createUseCase('Request Code Review', 420, 245, 'code');
-const reviewCode = createUseCase('Review Code', 720, 245, 'code');
-const giveFeedback = createUseCase('Give Feedback', 720, 385, 'chat');
-const proposeChanges = createUseCase('Propose Changes', 720, 520, 'code');
-const requestConferenceCall = createUseCase(
-    'Request Conference Call',
-    420,
-    445,
-    'clock'
-);
-const proposeTimeAndDateOfCall = createUseCase(
-    'Propose Time and Date of Call',
-    420,
-    620,
-    'clock'
-);
-const attendConferenceCall = createUseCase('Attend Conference Call', 420, 795, 'clock');
-const contactViaTicketingSystem = createUseCase(
-    'Contact via Ticketing System',
-    420,
-    920,
-    'ticket'
-);
-const respondToTicket = createUseCase('Respond to Ticket', 720, 920, 'ticket');
-const askGithubDiscussion = createUseCase('Ask on GitHub Discussion', 420, 1045, 'chat');
-const respondToDiscussion = createUseCase('Respond to Discussion', 720, 1045, 'chat');
+const requestCodeReview = createUseCase('Request Code Review', 420, 245);
+const reviewCode = createUseCase('Review Code', 720, 245);
+const giveFeedback = createUseCase('Give Feedback', 720, 385);
+const proposeChanges = createUseCase('Propose Changes', 720, 520);
+const requestConferenceCall = createUseCase('Request Conference Call', 420, 445);
+const proposeTimeAndDateOfCall = createUseCase('Propose Time and Date of Call', 420, 620);
+const attendConferenceCall = createUseCase('Attend Conference Call', 420, 795);
+const contactViaTicketingSystem = createUseCase('Contact via Ticketing System', 420, 920);
+const respondToTicket = createUseCase('Respond to Ticket', 720, 920);
+const askGithubDiscussion = createUseCase('Ask on GitHub Discussion', 420, 1045);
+const respondToDiscussion = createUseCase('Respond to Discussion', 720, 1045);
 
 boundary.embed([
     requestCodeReview,
@@ -980,15 +926,13 @@ function getAccentColor(accents) {
 // Same "half-color" use case as the original demo: `body/fill` (the whole
 // card) takes the connected actors' blended color/gradient directly - one
 // actor's color solid, several actors' colors as a smooth multi-stop gradient
-// - so it's unmistakable at a glance, not tucked into a small chip.
+// - so it's unmistakable at a glance.
 function recolorUseCase(useCase) {
     const useCaseActors = graph
         .getNeighbors(useCase, { inbound: true })
         .filter((el) => el instanceof Actor);
     const accent = getAccentColor(useCaseActors.map((actor) => actor.prop('accent')));
     useCase.attr('body/fill', accent, { rewrite: true });
-    useCase.attr('chipBg/stroke', accent, { rewrite: true });
-    useCase.attr('icon/stroke', accent, { rewrite: true });
 }
 
 function fillUseCaseColors() {
@@ -1000,10 +944,12 @@ function fillUseCaseColors() {
 // The filter each card was built with holds the colors of the theme that was
 // active at the time, so a theme change has to hand every card the other
 // theme's shadow (see NODE_SHADOWS). A card hovered at that exact moment drops
-// back to its resting shadow until the pointer leaves and re-enters.
+// back to its resting shadow until the pointer leaves and re-enters. Actors
+// have no card body to shadow - a bare stick figure - so only UseCase needs
+// this.
 function applyNodeShadows() {
     graph.getElements().forEach((element) => {
-        if (element instanceof UseCase || element instanceof Actor) {
+        if (element instanceof UseCase) {
             element.attr('body/filter', nodeShadow('rest'), { rewrite: true });
         }
     });
@@ -1049,14 +995,15 @@ paper.on('link:mouseleave', (linkView) => {
     linkView.removeTools();
 });
 
-// Lift a node card slightly on hover for a bit of interactive feedback.
+// Lift a use-case card slightly on hover for a bit of interactive feedback -
+// actors have no card body to lift, just the bare stick figure.
 paper.on('element:mouseenter', (elementView) => {
-    if (!(elementView.model instanceof UseCase) && !(elementView.model instanceof Actor)) return;
+    if (!(elementView.model instanceof UseCase)) return;
     elementView.model.attr('body/filter', nodeShadow('hover'), { rewrite: true });
 });
 
 paper.on('element:mouseleave', (elementView) => {
-    if (!(elementView.model instanceof UseCase) && !(elementView.model instanceof Actor)) return;
+    if (!(elementView.model instanceof UseCase)) return;
     elementView.model.attr('body/filter', nodeShadow('rest'), { rewrite: true });
 });
 
