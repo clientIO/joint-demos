@@ -1,11 +1,12 @@
 import { dia, elementTools, g, highlighters, linkTools, ui, util } from '@joint/plus';
 
-import { canAddTerminal, canDelete, canSplit, getActionTarget, getDeleteTitle, getDeletedCells } from './actions';
+import { canAddTerminal, canRemoveBranch, canRemoveNode, canSplit, getActionTarget, getDeletedCells, getMoveTitle, getRemoveTitle, hasBranch } from './actions';
+import type { MoveScope } from './actions';
 import { isCellVisible } from './layout';
 import { openAddMenu, openMenu } from './menu';
 import type { AddChoice } from './menu';
 import { ADD_BUTTON_SELECTOR, ADD_BUTTON_SIZE, AddButtonModel, BRANCH_LABEL_OFFSET_ALONG, COLORS, DROP_POINT_SIZE, DecisionModel, EndModel, GroupModel, GroupEndModel, GroupStartModel, INSERT_BUTTON_FROM_TARGET, LinkModel, PLUS_ICON, TOGGLE_EVENT } from './shapes';
-import { setAddButtonSize } from './shapes/pill';
+import { setDropPoint } from './shapes/pill';
 
 /** The insert buttons are squares, so that they differ from the round toggle and "more" buttons: blue, marked in white like every add button, outlined in the color of the paper. */
 const ADD_FILL = COLORS.button.fill;
@@ -20,18 +21,19 @@ const DELETE_ICON = 'M -5 -5 5 5 M -5 5 5 -5';
 export interface ToolActions {
     addBelow(element: dia.Element, choice: AddChoice): void;
     insertOnLink(link: LinkModel, choice: AddChoice): void;
-    delete(element: dia.Element): void;
+    /** Removes `element`: alone - its children move up in its place - or with the branch below it. */
+    remove(element: dia.Element, scope: MoveScope): void;
     toggleGroup(group: GroupModel): void;
-    /** Whether `element` with everything below it has anywhere to move to. */
-    canMove(element: dia.Element): boolean;
-    /** Starts moving `element` with everything below it: the drop points take it instead of adding. */
-    startMove(element: dia.Element): void;
+    /** Whether `element` can be moved with `scope`: it can leave its place, and there is somewhere to drop it. */
+    canMove(element: dia.Element, scope: MoveScope): boolean;
+    /** Starts moving `element` with `scope`: the drop points take it instead of adding. */
+    startMove(element: dia.Element, scope: MoveScope): void;
     /** The element being moved, if any. While one is, the tools drop it and add nothing. */
     getMoved(): dia.Element | null;
     /** The cells that move with it, to mark them. */
     getMovedCells(): dia.Cell[];
-    /** The cells that would move with `element`: for the preview of a move, before it starts. */
-    getMovedCellsOf(element: dia.Element): dia.Cell[];
+    /** The cells a move of `element` with `scope` would take: for the preview, before it starts. */
+    getMovedCellsOf(element: dia.Element, scope: MoveScope): dia.Cell[];
     canDropBelow(parent: dia.Element): boolean;
     canDropOnLink(link: LinkModel): boolean;
     dropBelow(parent: dia.Element): void;
@@ -41,11 +43,12 @@ export interface ToolActions {
 /** The "move to" item of the menu of an element: an arrow out and down, in the teal of a move. */
 const MOVE_ICON = 'M -6 -6 V 6 H 6 M 6 6 L 2 2 M 6 6 L 2 10';
 
-/** The markup of the square button of a link, `size` wide and high: a plus, named by its tooltip (see `addTooltips()`). */
-function createInsertButtonMarkup(title: string, size: number): dia.MarkupJSON {
+/** The markup of the square button of a link, `size` wide and high: a plus, named by its tooltip (see `addTooltips()`); a drop point has the ring that pulses behind it. */
+function createInsertButtonMarkup(title: string, size: number, dropPoint: boolean): dia.MarkupJSON {
     const half = size / 2;
     // The class picks the hover color in the stylesheet.
     return util.svg/* xml */`
+        ${dropPoint ? `<rect class="pulse" x="${-half}" y="${-half}" width="${size}" height="${size}" rx="3" ry="3"/>` : ''}
         <rect @selector="body" class="button add" x="${-half}" y="${-half}" width="${size}" height="${size}" rx="3" ry="3" fill="${ADD_FILL}" stroke="${ADD_OUTLINE}" stroke-width="1.5" cursor="pointer" data-tooltip="${title}"/>
         <path d="${ADD_ICON}" transform="scale(${size / INSERT_BUTTON_SIZE})" fill="none" stroke="${ADD_MARK}" stroke-width="2" pointer-events="none"/>
     `;
@@ -148,9 +151,9 @@ export function clearPreviews(): void {
     collapsePreview.clear();
 }
 
-/** Turns the cells a deletion of `target` would remove red. The add buttons among them are left alone: buttons do not turn red. */
-function previewDeletion(paper: dia.Paper, target: dia.Element): void {
-    deletionPreview.set(paper, getDeletedCells(paper.model, target).filter((cell) => !AddButtonModel.isAddButton(cell)));
+/** Turns the cells a removal of `target` with `scope` would take red. The add buttons among them are left alone: buttons do not turn red. */
+function previewDeletion(paper: dia.Paper, target: dia.Element, scope: MoveScope): void {
+    deletionPreview.set(paper, getDeletedCells(paper.model, target, scope).filter((cell) => !AddButtonModel.isAddButton(cell)));
 }
 
 /**
@@ -201,7 +204,7 @@ function createMenuButtonMarkup(color: string): dia.MarkupJSON {
  * would be empty.
  */
 function createMenuTool(paper: dia.Paper, element: dia.Element, target: dia.Element, actions: ToolActions): dia.ToolView | null {
-    if (!canDelete(paper.model, target)) return null;
+    if (!canRemoveBranch(paper.model, target)) return null;
     const filled = DecisionModel.isDecision(element) || GroupStartModel.isGroupStart(element);
     const centered = EndModel.isEnd(element);
     return new elementTools.Button({
@@ -216,22 +219,43 @@ function createMenuTool(paper: dia.Paper, element: dia.Element, target: dia.Elem
     });
 }
 
+/** The items of the menu of an element: a move or a removal, of the element alone or of the branch below it. */
+type ElementAction = 'move' | 'remove' | 'move-branch' | 'remove-branch';
+
+/** What each item does: start a move, or remove - and how much it takes along. */
+const ELEMENT_ACTIONS: Record<ElementAction, { moves: boolean; scope: MoveScope }> = {
+    'move': { moves: true, scope: 'node' },
+    'remove': { moves: false, scope: 'node' },
+    'move-branch': { moves: true, scope: 'branch' },
+    'remove-branch': { moves: false, scope: 'branch' }
+};
+
 /**
  * The menu of an element, acting on `target` (see `getActionTarget()`),
- * below `anchor` - the "more" button, or the pointer of a right click: its
- * move and its removal; hovering an item shows what it would do.
+ * below `anchor` - the "more" button, or the pointer of a right click: it
+ * moves or removes the element alone - its children move up in its place -
+ * or the branch below it along with it. An item that cannot be chosen is
+ * greyed out: nowhere to move to, nothing below it, or children its parent
+ * could not take. Hovering an item shows what it would do.
  */
 function openElementMenu(paper: dia.Paper, target: dia.Element, anchor: HTMLElement | SVGElement | g.PlainPoint, actions: ToolActions): void {
-    openMenu(anchor, [
-        // Greyed out when there is nowhere to move the element to.
-        { action: 'move', label: 'Move to…', icon: MOVE_ICON, color: COLORS.move, disabled: !actions.canMove(target) },
-        { action: 'remove', label: getDeleteTitle(target), icon: DELETE_ICON, color: DELETE_FILL }
+    const graph = paper.model;
+    const branch = hasBranch(graph, target);
+    openMenu<ElementAction>(anchor, [
+        { action: 'move', label: getMoveTitle('node'), icon: MOVE_ICON, color: COLORS.move, disabled: !actions.canMove(target, 'node') },
+        { action: 'remove', label: getRemoveTitle(target, 'node'), icon: DELETE_ICON, color: DELETE_FILL, disabled: !canRemoveNode(graph, target) },
+        { action: 'move-branch', label: getMoveTitle('branch'), icon: MOVE_ICON, color: COLORS.move, disabled: !branch || !actions.canMove(target, 'branch') },
+        { action: 'remove-branch', label: getRemoveTitle(target, 'branch'), icon: DELETE_ICON, color: DELETE_FILL, disabled: !branch || !canRemoveBranch(graph, target) }
     ], {
-        onChoose: (action) => (action === 'move' ? actions.startMove(target) : actions.delete(target)),
-        // The hovered item shows what it would do: "remove" turns the cells red, "move" marks what would move.
+        onChoose: (action) => {
+            const { moves, scope } = ELEMENT_ACTIONS[action];
+            if (moves) actions.startMove(target, scope); else actions.remove(target, scope);
+        },
+        // The hovered item shows what it would do: a removal turns the cells red, a move marks what would move.
         onHover: (action) => {
-            if (action === 'remove') previewDeletion(paper, target); else deletionPreview.clear();
-            if (action === 'move') movePreview.set(paper, actions.getMovedCellsOf(target)); else movePreview.clear();
+            const item = action === null ? null : ELEMENT_ACTIONS[action];
+            if (item && !item.moves) previewDeletion(paper, target, item.scope); else deletionPreview.clear();
+            if (item?.moves) movePreview.set(paper, actions.getMovedCellsOf(target, item.scope)); else movePreview.clear();
         }
     });
 }
@@ -259,7 +283,7 @@ function createInsertTool(link: LinkModel, distance: number, actions: ToolAction
     const moving = actions.getMoved() !== null;
     return new linkTools.Button({
         distance,
-        markup: createInsertButtonMarkup(moving ? 'Move here' : 'Insert here', moving ? DROP_POINT_SIZE : INSERT_BUTTON_SIZE),
+        markup: createInsertButtonMarkup(moving ? 'Move here' : 'Insert here', moving ? DROP_POINT_SIZE : INSERT_BUTTON_SIZE, moving),
         action: (_evt, _view, tool) => {
             if (moving) {
                 actions.dropOnLink(link);
@@ -285,13 +309,12 @@ export function markMove(paper: dia.Paper, actions: ToolActions): void {
     noDropMark.clear();
     const moved = actions.getMoved();
     if (moved) movingMark.add(paper, actions.getMovedCells());
-    const buttonSize = (takes: boolean): number => (takes ? DROP_POINT_SIZE : ADD_BUTTON_SIZE.width);
     for (const element of paper.model.getElements()) {
         const hasPillButton = GroupStartModel.isGroupStart(element) ? element.getKind() === 'fork' : DecisionModel.isDecision(element);
         if (hasPillButton) {
             // The button at the right end of a decision or of the start of a fork: only that button, not the pill.
             const takes = moved !== null && actions.canDropBelow(element);
-            setAddButtonSize(element, buttonSize(takes));
+            setDropPoint(element, takes);
             if (moved && !takes) {
                 noDropMark.add(paper, [element], ADD_BUTTON_SELECTOR);
                 noDropMark.add(paper, [element], 'addIcon');
@@ -300,7 +323,7 @@ export function markMove(paper: dia.Paper, actions: ToolActions): void {
             // The button below a leaf.
             const [parent] = paper.model.getNeighbors(element, { inbound: true });
             const takes = moved !== null && parent !== undefined && actions.canDropBelow(parent);
-            element.setButtonSize(buttonSize(takes));
+            element.setDropPoint(takes);
             if (moved && !takes) {
                 // The button goes with its link: a link into nothing would hang from the leaf.
                 noDropMark.add(paper, [element, ...paper.model.getConnectedLinks(element, { inbound: true })]);
@@ -454,7 +477,7 @@ export function addHoverTools(paper: dia.Paper, actions: ToolActions): void {
         evt.preventDefault();
         if (actions.getMoved()) return;
         const target = getActionTarget(elementView.model);
-        if (!target || !canDelete(paper.model, target)) return;
+        if (!target || !canRemoveBranch(paper.model, target)) return;
         openElementMenu(paper, target, { x: evt.clientX!, y: evt.clientY! }, actions);
         suppressNativeContextMenu();
     });

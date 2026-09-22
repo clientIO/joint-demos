@@ -228,6 +228,8 @@ function InsertButton({ model, layout, optionName }: { model: LinkModel; layout:
                     });
                 }}
             >
+                {/* The ring that pulses behind a drop point (see the stylesheet). */}
+                {moving ? <rect className="pulse" x={-half} y={-half} width={size} height={size} rx={3} ry={3} /> : null}
                 <rect x={-half} y={-half} width={size} height={size} rx={3} ry={3} />
                 <path d="M -4 0 4 0 M 0 -4 0 4" transform={`scale(${size / INSERT_BUTTON_SIZE})`} />
             </g> : null}

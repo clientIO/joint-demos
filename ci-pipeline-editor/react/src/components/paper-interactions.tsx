@@ -2,7 +2,7 @@ import type { dia } from '@joint/plus';
 import { useGraph, useOnElementsMeasured, useOnKeyboardEvents, useOnPaperEvents, usePaperScroller } from '@joint/react-plus';
 import { useEffect, useRef } from 'react';
 
-import { canDelete, getActionTarget } from '../actions';
+import { canRemoveBranch, getActionTarget } from '../actions';
 import { useEditor } from '../editor-context';
 import { runLayout } from '../layout';
 import { GroupModel } from '../shapes';
@@ -64,7 +64,7 @@ export function PaperInteractions(): null {
             event.preventDefault();
             if (editor.moved || !model.isElement()) return;
             const target = getActionTarget(model);
-            if (!target || !canDelete(graph, target)) return;
+            if (!target || !canRemoveBranch(graph, target)) return;
             editor.openMenu(getElementMenu(editor, target, new DOMRect(event.clientX, event.clientY, 0, 0)));
             suppressNativeContextMenu();
         },

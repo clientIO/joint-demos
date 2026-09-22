@@ -1,6 +1,6 @@
 import { dia, util } from '@joint/plus';
 
-import { ADD_BUTTON_SIZE, COLORS, ELEMENT_Z, PLUS_ICON } from './constants';
+import { ADD_BUTTON_SIZE, COLORS, DROP_POINT_SIZE, ELEMENT_Z, PLUS_ICON } from './constants';
 
 /**
  * The add button below a leaf of the tree: an element of the graph, linked
@@ -13,7 +13,9 @@ import { ADD_BUTTON_SIZE, COLORS, ELEMENT_Z, PLUS_ICON } from './constants';
 export class AddButtonModel extends dia.Element {
 
     preinitialize() {
+        // The ring that pulses behind the button while the button is a drop point (see the stylesheet); hidden otherwise.
         this.markup = util.svg/* xml */`
+            <rect @selector="pulse" class="pulse"/>
             <rect @selector="body"/>
             <path @selector="icon"/>
         `;
@@ -25,6 +27,13 @@ export class AddButtonModel extends dia.Element {
             z: ELEMENT_Z,
             size: ADD_BUTTON_SIZE,
             attrs: {
+                pulse: {
+                    display: 'none',
+                    width: 'calc(w)',
+                    height: 'calc(h)',
+                    rx: 3,
+                    ry: 3
+                },
                 body: {
                     width: 'calc(w)',
                     height: 'calc(h)',
@@ -48,11 +57,18 @@ export class AddButtonModel extends dia.Element {
         }, super.defaults);
     }
 
-    /** Draws the button `size` wide and high around the center of the element, whose own size - what the layout goes by - stays. */
-    setButtonSize(size: number): void {
+    /**
+     * Makes the button a drop point, or a plain button again: a drop point is
+     * drawn larger around the center of the element - whose own size, what the
+     * layout goes by, stays - with the ring that pulses behind it.
+     */
+    setDropPoint(active: boolean): void {
         const { width, height } = ADD_BUTTON_SIZE;
+        const size = active ? DROP_POINT_SIZE : width;
+        const box = { x: (width - size) / 2, y: (height - size) / 2, width: size, height: size };
         this.attr({
-            body: { x: (width - size) / 2, y: (height - size) / 2, width: size, height: size },
+            pulse: { ...box, display: active ? null : 'none' },
+            body: box,
             icon: { transform: `translate(calc(w / 2), calc(h / 2)) scale(${size / width})` }
         });
     }

@@ -3,6 +3,8 @@ import type { CellVisibility, InteractionsOptions } from '@joint/react-plus';
 import type { ReactNode } from 'react';
 import { Tooltip } from 'react-tooltip';
 
+import { describeMoved } from './actions';
+import { getId } from './data/build';
 import { EditorProvider } from './editor-provider';
 import { PAPER_ID, useEditor } from './editor-context';
 import { isCellVisible } from './layout';
@@ -12,6 +14,7 @@ import { Minimap } from './components/minimap';
 import { PaperInteractions } from './components/paper-interactions';
 import { DiagramSelection } from './components/selection';
 import { COLORS, ElementContent, LinkContent, cellNamespace } from './shapes';
+import { PLUS_PATH } from './shapes/buttons';
 import { Toolbar } from './components/toolbar';
 import { TOOLTIP_ID } from './components/use-tooltip';
 
@@ -32,6 +35,23 @@ const INTERACTIONS: InteractionsOptions = {
 /** Every element renders through `<ElementContent>`, every link through `<LinkContent>`. */
 const renderElement = (): ReactNode => <ElementContent />;
 const renderLink = (): ReactNode => <LinkContent />;
+
+/** The hint over the paper while a move is on: what moves, and what to do. */
+function MoveHint(): ReactNode {
+    const { moved, movedScope, data } = useEditor();
+    if (!moved) return null;
+    return (
+        <div className="move-hint">
+            <div>Moving <strong>{describeMoved(data, getId(moved))}</strong>{movedScope === 'branch' ? ' and everything below it' : ' alone'}</div>
+            <div className="move-hint-how">
+                Click a{' '}
+                {/* The drop point itself, small, in the sentence. */}
+                <svg className="move-hint-button" viewBox="-9 -9 18 18" aria-label="plus"><rect x={-9} y={-9} width={18} height={18} rx={3} ry={3} /><path d={PLUS_PATH} /></svg>
+                {' '}button where it should go. <kbd>Esc</kbd> or a click on the blank area cancels.
+            </div>
+        </div>
+    );
+}
 
 /** The one menu of the app, when one is open (see `menu.tsx`). */
 function MenuLayer(): ReactNode {
@@ -75,7 +95,7 @@ export function App(): ReactNode {
                                     <DiagramSelection />
                                 </Paper>
                             </PaperScroller>
-                            <div className="move-hint">Choose where to move it &mdash; <kbd>Esc</kbd> cancels</div>
+                            <MoveHint />
                             <Minimap />
                         </div>
                         <div className="side">

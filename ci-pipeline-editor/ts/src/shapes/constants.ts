@@ -20,7 +20,7 @@ export const ADD_BUTTON_SIZE = { width: 18, height: 18 };
  */
 export const INSERT_BUTTON_FROM_TARGET = 30;
 /** The drop points - the add and insert buttons that can take the moved subtree - grow to this while a move is on: easier to hit. */
-export const DROP_POINT_SIZE = 24;
+export const DROP_POINT_SIZE = 20;
 /** The plus of every add button: the ones on the pills, the ones below the leaves, the insert buttons of the links, the expand button of a collapsed group. */
 export const PLUS_ICON = 'M -4 0 4 0 M 0 -4 0 4';
 /** Vertical distance between a parent and its children; room enough for the insert button of the link between them. */

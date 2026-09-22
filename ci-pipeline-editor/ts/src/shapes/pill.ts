@@ -1,7 +1,7 @@
 import { util } from '@joint/plus';
 import type { dia } from '@joint/plus';
 
-import { ADD_BUTTON_SELECTOR, ADD_BUTTON_SIZE, COLORS, ELEMENT_Z, NODE_SIZE, PLUS_ICON, STEP_RADIUS, TOGGLE_EVENT } from './constants';
+import { ADD_BUTTON_SELECTOR, ADD_BUTTON_SIZE, COLORS, DROP_POINT_SIZE, ELEMENT_Z, NODE_SIZE, PLUS_ICON, STEP_RADIUS, TOGGLE_EVENT } from './constants';
 import { tokenizeCommand } from './command';
 
 /** The icon sits at the left end of the pill, the label is centered in the rest. */
@@ -49,7 +49,9 @@ export const pillMarkup = util.svg/* xml */`
     <text @selector="label"/>
     <text @selector="code"/>
 `;
+/** The ring that pulses behind the add button while the button is a drop point (see the stylesheet); hidden otherwise. */
 export const addButtonMarkup = util.svg/* xml */`
+    <rect @selector="addPulse" class="pulse"/>
     <rect @selector="addButton"/>
     <path @selector="addIcon"/>
 `;
@@ -198,6 +200,15 @@ export const FILLED_PILL_ATTRS = {
  * every add button.
  */
 export const ADD_BUTTON_ATTRS = {
+    addPulse: {
+        display: 'none',
+        x: `calc(w - ${ADD_BUTTON_SIZE.width / 2})`,
+        y: `calc(h / 2 - ${ADD_BUTTON_SIZE.height / 2})`,
+        width: ADD_BUTTON_SIZE.width,
+        height: ADD_BUTTON_SIZE.height,
+        rx: 3,
+        ry: 3
+    },
     [ADD_BUTTON_SELECTOR]: {
         x: `calc(w - ${ADD_BUTTON_SIZE.width / 2})`,
         y: `calc(h / 2 - ${ADD_BUTTON_SIZE.height / 2})`,
@@ -220,20 +231,30 @@ export const ADD_BUTTON_ATTRS = {
     }
 };
 
-/** Draws the add button of `pill` `size` wide and high, around the same center - the size of a node's button, or larger as a drop point. */
-export function setAddButtonSize(pill: dia.Element, size: number): void {
+/**
+ * Makes the add button of `pill` a drop point, or a plain button again: a
+ * drop point is drawn larger, around the same center, with the ring that
+ * pulses behind it. A hidden button stays hidden, ring included.
+ */
+export function setDropPoint(pill: dia.Element, active: boolean): void {
+    const shown = pill.attr([ADD_BUTTON_SELECTOR, 'display']) !== 'none';
+    const size = active ? DROP_POINT_SIZE : ADD_BUTTON_SIZE.width;
+    const box = { x: `calc(w - ${size / 2})`, y: `calc(h / 2 - ${size / 2})`, width: size, height: size };
     pill.attr({
-        [ADD_BUTTON_SELECTOR]: { x: `calc(w - ${size / 2})`, y: `calc(h / 2 - ${size / 2})`, width: size, height: size },
+        addPulse: { ...box, display: active && shown ? null : 'none' },
+        [ADD_BUTTON_SELECTOR]: box,
         addIcon: { transform: `translate(calc(w), calc(h / 2)) scale(${size / ADD_BUTTON_SIZE.width})` }
     });
 }
 
 /** Shows or hides the add button of `pill` - the one at its right end. */
 export function showAddButton(pill: dia.Element, visible: boolean): void {
+    const display = visible ? null : 'none';
     pill.attr({
-        [ADD_BUTTON_SELECTOR]: { display: visible ? null : 'none' },
-        addIcon: { display: visible ? null : 'none' }
+        [ADD_BUTTON_SELECTOR]: { display },
+        addIcon: { display }
     });
+    if (!visible) pill.attr('addPulse/display', 'none');
 }
 
 /** The collapse/expand button of a group, on the bottom edge of its start. Inverted colors, so that it stands out on the pill. */

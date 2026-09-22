@@ -85,8 +85,9 @@ export function Menu({ request, onClose }: MenuProps): ReactNode {
                     role="menuitem"
                     className="menu-item"
                     disabled={item.disabled}
-                    onMouseEnter={() => onHover?.(item.action)}
-                    onMouseLeave={() => onHover?.(null)}
+                    // The items that cannot be chosen show nothing on hover either.
+                    onMouseEnter={item.disabled ? undefined : () => onHover?.(item.action)}
+                    onMouseLeave={item.disabled ? undefined : () => onHover?.(null)}
                     onClick={() => {
                         onHover?.(null);
                         onClose();

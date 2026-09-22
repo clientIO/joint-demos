@@ -185,25 +185,34 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
     }
 
     /**
+     * Takes the node `id` out of its place and lets its parent lead to its
+     * children instead. A single child takes over the name of the edge, and
+     * so stays the option the node was. The node keeps its branches, if it is
+     * a group, and leads nowhere afterwards.
+     */
+    private spliceOut(json: DiagramJSON, id: Id): void {
+        const children = getEdges(json[id], 'to');
+        const detached = detach(json, id);
+        if (detached) {
+            const { ref, edge } = detached;
+            const edges = [...getEdges(json[ref.parentId], ref.slot)];
+            const moved = children.length === 1 && edge.name !== undefined
+                ? [{ ...children[0], name: edge.name }]
+                : children;
+            edges.splice(ref.index, 0, ...moved);
+            setEdges(json[ref.parentId], ref.slot, edges);
+        }
+        setEdges(json[id], 'to', []);
+    }
+
+    /**
      * Removes the node `id` and lets its parent lead to its children in its
-     * place. A single child takes over the name of the edge, and so stays
-     * the option the removed node was. A group goes with its branches.
+     * place. A group goes with its branches.
      */
     spliceNode(id: Id): void {
         this.setData((json) => {
-            const children = getEdges(json[id], 'to');
-            const detached = detach(json, id);
-            if (detached) {
-                const { ref, edge } = detached;
-                const edges = [...getEdges(json[ref.parentId], ref.slot)];
-                const moved = children.length === 1 && edge.name !== undefined
-                    ? [{ ...children[0], name: edge.name }]
-                    : children;
-                edges.splice(ref.index, 0, ...moved);
-                setEdges(json[ref.parentId], ref.slot, edges);
-            }
+            this.spliceOut(json, id);
             // The children stay: only the node and, for a group, its branches go.
-            setEdges(json[id], 'to', []);
             for (const member of collectSubtree(json, id)) delete json[member];
         });
     }
@@ -219,23 +228,52 @@ export class DiagramData extends mvc.Model<DiagramJSON> {
     moveNode(id: Id, parentId: Id, slot: Slot, childId: Id | null): void {
         this.setData((json) => {
             detach(json, id);
-            const edges = [...getEdges(json[parentId], slot)];
-            const index = childId === null ? -1 : edges.findIndex((candidate) => candidate.id === childId);
-            if (index < 0) {
-                edges.push({ id });
-            } else {
-                edges[index] = { ...edges[index], id };
-                const [leaf] = this.getOpenLeaves(id, json);
-                if (leaf === undefined) throw new Error(`Nothing below ${id} can lead on to ${childId}.`);
-                setEdges(json[leaf], 'to', [{ id: childId! }]);
-            }
-            setEdges(json[parentId], slot, edges);
+            this.attachNode(json, id, parentId, slot, childId);
         });
     }
 
-    /** The ids of the node `id` and everything below it: what moves or goes with it. */
+    /**
+     * Moves the node `id` alone into `slot` of the node `parentId`, as
+     * `moveNode()` does - but what followed it stays behind: its parent
+     * leads to its children in its place. A group takes its branches along.
+     */
+    moveNodeAlone(id: Id, parentId: Id, slot: Slot, childId: Id | null): void {
+        this.setData((json) => {
+            this.spliceOut(json, id);
+            this.attachNode(json, id, parentId, slot, childId);
+        });
+    }
+
+    /** Puts the node `id` into `slot` of the node `parentId`: at the end of the list, or in place of the edge to `childId`, which the open leaf of the node then leads to. */
+    private attachNode(json: DiagramJSON, id: Id, parentId: Id, slot: Slot, childId: Id | null): void {
+        const edges = [...getEdges(json[parentId], slot)];
+        const index = childId === null ? -1 : edges.findIndex((candidate) => candidate.id === childId);
+        if (index < 0) {
+            edges.push({ id });
+        } else {
+            edges[index] = { ...edges[index], id };
+            const [leaf] = this.getOpenLeaves(id, json);
+            if (leaf === undefined) throw new Error(`Nothing below ${id} can lead on to ${childId}.`);
+            setEdges(json[leaf], 'to', [{ id: childId! }]);
+        }
+        setEdges(json[parentId], slot, edges);
+    }
+
+    /** The ids of the node `id` and everything below it: what a move of the branch takes along. */
     getSubtree(id: Id): Id[] {
         return collectSubtree(this.getData(), id);
+    }
+
+    /**
+     * The ids of the node `id` and what it keeps inside - the branches of a
+     * group, recursively - but not what follows it: what a move of the node
+     * alone takes along.
+     */
+    getContent(id: Id): Id[] {
+        const json = this.getData();
+        const node = json[id];
+        if (!node || !isGroupData(node)) return [id];
+        return [id, ...getEdges(node, 'branches').flatMap((edge) => collectSubtree(json, edge.id))];
     }
 
     /** The leaves of the path from `id` that the flow can continue from: those that are not an end. */

@@ -506,9 +506,10 @@ body {
 /*
     The drop points pulse: a ring of the teal spreads from every button and
     fades, over and over, so that the eye finds where the subtree can go.
-    A halo of the HTML buttons is their shadow; of the SVG buttons of the
-    links, their stroke, painted under the fill so that only the outer half
-    shows. No transform: the icons and the positions of the tools stay put.
+    The ring of an HTML button is its shadow; of the SVG button of a link,
+    the stroke of a rect behind it of the same box (the button covers the
+    inner half), so the button keeps its own outline. No transform: the
+    icons and the positions of the tools stay put.
 */
 @keyframes drop-point-pulse {
     from {
@@ -537,22 +538,24 @@ body {
     background: var(--teal);
     animation: drop-point-pulse 1.4s ease-out infinite;
     /* Larger, around the same center: easier to hit. The host of an add button keeps its 18px, so the layout does not move. */
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
 }
 
 .moving-mode .square-button {
-    margin: -3px;
+    margin: -1px;
 }
 
 .moving-mode .pill-add {
-    margin: -3px -38px -3px -3px;
+    margin: -1px -36px -1px -1px;
+    /* As a drop point, outlined like the others, in the color of the surface, not in the blue that sets it off the pill. */
+    border-color: var(--surface);
 }
 
 .moving-mode .square-button svg,
 .moving-mode .pill-add svg {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
 }
 
 .moving-mode .square-button:hover,
@@ -562,19 +565,24 @@ body {
 
 .moving-mode .link-button rect {
     fill: var(--teal);
-    stroke: var(--teal);
-    paint-order: stroke;
-    animation: drop-point-pulse-stroke 1.4s ease-out infinite;
 }
 
 .moving-mode .link-button:hover rect {
     fill: var(--teal-dark);
 }
 
+/* Rendered behind a drop point only. */
+.moving-mode .link-button .pulse {
+    fill: none;
+    stroke: var(--teal);
+    pointer-events: none;
+    animation: drop-point-pulse-stroke 1.4s ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .moving-mode .square-button,
     .moving-mode .pill-add,
-    .moving-mode .link-button rect {
+    .moving-mode .link-button .pulse {
         animation: none;
     }
 }
@@ -731,27 +739,56 @@ body {
     top: 12px;
     left: 50%;
     z-index: 1;
-    display: none;
-    padding: 6px 12px;
+    /* Sized to its text - placed at the middle, it would otherwise get half the width to shrink into - up to the width of the paper. */
+    width: max-content;
+    max-width: calc(100% - 32px);
+    padding: 8px 14px;
     border: 1px solid var(--line);
     border-radius: 6px;
     background: var(--surface);
     box-shadow: 0 4px 14px var(--shadow-soft);
-    font-size: 12px;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
     transform: translateX(-50%);
     pointer-events: none;
 }
 
-.moving-mode .move-hint {
-    display: block;
+.move-hint strong {
+    font-weight: 600;
+}
+
+/* The second line, what to do: a little smaller and quieter than what moves. */
+.move-hint-how {
+    margin-top: 2px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* The drop point drawn in the sentence: a small teal square with the plus. */
+.move-hint-button {
+    width: 16px;
+    height: 16px;
+    vertical-align: -3px;
+}
+
+.move-hint-button rect {
+    fill: var(--teal);
+}
+
+.move-hint-button path {
+    fill: none;
+    stroke: var(--on-blue);
+    stroke-width: 2;
 }
 
 .move-hint kbd {
-    padding: 1px 4px;
+    padding: 1px 5px;
     border: 1px solid var(--line);
     border-radius: 3px;
     font-family: inherit;
-    font-size: 11px;
+    font-size: 12px;
 }
 
 /* The menus: a small panel with an icon and a label per item, below the button that opened it. */

@@ -1,7 +1,8 @@
 import { dia, ui } from '@joint/plus';
 import type { g } from '@joint/plus';
 
-import { addBelow, canDelete, canMoveBelow, canMoveOnLink, deleteElement, getActionTarget, getMovedCells, getNodeElement, hasMoveTarget, insertOnLink, moveBelow, moveOnLink, toggleGroup } from './actions';
+import { addBelow, canMove, canMoveBelow, canMoveOnLink, canRemoveBranch, deleteElement, describeMoved, getActionTarget, getMovedCells, getNodeElement, insertOnLink, moveBelow, moveOnLink, removeBranch, removeNode, toggleGroup } from './actions';
+import type { MoveScope } from './actions';
 import { buildGraph, getId } from './data/build';
 import { DiagramData } from './data/diagram-data';
 import { example } from './data/example';
@@ -11,7 +12,7 @@ import type { FrameRadius } from './frame';
 import { isSelectable, syncInspector } from './inspector';
 import { isCellVisible, runLayout } from './layout';
 import { createNavigator } from './navigator';
-import { COLORS, STEP_RADIUS, StepModel, cellNamespace } from './shapes';
+import { COLORS, PLUS_ICON, STEP_RADIUS, StepModel, cellNamespace } from './shapes';
 import { getTheme, setTheme } from './theme';
 import { addHoverTools, addTooltips, clearPreviews, markMove, placeLinkTools } from './tools';
 import type { ToolActions } from './tools';
@@ -131,7 +132,7 @@ export function init(): void {
         buildGraph(graph, data.getData());
         contentBBox = runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
         // A move whose element the edit removed - an undo, a redo, `Delete` - is off.
-        if (moved && graph.getCell(moved.id) !== moved) setMoved(null);
+        if (moved && graph.getCell(moved.element.id) !== moved.element) setMoved(null);
         paper.updateCellsVisibility();
         // The map hides the content of the collapsed groups like the paper does.
         navigator.targetPaper.updateCellsVisibility();
@@ -212,13 +213,32 @@ export function init(): void {
     // points - the buttons of the links, the add buttons - take the subtree
     // instead of adding, and the move ends. `Escape` or a click on the
     // blank area cancels it.
-    let moved: dia.Element | null = null;
+    let moved: { element: dia.Element; scope: MoveScope } | null = null;
     const moveHintEl = document.getElementById('move-hint')!;
-    /** The move in progress, or none. The app marks the mode: the buttons turn into drop points. */
-    function setMoved(element: dia.Element | null): void {
-        moved = element;
-        moveHintEl.hidden = element === null;
-        appEl.classList.toggle('moving-mode', element !== null);
+    /** The move in progress - the element and what it takes along - or none. The app marks the mode: the buttons turn into drop points, and the hint over the paper names what moves and says what to do. */
+    function setMoved(next: { element: dia.Element; scope: MoveScope } | null): void {
+        moved = next;
+        moveHintEl.hidden = next === null;
+        appEl.classList.toggle('moving-mode', next !== null);
+        if (next) renderMoveHint(describeMoved(data, getId(next.element)), next.scope);
+    }
+    function renderMoveHint(subject: string, scope: MoveScope): void {
+        const what = document.createElement('div');
+        const strong = document.createElement('strong');
+        strong.textContent = subject;
+        what.append('Moving ', strong, scope === 'branch' ? ' and everything below it' : ' alone');
+        const how = document.createElement('div');
+        how.className = 'move-hint-how';
+        // The drop point itself, small, in the sentence.
+        const button = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        button.setAttribute('class', 'move-hint-button');
+        button.setAttribute('viewBox', '-9 -9 18 18');
+        button.setAttribute('aria-label', 'plus');
+        button.innerHTML = `<rect x="-9" y="-9" width="18" height="18" rx="3" ry="3"/><path d="${PLUS_ICON}"/>`;
+        const escape = document.createElement('kbd');
+        escape.textContent = 'Esc';
+        how.append('Click a ', button, ' button where it should go. ', escape, ' or a click on the blank area cancels.');
+        moveHintEl.replaceChildren(what, how);
     }
     /** The tools of the rendered diagram follow the move: drop points, or insert buttons. */
     function placeTools(): void {
@@ -227,30 +247,37 @@ export function init(): void {
         markMove(paper, actions);
     }
     /** Ends the move with a drop: the edit that follows rebuilds the diagram, tools included. */
-    function takeMoved(): string {
-        const id = getId(moved!);
+    function takeMoved(): { id: Id; scope: MoveScope } {
+        const { element, scope } = moved!;
         setMoved(null);
-        return id;
+        return { id: getId(element), scope };
     }
-    const movedId = (): Id => getId(moved!);
+    const movedId = (): Id => getId(moved!.element);
+    const movedScope = (): MoveScope => moved!.scope;
 
     const actions: ToolActions = {
         addBelow: (element, choice) => selectNode(addBelow(data, element, choice)),
         insertOnLink: (link, choice) => selectNode(insertOnLink(data, link, choice)),
-        delete: (element) => deleteElement(graph, data, element),
+        remove: (element, scope) => (scope === 'branch' ? removeBranch(graph, data, element) : removeNode(graph, data, element)),
         toggleGroup: (group) => toggleGroup(data, group),
-        canMove: (element) => hasMoveTarget(graph, data, getId(element)),
-        startMove: (element) => {
-            setMoved(element);
+        canMove: (element, scope) => canMove(graph, data, element, scope),
+        startMove: (element, scope) => {
+            setMoved({ element, scope });
             placeTools();
         },
-        getMoved: () => moved,
-        getMovedCells: () => getMovedCells(graph, data, movedId()),
-        getMovedCellsOf: (element) => getMovedCells(graph, data, getId(element)),
-        canDropBelow: (parent) => canMoveBelow(graph, data, movedId(), parent),
-        canDropOnLink: (link) => canMoveOnLink(graph, data, movedId(), link),
-        dropBelow: (parent) => moveBelow(data, takeMoved(), parent),
-        dropOnLink: (link) => moveOnLink(data, takeMoved(), link)
+        getMoved: () => moved?.element ?? null,
+        getMovedCells: () => getMovedCells(graph, data, movedId(), movedScope()),
+        getMovedCellsOf: (element, scope) => getMovedCells(graph, data, getId(element), scope),
+        canDropBelow: (parent) => canMoveBelow(graph, data, movedId(), movedScope(), parent),
+        canDropOnLink: (link) => canMoveOnLink(graph, data, movedId(), movedScope(), link),
+        dropBelow: (parent) => {
+            const { id, scope } = takeMoved();
+            moveBelow(data, id, scope, parent);
+        },
+        dropOnLink: (link) => {
+            const { id, scope } = takeMoved();
+            moveOnLink(data, id, scope, link);
+        }
     };
     addHoverTools(paper, actions);
     addTooltips(document.body);
@@ -321,7 +348,8 @@ export function init(): void {
         if (!selected) return;
         evt.preventDefault();
         const target = getActionTarget(selected);
-        if (target && canDelete(graph, target)) actions.delete(target);
+        // What the menu's first "remove" item would do: the element alone where its children can move up, the branch below it where they cannot.
+        if (target && canRemoveBranch(graph, target)) deleteElement(graph, data, target);
     });
 
     refresh({ fit: true });

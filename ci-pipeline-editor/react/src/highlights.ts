@@ -1,6 +1,7 @@
 import type { dia } from '@joint/plus';
 
 import { getDeletedCells } from './actions';
+import type { MoveScope } from './actions';
 import type { GroupModel } from './shapes';
 import { AddButtonModel, DecisionModel, GroupStartModel } from './shapes';
 
@@ -30,9 +31,9 @@ function markAll(cells: Iterable<dia.Cell>, mark: Mark, marks = new Map<dia.Cell
     return marks;
 }
 
-/** The cells a deletion of `target` would remove, red - the add buttons among them left alone: buttons do not turn red. */
-export function getDeletionMarks(graph: dia.Graph, target: dia.Element): Marks {
-    return markAll(getDeletedCells(graph, target).filter((cell) => !AddButtonModel.isAddButton(cell)), 'to-be-deleted');
+/** The cells a removal of `target` with `scope` would take, red - the add buttons among them left alone: buttons do not turn red. */
+export function getDeletionMarks(graph: dia.Graph, target: dia.Element, scope: MoveScope): Marks {
+    return markAll(getDeletedCells(graph, target, scope).filter((cell) => !AddButtonModel.isAddButton(cell)), 'to-be-deleted');
 }
 
 /**

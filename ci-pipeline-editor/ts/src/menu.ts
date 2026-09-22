@@ -57,7 +57,8 @@ export function openMenu<A extends string>(target: HTMLElement | SVGElement | g.
     }
     menu.render();
     if (onHover) {
-        for (const button of Array.from(menu.el.querySelectorAll<HTMLElement>('.tool[data-action]'))) {
+        // The items that cannot be chosen show nothing on hover either.
+        for (const button of Array.from(menu.el.querySelectorAll<HTMLElement>('.tool[data-action]:not([disabled])'))) {
             button.addEventListener('mouseenter', () => onHover(button.dataset.action as A));
             button.addEventListener('mouseleave', () => onHover(null));
         }
