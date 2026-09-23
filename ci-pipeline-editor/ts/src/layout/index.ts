@@ -1,7 +1,7 @@
 import type { dia, g } from '@joint/plus';
 
 import { layoutForkGroup } from './fork';
-import { LOOP_GAP, LOOP_START_ROOM, layoutLoopGroup } from './loop';
+import { LOOP_START_ROOM, layoutLoopGroup } from './loop';
 import { AddButtonModel, DecisionModel, GroupModel, GroupStartModel, LinkModel, isGate } from '../shapes';
 import type { GroupKind } from '../shapes';
 import { createTreeLayout } from './tree';
@@ -122,24 +122,6 @@ function nameOptions(graph: dia.Graph): void {
     }
 }
 
-/**
- * Gives every expanded loop with a sibling on its left extra room before it
- * (`prevSiblingGap`), for its return link, which runs outside of the box of
- * the group. Not a loop without one: the tree layout would shift a lone
- * child by half the gap, and a loop below a single parent is to line up
- * with it. Not a collapsed loop either: it shows no return link.
- */
-function makeRoomForReturnLinks(graph: dia.Graph): void {
-    for (const group of graph.getElements().filter(GroupModel.isGroup)) {
-        if (group.getKind() !== 'loop') continue;
-        // A collapsed loop shows no return link: no room for it.
-        const [parent] = graph.getNeighbors(group, { inbound: true });
-        const siblings = parent && !group.isCollapsed() ? getOptions(graph, parent) : [];
-        siblings.sort((a, b) => ((a.get('siblingRank') ?? 0) - (b.get('siblingRank') ?? 0)) || (a.getBBox().x - b.getBBox().x));
-        group.set({ prevSiblingGap: siblings.indexOf(group) > 0 ? LOOP_GAP : 0 });
-    }
-}
-
 /** Lays out the content of an expanded group; each kind of group has a layout of its own. */
 function layoutGroup(graph: dia.Graph, group: GroupModel): void {
     switch (group.getKind()) {
@@ -189,30 +171,6 @@ export function getVisibleBBox(graph: dia.Graph): g.Rect | null {
 }
 
 /**
- * Anchors the outer links of every visible group on the axis of its gates,
- * on the link models: a link into the group meets it at the top of its
- * `start` node, a link out of it leaves it at the bottom of its `end` node -
- * so the tree appears to connect to the gates, although the links connect
- * to the group, which may be wider on one side of the axis. Set after the
- * layout, which decides where the gates are; a collapsed group is the size
- * of its `start`, so the offset is nought. The anchors read the model: a
- * group is never rendered, on the paper or on the map.
- */
-function anchorGroupLinks(graph: dia.Graph, groups: GroupModel[]): void {
-    for (const group of groups) {
-        const center = group.getBBox().center();
-        const startDx = group.getStart().getBBox().center().x - center.x;
-        const endDx = (group.isCollapsed() ? group.getStart() : group.getEnd()).getBBox().center().x - center.x;
-        for (const link of graph.getConnectedLinks(group, { inbound: true })) {
-            link.prop('target/anchor', { name: 'top', args: { dx: startDx, useModelGeometry: true }});
-        }
-        for (const link of graph.getConnectedLinks(group, { outbound: true })) {
-            link.prop('source/anchor', { name: 'bottom', args: { dx: endDx, useModelGeometry: true }});
-        }
-    }
-}
-
-/**
  * Lays out the whole diagram bottom-up: the deepest groups first, because a
  * group is a single node of the tree that contains it and its size has to be
  * known before that tree is laid out. Makes room for the names of the
@@ -222,7 +180,6 @@ function anchorGroupLinks(graph: dia.Graph, groups: GroupModel[]): void {
 export function runLayout(graph: dia.Graph, root: dia.Element): g.Rect | null {
 
     makeRoomForOptions(graph);
-    makeRoomForReturnLinks(graph);
 
     const groups = graph.getElements()
         .filter(GroupModel.isGroup)
@@ -241,7 +198,6 @@ export function runLayout(graph: dia.Graph, root: dia.Element): g.Rect | null {
     }
 
     createTreeLayout(graph).layoutTree(root);
-    anchorGroupLinks(graph, groups);
     nameOptions(graph);
     for (const group of groups) {
         if (group.isCollapsed()) parkHiddenContent(group);

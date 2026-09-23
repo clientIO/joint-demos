@@ -27,10 +27,8 @@ import { createTreeLayout, fitGroupToContent, forkChildrenFrom, getAxisX, isSame
 
 /**
  * Horizontal distance between the return link and the tree. The link runs
- * outside of the box of the group; a loop with a sibling on its left asks
- * the tree layout for that much more room before it (see
- * `makeRoomForReturnLinks()` in `layout/index.ts`), so that the sibling keeps
- * clear of the link.
+ * beside the content, inside the box of the group, which is that much wider
+ * on each side of its axis to hold it.
  */
 export const LOOP_GAP = 40;
 /**
@@ -85,8 +83,7 @@ function collectTree(graph: dia.Graph, roots: dia.Element[]): dia.Element[] {
  * 1. The tree grows down from `start` (with `end` excluded from the layout),
  *    centered on the axis of `start` as the tree layout puts it: a chain of
  *    nodes lines up with the gates. The return link runs a gap left of the
- *    tree, outside of the box of the group; the group's `prevSiblingGap`
- *    keeps a sibling on the left clear of it.
+ *    tree, inside the box of the group, which carries the room for it.
  * 2. `end` is placed below the tree, on the axis, as far as balances the
  *    return link around the tree - a short way below `start` when there is
  *    no tree.
@@ -114,7 +111,7 @@ export function layoutLoopGroup(graph: dia.Graph, group: GroupModel): void {
     // An emptied loop has no tree: `start` links straight down to `end`, and the column of `start` stands in.
     const treeBBox = graph.getCellsBBox(tree) ?? new g.Rect(startBBox.x, startBBox.corner().y + PARENT_GAP, startBBox.width, 0);
 
-    // The return link runs a gap left of everything, outside of the box of the group.
+    // The return link runs a gap left of everything, inside the box of the group.
     const returnX = Math.min(treeBBox.x, startBBox.x) - LOOP_GAP;
 
     // `end` below the tree, as far as balances the return link's run around
@@ -165,8 +162,9 @@ export function layoutLoopGroup(graph: dia.Graph, group: GroupModel): void {
     }
 
     // The box of the group: the tree and the gates, the drop of the return
-    // link below `end` included - not the link's run up the side, which the
-    // `prevSiblingGap` of the group makes room for.
+    // link below `end` included, and a gap on each side of the axis for the
+    // link's run up the side. On each side, so that the axis stays the center
+    // of the group and what hangs below it lines up with the gates.
     const content = treeBBox.union(startBBox).union(end.getBBox()).union(new g.Rect(endX, belowEnd, 0, 0));
-    fitGroupToContent(group, content);
+    fitGroupToContent(group, content, LOOP_GAP);
 }
