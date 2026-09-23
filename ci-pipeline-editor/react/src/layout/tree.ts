@@ -77,11 +77,13 @@ export function createTreeLayout(graph: dia.Graph, options: Partial<layout.TreeL
  * (see `anchorGroupLinks()` in `index.ts`), so the group does not have to be
  * symmetric around it.
  */
-export function fitGroupToContent(group: GroupModel, content: g.Rect): void {
+export function fitGroupToContent(group: GroupModel, content: g.Rect, outside: number = 0): void {
+    const axisX = group.getAxisX();
+    const halfWidth = Math.max(axisX - content.x, content.corner().x - axisX) + outside + GROUP_PADDING;
     const top = group.getStart().getBBox().y;
     const bottom = group.getEnd().getBBox().corner().y;
-    group.position(content.x - GROUP_PADDING, top);
-    group.resize(content.width + 2 * GROUP_PADDING, bottom - top);
+    group.position(axisX - halfWidth, top);
+    group.resize(2 * halfWidth, bottom - top);
 }
 
 /**
