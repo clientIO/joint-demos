@@ -106,13 +106,13 @@ The following scripts are then available from the repository root:
 | Script | Command | Description |
 |---|---|---|
 | `lint` | `npm run lint` | Lint all JS/TS files using the root ESLint config |
-| `build` | `npm run build` | Build all demos into `_site/` (stops on first failure) |
+| `test` | `npm test` | Build every demo into `_site/`, and run the tests of those that have any (stops on first failure) |
 | `screenshot` | `npm run screenshot` | Capture screenshots for demos that don't have one yet |
 | `screenshot:compare` | `npm run screenshot:compare` | Capture a fresh screenshot per demo and compare it against the committed baseline |
 | `link-local-packages` | `npm run link-local-packages` | Repoint every demo's `@joint/*` dependencies at local packages from `.packages/` |
 
 > [!NOTE]
-> `build` require Bash. On Windows, run them from Git Bash or WSL.
+> `test` requires Bash. On Windows, run it from Git Bash or WSL.
 >
 > `screenshot` and `screenshot:compare` require Playwright's Chromium browser. Install it once with:
 > ```bash
@@ -159,7 +159,7 @@ npm run screenshot:compare -- --local-dir=../joint-packages
 
 ### Linking local packages repo-wide (`link-local-packages`)
 
-`node .github/scripts/link-local-packages.mjs [options]` permanently repoints every demo's `@joint/*` dependencies at local packages from a `.packages/` folder at the repo root, instead of the temporary per-run overrides `screenshot:compare` uses. Useful for building/running any demo (or `npm run build`) against an unreleased JointJS/JointJS+ build. A `JOINTJS_NPM_TOKEN` is still needed unless `.packages/` covers *every* `@joint/*` package the demos use — the script reports the ones it could not match, and those still come from the private registry.
+`node .github/scripts/link-local-packages.mjs [options]` permanently repoints every demo's `@joint/*` dependencies at local packages from a `.packages/` folder at the repo root, instead of the temporary per-run overrides `screenshot:compare` uses. Useful for building/running any demo (or `npm test`) against an unreleased JointJS/JointJS+ build. A `JOINTJS_NPM_TOKEN` is still needed unless `.packages/` covers *every* `@joint/*` package the demos use — the script reports the ones it could not match, and those still come from the private registry.
 
 It walks every `package.json` in the repo and, for each `@joint/*` dependency, looks for a match in `.packages/` using the same naming convention as `--local-dir` above (`joint-<name>.tgz`, `<name>.tgz`, a versioned `joint-<name>-<version>.tgz` or `<name>-<version>.tgz`, `joint-<name>/` or `<name>/`). The version has to start with a digit, so `joint-react-plus-4.3.1.tgz` is not taken for a versioned `joint-react`, and a candidate whose own manifest names a different package is skipped. Dependencies with no match are left untouched. Matched `package.json` files are rewritten in place and `npm install` is run in each affected demo so the change actually takes effect. A manifest of every file it touched is kept at `.packages/.link-manifest.json` so the change can be undone later with `--restore`, independent of git state.
 
