@@ -43,12 +43,14 @@ interface ButtonOptions {
     offsetY?: number;
     /** The toggle of a group is drawn in reversed colors: a white disc with a blue outline and icon. */
     reversed?: boolean;
+    /** Asked on every update of the tools whether the button belongs on the screen. */
+    visibility?: (view: dia.ElementView) => boolean;
     /** The disc of the button; blue unless it says otherwise. */
     fill?: string;
     action: () => void;
 }
 
-function createButton({ icon, title, x, y, offsetX = 0, offsetY = 0, reversed = false, fill: color = BUTTON_FILL, action }: ButtonOptions): elementTools.Button {
+function createButton({ icon, title, x, y, offsetX = 0, offsetY = 0, reversed = false, fill: color = BUTTON_FILL, visibility, action }: ButtonOptions): elementTools.Button {
     const fill = reversed ? '#FFFFFF' : color;
     const stroke = reversed ? color : '#FFFFFF';
     return new elementTools.Button({
@@ -56,6 +58,7 @@ function createButton({ icon, title, x, y, offsetX = 0, offsetY = 0, reversed = 
         y,
         offset: { x: offsetX, y: offsetY },
         useModelGeometry: true,
+        visibility,
         markup: util.svg/* xml */`
             <circle @selector="body" r="${BUTTON_RADIUS}" fill="${fill}" stroke="${stroke}" stroke-width="1.5" cursor="pointer"/>
             <path d="${icon}" fill="none" stroke="${stroke}" stroke-width="2" pointer-events="none"/>
@@ -89,6 +92,19 @@ function getToolsTarget(element: dia.Element): dia.Element | null {
 const BUTTON_PITCH = 28;
 
 /**
+ * The view the pointer is on, if any. The buttons of a hover are told to ask
+ * for it on every update of the tools, rather than being shown and hidden by
+ * hand: a tools view shows every tool that was not explicitly hidden the first
+ * time it renders, which on an async paper happens after the hiding.
+ */
+let hoveredView: dia.ElementView | null = null;
+
+/** Whether the buttons of a hover belong on `view` right now. */
+function isHovered(view: dia.ElementView): boolean {
+    return view === hoveredView;
+}
+
+/**
  * The button in the top left corner of a hovered element, which takes it out
  * of the tree - the whole group, on the start node of one - and hands what
  * hung on it to what it hung on.
@@ -100,6 +116,7 @@ function createRemoveButton(element: dia.Element, actions: ToolActions): element
         x: '0%',
         y: '0%',
         fill: REMOVE_FILL,
+        visibility: isHovered,
         action: () => actions.remove(element)
     });
 }
@@ -115,6 +132,7 @@ function createWidenButton(element: dia.Element, actions: ToolActions): elementT
         title: 'Make it wider',
         x: '100%',
         y: '0%',
+        visibility: isHovered,
         action: () => actions.widen(element)
     });
 }
@@ -139,7 +157,8 @@ function createHoverButtons(target: dia.Element, actions: ToolActions, withToggl
         ...button,
         x: '50%',
         y: '100%',
-        offsetX: places[index] * BUTTON_PITCH
+        offsetX: places[index] * BUTTON_PITCH,
+        visibility: isHovered
     }));
 }
 
@@ -191,6 +210,7 @@ const toolsByView = new WeakMap<dia.ElementView, ViewTools>();
  * the tool under the pointer - and fire the event again, and swallow the click.
  */
 function updateTools(elementView: dia.ElementView, actions: ToolActions, hovered: boolean): void {
+    hoveredView = hovered ? elementView : null;
     const element = elementView.model;
     let tools = toolsByView.get(elementView);
     if (!tools || !elementView.hasTools()) {
@@ -210,12 +230,9 @@ function updateTools(elementView: dia.ElementView, actions: ToolActions, hovered
         tools = { view, hoverButtons };
         toolsByView.set(elementView, tools);
     }
-    for (const button of tools.hoverButtons) {
-        if (hovered) button.show(); else button.hide();
-    }
     // A tools view mounts on its first update with a visible tool: one with
     // every tool hidden - a node's, until its first hover - is not in the
-    // DOM yet, and `show()` alone does not put it there.
+    // DOM yet, and the hover alone does not put it there.
     elementView.updateTools();
 }
 

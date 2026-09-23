@@ -24,7 +24,7 @@ function isInsideCollapsedGroup(cell: dia.Cell): boolean {
  * group. This is what the layout works on, whether or not the slabs of the
  * groups are drawn.
  */
-function isCellVisible(cell: dia.Cell): boolean {
+export function isCellVisible(cell: dia.Cell): boolean {
     if (isInsideCollapsedGroup(cell)) return false;
     if (cell.isLink()) {
         const source = cell.getSourceElement();
