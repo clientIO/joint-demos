@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: build-demos.sh [--force] [--jobs N] [demo-name]
-# When demo-name is provided, only that demo is built.
-# When omitted, all demos are built.
-# --force:  keep building after a demo fails (default: stop starting new ones)
-# --jobs N: how many demos to build at once (default: the machine's cores, max 4)
+# Usage: build-demos.sh [--force] [--jobs N] [--demos a,b,c] [demo-name...]
+# When demo names or --demos are provided, only those demos are built.
+# When neither is, all demos are built. Both forms add to the same list, and a
+# name matching no demo stops the run before anything is built.
+# --force:      keep building after a demo fails (default: stop starting new ones)
+# --jobs N:     how many demos to build at once (default: the machine's cores, max 4)
+# --demos a,b:  build only these demos (repeatable, comma-separated)
 #
 # Demos are independent — each installs and builds inside its own directory and
 # copies its own output into _site — so they are built several at a time. The
@@ -14,10 +16,19 @@ set -euo pipefail
 #
 # Each demo's output is captured to its own log and printed when it finishes,
 # so the logs stay readable instead of interleaving.
+#
+# A demo that defines a `test` script also has `npm test` run against it, after
+# its build output has been copied into _site. Most demos define none, and that
+# is not a failure - only a test that runs and fails marks the demo failed.
+#
+# Set CLEANUP=1 to delete each demo's node_modules and dist once its output has
+# been copied into _site. A CI runner does not have room for every demo's
+# dependencies at once, and nothing after the copy needs them. It is opt-in
+# because it is destructive to a local checkout.
 
 FORCE=false
-FILTER=""
 JOBS=""
+SELECTED=()
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --force) FORCE=true; shift ;;
@@ -31,9 +42,42 @@ while [[ $# -gt 0 ]]; do
             fi
             JOBS="$2"; shift 2 ;;
         --jobs=*) JOBS="${1#--jobs=}"; shift ;;
-        *) FILTER="$1"; shift ;;
+        --demos)
+            if [[ $# -lt 2 ]]; then
+                echo "build-demos.sh: --demos needs a comma-separated list" >&2
+                exit 2
+            fi
+            IFS=',' read -r -a _added <<< "$2"
+            SELECTED+=(${_added[@]+"${_added[@]}"}); shift 2 ;;
+        --demos=*)
+            IFS=',' read -r -a _added <<< "${1#--demos=}"
+            SELECTED+=(${_added[@]+"${_added[@]}"}); shift ;;
+        # Bare names join the same list as --demos, so the two combine cleanly
+        # (`charts kanban` = `--demos charts,kanban`).
+        *) SELECTED+=("$1"); shift ;;
     esac
 done
+
+# Empty entries come from a stray comma (`--demos a,,b`) or an empty argument,
+# and would otherwise silently match nothing, so they are dropped rather than
+# carried into the plan.
+if [[ ${#SELECTED[@]} -gt 0 ]]; then
+    _kept=()
+    for name in "${SELECTED[@]}"; do
+        [[ -n "$name" ]] && _kept+=("$name")
+    done
+    SELECTED=(${_kept[@]+"${_kept[@]}"})
+fi
+
+# Membership test for the selection, so the plan loop stays readable.
+is_selected() {
+    [[ ${#SELECTED[@]} -eq 0 ]] && return 0
+    local name
+    for name in "${SELECTED[@]}"; do
+        [[ "$name" == "$1" ]] && return 0
+    done
+    return 1
+}
 
 if [[ -z "$JOBS" ]]; then
     cores="$( (nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4) )"
@@ -53,6 +97,12 @@ fi
 SITE_DIR="_site"
 CONFIG_FILE="demos.config.json"
 
+# Opt-in, and read once here so the build loop only tests a boolean.
+case "${CLEANUP:-}" in
+    1 | true) CLEANUP=true ;;
+    *) CLEANUP=false ;;
+esac
+
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
 PLAN="$WORK_DIR/plan"
@@ -66,7 +116,7 @@ mkdir -p "$WORK_DIR/logs" "$WORK_DIR/status"
 # ---------------------------------------------------------------------------
 
 # Dumped once, as `demo<TAB>field<TAB>value` lines. It used to be a `node -e`
-# per lookup — four per demo, several hundred interpreter starts per run, all
+# per lookup — three per demo, several hundred interpreter starts per run, all
 # to read one small file.
 : > "$CONFIG_DUMP"
 if [[ -f "$CONFIG_FILE" ]]; then
@@ -90,6 +140,7 @@ demo_config() {
 # ---------------------------------------------------------------------------
 
 SKIPPED=()
+KNOWN=()
 
 for demo_dir in */; do
     demo_name="${demo_dir%/}"
@@ -99,14 +150,18 @@ for demo_dir in */; do
         .* | _site | node_modules) continue ;;
     esac
 
-    # If a filter is provided, skip non-matching demos
-    if [[ -n "$FILTER" && "$demo_name" != "$FILTER" ]]; then
+    KNOWN+=("$demo_name")
+
+    # If a selection is provided, skip demos that are not in it
+    if ! is_selected "$demo_name"; then
         continue
     fi
 
     # Check demos.config.json for skip flag
     if [[ "$(demo_config "$demo_name" skip)" == "true" ]]; then
-        echo ":: Skipping $demo_name (skip=true in demos.config.json)"
+        # Planning diagnostics go to stderr, alongside the rest of the run's
+        # warnings. Skips are also counted into the summary at the end.
+        echo "Skipping $demo_name (skip=true in demos.config.json)" >&2
         SKIPPED+=("$demo_name")
         continue
     fi
@@ -117,7 +172,7 @@ for demo_dir in */; do
         if [[ -d "$demo_dir/$config_variant" ]]; then
             build_dir="$demo_dir/$config_variant"
         else
-            echo ":: WARNING: $demo_name variant '$config_variant' not found, falling back to default"
+            echo "WARNING: $demo_name variant '$config_variant' not found, falling back to default" >&2
             config_variant=""
         fi
     fi
@@ -129,7 +184,7 @@ for demo_dir in */; do
         elif [[ -d "$demo_dir/js" ]]; then
             build_dir="$demo_dir/js"
         else
-            echo ":: Skipping $demo_name (no ts/ or js/ subdirectory — add a variant to demos.config.json)"
+            echo "Skipping $demo_name (no ts/ or js/ subdirectory — add a variant to demos.config.json)" >&2
             SKIPPED+=("$demo_name")
             continue
         fi
@@ -148,17 +203,48 @@ for demo_dir in */; do
     printf '%s\t%s\t%s\n' "$demo_name" "$build_dir" "$build_flags" >> "$PLAN"
 done
 
+# A selected name matching no directory is a typo or a stale name, and silence
+# here is the expensive kind: the run would build whatever else matched and exit
+# 0, so CI reports success for a demo it never built. Callers are especially
+# exposed - joint-plus asks for a `demos_ref` that falls back to the default
+# branch, where a name added on another branch does not exist yet.
+# A selected demo that exists but is skipped by demos.config.json is not this:
+# that is deliberate, and the summary already counts it.
+UNKNOWN=()
+for name in ${SELECTED[@]+"${SELECTED[@]}"}; do
+    matched=false
+    for known in ${KNOWN[@]+"${KNOWN[@]}"}; do
+        [[ "$name" == "$known" ]] && { matched=true; break; }
+    done
+    [[ "$matched" == true ]] || UNKNOWN+=("$name")
+done
+if [[ ${#UNKNOWN[@]} -gt 0 ]]; then
+    echo "build-demos.sh: no such demo: ${UNKNOWN[*]}" >&2
+    exit 2
+fi
+
 PLANNED=$(wc -l < "$PLAN" | tr -d ' ')
 
 rm -rf "$SITE_DIR"
 mkdir -p "$SITE_DIR"
 
-echo ":: Building $PLANNED demos, $JOBS at a time"
+echo "Building $PLANNED demos, $JOBS at a time"
 echo ""
 
 # ---------------------------------------------------------------------------
 # Build
 # ---------------------------------------------------------------------------
+
+# Whether a demo defines its own `test` script. Read from package.json rather
+# than run speculatively: `npm test` on a package without one still exits 0,
+# which would make "tested" and "has no tests" indistinguishable in the log.
+has_test_script() {
+    node -e '
+        const { readFileSync } = require("fs");
+        const pkg = JSON.parse(readFileSync(process.argv[1] + "/package.json", "utf8"));
+        process.exit(pkg.scripts?.test ? 0 : 1);
+    ' "$1" 2>/dev/null
+}
 
 # One demo, start to finish. Never exits non-zero: the outcome is a file, so
 # that a failure cannot take its shard down with it.
@@ -167,7 +253,7 @@ build_demo() {
     local log="$WORK_DIR/logs/$demo_name" status="$WORK_DIR/status/$demo_name"
 
     {
-        echo ":: Building $demo_name from $build_dir ($build_flags)"
+        echo "Building $demo_name from $build_dir ($build_flags)"
         if (
             cd "$build_dir"
             npm install --ignore-scripts=false
@@ -179,15 +265,43 @@ build_demo() {
                 # and it costs nothing to not depend on it.
                 mkdir -p "$SITE_DIR/$demo_name"
                 cp -r "$build_dir/dist/." "$SITE_DIR/$demo_name/"
-                echo ":: Done $demo_name"
-                echo built > "$status"
+
+                # Run after the output is safely in _site, so a failing test
+                # reports the demo as broken without also losing the build - and
+                # before the cleanup below, which needs node_modules gone either
+                # way. Only demos that define `test` have one; the rest are not
+                # missing anything, so silence is the right outcome for them.
+                if has_test_script "$build_dir"; then
+                    echo "Testing $demo_name"
+                    if (cd "$build_dir" && npm test); then
+                        echo "Done $demo_name"
+                        echo built > "$status"
+                    else
+                        echo "FAILED: $demo_name tests failed"
+                        echo failed > "$status"
+                    fi
+                else
+                    echo "Done $demo_name"
+                    echo built > "$status"
+                fi
             else
-                echo ":: FAILED: $demo_name built but no dist/ found"
+                echo "FAILED: $demo_name built but no dist/ found"
                 echo failed > "$status"
             fi
         else
-            echo ":: FAILED: $demo_name build failed"
+            echo "FAILED: $demo_name build failed"
             echo failed > "$status"
+        fi
+
+        # Reclaimed here rather than at the end of the run: with several demos
+        # in flight, only what is being built has to fit on disk at once.
+        # A failed demo is cleaned too — its log already holds the diagnosis,
+        # and a run with failures is the one most likely to be short of space
+        # by the time it finishes.
+        if [[ "$CLEANUP" == true ]]; then
+            for disposable in node_modules dist; do
+                rm -rf "${build_dir:?}/$disposable"
+            done
         fi
     } > "$log" 2>&1
 

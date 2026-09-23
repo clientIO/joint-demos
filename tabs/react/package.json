@@ -24,7 +24,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "cross-env BUILD_PATH=dist react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
