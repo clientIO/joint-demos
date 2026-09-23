@@ -24,7 +24,7 @@ node .github/scripts/screenshot-demos.mjs data-pipeline
 
 ## How it works
 
-1. Reads `demos.config.json` for variant and skip configuration (same logic as `build-demos.sh`)
+1. Reads `demos.config.json` for variant and skip configuration (same logic as `test-all.sh`)
 2. For each demo, detects the dev server type:
    - Vite (`npm run dev`) on port 5173
    - webpack-dev-server (`npm start`) on port 8080
@@ -47,4 +47,4 @@ node .github/scripts/screenshot-demos.mjs data-pipeline
 
 - [`demos.config.json`](../../demos.config.json) — per-demo configuration
 - [`.github/docs/demos-config.md`](./demos-config.md) — documentation for the config file
-- [`.github/docs/build-demos.md`](./build-demos.md) — documentation for the build script
+- [`.github/docs/test-all.md`](./test-all.md) — documentation for the build/test script

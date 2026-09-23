@@ -1,4 +1,4 @@
-# Builds the demos and reports which ones failed.
+# Builds and tests every demo, and reports which ones failed.
 # - Runs by hand, and on `workflow_call` from another repo.
 # - NOTE: deliberately not on push to main. Building every demo is far too slow
 #   and costly per merge; joint-plus calls this on a schedule instead.
@@ -73,7 +73,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  test-all:
     runs-on: ubuntu-latest
 
     steps:
@@ -182,7 +182,7 @@ jobs:
           ls -l .packages
           node .github/scripts/link-local-packages.mjs --skip-install
 
-      - name: Build demos
+      - name: Build and test demos
         id: build
         env:
           # Caller-supplied values need to go via `env` and `printf '%s'`
@@ -199,7 +199,7 @@ jobs:
           fi
           # Kept so the next step can name the failures without re-running
           # anything; the script itself only prints and sets the exit code.
-          bash .github/scripts/build-demos.sh "${args[@]}" 2>&1 | tee /tmp/build.log
+          bash .github/scripts/test-all.sh "${args[@]}" 2>&1 | tee /tmp/test-all.log
 
       - name: Summarise
         if: always() # A failed build must still be summarized
@@ -231,11 +231,11 @@ jobs:
             printf '| **Demos** | `%s` (%s) |\n' "$RESOLVED_REF" "$RESOLVED_WHY"
             printf '| **Packages** | %s |\n' "$packages"
             printf '| **Selection** | %s |\n' "$selection"
-            grep -E '^(Built|Failed|Skipped):' /tmp/build.log 2>/dev/null \
+            grep -E '^(Built|Failed|Skipped):' /tmp/test-all.log 2>/dev/null \
               | sed -E 's/^([^:]+): (.*)$/| **\1** | \2 |/' || true
           } >> "$GITHUB_STEP_SUMMARY"
 
-          failed="$(sed -n 's/^Failed: [0-9]* demos: //p' /tmp/build.log 2>/dev/null || true)"
+          failed="$(sed -n 's/^Failed: [0-9]* demos: //p' /tmp/test-all.log 2>/dev/null || true)"
           if [ -n "$failed" ]; then
             for demo in $failed; do
               echo "::error title=Demo build failed::$demo"

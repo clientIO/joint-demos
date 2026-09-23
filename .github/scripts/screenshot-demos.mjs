@@ -15,7 +15,7 @@
  *   npm install playwright
  *   npx playwright install chromium
  *
- * The script reuses the same variant-resolution logic as build-demos.sh,
+ * The script reuses the same variant-resolution logic as test-all.sh,
  * reading demos.config.json for per-demo overrides:
  *   - variant: which sub-directory to build and serve.
  *   - viewport: { width, height } the page is shot at.
@@ -69,7 +69,7 @@ function demoConfig(config, name, field) {
 }
 
 // ---------------------------------------------------------------------------
-// Variant resolution (mirrors build-demos.sh logic)
+// Variant resolution (mirrors test-all.sh logic)
 // ---------------------------------------------------------------------------
 
 function resolveBuildDir(config, demoName) {

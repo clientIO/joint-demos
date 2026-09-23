@@ -60,10 +60,10 @@
  *   npx playwright install chromium
  *
  * The script reuses the same variant-resolution and dev-server logic as
- * screenshot-demos.mjs / build-demos.sh, reading demos.config.json for
+ * screenshot-demos.mjs / test-all.sh, reading demos.config.json for
  * per-demo overrides. Two fields there are specific to this script:
  *   - skipScreenshotComparison: excludes a demo from comparison without
- *     affecting build-demos.sh / screenshot-demos.mjs (unlike `skip`, which
+ *     affecting test-all.sh / screenshot-demos.mjs (unlike `skip`, which
  *     is shared and also removes the demo from build/deploy).
  *   - screenshotThreshold: per-demo override of --threshold.
  *   - query: query string the screenshot is taken with, for a demo whose
@@ -200,7 +200,7 @@ function demoConfig(config, name, field) {
 }
 
 // ---------------------------------------------------------------------------
-// Variant resolution (mirrors build-demos.sh logic)
+// Variant resolution (mirrors test-all.sh logic)
 // ---------------------------------------------------------------------------
 
 function resolveBuildDir(config, demoName) {

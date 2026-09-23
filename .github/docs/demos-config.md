@@ -28,7 +28,7 @@ Demos not listed in the config use default behavior. All fields are optional.
 | `buildFlags` | `string` | build script | Overrides the default flags passed to `npm run build`. When not set, defaults to `--base=./ --mode=production` for Vite projects or `--mode=production` for others. Use this for frameworks that need different flags (e.g. `"--configuration production"` for Angular). |
 | `viewport` | `object` | screenshot script | Custom viewport size `{ "width": N, "height": N }` for screenshots. Defaults to 1024x768. |
 | `unlisted` | `boolean` | CLI tooling | Hides the demo from `@joint/cli list`. Still builds and deploys normally. |
-| `skipScreenshotComparison` | `boolean` | compare-screenshots script | Excludes the demo from screenshot regression comparison only. Unlike `skip`, it has no effect on build-demos.sh or screenshot-demos.mjs — the demo still builds and deploys normally. |
+| `skipScreenshotComparison` | `boolean` | compare-screenshots script | Excludes the demo from screenshot regression comparison only. Unlike `skip`, it has no effect on test-all.sh or screenshot-demos.mjs — the demo still builds and deploys normally. |
 | `screenshotThreshold` | `number` | compare-screenshots script | Per-demo max allowed % of differing pixels before the demo is flagged as mismatched. Overrides the script's `--threshold` value (default: 1). |
 
 ## Default behavior
@@ -96,5 +96,5 @@ Exclude a demo from screenshot regression comparison, while still building/deplo
 ## Related files
 
 - [`demos.config.json`](../../demos.config.json) — the config file
-- [`.github/scripts/build-demos.sh`](../scripts/build-demos.sh) — the build script that reads it
-- [`.github/docs/build-demos.md`](./build-demos.md) — documentation for the build script
+- [`.github/scripts/test-all.sh`](../scripts/test-all.sh) — the build/test script that reads it
+- [`.github/docs/test-all.md`](./test-all.md) — documentation for the build/test script

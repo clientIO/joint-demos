@@ -38,8 +38,8 @@ jobs:
           restore-keys: |
             npm-${{ runner.os }}-
 
-      - name: Build demos
-        run: bash .github/scripts/build-demos.sh
+      - name: Build and test demos
+        run: bash .github/scripts/test-all.sh
         env:
           JOINTJS_NPM_TOKEN: ${{ secrets.JOINTJS_NPM_TOKEN }}
 

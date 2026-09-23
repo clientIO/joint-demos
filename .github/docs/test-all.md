@@ -1,22 +1,22 @@
-# build-demos.sh
+# test-all.sh
 
-Build script that compiles demos and assembles them into a `_site/` directory for deployment to GitHub Pages.
+Builds every demo into a `_site/` directory for deployment to GitHub Pages, and runs the tests of those that define any.
 
 ## Usage
 
 ```bash
 # Build all demos (stops on first failure)
-bash .github/scripts/build-demos.sh
+bash .github/scripts/test-all.sh
 
 # Build one demo, or several
-bash .github/scripts/build-demos.sh data-pipeline
-bash .github/scripts/build-demos.sh data-pipeline charts
+bash .github/scripts/test-all.sh data-pipeline
+bash .github/scripts/test-all.sh data-pipeline charts
 
 # Build all demos, continuing past failures
-bash .github/scripts/build-demos.sh --force
+bash .github/scripts/test-all.sh --force
 
 # Build several named demos
-bash .github/scripts/build-demos.sh --demos charts,kitchen-sink
+bash .github/scripts/test-all.sh --demos charts,kitchen-sink
 ```
 
 ## How it works
