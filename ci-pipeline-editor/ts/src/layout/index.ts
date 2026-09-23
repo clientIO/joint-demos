@@ -171,30 +171,6 @@ export function getVisibleBBox(graph: dia.Graph): g.Rect | null {
 }
 
 /**
- * Anchors the outer links of every visible group on the axis of its gates,
- * on the link models: a link into the group meets it at the top of its
- * `start` node, a link out of it leaves it at the bottom of its `end` node -
- * so the tree appears to connect to the gates, although the links connect
- * to the group, which may be wider on one side of the axis. Set after the
- * layout, which decides where the gates are; a collapsed group is the size
- * of its `start`, so the offset is nought. The anchors read the model: a
- * group is never rendered, on the paper or on the map.
- */
-function anchorGroupLinks(graph: dia.Graph, groups: GroupModel[]): void {
-    for (const group of groups) {
-        const center = group.getBBox().center();
-        const startDx = group.getStart().getBBox().center().x - center.x;
-        const endDx = (group.isCollapsed() ? group.getStart() : group.getEnd()).getBBox().center().x - center.x;
-        for (const link of graph.getConnectedLinks(group, { inbound: true })) {
-            link.prop('target/anchor', { name: 'top', args: { dx: startDx, useModelGeometry: true }});
-        }
-        for (const link of graph.getConnectedLinks(group, { outbound: true })) {
-            link.prop('source/anchor', { name: 'bottom', args: { dx: endDx, useModelGeometry: true }});
-        }
-    }
-}
-
-/**
  * Lays out the whole diagram bottom-up: the deepest groups first, because a
  * group is a single node of the tree that contains it and its size has to be
  * known before that tree is laid out. Makes room for the names of the
@@ -222,7 +198,6 @@ export function runLayout(graph: dia.Graph, root: dia.Element): g.Rect | null {
     }
 
     createTreeLayout(graph).layoutTree(root);
-    anchorGroupLinks(graph, groups);
     nameOptions(graph);
     for (const group of groups) {
         if (group.isCollapsed()) parkHiddenContent(group);
