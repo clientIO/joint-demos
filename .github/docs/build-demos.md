@@ -2,8 +2,6 @@
 
 Build script that compiles demos and assembles them into a `_site/` directory for deployment to GitHub Pages.
 
-This script builds; it does not test. Running the demos' test suites is [`test-all.sh`](./test-all.md)'s job, and the two are separate scripts so that a failing test can never keep a working demo out of a deployment.
-
 ## Usage
 
 ```bash
@@ -50,4 +48,3 @@ bash .github/scripts/build-demos.sh --force
 - [`demos.config.json`](../../demos.config.json) — per-demo configuration (skip, variant, buildFlags)
 - [`.github/docs/demos-config.md`](./demos-config.md) — documentation for the config file
 - [`.github/workflows/deploy.yml`](../workflows/deploy.yml) — GitHub Actions workflow that invokes this script
-- [`.github/docs/test-all.md`](./test-all.md) — the testing counterpart, which builds and tests but never writes `_site/`

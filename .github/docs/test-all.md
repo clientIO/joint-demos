@@ -2,19 +2,7 @@
 
 Builds every demo and runs the tests of those that define any. Reports which demos failed, and exits non-zero if any did.
 
-This is the testing counterpart of [`build-demos.sh`](./build-demos.md), and a separate script rather than a mode of that one:
-
-| | `build-demos.sh` | `test-all.sh` |
-|---|---|---|
-| Purpose | produce a deployable `_site/` | find out what is broken |
-| Writes `_site/` | yes, including `index.html` | no |
-| Runs `npm test` | no | yes, where a demo defines it |
-| Invoked by | [`deploy.yml`](../workflows/deploy.yml) | [`test-all.yml`](../workflows/test-all.yml) |
-| Root npm script | `npm run build` | `npm test` |
-
-They share no code. A deployment must not be able to fail over a test, and a change made for the test side must not be able to reach the script the deployment depends on.
-
-Building is part of the test: the scheduled joint-plus run exists to find out whether every demo still compiles against a fresh `@joint/*` build, so a demo that no longer builds has failed whether or not it defines any tests.
+This is the testing counterpart of [`build-demos.sh`](./build-demos.md). Building is part of the test: the scheduled joint-plus run exists to find out whether every demo still compiles against a fresh `@joint/*` build, so a demo that no longer builds has failed whether or not it defines any tests.
 
 ## Usage
 
@@ -70,5 +58,4 @@ Nothing is copied into `_site/`, and no `index.html` is generated. Each demo's b
 
 - [`demos.config.json`](../../demos.config.json) — per-demo configuration (skip, variant, buildFlags)
 - [`.github/docs/demos-config.md`](./demos-config.md) — documentation for the config file
-- [`.github/docs/build-demos.md`](./build-demos.md) — the build script that assembles `_site/` for deployment
 - [`.github/workflows/test-all.yml`](../workflows/test-all.yml) — GitHub Actions workflow that invokes this script (can be called by another repository with its own locally built `@joint/*` packages)
