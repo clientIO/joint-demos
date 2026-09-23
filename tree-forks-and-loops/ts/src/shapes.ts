@@ -4,28 +4,48 @@ import { dia, util } from '@joint/plus';
 export const NODE_SIZE = { width: 120, height: 40 };
 export const PARENT_GAP = 40;
 export const SIBLING_GAP = 24;
-/** Horizontal breathing room of an expanded group. Vertically it fits its start and end exactly. */
+/** How far the box of a group reaches beyond the link that runs down its side. A fork has no such link and no padding. */
 export const GROUP_PADDING = 12;
-export const COLLAPSED_SIZE = { width: 160, height: NODE_SIZE.height };
-/** How far left of the box of a loop group its return link runs; a sibling on the left is kept that much further away. */
+/** How far left of its content the return link of a loop group runs; the box of the group is that much wider on each side. */
 export const LOOP_GAP = SIBLING_GAP;
+/** How much wider the button in the corner of an element makes it. */
+export const WIDEN_BY = 20;
+/** How far right of its content the line past the branch of an `if` group runs; the box is that much wider on each side. */
+export const IF_GAP = SIBLING_GAP;
+/**
+ * Extra room between the start node of an `if` group and the first node of
+ * its branch, for the `yes` label on the way in, which shares that stretch
+ * with the toggle of the group. Read by the tree layout as the `offset` of
+ * the branch: what an element adds to the gap from its parent.
+ */
+export const IF_LABEL_GAP = 20;
 
 const COLORS = {
     node: { fill: '#FFFFFF', stroke: '#4666E5', text: '#222222' },
     gate: { fill: '#4666E5', stroke: '#4666E5', text: '#FFFFFF' },
     group: { fill: '#F7F9FF', stroke: '#7A90EC', header: '#4666E5' },
-    link: '#7A90EC'
+    link: '#7A90EC',
+    /** The paper behind a label, which the label covers the link with. */
+    background: '#F3F7F6'
 };
 
-/** The stroke of an expanded group. */
-const GROUP_STROKE_WIDTH = 12;
+/** How far from the start node the `yes` and `no` labels of an `if` group sit. */
+const LABEL_DISTANCE = 26;
 
 export type NodeRole = 'start' | 'end';
 
-/** What a group stands in for: a fork of two branches that join again, or a loop whose end returns to its start. */
-export type GroupKind = 'fork' | 'loop';
+/**
+ * What a group stands in for: a fork of two branches that join again, a loop
+ * whose end returns to its start, or an `if` - one branch, taken or skipped.
+ */
+export type GroupKind = 'fork' | 'loop' | 'if';
 
-const GROUP_LABELS: Record<GroupKind, string> = { fork: 'Fork', loop: 'Loop' };
+const GROUP_LABELS: Record<GroupKind, string> = { fork: 'Fork', loop: 'Loop', if: 'Condition' };
+
+/** What a group of `kind` is called: the label of its start node, which is the group on the screen. */
+export function getGroupLabel(kind: GroupKind): string {
+    return GROUP_LABELS[kind];
+}
 
 const nodeMarkup = util.svg/* xml */`
     <rect @selector="body"/>
@@ -69,12 +89,25 @@ export class Node extends dia.Element {
     static create(label: string, role?: NodeRole): Node {
         const node = new Node({ role });
         node.attr('label/text', label);
-        if (role) {
+        if (role === 'start') {
             node.attr({
                 body: { fill: COLORS.gate.fill, stroke: COLORS.gate.stroke, rx: 20, ry: 20 },
                 label: { fill: COLORS.gate.text }
             });
         }
+        return node;
+    }
+
+    /**
+     * The end of a group: where its branches meet again, a point of the layout
+     * and no part of the diagram. It is 0x0, so that the tree converges on it
+     * exactly, and its markup is empty - it renders nothing and takes nothing.
+     * The tools of a group are on its start node.
+     */
+    static createEnd(): Node {
+        const node = new Node({ role: 'end' });
+        node.set('markup', []);
+        node.resize(0, 0);
         return node;
     }
 
@@ -94,46 +127,23 @@ export class Node extends dia.Element {
 
 const groupMarkup = util.svg/* xml */`
     <rect @selector="body"/>
-    <text @selector="header"/>
 `;
-
-/** The look of a group in each of its states: a translucent slab, expanded or shrunk to a node. */
-const EXPANDED_ATTRS = {
-    // A translucent slab: the wide stroke of the same color makes it a bit
-    // bigger than the box spanned by the start and end nodes.
-    body: {
-        fill: COLORS.group.stroke,
-        stroke: COLORS.group.stroke,
-        strokeWidth: GROUP_STROKE_WIDTH,
-        strokeDasharray: 'none',
-        opacity: 0.2,
-        pointerEvents: 'none'
-    },
-    header: { display: 'none' }
-};
-const COLLAPSED_ATTRS = {
-    // The same slab, shrunk to a labelled node - without the stroke.
-    body: {
-        fill: COLORS.group.stroke,
-        stroke: 'none',
-        strokeWidth: 0,
-        strokeDasharray: 'none',
-        opacity: 0.3,
-        pointerEvents: 'auto'
-    },
-    header: { display: null }
-};
 
 /**
  * A container that stands in for a subgraph the tree cannot hold: a `start`
  * node, some content and an `end` node the content converges into. A
  * *fork* group holds two branches that join again. A *loop* group holds a
  * tree whose `end` links back to its `start` - the return path, a dashed
- * link up the left side of the group. The outer tree links connect to the
- * group itself, but the group is sized so that its top center is the top
- * center of `start` and its bottom center is the bottom center of `end` -
- * the tree appears to connect to those two nodes. The group is drawn as a
- * translucent slab; its toggle is a tool (see `tools.ts`).
+ * link up the left side of the group. An *if* group holds one branch and a
+ * `no` line down the right side of the group, outside of its box: the way
+ * past the branch. The outer tree links connect to the group itself, but the
+ * group is sized so that its top center is the top center of `start` and its
+ * bottom center is the bottom center of `end` - the tree appears to connect
+ * to those two nodes. Collapsed, it is sized to its `start` node alone, which
+ * is all that is left of it on the screen: nothing changes shape or colour,
+ * the content simply goes. The group itself is drawn as a translucent slab,
+ * and only while the slabs are switched on; its toggle is a tool (see
+ * `tools.ts`).
  */
 export class Group extends dia.Element {
 
@@ -144,37 +154,28 @@ export class Group extends dia.Element {
     defaults() {
         return util.defaultsDeep({
             type: 'Group',
-            size: COLLAPSED_SIZE,
+            size: NODE_SIZE,
             kind: 'fork',
             collapsed: false,
             attrs: {
+                // A translucent slab, exactly the box the group spans.
                 body: {
                     width: 'calc(w)',
                     height: 'calc(h)',
                     rx: 6,
                     ry: 6,
-                    ...EXPANDED_ATTRS.body
-                },
-                header: {
-                    x: 'calc(w / 2)',
-                    y: 'calc(h / 2)',
-                    textVerticalAnchor: 'middle',
-                    textAnchor: 'middle',
-                    fontFamily: 'sans-serif',
-                    fontSize: 12,
-                    fontWeight: 'bold',
-                    fill: COLORS.group.header,
-                    text: 'Fork',
-                    ...EXPANDED_ATTRS.header
+                    stroke: 'none',
+                    strokeWidth: 0,
+                    fill: COLORS.group.stroke,
+                    opacity: 0.2,
+                    pointerEvents: 'none'
                 }
             }
         }, super.defaults);
     }
 
     static create(kind: GroupKind): Group {
-        const group = new Group({ kind });
-        group.attr('header/text', GROUP_LABELS[kind]);
-        return group;
+        return new Group({ kind });
     }
 
     getKind(): GroupKind {
@@ -186,8 +187,6 @@ export class Group extends dia.Element {
     }
 
     toggle(collapsed: boolean = !this.isCollapsed()): void {
-        if (collapsed === this.isCollapsed()) return;
-        this.attr(collapsed ? COLLAPSED_ATTRS : EXPANDED_ATTRS);
         this.set('collapsed', collapsed);
     }
 
@@ -250,6 +249,67 @@ export class Link extends dia.Link {
     static createReturn(source: dia.Element, target: dia.Element): Link {
         const link = Link.create(source, target);
         link.attr('line/strokeDasharray', '6 4');
+        return link;
+    }
+
+    /** Takes the arrow off a link that ends in a point of the layout, not at a node to arrive at. */
+    withoutArrow(): this {
+        this.attr('line/targetMarker', null);
+        return this;
+    }
+
+    /**
+     * A branch joining the flow again: from the leaf of a branch to the point
+     * the branch converges on, or - labelled `no` - from the start of an `if`
+     * straight past its branch. The tree layout never sees it, a tree having
+     * no two ways to a node (see `layout.ts`), and it carries no arrow.
+     */
+    static createJoin(source: dia.Element, target: dia.Element, label?: string): Link {
+        const link = label ? Link.createBranch(source, target, label) : Link.create(source, target);
+        link.set('join', true);
+        return link.withoutArrow();
+    }
+
+    /** Whether the link joins a branch back into the flow, rather than continuing the tree. */
+    static isJoin(link: dia.Link): boolean {
+        return Boolean(link.get('join'));
+    }
+
+    /**
+     * A way out of the start of an `if` group, labelled: `yes` into the
+     * branch, `no` past it. The label sits a fixed distance from the start
+     * node - on the first leg of the route, before it turns - so that the two
+     * read as the two ways out of the same node.
+     */
+    static createBranch(source: dia.Element, target: dia.Element, label: string): Link {
+        const link = Link.create(source, target);
+        link.labels([{
+            position: { distance: LABEL_DISTANCE },
+            attrs: {
+                text: {
+                    text: label,
+                    fontFamily: 'sans-serif',
+                    fontSize: 11,
+                    fontWeight: 600,
+                    letterSpacing: 0.3,
+                    fill: COLORS.group.header
+                },
+                // A chip around the text, drawn over the line: the built-in
+                // background hugs the letters, which leaves the line showing
+                // through at their edges.
+                rect: {
+                    x: 'calc(x - 7)',
+                    y: 'calc(y - 4)',
+                    width: 'calc(w + 14)',
+                    height: 'calc(h + 8)',
+                    rx: 9,
+                    ry: 9,
+                    fill: COLORS.background,
+                    stroke: COLORS.link,
+                    strokeWidth: 1
+                }
+            }
+        }]);
         return link;
     }
 }
