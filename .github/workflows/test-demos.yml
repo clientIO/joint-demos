@@ -65,6 +65,11 @@ on:
         required: false
         default: ''
 
+# Checkout is all this job needs. Left unset, a called workflow inherits what
+# the caller granted, which can be considerably more.
+permissions:
+  contents: read
+
 # The literal prefix matters. Inside a reusable workflow `github.workflow` is the
 # *caller's* workflow name, so without it a run called from elsewhere would land
 # in the same group as the caller and cancel the very job waiting on it.
