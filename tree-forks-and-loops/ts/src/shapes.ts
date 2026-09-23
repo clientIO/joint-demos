@@ -154,8 +154,8 @@ const groupMarkup = util.svg/* xml */`
  * *fork* group holds two branches that join again. A *loop* group holds a
  * tree whose `end` links back to its `start` - the return path, a dashed
  * link up the left side of the group. An *if* group holds one branch and a
- * `no` line down the right side of the group, outside of its box: the way
- * past the branch. The outer tree links connect to the group itself, but the
+ * `skip` line down the right side of the group, beside its content: the
+ * way past the branch. The outer tree links connect to the group itself, but the
  * group is sized so that its top center is the top center of `start` and its
  * bottom center is the bottom center of `end` - the tree appears to connect
  * to those two nodes. Collapsed, it is sized to its `start` node alone, which
@@ -279,7 +279,7 @@ export class Link extends dia.Link {
 
     /**
      * A branch joining the flow again: from the leaf of a branch to the point
-     * the branch converges on, or - labelled `no` - from the start of an `if`
+     * the branch converges on, or - labelled `skip` - from the start of an `if`
      * straight past its branch. The tree layout never sees it, a tree having
      * no two ways to a node (see `layout.ts`), and it carries no arrow.
      */

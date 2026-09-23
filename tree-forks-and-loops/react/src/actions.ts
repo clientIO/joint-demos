@@ -74,8 +74,8 @@ export function addChild(graph: dia.Graph, parent: dia.Element): Node {
  * Adds a group to the graph: a `start` node, its content and an `end` node
  * the content converges into - two branches of one node each for a fork
  * group, one node for a loop group, whose `end` links back to its `start`:
- * the return path, and one node for an `if` group, which the `no` line runs
- * past on its way from the `start` to the `end`. The content, including the
+ * the return path, and one node for an `if` group, which the `skip` line
+ * runs past on its way from the `start` to the `end`. The content, including the
  * inner links, is embedded in the group.
  */
 export function createGroup(graph: dia.Graph, kind: GroupKind): Group {

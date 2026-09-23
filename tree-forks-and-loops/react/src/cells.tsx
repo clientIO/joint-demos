@@ -6,7 +6,7 @@ import type { NodeData } from './shapes';
 /**
  * A rectangle with a label. The start node of a group is a pill, labelled with
  * the kind of the group - it is the group on the screen, collapsed or not. The
- * end node is a point of the layout and draws nothing at all.
+ * end node is a point of the layout with nothing to look at.
  */
 export function NodeView() {
     const { width, height } = useCell(selectElementSize);

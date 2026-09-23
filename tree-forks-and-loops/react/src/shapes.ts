@@ -249,7 +249,7 @@ export class Link extends dia.Link {
 
     /**
      * A branch joining the flow again: from the leaf of a branch to the point
-     * the branch converges on, or - labelled `no` - from the start of an `if`
+     * the branch converges on, or - labelled `skip` - from the start of an `if`
      * straight past its branch. The tree layout never sees it, a tree having
      * no two ways to a node (see `layout.ts`), and it carries no arrow.
      */

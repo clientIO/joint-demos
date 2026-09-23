@@ -92,16 +92,19 @@ function getToolsTarget(element: dia.Element): dia.Element | null {
 const BUTTON_PITCH = 28;
 
 /**
- * The view the pointer is on, if any. The buttons of a hover are told to ask
- * for it on every update of the tools, rather than being shown and hidden by
- * hand: a tools view shows every tool that was not explicitly hidden the first
- * time it renders, which on an async paper happens after the hiding.
+ * The element the pointer is on, if any. The buttons of a hover are told to
+ * ask for it on every update of the tools, rather than being shown and hidden
+ * by hand: a tools view shows every tool that was not explicitly hidden the
+ * first time it renders, which on an async paper happens after the hiding.
+ * The element and not its view, because a layout takes the tools off the paper
+ * and puts them back, and the view of an element may be a new one by then -
+ * while the pointer has not moved.
  */
-let hoveredView: dia.ElementView | null = null;
+let hoveredElement: dia.Element | null = null;
 
 /** Whether the buttons of a hover belong on `view` right now. */
 function isHovered(view: dia.ElementView): boolean {
-    return view === hoveredView;
+    return view.model === hoveredElement;
 }
 
 /**
@@ -203,14 +206,17 @@ const toolsByView = new WeakMap<dia.ElementView, ViewTools>();
 
 /**
  * Puts the tools on the view of `element`: the toggle of a group, and the
- * buttons of a hover, shown while it is `hovered`. The tools are built once
+ * buttons of a hover, which show while the pointer is on it. Says where the
+ * pointer is with `hovered`; called without it - after a layout - it leaves
+ * the hover where it was, so that the buttons of an element the pointer never
+ * left come back with its tools. The tools are built once
  * per view and then shown or hidden, never rebuilt on a hover: a tool
  * carries the id of its element, so the pointer entering a tool is an
  * `element:mouseenter` of the element too, and a rebuild then would replace
  * the tool under the pointer - and fire the event again, and swallow the click.
  */
-function updateTools(elementView: dia.ElementView, actions: ToolActions, hovered: boolean): void {
-    hoveredView = hovered ? elementView : null;
+function updateTools(elementView: dia.ElementView, actions: ToolActions, hovered?: boolean): void {
+    if (hovered !== undefined) hoveredElement = hovered ? elementView.model : null;
     const element = elementView.model;
     let tools = toolsByView.get(elementView);
     if (!tools || !elementView.hasTools()) {
@@ -248,7 +254,7 @@ export function addTools(paper: dia.Paper, actions: ToolActions): void {
     for (const element of paper.model.getElements()) {
         if (!isCellPainted(element)) continue;
         const view = paper.findViewByModel(element) as dia.ElementView | undefined;
-        if (view) updateTools(view, actions, false);
+        if (view) updateTools(view, actions);
     }
 }
 

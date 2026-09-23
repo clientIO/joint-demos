@@ -117,7 +117,7 @@ function layoutReturnLink(graph: dia.Graph, group: Group): void {
 }
 
 /**
- * Routes the `no` line of an `if` group: out of `start` to the right, down the
+ * Routes the `skip` line of an `if` group: out of `start` to the right, down the
  * right side of the group - past the branch, inside the box, which is wide
  * enough to hold it (see `layoutGroup()`) - and into `end` from the right. The
  * return link of a loop, the other way round: it runs with the flow instead of
@@ -175,7 +175,7 @@ function layoutGroup(graph: dia.Graph, group: Group): void {
 
     // Symmetric around the axis, so that the axis is the center of the group -
     // and wide enough for the link that runs beside the content, the return
-    // link of a loop on the left or the `no` line of an `if` on the right,
+    // link of a loop on the left or the `skip` line of an `if` on the right,
     // with a padding beyond it. That room is part of the box on purpose: a
     // width is geometry, which every bounding box and every layout around it
     // accounts for by itself, while a sibling gap is an instruction to one
@@ -229,6 +229,6 @@ export function runLayout(graph: dia.Graph, root: dia.Element): g.Rect | null {
         group.getStart().position(x, y);
     }
 
-    // The links count: the `yes` and `no` labels of an `if` sit beside its box.
+    // The links count: the `skip` label of an `if` sits beside its box.
     return graph.getCellsBBox(graph.getCells().filter(isCellVisible));
 }

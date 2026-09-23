@@ -6,7 +6,7 @@ import type { dia } from '@joint/plus';
 import { addChild, insertGroup, removeElement } from './actions';
 import { areGroupsShown, isCellPainted, isCellVisible, runLayout, showGroups } from './layout';
 import { renderElement } from './render-element';
-import { Group, Node, WIDEN_BY, cellNamespace } from './shapes';
+import { COLORS, Group, Node, WIDEN_BY, cellNamespace } from './shapes';
 import { addTools, updateTools } from './tools';
 import type { ToolActions } from './tools';
 
@@ -71,7 +71,7 @@ function createInitialDiagram(graph: dia.Graph): void {
 }
 
 function fitContent(paper: dia.Paper, graph: dia.Graph): void {
-    // The links count: the `yes` and `no` labels of an `if` sit beside its box.
+    // The links count: the `skip` label of an `if` sits beside its box.
     const contentArea = graph.getCellsBBox(graph.getCells().filter(isCellVisible));
     if (!contentArea) return;
     paper.transformToFitContent({
@@ -133,8 +133,10 @@ function createActions(paper: dia.Paper, graph: dia.Graph): ToolActions {
 }
 
 /**
- * Headless: seeds the diagram, runs the layout, and wires the interactions -
- * the toggle of a group and the hover tools of the elements.
+ * Seeds the diagram, runs the layout, and wires the interactions - the toggle
+ * of a group and the hover tools of the elements. It renders one thing, the
+ * button that puts the slabs of the groups on the paper; everything on the
+ * paper is drawn by the cells.
  */
 function Editor() {
     const { graph } = useGraph();
@@ -199,7 +201,7 @@ export function App() {
                     renderElement={renderElement}
                     // The layout owns the positions.
                     interactive={false}
-                    background={{ color: '#F3F7F6' }}
+                    background={{ color: COLORS.background }}
                     cellVisibility={cellVisibility}
                     options={PAPER_OPTIONS}
                 >
