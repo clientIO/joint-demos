@@ -21,16 +21,22 @@ body {
     height: 100%;
 }
 
-.hint {
+.button {
     position: absolute;
-    top: 18px;
-    left: 0;
-    width: 100%;
-    text-align: center;
+    top: 14px;
+    left: 14px;
+    z-index: 1;
+    padding: 6px 12px;
+    border: 1px solid #4666E5;
+    border-radius: 4px;
+    background: #FFFFFF;
     font-family: sans-serif;
     font-size: 12px;
-    color: #6A6A75;
-    pointer-events: none;
-    user-select: none;
-    z-index: 1;
+    color: #4666E5;
+    cursor: pointer;
+}
+
+.button:hover {
+    background: #4666E5;
+    color: #FFFFFF;
 }

@@ -1,15 +1,19 @@
 import { selectCellType, selectElementData, selectElementSize, useCell } from '@joint/react-plus';
 
-import { COLORS, GROUP_LABELS, GROUP_TYPE, NODE_TYPE } from './shapes';
-import type { GroupData, NodeData } from './shapes';
+import { COLORS, GROUP_TYPE, NODE_TYPE } from './shapes';
+import type { NodeData } from './shapes';
 
-/** The stroke of an expanded group. */
-const GROUP_STROKE_WIDTH = 12;
-
-/** A rectangle with a label. The start and end of a group are pills. */
+/**
+ * A rectangle with a label. The start node of a group is a pill, labelled with
+ * the kind of the group - it is the group on the screen, collapsed or not. The
+ * end node is a point of the layout with nothing to look at.
+ */
 export function NodeView() {
     const { width, height } = useCell(selectElementSize);
     const { label, role } = useCell(selectElementData<NodeData>);
+    // Nothing to draw, but something to render: a view with no content of its
+    // own leaves the links that end on it hidden.
+    if (role === 'end') return <rect width={width} height={height} fill="none" stroke="none" />;
     const colors = role ? COLORS.gate : COLORS.node;
     const radius = role ? height / 2 : 4;
 
@@ -40,45 +44,26 @@ export function NodeView() {
 }
 
 /**
- * A translucent slab. Expanded, the wide stroke of the same color makes it a
- * bit bigger than the box spanned by the start and end nodes, and it lets the
- * pointer through to the content. Collapsed, it shrinks to a node labelled
- * with the kind of the group. The toggle of the group is a tool (see
+ * A translucent slab, exactly the box the group spans, letting the pointer
+ * through to the content. It is scaffolding of the layout and is drawn only
+ * while the slabs are switched on (see `layout.ts`); what stands for a group
+ * on the screen is its start node. The toggle of the group is a tool (see
  * `tools.ts`): it flips the `collapsed` flag on the model, and the editor
  * picks the change up and lays the tree out again.
  */
 export function GroupView() {
     const { width, height } = useCell(selectElementSize);
-    const { kind, collapsed } = useCell(selectElementData<GroupData>);
 
     return (
-        <g>
-            <rect
-                width={width}
-                height={height}
-                rx={6}
-                ry={6}
-                fill={COLORS.group.fill}
-                stroke={collapsed ? 'none' : COLORS.group.fill}
-                strokeWidth={collapsed ? 0 : GROUP_STROKE_WIDTH}
-                opacity={collapsed ? 0.3 : 0.2}
-                pointerEvents={collapsed ? 'auto' : 'none'}
-            />
-            {collapsed && (
-                <text
-                    x={width / 2}
-                    y={height / 2}
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fontFamily="sans-serif"
-                    fontSize={12}
-                    fontWeight="bold"
-                    fill={COLORS.group.button}
-                >
-                    {GROUP_LABELS[kind]}
-                </text>
-            )}
-        </g>
+        <rect
+            width={width}
+            height={height}
+            rx={6}
+            ry={6}
+            fill={COLORS.group.fill}
+            opacity={0.2}
+            pointerEvents="none"
+        />
     );
 }
 
