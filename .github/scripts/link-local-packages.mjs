@@ -18,9 +18,24 @@
  *                           this tool modified from its saved manifest
  *
  * Matching convention (shared with compare-screenshots.mjs's --local-dir):
- * for a dependency @joint/<name>, looks for joint-<name>*.tgz, <name>*.tgz,
- * joint-<name>/ or <name>/ inside the packages directory. Dependencies with
- * no match are left untouched.
+ * for a dependency @joint/<name>, looks for joint-<name>.tgz, <name>.tgz, a
+ * versioned joint-<name>-<version>.tgz or <name>-<version>.tgz, joint-<name>/
+ * or <name>/ inside the packages directory. The version must start with a
+ * digit, so joint-react-plus-4.3.1.tgz is not read as a versioned joint-react.
+ * A candidate whose own manifest names a different package is skipped, so a
+ * filename can never point a dependency at the wrong tarball. Dependencies
+ * with no match are left untouched.
+ *
+ * Every demo that uses @joint/* also gets an "overrides" block covering all
+ * the local packages, so that a package reached only transitively is caught
+ * too. @joint/core is the usual case: without an override it comes from the
+ * registry and the run tests a released core against a local @joint/plus while
+ * reporting success.
+ *
+ * The set of local packages is read from the packages directory itself, not
+ * from what the demos declare - otherwise a package reached only through
+ * another local package (@joint/react, via @joint/react-plus) is named by no
+ * manifest here and would be left resolving from the registry.
  *
  * A manifest of every file this tool has changed is kept at
  * <packages-dir>/.link-manifest.json so --restore can put things back
@@ -30,7 +45,7 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, rmSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 import { execSync } from 'child_process';
-import { findLocalPackageInDir, toFileSpec } from './lib/local-packages.mjs';
+import { applyLocalPackages, findLocalPackageInDir, jointDepNames, localPackagesInDir, toFileSpec } from './lib/local-packages.mjs';
 
 const ROOT = resolve(import.meta.dirname, '..', '..');
 const DEFAULT_PACKAGES_DIR = join(ROOT, '.packages');
@@ -137,43 +152,64 @@ function main() {
     const pkgFiles = findPackageJsonFiles(ROOT);
     const manifest = loadManifest();
     const modifiedDirs = [];
-    const unresolvedDeps = new Set();
     let filesChanged = 0;
 
-    for (const pkgPath of pkgFiles) {
+    // Which `@joint/*` packages have a local stand-in is resolved once.
+    // - Each demo is then pointed at all of those (not only the ones named).
+    // - This covers transitive deps (e.g. `@joint/core` via `@joint/plus`).
+    // `unchanged` is rewritten as if nothing was changed.
+    // - Allows us to ignore differences in indentation, unlike `original`.
+    const parsed = pkgFiles.map((pkgPath) => {
         const original = readFileSync(pkgPath, 'utf-8');
         const pkg = JSON.parse(original);
-        let changed = false;
-        const linked = [];
+        return { pkgPath, original, unchanged: JSON.stringify(pkg, null, 2), pkg };
+    });
 
-        for (const field of ['dependencies', 'devDependencies']) {
-            if (!pkg[field]) continue;
-            for (const depName of Object.keys(pkg[field])) {
-                if (!depName.startsWith('@joint/')) continue;
+    // Seeded from what is actually staged, not from what the demos declare.
+    // A package reached only through another local package is named by no
+    // manifest here - e.g. `@joint/react` arrives via `@joint/react-plus` - and
+    // would otherwise be left resolving from the registry.
+    const specs = {};
+    for (const [name, path] of Object.entries(localPackagesInDir(PACKAGES_DIR))) {
+        specs[name] = toFileSpec(path);
+    }
 
-                const found = findLocalPackageInDir(PACKAGES_DIR, depName);
-                if (!found) {
-                    unresolvedDeps.add(depName);
-                    continue;
-                }
-
-                const spec = toFileSpec(found);
-                if (pkg[field][depName] === spec) continue;
-
-                linked.push(`${depName}: ${pkg[field][depName]} -> ${spec}`);
-                pkg[field][depName] = spec;
-                changed = true;
-            }
+    // The declared names are still walked, to report the ones with no local
+    // stand-in and to match a tarball whose own manifest could not be read.
+    const unresolvedDeps = new Set();
+    for (const { pkg } of parsed) {
+        for (const depName of jointDepNames(pkg)) {
+            if (depName in specs || unresolvedDeps.has(depName)) continue;
+            const found = findLocalPackageInDir(PACKAGES_DIR, depName);
+            if (found) specs[depName] = toFileSpec(found);
+            else unresolvedDeps.add(depName);
         }
+    }
 
-        if (!changed) continue;
+    const resolvedNames = Object.keys(specs).sort();
+    console.log(`Local packages in ${PACKAGES_DIR}:`);
+    for (const name of resolvedNames) console.log(`  ${name} -> ${specs[name]}`);
+    if (resolvedNames.length === 0) {
+        console.error('\nNo @joint/* dependency matched anything in the packages directory.');
+        process.exit(1);
+    }
+    console.log('');
 
-        console.log(`:: ${pkgPath}`);
-        for (const line of linked) console.log(`   ${line}`);
+    for (const { pkgPath, original, unchanged, pkg } of parsed) {
+        const rewritten = applyLocalPackages(pkg, specs);
+
+        // The text decides whether anything happened, not `rewritten`.
+        // - (A manifest can change by gaining only an `overrides` block.)
+        const updated = JSON.stringify(pkg, null, 2);
+        if (updated === unchanged) continue;
+
+        console.log(pkgPath);
+        if (rewritten.length === 0) console.log('   (overrides only)');
+        for (const depName of rewritten) console.log(`   ${depName} -> ${specs[depName]}`);
 
         if (!DRY_RUN) {
             if (!(pkgPath in manifest)) manifest[pkgPath] = original;
-            writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+            writeFileSync(pkgPath, updated);
             modifiedDirs.push(dirname(pkgPath));
         }
         filesChanged++;
@@ -192,7 +228,7 @@ function main() {
 
     console.log(`\nInstalling dependencies in ${modifiedDirs.length} demo(s)...`);
     for (const dir of modifiedDirs) {
-        console.log(`:: npm install (${dir})`);
+        console.log(`npm install (${dir})`);
         try {
             execSync(`${resolveCommand('npm')} install`, { cwd: dir, stdio: 'inherit' });
         } catch (err) {

@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc -b",
-    "test": "yarn typecheck && yarn lint"
+    "test": "npm run typecheck && npm run lint"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.85",
