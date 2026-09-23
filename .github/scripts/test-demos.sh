@@ -261,9 +261,23 @@ test_demo() {
 
     {
         echo "Building $demo_name from $work_dir ($build_flags)"
+        # The registry token is what fetches the packages, and it is needed for
+        # nothing after that. It is therefore present for the install and gone
+        # for everything that follows, so that no third-party code runs while
+        # it is readable: `--ignore-scripts` holds back the dependencies' own
+        # install scripts, and the `npm rebuild` below runs them once the token
+        # has been dropped. A demo's build and test never see it at all.
+        #
+        # Chained with `&&`, not newlines: `set -e` does not apply inside an
+        # `if` condition, so a step that fails there otherwise lets the next one
+        # run anyway - a failed `cd` would install into the wrong directory, and
+        # a failed install would still be judged by whether the build that
+        # followed it happened to succeed.
         if (
-            cd "$work_dir"
-            npm install --ignore-scripts=false
+            cd "$work_dir" &&
+            npm install --ignore-scripts &&
+            unset JOINTJS_NPM_TOKEN &&
+            npm rebuild &&
             npm run build -- $build_flags
         ); then
             # A build that produces no dist/ has not really built. Checked here
@@ -273,7 +287,9 @@ test_demo() {
             if [[ -d "$work_dir/dist" ]]; then
                 if has_test_script "$work_dir"; then
                     echo "Testing $demo_name"
-                    if (cd "$work_dir" && npm test); then
+                    # Without the token, as above: a demo's tests have no
+                    # business reaching the registry.
+                    if (cd "$work_dir" && unset JOINTJS_NPM_TOKEN && npm test); then
                         echo "Done $demo_name"
                         echo tested > "$status"
                     else
@@ -322,7 +338,11 @@ for (( shard = 0; shard < JOBS; shard++ )); do
         while IFS=$'\t' read -r demo_name work_dir build_flags; do
             if (( line++ % JOBS != shard )); then continue; fi
             [[ -e "$ABORT" ]] && break
-            test_demo "$demo_name" "$work_dir" "$build_flags"
+            # `< /dev/null` because this loop's stdin is the plan itself, and a
+            # demo inherits it. Anything that reads stdin - a watch-mode test
+            # runner, a tool that stops to ask a question - then eats the lines
+            # for the demos after it, which are silently never run.
+            test_demo "$demo_name" "$work_dir" "$build_flags" < /dev/null
         done < "$PLAN"
     ) &
 done
@@ -364,9 +384,18 @@ else
     echo "Skipped: 0"
 fi
 if [[ ${#NOT_RUN[@]} -gt 0 ]]; then
-    echo "Not started after a failure: ${#NOT_RUN[@]} demos (pass --force to run them anyway)"
+    if [[ ${#FAILED[@]} -gt 0 ]]; then
+        echo "Not started after a failure: ${#NOT_RUN[@]} demos (pass --force to run them anyway)"
+    else
+        # Nothing failed, so nothing asked for these to be abandoned: a shard
+        # died, or something ate the plan. Either way the run covered less than
+        # it was told to, which is the one outcome that must never be reported
+        # as success - the same reason an unknown demo name stops the run.
+        echo "Not run, and nothing failed to explain it: ${#NOT_RUN[@]} demos: ${NOT_RUN[*]}"
+    fi
 fi
 
-if [[ ${#FAILED[@]} -gt 0 ]]; then
+# A demo that was planned and never reached counts against the run too.
+if [[ ${#FAILED[@]} -gt 0 || ${#NOT_RUN[@]} -gt 0 ]]; then
     exit 1
 fi
