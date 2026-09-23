@@ -1,4 +1,4 @@
-# test-all.sh
+# test-demos.sh
 
 Builds every demo and runs the tests of those that define any. Reports which demos failed, and exits non-zero if any did.
 
@@ -8,17 +8,17 @@ This is the testing counterpart of [`build-demos.sh`](./build-demos.md). Buildin
 
 ```bash
 # Build and test all demos (stops after the first failure)
-bash .github/scripts/test-all.sh
+bash .github/scripts/test-demos.sh
 
 # One demo, or several
-bash .github/scripts/test-all.sh data-pipeline
-bash .github/scripts/test-all.sh data-pipeline charts
+bash .github/scripts/test-demos.sh data-pipeline
+bash .github/scripts/test-demos.sh data-pipeline charts
 
 # Keep going past failures
-bash .github/scripts/test-all.sh --force
+bash .github/scripts/test-demos.sh --force
 
 # Several named demos
-bash .github/scripts/test-all.sh --demos charts,kitchen-sink
+bash .github/scripts/test-demos.sh --demos charts,kitchen-sink
 ```
 
 ## How it works
@@ -58,4 +58,4 @@ Nothing is copied into `_site/`, and no `index.html` is generated. Each demo's b
 
 - [`demos.config.json`](../../demos.config.json) — per-demo configuration (skip, variant, buildFlags)
 - [`.github/docs/demos-config.md`](./demos-config.md) — documentation for the config file
-- [`.github/workflows/test-all.yml`](../workflows/test-all.yml) — GitHub Actions workflow that invokes this script (can be called by another repository with its own locally built `@joint/*` packages)
+- [`.github/workflows/test-demos.yml`](../workflows/test-demos.yml) — GitHub Actions workflow that invokes this script (can be called by another repository with its own locally built `@joint/*` packages)

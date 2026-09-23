@@ -22,7 +22,7 @@
 # - (Decouples workflow commit and default branch so caller can pin on `uses:`.)
 # Otherwise, if the remote cannot be checked (= e.g. network failure):
 # - The job fails (could build default instead of `demos_ref` otherwise).
-name: Test all demos
+name: Test demos
 
 on:
   # NOTE: Deliberately no `pull_request` trigger
@@ -69,11 +69,11 @@ on:
 # *caller's* workflow name, so without it a run called from elsewhere would land
 # in the same group as the caller and cancel the very job waiting on it.
 concurrency:
-  group: test-all-${{ github.workflow }}-${{ github.ref }}
+  group: test-demos-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  test-all:
+  test-demos:
     runs-on: ubuntu-latest
 
     steps:
@@ -199,7 +199,7 @@ jobs:
           fi
           # Kept so the next step can name the failures without re-running
           # anything; the script itself only prints and sets the exit code.
-          bash .github/scripts/test-all.sh "${args[@]}" 2>&1 | tee /tmp/test-all.log
+          bash .github/scripts/test-demos.sh "${args[@]}" 2>&1 | tee /tmp/test-demos.log
 
       - name: Summarise
         if: always() # A failed build must still be summarized
@@ -231,11 +231,11 @@ jobs:
             printf '| **Demos** | `%s` (%s) |\n' "$RESOLVED_REF" "$RESOLVED_WHY"
             printf '| **Packages** | %s |\n' "$packages"
             printf '| **Selection** | %s |\n' "$selection"
-            grep -E '^(Built|Tested|Failed|Skipped):' /tmp/test-all.log 2>/dev/null \
+            grep -E '^(Built|Tested|Failed|Skipped):' /tmp/test-demos.log 2>/dev/null \
               | sed -E 's/^([^:]+): (.*)$/| **\1** | \2 |/' || true
           } >> "$GITHUB_STEP_SUMMARY"
 
-          failed="$(sed -n 's/^Failed: [0-9]* demos: //p' /tmp/test-all.log 2>/dev/null || true)"
+          failed="$(sed -n 's/^Failed: [0-9]* demos: //p' /tmp/test-demos.log 2>/dev/null || true)"
           if [ -n "$failed" ]; then
             for demo in $failed; do
               echo "::error title=Demo failed::$demo"

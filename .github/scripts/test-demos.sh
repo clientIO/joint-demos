@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: test-all.sh [--force] [--jobs N] [--demos a,b,c] [demo-name...]
+# Usage: test-demos.sh [--force] [--jobs N] [--demos a,b,c] [demo-name...]
 # When demo names or --demos are provided, only those demos are tested.
 # When neither is, all demos are tested. Both forms add to the same list, and a
 # name matching no demo stops the run before anything is installed.
@@ -46,14 +46,14 @@ while [[ $# -gt 0 ]]; do
             # the bottom for everyone: `--jobs` eats two arguments, and a shared
             # shift ran off the end of the list when it came last.
             if [[ $# -lt 2 ]]; then
-                echo "test-all.sh: --jobs needs a number" >&2
+                echo "test-demos.sh: --jobs needs a number" >&2
                 exit 2
             fi
             JOBS="$2"; shift 2 ;;
         --jobs=*) JOBS="${1#--jobs=}"; shift ;;
         --demos)
             if [[ $# -lt 2 ]]; then
-                echo "test-all.sh: --demos needs a comma-separated list" >&2
+                echo "test-demos.sh: --demos needs a comma-separated list" >&2
                 exit 2
             fi
             IFS=',' read -r -a _added <<< "$2"
@@ -99,7 +99,7 @@ fi
 # operands arithmetically, so a value like `3x` is a bash error rather than a
 # comparison, and `auto` quietly reads as zero.
 if [[ ! "$JOBS" =~ ^[0-9]+$ ]] || (( JOBS < 1 )); then
-    echo "test-all.sh: --jobs must be a whole number of 1 or more, got '$JOBS'" >&2
+    echo "test-demos.sh: --jobs must be a whole number of 1 or more, got '$JOBS'" >&2
     exit 2
 fi
 
@@ -227,7 +227,7 @@ for name in ${SELECTED[@]+"${SELECTED[@]}"}; do
     [[ "$matched" == true ]] || UNKNOWN+=("$name")
 done
 if [[ ${#UNKNOWN[@]} -gt 0 ]]; then
-    echo "test-all.sh: no such demo: ${UNKNOWN[*]}" >&2
+    echo "test-demos.sh: no such demo: ${UNKNOWN[*]}" >&2
     exit 2
 fi
 
