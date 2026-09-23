@@ -13,13 +13,6 @@ export const LOOP_GAP = SIBLING_GAP;
 export const WIDEN_BY = 20;
 /** How far right of its content the line past the branch of an `if` group runs; the box is that much wider on each side. */
 export const IF_GAP = SIBLING_GAP;
-/**
- * Extra room between the start node of an `if` group and the first node of
- * its branch, for the `yes` label on the way in, which shares that stretch
- * with the toggle of the group. Read by the tree layout as the `offset` of
- * the branch: what an element adds to the gap from its parent.
- */
-export const IF_LABEL_GAP = 20;
 
 export const NODE_TYPE = 'Node';
 export const GROUP_TYPE = 'Group';
@@ -33,8 +26,34 @@ export const COLORS = {
     background: '#F3F7F6'
 };
 
-/** How far from the start node the `yes` and `no` labels of an `if` group sit. */
-const LABEL_DISTANCE = 26;
+/**
+ * The look of the one label of the diagram: `skip`, on the line that goes
+ * past the branch of an `if` group. A chip drawn over the line - the built-in
+ * background hugs the letters, which leaves the line showing through at their
+ * edges - and centered on the line, which is where the label of a link sits
+ * unless it is told otherwise.
+ */
+const LABEL_ATTRS = (text: string) => ({
+    text: {
+        text,
+        fontFamily: 'sans-serif',
+        fontSize: 11,
+        fontWeight: 600,
+        letterSpacing: 0.3,
+        fill: COLORS.group.button
+    },
+    rect: {
+        x: 'calc(x - 7)',
+        y: 'calc(y - 4)',
+        width: 'calc(w + 14)',
+        height: 'calc(h + 8)',
+        rx: 9,
+        ry: 9,
+        fill: COLORS.background,
+        stroke: COLORS.link,
+        strokeWidth: 1
+    }
+});
 
 export type NodeRole = 'start' | 'end';
 
@@ -235,7 +254,8 @@ export class Link extends dia.Link {
      * no two ways to a node (see `layout.ts`), and it carries no arrow.
      */
     static createJoin(source: dia.Element, target: dia.Element, label?: string): Link {
-        const link = label ? Link.createBranch(source, target, label) : Link.create(source, target);
+        const link = Link.create(source, target);
+        if (label) link.labels([{ attrs: LABEL_ATTRS(label) }]);
         link.set('join', true);
         return link.withoutArrow();
     }
@@ -245,43 +265,6 @@ export class Link extends dia.Link {
         return Boolean(link.get('join'));
     }
 
-    /**
-     * A way out of the start of an `if` group, labelled: `yes` into the
-     * branch, `no` past it. The label sits a fixed distance from the start
-     * node - on the first leg of the route, before it turns - so that the two
-     * read as the two ways out of the same node.
-     */
-    static createBranch(source: dia.Element, target: dia.Element, label: string): Link {
-        const link = Link.create(source, target);
-        link.labels([{
-            position: { distance: LABEL_DISTANCE },
-            attrs: {
-                text: {
-                    text: label,
-                    fontFamily: 'sans-serif',
-                    fontSize: 11,
-                    fontWeight: 600,
-                    letterSpacing: 0.3,
-                    fill: COLORS.group.button
-                },
-                // A chip around the text, drawn over the line: the built-in
-                // background hugs the letters, which leaves the line showing
-                // through at their edges.
-                rect: {
-                    x: 'calc(x - 7)',
-                    y: 'calc(y - 4)',
-                    width: 'calc(w + 14)',
-                    height: 'calc(h + 8)',
-                    rx: 9,
-                    ry: 9,
-                    fill: COLORS.background,
-                    stroke: COLORS.link,
-                    strokeWidth: 1
-                }
-            }
-        }]);
-        return link;
-    }
 }
 
 export const cellNamespace = { Node, Group, Link };

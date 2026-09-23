@@ -1,6 +1,6 @@
 import type { dia } from '@joint/plus';
 
-import { Group, IF_LABEL_GAP, Link, Node, PARENT_GAP, getGroupLabel } from './shapes';
+import { Group, Link, Node, PARENT_GAP, getGroupLabel } from './shapes';
 import type { GroupKind } from './shapes';
 
 let nodeCounter = 0;
@@ -89,14 +89,12 @@ export function createGroup(graph: dia.Graph, kind: GroupKind): Group {
     const links = kind === 'if'
         // The branch of an `if` stands on the axis like the content of any
         // other group; what makes it an `if` is the second way out of the
-        // start node, the `no` line, which skips the branch and joins the
-        // flow again at the end node - the return link of a loop, the other
-        // way round. The tree layout sees neither of the two joins.
-        ? [Link.createBranch(start, nodes[0], 'yes'), Link.createJoin(nodes[0], end), Link.createJoin(start, end, 'no')]
+        // start node, labelled `skip`, which goes past the branch and joins
+        // the flow again at the end node - the return link of a loop, the
+        // other way round. The tree layout sees neither of the two joins.
+        ? [Link.create(start, nodes[0]), Link.createJoin(nodes[0], end), Link.createJoin(start, end, 'skip')]
         : nodes.flatMap((node) => [Link.create(start, node), Link.createJoin(node, end)]);
     if (kind === 'loop') links.push(Link.createReturn(end, start));
-    // The way into the branch of an `if` is labelled, and the toggle of the group sits on it: room for both.
-    if (kind === 'if') nodes[0].set('offset', IF_LABEL_GAP);
 
     graph.addCells([group, start, ...nodes, end, ...links]);
     group.embed([start, ...nodes, end, ...links]);
