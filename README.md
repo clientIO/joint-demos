@@ -107,15 +107,13 @@ The following scripts are then available from the repository root:
 |---|---|---|
 | `lint` | `npm run lint` | Lint all JS/TS files using the root ESLint config |
 | `build` | `npm run build` | Build all demos into `_site/` for deployment (stops on first failure) |
-| `test` | `npm test` | Build every demo and run the tests of those that have any, without writing `_site/` (stops on first failure) |
+| `test` | `npm run test` | Build every demo and run the tests of those that have any (stops on first failure) |
 | `screenshot` | `npm run screenshot` | Capture screenshots for demos that don't have one yet |
 | `screenshot:compare` | `npm run screenshot:compare` | Capture a fresh screenshot per demo and compare it against the committed baseline |
 | `link-local-packages` | `npm run link-local-packages` | Repoint every demo's `@joint/*` dependencies at local packages from `.packages/` |
 
 > [!NOTE]
 > `build` and `test` require Bash. On Windows, run them from Git Bash or WSL.
->
-> They are separate scripts on purpose: `build` assembles the deployable `_site/` and never runs a test, so a failing test cannot keep a working demo out of a deployment.
 >
 > `screenshot` and `screenshot:compare` require Playwright's Chromium browser. Install it once with:
 > ```bash
