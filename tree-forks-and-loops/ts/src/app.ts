@@ -79,11 +79,12 @@ export function init(): void {
             });
         }
         // Last: what came back on the paper while it was being laid out - the
-        // slabs of the groups, with the button off - goes away again. Twice:
-        // a view disposed while it was hidden (`disposeHidden`) - the content
-        // of a group that has just been expanded - is in neither list of the
-        // paper, and the pass reads that as mounted and puts the view back.
-        // The second pass finds it mounted for real and takes it off.
+        // slabs of the groups, with the button off - goes away again. Twice,
+        // because a link whose update has to wait for the views of its ends
+        // renders those views itself, whether or not `cellVisibility` wants
+        // them (`forcePostponedViewUpdate` in `dia.Paper`), and that puts the
+        // slab of a group back on the paper as its content is expanded around
+        // it. The second pass finds it mounted and takes it off.
         paper.updateCellsVisibility();
         paper.updateCellsVisibility();
     }
