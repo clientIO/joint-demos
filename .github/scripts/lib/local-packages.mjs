@@ -23,37 +23,43 @@ export function resolveLocalSpec(rawPath) {
     return toFileSpec(abs);
 }
 
-// `<candidate>-<version>.tgz`, which is what `npm pack` writes.
-// - The version is bounded to start with a digit, so that a longer package name
-//   is not read as a version: `joint-react-plus-4.3.1.tgz` begins with
-//   `joint-react-`, and a plain prefix test makes it a versioned `@joint/react`.
-function isVersionedTarball(fileName, candidate) {
-    if (!fileName.startsWith(`${candidate}-`) || !fileName.endsWith('.tgz')) return false;
-    return /^[0-9]/.test(fileName.slice(candidate.length + 1));
-}
-
 // Looks for a tarball or unpacked directory matching a @joint/<name> package
 // inside dirPath, accepting both the "npm pack" naming convention
 // (joint-<name>-<version>.tgz) and plain hand-named files (<name>.tgz).
-export function findLocalPackageInDir(dirPath, depName) {
+//
+// `verify` tightens the match two ways, and needs both: a candidate whose own
+// manifest names a different package is passed over and the search continues
+// (the filename is a convention, the manifest is the fact), and a versioned
+// tarball has to carry a version rather than merely a longer name (which is
+// all that still guards a candidate whose manifest cannot be read).
+//
+// Off by default, and off for compare-screenshots.mjs: it has always matched
+// on filename alone, and verifying costs a `tar` per candidate. On for
+// link-local-packages.mjs, where a wrong match is rewritten into every demo.
+export function findLocalPackageInDir(dirPath, depName, { verify = false } = {}) {
     const suffix = depName.replace(/^@joint\//, '').toLowerCase();
     const entries = readdirSync(dirPath, { withFileTypes: true });
 
-    // A filename is a convention; the manifest inside is the fact. An artifact
-    // that says it is some other package is never returned for this one - the
-    // spec would otherwise install a tarball under the wrong name and fail.
-    // An unreadable manifest is not treated as a mismatch, so a hand-named or
-    // unusual artifact still resolves the way it always did.
-    const declaresThis = (path) => {
-        const name = localPackageName(path);
-        return name === null || name === depName;
-    };
+    // Without `verify` every candidate handed to this is returned, so each
+    // `find`/`sort` below still settles on exactly what it always did.
     const accept = (entryName) => {
         const path = join(dirPath, entryName);
-        return declaresThis(path) ? path : null;
+        if (!verify) return path;
+        const name = localPackageName(path);
+        return (name === null || name === depName) ? path : null;
     };
 
     for (const candidate of [`joint-${suffix}`, suffix]) {
+        // `<candidate>-<version>.tgz`, which is what `npm pack` writes. Under
+        // `verify` the version has to start with a digit, so that a longer
+        // package name is not read as one: `joint-react-plus-4.3.1.tgz` begins
+        // with `joint-react-`, and a plain prefix test makes it a versioned
+        // `@joint/react`.
+        const isVersioned = (fileName) => {
+            if (!fileName.startsWith(`${candidate}-`) || !fileName.endsWith('.tgz')) return false;
+            return verify ? /^[0-9]/.test(fileName.slice(candidate.length + 1)) : true;
+        };
+
         const exactTgz = entries.find(e => e.isFile() && e.name.toLowerCase() === `${candidate}.tgz`);
         if (exactTgz) {
             const path = accept(exactTgz.name);
@@ -61,7 +67,7 @@ export function findLocalPackageInDir(dirPath, depName) {
         }
 
         const versioned = entries
-            .filter(e => e.isFile() && isVersionedTarball(e.name.toLowerCase(), candidate))
+            .filter(e => e.isFile() && isVersioned(e.name.toLowerCase()))
             .sort((a, b) => statSync(join(dirPath, b.name)).mtimeMs - statSync(join(dirPath, a.name)).mtimeMs);
         for (const entry of versioned) {
             const path = accept(entry.name);
@@ -104,9 +110,9 @@ function localPackageName(path) {
 // checkout alone would leave it resolving from the registry.
 //
 // Only the *names* come from the artifacts. Which artifact a name resolves to
-// stays with findLocalPackageInDir, so a single policy settles it whether the
-// name was found here or declared by a demo - and so directory order is never
-// what picks when several artifacts match one name.
+// stays with findLocalPackageInDir, so a single policy settles it
+// whether the name was found here or declared by a demo - and so directory
+// order is never what picks when several artifacts match one name.
 export function localPackagesInDir(dirPath) {
     const found = {};
     if (!existsSync(dirPath)) return found;
@@ -119,7 +125,7 @@ export function localPackagesInDir(dirPath) {
     }
 
     for (const name of names) {
-        const picked = findLocalPackageInDir(dirPath, name);
+        const picked = findLocalPackageInDir(dirPath, name, { verify: true });
         if (picked) found[name] = picked;
     }
     return found;

@@ -180,7 +180,7 @@ function main() {
     for (const { pkg } of parsed) {
         for (const depName of jointDepNames(pkg)) {
             if (depName in specs || unresolvedDeps.has(depName)) continue;
-            const found = findLocalPackageInDir(PACKAGES_DIR, depName);
+            const found = findLocalPackageInDir(PACKAGES_DIR, depName, { verify: true });
             if (found) specs[depName] = toFileSpec(found);
             else unresolvedDeps.add(depName);
         }
