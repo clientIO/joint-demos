@@ -1,4 +1,4 @@
-import { shapes as defaultShapes, connectors, dia, util, linkTools } from '@joint/core';
+import { shapes as defaultShapes, dia, util, linkTools, elementTools } from '@joint/core';
 import './styles.css';
 
 const paperContainer = document.getElementById('paper-container');
@@ -100,6 +100,15 @@ const BOUNDARY_ICON_D = [
     squarePath(BOUNDARY_ICON_X + boundaryIconSquare + BOUNDARY_ICON_GAP, BOUNDARY_ICON_Y + boundaryIconSquare + BOUNDARY_ICON_GAP, boundaryIconSquare)
 ].join(' ');
 
+// JointJS brand mark - part of the boundary's own content (bottom-right
+// corner of the system frame), not paper chrome, so it lives in the
+// Boundary's own markup/attrs and moves with it rather than sitting fixed
+// over the canvas. `calc(w)`/`calc(h)` position it off the boundary's own
+// size, so it stays in the corner regardless of the boundary's size.
+const BOUNDARY_LOGO_WIDTH = 250;
+const BOUNDARY_LOGO_HEIGHT = BOUNDARY_LOGO_WIDTH * (280 / 1000);
+const BOUNDARY_LOGO_PAD = 20;
+
 // --- UseCase: the UML notation for a use case is an ellipse containing only
 // its name - no icon or chip, just the centered title.
 const CARD_WIDTH = 220;
@@ -124,9 +133,8 @@ const UC_TITLE_WRAP_WIDTH = 160;
 // --- Actor: the UML notation for an actor is a stick figure standing free on
 // the canvas, name centered below it - no card, no icon chip. `ACTOR_WIDTH`
 // is wider than the figure itself only so a long actor name still has room to
-// wrap across two lines beneath it; the figure and the ports both stay
-// centered on/near the figure's own narrower footprint (see ACTOR_PORTS),
-// not spread out to this wider box's edges.
+// wrap across two lines beneath it; the figure stays centered on the box's
+// own (narrower) center rather than stretching to fill it.
 const ACTOR_WIDTH = 160;
 const ACTOR_HEIGHT = 120;
 const ACTOR_CX = ACTOR_WIDTH / 2;
@@ -166,11 +174,6 @@ function computeActorGeometry(labelAllowance) {
     const legBottomExpr = centerY(-blockHalf + FIGURE_HEIGHT);
     return {
         headCyExpr: centerY(-blockHalf + FIGURE_HEAD_R),
-        // Where the ports (see ACTOR_PORTS) attach - the figure's own arm
-        // height, a natural "shoulder" point to connect to, rather than the
-        // bounding box's generic vertical center (which sits well below the
-        // arms, down near the legs).
-        armYExpr,
         labelTopExpr: centerY(-blockHalf + FIGURE_HEIGHT + FIGURE_GAP),
         figureD: `M ${ACTOR_CX} ${bodyTopExpr} L ${ACTOR_CX} ${bodyBottomExpr} `
             + `M ${ACTOR_CX - FIGURE_ARM_HALF} ${armYExpr} L ${ACTOR_CX + FIGURE_ARM_HALF} ${armYExpr} `
@@ -191,18 +194,18 @@ const paper = new dia.Paper({
     async: true,
     multiLinks: false,
     linkPinning: false,
-    // Ports are the only magnets (every element root sets `magnet: false`), so
-    // an arrowhead has to find one to connect. This keeps that easy: it snaps
-    // to the nearest valid port within the radius, rather than asking anyone to
-    // hit the port itself. A radius of 125 covers a whole use-case ellipse -
-    // its own two ports sit exactly at its left/right tips, so the farthest
-    // any point on its outline (top or bottom center) ever gets from its
-    // nearer port is sqrt(rx^2 + ry^2) = sqrt(110^2 + 45^2) =~ 119.
-    snapLinks: { radius: 125 },
-    // Light up every port the dragged end could legally land on, so the valid
-    // targets read before the pointer is anywhere near them. It marks them
-    // with the `available-magnet` class (styles.css picks it up) - only ports
-    // carry it, since the element roots are `magnet: false`.
+    // No ports: an element's own root is left with no explicit `magnet`
+    // attribute at all (see Actor/UseCase below), which - per dia.CellView's
+    // own magnet resolution - makes the *whole shape* a valid connection
+    // point (source or target) without that alone making the shape draggable
+    // into a new link (that still needs a deliberate gesture - see the
+    // `elementTools.Connect` button added on hover further down). So a
+    // dropped arrowhead can land anywhere on a use-case ellipse or actor
+    // figure - no snapping radius needed to help it find a small dot.
+    // Light up every element the dragged end could legally land on, so the
+    // valid targets read before the pointer is anywhere near them. It marks
+    // them with the `available-cell`/`available-magnet` classes (styles.css
+    // picks them up).
     markAvailable: true,
     cellViewNamespace: shapes,
     // Explicit rather than relying on the (already-transparent) default - the
@@ -222,20 +225,21 @@ const paper = new dia.Paper({
     // the theme changes, so it is built in one place both this and the theme
     // toggle's setGrid() call use, rather than spelled out twice.
     drawGrid: gridOptions(),
-    // Every link end sits on a port (see PORTS below and endPorts()), so the
-    // line stops at the port's own dot rather than being pushed out to an
-    // element boundary it no longer starts from.
+    // Aim each end at the other element's center...
     defaultAnchor: {
         name: 'center',
         args: {
             useModelGeometry: true
         }
     },
+    // ...but stop the rendered line at the actual shape outline (the ellipse
+    // or the figure's own bounding box) rather than drawing all the way to
+    // that center point.
     defaultConnectionPoint: {
-        name: 'anchor'
+        name: 'boundary'
     },
-    // Hoisted function declaration - see smoothConnector further down.
-    defaultConnector: smoothConnector,
+    // Plain straight line between the two connection points - no router.
+    defaultConnector: { name: 'normal' },
     // `Use` isn't defined yet at this point in the file, but this factory only
     // runs later (when a user actually drags a new link), by which time the
     // class exists - so newly-drawn links get the same styling/markers as the
@@ -287,7 +291,9 @@ class Boundary extends dia.Element {
             attrs: {
                 root: {
                     cursor: 'move',
-                    // Only ports connect - see the port section below.
+                    // Unlike Actor/UseCase, explicitly not a valid connection
+                    // point at all - the boundary is just a frame, never a
+                    // link's source or target.
                     magnet: false
                 },
                 // No drop-shadow filter here on purpose: applied to this shape
@@ -320,6 +326,12 @@ class Boundary extends dia.Element {
                     fontFamily: FONT_FAMILY,
                     fontWeight: 600,
                     letterSpacing: '0.02em'
+                },
+                logo: {
+                    x: `calc(w - ${BOUNDARY_LOGO_WIDTH + BOUNDARY_LOGO_PAD})`,
+                    y: `calc(h - ${BOUNDARY_LOGO_HEIGHT + BOUNDARY_LOGO_PAD})`,
+                    width: BOUNDARY_LOGO_WIDTH,
+                    height: BOUNDARY_LOGO_HEIGHT
                 }
             }
         };
@@ -328,115 +340,36 @@ class Boundary extends dia.Element {
     preinitialize(...args) {
         super.preinitialize(...args);
         // Title reads like a canvas frame/group label (small icon + caption in
-        // the top-left corner) rather than a centered UML caption banner.
+        // the top-left corner) rather than a centered UML caption banner. The
+        // JointJS brand mark gets the same corner treatment, bottom-right.
         this.markup = util.svg`
             <rect @selector="body" class="uc-boundary-card" />
             <path @selector="icon" class="uc-muted-fill" />
             <text @selector="label" class="uc-muted-text" />
+            <svg @selector="logo" viewBox="0 0 1000 280">
+                <path fill="#DA3D40" d="m130.71 225.71l-27.28-27.27q0-0.01 0-0.01h76.41v-103.68h27.28c0 0 0 59.4 0 98.19l-32.77 32.77zm330.37-116.97c10.68 10.41 17.29 25.87 17.29 46.13 0 20.26-6.61 35.71-17.29 46.13-10.69 10.41-25.47 15.79-41.91 15.79-16.44 0-31.22-5.38-41.91-15.79-10.68-10.42-17.29-25.87-17.29-46.13 0-20.26 6.61-35.72 17.29-46.13 10.69-10.41 25.47-15.79 41.91-15.79 16.44 0 31.22 5.38 41.91 15.79zm401.41-18.61q-8.23-7.14-22.76-7.15-11.77 0.01-18.3 5.07-6.59 5.11-6.59 14.42 0 6.67 3.47 10.89 3.42 4.18 10.27 7.59 6.77 3.37 20.96 8.6h0.01q14.98 5.85 23.95 10.62 8.92 4.74 15.31 13.26 6.38 8.48 6.38 21.16 0 12.48-6.28 22.05-6.29 9.58-18.03 14.86-11.78 5.29-27.76 5.29-15.99 0-28.09-5.4-12.05-5.39-18.55-15.18-6.49-9.79-6.49-22.71v-7.66h23.37v6.36q-0.01 10.17 8.71 16.92 8.64 6.7 22.95 6.7 13.05-0.01 19.69-5.74 6.69-5.76 6.69-14.84-0.01-6.23-3.69-10.56-3.63-4.29-10.37-7.81-6.67-3.48-20.01-8.7 0 0-0.01 0-14.98-5.64-24.27-10.63-9.23-4.95-15.42-13.46-6.16-8.49-6.16-21.17 0-18.93 13.39-29.9 13.45-11 35.93-10.99 15.77 0 27.86 5.61 12.07 5.6 18.78 15.62 6.7 10.01 6.7 23.13v5.92h-23.37v-4.61q0-10.38-8.27-17.56zm-318.54 18.35h1.52c7.2-9.6 18.63-15.53 34.94-15.53 14.12 0 25.51 4.23 33.38 12.18 7.88 7.95 12.27 19.65 12.27 34.71v74.96h-21.74v-71.71c0-9.84-2.46-17.37-7.24-22.42-4.78-5.03-11.84-7.55-20.88-7.55-10.09 0-18.19 3.05-23.74 9.4-5.05 5.79-7.99 14.26-8.51 25.47v66.53h-21.83v-119.76h21.83zm-194.95-13.73c0 0 0 63.58 0 98.2l-21.85 21.85c-10.29 0-22.53 0-32.81 0l-21.83-21.83q0 0 0 0h54.66v-98.22zm353.46 98.22l-21.83 21.83c0 0-10.89 0-21.8 0l-21.85-21.85v-130.94h21.83v32.74h32.74v21.83h-32.74v76.39h98.31v-130.96h21.83c0 0 0 88.7 0 130.94l-21.85 21.85c-10.29 0-22.53 0-32.81 0 0 0-21.83-21.83-21.83-21.83zm-213.17-98.22h21.83v119.77h-21.83zm-96.8 29.36c-6.6 7.05-10.44 17.44-10.44 30.75 0 13.3 3.84 23.69 10.44 30.74 6.57 7.02 15.86 10.69 26.68 10.69 10.82 0 20.11-3.67 26.68-10.69 6.61-7.05 10.45-17.44 10.45-30.74 0-13.31-3.84-23.7-10.45-30.75-6.57-7.01-15.86-10.69-26.68-10.69-10.82 0-20.11 3.68-26.68 10.69zm-299.99 63.38l-27.28-27.28q0 0 0 0h76.4v-103.69h27.29c0 0 0 59.4 0 98.2l-32.77 32.77zm396.79-125.48h21.82v21.82h-21.82zm-162.11 0h21.82v21.83h-21.82z" />
+            </svg>
         `;
     }
 }
 
-// Small magnet dots on the left/right side of Actor and UseCase, both via
-// JointJS's own ports API (`dia.Element` port groups) instead of splicing
-// custom circles into each shape's own markup - the 'left'/'right' port
-// layouts already center a single port vertically and reposition it on
-// resize, so no hand-written `calc(w)` position math is needed here. The two
-// shapes don't share one ports config, though (see PORTS vs ACTOR_PORTS
-// below): they do share this same dot/hit-circle markup and styling. Each
-// port's own markup carries two elements: a small visible dot (PORT_RADIUS)
-// plus a larger circle (PORT_HIT_RADIUS) stacked on top, so the area you can
-// grab is bigger than what's drawn - invisible until hovered, when it shows as
-// a faint tinted disc. `magnet: true`
-// sits on the port's own root (covering both circles), with magnetSelector /
-// highlighterSelector pointing back at the dot - the link attaches to the dot
-// and the connecting highlight lands on it, however wide the grab area is.
-// These ports are the only magnets in the diagram: every element's root sets
-// `magnet: false`, so a link can't attach to a bare card, only to a dot.
-// Ports render inside their own `<g class="joint-port">` container
-// automatically, which CSS below uses to scope the dot's hover feedback to
-// the side actually being hovered.
-const PORT_RADIUS = 5;
-// Wide enough to press without aiming, but no wider: the ports sit halfway up
-// a card that is only 90 tall, so a hit circle much bigger than this owns most
-// of the card's left and right edge and the card gets hard to pick up by its
-// side. Dropping a link doesn't depend on this at all - snapLinks (see the
-// paper options) catches an arrowhead released anywhere on the card.
-const PORT_HIT_RADIUS = 10;
-
-const PORT_MARKUP = [
-    { tagName: 'circle', selector: 'portDot' },
-    { tagName: 'circle', selector: 'portHit' }
-];
-
-const PORT_ATTRS = {
-    portRoot: { magnetSelector: 'portDot', highlighterSelector: 'portDot', magnet: true },
-    portDot: { cx: 0, cy: 0, r: PORT_RADIUS, class: 'uc-link-dot uc-port' },
-    // No `fill` here - styles.css owns it, so the hover tint can transition in
-    // from the same place (a CSS rule wins over a presentation attribute
-    // anyway, so setting it here too would just be dead weight).
-    portHit: { cx: 0, cy: 0, r: PORT_HIT_RADIUS, class: 'uc-port-hit' }
-};
-
-const PORT_GROUPS = {
-    left: { position: 'left', markup: PORT_MARKUP, attrs: PORT_ATTRS },
-    right: { position: 'right', markup: PORT_MARKUP, attrs: PORT_ATTRS }
-};
-
-// Fixed port ids (rather than the generated ones a port without an `id` gets)
-// so a link can name the side it attaches to - see endPorts().
-const PORTS = {
-    groups: PORT_GROUPS,
-    items: [
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-    ]
-};
-
-// The actor's own ports: same dot/hit markup and styling as PORTS above, but
-// repositioned in both directions rather than sitting at the box's default
-// left/right-edge-at-vertical-center spot:
-// - x is pulled in to sit just past the stick figure's own arm-span - the
-//   figure is much narrower than the box reserved for its (possibly
-//   two-line) name, so the box edges the way UseCase's ports use would leave
-//   the dots floating in empty space, far from the figure a connecting line
-//   is actually supposed to read as touching.
-// - y is raised to the figure's own arm height (see computeActorGeometry's
-//   armYExpr) instead of the box's generic vertical center, which sits well
-//   below the arms, down near the legs - the "shoulder" height a connecting
-//   line would naturally touch, not a point with no relation to the figure.
-//   This uses the two-line-name default for every actor (ports are one
-//   static config, not per-instance like the figure/label itself), so it's
-//   a few pixels off for the one one-line actor (see createActor's `lines`
-//   argument) - unnoticeable next to fixing the actual, much larger mismatch.
-const ACTOR_PORT_GAP = 14;
-const ACTOR_PORT_LEFT_X = ACTOR_CX - FIGURE_ARM_HALF - ACTOR_PORT_GAP;
-const ACTOR_PORT_RIGHT_X = ACTOR_CX + FIGURE_ARM_HALF + ACTOR_PORT_GAP;
-const ACTOR_PORT_Y = ACTOR_GEOMETRY_DEFAULT.armYExpr;
-
-const ACTOR_PORTS = {
-    groups: {
-        left: { position: { name: 'left', args: { x: ACTOR_PORT_LEFT_X, y: ACTOR_PORT_Y }}, markup: PORT_MARKUP, attrs: PORT_ATTRS },
-        right: { position: { name: 'right', args: { x: ACTOR_PORT_RIGHT_X, y: ACTOR_PORT_Y }}, markup: PORT_MARKUP, attrs: PORT_ATTRS }
-    },
-    items: [
-        { id: 'left', group: 'left' },
-        { id: 'right', group: 'right' }
-    ]
-};
-
+// No ports, no dedicated magnet sub-elements: an Actor/UseCase's own root is
+// left with no explicit `magnet` attribute (see both classes below), which -
+// per dia.CellView#findMagnet - makes the *whole shape* resolve as a valid
+// connection point on its own, without any dedicated dot to draw or
+// position. A link can therefore land anywhere on a use-case ellipse or
+// actor figure. Starting a *new* link is a separate, deliberate gesture -
+// see the `elementTools.Connect` button added on hover further down - so
+// this doesn't turn an ordinary drag-to-move into a link-drag.
 class Actor extends dia.Element {
     defaults() {
         return {
             ...super.defaults,
             type: 'Actor',
             size: { width: ACTOR_WIDTH, height: ACTOR_HEIGHT },
-            ports: ACTOR_PORTS,
             attrs: {
                 root: {
-                    cursor: 'move',
-                    // Only ports connect - see PORT_ATTRS.
-                    magnet: false
+                    cursor: 'move'
                 },
                 // A plain, invisible full-size rect purely so the actor stays
                 // easy to grab and drag anywhere in its bounding box - with no
@@ -502,13 +435,10 @@ class UseCase extends dia.Element {
             ...super.defaults,
             type: 'UseCase',
             size: { width: CARD_WIDTH, height: CARD_HEIGHT },
-            ports: PORTS,
             attrs: {
                 root: {
                     highlighterSelector: 'body',
-                    cursor: 'move',
-                    // Only ports connect - see PORT_ATTRS.
-                    magnet: false
+                    cursor: 'move'
                 },
                 // Like the original demo, the "which actor(s) use this" accent
                 // is the whole ellipse's background (see fillUseCaseColors),
@@ -552,53 +482,17 @@ class UseCase extends dia.Element {
     }
 }
 
-// Smooth link routing in the spirit of @joint/react's smoothLinkRouting():
-// JointJS's own `curve` connector draws the line, this wrapper only tells it
-// which way to leave each end. Left to itself, `curve` works that out from the
-// end's magnet - and here every magnet is a port dot, a small circle the link
-// ends in the middle of, so "which side of it are we on" has no answer. The
-// port id does have one, and 'left'/'right' happen to be exactly the tangent
-// directions `curve` accepts.
-//
-// The two coefficients pull its tangents in from the defaults (0.6 and 80).
-// The second one only bites where the curve leaves sideways but has to travel
-// straight up or down - two cards in the same column - and at its default that
-// bow swings out far enough to crowd the next column.
-const CURVE_ARGS = {
-    distanceCoefficient: 0.45,
-    angleTangentCoefficient: 10
-};
-
-function smoothConnector(sourcePoint, targetPoint, route, opt, linkView) {
-    const link = linkView.model;
-    return connectors.curve.call(linkView, sourcePoint, targetPoint, route, {
-        ...opt,
-        ...CURVE_ARGS,
-        sourceDirection: portDirection(link.source(), sourcePoint, targetPoint),
-        targetDirection: portDirection(link.target(), targetPoint, sourcePoint)
-    }, linkView);
-}
-
-// The side an end's port sits on, which is also the way the curve leaves it.
-// An arrowhead being dragged isn't on a port yet, so it just faces the other
-// end.
-function portDirection(end, point, otherPoint) {
-    if (end.port === 'left' || end.port === 'right') return end.port;
-    return otherPoint.x < point.x ? 'left' : 'right';
-}
-
 class Use extends shapes.standard.Link {
     defaults() {
         return util.defaultsDeep(
             {
                 type: 'Use',
                 attrs: {
-                    // No end markers: both ends land exactly on a port, whose
-                    // own dot already terminates the line. A marker drawn there
-                    // sits right on top of that dot and only thickens it - see
-                    // the note on lineAttrs below. `targetMarker: null` is
-                    // needed rather than just leaving it out, to suppress the
-                    // arrowhead standard.Link brings with it.
+                    // No end markers: the UML association between an actor
+                    // and a use case is a plain, undirected line - no
+                    // arrowhead on either end. `targetMarker: null` is needed
+                    // rather than just leaving it out, to suppress the
+                    // arrowhead standard.Link brings with it by default.
                     line: {
                         class: 'uc-link-line',
                         strokeWidth: 1.75,
@@ -613,10 +507,7 @@ class Use extends shapes.standard.Link {
 
 // Shared by Include and Extend. Only the target keeps a marker, and it carries
 // meaning - the open arrow that says which way the relationship reads. The
-// source end has no marker for the same reason Use has none: it finishes on a
-// port dot, and a circle drawn over that dot just makes the port look heavier
-// than it is (the connection point is the port's center, not a point offset
-// off the card's edge as it was before ports).
+// source end has no marker, the same plain-line convention as Use.
 const lineAttrs = {
     class: 'uc-link-line',
     strokeWidth: 1.75,
@@ -749,29 +640,13 @@ function createUseCase(useCase, x, y) {
     });
 }
 
-// Which port each end of a link attaches to. A left-right pair uses the two
-// facing sides; a pair in the same column uses the same side on both - the one
-// facing the frame's middle, which keeps the connector clear of the outer lane
-// where the actor links run.
-function endPorts(source, target) {
-    const sourceX = source.getBBox().center().x;
-    const targetX = target.getBBox().center().x;
-    if (sourceX < targetX) return ['right', 'left'];
-    if (sourceX > targetX) return ['left', 'right'];
-    // `boundary` is declared further down, but this only ever runs from the
-    // graph.addCells() call at the end of the file, by which time it exists.
-    const inner = sourceX > boundary.getBBox().center().x ? 'left' : 'right';
-    return [inner, inner];
-}
-
-// Both ends name a port, so every link in the diagram starts and finishes on
-// one of the dots the user can grab - the same anchoring a link drawn by hand
-// gets, since ports are the only magnets on a card.
+// No port to name on either end - just the two elements. `defaultAnchor`/
+// `defaultConnectionPoint` (see the Paper options) take care of aiming each
+// end at the other element's center and stopping the line at its outline.
 function createLink(Constructor, source, target) {
-    const [sourcePort, targetPort] = endPorts(source, target);
     return new Constructor({
-        source: { id: source.id, port: sourcePort },
-        target: { id: target.id, port: targetPort }
+        source: { id: source.id },
+        target: { id: target.id }
     });
 }
 
@@ -791,8 +666,10 @@ const boundary = new Boundary({
     size: {
         width: 800,
         // Extra height beyond the lowest embedded use case (bottom row ends
-        // at y=1010) gives a clear, generous margin so the last row reads as
-        // unmistakably inside the frame, not hugging its edge.
+        // at y=1075 - see the use-case x/y comment below) gives a clear,
+        // generous margin so the last row reads as unmistakably inside the
+        // frame, not hugging its edge, and stays clear of the brand mark in
+        // the bottom-right corner.
         height: 1150
     },
     position: {
@@ -836,20 +713,31 @@ const techSupport = createActor(
 );
 const community = createActor('JointJS Community', 1120, 900, ACTOR_ACCENTS[4], 1);
 
-// Y positions are shifted +95 from a naive top-packed layout so the use-case
-// block (150-1010 originally) centers within the boundary's own vertical
-// span (100-1250) instead of leaving nearly all the slack at the bottom.
-const requestCodeReview = createUseCase('Request Code Review', 420, 245);
-const reviewCode = createUseCase('Review Code', 720, 245);
-const giveFeedback = createUseCase('Give Feedback', 720, 385);
-const proposeChanges = createUseCase('Propose Changes', 720, 520);
-const requestConferenceCall = createUseCase('Request Conference Call', 420, 445);
-const proposeTimeAndDateOfCall = createUseCase('Propose Time and Date of Call', 420, 620);
-const attendConferenceCall = createUseCase('Attend Conference Call', 420, 795);
-const contactViaTicketingSystem = createUseCase('Contact via Ticketing System', 420, 920);
-const respondToTicket = createUseCase('Respond to Ticket', 720, 920);
-const askGithubDiscussion = createUseCase('Ask on GitHub Discussion', 420, 1045);
-const respondToDiscussion = createUseCase('Respond to Discussion', 720, 1045);
+// x is chosen so the use-case block centers horizontally within the
+// boundary's own span - each ellipse is 220x90 (see CARD_WIDTH/HEIGHT), the
+// left column starts at x=400 and the right one at x=700, giving a
+// 140/80/140 left-margin/gap/right-margin split across the boundary's
+// 800-wide interior (260-1060).
+//
+// y centers the block not within the boundary's full height, but within the
+// "safe" zone above the brand mark (see BOUNDARY_LOGO_* / the Boundary
+// class), which sits in the bottom-right corner at local y 1060-1130 (x
+// 530-780) - true vertical centering (which would put the block at
+// y=230-1120) would run the bottom-right use case right into it. The block
+// is 890 tall; centered between the boundary's own top (local y=0) and the
+// logo's top (local y=1060) gives an 85/85 top/bottom margin, so the block
+// spans local y=85-975 (absolute y=185-1075).
+const requestCodeReview = createUseCase('Request Code Review', 400, 185);
+const reviewCode = createUseCase('Review Code', 700, 185);
+const giveFeedback = createUseCase('Give Feedback', 700, 325);
+const proposeChanges = createUseCase('Propose Changes', 700, 460);
+const requestConferenceCall = createUseCase('Request Conference Call', 400, 385);
+const proposeTimeAndDateOfCall = createUseCase('Propose Time and Date of Call', 400, 560);
+const attendConferenceCall = createUseCase('Attend Conference Call', 400, 735);
+const contactViaTicketingSystem = createUseCase('Contact via Ticketing System', 400, 860);
+const respondToTicket = createUseCase('Respond to Ticket', 700, 860);
+const askGithubDiscussion = createUseCase('Ask on GitHub Discussion', 400, 985);
+const respondToDiscussion = createUseCase('Respond to Discussion', 700, 985);
 
 boundary.embed([
     requestCodeReview,
@@ -1004,15 +892,37 @@ paper.on('link:mouseleave', (linkView) => {
 });
 
 // Lift a use-case card slightly on hover for a bit of interactive feedback -
-// actors have no card body to lift, just the bare stick figure.
+// actors have no card body to lift, just the bare stick figure. Both Actor
+// and UseCase (either can be a link's source - an actor's "Use", or a use
+// case's own "Include"/"Extend") get a Connect button on hover instead: with
+// no ports, and the whole shape deliberately *not* wired up to start a link
+// on an ordinary drag (see the note above Actor's class), this hover button
+// is the one dedicated place a user can grab to drag a new link out from.
 paper.on('element:mouseenter', (elementView) => {
-    if (!(elementView.model instanceof UseCase)) return;
-    elementView.model.attr('body/filter', nodeShadow('hover'), { rewrite: true });
+    const { model } = elementView;
+    if (model instanceof UseCase) {
+        model.attr('body/filter', nodeShadow('hover'), { rewrite: true });
+    }
+    if (model instanceof UseCase || model instanceof Actor) {
+        elementView.addTools(new dia.ToolsView({
+            tools: [
+                new elementTools.Connect({
+                    x: '100%',
+                    y: '0%',
+                    offset: { x: -6, y: 6 },
+                    magnet: 'root'
+                })
+            ]
+        }));
+    }
 });
 
 paper.on('element:mouseleave', (elementView) => {
-    if (!(elementView.model instanceof UseCase)) return;
-    elementView.model.attr('body/filter', nodeShadow('rest'), { rewrite: true });
+    const { model } = elementView;
+    if (model instanceof UseCase) {
+        model.attr('body/filter', nodeShadow('rest'), { rewrite: true });
+    }
+    elementView.removeTools();
 });
 
 const themeToggle = document.getElementById('theme-toggle');
