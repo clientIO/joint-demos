@@ -1,6 +1,31 @@
 import { V, dia, shapes as defaultShapes, anchors, util } from '@joint/core';
 import './styles.css';
 
+const THEME_STORAGE_KEY = 'absolute-port-layout-dynamic-port-sizes-theme';
+
+function getCssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function getPreferredTheme() {
+    try {
+        const stored = localStorage.getItem(THEME_STORAGE_KEY);
+        if (stored === 'light' || stored === 'dark') return stored;
+    } catch {
+        // No storage: fall back to the system preference below.
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+}
+
+let currentTheme = getPreferredTheme();
+applyTheme(currentTheme);
+
+const FONT_FAMILY = getCssVar('--font') || 'sans-serif';
+
 class Shape extends dia.Element {
     defaults() {
         return {
@@ -15,22 +40,21 @@ class Shape extends dia.Element {
                     cursor: 'move'
                 },
                 body: {
-                    fill: '#f2f1ed',
-                    stroke: '#4b557d',
-                    strokeWidth: 2,
                     d:
-                        'M 0 calc(h) H calc(w) V 4 a 4 4 1 0 0 -4 -4 H 4 a 4 4 1 0 0 -4 4 z M 0 calc(h-4) H calc(w)'
+                        'M 0 calc(h) H calc(w) V 8 a 8 8 1 0 0 -8 -8 H 8 a 8 8 1 0 0 -8 8 z'
+                },
+                divider: {
+                    d: 'M 0 calc(h-4) H calc(w)'
                 },
                 label: {
-                    text: 'Custom shape with dynamic port size',
-                    textWrap: { width: -20, height: -10, ellipsis: true },
+                    text: 'Custom shape with a dynamic port size',
+                    textWrap: { width: -30, height: -10, ellipsis: true },
                     fontSize: 15,
-                    fontFamily: 'sans-serif',
-                    fill: '#4b557d',
+                    fontFamily: FONT_FAMILY,
                     textVerticalAnchor: 'middle',
                     textAnchor: 'middle',
                     x: 'calc(0.5*w)',
-                    y: 'calc(0.5*h-2)'
+                    y: 'calc(0.5*h+1)'
                 }
             },
             ports: {
@@ -52,11 +76,8 @@ class Shape extends dia.Element {
                             portBody: {
                                 width: 'calc(w)',
                                 height: 'calc(h + 4)',
-                                fill: '#7088eb',
-                                stroke: '#4666E5',
-                                strokeWidth: 2,
-                                rx: 4,
-                                ry: 5,
+                                rx: 6,
+                                ry: 7,
                                 y: -4,
                                 magnet: true,
                                 cursor: 'crosshair'
@@ -71,7 +92,6 @@ class Shape extends dia.Element {
                                     ellipsis: true
                                 },
                                 pointerEvents: 'none',
-                                fill: '#ffffff',
                                 ...this.portFontAttributes
                             }
                         }
@@ -83,17 +103,21 @@ class Shape extends dia.Element {
 
     preinitialize() {
         this.minWidth = 100;
-        this.portPadding = 10;
+        this.portPadding = 16;
         this.portGap = 10;
-        this.portHeight = 20;
+        this.portHeight = 32;
         this.portFontAttributes = {
             'font-size': 14,
-            'font-family': 'sans-serif'
+            'font-family': FONT_FAMILY
         };
         this.markup = [
             {
                 tagName: 'path',
                 selector: 'body'
+            },
+            {
+                tagName: 'path',
+                selector: 'divider'
             },
             {
                 tagName: 'text',
@@ -200,16 +224,16 @@ const paper = new dia.Paper({
     cellViewNamespace: shapes,
     width: '100%',
     height: '100%',
-    gridSize: 20,
+    gridSize: 10,
     async: true,
     sorting: dia.Paper.sorting.APPROX,
-    background: { color: '#F3F7F6' },
+    background: { color: 'transparent' },
     linkPinning: false,
     defaultLink: () =>
         new shapes.standard.Link({
             attrs: {
                 line: {
-                    stroke: '#4666E5'
+                    stroke: getCssVar('--link-color')
                 }
             }
         }),
@@ -228,7 +252,45 @@ const paper = new dia.Paper({
 });
 paperContainer.appendChild(paper.el);
 
-paper.setGrid('mesh');
+// A soft top-to-bottom card gradient for the shape, and a glossy radial
+// highlight for the ellipse target. The gradients are static; their `<stop>`
+// colors are driven entirely by CSS (see styles.css), so they follow the
+// theme live without needing to be redrawn on toggle.
+paper.defs.appendChild(
+    V(
+        '<linearGradient id="shape-body-gradient" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop class="shape-gradient-stop-start" offset="0"/>' +
+        '<stop class="shape-gradient-stop-end" offset="1"/>' +
+        '</linearGradient>'
+    ).node
+);
+paper.defs.appendChild(
+    V(
+        '<radialGradient id="target-body-gradient" cx="0.32" cy="0.28" r="0.75">' +
+        '<stop class="target-gradient-stop-start" offset="0"/>' +
+        '<stop class="target-gradient-stop-end" offset="1"/>' +
+        '</radialGradient>'
+    ).node
+);
+// One shared gradient for every port: `objectBoundingBox` units (the SVG
+// default) make it stretch to fit each port's own box, however many exist.
+paper.defs.appendChild(
+    V(
+        '<linearGradient id="port-gradient" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop class="port-gradient-stop-start" offset="0"/>' +
+        '<stop class="port-gradient-stop-end" offset="1"/>' +
+        '</linearGradient>'
+    ).node
+);
+
+function drawGrid() {
+    paper.setGrid({
+        name: 'dot',
+        args: { color: getCssVar('--grid-dot-color'), thickness: 1 }
+    });
+}
+
+drawGrid();
 
 Shape.svgDocument = paper.svg;
 
@@ -258,10 +320,6 @@ const target = new shapes.standard.Ellipse({
     attrs: {
         root: {
             highlighterSelector: 'body'
-        },
-        body: {
-            stroke: '#705d10',
-            fill: '#efdc8f'
         }
     }
 });
@@ -273,4 +331,15 @@ document.getElementById('add-port').addEventListener('click', () => {
 
 document.getElementById('remove-port').addEventListener('click', () => {
     shape.removeLastOutPort();
+});
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(currentTheme);
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
+    } catch {
+        // No storage: the choice lasts the session.
+    }
+    drawGrid();
 });

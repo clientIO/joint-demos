@@ -1,3 +1,107 @@
+:root {
+    color-scheme: light;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+    /* Canvas: a base color plus two quiet accent glows, painted behind the (transparent) paper. */
+    --canvas-base: #eef1f7;
+    --canvas-glow-1: rgba(70, 102, 229, 0.05);
+    --canvas-glow-2: rgba(217, 98, 43, 0.06);
+    --grid-dot-color: rgba(75, 85, 125, 0.22);
+
+    /* The custom port shape: a subtle top-to-bottom card gradient, and a soft
+       two-layer shadow (a tight contact shadow plus a wider ambient one) for
+       a more elevated, less flat card look. */
+    --shape-fill-start: #ffffff;
+    --shape-fill-end: #f1efe8;
+    --shape-stroke: #4b557d;
+    --shape-divider: rgba(75, 85, 125, 0.3);
+    --shape-label: #4b557d;
+    --shape-shadow:
+        drop-shadow(0 1px 2px rgba(30, 40, 80, 0.1))
+        drop-shadow(0 10px 22px rgba(30, 40, 80, 0.16));
+
+    /* Ports: their own vertical gradient (mirroring the shape's), a softer
+       hairline border and a lift shadow that brightens a touch on hover. */
+    --port-fill-start: #7f97ee;
+    --port-fill-end: #4a63d9;
+    --port-stroke: rgba(70, 102, 229, 0.55);
+    --port-label: #ffffff;
+    --port-shadow:
+        drop-shadow(0 1px 1px rgba(30, 40, 80, 0.18))
+        drop-shadow(0 4px 10px rgba(30, 40, 80, 0.2));
+    --port-shadow-hover:
+        brightness(1.1)
+        drop-shadow(0 1px 1px rgba(30, 40, 80, 0.2))
+        drop-shadow(0 5px 12px rgba(30, 40, 80, 0.24));
+
+    --link-color: #4666e5;
+
+    /* The ellipse target: a warm coral/amber accent, with a glossy highlight. */
+    --target-fill-start: #ffc9a3;
+    --target-fill-end: #e8a765;
+    --target-stroke: #c05a1f;
+
+    --surface: #ffffff;
+    --surface-hover: #f3f4f8;
+    --border: #d7dbe6;
+    --text: #33384a;
+    --shadow-soft: rgba(30, 40, 80, 0.16);
+}
+
+:root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --canvas-base: #14161d;
+    --canvas-glow-1: rgba(91, 124, 240, 0.16);
+    --canvas-glow-2: rgba(255, 138, 76, 0.09);
+    --grid-dot-color: rgba(255, 255, 255, 0.14);
+
+    --shape-fill-start: #262c3a;
+    --shape-fill-end: #1b2029;
+    --shape-stroke: #8b9bd6;
+    --shape-divider: rgba(139, 155, 214, 0.35);
+    --shape-label: #c7cff0;
+    --shape-shadow:
+        drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4))
+        drop-shadow(0 10px 22px rgba(0, 0, 0, 0.5));
+
+    --port-fill-start: #6d8bf5;
+    --port-fill-end: #37509c;
+    --port-stroke: rgba(58, 85, 192, 0.7);
+    --port-label: #ffffff;
+    --port-shadow:
+        drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35))
+        drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+    --port-shadow-hover:
+        brightness(1.15)
+        drop-shadow(0 1px 1px rgba(0, 0, 0, 0.4))
+        drop-shadow(0 5px 12px rgba(0, 0, 0, 0.45));
+
+    --link-color: #7f9af5;
+
+    --target-fill-start: #7a4a26;
+    --target-fill-end: #4a2c15;
+    --target-stroke: #ff9d5c;
+
+    --surface: #232732;
+    --surface-hover: #2b3040;
+    --border: #3a3f4f;
+    --text: #e6e8ef;
+    --shadow-soft: rgba(0, 0, 0, 0.45);
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: var(--font);
+    color: var(--text);
+    background: var(--canvas-base);
+}
+
 #paper-container {
     position: absolute;
     right: 0;
@@ -5,29 +109,162 @@
     left: 0;
     bottom: 0;
     overflow: scroll;
+    background-color: var(--canvas-base);
+    background-image:
+        radial-gradient(720px circle at 85% 6%, var(--canvas-glow-1), transparent 60%),
+        radial-gradient(720px circle at 6% 94%, var(--canvas-glow-2), transparent 60%);
 }
 
-#logo {
+/* The custom port shape: body, header divider and label. The body's fill is
+   the `shape-body-gradient` defined in main.js; only its two `<stop>` colors
+   live here, so the gradient stays theme-reactive with no JS redraw. */
+.joint-type-shape [joint-selector='body'] {
+    fill: url(#shape-body-gradient);
+    stroke: var(--shape-stroke);
+    stroke-width: 1.5;
+    filter: var(--shape-shadow);
+}
+
+/* The hairline separating the title from the port row: quieter than the
+   card's own outline, so it reads as a soft division, not a second border. */
+.joint-type-shape [joint-selector='divider'] {
+    fill: none;
+    stroke: var(--shape-divider);
+    stroke-width: 1;
+}
+
+.joint-type-shape [joint-selector='label'] {
+    fill: var(--shape-label);
+}
+
+#shape-body-gradient .shape-gradient-stop-start {
+    stop-color: var(--shape-fill-start);
+}
+
+#shape-body-gradient .shape-gradient-stop-end {
+    stop-color: var(--shape-fill-end);
+}
+
+/* Ports: the output rectangles hanging off the shape's bottom edge. Both live
+   inside one JointJS-assigned `.joint-port-body` group, so `[joint-selector]`
+   (not the ambiguous `joint-port-body`/`joint-port-label` classes) is what
+   tells the rect from its own label text apart. */
+.joint-port [joint-selector='portBody'] {
+    fill: url(#port-gradient);
+    stroke: var(--port-stroke);
+    stroke-width: 1.5;
+    filter: var(--port-shadow);
+    transition: filter 120ms ease-out;
+}
+
+.joint-port:hover [joint-selector='portBody'] {
+    filter: var(--port-shadow-hover);
+}
+
+#port-gradient .port-gradient-stop-start {
+    stop-color: var(--port-fill-start);
+}
+
+#port-gradient .port-gradient-stop-end {
+    stop-color: var(--port-fill-end);
+}
+
+.joint-port [joint-selector='portLabel'] {
+    fill: var(--port-label);
+}
+
+/* The ellipse target: a warm coral/amber accent with a glossy radial highlight
+   (`target-body-gradient`, defined in main.js), instead of a single flat fill. */
+.joint-type-standard-ellipse [joint-selector='body'] {
+    fill: url(#target-body-gradient);
+    stroke: var(--target-stroke);
+    stroke-width: 2;
+    filter: var(--shape-shadow);
+}
+
+#target-body-gradient .target-gradient-stop-start {
+    stop-color: var(--target-fill-start);
+}
+
+#target-body-gradient .target-gradient-stop-end {
+    stop-color: var(--target-fill-end);
+}
+
+/* While a new link is being dragged from a port, JointJS marks every valid
+   drop target by adding `available-cell` to its view root (built-in
+   `elementAvailability` highlighter, no paper option needed) — turn the
+   ellipse's own border dashed so it's obvious a connection can land there. */
+.joint-type-standard-ellipse.available-cell [joint-selector='body'] {
+    stroke: var(--link-color);
+    stroke-width: 2.5;
+    stroke-dasharray: 6 4;
+}
+
+/* Links drawn between ports and the target: color is baked into the cell's own
+   attrs at creation time (see defaultLink in main.js), since the arrowhead marker
+   mirrors that attribute value directly and cannot be targeted by a CSS rule. */
+.joint-link [joint-selector='line'] {
+    stroke-linecap: round;
+}
+
+/* Toolbar: Add/Remove Port and the theme toggle. */
+.toolbar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1;
+    display: flex;
+    gap: 6px;
+}
+
+.toolbar button {
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px var(--shadow-soft);
+    transition: background-color 100ms ease-out, border-color 100ms ease-out;
+}
+
+.toolbar button:hover {
+    background: var(--surface-hover);
+    border-color: var(--port-stroke);
+}
+
+#theme-toggle {
+    width: 32px;
+    padding: 0;
+}
+
+#theme-toggle::after {
+    display: block;
+    width: 100%;
+    height: 100%;
+    content: '';
+    background: currentColor;
+    mask: var(--theme-icon) center / 16px 16px no-repeat;
+    -webkit-mask: var(--theme-icon) center / 16px 16px no-repeat;
+}
+
+#theme-toggle {
+    --theme-icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M 2 -7.5 A 7 7 0 1 0 7.5 1 A 5.5 5.5 0 0 1 2 -7.5 Z' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+:root[data-theme='dark'] #theme-toggle {
+    --theme-icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M 0 0 m -3.5 0 a 3.5 3.5 0 1 0 7 0 a 3.5 3.5 0 1 0 -7 0 M 0 -8 V -6 M 0 6 V 8 M -8 0 H -6 M 6 0 H 8 M -5.7 -5.7 L -4.2 -4.2 M 4.2 4.2 L 5.7 5.7 M -5.7 5.7 L -4.2 4.2 M 4.2 -4.2 L 5.7 -5.7' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+#logo-link {
     position: absolute;
     bottom: 20px;
     right: 20px;
-    background-color: #ffffff;
-    border: 1px solid #d3d3d3;
-    padding: 5px;
-    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.3);
 }
 
-button {
-    width: 100px;
-    position: absolute;
-}
-
-#add-port {
-    top: 10px;
-    left: 10px;
-}
-
-#remove-port {
-    top: 10px;
-    left: 120px;
+#logo {
+    display: block;
 }
