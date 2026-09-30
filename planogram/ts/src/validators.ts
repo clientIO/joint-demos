@@ -1,4 +1,4 @@
-import type { dia } from '@joint/plus/index';
+import type { dia } from '@joint/plus';
 
 // Validators
 
