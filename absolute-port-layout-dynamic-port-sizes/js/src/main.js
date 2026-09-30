@@ -1,28 +1,9 @@
 import { V, dia, shapes as defaultShapes, anchors, util } from '@joint/core';
 import './styles.css';
 
-const THEME_STORAGE_KEY = 'absolute-port-layout-dynamic-port-sizes-theme';
-
 function getCssVar(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
-
-function getPreferredTheme() {
-    try {
-        const stored = localStorage.getItem(THEME_STORAGE_KEY);
-        if (stored === 'light' || stored === 'dark') return stored;
-    } catch {
-        // No storage: fall back to the system preference below.
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
-function applyTheme(theme) {
-    document.documentElement.dataset.theme = theme;
-}
-
-let currentTheme = getPreferredTheme();
-applyTheme(currentTheme);
 
 const FONT_FAMILY = getCssVar('--font') || 'sans-serif';
 
@@ -253,9 +234,8 @@ const paper = new dia.Paper({
 paperContainer.appendChild(paper.el);
 
 // A soft top-to-bottom card gradient for the shape, and a glossy radial
-// highlight for the ellipse target. The gradients are static; their `<stop>`
-// colors are driven entirely by CSS (see styles.css), so they follow the
-// theme live without needing to be redrawn on toggle.
+// highlight for the ellipse target. Their `<stop>` colors are driven
+// entirely by CSS (see styles.css).
 paper.defs.appendChild(
     V(
         '<linearGradient id="shape-body-gradient" x1="0" y1="0" x2="0" y2="1">' +
@@ -283,14 +263,10 @@ paper.defs.appendChild(
     ).node
 );
 
-function drawGrid() {
-    paper.setGrid({
-        name: 'dot',
-        args: { color: getCssVar('--grid-dot-color'), thickness: 1 }
-    });
-}
-
-drawGrid();
+paper.setGrid({
+    name: 'dot',
+    args: { color: getCssVar('--grid-dot-color'), thickness: 1 }
+});
 
 Shape.svgDocument = paper.svg;
 
@@ -331,15 +307,4 @@ document.getElementById('add-port').addEventListener('click', () => {
 
 document.getElementById('remove-port').addEventListener('click', () => {
     shape.removeLastOutPort();
-});
-
-document.getElementById('theme-toggle').addEventListener('click', () => {
-    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    applyTheme(currentTheme);
-    try {
-        localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
-    } catch {
-        // No storage: the choice lasts the session.
-    }
-    drawGrid();
 });

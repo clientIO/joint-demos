@@ -48,48 +48,6 @@
     --shadow-soft: rgba(30, 40, 80, 0.16);
 }
 
-:root[data-theme='dark'] {
-    color-scheme: dark;
-
-    --canvas-base: #14161d;
-    --canvas-glow-1: rgba(91, 124, 240, 0.16);
-    --canvas-glow-2: rgba(255, 138, 76, 0.09);
-    --grid-dot-color: rgba(255, 255, 255, 0.14);
-
-    --shape-fill-start: #262c3a;
-    --shape-fill-end: #1b2029;
-    --shape-stroke: #8b9bd6;
-    --shape-divider: rgba(139, 155, 214, 0.35);
-    --shape-label: #c7cff0;
-    --shape-shadow:
-        drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4))
-        drop-shadow(0 10px 22px rgba(0, 0, 0, 0.5));
-
-    --port-fill-start: #6d8bf5;
-    --port-fill-end: #37509c;
-    --port-stroke: rgba(58, 85, 192, 0.7);
-    --port-label: #ffffff;
-    --port-shadow:
-        drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35))
-        drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
-    --port-shadow-hover:
-        brightness(1.15)
-        drop-shadow(0 1px 1px rgba(0, 0, 0, 0.4))
-        drop-shadow(0 5px 12px rgba(0, 0, 0, 0.45));
-
-    --link-color: #7f9af5;
-
-    --target-fill-start: #7a4a26;
-    --target-fill-end: #4a2c15;
-    --target-stroke: #ff9d5c;
-
-    --surface: #232732;
-    --surface-hover: #2b3040;
-    --border: #3a3f4f;
-    --text: #e6e8ef;
-    --shadow-soft: rgba(0, 0, 0, 0.45);
-}
-
 html,
 body {
     height: 100%;
@@ -117,7 +75,7 @@ body {
 
 /* The custom port shape: body, header divider and label. The body's fill is
    the `shape-body-gradient` defined in main.js; only its two `<stop>` colors
-   live here, so the gradient stays theme-reactive with no JS redraw. */
+   live here. */
 .joint-type-shape [joint-selector='body'] {
     fill: url(#shape-body-gradient);
     stroke: var(--shape-stroke);
@@ -207,7 +165,7 @@ body {
     stroke-linecap: round;
 }
 
-/* Toolbar: Add/Remove Port and the theme toggle. */
+/* Toolbar: Add/Remove Port. */
 .toolbar {
     position: absolute;
     top: 10px;
@@ -234,29 +192,6 @@ body {
 .toolbar button:hover {
     background: var(--surface-hover);
     border-color: var(--port-stroke);
-}
-
-#theme-toggle {
-    width: 32px;
-    padding: 0;
-}
-
-#theme-toggle::after {
-    display: block;
-    width: 100%;
-    height: 100%;
-    content: '';
-    background: currentColor;
-    mask: var(--theme-icon) center / 16px 16px no-repeat;
-    -webkit-mask: var(--theme-icon) center / 16px 16px no-repeat;
-}
-
-#theme-toggle {
-    --theme-icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M 2 -7.5 A 7 7 0 1 0 7.5 1 A 5.5 5.5 0 0 1 2 -7.5 Z' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-}
-
-:root[data-theme='dark'] #theme-toggle {
-    --theme-icon: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-10 -10 20 20'><path d='M 0 0 m -3.5 0 a 3.5 3.5 0 1 0 7 0 a 3.5 3.5 0 1 0 -7 0 M 0 -8 V -6 M 0 6 V 8 M -8 0 H -6 M 6 0 H 8 M -5.7 -5.7 L -4.2 -4.2 M 4.2 4.2 L 5.7 5.7 M -5.7 5.7 L -4.2 4.2 M 4.2 -4.2 L 5.7 -5.7' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 }
 
 #logo-link {
