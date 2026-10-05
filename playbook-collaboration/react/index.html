@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>JointJS+: Playbook Collaboration</title>
+    <meta
+      name="description"
+      content="Playbook — collaborative business process design. Departments take colored seats, map triggers, steps, approvals and notes together, and everyone sees who is working where — live cursors, frames and an activity feed. Built with @joint/react-plus (JointJS), Liveblocks and zustand."
+    />
+    <meta
+      name="keywords"
+      content="process design, playbook, SOP, workflow, collaboration, multiplayer, realtime, presence, live cursors, Liveblocks, zustand, JointJS, @joint/react-plus"
+    />
+    <meta name="author" content="JointJS" />
+    <meta name="robots" content="index,follow" />
+
+    <meta name="theme-color" content="#f7f6f4" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#23252e" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- Apply the saved theme before first paint to avoid a flash. -->
+    <script>
+      try {
+        var saved = localStorage.getItem('journey-board:theme');
+        var dark =
+          saved !== null
+            ? saved === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', dark);
+      } catch (error) {
+        /* default stands */
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
