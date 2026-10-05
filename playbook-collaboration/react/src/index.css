@@ -1,0 +1,516 @@
+@import '@fontsource-variable/public-sans';
+@import '@fontsource-variable/overpass-mono';
+@import 'tailwindcss';
+@import '@joint/react-plus/styles.css' layer(components);
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------ tokens
+   Playbook is light-first: a paper-white studio with a blue working accent,
+   the look of the process it documents — calm, airy, printable. Dark keeps
+   the same hues on deep slate for late-hours editing. ------------------- */
+
+:root {
+  color-scheme: light;
+
+  /* Shell */
+  --paper: oklch(0.985 0.003 250);
+  --panel: oklch(0.998 0.002 250);
+  --ink: oklch(0.25 0.02 260);
+  --muted: oklch(0.5 0.015 260);
+  --edge: oklch(0.905 0.006 250);
+  /* Borders of controls (buttons, fields): 3:1 against the panel, per WCAG
+     1.4.11. `--edge` stays for hairlines and card outlines. */
+  --control: oklch(0.6 0.02 255);
+  --accent: oklch(0.55 0.16 255);
+  --accent-ink: oklch(0.99 0.004 250);
+  --plate-shadow: 0 8px 24px oklch(0.3 0.02 260 / 10%);
+
+  /* Board */
+  --board-paper: oklch(0.977 0.004 250);
+  --dot: oklch(0.9 0.008 250);
+  --flow-stroke: oklch(0.7 0.012 255);
+  --port-stroke: oklch(0.58 0.15 255);
+  --card-fill: oklch(0.999 0.001 250);
+  --card-edge: oklch(0.93 0.005 250);
+  --note-fill: oklch(0.985 0.014 90);
+
+  /* Kind chips */
+  --chip-trigger: oklch(0.93 0.045 255);
+  --chip-step: oklch(0.94 0.04 295);
+  --chip-approval: oklch(0.94 0.05 150);
+  --chip-note: oklch(0.95 0.05 90);
+
+  /* The eight department seats, light tuning. */
+  --seat-0: oklch(0.5 0.17 295); /* Marketing — violet    */
+  --seat-1: oklch(0.5 0.14 245); /* Sales — blue          */
+  --seat-2: oklch(0.53 0.12 175); /* Product — teal       */
+  --seat-3: oklch(0.55 0.14 70); /* Support — amber       */
+  --seat-4: oklch(0.55 0.18 350); /* Success — rose       */
+  --seat-5: oklch(0.52 0.14 145); /* Finance — green      */
+  --seat-6: oklch(0.52 0.13 220); /* Operations — cyan    */
+  --seat-7: oklch(0.48 0.09 275); /* Legal — slate violet */
+  /* Text on a seat colour: light on the deep light-theme seats, dark on the
+     lifted dark-theme ones, so a roundel or tag always clears 4.5:1. */
+  --seat-ink: oklch(0.99 0.004 250);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --paper: oklch(0.2 0.015 260);
+  --panel: oklch(0.235 0.015 260);
+  --ink: oklch(0.93 0.008 250);
+  --muted: oklch(0.71 0.012 255);
+  --edge: oklch(0.38 0.016 260);
+  --control: oklch(0.62 0.02 260);
+  --accent: oklch(0.72 0.13 255);
+  --accent-ink: oklch(0.2 0.02 260);
+  --plate-shadow: 0 8px 24px oklch(0.1 0.012 260 / 55%);
+
+  --board-paper: oklch(0.185 0.014 260);
+  --dot: oklch(0.31 0.014 260);
+  --flow-stroke: oklch(0.7 0.02 255);
+  --port-stroke: oklch(0.7 0.13 255);
+  --card-fill: oklch(0.255 0.016 260);
+  --card-edge: oklch(0.36 0.016 260);
+  --note-fill: oklch(0.26 0.022 90);
+
+  --chip-trigger: oklch(0.34 0.06 255);
+  --chip-step: oklch(0.34 0.05 295);
+  --chip-approval: oklch(0.33 0.05 150);
+  --chip-note: oklch(0.34 0.05 90);
+
+  --seat-0: oklch(0.68 0.16 295);
+  --seat-1: oklch(0.68 0.13 245);
+  --seat-2: oklch(0.7 0.12 175);
+  --seat-3: oklch(0.75 0.14 75);
+  --seat-4: oklch(0.7 0.16 350);
+  --seat-5: oklch(0.7 0.13 145);
+  --seat-6: oklch(0.7 0.12 220);
+  --seat-7: oklch(0.65 0.09 275);
+  --seat-ink: oklch(0.17 0.02 260);
+}
+
+/* Tailwind 4 tokens — `inline` so utilities read the runtime variables and
+   flip with the theme, no `dark:` prefixes anywhere. */
+@theme inline {
+  --font-sans: "Public Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Overpass Mono Variable", ui-monospace, monospace;
+
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-ink: var(--ink);
+  --color-subtle: var(--muted);
+  --color-edge: var(--edge);
+  --color-control: var(--control);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-live: oklch(0.66 0.16 150);
+
+  --shadow-plate: var(--plate-shadow);
+
+  --animate-feed: jb-slide-in 140ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes jb-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-feature-settings: "tnum";
+}
+
+/* One keyboard focus ring for every control, in the accent: the UA ring is
+   browser-specific and faint on the dark panels. Unlayered on purpose so no
+   utility can quietly remove it. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* The board fills its column edge to edge; an outset ring would be clipped. */
+.jb-scroller:focus-visible {
+  outline-offset: -2px;
+}
+
+/* --------------------------------------------------------------- board ink
+   The parts Tailwind utilities cannot reach: JointJS cell SVG and the
+   scroller's own variables. -------------------------------------------- */
+
+/* Decorative canvas overlays (the dot grid, cursors) must never swallow
+   board clicks: the overlay host sets inline pointer-events, so the opt-out
+   has to win from a class, descendants included. */
+.jb-nopointer,
+.jb-nopointer * {
+  pointer-events: none !important;
+}
+
+.jb-scroller {
+  --jj-paper-scroller-background: var(--board-paper);
+}
+
+.jb-paper {
+  background: var(--board-paper);
+}
+
+.jb-card {
+  fill: var(--card-fill);
+  stroke: var(--card-edge);
+  stroke-width: 1;
+  filter: drop-shadow(0 2px 4px oklch(0.3 0.02 260 / 6%))
+    drop-shadow(0 12px 28px oklch(0.3 0.02 260 / 7%));
+}
+
+.jb-card-note {
+  fill: var(--note-fill);
+  stroke-dasharray: 5 4;
+}
+
+.jb-card.is-selected {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+/* A colleague's live drag: their seat color runs around the card. */
+.jb-card.is-remote-dragged {
+  filter: drop-shadow(0 4px 10px oklch(0.3 0.02 260 / 20%));
+}
+
+.jb-remote-drag {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-dasharray: 7 5;
+  animation: jb-ants 0.85s linear infinite;
+}
+
+@keyframes jb-ants {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jb-remote-drag {
+    animation: none;
+  }
+}
+
+/* A colleague has this card open in their inspector. */
+.jb-peer-frame {
+  fill: none;
+  stroke-width: 1.5;
+}
+
+.jb-peer-tag-text {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--seat-ink);
+}
+
+.jb-card-pending {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+
+.jb-kind-tab {
+  fill: var(--panel);
+  stroke: var(--card-edge);
+  stroke-width: 1;
+}
+
+.jb-kind-tab-text {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 650;
+  fill: var(--muted);
+}
+
+.jb-chip-trigger {
+  fill: var(--chip-trigger);
+}
+
+.jb-chip-step {
+  fill: var(--chip-step);
+}
+
+.jb-chip-approval {
+  fill: var(--chip-approval);
+}
+
+.jb-chip-note {
+  fill: var(--chip-note);
+}
+
+.jb-chip-glyph {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 800;
+  fill: var(--ink);
+}
+
+.jb-dept-pill-text {
+  font-family: var(--font-sans);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.jb-card-title {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+.jb-card-body {
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.jb-card-divider {
+  stroke: var(--card-edge);
+  stroke-width: 1;
+}
+
+.joint-element {
+  cursor: pointer;
+}
+
+.jb-flow {
+  fill: none;
+  transition: stroke-width 140ms ease-out;
+}
+
+/* The wrapper is the wide invisible hit area joint puts over every link. */
+.joint-link:hover .jb-flow {
+  stroke-width: 2.25;
+}
+
+.jb-flow.is-selected {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.jb-flow-wrapper {
+  cursor: pointer;
+}
+
+.jb-rename {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 3px 6px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  outline: none;
+}
+
+/* The card's two model ports (declared in derive-cells): the IN dot on the
+   left is a ring, the OUT dot on the right is filled, so the direction of a
+   flow reads from the dots alone. Quiet at rest, loud near the pointer;
+   dragging out of the OUT dot draws a flow. */
+.jb-port {
+  stroke: var(--port-stroke);
+  stroke-width: 1.5;
+  opacity: 0.6;
+  transition: opacity 140ms ease-out, stroke-width 140ms ease-out;
+}
+
+.jb-port-in {
+  fill: var(--paper);
+  cursor: default;
+}
+
+.jb-port-out {
+  fill: var(--port-stroke);
+  cursor: crosshair;
+}
+
+.joint-element:hover .jb-port {
+  opacity: 1;
+}
+
+/* A flow in the air: the IN dots it may land on pulse, the OUT dots step
+   back, so the board says where the drop goes. */
+.jb-is-drawing .jb-port-in {
+  opacity: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: jb-port-pulse 1.1s ease-in-out infinite;
+}
+
+.jb-is-drawing .jb-port-out {
+  opacity: 0.25;
+}
+
+@keyframes jb-port-pulse {
+  0%,
+  100% {
+    stroke-width: 1.5;
+    transform: scale(1);
+  }
+
+  50% {
+    stroke-width: 3;
+    transform: scale(1.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jb-is-drawing .jb-port-in {
+    stroke-width: 3;
+    animation: none;
+  }
+}
+
+.jb-port:hover {
+  stroke-width: 2.5;
+}
+
+/* The palette tiles reuse the card chip fills, as CSS `background` here. */
+.jb-tile-chip.jb-chip-trigger {
+  background: var(--chip-trigger);
+}
+
+.jb-tile-chip.jb-chip-step {
+  background: var(--chip-step);
+}
+
+.jb-tile-chip.jb-chip-approval {
+  background: var(--chip-approval);
+}
+
+.jb-tile-chip.jb-chip-note {
+  background: var(--chip-note);
+}
+
+/* A select with its own chevron: the native arrow sits on the border with no
+   margin, and cannot be moved. Grey works on both themes. */
+.jb-select {
+  appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%238a8f9c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5l3 3 3-3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px 12px;
+}
+
+/* The JointJS+ badge, per the design system's demo-badge set: a filled block
+   with 8px chamfers on the corners facing the page. Grounds: "Light 2" on the
+   light theme, "Navy 2" on the dark one; the symbol and wordmark keep the
+   brand red on both. */
+.jjw {
+  --jj-ch: 8px;
+  --w-bg: #dde5ed;
+  --w-ink: #131e29;
+  --w-logo: #ed2637;
+  /* the set's #5F7385 kicker sits at 3.9:1 on this ground; a step towards
+     the navy keeps the hue and clears AA for the 8.5px text */
+  --w-kick: #546677;
+  display: inline-flex;
+  flex: none;
+  gap: 9px;
+  align-items: center;
+  height: 36px;
+  padding: 0 13px;
+  color: var(--w-ink);
+  text-decoration: none;
+  user-select: none;
+  background: var(--w-bg);
+  clip-path: polygon(
+    var(--jj-ch) 0,
+    100% 0,
+    100% calc(100% - var(--jj-ch)),
+    calc(100% - var(--jj-ch)) 100%,
+    0 100%,
+    0 var(--jj-ch)
+  );
+}
+
+.dark .jjw {
+  --w-bg: #131e29;
+  --w-ink: #dde5ed;
+  --w-kick: #879baa;
+}
+
+/* clip-path takes the outline's outer half with it, so the ring sits inside */
+.jjw:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.jjw:hover .jjw-mark,
+.jjw:hover .jjw-lock {
+  filter: brightness(1.18);
+}
+
+.jjw-mark {
+  display: block;
+  flex: none;
+  width: auto;
+  height: 19px;
+  color: var(--w-logo);
+}
+
+.jjw-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jjw-kick {
+  font-size: 8.5px;
+  line-height: 1;
+  color: var(--w-kick);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.jjw-lock {
+  display: flex;
+  gap: 1px;
+  align-items: center;
+  line-height: 1;
+  color: var(--w-logo);
+}
+
+.jjw-wm {
+  display: block;
+  width: auto;
+  height: 11px;
+}
+
+.jjw-lock em {
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1;
+}
