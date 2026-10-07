@@ -1,16 +1,15 @@
-import ELK from 'elkjs/lib/elk-api.js';
-// Vite bundles the ELK worker and serves it from its own URL.
-import ElkWorker from 'elkjs/lib/elk-worker.js?worker';
+import { layout, createWorkerElk } from '@joint/layout-elk';
 
 import type { dia } from '@joint/plus';
 
-import type { ElkNode, ElkExtendedEdge, ElkPoint, LayoutOptions } from 'elkjs/lib/elk-api.d.ts';
+import type { ElkLayoutOptions, NodeElkLayoutOptions } from '@joint/layout-elk';
 import { isClusterSpec, type ClusterSpec, type NodeSpec } from './dataset';
-import { Cluster, Edge, Leaf, CLUSTER_PADDING, COLLAPSED_SIZE, HEADER_HEIGHT, LEAF_SIZE } from './shapes';
+import { Cluster, Edge, Leaf, isCellVisible, CLUSTER_PADDING, COLLAPSED_SIZE, HEADER_HEIGHT, LEAF_SIZE } from './shapes';
 
-const elk = new ELK({ workerFactory: () => new ElkWorker() });
+// ELK runs in a Web Worker, so the page stays responsive while it lays out the diagram.
+const elk = createWorkerElk(() => new Worker(new URL('@joint/layout-elk/worker', import.meta.url), { type: 'module' }));
 
-const ROOT_LAYOUT_OPTIONS: LayoutOptions = {
+const ROOT_LAYOUT_OPTIONS: ElkLayoutOptions = {
     /**
      * There are no links between the top-level clusters, so they are packed
      * into a compact area instead of being placed in a single row.
@@ -25,7 +24,7 @@ const ROOT_LAYOUT_OPTIONS: LayoutOptions = {
     'elk.hierarchyHandling': 'SEPARATE_CHILDREN'
 };
 
-const CLUSTER_LAYOUT_OPTIONS: LayoutOptions = {
+const CLUSTER_LAYOUT_OPTIONS: NodeElkLayoutOptions = {
     'elk.algorithm': 'layered',
     'elk.direction': 'RIGHT',
     'elk.edgeRouting': 'ORTHOGONAL',
@@ -97,113 +96,21 @@ function embedCluster(graph: dia.Graph, cluster: ClusterSpec): void {
 
 /**
  * Lay the diagram out with ELK and apply the result to the JointJS graph.
+ * The embedded elements become the children of their cluster in the ELK graph,
+ * the content of the collapsed clusters is left out (a collapsed cluster
+ * is laid out as a plain node).
  */
-export async function layoutDiagram(graph: dia.Graph, clusters: ClusterSpec[]): Promise<void> {
-    const elkGraph = await elk.layout(createElkGraph(graph, clusters));
-    applyNodeLayout(graph, elkGraph, 0, 0);
-}
-
-/**
- * Convert the diagram description into an ELK graph. The content of a
- * collapsed cluster is left out - the cluster becomes a plain node of the
- * size of its header.
- */
-function createElkGraph(graph: dia.Graph, clusters: ClusterSpec[]): ElkNode {
-    return {
-        id: 'root',
-        layoutOptions: ROOT_LAYOUT_OPTIONS,
-        children: clusters.map((cluster) => createElkNode(graph, cluster))
-    };
-}
-
-function createElkNode(graph: dia.Graph, node: NodeSpec): ElkNode {
-    if (!isClusterSpec(node)) {
-        return { id: node.id, ...LEAF_SIZE };
-    }
-    const cluster = graph.getCell(node.id) as Cluster;
-    if (cluster.isCollapsed()) {
-        return { id: node.id, ...COLLAPSED_SIZE };
-    }
-    return {
-        id: node.id,
-        layoutOptions: CLUSTER_LAYOUT_OPTIONS,
-        children: node.children.map((child) => createElkNode(graph, child)),
-        edges: node.edges.map(({ id, source, target }) => ({
-            id,
-            sources: [source],
-            targets: [target]
-        }))
-    };
-}
-
-/**
- * Apply the layout of a single ELK node. The coordinates of its children (and
- * of the links declared on it) are relative to its own origin, `[ox, oy]` is
- * the absolute position of that origin.
- */
-function applyNodeLayout(graph: dia.Graph, node: ElkNode, ox: number, oy: number): void {
-    const { children = [], edges = [] } = node;
-    // The local positions of the children are needed to convert the absolute
-    // link end points into the anchors of the end elements.
-    const childPositions = new Map<string, ElkPoint>();
-
-    children.forEach((child) => {
-        const x = child.x ?? 0;
-        const y = child.y ?? 0;
-        childPositions.set(child.id, { x, y });
-        const element = graph.getCell(child.id) as dia.Element;
-        // Note: `element.set()` is used instead of `element.position()` and
-        // `element.resize()` - the children of the element are positioned by
-        // ELK too and must not be moved along with their parent.
-        element.set({
-            position: { x: ox + x, y: oy + y },
-            size: {
-                width: child.width ?? LEAF_SIZE.width,
-                height: child.height ?? LEAF_SIZE.height
-            }
-        });
-        applyNodeLayout(graph, child, ox + x, oy + y);
-    });
-
-    edges.forEach((edge) => applyEdgeLayout(graph, edge, childPositions, ox, oy));
-}
-
-function applyEdgeLayout(
-    graph: dia.Graph,
-    edge: ElkExtendedEdge,
-    childPositions: Map<string, ElkPoint>,
-    ox: number,
-    oy: number
-): void {
-    const [section] = edge.sections ?? [];
-    if (!section) return;
-    const { startPoint, endPoint, bendPoints = [] } = section;
-    const link = graph.getCell(edge.id) as dia.Link;
-    link.set({
-        source: getLinkEnd(edge.sources[0], startPoint, childPositions),
-        target: getLinkEnd(edge.targets[0], endPoint, childPositions),
-        vertices: bendPoints.map(({ x, y }) => ({ x: ox + x, y: oy + y }))
-    });
-}
-
-/**
- * Pin the link end to the exact point ELK has routed the link to.
- */
-function getLinkEnd(
-    id: string,
-    point: ElkPoint,
-    childPositions: Map<string, ElkPoint>
-): dia.Link.EndJSON {
-    const { x, y } = childPositions.get(id) ?? { x: 0, y: 0 };
-    return {
-        id,
-        anchor: {
-            name: 'topLeft',
-            args: {
-                dx: point.x - x,
-                dy: point.y - y,
-                useModelGeometry: true
+export async function layoutDiagram(graph: dia.Graph): Promise<void> {
+    await layout({
+        graph,
+        elements: graph.getElements().filter(isCellVisible)
+    }, {
+        elk,
+        elkLayoutOptions: ROOT_LAYOUT_OPTIONS,
+        exportElement: ({ element, elkNode }) => {
+            if (element instanceof Cluster && !element.isCollapsed()) {
+                Object.assign(elkNode.layoutOptions, CLUSTER_LAYOUT_OPTIONS);
             }
         }
-    };
+    });
 }

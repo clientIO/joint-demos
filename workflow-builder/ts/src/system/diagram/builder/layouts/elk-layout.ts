@@ -1,18 +1,12 @@
-import ELK from 'elkjs/lib/elk-api';
-import { SystemEdge, SystemNode } from '../../models';
+import { layout } from '@joint/layout-elk';
 import { Attribute, LAYOUT_BATCH_NAME } from '../../const';
 
 import type { dia } from '@joint/plus';
+import type { SystemNode } from '../../models';
 import type { AutoLayoutDiagramCells } from '../types';
-import type { ElkNode, ElkPort, LayoutOptions } from 'elkjs/lib/elk-api';
-import type { ElkExtendedEdge } from 'elkjs/lib/elk-api';
+import type { ElkLayoutOptions } from '@joint/layout-elk';
 
-// Initialize ELK
-const elk = new ELK({
-    workerUrl: './elk-worker.min.js',
-});
-
-interface ElkLayoutOptions {
+interface LayoutCellsOptions {
     /**
      * Disable the optimal order heuristic for crossing minimization.
      * This is useful to get a faster layout, but the result may not be optimal.
@@ -20,19 +14,34 @@ interface ElkLayoutOptions {
     disableOptimalOrderHeuristic?: boolean;
 }
 
-export async function layoutCells(graph: dia.Graph, cells: AutoLayoutDiagramCells, options?: ElkLayoutOptions): Promise<void> {
+export async function layoutCells(graph: dia.Graph, cells: AutoLayoutDiagramCells, options?: LayoutCellsOptions): Promise<void> {
     const {
         nodes,
         edges,
     } = cells;
 
-    // Construct ELK Graph
-    const elkGraph = getElkGraph([...nodes, ...edges], options);
-
     try {
         graph.startBatch(LAYOUT_BATCH_NAME);
-        const laidOutGraph = await elk.layout(elkGraph);
-        applyLayout(graph, laidOutGraph);
+        // Lay out the given cells only (e.g. not the notes), in the order ELK should consider
+        await layout({ graph, elements: nodes, links: edges }, {
+            elkLayoutOptions: getElkLayoutOptions(options),
+            exportElement: ({ element, elkNode }) => {
+                const node = element as SystemNode;
+                const partitionIndex: number = node.get(Attribute.PartitionIndex) ?? 1000;
+                elkNode.layoutOptions['elk.partitioning.partition'] = `${partitionIndex}`;
+                if (node.get('type') === 'trigger') {
+                    elkNode.layoutOptions['elk.layered.layering.layerChoiceConstraint'] = '0';
+                }
+                elkNode.labels = node.getLabelsRelativeRects().map(rect => ({
+                    text: '-', // some text is required (ELK ignores empty labels)
+                    width: rect.width,
+                    height: rect.height,
+                    x: rect.x,
+                    y: rect.y,
+                    layoutOptions: {}
+                }));
+            }
+        });
     } catch (error) {
         console.warn('ELK layout error:', error);
     } finally {
@@ -40,10 +49,9 @@ export async function layoutCells(graph: dia.Graph, cells: AutoLayoutDiagramCell
     }
 }
 
+function getElkLayoutOptions(options?: LayoutCellsOptions): ElkLayoutOptions {
 
-function getElkGraph(cells: dia.Cell[], options?: ElkLayoutOptions): ElkNode {
-
-    const layoutOptions: LayoutOptions = {
+    const layoutOptions: ElkLayoutOptions = {
         'elk.algorithm': 'layered',
         'elk.direction': 'RIGHT',
         'elk.separateConnectedComponents': 'false',
@@ -62,10 +70,7 @@ function getElkGraph(cells: dia.Cell[], options?: ElkLayoutOptions): ElkNode {
         'elk.layered.crossingMinimization.forceNodeModelOrder': 'true',
 
         // Center layers as a whole (optional)
-        'elk.layered.nodePlacement.bk.fixedAlignment': 'BALANCED',
-
-        // Ports
-        'elk.layered.considerModelOrder.portModelOrder': 'true'
+        'elk.layered.nodePlacement.bk.fixedAlignment': 'BALANCED'
     };
 
     if (options?.disableOptimalOrderHeuristic) {
@@ -75,109 +80,5 @@ function getElkGraph(cells: dia.Cell[], options?: ElkLayoutOptions): ElkNode {
         });
     }
 
-    const elkGraph: ElkNode = {
-        id: 'root',
-        layoutOptions,
-        children: [],
-        edges: []
-    };
-
-    const buildElement = (element: SystemNode) => {
-        const size = element.size();
-        const partitionIndex = element.get(Attribute.PartitionIndex) == null ? '1000' : (element.get(Attribute.PartitionIndex) as number).toString();
-        const elkNode: ElkNode = {
-            id: `${element.id}`,
-            width: size.width,
-            height: size.height,
-            ports: element.getPorts().map(port => {
-                const rect = element.getPortRelativeRect(port.id!);
-                return {
-                    id: `${element.id}_${port.id}`,
-                    width: rect.width,
-                    height: rect.height,
-                    x: rect.x,
-                    y: rect.y,
-                } as ElkPort;
-            }),
-            children: [],
-            layoutOptions: {
-                'elk.portConstraints': 'FIXED_POS',
-                'elk.partitioning.partition': partitionIndex,
-            },
-            labels: element.getLabelsRelativeRects().map(rect => ({
-                text: '-', // some text is required (ELK ignores empty labels)
-                width: rect.width,
-                height: rect.height,
-                x: rect.x,
-                y: rect.y,
-            }))
-        };
-
-        if (element.get('type') === 'trigger') {
-            elkNode.layoutOptions!['elk.layered.layering.layerChoiceConstraint'] = '0';
-        }
-
-        elkGraph.children!.push(elkNode);
-    };
-
-    const buildLink = (link: dia.Link) => {
-        const sourceId = `${link.source().id}`;
-        const targetId = `${link.target().id}`;
-        if (!sourceId || !targetId) {
-            return; // Skip if source or target is not defined
-        }
-
-        const sourcePort = link.source().port;
-        const targetPort = link.target().port;
-
-        elkGraph.edges!.push({
-            id: `${link.id}`,
-            sources: [`${sourceId}${sourcePort ? '_' + sourcePort : ''}`],
-            targets: [`${targetId}${targetPort ? '_' + targetPort : ''}`],
-        });
-    };
-
-    cells.forEach(cell => {
-        if (cell instanceof SystemNode) {
-            buildElement(cell);
-        } else if (cell instanceof SystemEdge) {
-            buildLink(cell);
-        }
-    });
-
-    return elkGraph;
-}
-
-
-function applyLayout(graph: dia.Graph, elkGraph: ElkNode) {
-    // Update Elements
-    updateElements(elkGraph.children || [], graph);
-
-    // Update Edges
-    updateLinks(elkGraph.edges || [], graph);
-}
-
-function updateElements(nodes: ElkNode[], graph: dia.Graph) {
-    nodes.forEach(node => {
-        const element = graph.getCell(node.id) as dia.Element;
-        if (!element) return;
-
-        element.position(node.x!, node.y!);
-    });
-}
-
-function updateLinks(edges: ElkExtendedEdge[], graph: dia.Graph): void {
-    for (const edge of edges) {
-        const { sections } = edge;
-        if (!sections) continue;
-
-        const linkAttributes: dia.Link.Attributes = {};
-        const [{ bendPoints = [] }] = sections;
-
-        // Update link vertices (bend points)
-        // Update link source and target anchors (startPoint, endPoint)
-        const link = graph.getCell(edge.id) as dia.Link;
-        linkAttributes.vertices = bendPoints;
-        link.set(linkAttributes);
-    }
+    return layoutOptions;
 }

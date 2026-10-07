@@ -2,7 +2,7 @@ import { dia, g, ui, util } from '@joint/plus';
 
 import { createDiagram } from './dataset';
 import { createCells, embedCells, layoutDiagram } from './layout';
-import { Cluster, cellNamespace, TOGGLE_EVENT } from './shapes';
+import { Cluster, cellNamespace, isCellVisible, TOGGLE_EVENT } from './shapes';
 
 /** How far outside of the visible area the cells are rendered. */
 const VIRTUAL_RENDERING_MARGIN = 300;
@@ -87,7 +87,7 @@ export async function init(): Promise<void> {
             : null;
         paper.freeze();
         try {
-            await layoutDiagram(graph, clusters);
+            await layoutDiagram(graph);
         } catch (error) {
             console.warn('ELK layout error:', error);
         } finally {
@@ -140,17 +140,6 @@ export async function init(): Promise<void> {
         // Leave a room for the toolbar at the top.
         padding: { top: 60, right: 20, bottom: 20, left: 20 }
     });
-}
-
-/**
- * A cell is hidden when any of its ancestors is a collapsed cluster. Note that
- * the links are reparented into the cluster of their endpoints, so the very
- * same check applies to them.
- */
-function isCellVisible(cell: dia.Cell): boolean {
-    return !cell.getAncestors().some(
-        (ancestor) => Cluster.isCluster(ancestor) && ancestor.isCollapsed()
-    );
 }
 
 /**

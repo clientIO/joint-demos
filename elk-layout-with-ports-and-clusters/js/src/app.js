@@ -1,7 +1,6 @@
 import { dia, shapes } from '@joint/core';
 
-import ELK from 'elkjs/lib/elk-api.js';
-import elkWorker from 'elkjs/lib/elk-worker.js';
+import { layout } from '@joint/layout-elk';
 import { Child, Label, Edge } from './shapes';
 import elkGraph from '../elkGraph.json';
 
@@ -58,28 +57,29 @@ export const init = () => {
     paper.on('scale', () => toggleViewClass());
     toggleViewClass();
 
-    const elk = new ELK({
-        workerFactory: url => new elkWorker.Worker(url)
-    });
     const mapPortIdToShapeId = {};
+    // The node labels are separate elements, which are embedded into their
+    // node once the layout is done (ELK computes their position).
+    const nodeLabels = new Map();
 
     const addChildren = (children, parent) => {
         children.forEach(child => {
 
             const { ports = [], children = [], labels = [] } = child;
 
+            // The size of a cluster is computed by ELK to fit its content
             const shape = new Child({
                 id: child.id,
-                position: { x: child.x, y: child.y },
-                size: { width: child.width, height: child.height },
+                size: { width: child.width || 0, height: child.height || 0 },
             });
 
             ports.forEach(port => {
                 const portToAdd = {
                     group: 'port',
-                    args: { x: port.x, y: port.y },
                     id: port.id,
-                    size: { height: port.height || 0, width: port.width || 0 }
+                    size: { height: port.height || 0, width: port.width || 0 },
+                    // The side of the node the port is placed on by ELK
+                    side: port.layoutOptions['port.side']
                 };
                 shape.addPort(portToAdd);
                 mapPortIdToShapeId[port.id] = shape.id;
@@ -89,7 +89,6 @@ export const init = () => {
 
             if (parent) {
                 parent.embed(shape);
-                shape.position(child.x, child.y, { parentRelative: true });
             }
 
             if (children.length > 0) {
@@ -97,13 +96,15 @@ export const init = () => {
             }
 
             if (child.edges) {
-                addEdges(child.edges, shape);
+                addEdges(child.edges);
             }
 
-            labels.forEach(label => {
+            nodeLabels.set(shape.id, labels.map(label => {
 
                 const labelElement = new Label({
                     simplifiedViewLabel: children.length === 0,
+                    size: { width: label.width, height: label.height },
+                    placement: label.layoutOptions['nodeLabels.placement'],
                     attrs: {
                         label: {
                             fontSize: label.height,
@@ -114,50 +115,17 @@ export const init = () => {
                 });
 
                 if (children.length > 0) {
-                    shape.attr('label', {
-                        fontSize: shape.size().width / 5,
-                        text: label.text,
-                    });
+                    shape.attr('label/text', label.text);
                 }
 
                 labelElement.addTo(graph);
-                shape.embed(labelElement);
-                labelElement.position(label.x, label.y, { parentRelative: true });
-            });
+                return labelElement;
+            }));
         });
     };
 
-    const addEdges = (edges, parent) => {
+    const addEdges = (edges) => {
         edges.forEach((link) => {
-            const { bendPoints = [] } = link.sections[0];
-            const junctionPoints = link.junctionPoints || [];
-
-            if (parent) {
-                bendPoints.map(bendPoint => {
-                    const parentPosition = parent.position();
-                    bendPoint.x += parentPosition.x;
-                    bendPoint.y += parentPosition.y;
-                });
-            }
-
-            junctionPoints.forEach(point => {
-                const SIZE = 4;
-                const position = {
-                    x: point.x - SIZE / 2 + (parent ? parent.get('position').x : 0),
-                    y: point.y - SIZE / 2 + (parent ? parent.get('position').y : 0)
-                };
-                const junctionPoint = new shapes.standard.Circle({
-                    size: { height: SIZE, width: SIZE },
-                    attrs: {
-                        body: {
-                            fill: '#464454',
-                            stroke: '#464454',
-                        }
-                    }
-                });
-                junctionPoint.addTo(graph);
-                junctionPoint.position(position.x, position.y);
-            });
 
             const sourcePortId = link.sources[0];
             const targetPortId = link.targets[0];
@@ -172,20 +140,78 @@ export const init = () => {
                 target: {
                     id: targetElementId,
                     port: targetPortId,
-                },
-                vertices: bendPoints
+                }
             });
 
             shape.addTo(graph);
         });
     };
 
-    elk.layout(elkGraph).then(res => {
-        const children = res.children || [];
-        const edges = res.edges || [];
+    const addJunctionPoints = (node) => {
+        // The coordinates of the edges are absolute (`elk.json.edgeCoords: ROOT`)
+        (node.edges || []).forEach(edge => {
+            (edge.junctionPoints || []).forEach(point => {
+                const SIZE = 4;
+                const junctionPoint = new shapes.standard.Circle({
+                    position: {
+                        x: point.x - SIZE / 2,
+                        y: point.y - SIZE / 2
+                    },
+                    size: { height: SIZE, width: SIZE },
+                    attrs: {
+                        body: {
+                            fill: '#464454',
+                            stroke: '#464454',
+                        }
+                    }
+                });
+                junctionPoint.addTo(graph);
+            });
+        });
+        (node.children || []).forEach(child => addJunctionPoints(child));
+    };
 
-        addChildren(children);
-        addEdges(edges);
+    addChildren(elkGraph.children || []);
+    addEdges(elkGraph.edges || []);
+
+    layout({ graph }, {
+        exportElement:({ element, elkNode }) => {
+            // The labels are not laid out as nodes, but as labels of their node
+            if (element instanceof Label) return false;
+            // ELK places the ports on their side (instead of keeping them in place)
+            elkNode.layoutOptions['elk.portConstraints'] = 'FIXED_ORDER';
+            elkNode.labels = nodeLabels.get(element.id).map(labelElement => ({
+                text: labelElement.attr('label/text'),
+                ...labelElement.size(),
+                layoutOptions: {
+                    'elk.nodeLabels.placement': labelElement.get('placement')
+                }
+            }));
+        },
+        exportPort: ({ element, portId, elkPort }) => {
+            elkPort.layoutOptions['elk.port.side'] = element.portProp(portId, 'side');
+            elkPort.layoutOptions['elk.port.index'] = `${element.getPortIndex(portId)}`;
+        },
+        setPortAttributes: ({ element, portId, elkPort }) => {
+            // Keep the port where ELK placed it (next to the node border),
+            // its top-left corner is the position of the port.
+            element.portProp(portId, 'args', { x: elkPort.x, y: elkPort.y });
+        },
+        setElementAttributes: ({ element, attributes, elkNode }) => {
+            element.set(attributes);
+            const { position, size } = attributes;
+            nodeLabels.get(element.id).forEach((labelElement, index) => {
+                const { x = 0, y = 0 } = elkNode.labels[index];
+                labelElement.position(position.x + x, position.y + y);
+                element.embed(labelElement);
+            });
+            if (size) {
+                // The cluster label is displayed inside the cluster in the simplified view
+                element.attr('label/fontSize', size.width / 5);
+            }
+        }
+    }).then(({ elkGraph: laidOutGraph }) => {
+        addJunctionPoints(laidOutGraph);
 
         paper.unfreeze();
         paper.fitToContent({ useModelGeometry: true, padding: 100, allowNewOrigin: 'any' });

@@ -28,8 +28,7 @@ module.exports = {
     plugins: [
         new CopyPlugin({
             patterns: [
-                { from: './index.html', to: './' },
-                { from: './node_modules/elkjs/lib/elk-worker.js', to: './' }
+                { from: './index.html', to: './' }
             ]
         })
     ],
