@@ -169,8 +169,15 @@ export function useContainmentEmbedding(
         // Resizing a group changes what it covers → re-file every table. A COLLAPSE
         // resize (shrink-to-header) is not a coverage change — skip it, or the members
         // would fall outside the header and un-embed. (joint sets all attributes before
-        // firing change:size, so `data` already carries the fresh collapsed flag here.)
-        'change:size': (cell) => {
+        // firing its events, so `data` already carries the fresh collapsed flag here.)
+        //
+        // Bound to the trailing `change`, NOT `change:size`: the spatial index behind
+        // `graph.findElementsAtPoint` refreshes on `change`, which fires after every
+        // `change:<attr>`. Inside `change:size` an expanding group is still indexed at
+        // its collapsed, header-sized bounds, so its own tables were not found under it
+        // and got un-embedded on every expand.
+        change: (cell) => {
+            if (!cell.hasChanged('size')) return;
             const data = cell.get('data');
             if (isContainer(data) && !isCollapsedContainer(data)) recomputeAll();
         },
