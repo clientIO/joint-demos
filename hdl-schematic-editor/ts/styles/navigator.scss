@@ -1,0 +1,42 @@
+@import './navigator/navigator.scss';
+
+.joint-navigator {
+    .joint-paper {
+
+        svg {
+            shape-rendering: geometricPrecision !important;
+        }
+
+        .joint-element rect {
+            fill: var(--app-symbol-fill);
+            stroke: var(--app-symbol-color);
+        }
+
+        // Wires are color coded the same way as in the diagram,
+        // but thinner (the CSS overrides the presentation attributes).
+        // The width is in screen pixels (the minimap is scaled down).
+        .joint-link {
+            [joint-selector="line"] {
+                stroke: var(--app-wire);
+                stroke-width: 1;
+                stroke-dasharray: none;
+                vector-effect: non-scaling-stroke;
+            }
+
+            &[data-bus="true"] [joint-selector="line"] {
+                stroke: var(--app-bus);
+                stroke-width: 2;
+            }
+
+            &[data-mismatch="true"] [joint-selector="line"] {
+                stroke: var(--app-error);
+            }
+
+            // Too small to be readable in the minimap
+            [joint-selector="junctions"],
+            .joint-labels {
+                display: none;
+            }
+        }
+    }
+}

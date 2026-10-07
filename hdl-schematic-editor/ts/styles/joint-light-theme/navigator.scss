@@ -1,0 +1,9 @@
+.joint-navigator.joint-theme-light {
+    border: none;
+    padding: 0 !important;
+
+    .current-view:not(&.hidden) {
+        border: 2px solid var(--jj-border-navigator);
+        border-radius: var(--jj-border-radius-small);
+    }
+}

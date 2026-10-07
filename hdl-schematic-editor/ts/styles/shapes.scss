@@ -1,0 +1,121 @@
+$fade-in-duration: 300ms;
+$color-transition-duration: 150ms;
+
+.joint-cell {
+
+    // Hover
+
+    &.joint-element:not(.selected).hover {
+        .node-body {
+            filter: drop-shadow(0 0 2px var(--app-selection-shadow));
+        }
+    }
+
+    // Selection
+
+    &.joint-element.selected {
+        .node-body {
+            filter: drop-shadow(0 0 3px var(--app-selection)) drop-shadow(0 0 1px var(--app-selection));
+        }
+    }
+
+    // Ports
+
+    .joint-port {
+        .port-body {
+            transition: fill $color-transition-duration ease-in-out;
+        }
+
+        &:hover .port-body {
+            fill: var(--app-selection-shadow);
+        }
+
+        // Ports the dragged wire can be connected to
+        .port-body.connection-candidate {
+            fill: var(--app-selection-shadow);
+        }
+
+        // The port the dragged wire will be connected to
+        .port-body.connection-target {
+            fill: var(--app-selection);
+            stroke: var(--app-hover);
+            stroke-width: 1;
+        }
+    }
+
+    // Wires
+
+    &.joint-type-edge {
+
+        // The hover and selection effects are drawn by the `highlight` path below the wire.
+        // The `wrapper` (the area reacting to the pointer) is never restyled, so its size
+        // is the same in all states.
+        .wire-highlight {
+            transition: stroke $color-transition-duration ease-in-out;
+        }
+
+        // All the wires of the hovered net
+        &.net-hover .wire-highlight {
+            stroke: var(--app-selection-shadow);
+            stroke-width: 7;
+        }
+
+        &.selected .wire-highlight {
+            stroke: var(--app-selection);
+            stroke-width: 8;
+        }
+    }
+}
+
+.joint-tools {
+    .joint-tool {
+
+        &[data-tool-name="insert-node-tool"] {
+            circle {
+                transition:
+                    fill $color-transition-duration ease-in-out,
+                    stroke $color-transition-duration ease-in-out;
+            }
+
+            path {
+                transition: stroke $color-transition-duration ease-in-out;
+            }
+
+            &:hover {
+                circle {
+                    fill: var(--app-symbol-color);
+                    stroke: var(--app-symbol-color);
+                }
+
+                path {
+                    stroke: var(--app-bg-primary);
+                }
+            }
+        }
+
+        .menu-button-background {
+            fill: var(--app-bg-primary);
+            stroke: var(--app-border-primary);
+        }
+
+        .menu-button-icon {
+            transition: fill $color-transition-duration ease-in-out;
+            fill: var(--app-text-secondary);
+        }
+
+        &:hover {
+            .menu-button-icon {
+                fill: var(--app-text-primary);
+            }
+        }
+    }
+}
+
+.fade-in {
+    @starting-style {
+        opacity: 0;
+    }
+
+    opacity: 1;
+    transition: opacity $fade-in-duration ease;
+}

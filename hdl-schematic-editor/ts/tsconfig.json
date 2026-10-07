@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "ES6",
+    "moduleResolution": "bundler",
+    "target": "ES6",
+    "lib": [
+      "dom",
+      "ES2017"
+    ],
+    "strict": true,
+    "strictFunctionTypes": false,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "types": []
+  }
+}

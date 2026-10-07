@@ -1,0 +1,37 @@
+{
+  "name": "joint-hdl-schematic-editor",
+  "version": "4.2.2",
+  "description": "JointJS+ HDL Schematic Editor",
+  "main": "index.html",
+  "author": "client IO",
+  "license": "https://www.jointjs.com/license",
+  "private": true,
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "start": "concurrently \"npm run build\" \"webpack serve --config webpack.config.js\""
+  },
+  "dependencies": {
+    "@joint/layout-elk": "file:../../.packages/joint-layout-elk.tgz",
+    "@joint/plus": "4.3.1",
+    "@joint/router-avoid": "4.3.3"
+  },
+  "devDependencies": {
+    "concurrently": "4.1.0",
+    "copy-webpack-plugin": "9.0.1",
+    "core-js": "3.6.1",
+    "css-loader": "3.5.3",
+    "file-loader": "6.0.0",
+    "regenerator-runtime": "0.13.5",
+    "sass": "1.26.8",
+    "sass-loader": "8.0.2",
+    "style-loader": "1.2.1",
+    "ts-loader": "9.4.2",
+    "typescript": "^5.8.2",
+    "webpack": "5.88.2",
+    "webpack-cli": "5.1.4",
+    "webpack-dev-server": "4.15.1"
+  },
+  "overrides": {
+    "@joint/core": "file:../../.packages/joint-core.tgz"
+  }
+}
