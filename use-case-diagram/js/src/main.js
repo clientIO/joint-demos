@@ -130,6 +130,27 @@ const NEUTRAL_GRADIENT = makeGradient('#64748b', '#475569', CARD_GRADIENT_ATTRS)
 // 29.4: (80/110)^2 + (29.4/45)^2 =~ 0.96, safely (if snugly) inside.
 const UC_TITLE_WRAP_WIDTH = 160;
 
+// How far a link's end stops short of the shape it connects to (see
+// `defaultConnectionPoint` in the Paper options) - just enough that the line
+// reads as joining two distinct things rather than touching/fusing into
+// them. The actor figure gets a bigger gap than a use-case ellipse: the
+// stick figure's own silhouette is much smaller and visually lighter (thin
+// strokes, no fill) than the ellipse's bold filled card, so the same offset
+// that reads as "a small gap" against the ellipse reads as "the line is
+// touching the figure" against the actor - see `createUse` below, the only
+// link type with an actor on one end.
+const LINK_END_OFFSET = 10;
+const ACTOR_LINK_END_OFFSET = 70;
+
+// Shared by Actor and UseCase: both get an invisible hit-test rect padded
+// this far past their own visible bbox (not just matching it exactly), so
+// the hover-revealed Connect button (see the `element:mouseenter` handler
+// near the bottom of this file) has room to sit a clear, visible gap outside
+// the shape's own outline while still landing inside hoverable space - no
+// dead zone between "on the shape" and "on the button" for the pointer to
+// get lost in.
+const CONNECT_HIT_PAD = 20;
+
 // --- Actor: the UML notation for an actor is a stick figure standing free on
 // the canvas, name centered below it - no card, no icon chip. `ACTOR_WIDTH`
 // is wider than the figure itself only so a long actor name still has room to
@@ -234,9 +255,13 @@ const paper = new dia.Paper({
     },
     // ...but stop the rendered line at the actual shape outline (the ellipse
     // or the figure's own bounding box) rather than drawing all the way to
-    // that center point.
+    // that center point - and a few pixels short of it besides (`offset`),
+    // so a line doesn't touch the shape it connects to, which read as
+    // crowded/fused together rather than as two distinct things joined by a
+    // line.
     defaultConnectionPoint: {
-        name: 'boundary'
+        name: 'boundary',
+        args: { offset: LINK_END_OFFSET }
     },
     // Plain straight line between the two connection points - no router.
     defaultConnector: { name: 'normal' },
@@ -371,13 +396,22 @@ class Actor extends dia.Element {
                 root: {
                     cursor: 'move'
                 },
-                // A plain, invisible full-size rect purely so the actor stays
-                // easy to grab and drag anywhere in its bounding box - with no
-                // card body, only the thin figure lines and the label text
-                // would otherwise be clickable.
+                // A plain, invisible rect purely so the actor stays easy to
+                // grab and drag anywhere in its bounding box - with no card
+                // body, only the thin figure lines and the label text would
+                // otherwise be clickable. Padded past the bbox itself (see
+                // CONNECT_HIT_PAD) for the Connect button's benefit. Placed
+                // *last* in the markup below (not first): `connectionPoints:
+                // {name:'boundary'}` (see the Paper options) defaults to
+                // clipping incoming links to the first non-group shape in the
+                // markup - were this rect first, links would stop at its
+                // padded edge instead of the actor's own figure, leaving a
+                // visible gap between the line and the actor it connects to.
                 hitArea: {
-                    width: 'calc(w)',
-                    height: 'calc(h)',
+                    x: -CONNECT_HIT_PAD,
+                    y: -CONNECT_HIT_PAD,
+                    width: `calc(w + ${CONNECT_HIT_PAD * 2})`,
+                    height: `calc(h + ${CONNECT_HIT_PAD * 2})`,
                     fill: 'transparent'
                 },
                 // Stick figure: stroked in the actor's own accent (set
@@ -421,10 +455,10 @@ class Actor extends dia.Element {
     preinitialize(...args) {
         super.preinitialize(...args);
         this.markup = util.svg`
-            <rect @selector="hitArea" />
             <path @selector="icon" />
             <circle @selector="iconHead" />
             <text @selector="label" class="uc-ink-text" />
+            <rect @selector="hitArea" />
         `;
     }
 }
@@ -439,6 +473,27 @@ class UseCase extends dia.Element {
                 root: {
                     highlighterSelector: 'body',
                     cursor: 'move'
+                },
+                // Invisible rect purely so hovering/dragging works across the
+                // whole bounding box, not just the ellipse's own ink -
+                // without it, `element:mouseenter`/`mouseleave` (which drive
+                // the Connect button below) only fire over the ellipse curve
+                // itself, and the button - which sits just past that curve -
+                // would sit in a dead zone the pointer can't cross into
+                // without first leaving the element and losing the button.
+                // Padded past the bbox itself (see CONNECT_HIT_PAD) for the
+                // same reason the button needs room to sit clear of the
+                // ellipse's own edge. Placed *last* in the markup below (not
+                // first), same reasoning as Actor's own `hitArea`: it would
+                // otherwise be picked as the shape `connectionPoints:
+                // {name:'boundary'}` clips links to, pushing every link's end
+                // out to this rect's padded edge instead of the ellipse.
+                hitArea: {
+                    x: -CONNECT_HIT_PAD,
+                    y: -CONNECT_HIT_PAD,
+                    width: `calc(w + ${CONNECT_HIT_PAD * 2})`,
+                    height: `calc(h + ${CONNECT_HIT_PAD * 2})`,
+                    fill: 'transparent'
                 },
                 // Like the original demo, the "which actor(s) use this" accent
                 // is the whole ellipse's background (see fillUseCaseColors),
@@ -478,6 +533,7 @@ class UseCase extends dia.Element {
         this.markup = util.svg`
             <ellipse @selector="body" class="uc-node-stroke" />
             <text @selector="label" />
+            <rect @selector="hitArea" />
         `;
     }
 }
@@ -650,8 +706,21 @@ function createLink(Constructor, source, target) {
     });
 }
 
+// Every `Use` link's source is an actor (see the createUse calls below) -
+// overriding just this end's connectionPoint, rather than the shared
+// `defaultConnectionPoint`, keeps the bigger actor-side gap (see
+// ACTOR_LINK_END_OFFSET) from also widening the use-case side's gap, which
+// already reads right at LINK_END_OFFSET.
 function createUse(source, target) {
-    return createLink(Use, source, target);
+    const use = createLink(Use, source, target);
+    use.source({
+        id: source.id,
+        connectionPoint: {
+            name: 'boundary',
+            args: { offset: ACTOR_LINK_END_OFFSET }
+        }
+    });
+    return use;
 }
 
 function createInclude(source, target) {
@@ -666,11 +735,11 @@ const boundary = new Boundary({
     size: {
         width: 800,
         // Extra height beyond the lowest embedded use case (bottom row ends
-        // at y=1075 - see the use-case x/y comment below) gives a clear,
-        // generous margin so the last row reads as unmistakably inside the
-        // frame, not hugging its edge, and stays clear of the brand mark in
-        // the bottom-right corner.
-        height: 1150
+        // at y=1200 - see the use-case x/y comment below) gives a clear
+        // margin so the last row reads as unmistakably inside the frame, not
+        // hugging its edge, and stays clear of the brand mark in the
+        // bottom-right corner.
+        height: 1230
     },
     position: {
         x: 260,
@@ -684,7 +753,7 @@ const boundary = new Boundary({
 });
 
 // Actor Y positions are chosen to center each column on the boundary's own
-// vertical span (y:100-1250) rather than clustering low - techSupport, which
+// vertical span (y:100-1330) rather than clustering low - techSupport, which
 // fans out to nearly every use case, sits near the middle; the others land
 // close to the row(s) they actually connect to.
 const packageHolder = createActor(
@@ -714,30 +783,46 @@ const techSupport = createActor(
 const community = createActor('JointJS Community', 1120, 900, ACTOR_ACCENTS[4], 1);
 
 // x is chosen so the use-case block centers horizontally within the
-// boundary's own span - each ellipse is 220x90 (see CARD_WIDTH/HEIGHT), the
-// left column starts at x=400 and the right one at x=700, giving a
-// 140/80/140 left-margin/gap/right-margin split across the boundary's
-// 800-wide interior (260-1060).
+// boundary's own span - each ellipse is 220x90 (see CARD_WIDTH/HEIGHT). The
+// two columns sit COLUMN_GAP apart (wide enough that an «include»/«extend»
+// badge sitting on a horizontal link between them has clear room on both
+// sides, not just barely fitting), giving a 100/160/100 left-margin/gap/
+// right-margin split across the boundary's 800-wide interior (260-1060).
 //
-// y centers the block not within the boundary's full height, but within the
-// "safe" zone above the brand mark (see BOUNDARY_LOGO_* / the Boundary
-// class), which sits in the bottom-right corner at local y 1060-1130 (x
-// 530-780) - true vertical centering (which would put the block at
-// y=230-1120) would run the bottom-right use case right into it. The block
-// is 890 tall; centered between the boundary's own top (local y=0) and the
-// logo's top (local y=1060) gives an 85/85 top/bottom margin, so the block
-// spans local y=85-975 (absolute y=185-1075).
-const requestCodeReview = createUseCase('Request Code Review', 400, 185);
-const reviewCode = createUseCase('Review Code', 700, 185);
-const giveFeedback = createUseCase('Give Feedback', 700, 325);
-const proposeChanges = createUseCase('Propose Changes', 700, 460);
-const requestConferenceCall = createUseCase('Request Conference Call', 400, 385);
-const proposeTimeAndDateOfCall = createUseCase('Propose Time and Date of Call', 400, 560);
-const attendConferenceCall = createUseCase('Attend Conference Call', 400, 735);
-const contactViaTicketingSystem = createUseCase('Contact via Ticketing System', 400, 860);
-const respondToTicket = createUseCase('Respond to Ticket', 700, 860);
-const askGithubDiscussion = createUseCase('Ask on GitHub Discussion', 400, 985);
-const respondToDiscussion = createUseCase('Respond to Discussion', 700, 985);
+// y does not center the block within the boundary's full height - instead,
+// the block's TOP margin is weighed against its own BOTTOM margin, where
+// "bottom margin" means everything below the block: a small breathing gap,
+// then the brand mark (see BOUNDARY_LOGO_* / the Boundary class, bottom-right
+// corner at local y 1140-1210, x 530-780), then its own small pad to the
+// frame's edge - not just the blank gap in isolation, which would leave the
+// logo's own height unbalanced against the top (a pure top/gap-only match
+// left noticeably more total whitespace below the block than above it). A
+// perfectly equal 120/120 split still read top-heavy once rendered (the
+// boundary's own title bar eats into the top margin visually, the logo
+// doesn't do the same to the bottom one), so the block sits 10px higher
+// than that equal split - a 110 top margin (absolute y=210) against a 130
+// bottom margin. Every row (left or right column) sits a fixed ROW_STEP
+// apart from the next, measured center-to-center - so the gap between any
+// two vertically adjacent cards is the same everywhere, not just wherever a
+// row happens to carry an «include»/«extend» label (those badges sit *on*
+// the gap, they don't make it). The block is 990 tall, so it spans local
+// y=110-1100 (absolute y=210-1200).
+const ROW_STEP = CARD_HEIGHT + 90;
+const rowY = (row) => 210 + row * ROW_STEP;
+const COLUMN_GAP = 160;
+const COL_LEFT_X = 260 + (800 - (CARD_WIDTH * 2 + COLUMN_GAP)) / 2;
+const COL_RIGHT_X = COL_LEFT_X + CARD_WIDTH + COLUMN_GAP;
+const requestCodeReview = createUseCase('Request Code Review', COL_LEFT_X, rowY(0));
+const reviewCode = createUseCase('Review Code', COL_RIGHT_X, rowY(0));
+const giveFeedback = createUseCase('Give Feedback', COL_RIGHT_X, rowY(1));
+const proposeChanges = createUseCase('Propose Changes', COL_RIGHT_X, rowY(2));
+const requestConferenceCall = createUseCase('Request Conference Call', COL_LEFT_X, rowY(1));
+const proposeTimeAndDateOfCall = createUseCase('Propose Time and Date of Call', COL_LEFT_X, rowY(2));
+const attendConferenceCall = createUseCase('Attend Conference Call', COL_LEFT_X, rowY(3));
+const contactViaTicketingSystem = createUseCase('Contact via Ticketing System', COL_LEFT_X, rowY(4));
+const respondToTicket = createUseCase('Respond to Ticket', COL_RIGHT_X, rowY(4));
+const askGithubDiscussion = createUseCase('Ask on GitHub Discussion', COL_LEFT_X, rowY(5));
+const respondToDiscussion = createUseCase('Respond to Discussion', COL_RIGHT_X, rowY(5));
 
 boundary.embed([
     requestCodeReview,
@@ -898,6 +983,19 @@ paper.on('link:mouseleave', (linkView) => {
 // no ports, and the whole shape deliberately *not* wired up to start a link
 // on an ordinary drag (see the note above Actor's class), this hover button
 // is the one dedicated place a user can grab to drag a new link out from.
+// Positioned at the right-middle of the bounding box rather than a corner -
+// a use case's body is an ellipse, and the ellipse only actually touches its
+// bounding box at the four cardinal points, never at a corner. A
+// corner-positioned button sat over empty space outside the curve, well
+// clear of the shape it belonged to. The right-middle point is a real point
+// on the ellipse itself, so the button sits right where the shape actually
+// is.
+// The offset pulls the button back in from the shape's own visible edge, so
+// it sits inside the shape with a small, deliberate gap to that edge rather
+// than touching/crossing it. Pulling inward (not out) also means the button
+// stays well within hoverable space regardless of CONNECT_HIT_PAD - the
+// padded `hitArea` both Actor and UseCase add past their own bbox exists for
+// the pointer's travel *to* the button, not for the button's own position.
 paper.on('element:mouseenter', (elementView) => {
     const { model } = elementView;
     if (model instanceof UseCase) {
@@ -908,8 +1006,9 @@ paper.on('element:mouseenter', (elementView) => {
             tools: [
                 new elementTools.Connect({
                     x: '100%',
-                    y: '0%',
-                    offset: { x: -6, y: 6 },
+                    y: '50%',
+                    offset: { x: -36, y: 0 },
+                    scale: 1.5,
                     magnet: 'root'
                 })
             ]
