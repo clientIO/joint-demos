@@ -205,6 +205,7 @@ const paper = new dia.Paper({
     sorting: dia.Paper.sorting.APPROX,
     background: { color: '#F3F7F6' },
     linkPinning: false,
+    drawGrid: true,
     defaultLink: () =>
         new shapes.standard.Link({
             attrs: {
