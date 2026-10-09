@@ -1,51 +1,59 @@
 :root {
     color-scheme: light;
-    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
-    /* Canvas: a base color plus two quiet accent glows, painted behind the (transparent) paper. */
-    --canvas-base: #eef1f7;
-    --canvas-glow-1: rgba(70, 102, 229, 0.05);
-    --canvas-glow-2: rgba(217, 98, 43, 0.06);
-    --grid-dot-color: rgba(75, 85, 125, 0.22);
+    /* Canvas: the flat blue-gray paper + dot grid used across JointJS's own
+       React demos (see https://codesandbox.io/p/sandbox/txnd8m), painted
+       behind the (transparent) paper. */
+    --canvas-color: #e4ebf1;
+    --grid-dot-color: #a6b6c5;
 
-    /* The custom port shape: a subtle top-to-bottom card gradient, and a soft
-       two-layer shadow (a tight contact shadow plus a wider ambient one) for
-       a more elevated, less flat card look. */
-    --shape-fill-start: #ffffff;
-    --shape-fill-end: #f1efe8;
-    --shape-stroke: #4b557d;
-    --shape-divider: rgba(75, 85, 125, 0.3);
-    --shape-label: #4b557d;
-    --shape-shadow:
-        drop-shadow(0 1px 2px rgba(30, 40, 80, 0.1))
-        drop-shadow(0 10px 22px rgba(30, 40, 80, 0.16));
+    /* The dashed "model geometry" variant from
+       https://codesandbox.io/p/sandbox/8969fr — a light blue tint with a
+       dashed blue border. In that demo it marks one specific *state*, not
+       every node, so here it's reserved the same way: only for the ellipse's
+       hover/connecting feedback while a link is being dragged. */
+    --dashed-accent: #3b82f6;
+    --dashed-fill: #eff6ff;
+    --dashed-dasharray: 5 3;
 
-    /* Ports: their own vertical gradient (mirroring the shape's), a softer
-       hairline border and a lift shadow that brightens a touch on hover. */
-    --port-fill-start: #7f97ee;
-    --port-fill-end: #4a63d9;
-    --port-stroke: rgba(70, 102, 229, 0.55);
+    /* The custom port shape: the plain flat-card recipe from
+       https://codesandbox.io/p/sandbox/txnd8m — white, a quiet neutral
+       border, a soft ambient shadow. This is the card the ports hang off,
+       so it stays the calm, readable surface; the ports carry the accent. */
+    --shape-fill: #ffffff;
+    --shape-stroke: #e2e8f0;
+    --shape-divider: #e2e8f0;
+    --shape-label: #0f172a;
+    --shape-shadow: drop-shadow(0 8px 24px rgba(15, 23, 42, 0.1));
+
+    /* Ports: solid accent-blue tabs attached to the card's bottom edge —
+       the one spot of color on the node, so they read as the interactive
+       part without competing with the card itself. */
+    --port-fill: #3b82f6;
+    --port-fill-hover: #2563eb;
+    --port-stroke: #2563eb;
     --port-label: #ffffff;
-    --port-shadow:
-        drop-shadow(0 1px 1px rgba(30, 40, 80, 0.18))
-        drop-shadow(0 4px 10px rgba(30, 40, 80, 0.2));
-    --port-shadow-hover:
-        brightness(1.1)
-        drop-shadow(0 1px 1px rgba(30, 40, 80, 0.2))
-        drop-shadow(0 5px 12px rgba(30, 40, 80, 0.24));
 
-    --link-color: #4666e5;
+    --link-color: #475569;
 
-    /* The ellipse target: a warm coral/amber accent, with a glossy highlight. */
-    --target-fill-start: #ffc9a3;
-    --target-fill-end: #e8a765;
-    --target-stroke: #c05a1f;
+    /* The ellipse target: a lighter neutral tint with a more pronounced
+       border at rest, so it reads as its own kind of node through shade and
+       edge weight rather than hue. */
+    --target-fill: #f1f5f9;
+    --target-stroke: #94a3b8;
+
+    /* Hovering it while dragging a link switches it to the dashed accent
+       variant, the same "you can drop here" signal the ports' own blue
+       already implies. */
+    --available-fill: var(--dashed-fill);
+    --available-stroke: var(--dashed-accent);
 
     --surface: #ffffff;
-    --surface-hover: #f3f4f8;
-    --border: #d7dbe6;
-    --text: #33384a;
-    --shadow-soft: rgba(30, 40, 80, 0.16);
+    --surface-hover: #f1f5f9;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --shadow-soft: rgba(15, 23, 42, 0.12);
 }
 
 html,
@@ -57,7 +65,7 @@ body {
 body {
     font-family: var(--font);
     color: var(--text);
-    background: var(--canvas-base);
+    background: var(--canvas-color);
 }
 
 #paper-container {
@@ -67,24 +75,20 @@ body {
     left: 0;
     bottom: 0;
     overflow: scroll;
-    background-color: var(--canvas-base);
-    background-image:
-        radial-gradient(720px circle at 85% 6%, var(--canvas-glow-1), transparent 60%),
-        radial-gradient(720px circle at 6% 94%, var(--canvas-glow-2), transparent 60%);
+    background-color: var(--canvas-color);
 }
 
-/* The custom port shape: body, header divider and label. The body's fill is
-   the `shape-body-gradient` defined in main.js; only its two `<stop>` colors
-   live here. */
+/* The custom port shape: body, header divider and label — a flat white card. */
 .joint-type-shape [joint-selector='body'] {
-    fill: url(#shape-body-gradient);
+    fill: var(--shape-fill);
     stroke: var(--shape-stroke);
-    stroke-width: 1.5;
+    stroke-width: 1;
     filter: var(--shape-shadow);
 }
 
-/* The hairline separating the title from the port row: quieter than the
-   card's own outline, so it reads as a soft division, not a second border. */
+/* The hairline separating the title from the port row: the same quiet tone
+   as the card's own border, so it reads as a soft division, not a second
+   outline. */
 .joint-type-shape [joint-selector='divider'] {
     fill: none;
     stroke: var(--shape-divider);
@@ -95,67 +99,48 @@ body {
     fill: var(--shape-label);
 }
 
-#shape-body-gradient .shape-gradient-stop-start {
-    stop-color: var(--shape-fill-start);
-}
-
-#shape-body-gradient .shape-gradient-stop-end {
-    stop-color: var(--shape-fill-end);
-}
-
 /* Ports: the output rectangles hanging off the shape's bottom edge. Both live
    inside one JointJS-assigned `.joint-port-body` group, so `[joint-selector]`
    (not the ambiguous `joint-port-body`/`joint-port-label` classes) is what
    tells the rect from its own label text apart. */
 .joint-port [joint-selector='portBody'] {
-    fill: url(#port-gradient);
+    fill: var(--port-fill);
     stroke: var(--port-stroke);
-    stroke-width: 1.5;
-    filter: var(--port-shadow);
-    transition: filter 120ms ease-out;
+    stroke-width: 1;
+    filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.16));
+    transition: fill 120ms ease-out;
 }
 
 .joint-port:hover [joint-selector='portBody'] {
-    filter: var(--port-shadow-hover);
-}
-
-#port-gradient .port-gradient-stop-start {
-    stop-color: var(--port-fill-start);
-}
-
-#port-gradient .port-gradient-stop-end {
-    stop-color: var(--port-fill-end);
+    fill: var(--port-fill-hover);
 }
 
 .joint-port [joint-selector='portLabel'] {
     fill: var(--port-label);
 }
 
-/* The ellipse target: a warm coral/amber accent with a glossy radial highlight
-   (`target-body-gradient`, defined in main.js), instead of a single flat fill. */
+/* The ellipse target: a flat warm accent, the same card language as the shape. */
 .joint-type-standard-ellipse [joint-selector='body'] {
-    fill: url(#target-body-gradient);
+    fill: var(--target-fill);
     stroke: var(--target-stroke);
-    stroke-width: 2;
+    stroke-width: 1;
     filter: var(--shape-shadow);
-}
-
-#target-body-gradient .target-gradient-stop-start {
-    stop-color: var(--target-fill-start);
-}
-
-#target-body-gradient .target-gradient-stop-end {
-    stop-color: var(--target-fill-end);
 }
 
 /* While a new link is being dragged from a port, JointJS marks every valid
    drop target by adding `available-cell` to its view root (built-in
-   `elementAvailability` highlighter, no paper option needed) — turn the
-   ellipse's own border dashed so it's obvious a connection can land there. */
-.joint-type-standard-ellipse.available-cell [joint-selector='body'] {
-    stroke: var(--link-color);
-    stroke-width: 2.5;
-    stroke-dasharray: 6 4;
+   `elementAvailability` highlighter), and the one directly under the pointer
+   by adding the same class straight onto its `body` node (the `connecting`
+   highlighter, configured in main.js to reuse this class instead of the
+   library's default orange halo) — either way, switch to the dashed
+   "drop here" variant so it's obvious a connection can land there. */
+.joint-type-standard-ellipse.available-cell [joint-selector='body'],
+.joint-type-standard-ellipse [joint-selector='body'].available-cell {
+    fill: var(--available-fill);
+    stroke: var(--available-stroke);
+    stroke-width: 2;
+    stroke-dasharray: var(--dashed-dasharray);
+    filter: none;
 }
 
 /* Links drawn between ports and the target: color is baked into the cell's own

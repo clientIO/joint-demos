@@ -22,7 +22,7 @@ class Shape extends dia.Element {
                 },
                 body: {
                     d:
-                        'M 0 calc(h) H calc(w) V 8 a 8 8 1 0 0 -8 -8 H 8 a 8 8 1 0 0 -8 8 z'
+                        'M 0 calc(h) H calc(w) V 12 a 12 12 1 0 0 -12 -12 H 12 a 12 12 1 0 0 -12 12 z'
                 },
                 divider: {
                     d: 'M 0 calc(h-4) H calc(w)'
@@ -32,6 +32,7 @@ class Shape extends dia.Element {
                     textWrap: { width: -30, height: -10, ellipsis: true },
                     fontSize: 15,
                     fontFamily: FONT_FAMILY,
+                    fontWeight: 500,
                     textVerticalAnchor: 'middle',
                     textAnchor: 'middle',
                     x: 'calc(0.5*w)',
@@ -214,7 +215,8 @@ const paper = new dia.Paper({
         new shapes.standard.Link({
             attrs: {
                 line: {
-                    stroke: getCssVar('--link-color')
+                    stroke: getCssVar('--link-color'),
+                    strokeWidth: 1.5
                 }
             }
         }),
@@ -229,39 +231,19 @@ const paper = new dia.Paper({
     },
     defaultConnector: {
         name: 'curve'
+    },
+    // The pointer hovering directly over a valid drop target while dragging a
+    // link (as opposed to every available target at once, see `.available-cell`
+    // in styles.css) defaults to a hard-coded orange halo; reuse the same CSS
+    // class so the two states look identical instead.
+    highlighting: {
+        connecting: {
+            name: 'addClass',
+            options: { className: 'available-cell' }
+        }
     }
 });
 paperContainer.appendChild(paper.el);
-
-// A soft top-to-bottom card gradient for the shape, and a glossy radial
-// highlight for the ellipse target. Their `<stop>` colors are driven
-// entirely by CSS (see styles.css).
-paper.defs.appendChild(
-    V(
-        '<linearGradient id="shape-body-gradient" x1="0" y1="0" x2="0" y2="1">' +
-        '<stop class="shape-gradient-stop-start" offset="0"/>' +
-        '<stop class="shape-gradient-stop-end" offset="1"/>' +
-        '</linearGradient>'
-    ).node
-);
-paper.defs.appendChild(
-    V(
-        '<radialGradient id="target-body-gradient" cx="0.32" cy="0.28" r="0.75">' +
-        '<stop class="target-gradient-stop-start" offset="0"/>' +
-        '<stop class="target-gradient-stop-end" offset="1"/>' +
-        '</radialGradient>'
-    ).node
-);
-// One shared gradient for every port: `objectBoundingBox` units (the SVG
-// default) make it stretch to fit each port's own box, however many exist.
-paper.defs.appendChild(
-    V(
-        '<linearGradient id="port-gradient" x1="0" y1="0" x2="0" y2="1">' +
-        '<stop class="port-gradient-stop-start" offset="0"/>' +
-        '<stop class="port-gradient-stop-end" offset="1"/>' +
-        '</linearGradient>'
-    ).node
-);
 
 paper.setGrid({
     name: 'dot',
