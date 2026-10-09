@@ -106,8 +106,8 @@ const UC_TITLE_WRAP_WIDTH = 160;
 const LINK_END_OFFSET = 10;
 const ACTOR_LINK_END_OFFSET = 70;
 
-// Invisible hit-test padding around Actor/UseCase, past their own bbox, so
-// the hover-revealed Connect button always stays within hoverable space.
+// Invisible hit-test padding around Actor, past its own bbox, so the
+// hover-revealed Connect button always stays within hoverable space.
 const CONNECT_HIT_PAD = 20;
 
 // --- Actor: a UML actor is a stick figure, name centered below it.
@@ -227,9 +227,11 @@ const paper = new dia.Paper({
         }
         return null;
     },
+    // Only an actor's "Use" association can be drawn by hand - use-case-to-
+    // use-case relationships (include/extend) stay pre-authored, never
+    // user-created.
     validateConnection: function(cellViewS, _, cellViewT) {
-        if (cellViewT.model instanceof UseCase) return true;
-        return false;
+        return cellViewS.model instanceof Actor && cellViewT.model instanceof UseCase;
     }
 });
 
@@ -375,15 +377,13 @@ class UseCase extends dia.Element {
                     highlighterSelector: 'body',
                     cursor: 'move'
                 },
-                // Invisible, padded hit area (see CONNECT_HIT_PAD) so hover
-                // and drag work across the whole box, not just the ellipse's
-                // own ink. Kept last in the markup, same reason as Actor's
-                // `hitArea`.
+                // Invisible hit area so drag works across the whole box, not
+                // just the ellipse's own ink. Kept last in the markup so
+                // links still clip to the ellipse, not to this rect (see
+                // `defaultConnectionPoint`).
                 hitArea: {
-                    x: -CONNECT_HIT_PAD,
-                    y: -CONNECT_HIT_PAD,
-                    width: `calc(w + ${CONNECT_HIT_PAD * 2})`,
-                    height: `calc(h + ${CONNECT_HIT_PAD * 2})`,
+                    width: 'calc(w)',
+                    height: 'calc(h)',
                     fill: 'transparent'
                 },
                 // Fill shows which actor(s) use this (see fillUseCaseColors);
@@ -808,17 +808,15 @@ paper.on('link:mouseleave', (linkView) => {
     linkView.removeTools();
 });
 
-// Hover lifts a use-case card and reveals a Connect button (actors just get
-// the button) - the one way to start a new link, since an ordinary drag only
-// moves the shape. Positioned at the right-middle, a real point on the
-// ellipse, rather than a corner (empty space outside its curve). The offset
-// pulls it back inside the shape's own edge, with a small gap to that edge.
+// Hover lifts a use-case card. Only actors reveal a Connect button - the one
+// way to start a new link. Use cases are never a link source by hand:
+// an include/extend relationship is pre-authored, not dragged out (see `validateConnection`).
 paper.on('element:mouseenter', (elementView) => {
     const { model } = elementView;
     if (model instanceof UseCase) {
         model.attr('body/filter', nodeShadow('hover'), { rewrite: true });
     }
-    if (model instanceof UseCase || model instanceof Actor) {
+    if (model instanceof Actor) {
         elementView.addTools(new dia.ToolsView({
             tools: [
                 new elementTools.Connect({
