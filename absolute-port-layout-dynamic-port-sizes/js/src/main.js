@@ -1,6 +1,13 @@
 import { V, dia, shapes as defaultShapes, anchors, util } from '@joint/core';
 import './styles.css';
 
+function getCssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+// Read once so measureText() below sizes ports using the exact same font actually rendered.
+const FONT_FAMILY = getCssVar('--font') || 'sans-serif';
+
 class Shape extends dia.Element {
     defaults() {
         return {
@@ -15,22 +22,22 @@ class Shape extends dia.Element {
                     cursor: 'move'
                 },
                 body: {
-                    fill: '#f2f1ed',
-                    stroke: '#4b557d',
-                    strokeWidth: 2,
                     d:
-                        'M 0 calc(h) H calc(w) V 4 a 4 4 1 0 0 -4 -4 H 4 a 4 4 1 0 0 -4 4 z M 0 calc(h-4) H calc(w)'
+                        'M 0 calc(h) H calc(w) V 12 a 12 12 1 0 0 -12 -12 H 12 a 12 12 1 0 0 -12 12 z'
+                },
+                divider: {
+                    d: 'M 0 calc(h-4) H calc(w)'
                 },
                 label: {
-                    text: 'Custom shape with dynamic port size',
-                    textWrap: { width: -20, height: -10, ellipsis: true },
+                    text: 'Custom shape with a dynamic port size',
+                    textWrap: { width: -30, height: -10, ellipsis: true },
                     fontSize: 15,
-                    fontFamily: 'sans-serif',
-                    fill: '#4b557d',
+                    fontFamily: FONT_FAMILY,
+                    fontWeight: 500,
                     textVerticalAnchor: 'middle',
                     textAnchor: 'middle',
                     x: 'calc(0.5*w)',
-                    y: 'calc(0.5*h-2)'
+                    y: 'calc(0.5*h+1)'
                 }
             },
             ports: {
@@ -52,11 +59,8 @@ class Shape extends dia.Element {
                             portBody: {
                                 width: 'calc(w)',
                                 height: 'calc(h + 4)',
-                                fill: '#7088eb',
-                                stroke: '#4666E5',
-                                strokeWidth: 2,
-                                rx: 4,
-                                ry: 5,
+                                rx: 6,
+                                ry: 7,
                                 y: -4,
                                 magnet: true,
                                 cursor: 'crosshair'
@@ -71,7 +75,6 @@ class Shape extends dia.Element {
                                     ellipsis: true
                                 },
                                 pointerEvents: 'none',
-                                fill: '#ffffff',
                                 ...this.portFontAttributes
                             }
                         }
@@ -83,17 +86,21 @@ class Shape extends dia.Element {
 
     preinitialize() {
         this.minWidth = 100;
-        this.portPadding = 10;
+        this.portPadding = 16;
         this.portGap = 10;
-        this.portHeight = 20;
+        this.portHeight = 32;
         this.portFontAttributes = {
             'font-size': 14,
-            'font-family': 'sans-serif'
+            'font-family': FONT_FAMILY
         };
         this.markup = [
             {
                 tagName: 'path',
                 selector: 'body'
+            },
+            {
+                tagName: 'path',
+                selector: 'divider'
             },
             {
                 tagName: 'text',
@@ -200,16 +207,17 @@ const paper = new dia.Paper({
     cellViewNamespace: shapes,
     width: '100%',
     height: '100%',
-    gridSize: 20,
+    gridSize: 10,
     async: true,
     sorting: dia.Paper.sorting.APPROX,
-    background: { color: '#F3F7F6' },
+    background: { color: 'transparent' },
     linkPinning: false,
     defaultLink: () =>
         new shapes.standard.Link({
             attrs: {
                 line: {
-                    stroke: '#4666E5'
+                    stroke: getCssVar('--link-color'),
+                    strokeWidth: 1.5
                 }
             }
         }),
@@ -224,11 +232,25 @@ const paper = new dia.Paper({
     },
     defaultConnector: {
         name: 'curve'
+    },
+    // Style both "can drop here" highlight states the same way (see styles.css).
+    highlighting: {
+        elementAvailability: {
+            name: 'addClass',
+            options: { className: 'link-target' }
+        },
+        connecting: {
+            name: 'addClass',
+            options: { className: 'link-target' }
+        }
     }
 });
 paperContainer.appendChild(paper.el);
 
-paper.setGrid('mesh');
+paper.setGrid({
+    name: 'dot',
+    args: { color: getCssVar('--grid-dot-color'), thickness: 1 }
+});
 
 Shape.svgDocument = paper.svg;
 
@@ -258,10 +280,6 @@ const target = new shapes.standard.Ellipse({
     attrs: {
         root: {
             highlighterSelector: 'body'
-        },
-        body: {
-            stroke: '#705d10',
-            fill: '#efdc8f'
         }
     }
 });
