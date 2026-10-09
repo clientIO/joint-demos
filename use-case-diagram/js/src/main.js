@@ -5,19 +5,10 @@ const paperContainer = document.getElementById('paper-container');
 
 const FONT_FAMILY = 'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
 
-// Actor accents, each a light->deep pair of the same hue. A single flat tone
-// is used directly on the actor's own stick-figure stroke (see createActor);
-// the pair itself only comes into play on the use-case ellipse it connects
-// to, which blends the accents of every actor that uses it (see
-// getAccentColor) - a two-stop gradient there instead of a flat fill. Kept as
-// literal hex (not theme CSS variables): these need real color values, both
-// for the gradient stops and to blend across actors.
-//
-// Hues are spread far apart on purpose (blue/rose/emerald/violet/amber, not
-// e.g. indigo+violet+sky which all cluster in the same blue-purple range) so
-// that when 2-3 of these appear as adjacent bands in a use case's blended
-// background (see getAccentColor), every band boundary stays clearly visible
-// - a middle band never gets lost between two neighbors of a similar hue.
+// Each actor gets a light->deep gradient pair: a flat stroke color on the
+// actor itself (see createActor), a full gradient when blended into a
+// connected use case's fill (see getAccentColor). Hues are spread far apart
+// so adjacent blended bands stay visually distinct.
 const ACTOR_ACCENTS = [
     { from: '#3b82f6', to: '#1d4ed8' }, // blue
     { from: '#f43f5e', to: '#be123c' }, // rose
@@ -37,11 +28,8 @@ function makeGradient(from, to, attrs) {
     };
 }
 
-// Everything else theme-dependent (card fill/border, ink, line, grid, badge
-// colors) is driven by CSS custom properties defined in styles.css and
-// consumed either as a `class` on the shape (for colors the app never
-// recomputes) or read live via getCSSVar (for the accent colors that
-// fillUseCaseColors() does recompute).
+// Most theme colors live as CSS custom properties in styles.css; this reads
+// one live, for the cases where JS needs the literal value.
 function getCSSVar(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
@@ -50,14 +38,8 @@ function getTheme() {
     return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
 }
 
-// Card elevation, at rest and while hovered. Unlike the flat colors, this
-// can't ride on a CSS class: a JointJS filter bakes its color and strength in
-// when it is built, so each theme needs its own pair. The light values darken
-// an already-light canvas and read as depth straight away; on the dark canvas
-// (#0d1220) that same near-black at 12% changes nothing, so dark mode uses
-// pure black at several times the opacity, spread over a wider blur - enough
-// to actually sink the page around a card. getTheme() is read per call, and
-// applyNodeShadows() re-applies the resting one when the theme is toggled.
+// A drop-shadow filter bakes its color in when built, so it can't ride a CSS
+// class - each theme needs its own values here.
 const NODE_SHADOWS = {
     light: {
         rest: { dx: 0, dy: 3, blur: 8, color: '#0f172a', opacity: 0.12 },
@@ -80,9 +62,7 @@ function gridOptions() {
     return { name: 'dot', args: { color: getCSSVar('--uc-grid-dot'), thickness: 1 }};
 }
 
-// A tiny 2x2 grid glyph (a "frame/group" icon) drawn as four small squares,
-// used as the boundary's corner mark. Fixed pixel coordinates - it sits at a
-// constant offset from the card's top-left corner regardless of card size.
+// A 2x2 grid glyph (frame/group icon) drawn as four small squares.
 function squarePath(x, y, size) {
     return `M ${x} ${y} h ${size} v ${size} h ${-size} Z`;
 }
@@ -100,11 +80,9 @@ const BOUNDARY_ICON_D = [
     squarePath(BOUNDARY_ICON_X + boundaryIconSquare + BOUNDARY_ICON_GAP, BOUNDARY_ICON_Y + boundaryIconSquare + BOUNDARY_ICON_GAP, boundaryIconSquare)
 ].join(' ');
 
-// JointJS brand mark - part of the boundary's own content (bottom-right
-// corner of the system frame), not paper chrome, so it lives in the
-// Boundary's own markup/attrs and moves with it rather than sitting fixed
-// over the canvas. `calc(w)`/`calc(h)` position it off the boundary's own
-// size, so it stays in the corner regardless of the boundary's size.
+// Brand mark lives in the Boundary's own markup (not fixed over the canvas),
+// so it moves with the frame. `calc(w)`/`calc(h)` keep it pinned to the
+// bottom-right corner at any size.
 const BOUNDARY_LOGO_WIDTH = 250;
 const BOUNDARY_LOGO_HEIGHT = BOUNDARY_LOGO_WIDTH * (280 / 1000);
 const BOUNDARY_LOGO_PAD = 20;
@@ -113,58 +91,34 @@ const BOUNDARY_LOGO_PAD = 20;
 // its name - no icon or chip, just the centered title.
 const CARD_WIDTH = 220;
 const CARD_HEIGHT = 90;
-// Use-case body gradients (see getAccentColor) need this card's own real
-// pixel coordinates rather than 0-1 fractional (objectBoundingBox) ones: on
-// this ~2.4:1 (220x90) card, a fractional tilt gets stretched far more on the
-// short axis than the long one, so each band's boundary lands at a noticeably
-// different x between the card's top and bottom edge. Real pixel coordinates
-// don't have that distortion, so a "slight" y2 tilt here stays genuinely
-// slight and every band stays the same width top-to-bottom.
+// Real pixel coordinates (not fractional) so a gradient band stays the same
+// width top-to-bottom on this wide, short card.
 const CARD_GRADIENT_ATTRS = { gradientUnits: 'userSpaceOnUse', x1: 0, y1: 0, x2: CARD_WIDTH, y2: 20 };
 const NEUTRAL_GRADIENT = makeGradient('#64748b', '#475569', CARD_GRADIENT_ATTRS);
-// Plain centered text, no icon - the canonical UML use-case notation. How
-// wide the title can wrap before crowding the ellipse's own curve: checked
-// against the ellipse equation ((dx/rx)^2 + (dy/ry)^2 <= 1) for the
-// worst-case corner - the outer edge of a full 3-line title - with rx=110,
-// ry=45, half-title-height for 3 lines of a 14px/1.4em font (~19.6px each) =
-// 29.4: (80/110)^2 + (29.4/45)^2 =~ 0.96, safely (if snugly) inside.
+// Widest a title can wrap without a full 3-line title crowding the
+// ellipse's own curve.
 const UC_TITLE_WRAP_WIDTH = 160;
 
-// How far a link's end stops short of the shape it connects to (see
-// `defaultConnectionPoint` in the Paper options) - just enough that the line
-// reads as joining two distinct things rather than touching/fusing into
-// them. The actor figure gets a bigger gap than a use-case ellipse: the
-// stick figure's own silhouette is much smaller and visually lighter (thin
-// strokes, no fill) than the ellipse's bold filled card, so the same offset
-// that reads as "a small gap" against the ellipse reads as "the line is
-// touching the figure" against the actor - see `createUse` below, the only
-// link type with an actor on one end.
+// Gap between a link's end and the shape it connects to (see
+// `defaultConnectionPoint`). Actors need a bigger gap than use cases - the
+// figure's thin, unfilled outline reads as "touching" much sooner than the
+// ellipse's bold fill does (see `createUse`).
 const LINK_END_OFFSET = 10;
 const ACTOR_LINK_END_OFFSET = 70;
 
-// Shared by Actor and UseCase: both get an invisible hit-test rect padded
-// this far past their own visible bbox (not just matching it exactly), so
-// the hover-revealed Connect button (see the `element:mouseenter` handler
-// near the bottom of this file) has room to sit a clear, visible gap outside
-// the shape's own outline while still landing inside hoverable space - no
-// dead zone between "on the shape" and "on the button" for the pointer to
-// get lost in.
+// Invisible hit-test padding around Actor/UseCase, past their own bbox, so
+// the hover-revealed Connect button always stays within hoverable space.
 const CONNECT_HIT_PAD = 20;
 
-// --- Actor: the UML notation for an actor is a stick figure standing free on
-// the canvas, name centered below it - no card, no icon chip. `ACTOR_WIDTH`
-// is wider than the figure itself only so a long actor name still has room to
-// wrap across two lines beneath it; the figure stays centered on the box's
-// own (narrower) center rather than stretching to fill it.
+// --- Actor: a UML actor is a stick figure, name centered below it.
+// ACTOR_WIDTH is wider than the figure itself, to leave room for a 2-line name.
 const ACTOR_WIDTH = 160;
 const ACTOR_HEIGHT = 120;
 const ACTOR_CX = ACTOR_WIDTH / 2;
 
-// How tall a reserved label area to center the figure+name block around - the
-// actual wrapped line count isn't known until render time, so callers with a
-// short one-line name (e.g. "Community") pass ACTOR_LABEL_ONE_LINE instead of
-// letting the two-line default push the block off-true-center (see
-// computeActorGeometry / createActor's `lines` argument).
+// Reserved label height used to center the figure+name block. A short
+// one-line name (e.g. "Community") passes ACTOR_LABEL_ONE_LINE instead of the
+// two-line default (see createActor's `lines` argument).
 const ACTOR_LABEL_TWO_LINES = 40;
 const ACTOR_LABEL_ONE_LINE = 20;
 
@@ -173,10 +127,8 @@ function centerY(offset) {
     return `calc(0.5 * h ${rounded < 0 ? '-' : '+'} ${Math.abs(rounded)})`;
 }
 
-// Stick figure proportions: a head circle, a vertical body line, a horizontal
-// arms line crossing it, and two legs splaying out from its foot - the
-// classic UML actor glyph, stroked in the actor's own accent color rather
-// than plain black (see createActor).
+// Stick figure proportions: head, body, arms, legs - the standard UML
+// actor glyph.
 const FIGURE_STROKE_WIDTH = 2.25;
 const FIGURE_HEAD_R = 9;
 const FIGURE_ARM_HALF = 14;
@@ -215,60 +167,36 @@ const paper = new dia.Paper({
     async: true,
     multiLinks: false,
     linkPinning: false,
-    // No ports: an element's own root is left with no explicit `magnet`
-    // attribute at all (see Actor/UseCase below), which - per dia.CellView's
-    // own magnet resolution - makes the *whole shape* a valid connection
-    // point (source or target) without that alone making the shape draggable
-    // into a new link (that still needs a deliberate gesture - see the
-    // `elementTools.Connect` button added on hover further down). So a
-    // dropped arrowhead can land anywhere on a use-case ellipse or actor
-    // figure - no snapping radius needed to help it find a small dot.
-    // Light up every element the dragged end could legally land on, so the
-    // valid targets read before the pointer is anywhere near them. It marks
-    // them with the `available-cell`/`available-magnet` classes (styles.css
-    // picks them up).
+    // No ports: an element's root has no explicit `magnet`, so the whole
+    // shape is a valid connection point without an ordinary drag also
+    // starting a link - that needs the Connect button added on hover below.
+    // markAvailable highlights every legal drop target while a link is
+    // dragged (see the `available-cell`/`available-magnet` classes in
+    // styles.css).
     markAvailable: true,
     cellViewNamespace: shapes,
-    // Explicit rather than relying on the (already-transparent) default - the
-    // canvas's own radial-glow background (#paper-container in styles.css)
-    // shows through the paper itself, rather than the paper painting a solid
-    // color over it.
+    // Transparent so the canvas's own background (#paper-container in
+    // styles.css) shows through.
     background: { color: 'transparent' },
-    // The same grid @joint/react's Paper preset draws by default: a 1px dot on
-    // every 10px step. Denser and in a tone with some contrast against the
-    // canvas (see --uc-grid-dot), so the canvas reads as a work surface
-    // instead of near-blank paper. In plain @joint/core, `gridSize` drives
-    // both the grid's visual spacing and its (currently unused - nothing in
-    // this demo snaps to it) snap-to-grid step; there's no separate option to
-    // set them independently the way some wrapper packages offer.
+    // 1px dot every 10px - a visible but quiet grid (see --uc-grid-dot).
     gridSize: 10,
-    // Hoisted function declaration - the grid color has to be re-read whenever
-    // the theme changes, so it is built in one place both this and the theme
-    // toggle's setGrid() call use, rather than spelled out twice.
+    // Shared with the theme toggle so the grid color updates on theme change.
     drawGrid: gridOptions(),
-    // Aim each end at the other element's center...
+    // Aim at the other element's center, but stop the line at the shape's
+    // outline, a little short of it (see LINK_END_OFFSET).
     defaultAnchor: {
         name: 'center',
         args: {
             useModelGeometry: true
         }
     },
-    // ...but stop the rendered line at the actual shape outline (the ellipse
-    // or the figure's own bounding box) rather than drawing all the way to
-    // that center point - and a few pixels short of it besides (`offset`),
-    // so a line doesn't touch the shape it connects to, which read as
-    // crowded/fused together rather than as two distinct things joined by a
-    // line.
     defaultConnectionPoint: {
         name: 'boundary',
         args: { offset: LINK_END_OFFSET }
     },
-    // Plain straight line between the two connection points - no router.
     defaultConnector: { name: 'normal' },
-    // `Use` isn't defined yet at this point in the file, but this factory only
-    // runs later (when a user actually drags a new link), by which time the
-    // class exists - so newly-drawn links get the same styling/markers as the
-    // ones built at load time, not a bare default `dia.Link`.
+    // `Use` isn't defined yet here, but this only runs once a user drags a
+    // new link, by which time it exists.
     defaultLink: () => new Use(),
     highlighting: {
         connecting: {
@@ -280,9 +208,8 @@ const paper = new dia.Paper({
                 }
             }
         },
-        // `highlighting` replaces JointJS's own defaults wholesale rather than
-        // merging into them, so these two have to be restated - without them
-        // markAvailable above has no highlighter to mark anything with.
+        // `highlighting` overrides JointJS's defaults entirely, so these two
+        // must be restated for markAvailable to have anything to apply.
         magnetAvailability: {
             name: 'addClass',
             options: { className: 'available-magnet' }
@@ -316,22 +243,13 @@ class Boundary extends dia.Element {
             attrs: {
                 root: {
                     cursor: 'move',
-                    // Unlike Actor/UseCase, explicitly not a valid connection
-                    // point at all - the boundary is just a frame, never a
-                    // link's source or target.
+                    // Never a link endpoint - just a frame.
                     magnet: false
                 },
-                // No drop-shadow filter here on purpose: applied to this shape
-                // (800x1150, the one genuinely large element in the diagram)
-                // it silently clips the rect's own fill part-way down - a
-                // browser filter-region/texture-size limit for large filtered
-                // shapes, not anything about this element's declared size.
-                // Small nodes (Actor/UseCase) are well under that ceiling and
-                // keep their own shadow via `nodeShadow()`.
-                // The UML system boundary is a plain rectangle - a small
-                // corner radius keeps it from looking harshly blunt, but
-                // nowhere near the fully-rounded "card" look the other
-                // shapes had before.
+                // No shadow filter here - at this size it clips the fill (a
+                // browser filter-region limit); Actor/UseCase are small
+                // enough to keep theirs via `nodeShadow()`. Small corner
+                // radius so the rectangle isn't harshly blunt.
                 body: {
                     width: 'calc(w)',
                     height: 'calc(h)',
@@ -364,9 +282,7 @@ class Boundary extends dia.Element {
 
     preinitialize(...args) {
         super.preinitialize(...args);
-        // Title reads like a canvas frame/group label (small icon + caption in
-        // the top-left corner) rather than a centered UML caption banner. The
-        // JointJS brand mark gets the same corner treatment, bottom-right.
+        // Small icon + caption, top-left, like a frame/group label.
         this.markup = util.svg`
             <rect @selector="body" class="uc-boundary-card" />
             <path @selector="icon" class="uc-muted-fill" />
@@ -378,14 +294,8 @@ class Boundary extends dia.Element {
     }
 }
 
-// No ports, no dedicated magnet sub-elements: an Actor/UseCase's own root is
-// left with no explicit `magnet` attribute (see both classes below), which -
-// per dia.CellView#findMagnet - makes the *whole shape* resolve as a valid
-// connection point on its own, without any dedicated dot to draw or
-// position. A link can therefore land anywhere on a use-case ellipse or
-// actor figure. Starting a *new* link is a separate, deliberate gesture -
-// see the `elementTools.Connect` button added on hover further down - so
-// this doesn't turn an ordinary drag-to-move into a link-drag.
+// No ports: root has no explicit `magnet`, so the whole shape is a valid
+// link endpoint (see the Paper's `markAvailable` note above).
 class Actor extends dia.Element {
     defaults() {
         return {
@@ -396,17 +306,10 @@ class Actor extends dia.Element {
                 root: {
                     cursor: 'move'
                 },
-                // A plain, invisible rect purely so the actor stays easy to
-                // grab and drag anywhere in its bounding box - with no card
-                // body, only the thin figure lines and the label text would
-                // otherwise be clickable. Padded past the bbox itself (see
-                // CONNECT_HIT_PAD) for the Connect button's benefit. Placed
-                // *last* in the markup below (not first): `connectionPoints:
-                // {name:'boundary'}` (see the Paper options) defaults to
-                // clipping incoming links to the first non-group shape in the
-                // markup - were this rect first, links would stop at its
-                // padded edge instead of the actor's own figure, leaving a
-                // visible gap between the line and the actor it connects to.
+                // Invisible, padded hit area (see CONNECT_HIT_PAD) so the
+                // whole box is draggable and the Connect button has room.
+                // Kept last in the markup so links still clip to the figure,
+                // not to this rect (see `defaultConnectionPoint`).
                 hitArea: {
                     x: -CONNECT_HIT_PAD,
                     y: -CONNECT_HIT_PAD,
@@ -414,9 +317,7 @@ class Actor extends dia.Element {
                     height: `calc(h + ${CONNECT_HIT_PAD * 2})`,
                     fill: 'transparent'
                 },
-                // Stick figure: stroked in the actor's own accent (set
-                // per-instance in createActor), no fill - the UML actor glyph,
-                // not a filled icon.
+                // Stroked in the actor's own accent, no fill.
                 iconHead: {
                     cx: ACTOR_CX,
                     cy: ACTOR_GEOMETRY_DEFAULT.headCyExpr,
@@ -474,20 +375,10 @@ class UseCase extends dia.Element {
                     highlighterSelector: 'body',
                     cursor: 'move'
                 },
-                // Invisible rect purely so hovering/dragging works across the
-                // whole bounding box, not just the ellipse's own ink -
-                // without it, `element:mouseenter`/`mouseleave` (which drive
-                // the Connect button below) only fire over the ellipse curve
-                // itself, and the button - which sits just past that curve -
-                // would sit in a dead zone the pointer can't cross into
-                // without first leaving the element and losing the button.
-                // Padded past the bbox itself (see CONNECT_HIT_PAD) for the
-                // same reason the button needs room to sit clear of the
-                // ellipse's own edge. Placed *last* in the markup below (not
-                // first), same reasoning as Actor's own `hitArea`: it would
-                // otherwise be picked as the shape `connectionPoints:
-                // {name:'boundary'}` clips links to, pushing every link's end
-                // out to this rect's padded edge instead of the ellipse.
+                // Invisible, padded hit area (see CONNECT_HIT_PAD) so hover
+                // and drag work across the whole box, not just the ellipse's
+                // own ink. Kept last in the markup, same reason as Actor's
+                // `hitArea`.
                 hitArea: {
                     x: -CONNECT_HIT_PAD,
                     y: -CONNECT_HIT_PAD,
@@ -495,11 +386,8 @@ class UseCase extends dia.Element {
                     height: `calc(h + ${CONNECT_HIT_PAD * 2})`,
                     fill: 'transparent'
                 },
-                // Like the original demo, the "which actor(s) use this" accent
-                // is the whole ellipse's background (see fillUseCaseColors),
-                // so it stays unmistakable at a glance. The outline is a
-                // constant ink tone (theme-reactive, not per-instance) so the
-                // border still reads against any accent color/gradient.
+                // Fill shows which actor(s) use this (see fillUseCaseColors);
+                // outline is a fixed ink tone so it reads against any fill.
                 body: {
                     cx: 'calc(0.5 * w)',
                     cy: 'calc(0.5 * h)',
@@ -544,11 +432,8 @@ class Use extends shapes.standard.Link {
             {
                 type: 'Use',
                 attrs: {
-                    // No end markers: the UML association between an actor
-                    // and a use case is a plain, undirected line - no
-                    // arrowhead on either end. `targetMarker: null` is needed
-                    // rather than just leaving it out, to suppress the
-                    // arrowhead standard.Link brings with it by default.
+                    // Plain undirected line, no arrowhead. `targetMarker:
+                    // null` suppresses standard.Link's default arrowhead.
                     line: {
                         class: 'uc-link-line',
                         strokeWidth: 1.75,
@@ -561,9 +446,7 @@ class Use extends shapes.standard.Link {
     }
 }
 
-// Shared by Include and Extend. Only the target keeps a marker, and it carries
-// meaning - the open arrow that says which way the relationship reads. The
-// source end has no marker, the same plain-line convention as Use.
+// Shared by Include/Extend - only the target end carries an arrow marker.
 const lineAttrs = {
     class: 'uc-link-line',
     strokeWidth: 1.75,
@@ -648,10 +531,7 @@ Object.assign(shapes, {
 });
 
 function createActor(name, x, y, accent, lines = 2) {
-    // A one-line name (e.g. "Community") gets its own geometry so the
-    // icon+name block centers on that shorter block, not the two-line
-    // default - otherwise it'd sit visibly above true-center, with the
-    // reserved second line's space left empty below it.
+    // A one-line name centers on a shorter block than the 2-line default.
     const geometry = lines === 1
         ? computeActorGeometry(ACTOR_LABEL_ONE_LINE)
         : ACTOR_GEOMETRY_DEFAULT;
@@ -675,9 +555,8 @@ function createActor(name, x, y, accent, lines = 2) {
             }
         }
     });
-    // Stashed as plain model data (not under `attrs`) so fillUseCaseColors()
-    // can read back the actor's own {from, to} pair - not just a flat color -
-    // when it recomputes a connected use case's gradient.
+    // Kept as model data so fillUseCaseColors() can read back the full
+    // {from, to} pair, not just a flat color.
     actor.prop('accent', accent);
     return actor;
 }
@@ -696,9 +575,6 @@ function createUseCase(useCase, x, y) {
     });
 }
 
-// No port to name on either end - just the two elements. `defaultAnchor`/
-// `defaultConnectionPoint` (see the Paper options) take care of aiming each
-// end at the other element's center and stopping the line at its outline.
 function createLink(Constructor, source, target) {
     return new Constructor({
         source: { id: source.id },
@@ -706,11 +582,8 @@ function createLink(Constructor, source, target) {
     });
 }
 
-// Every `Use` link's source is an actor (see the createUse calls below) -
-// overriding just this end's connectionPoint, rather than the shared
-// `defaultConnectionPoint`, keeps the bigger actor-side gap (see
-// ACTOR_LINK_END_OFFSET) from also widening the use-case side's gap, which
-// already reads right at LINK_END_OFFSET.
+// Overrides the source connectionPoint so the actor side gets the bigger
+// ACTOR_LINK_END_OFFSET gap, without widening the use-case side too.
 function createUse(source, target) {
     const use = createLink(Use, source, target);
     use.source({
@@ -734,11 +607,8 @@ function createExtend(source, target) {
 const boundary = new Boundary({
     size: {
         width: 800,
-        // Extra height beyond the lowest embedded use case (bottom row ends
-        // at y=1200 - see the use-case x/y comment below) gives a clear
-        // margin so the last row reads as unmistakably inside the frame, not
-        // hugging its edge, and stays clear of the brand mark in the
-        // bottom-right corner.
+        // Extra height below the lowest use case (see rowY below) keeps it
+        // clear of the frame's edge and the brand mark.
         height: 1230
     },
     position: {
@@ -752,10 +622,8 @@ const boundary = new Boundary({
     }
 });
 
-// Actor Y positions are chosen to center each column on the boundary's own
-// vertical span (y:100-1330) rather than clustering low - techSupport, which
-// fans out to nearly every use case, sits near the middle; the others land
-// close to the row(s) they actually connect to.
+// Actors sit near the rows they connect to; techSupport (connects to nearly
+// everything) sits mid-height.
 const packageHolder = createActor(
     'JointJS+ Support Package Subscriber',
     20,
@@ -782,31 +650,13 @@ const techSupport = createActor(
 );
 const community = createActor('JointJS Community', 1120, 900, ACTOR_ACCENTS[4], 1);
 
-// x is chosen so the use-case block centers horizontally within the
-// boundary's own span - each ellipse is 220x90 (see CARD_WIDTH/HEIGHT). The
-// two columns sit COLUMN_GAP apart (wide enough that an «include»/«extend»
-// badge sitting on a horizontal link between them has clear room on both
-// sides, not just barely fitting), giving a 100/160/100 left-margin/gap/
-// right-margin split across the boundary's 800-wide interior (260-1060).
+// x centers the two columns in the boundary's 800-wide interior. COLUMN_GAP
+// leaves an «include»/«extend» badge room on a horizontal link between them.
 //
-// y does not center the block within the boundary's full height - instead,
-// the block's TOP margin is weighed against its own BOTTOM margin, where
-// "bottom margin" means everything below the block: a small breathing gap,
-// then the brand mark (see BOUNDARY_LOGO_* / the Boundary class, bottom-right
-// corner at local y 1140-1210, x 530-780), then its own small pad to the
-// frame's edge - not just the blank gap in isolation, which would leave the
-// logo's own height unbalanced against the top (a pure top/gap-only match
-// left noticeably more total whitespace below the block than above it). A
-// perfectly equal 120/120 split still read top-heavy once rendered (the
-// boundary's own title bar eats into the top margin visually, the logo
-// doesn't do the same to the bottom one), so the block sits 10px higher
-// than that equal split - a 110 top margin (absolute y=210) against a 130
-// bottom margin. Every row (left or right column) sits a fixed ROW_STEP
-// apart from the next, measured center-to-center - so the gap between any
-// two vertically adjacent cards is the same everywhere, not just wherever a
-// row happens to carry an «include»/«extend» label (those badges sit *on*
-// the gap, they don't make it). The block is 990 tall, so it spans local
-// y=110-1100 (absolute y=210-1200).
+// y: rows are evenly spaced by ROW_STEP, so the gap is the same between any
+// two cards, not just wherever a row carries a badge. The top margin (110)
+// is a bit smaller than the bottom one (130), since the bottom margin also
+// has to clear the brand mark in the corner (see BOUNDARY_LOGO_*).
 const ROW_STEP = CARD_HEIGHT + 90;
 const rowY = (row) => 210 + row * ROW_STEP;
 const COLUMN_GAP = 160;
@@ -881,12 +731,8 @@ graph.addCells([
     createInclude(respondToDiscussion, askGithubDiscussion)
 ]);
 
-// `accents` is a list of the connected actors' own {from, to} pairs. One
-// actor -> that actor's own smooth two-stop gradient. Several actors -> each
-// actor gets its own equal-width band (from -> to, a gentle gradient), with a
-// hard break at every band boundary - so it stays obvious at a glance how
-// many distinct actors use this and where one's color ends and the next
-// begins, while no single band is a flat, dated-looking solid.
+// One actor -> its own gradient. Several actors -> one equal-width band per
+// actor, with a hard break between bands, so each one stays distinguishable.
 function getAccentColor(accents) {
     if (accents.length === 0) return NEUTRAL_GRADIENT;
     if (accents.length === 1) return makeGradient(accents[0].from, accents[0].to, CARD_GRADIENT_ATTRS);
@@ -904,10 +750,7 @@ function getAccentColor(accents) {
     };
 }
 
-// Same "half-color" use case as the original demo: `body/fill` (the whole
-// card) takes the connected actors' blended color/gradient directly - one
-// actor's color solid, several actors' colors as a smooth multi-stop gradient
-// - so it's unmistakable at a glance.
+// Whole card fill shows the blended color of its connected actors.
 function recolorUseCase(useCase) {
     const useCaseActors = graph
         .getNeighbors(useCase, { inbound: true })
@@ -922,12 +765,8 @@ function fillUseCaseColors() {
     });
 }
 
-// The filter each card was built with holds the colors of the theme that was
-// active at the time, so a theme change has to hand every card the other
-// theme's shadow (see NODE_SHADOWS). A card hovered at that exact moment drops
-// back to its resting shadow until the pointer leaves and re-enters. Actors
-// have no card body to shadow - a bare stick figure - so only UseCase needs
-// this.
+// A shadow filter's color is baked in at creation, so a theme change means
+// rebuilding it for every use case (actors have no card to shadow).
 function applyNodeShadows() {
     graph.getElements().forEach((element) => {
         if (element instanceof UseCase) {
@@ -938,16 +777,9 @@ function applyNodeShadows() {
 
 fillUseCaseColors();
 
-// A connect/disconnect only ever changes the coloring of the one use case at
-// the end that actually changed (the `elementView*` argument the event
-// itself carries - not necessarily the link's current target: dragging an
-// *existing* link's target arrowhead elsewhere, which the hover `TargetArrowhead`
-// tool below allows, fires `link:disconnect` for the use case it left and
-// `link:connect` for the one it landed on, and both need to be recolored, not
-// just the new one). Any other change to the graph's connectivity (a link,
-// actor, or use case being removed, cascading embeds, and so on) can affect
-// more than one use case in ways that aren't safe to pinpoint from the
-// removed cell alone, so that case still recomputes every use case.
+// A connect/disconnect only recolors the one use case that changed; any
+// other change to the graph (removal, cascading embeds, ...) can affect more
+// than one, so it falls back to recomputing all of them.
 function recolorConnectedEnd(elementView) {
     const cell = elementView && elementView.model;
     if (cell instanceof UseCase) {
@@ -976,26 +808,11 @@ paper.on('link:mouseleave', (linkView) => {
     linkView.removeTools();
 });
 
-// Lift a use-case card slightly on hover for a bit of interactive feedback -
-// actors have no card body to lift, just the bare stick figure. Both Actor
-// and UseCase (either can be a link's source - an actor's "Use", or a use
-// case's own "Include"/"Extend") get a Connect button on hover instead: with
-// no ports, and the whole shape deliberately *not* wired up to start a link
-// on an ordinary drag (see the note above Actor's class), this hover button
-// is the one dedicated place a user can grab to drag a new link out from.
-// Positioned at the right-middle of the bounding box rather than a corner -
-// a use case's body is an ellipse, and the ellipse only actually touches its
-// bounding box at the four cardinal points, never at a corner. A
-// corner-positioned button sat over empty space outside the curve, well
-// clear of the shape it belonged to. The right-middle point is a real point
-// on the ellipse itself, so the button sits right where the shape actually
-// is.
-// The offset pulls the button back in from the shape's own visible edge, so
-// it sits inside the shape with a small, deliberate gap to that edge rather
-// than touching/crossing it. Pulling inward (not out) also means the button
-// stays well within hoverable space regardless of CONNECT_HIT_PAD - the
-// padded `hitArea` both Actor and UseCase add past their own bbox exists for
-// the pointer's travel *to* the button, not for the button's own position.
+// Hover lifts a use-case card and reveals a Connect button (actors just get
+// the button) - the one way to start a new link, since an ordinary drag only
+// moves the shape. Positioned at the right-middle, a real point on the
+// ellipse, rather than a corner (empty space outside its curve). The offset
+// pulls it back inside the shape's own edge, with a small gap to that edge.
 paper.on('element:mouseenter', (elementView) => {
     const { model } = elementView;
     if (model instanceof UseCase) {
