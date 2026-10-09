@@ -119,7 +119,7 @@ body {
     fill: var(--port-label);
 }
 
-/* The ellipse target: a flat warm accent, the same card language as the shape. */
+/* The ellipse target: a neutral tint, the same card language as the shape. */
 .joint-type-standard-ellipse [joint-selector='body'] {
     fill: var(--target-fill);
     stroke: var(--target-stroke);
@@ -127,15 +127,10 @@ body {
     filter: var(--shape-shadow);
 }
 
-/* While a new link is being dragged from a port, JointJS marks every valid
-   drop target by adding `available-cell` to its view root (built-in
-   `elementAvailability` highlighter), and the one directly under the pointer
-   by adding the same class straight onto its `body` node (the `connecting`
-   highlighter, configured in main.js to reuse this class instead of the
-   library's default orange halo) — either way, switch to the dashed
-   "drop here" variant so it's obvious a connection can land there. */
-.joint-type-standard-ellipse.available-cell [joint-selector='body'],
-.joint-type-standard-ellipse [joint-selector='body'].available-cell {
+/* `link-target`: set in main.js while a link is being dragged, on any valid
+   drop target and on the one under the pointer. */
+.joint-type-standard-ellipse.link-target [joint-selector='body'],
+.joint-type-standard-ellipse [joint-selector='body'].link-target {
     fill: var(--available-fill);
     stroke: var(--available-stroke);
     stroke-width: 2;

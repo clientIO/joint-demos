@@ -5,6 +5,7 @@ function getCssVar(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
+// Read once so measureText() below sizes ports using the exact same font actually rendered.
 const FONT_FAMILY = getCssVar('--font') || 'sans-serif';
 
 class Shape extends dia.Element {
@@ -232,14 +233,15 @@ const paper = new dia.Paper({
     defaultConnector: {
         name: 'curve'
     },
-    // The pointer hovering directly over a valid drop target while dragging a
-    // link (as opposed to every available target at once, see `.available-cell`
-    // in styles.css) defaults to a hard-coded orange halo; reuse the same CSS
-    // class so the two states look identical instead.
+    // Style both "can drop here" highlight states the same way (see styles.css).
     highlighting: {
+        elementAvailability: {
+            name: 'addClass',
+            options: { className: 'link-target' }
+        },
         connecting: {
             name: 'addClass',
-            options: { className: 'available-cell' }
+            options: { className: 'link-target' }
         }
     }
 });
