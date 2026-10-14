@@ -78,6 +78,16 @@ export function getToolbarOptions(mode: Mode): Partial<ui.Toolbar.Options> {
         group: 'view',
         attrs: iconButton('Inspector', 'Show / hide the inspector (Ctrl+\\ both panels)')
     }] : [];
+    // The whole page full screen (see `toggleFullScreen()`), if the page may be (not in an iframe without
+    // `allow="fullscreen"`, not on an iPhone). Not the built-in `fullscreen` tool: it reads `window.top.document`, which
+    // throws in a cross-origin iframe (e.g. the demo embedded in another site).
+    // TODO: the built-in tool once it uses the document of its target
+    const fullscreen: ui.Toolbar.Options['tools'] = document.fullscreenEnabled ? [{
+        type: 'button',
+        name: 'fullscreen',
+        group: 'view',
+        attrs: iconButton('Full screen', 'Full screen')
+    }] : [];
     // Find a shape (see `find/FindList.ts`): in both modes
     const find: ui.Toolbar.Options['tools'] = [{
         type: 'button',
@@ -143,14 +153,8 @@ export function getToolbarOptions(mode: Mode): Partial<ui.Toolbar.Options> {
         ...log,
         ...find,
         ...panels,
+        ...fullscreen,
         {
-            // The whole page (hidden by the tool itself in an iframe, where the page can't be full screen)
-            type: 'fullscreen',
-            name: 'fullscreen',
-            group: 'view',
-            target: document.documentElement,
-            attrs: iconButton('Full screen', 'Full screen')
-        }, {
             type: 'button',
             name: 'colorScheme',
             group: 'view',

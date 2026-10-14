@@ -10,7 +10,7 @@ export { splitLink, insertJoin, connectedEnds, disconnectSelection } from './pip
 export { topGroup, groupable, fitGroups, groupSelection, ungroupSelection } from './groups';
 export { saveDiagram, exportImage, confirmReplace, newDiagram, openDiagram, openExample } from './file';
 export { addImages, refreshPalette, refreshFavorites, deleteImage } from './palette';
-export { zoomToFit, storedColorScheme, storeColorScheme, togglePanel, toggleSidePanels } from './view';
+export { zoomToFit, storedColorScheme, storeColorScheme, togglePanel, toggleSidePanels, toggleFullScreen } from './view';
 export { flipSelection, flipTargets } from './flip';
 export { moveSelection } from './move';
 export { lockable, lockSelection, lockedElements, lockedAt, unlockElements } from './lock';

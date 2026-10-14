@@ -18,6 +18,20 @@ export function zoomToFit(app: App): void {
     app.scroller.zoomToFit(app.mode === Mode.Runtime ? runtimeFitOptions : fitOptions);
 }
 
+/**
+ * The page full screen, or back: its own document (in an iframe too, if allowed - `allow="fullscreen"`; the toolbar
+ * shows the button only then, see `document.fullscreenEnabled`)
+ */
+export function toggleFullScreen(): void {
+    // Refused (no user gesture, not allowed): the page stays as it is
+    const ignore = () => undefined;
+    if (document.fullscreenElement) {
+        document.exitFullscreen().catch(ignore);
+    } else {
+        document.documentElement.requestFullscreen().catch(ignore);
+    }
+}
+
 // Where the color scheme chosen is remembered (in this browser)
 const COLOR_SCHEME_KEY = 'scada-editor:color-scheme';
 

@@ -1,7 +1,7 @@
 import Controller from './Controller';
 import type { App } from '../app';
 import { ColorScheme, Mode } from '../const';
-import { exportImage, newDiagram, openDiagram, saveDiagram, togglePanel, zoomToFit } from '../actions';
+import { exportImage, newDiagram, openDiagram, saveDiagram, toggleFullScreen, togglePanel, zoomToFit } from '../actions';
 import { isSettingsOpen, toggleSettings } from '../inspector/settings';
 
 /**
@@ -16,6 +16,7 @@ export default class ToolbarController extends Controller {
         this.listenTo(toolbar, {
             'mode:pointerclick': onModePointerclick,
             'zoomToFit:pointerclick': onZoomToFitPointerclick,
+            'fullscreen:pointerclick': onFullscreenPointerclick,
             // In the edit mode only (the buttons are not in the toolbar of the runtime mode)
             'new:pointerclick': onNewPointerclick,
             'save:pointerclick': onSavePointerclick,
@@ -32,6 +33,10 @@ export default class ToolbarController extends Controller {
 function onModePointerclick(app: App) {
     const { mode } = app;
     app.setMode(mode === Mode.Edit ? Mode.Runtime : Mode.Edit);
+}
+
+function onFullscreenPointerclick() {
+    toggleFullScreen();
 }
 
 function onColorSchemePointerclick(app: App) {
