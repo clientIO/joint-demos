@@ -17,10 +17,13 @@
   },
   "dependencies": {
     "@joint/plus": "4.3.1",
-    "elkjs": "0.11.0"
+    "@joint/layout-elk": "file:../../.packages/joint-layout-elk.tgz"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
+  },
+  "overrides": {
+    "@joint/core": "file:../../.packages/joint-core.tgz"
   }
 }

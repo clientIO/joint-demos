@@ -1,7 +1,7 @@
 /**
  * The name of the layout batch.
  */
-export const LAYOUT_BATCH_NAME = 'layout';
+export const LAYOUT_BATCH_NAME = 'auto-layout';
 
 /**
  * Attributes used in system shapes and node data.

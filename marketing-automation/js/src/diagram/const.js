@@ -8,7 +8,7 @@ export const START_NODE_ID = 'start';
 /**
  * The name of the layout batch.
  */
-export const LAYOUT_BATCH_NAME = 'layout';
+export const LAYOUT_BATCH_NAME = 'auto-layout';
 
 /**
  * Node attribute names

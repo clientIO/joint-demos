@@ -4,7 +4,7 @@ import { mvc } from '@joint/plus';
 
 /**
  * Runs the given callback after the layout is finished.
- * Layout is finished when the batch:stop event is triggered with the name 'layout'.
+ * Layout is finished when the batch:stop event is triggered with the name 'auto-layout'.
  * @see {@link LAYOUT_BATCH_NAME}
  * @param graph - The graph instance.
  * @param callback - The callback to run.

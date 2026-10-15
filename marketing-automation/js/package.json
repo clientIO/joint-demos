@@ -11,8 +11,8 @@
     "start": "concurrently \"npm run build\" \"webpack serve --config webpack.config.js\""
   },
   "dependencies": {
+    "@joint/layout-elk": "file:../../.packages/joint-layout-elk.tgz",
     "@joint/plus": "4.3.1",
-    "elkjs": "^0.11.0",
     "showdown": "^2.1.0"
   },
   "devDependencies": {
@@ -33,5 +33,8 @@
     "webpack": "5.88.2",
     "webpack-cli": "5.1.4",
     "webpack-dev-server": "4.15.1"
+  },
+  "overrides": {
+    "@joint/core": "file:../../.packages/joint-core.tgz"
   }
 }

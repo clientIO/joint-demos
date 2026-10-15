@@ -137,12 +137,25 @@ export class Cluster extends dia.Element {
             buttonIcon: { d: collapsed ? COLLAPSED_ICON : EXPANDED_ICON },
             header: { d: collapsed ? COLLAPSED_HEADER : EXPANDED_HEADER }
         });
-        this.set('collapsed', collapsed);
+        // A collapsed cluster is laid out as a plain node of the size of its
+        // header - an expanded one is sized by the layout to fit its content.
+        this.set(collapsed ? { collapsed, size: COLLAPSED_SIZE } : { collapsed });
     }
 
     static isCluster(cell: dia.Cell): cell is Cluster {
         return cell instanceof Cluster;
     }
+}
+
+/**
+ * A cell is hidden when any of its ancestors is a collapsed cluster. Note that
+ * the links are reparented into the cluster of their endpoints, so the very
+ * same check applies to them.
+ */
+export function isCellVisible(cell: dia.Cell): boolean {
+    return !cell.getAncestors().some(
+        (ancestor) => Cluster.isCluster(ancestor) && ancestor.isCollapsed()
+    );
 }
 
 const leafMarkup = util.svg/* xml */`
