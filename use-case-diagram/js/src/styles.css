@@ -1,8 +1,227 @@
+:root {
+    color-scheme: light;
+    --uc-canvas: #eef1f6;
+    --uc-canvas-glow-1: rgba(99, 102, 241, 0.07);
+    --uc-canvas-glow-2: rgba(99, 102, 241, 0.06);
+    /* Carries about as much contrast against the canvas as @joint/react's own
+       default grid (#a6b6c5 dots on a #e4ebf1 paper) - the previous tone was
+       barely there at all. */
+    --uc-grid-dot: #b3c0d0;
+    --uc-magnet-available: #6366f1;
+    --uc-control-border: #e2e8f0;
+    --uc-text: #1e293b;
+    --uc-muted: #64748b;
+    --uc-toggle-bg: #f1f5f9;
+    --uc-toggle-hover: #e2e8f0;
+
+    --uc-card-bg: #ffffff;
+    --uc-card-border: #e2e8f0;
+    --uc-ink: #334155;
+    --uc-line: #94a3b8;
+    /* Use-case card outline: same dark tone as ink in light mode, but NOT the
+       (light) dark-mode ink - a light ring around an already-bright gradient
+       card reads like a sticker outline, so dark mode gets a translucent
+       black edge instead, for quiet definition without extra brightness. */
+    --uc-node-border: var(--uc-ink);
+
+    --uc-include-text: #0f766e;
+    --uc-include-bg: #f0fdfa;
+    --uc-include-border: #99f6e4;
+    --uc-extend-text: #6d28d9;
+    --uc-extend-bg: #f5f3ff;
+    --uc-extend-border: #ddd6fe;
+
+    --uc-font: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+[data-theme="dark"] {
+    color-scheme: dark;
+    --uc-canvas: #0d1220;
+    --uc-canvas-glow-1: rgba(99, 102, 241, 0.16);
+    --uc-canvas-glow-2: rgba(129, 140, 248, 0.12);
+    --uc-grid-dot: #313c56;
+    --uc-magnet-available: #818cf8;
+    --uc-control-border: #232b3b;
+    --uc-text: #e6e9f0;
+    --uc-muted: #8b95a7;
+    --uc-toggle-bg: #1a2131;
+    --uc-toggle-hover: #232c40;
+
+    /* Lighter than the canvas (#0d1220) so cards read as a raised surface on
+       their own - the dark theme's drop shadow (see NODE_SHADOWS in main.js)
+       deepens that, but a dark page gives a shadow far less to work with than
+       a light one does. */
+    --uc-card-bg: #1c2438;
+    --uc-card-border: #2a3348;
+    --uc-ink: #dbe1ea;
+    --uc-line: #4b5768;
+    --uc-node-border: rgba(0, 0, 0, 0.45);
+
+    --uc-include-text: #5eead4;
+    --uc-include-bg: rgba(45, 212, 191, 0.12);
+    --uc-include-border: rgba(94, 234, 212, 0.35);
+    --uc-extend-text: #c4b5fd;
+    --uc-extend-bg: rgba(167, 139, 250, 0.14);
+    --uc-extend-border: rgba(196, 181, 253, 0.35);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: var(--uc-font);
+    color: var(--uc-text);
+    background: var(--uc-canvas);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--uc-control-border);
+    border-radius: 8px;
+    background: var(--uc-toggle-bg);
+    color: var(--uc-muted);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--uc-toggle-hover);
+    color: var(--uc-text);
+}
+
+.theme-toggle:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+.theme-toggle svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.theme-toggle .icon-moon {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5) rotate(-90deg);
+}
+
+[data-theme="dark"] .theme-toggle .icon-sun {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5) rotate(90deg);
+}
+
+[data-theme="dark"] .theme-toggle .icon-moon {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+}
+
 #paper-container {
     position: absolute;
     right: 0;
     top: 0;
     left: 0;
     bottom: 0;
-    overflow: scroll;
+    overflow: hidden;
+    background:
+        radial-gradient(60% 50% at 82% 0%, var(--uc-canvas-glow-1), transparent 60%),
+        radial-gradient(55% 55% at 6% 100%, var(--uc-canvas-glow-2), transparent 60%),
+        var(--uc-canvas);
+}
+
+/* Theme-reactive fills/strokes for the JointJS SVG shapes. Kept as plain classes
+   (not inline attrs) so toggling `data-theme` re-themes the whole diagram without
+   touching the graph - only colors that are never recomputed by app JS live here;
+   colors the app does recompute (e.g. use-case border from connected actors) stay
+   JS-driven and read these same CSS variables at run time instead. */
+.uc-boundary-card {
+    fill: var(--uc-card-bg);
+    stroke: var(--uc-card-border);
+    transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+/* Use-case card: fill is the per-instance accent (JS-driven, see
+   fillUseCaseColors), so only the outline is themed here - a tone that reads
+   against any accent color/gradient behind it (see --uc-node-border above). */
+.uc-node-stroke {
+    stroke: var(--uc-node-border);
+    transition: stroke 0.2s ease;
+}
+
+.uc-ink-text {
+    fill: var(--uc-ink);
+    transition: fill 0.2s ease;
+}
+
+.uc-muted-text {
+    fill: var(--uc-muted);
+    transition: fill 0.2s ease;
+}
+
+.uc-muted-fill {
+    fill: var(--uc-muted);
+    transition: fill 0.2s ease;
+}
+
+.uc-link-line {
+    stroke: var(--uc-line);
+    transition: stroke 0.2s ease;
+}
+
+/* While a link is being dragged, JointJS marks every element it could legally
+   land on (paper `markAvailable`) with this class - only use cases, the only
+   valid target (see `validateConnection` in main.js: there are no ports or
+   other dedicated magnets, so the whole ellipse is the drop target). The
+   outline picks up the same color as the `connecting` highlighter, so a
+   legal drop target reads at a glance before the pointer is anywhere near
+   it - the highlighter itself then marks the exact one about to connect. */
+.available-cell .uc-node-stroke {
+    stroke: var(--uc-magnet-available);
+    stroke-width: 4;
+    transition: stroke 0.15s ease, stroke-width 0.15s ease;
+}
+
+.uc-include-badge-fill {
+    fill: var(--uc-include-bg);
+    stroke: var(--uc-include-border);
+    transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.uc-include-badge-text {
+    fill: var(--uc-include-text);
+    transition: fill 0.2s ease;
+}
+
+.uc-extend-badge-fill {
+    fill: var(--uc-extend-bg);
+    stroke: var(--uc-extend-border);
+    transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.uc-extend-badge-text {
+    fill: var(--uc-extend-text);
+    transition: fill 0.2s ease;
 }
