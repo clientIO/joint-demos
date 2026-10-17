@@ -1,0 +1,248 @@
+# Builds and tests every demo, and reports which ones failed.
+# - Runs by hand, and on `workflow_call` from another repo.
+# - NOTE: deliberately not on push to main. Building every demo is far too slow
+#   and costly per merge; joint-plus calls this on a schedule instead.
+#
+# WHICH JOINT PACKAGES ARE USED TO BUILD DEMOS:
+# No `packages_artifact` provided:
+# - Demos build against pinned `@joint/*` versions (= from public/private NPM).
+# Otherwise, if `packages_artifact` is provided:
+# - Demos are built against the tarballs in that artifact (= built by caller).
+#
+# WHICH COMMIT OF THE DEMOS GETS BUILT:
+# - Run summary records which ref was used and why.
+#
+# No `demos_ref` provided:
+# - The commit this workflow came from (= the commit under test, on our runs).
+# Otherwise, if `demos_ref` is provided and it exists in this repo:
+# - That ref (= branch or tag).
+# Otherwise, if `demos_ref` is provided and it does not exist in this repo:
+# - This repo's default branch (= a missing ref is a fallback, not an error).
+# - (The fallback lets caller ask for a branch without tracking if it exists.)
+# - (Decouples workflow commit and default branch so caller can pin on `uses:`.)
+# Otherwise, if the remote cannot be checked (= e.g. network failure):
+# - The job fails (could build default instead of `demos_ref` otherwise).
+name: Test demos
+
+on:
+  # NOTE: Deliberately no `pull_request` trigger
+  workflow_call:
+    inputs:
+      packages_artifact:
+        description: 'Artifact holding @joint/* tarballs to build against. Empty means use the packages the demos pin.'
+        type: string
+        required: false
+        default: ''
+      demos:
+        description: 'Comma-separated demo names to build. Empty means all of them.'
+        type: string
+        required: false
+        default: ''
+      jobs:
+        description: 'How many demos to build at once.'
+        type: number
+        required: false
+        default: 4
+      demos_ref:
+        description: 'Branch or tag of the demos to build. Falls back to the default branch when it does not exist here, so it is safe to ask for one unconditionally.'
+        type: string
+        required: false
+        default: ''
+    secrets:
+      JOINTJS_NPM_TOKEN:
+        description: 'Token for https://npm.jointjs.com. Required even when a caller supplies tarballs: those need not cover every @joint/* package the demos use.'
+        required: true
+  workflow_dispatch:
+    inputs:
+      demos:
+        description: 'Comma-separated demo names to build. Empty means all of them.'
+        type: string
+        required: false
+        default: ''
+      demos_ref:
+        description: 'Branch or tag of the demos to build. Empty builds the ref this workflow was started on.'
+        type: string
+        required: false
+        default: ''
+
+# Checkout is all this job needs. Left unset, a called workflow inherits what
+# the caller granted, which can be considerably more.
+permissions:
+  contents: read
+
+# The literal prefix matters. Inside a reusable workflow `github.workflow` is the
+# *caller's* workflow name, so without it a run called from elsewhere would land
+# in the same group as the caller and cancel the very job waiting on it.
+concurrency:
+  group: test-demos-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-demos:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Runs before any checkout, which is why it probes the remote rather than
+      # a working tree. See the note at the top of this file.
+      - name: Resolve which commit of joint-demos to build
+        id: resolve
+        env:
+          REQUESTED: ${{ inputs.demos_ref }}
+          # The repository this workflow file lives in, which is this one, even
+          # when the run belongs to the caller.
+          DEMOS_REPO: ${{ job.workflow_repository }}
+          WORKFLOW_SHA: ${{ job.workflow_sha }}
+        run: |
+          set -euo pipefail
+
+          url="https://github.com/$DEMOS_REPO.git"
+
+          if [ -z "$REQUESTED" ]; then
+            ref="$WORKFLOW_SHA"
+            why="no ref requested"
+          else
+            # `--heads --tags` is what makes "a branch or a tag" the supported
+            # input. `--exit-code` then separates the two answers that matter:
+            # 0 the ref is there, 2 it is not. Anything else is a network or
+            # permission failure, and quietly building some other branch is
+            # worse than stopping. Unauthenticated, as this repo is public.
+            set +e
+            git ls-remote --exit-code --heads --tags "$url" "$REQUESTED" >/dev/null 2>&1
+            found=$?
+            set -e
+
+            if [ "$found" -eq 0 ]; then
+              ref="$REQUESTED"
+              why="requested"
+            elif [ "$found" -eq 2 ]; then
+              # The default branch, deliberately, and not $WORKFLOW_SHA: a
+              # caller may pin `uses:` to a commit so that it controls which
+              # version of *this workflow* runs, and that must not also freeze
+              # which commit of the demos gets built.
+              ref="$(git ls-remote --symref "$url" HEAD | awk '/^ref:/ { sub("refs/heads/", "", $2); print $2; exit }')"
+              [ -n "$ref" ] || { echo "::error::could not resolve the default branch of $DEMOS_REPO"; exit 1; }
+              why="requested '$REQUESTED' does not exist here, using the default branch"
+            else
+              echo "::error::could not read refs from $url (git ls-remote exited $found)"
+              exit 1
+            fi
+          fi
+
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+          echo "why=$why" >> "$GITHUB_OUTPUT"
+          echo "Building $DEMOS_REPO at $ref ($why)"
+
+      # `actions/checkout` defaults to the *calling* repository: inside a
+      # reusable workflow the `github` context belongs to the caller, so a bare
+      # checkout would fetch the caller. `job.workflow_repository` names this
+      # repository whether someone called us or we ran the workflow ourselves.
+      - name: Checkout joint-demos
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ steps.resolve.outputs.ref }}
+          fetch-depth: 1
+          # This job installs and builds every selected demo, which runs npm
+          # lifecycle scripts and each demo's own build - third-party code, in
+          # other words - and nothing here pushes. Left at its default, checkout
+          # would write the token into .git/config where all of that can read
+          # it. Worth more than the usual hygiene here: on a `workflow_call` the
+          # token belongs to the *caller*, so it is not necessarily scoped to
+          # this repository, or to a public one.
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      # Every demo runs its own `npm install`, so without this the runner
+      # downloads the same tarballs again on every run. Keyed on the manifests,
+      # with a prefix fallback so that touching one demo's dependencies reuses
+      # the cache rather than throwing all of it away.
+      #
+      # This has to come before the linking step below: `hashFiles` is evaluated
+      # when the step starts and linking rewrites every demo's package.json, so
+      # the other order would change the key on every run and never hit.
+      - name: Cache npm downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package.json', '**/package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+
+      - name: Download @joint/* tarballs
+        if: inputs.packages_artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.packages_artifact }}
+          path: .packages
+
+      # --skip-install because the script would otherwise install every demo in
+      # the repository, including the ones this run is not going to build.
+      - name: Link local packages
+        if: inputs.packages_artifact
+        run: |
+          ls -l .packages
+          node .github/scripts/link-local-packages.mjs --skip-install
+
+      - name: Build and test demos
+        id: build
+        env:
+          # Caller-supplied values need to go via `env` and `printf '%s'`
+          # - inline interpolation with `${{ }}` is not secure
+          DEMOS: ${{ inputs.demos }}
+          JOBS: ${{ inputs.jobs || 4 }}
+          JOINTJS_NPM_TOKEN: ${{ secrets.JOINTJS_NPM_TOKEN }}
+          CLEANUP: '1' # Reclaim every demo's node_modules once output is copied
+        run: |
+          set -o pipefail
+          args=(--force --jobs "$JOBS")
+          if [ -n "$DEMOS" ]; then
+            args+=(--demos "$DEMOS")
+          fi
+          # Kept so the next step can name the failures without re-running
+          # anything; the script itself only prints and sets the exit code.
+          bash .github/scripts/test-demos.sh "${args[@]}" 2>&1 | tee /tmp/test-demos.log
+
+      - name: Summarise
+        if: always() # A failed build must still be summarized
+        env:
+          # Caller-supplied values need to go via `env` and `printf '%s'`
+          # - inline interpolation with `${{ }}` is not secure
+          RESOLVED_REF: ${{ steps.resolve.outputs.ref }}
+          RESOLVED_WHY: ${{ steps.resolve.outputs.why }}
+          PACKAGES_ARTIFACT: ${{ inputs.packages_artifact }}
+          DEMOS: ${{ inputs.demos }}
+        run: |
+          if [ -n "$PACKAGES_ARTIFACT" ]; then
+            packages="$(printf '`%s`' "$PACKAGES_ARTIFACT")"
+          else
+            packages='as pinned by each demo'
+          fi
+
+          if [ -n "$DEMOS" ]; then
+            selection="$(printf '%s' "$DEMOS")"
+          else
+            selection='all demos'
+          fi
+
+          {
+            echo '## Demo test results'
+            echo
+            echo '| | |'
+            echo '|---|---|'
+            printf '| **Demos** | `%s` (%s) |\n' "$RESOLVED_REF" "$RESOLVED_WHY"
+            printf '| **Packages** | %s |\n' "$packages"
+            printf '| **Selection** | %s |\n' "$selection"
+            grep -E '^(Built|Tested|Failed|Skipped):' /tmp/test-demos.log 2>/dev/null \
+              | sed -E 's/^([^:]+): (.*)$/| **\1** | \2 |/' || true
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          failed="$(sed -n 's/^Failed: [0-9]* demos: //p' /tmp/test-demos.log 2>/dev/null || true)"
+          if [ -n "$failed" ]; then
+            for demo in $failed; do
+              echo "::error title=Demo failed::$demo"
+            done
+          fi
