@@ -1,3 +1,73 @@
+:root {
+    color-scheme: light;
+    --font: system-ui, sans-serif;
+
+    /* Canvas: the flat blue-gray paper + dot grid used across JointJS's own
+       React demos (see https://codesandbox.io/p/sandbox/txnd8m), painted
+       behind the (transparent) paper. */
+    --canvas-color: #e4ebf1;
+    --grid-dot-color: #a6b6c5;
+
+    /* The dashed "model geometry" variant from
+       https://codesandbox.io/p/sandbox/8969fr — a light blue tint with a
+       dashed blue border. In that demo it marks one specific *state*, not
+       every node, so here it's reserved the same way: only for the ellipse's
+       hover/connecting feedback while a link is being dragged. */
+    --dashed-accent: #3b82f6;
+    --dashed-fill: #eff6ff;
+    --dashed-dasharray: 5 3;
+
+    /* The custom port shape: the plain flat-card recipe from
+       https://codesandbox.io/p/sandbox/txnd8m — white, a quiet neutral
+       border, a soft ambient shadow. This is the card the ports hang off,
+       so it stays the calm, readable surface; the ports carry the accent. */
+    --shape-fill: #ffffff;
+    --shape-stroke: #e2e8f0;
+    --shape-divider: #e2e8f0;
+    --shape-label: #0f172a;
+    --shape-shadow: drop-shadow(0 8px 24px rgba(15, 23, 42, 0.1));
+
+    /* Ports: solid accent-blue tabs attached to the card's bottom edge —
+       the one spot of color on the node, so they read as the interactive
+       part without competing with the card itself. */
+    --port-fill: #3b82f6;
+    --port-fill-hover: #2563eb;
+    --port-stroke: #2563eb;
+    --port-label: #ffffff;
+
+    --link-color: #475569;
+
+    /* The ellipse target: a lighter neutral tint with a more pronounced
+       border at rest, so it reads as its own kind of node through shade and
+       edge weight rather than hue. */
+    --target-fill: #f1f5f9;
+    --target-stroke: #94a3b8;
+
+    /* Hovering it while dragging a link switches it to the dashed accent
+       variant, the same "you can drop here" signal the ports' own blue
+       already implies. */
+    --available-fill: var(--dashed-fill);
+    --available-stroke: var(--dashed-accent);
+
+    --surface: #ffffff;
+    --surface-hover: #f1f5f9;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --shadow-soft: rgba(15, 23, 42, 0.12);
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: var(--font);
+    color: var(--text);
+    background: var(--canvas-color);
+}
+
 #paper-container {
     position: absolute;
     right: 0;
@@ -5,29 +75,111 @@
     left: 0;
     bottom: 0;
     overflow: scroll;
+    background-color: var(--canvas-color);
 }
 
-#logo {
+/* The custom port shape: body, header divider and label — a flat white card. */
+.joint-type-shape [joint-selector='body'] {
+    fill: var(--shape-fill);
+    stroke: var(--shape-stroke);
+    stroke-width: 1;
+    filter: var(--shape-shadow);
+}
+
+/* The hairline separating the title from the port row: the same quiet tone
+   as the card's own border, so it reads as a soft division, not a second
+   outline. */
+.joint-type-shape [joint-selector='divider'] {
+    fill: none;
+    stroke: var(--shape-divider);
+    stroke-width: 1;
+}
+
+.joint-type-shape [joint-selector='label'] {
+    fill: var(--shape-label);
+}
+
+/* Ports: the output rectangles hanging off the shape's bottom edge. Both live
+   inside one JointJS-assigned `.joint-port-body` group, so `[joint-selector]`
+   (not the ambiguous `joint-port-body`/`joint-port-label` classes) is what
+   tells the rect from its own label text apart. */
+.joint-port [joint-selector='portBody'] {
+    fill: var(--port-fill);
+    stroke: var(--port-stroke);
+    stroke-width: 1;
+    filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.16));
+    transition: fill 120ms ease-out;
+}
+
+.joint-port:hover [joint-selector='portBody'] {
+    fill: var(--port-fill-hover);
+}
+
+.joint-port [joint-selector='portLabel'] {
+    fill: var(--port-label);
+}
+
+/* The ellipse target: a neutral tint, the same card language as the shape. */
+.joint-type-standard-ellipse [joint-selector='body'] {
+    fill: var(--target-fill);
+    stroke: var(--target-stroke);
+    stroke-width: 1;
+    filter: var(--shape-shadow);
+}
+
+/* `link-target`: set in main.js while a link is being dragged, on any valid
+   drop target and on the one under the pointer. */
+.joint-type-standard-ellipse.link-target [joint-selector='body'],
+.joint-type-standard-ellipse [joint-selector='body'].link-target {
+    fill: var(--available-fill);
+    stroke: var(--available-stroke);
+    stroke-width: 2;
+    stroke-dasharray: var(--dashed-dasharray);
+    filter: none;
+}
+
+/* Links drawn between ports and the target: color is baked into the cell's own
+   attrs at creation time (see defaultLink in main.js), since the arrowhead marker
+   mirrors that attribute value directly and cannot be targeted by a CSS rule. */
+.joint-link [joint-selector='line'] {
+    stroke-linecap: round;
+}
+
+/* Toolbar: Add/Remove Port. */
+.toolbar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1;
+    display: flex;
+    gap: 6px;
+}
+
+.toolbar button {
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px var(--shadow-soft);
+    transition: background-color 100ms ease-out, border-color 100ms ease-out;
+}
+
+.toolbar button:hover {
+    background: var(--surface-hover);
+    border-color: var(--port-stroke);
+}
+
+#logo-link {
     position: absolute;
     bottom: 20px;
     right: 20px;
-    background-color: #ffffff;
-    border: 1px solid #d3d3d3;
-    padding: 5px;
-    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.3);
 }
 
-button {
-    width: 100px;
-    position: absolute;
-}
-
-#add-port {
-    top: 10px;
-    left: 10px;
-}
-
-#remove-port {
-    top: 10px;
-    left: 120px;
+#logo {
+    display: block;
 }
