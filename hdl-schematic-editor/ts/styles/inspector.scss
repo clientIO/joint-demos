@@ -1,0 +1,132 @@
+// The inspector panel (the fields are styled by the theme)
+
+.inspector-container {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font);
+
+    .inspector-header {
+        align-items: center;
+        padding: 16px;
+        display: flex;
+
+        &.hidden {
+            display: none;
+        }
+
+        // The symbol of the inspected cell (e.g. `$and`), in the colors of the schematic
+        .inspector-header-symbol {
+            flex-shrink: 0;
+            min-width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            border: 1px solid var(--app-symbol-color);
+            border-radius: var(--radius-sm);
+            background-color: var(--app-symbol-fill);
+            color: var(--app-symbol-color);
+            padding: 0 6px;
+            box-sizing: border-box;
+            font-family: var(--app-mono-font);
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 22px;
+            text-align: center;
+            white-space: nowrap;
+
+            &:empty {
+                display: none;
+            }
+        }
+
+        .inspector-header-text-wrapper {
+            display: flex;
+            flex-direction: column;
+
+            .inspector-header-name {
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 18px;
+                color: var(--foreground);
+            }
+
+            .inspector-header-hint {
+                font-size: 12px;
+                line-height: 16px;
+                color: var(--muted-foreground);
+                margin-top: 2px;
+            }
+        }
+    }
+
+    .inspector-separator {
+        border-bottom: 1px solid var(--border);
+
+        &.hidden {
+            display: none;
+        }
+    }
+
+    .inspector-content {
+        overflow-y: auto;
+
+        // The inspector is in the flow of the panel (below the header), not over it
+        & > .joint-inspector {
+            position: static;
+        }
+
+        // The groups: no header for the general one (the first)
+        .group[data-name="general"] > .group-label {
+            display: none;
+        }
+
+        // A hint below the label of a field
+        .field-hint-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            padding: 8px 10px;
+            border-radius: var(--radius-md);
+            background-color: var(--muted);
+        }
+
+        .field-hint {
+            flex: 1;
+            align-self: center;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 16px;
+            color: var(--muted-foreground);
+        }
+
+        .field-hint-icon {
+            align-self: center;
+            width: 16px;
+            height: 16px;
+        }
+
+        .inspector-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+
+            .inspector-placeholder-icon {
+                width: 38px;
+                height: 38px;
+                background-image: url(../assets/icons/inspector-empty.svg);
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+
+            span {
+                font-size: 12px;
+                color: var(--muted-foreground);
+            }
+        }
+    }
+}

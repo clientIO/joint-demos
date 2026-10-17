@@ -1,0 +1,144 @@
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font);
+}
+
+// The theme sizes its components with their padding and border included
+// (e.g. the 60px high search of the stencil, above the groups positioned at 60px)
+.joint-theme-minimal,
+.joint-theme-minimal *,
+.joint-theme-minimal *::before,
+.joint-theme-minimal *::after {
+    box-sizing: border-box;
+}
+
+.paper-container {
+    position: absolute;
+    overflow: hidden;
+    box-sizing: border-box;
+    left: var(--app-stencil-width);
+    width: calc(100% - var(--app-inspector-width) - var(--app-stencil-width));
+    height: calc(100% - var(--app-toolbar-height));
+    top: var(--app-toolbar-height);
+
+    .joint-paper {
+        background-color: var(--app-paper);
+    }
+
+    .joint-paper-scroller {
+        overflow: hidden;
+        background-color: var(--app-paper);
+    }
+
+    // The diagram is hidden while it's being laid out (e.g. after loading a file)
+    .joint-paper-scroller {
+        transition: opacity 200ms ease-in-out;
+    }
+
+    &.loading .joint-paper-scroller {
+        opacity: 0;
+        transition: none;
+    }
+
+    &.drop-zone::after {
+        position: absolute;
+        display: flex;
+        pointer-events: none;
+        inset: 0px;
+        content: 'Drop a Yosys JSON file here';
+        text-align: center;
+        background: color-mix(in srgb, var(--background) 70%, transparent);
+        flex-direction: column;
+        justify-content: center;
+        color: var(--muted-foreground);
+        font-family: var(--font);
+        font-size: 1.5em;
+    }
+}
+
+// Left sidebar with the shapes
+
+.stencil-container {
+    position: absolute;
+    left: 0;
+    top: var(--app-toolbar-height);
+    width: var(--app-stencil-width);
+    height: calc(100vh - var(--app-toolbar-height));
+    box-sizing: border-box;
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    background-color: var(--background);
+    z-index: 2;
+
+    .joint-stencil {
+        position: absolute;
+        inset: 0;
+        border: none;
+
+        .joint-paper {
+            background-color: var(--app-paper);
+        }
+
+        .joint-element {
+            cursor: grab;
+        }
+    }
+}
+
+// Right sidebar with the inspector (top) and the Yosys JSON (bottom)
+
+.sidebar-container {
+    position: absolute;
+    right: 0;
+    top: var(--app-toolbar-height);
+    width: var(--app-inspector-width);
+    height: calc(100vh - var(--app-toolbar-height));
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+    background-color: var(--background);
+    z-index: 2;
+
+    // The inspector takes the space left by the JSON panel
+    .inspector-container {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 100%;
+        height: auto;
+        flex: 1 1 auto;
+        min-height: 0;
+        border-top: none;
+        box-shadow: none;
+
+        .inspector-content {
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        &.inspector-closed {
+            padding: 24px 0;
+
+            .inspector-content {
+                transform: none;
+            }
+        }
+    }
+
+    // The JSON panel takes 60% of the sidebar when expanded, only its header is shown when collapsed
+    .json-container {
+        flex: 0 0 60%;
+        min-height: 0;
+
+        &.collapsed {
+            flex: 0 0 auto;
+        }
+    }
+}

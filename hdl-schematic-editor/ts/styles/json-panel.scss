@@ -1,0 +1,152 @@
+.json-container {
+    box-sizing: border-box;
+    border-top: 1px solid var(--border);
+    background-color: var(--background);
+    font-family: var(--font);
+
+    .json-panel {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    &.collapsed {
+        .json-panel-header {
+            border-bottom: none;
+
+            // The panel expands upwards
+            .json-panel-toggle {
+                transform: rotate(180deg);
+            }
+        }
+
+        .json-panel-code {
+            display: none;
+        }
+    }
+
+    .json-panel-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        user-select: none;
+        outline: none;
+
+        &:hover,
+        &:focus-visible {
+            background-color: var(--muted);
+        }
+
+        // A chevron (the icon of the theme) pointing down (expanded) or up (collapsed)
+        .json-panel-toggle {
+            flex: 0 0 auto;
+            width: 16px;
+            height: 16px;
+            background-color: var(--muted-foreground);
+            mask: var(--icon-chevron) center / contain no-repeat;
+            transition: transform 150ms ease-in-out;
+        }
+
+        .json-panel-title-wrapper {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .json-panel-title {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 16px;
+            color: var(--foreground);
+        }
+
+        .json-panel-subtitle {
+            font-family: var(--app-mono-font);
+            font-size: 11px;
+            line-height: 14px;
+            margin-top: 2px;
+            color: var(--muted-foreground);
+        }
+
+        // As the buttons of the toolbar (the theme)
+        .json-panel-copy {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            padding: 0 12px;
+            border: 1px solid var(--input);
+            border-radius: var(--radius-md);
+            background-color: var(--background);
+            box-shadow: var(--shadow-xs);
+            color: var(--foreground);
+            font: 500 13px/1 var(--font);
+            cursor: pointer;
+            transition: background-color 0.15s;
+
+            &::before {
+                content: '';
+                width: 14px;
+                height: 14px;
+                background-color: currentColor;
+                mask: var(--icon-copy) center / contain no-repeat;
+            }
+
+            &:hover {
+                background-color: var(--muted);
+            }
+
+            &:focus-visible {
+                outline: none;
+                border-color: var(--ring-strong);
+                box-shadow: 0 0 0 3px var(--ring);
+            }
+        }
+    }
+
+    .json-panel-code {
+        flex: 1;
+        margin: 0;
+        padding: 12px 0 12px 16px;
+        overflow: auto;
+        font-family: var(--app-mono-font);
+        font-size: 11px;
+        line-height: 16px;
+        color: var(--foreground);
+        background-color: var(--muted);
+
+        .json-key {
+            color: var(--app-json-key);
+        }
+
+        .json-string {
+            color: var(--app-json-string);
+        }
+
+        .json-number {
+            color: var(--app-json-number);
+        }
+
+        .json-boolean,
+        .json-null {
+            color: var(--app-json-literal);
+        }
+
+        .json-entry {
+            display: inline-block;
+            min-width: calc(100% - 12px);
+            margin-left: -4px;
+            padding-left: 4px;
+            border-radius: var(--radius-sm);
+            transition: background-color 200ms ease-in-out;
+
+            &.highlighted {
+                background-color: color-mix(in srgb, var(--selection) 12%, transparent);
+                box-shadow: inset 2px 0 0 var(--selection);
+            }
+        }
+    }
+}

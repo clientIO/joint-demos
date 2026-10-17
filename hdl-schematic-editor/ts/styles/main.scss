@@ -1,0 +1,10 @@
+// The styles of the application. The JointJS+ components are styled by the `minimal` theme
+// (`theme.css`, in cascade layers), these styles (not layered) override it.
+@import './variables.scss';
+@import './app.scss';
+@import './toolbar.scss';
+@import './shapes.scss';
+@import './inspector.scss';
+@import './json-panel.scss';
+@import './navigator.scss';
+@import './dialog.scss';

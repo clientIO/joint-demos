@@ -1,0 +1,74 @@
+/*
+ * The design tokens of the `minimal` theme (see `theme-minimal.css`): the names of the CSS variables of shadcn/ui, a neutral
+ * palette; the dark scheme under `:root[data-color-scheme="dark"]`. The icons (`--icon-*`) are files in `icons/`.
+ */
+
+:root {
+    --background: #ffffff;
+    --foreground: #09090b;
+    --muted: #f4f4f5;
+    --muted-foreground: #71717a;
+    --border: #e4e4e7;
+    --input: #e4e4e7;
+    --primary: #18181b;
+    --primary-foreground: #fafafa;
+    --ring: rgb(24 24 27 / 0.12);
+    --ring-strong: #a1a1aa;
+    /* The color of the selection on the canvas (`SELECTION_COLOR` in `const.ts`). */
+    --selection: #0075f2;
+    color-scheme: light;
+
+    --radius: 8px;
+    --radius-md: 6px;
+    --radius-sm: 4px;
+    --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+
+    --font: 'Inter', 'Geist', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+    /* The icons of the components (Lucide), used as masks so that they take the color of the text. */
+    --icon-zoom-in: url("./icons/zoom-in.svg");
+    --icon-zoom-out: url("./icons/zoom-out.svg");
+    --icon-search: url("./icons/search.svg");
+    --icon-trash: url("./icons/trash.svg");
+    --icon-close: url("./icons/close.svg");
+    --icon-undo: url("./icons/undo.svg");
+    --icon-redo: url("./icons/redo.svg");
+    --icon-chevron: url("./icons/chevron.svg");
+}
+
+/* The dark color scheme (switched in the toolbar, see `App.setColorScheme()`) */
+:root[data-color-scheme="dark"] {
+    /* Navy, like a control room screen */
+    --background: #0b1526;
+    --foreground: #e6edf7;
+    --muted: #15233a;
+    --muted-foreground: #8ea3c2;
+    --border: #1e2f4a;
+    --input: #283d5e;
+    --primary: #e6edf7;
+    --primary-foreground: #0b1526;
+    --ring: rgb(125 211 252 / 0.2);
+    --ring-strong: #4b6a94;
+    --selection: #38bdf8;
+    --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+    color-scheme: dark;
+}
+
+/*
+ * The additional icons of the HDL schematic editor (Lucide, ISC): the buttons of the toolbar,
+ * of the navigator and of the JSON panel.
+ */
+:root {
+    --icon-download: url("./icons/download.svg");
+    --icon-folder-open: url("./icons/folder-open.svg");
+    --icon-file-plus: url("./icons/file-plus.svg");
+    --icon-network: url("./icons/network.svg");
+    --icon-book-open: url("./icons/book-open.svg");
+    --icon-maximize: url("./icons/maximize.svg");
+    --icon-minimize: url("./icons/minimize.svg");
+    --icon-scan: url("./icons/scan.svg");
+    --icon-map: url("./icons/map.svg");
+    --icon-copy: url("./icons/copy.svg");
+}
