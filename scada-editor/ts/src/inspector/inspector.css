@@ -364,6 +364,63 @@
     overflow: visible;
 }
 
+/* The size of the screen (see `settings.ts`): in pixels - the unit in the input, before the arrows of a number */
+.scada-settings [data-field="size/width"],
+.scada-settings [data-field="size/height"] {
+    position: relative;
+}
+
+.scada-settings [data-field="size/width"]::after,
+.scada-settings [data-field="size/height"]::after {
+    content: 'px';
+    position: absolute;
+    right: 44px;
+    bottom: 10px;
+    color: var(--muted-foreground);
+    font: 14px/36px var(--font);
+    pointer-events: none;
+}
+
+/* The size of the display for the screen (see `renderDisplaySizeButton()`): under its size - an icon, the label, the size */
+.joint-inspector .scada-display-size-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--input);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    box-shadow: var(--shadow-xs);
+    color: var(--foreground);
+    font: 500 13px/1 var(--font);
+    cursor: pointer;
+}
+
+.joint-inspector .scada-display-size-button::before {
+    content: '';
+    flex: none;
+    width: 14px;
+    height: 14px;
+    background: currentColor;
+    mask: var(--icon-monitor) center / contain no-repeat;
+}
+
+.joint-inspector .scada-display-size-button span {
+    margin-left: auto;
+    color: var(--muted-foreground);
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+}
+
+.joint-inspector .scada-display-size-button:hover {
+    background: var(--muted);
+}
+
+.joint-inspector .scada-display-size-field[hidden] {
+    display: none;
+}
+
 .scada-settings-title {
     margin: 0;
     padding: 16px 16px 4px;

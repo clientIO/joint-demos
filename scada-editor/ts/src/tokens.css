@@ -25,6 +25,7 @@
     --icon-minimize: url("./icons/minimize.svg");
     --icon-panel-left: url("./icons/panel-left.svg");
     --icon-panel-right: url("./icons/panel-right.svg");
+    --icon-monitor: url("./icons/monitor.svg");
 }
 
 :root[data-color-scheme="dark"] {
