@@ -454,6 +454,8 @@ export class Animations {
     running = new Map<dia.Cell.ID, Animation[]>();
     /** The state each cell is animated in (on / off, open / closed): animated again when it changes */
     states = new Map<dia.Cell.ID, string>();
+    /** Whether the plant is animated already (`start()` needs the diagram rendered, see `AnimationsController`) */
+    started = false;
 
     constructor(paper: dia.Paper) {
         this.paper = paper;
@@ -465,6 +467,12 @@ export class Animations {
     }
 
     start(): void {
+        // The diagram is rendered in batches: every one of them says so (see `AnimationsController`), the first is the
+        // one that matters - animating it again would send every rotor back to where it started.
+        if (this.started) {
+            return;
+        }
+        this.started = true;
         // The values glide to new ones (see `glide.ts`) as the level lets them
         setGliding(this.paper, this.allows('level'));
         this.paper.model.getCells().forEach(cell => this.animate(cell));
@@ -474,6 +482,7 @@ export class Animations {
         this.running.forEach(animations => animations.forEach(animation => animation.cancel()));
         this.running.clear();
         this.states.clear();
+        this.started = false;
         setGliding(this.paper, false);
     }
 

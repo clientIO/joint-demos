@@ -22,12 +22,19 @@ export default class AnimationsController extends Controller<[App, Animations]> 
     }
 
     startListening(): void {
-        const { graph } = this.app;
+        const { graph, paper } = this.app;
 
         // The level of the diagram; the alarms only if the user asks the system for less motion
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         this.animations.level = reducedMotion ? 'alarms' : getAnimationLevel(graph);
-        this.animations.start();
+        // What moves are the nodes of the views, which the paper renders asynchronously: on a phone the example picked
+        // runs the moment it is opened (see `phone.ts`), with nothing of it on the paper yet - the plant starts moving
+        // when it is there. From the Run button of the toolbar the diagram is rendered already.
+        if (paper.hasScheduledUpdates()) {
+            this.listenTo(paper, { 'render:done': onRendered });
+        } else {
+            this.animations.start();
+        }
 
         this.listenTo(graph, {
             // Switched on or off, opened or closed (a value glides by its view, see `glide.ts`)
@@ -39,6 +46,11 @@ export default class AnimationsController extends Controller<[App, Animations]> 
         super.stopListening();
         this.animations.stop();
     }
+}
+
+/** The diagram is on the paper: the plant starts moving (the first render only, see `Animations.start()`) */
+function onRendered(_app: App, animations: Animations) {
+    animations.start();
 }
 
 /** The cell switched on or off, opened or closed: its animations, and of the pipes of an element */
