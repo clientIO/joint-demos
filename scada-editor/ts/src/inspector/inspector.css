@@ -417,7 +417,8 @@
     background: var(--muted);
 }
 
-.joint-inspector .scada-display-size-field[hidden] {
+/* Without a screen: hidden with its size (the inspector hides the fields, see `when` in `settings.ts`) */
+.joint-inspector [data-field="size/height"].hidden + .scada-display-size-field {
     display: none;
 }
 

@@ -271,7 +271,7 @@ export function openSettings(app: App): void {
         getFieldValue: attribute => (isColorField(attribute) ? getColorFieldValue(attribute) : undefined)
     });
     inspector.render();
-    renderDisplaySizeButton(app, settings, inspector, listener);
+    renderDisplaySizeButton(app, inspector);
     el.append(inspector.el);
     showInPanel(app, new SettingsPanel(app, el, inspector, listener));
 }
@@ -280,7 +280,7 @@ export function openSettings(app: App): void {
  * A button under the size of the screen: the size of the display the editor is on (the run mode in the full screen
  * shows the screen on it - fitted, so its proportions are what matter), with a screen only.
  */
-function renderDisplaySizeButton(app: App, settings: dia.Cell, inspector: ui.Inspector, listener: mvc.Listener<[]>): void {
+function renderDisplaySizeButton(app: App, inspector: ui.Inspector): void {
     const heightField = inspector.el.querySelector('[data-field="size/height"]');
     if (!heightField) {
         return;
@@ -301,15 +301,10 @@ function renderDisplaySizeButton(app: App, settings: dia.Cell, inspector: ui.Ins
         showSize();
         getScreen(app.graph)?.resize(window.screen.width, window.screen.height);
     });
-    // In a field of the inspector: its padding
+    // In a field of the inspector: its padding; hidden with the height (see `inspector.css`)
     const field = document.createElement('div');
     field.className = 'field scada-display-size-field';
     field.append(button);
-    const toggle = () => {
-        field.hidden = !settings.get('screen');
-    };
-    toggle();
-    listener.listenTo(settings, 'change:screen', toggle);
     heightField.after(field);
 }
 
