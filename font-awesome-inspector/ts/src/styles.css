@@ -1,0 +1,47 @@
+@font-face {
+    font-family: "FontAwesome";
+    font-style: normal;
+    font-weight: 900;
+    font-display: block;
+    src: url("@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2") format("woff2");
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    font-family: sans-serif;
+}
+
+#stencil-container {
+    position: relative;
+    flex: 0 0 120px;
+    border-right: 1px solid #cad8e3;
+}
+
+#paper-container {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+#inspector-container {
+    position: relative;
+    flex: 0 0 260px;
+    overflow: auto;
+    border-left: 1px solid #cad8e3;
+}
+
+.fa-option {
+    display: inline-block;
+    width: 24px;
+    font-family: "FontAwesome";
+    font-weight: 900;
+    font-size: 18px;
+    line-height: 24px;
+    text-align: center;
+}
