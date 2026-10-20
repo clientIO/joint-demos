@@ -2,7 +2,8 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
     server: {
-        port: 5173,
+        // Run the dev server on a fixed port (Vite defaults to 5173).
+        // port: 3000,
         // Allow the dev server to be reached through another host name.
         // allowedHosts: ['.example.com']
     }
