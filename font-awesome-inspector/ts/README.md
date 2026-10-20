@@ -2,6 +2,10 @@
 
 A custom `FAIcon` element draws a Font Awesome glyph as SVG text. The icon is centered and scaled with `calc()` expressions (`fontSize: 'calc(0.7*s)'`), so it follows the element size when resized with `ui.FreeTransform`. The inspector edits the icon (a `select-button-group` of 60 icons), its color, and the label.
 
+This demo is also available online at [demos.jointjs.com](https://demos.jointjs.com/font-awesome-inspector/).
+
+![screenshot](../screenshot.png)
+
 ## Project Structure
 
 | File | Description |
@@ -11,7 +15,7 @@ A custom `FAIcon` element draws a Font Awesome glyph as SVG text. The icon is ce
 | `src/icons.ts` | The icons offered in the inspector |
 | `src/inspector.ts` | The inspector configuration |
 | `src/stencil.ts` | The stencil with a bordered and a borderless `FAIcon` |
-| `src/styles.css` | Layout and the `FontAwesome` font face |
+| `src/styles.css` | Layout and the `FontAwesome` font face (from `@fortawesome/fontawesome-free`) |
 
 ## Running the Demo
 
@@ -33,6 +37,8 @@ $env:JOINTJS_NPM_TOKEN="jjs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
 
 Learn more about our [private npm registry here.](https://docs.jointjs.com/learn/help-center/npm-registry)
+
+The icons come from [Font Awesome Free](https://fontawesome.com) (`@fortawesome/fontawesome-free`), installed from the public npm registry with no token. Its solid font is loaded in `src/styles.css`.
 
 After setting up access to the JointJS+ package, install the dependencies and start the dev server:
 
