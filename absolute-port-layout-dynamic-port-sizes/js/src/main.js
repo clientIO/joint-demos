@@ -213,6 +213,7 @@ const paper = new dia.Paper({
     width: '100%',
     height: '100%',
     gridSize: 10,
+    drawGrid: true,
     async: true,
     sorting: dia.Paper.sorting.APPROX,
     background: { color: 'transparent' },
@@ -251,11 +252,6 @@ const paper = new dia.Paper({
     }
 });
 paperContainer.appendChild(paper.el);
-
-paper.setGrid({
-    name: 'dot',
-    args: { color: COLORS.gridDot, thickness: 1 }
-});
 
 const words = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed convallis lacinia nibh. Sed posuere felis sit amet porttitor sollicitudin. Sed lorem felis, semper at volutpat eget, accumsan mollis quam. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nullam volutpat sodales sapien, et iaculis mauris pulvinar vel. Fusce in interdum nisi. Donec vel ultricies lectus. Suspendisse mi nisl, vulputate sed scelerisque quis, porttitor ut enim. Praesent augue ligula, interdum sit amet pulvinar ac, tincidunt ut dolor. Vivamus luctus eget ipsum ac eleifend. Suspendisse lorem enim, hendrerit in semper in, porttitor id nulla. Pellentesque iaculis risus ac purus efficitur, id elementum velit hendrerit. Ut nisl mi, ornare eu consectetur congue, placerat at nulla.'.split(
     ' '
