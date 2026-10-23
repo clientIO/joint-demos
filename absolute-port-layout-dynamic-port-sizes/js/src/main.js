@@ -1,12 +1,35 @@
-import { V, dia, shapes as defaultShapes, anchors, util } from '@joint/core';
+import { dia, shapes as defaultShapes, anchors, util } from '@joint/core';
 import './styles.css';
 
-function getCssVar(name) {
-    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-}
+const FONT_FAMILY = 'system-ui, sans-serif';
+const PORT_FONT_SIZE = 14;
 
-// Read once so measureText() below sizes ports using the exact same font actually rendered.
-const FONT_FAMILY = getCssVar('--font') || 'sans-serif';
+// Used by setOutPorts() to size each port to fit its label. Must match
+// portLabel's fontSize/fontFamily below, or the measured width will be wrong.
+const measureContext = document.createElement('canvas').getContext('2d');
+measureContext.font = `${PORT_FONT_SIZE}px ${FONT_FAMILY}`;
+
+const COLORS = {
+    shape: {
+        fill: '#ffffff',
+        stroke: '#e2e8f0',
+        divider: '#e2e8f0',
+        label: '#0f172a',
+        shadow: 'drop-shadow(0 8px 24px rgba(15, 23, 42, 0.1))'
+    },
+    port: {
+        fill: '#3b82f6',
+        stroke: '#2563eb',
+        label: '#ffffff',
+        shadow: 'drop-shadow(0 2px 4px rgba(15, 23, 42, 0.16))'
+    },
+    target: {
+        fill: '#f1f5f9',
+        stroke: '#94a3b8'
+    },
+    link: '#475569',
+    gridDot: '#a6b6c5'
+};
 
 class Shape extends dia.Element {
     defaults() {
@@ -23,10 +46,17 @@ class Shape extends dia.Element {
                 },
                 body: {
                     d:
-                        'M 0 calc(h) H calc(w) V 12 a 12 12 1 0 0 -12 -12 H 12 a 12 12 1 0 0 -12 12 z'
+                        'M 0 calc(h) H calc(w) V 12 a 12 12 1 0 0 -12 -12 H 12 a 12 12 1 0 0 -12 12 z',
+                    fill: COLORS.shape.fill,
+                    stroke: COLORS.shape.stroke,
+                    strokeWidth: 1,
+                    filter: COLORS.shape.shadow
                 },
                 divider: {
-                    d: 'M 0 calc(h-4) H calc(w)'
+                    d: 'M 0 calc(h-4) H calc(w)',
+                    fill: 'none',
+                    stroke: COLORS.shape.divider,
+                    strokeWidth: 1
                 },
                 label: {
                     text: 'Custom shape with a dynamic port size',
@@ -34,6 +64,7 @@ class Shape extends dia.Element {
                     fontSize: 15,
                     fontFamily: FONT_FAMILY,
                     fontWeight: 500,
+                    fill: COLORS.shape.label,
                     textVerticalAnchor: 'middle',
                     textAnchor: 'middle',
                     x: 'calc(0.5*w)',
@@ -62,6 +93,10 @@ class Shape extends dia.Element {
                                 rx: 6,
                                 ry: 7,
                                 y: -4,
+                                fill: COLORS.port.fill,
+                                stroke: COLORS.port.stroke,
+                                strokeWidth: 1,
+                                filter: COLORS.port.shadow,
                                 magnet: true,
                                 cursor: 'crosshair'
                             },
@@ -75,7 +110,9 @@ class Shape extends dia.Element {
                                     ellipsis: true
                                 },
                                 pointerEvents: 'none',
-                                ...this.portFontAttributes
+                                fill: COLORS.port.label,
+                                fontSize: PORT_FONT_SIZE,
+                                fontFamily: FONT_FAMILY
                             }
                         }
                     }
@@ -89,10 +126,6 @@ class Shape extends dia.Element {
         this.portPadding = 16;
         this.portGap = 10;
         this.portHeight = 32;
-        this.portFontAttributes = {
-            'font-size': 14,
-            'font-family': FONT_FAMILY
-        };
         this.markup = [
             {
                 tagName: 'path',
@@ -111,9 +144,6 @@ class Shape extends dia.Element {
 
     initialize() {
         super.initialize();
-        if (!this.constructor.svgDocument) {
-            throw new Error('SVG Document not provided.');
-        }
         this.on('change', this.onAttributeChange);
         this.setOutPorts();
     }
@@ -125,34 +155,13 @@ class Shape extends dia.Element {
         }
     }
 
-    measureText(svgDocument, text, attrs) {
-        const vText = V('text').attr(attrs).text(text);
-        vText.appendTo(svgDocument);
-        const bbox = vText.getBBox();
-        vText.remove();
-        return bbox;
-    }
-
     setOutPorts(opt = {}) {
-        const {
-            attributes,
-            portPadding,
-            portGap,
-            portHeight,
-            portFontAttributes,
-            minWidth,
-            constructor
-        } = this;
+        const { attributes, portPadding, portGap, portHeight, minWidth } = this;
         const { outPorts = [], size, ports } = attributes;
         let x = 0;
         const items = outPorts.map((port) => {
             const { id, label = 'Port' } = port;
-            let { width } = this.measureText(
-                constructor.svgDocument,
-                label,
-                portFontAttributes
-            );
-            width += 2 * portPadding;
+            const width = measureContext.measureText(label).width + 2 * portPadding;
             const item = {
                 id,
                 group: 'out',
@@ -191,13 +200,9 @@ class Shape extends dia.Element {
         const { outPorts = [] } = this.attributes;
         this.set('outPorts', outPorts.slice(0, outPorts.length - 1), opt);
     }
-
-    static svgDocument = null;
 }
 
 const shapes = { ...defaultShapes, Shape };
-
-// Paper
 
 const paperContainer = document.getElementById('paper-container');
 
@@ -216,7 +221,7 @@ const paper = new dia.Paper({
         new shapes.standard.Link({
             attrs: {
                 line: {
-                    stroke: getCssVar('--link-color'),
+                    stroke: COLORS.link,
                     strokeWidth: 1.5
                 }
             }
@@ -249,10 +254,8 @@ paperContainer.appendChild(paper.el);
 
 paper.setGrid({
     name: 'dot',
-    args: { color: getCssVar('--grid-dot-color'), thickness: 1 }
+    args: { color: COLORS.gridDot, thickness: 1 }
 });
-
-Shape.svgDocument = paper.svg;
 
 const words = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed convallis lacinia nibh. Sed posuere felis sit amet porttitor sollicitudin. Sed lorem felis, semper at volutpat eget, accumsan mollis quam. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nullam volutpat sodales sapien, et iaculis mauris pulvinar vel. Fusce in interdum nisi. Donec vel ultricies lectus. Suspendisse mi nisl, vulputate sed scelerisque quis, porttitor ut enim. Praesent augue ligula, interdum sit amet pulvinar ac, tincidunt ut dolor. Vivamus luctus eget ipsum ac eleifend. Suspendisse lorem enim, hendrerit in semper in, porttitor id nulla. Pellentesque iaculis risus ac purus efficitur, id elementum velit hendrerit. Ut nisl mi, ornare eu consectetur congue, placerat at nulla.'.split(
     ' '
@@ -280,6 +283,12 @@ const target = new shapes.standard.Ellipse({
     attrs: {
         root: {
             highlighterSelector: 'body'
+        },
+        body: {
+            fill: COLORS.target.fill,
+            stroke: COLORS.target.stroke,
+            strokeWidth: 1,
+            filter: COLORS.shape.shadow
         }
     }
 });
