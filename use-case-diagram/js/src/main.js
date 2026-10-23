@@ -207,16 +207,6 @@ const paper = new dia.Paper({
                     'stroke-width': 3
                 }
             }
-        },
-        // `highlighting` overrides JointJS's defaults entirely, so these two
-        // must be restated for markAvailable to have anything to apply.
-        magnetAvailability: {
-            name: 'addClass',
-            options: { className: 'available-magnet' }
-        },
-        elementAvailability: {
-            name: 'addClass',
-            options: { className: 'available-cell' }
         }
     },
     restrictTranslate: function(elementView) {
