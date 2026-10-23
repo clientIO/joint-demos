@@ -856,4 +856,5 @@ function scaleToFit() {
     paper.translate(xLeft * sy, yTop * sy);
 }
 
+window.addEventListener('resize', () => scaleToFit());
 scaleToFit();
