@@ -12,7 +12,8 @@ import type { Id } from './data/types';
 import { DiagramData } from './data/diagram-data';
 import { EditorContext, MAX_ZOOM, MIN_ZOOM, PAPER_ID, isSelectable } from './editor-context';
 import type { EditorApi } from './editor-context';
-import { getVisibleBBox, isCellVisible, runLayout } from './layout';
+import { getVisibleBBox, isCellVisible } from './layout';
+import { layoutIfDirty } from './layout-tracker';
 import { example } from './data/example';
 import { NO_MARKS, getCollapseMarks, getDeletionMarks, getMoveMarks, getMovingMarks } from './highlights';
 import type { Marks } from './highlights';
@@ -97,10 +98,19 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     const version = useEventCounter(data, 'change');
     const { canUndo, canRedo } = useHistoryState(history);
 
-    /** Builds the graph from the data and lays it out; the sizes come from what React measured (see `shapes/`). */
+    /**
+     * Builds the graph from the data and lays it out, if the build changed it;
+     * the sizes come from what React measured (see `shapes/`). A build that
+     * added an element is not laid out here: React measures the new element
+     * first, and `<DiagramLayout>` lays out then - as it does any size React
+     * measures afterwards.
+     */
     const build = useCallback(() => {
+        const known = new Set(graph.getElements().map((element) => element.id));
         buildGraph(graph, data.getData());
-        runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
+        if (graph.getElements().every((element) => known.has(element.id))) {
+            layoutIfDirty(graph, graph.getCell(data.getRootId()) as dia.Element);
+        }
         // A selected element that the edit removed, or hid, leaves the selection.
         const kept = selection.filter((cell) => graph.getCell(cell.id) === cell && isCellVisible(cell));
         if (kept.length < selection.length) selection.reset(kept);
@@ -221,6 +231,8 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
                 setMove(null);
                 selectCells([]);
                 data.reset();
+                // The build added the add button of the root, so it left the layout to the measurement: the fit needs it now.
+                layoutIfDirty(graph, graph.getCell(data.getRootId()) as dia.Element);
                 fit();
             },
             zoomIn: () => setZoom((zoom) => Math.min(MAX_ZOOM, zoom + ZOOM_STEP)),

@@ -40,7 +40,7 @@ export function MoreButton({ filled = false }: { filled?: boolean }): ReactNode 
     const editor = useEditor();
     const { graph } = useGraph();
     const model = useCellModel();
-    if (!model.isElement() || editor.moved) return null;
+    if (!model?.isElement() || editor.moved) return null;
     const target = getActionTarget(model);
     if (!target || !canRemoveBranch(graph, target)) return null;
     return (

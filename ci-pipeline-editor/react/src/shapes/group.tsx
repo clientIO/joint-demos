@@ -171,7 +171,7 @@ export function GroupStart(): ReactNode {
     const model = useCellModel<GroupStartModel>();
     const editor = useEditor();
     const add = useAddBelow(model);
-    const group = model.getParentCell();
+    const group = model?.getParentCell();
     return (
         <HTMLHost className="pill group-start filled">
             <KindIcon d={GROUP_ICONS[kind]} />
