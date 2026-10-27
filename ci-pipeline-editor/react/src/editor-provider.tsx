@@ -99,16 +99,12 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
 
     /**
      * Builds the graph from the data and lays it out; the sizes come from
-     * what React measured (see `shapes/`). A build that added an element is
-     * not laid out here, but marked `dirty` (see `graph.ts`): React measures
-     * the new element first, and `<DiagramLayout>` lays out then.
+     * what React measured (see `shapes/`). A graph left `dirty` - an element
+     * added - is laid out by `<DiagramLayout>` instead, once React measured.
      */
     const build = useCallback(() => {
-        const known = new Set(graph.getElements().map((element) => element.id));
         buildGraph(graph, data.getData());
-        const added = graph.getElements().some((element) => !known.has(element.id));
-        if (!added) runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
-        graph.set('dirty', added, { silent: true });
+        if (!graph.get('dirty')) runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
         // A selected element that the edit removed, or hid, leaves the selection.
         const kept = selection.filter((cell) => graph.getCell(cell.id) === cell && isCellVisible(cell));
         if (kept.length < selection.length) selection.reset(kept);
