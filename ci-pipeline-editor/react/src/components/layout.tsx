@@ -3,7 +3,7 @@ import { useGraph, useOnElementsMeasured, useOnPaperEvents } from '@joint/react-
 import { useEffect, useRef } from 'react';
 
 import { useEditor } from '../editor-context';
-import { layoutIfDirty } from '../layout-tracker';
+import { runLayout } from '../layout';
 
 /**
  * The layout of the diagram, rendered inside `<Paper>`, where the hooks on
@@ -12,9 +12,8 @@ import { layoutIfDirty } from '../layout-tracker';
  * fitted into the view the first time. The hook fires once per settled
  * change, when no element waits to be measured - also after a build that
  * already laid out what it changed (an element removed), so the layout runs
- * only if the graph changed since (`layoutIfDirty()`). The view is fitted
- * after each of them until the first edit or the first move of the view -
- * the user has taken over then.
+ * only if the graph is `dirty` (see `graph.ts`). The view is fitted after each of them until the first edit
+ * or the first move of the view - the user has taken over then.
  * The graph itself is built and laid out by the editor after every edit
  * (see `editor-provider.tsx`); this is the pass the measurements ask for.
  */
@@ -29,7 +28,10 @@ export function DiagramLayout(): null {
 
     useOnElementsMeasured(() => {
         const root = graph.getCell(editor.data.getRootId());
-        if (root) layoutIfDirty(graph, root as dia.Element);
+        if (root && graph.get('dirty')) {
+            runLayout(graph, root as dia.Element);
+            graph.set('dirty', false, { silent: true });
+        }
         if (fitPending.current) editor.fit();
     });
 
