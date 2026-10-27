@@ -53,7 +53,6 @@ module.exports = {
                 { from: './styles/joint-light-theme/icons', to: './assets/icons', noErrorOnMissing: true },
                 { from: './styles/joint-light-theme/fonts', to: './assets/fonts', noErrorOnMissing: true },
                 { from: './styles/navigator/icons', to: './assets/icons/navigator', noErrorOnMissing: true },
-                { from: 'node_modules/elkjs/lib/elk-worker.min.js', to: './elk-worker.min.js' }
             ]
         })
     ]

@@ -2,7 +2,7 @@ import { mvc } from '@joint/plus';
 import { LAYOUT_BATCH_NAME } from './const';
 /**
  * Runs the given callback after the layout is finished.
- * Layout is finished when the batch:stop event is triggered with the name 'layout'.
+ * Layout is finished when the batch:stop event is triggered with the name 'auto-layout'.
  * @see {@link LAYOUT_BATCH_NAME}
  * @param graph - The graph instance.
  * @param callback - The callback to run.

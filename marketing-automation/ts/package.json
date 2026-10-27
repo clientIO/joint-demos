@@ -11,8 +11,8 @@
     "start": "concurrently \"npm run build\" \"webpack serve --config webpack.config.js\""
   },
   "dependencies": {
+    "@joint/layout-elk": "4.3.4",
     "@joint/plus": "4.3.1",
-    "elkjs": "^0.11.0",
     "showdown": "^2.1.0"
   },
   "devDependencies": {
