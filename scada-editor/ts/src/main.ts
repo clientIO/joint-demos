@@ -15,8 +15,7 @@ import type { Plant } from './plant/plant';
 setTheme('minimal');
 
 // The members of a group known by their `parent` only (not stored on the group too: no `embeds`, see `Group`).
-// TODO: `config.storeEmbeds = false` once the typings of the library have it (clientIO/joint#3536)
-(config as typeof config & { storeEmbeds: boolean }).storeEmbeds = false;
+config.storeEmbeds = false;
 
 declare global {
     interface Window {
