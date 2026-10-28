@@ -14,7 +14,6 @@ const paper = new dia.Paper({
     gridSize: 10,
     async: true,
     frozen: true,
-    sorting: dia.Paper.sorting.APPROX,
     background: { color: '#F3F7F6' },
     clickThreshold: 10,
     defaultConnector: {

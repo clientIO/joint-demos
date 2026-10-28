@@ -72,7 +72,6 @@ export const init = () => {
         async: true,
         width: 1200,
         height: 1400,
-        sorting: dia.Paper.sorting.APPROX,
         cellViewNamespace: cellNamespace,
         defaultConnectionPoint: { name: 'anchor' },
         connectionStrategy: connectionStrategies.pinAbsolute,

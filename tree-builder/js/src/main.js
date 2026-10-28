@@ -6,7 +6,6 @@ const paper = new dia.Paper({
     model: graph,
     cellViewNamespace: shapes,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     restrictTranslate: true,
     background: { color: '#F3F7F6' },
     defaultLink: () => new shapes.standard.Link(),

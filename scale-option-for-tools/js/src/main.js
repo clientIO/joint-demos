@@ -14,7 +14,6 @@ const paper = new dia.Paper({
     gridSize: 20,
     async: true,
     linkPinning: false,
-    sorting: dia.Paper.sorting.APPROX,
     background: { color: '#F3F7F6' },
     defaultLink: () => new shapes.standard.Link()
 });

@@ -32,7 +32,6 @@ export function createPlugins(
         model: graph,
         async: true,
         autoFreeze: true,
-        sorting: dia.Paper.sorting.APPROX,
         gridSize: GRID_SIZE,
         linkPinning: false,
         multiLinks: false,

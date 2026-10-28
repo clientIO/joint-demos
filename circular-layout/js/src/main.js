@@ -16,7 +16,6 @@ const paper = new dia.Paper({
     model: graph,
     cellViewNamespace: shapes,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     interactive: false,
     defaultConnectionPoint: {
         name: 'rectangle'

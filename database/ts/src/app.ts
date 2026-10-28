@@ -22,7 +22,6 @@ export const init = () => {
         defaultConnector: { name: 'rounded' },
         async: true,
         frozen: true,
-        sorting: dia.Paper.sorting.APPROX,
         cellViewNamespace: cellNamespace,
         routerNamespace: routerNamespace,
         defaultRouter: { name: 'customRouter' },

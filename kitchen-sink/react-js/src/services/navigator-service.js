@@ -121,7 +121,6 @@ export class NavigatorService {
             paperOptions: {
                 async: true,
                 autoFreeze: true,
-                sorting: dia.Paper.sorting.APPROX,
                 elementView: NavigatorElementView,
                 cellViewNamespace: {},
                 viewManagement: {

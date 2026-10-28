@@ -9,8 +9,7 @@ const paper = new dia.Paper({
     width: 600,
     height: 200,
     model: graph,
-    frozen: true,
-    sorting: dia.Paper.sorting.APPROX
+    frozen: true
 });
 
 const rect = new shapes.standard.Rectangle({

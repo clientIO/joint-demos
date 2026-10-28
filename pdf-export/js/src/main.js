@@ -10,7 +10,6 @@ const paper = new dia.Paper({
     model: graph,
     cellViewNamespace: shapes,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     defaultConnectionPoint: { name: 'boundary' },
     background: { color: backgroundColor },
     clickThreshold: 10

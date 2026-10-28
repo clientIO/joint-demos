@@ -249,8 +249,7 @@ const paper = new dia.Paper({
     },
     gridSize: 20,
     drawGrid: { name: 'mesh' },
-    async: true,
-    sorting: dia.Paper.sorting.APPROX
+    async: true
 });
 
 const umlClass1 = new UMLClass({

@@ -63,7 +63,6 @@ const paper = new dia.Paper({
     height: 400,
     gridSize: 1,
     model: graph,
-    sorting: dia.Paper.sorting.APPROX,
     defaultLink: () => new shapes.standard.Link({ attrs: { line: { targetMarker: getTargetMarkerStyle(), stroke: outlineColor }}}),
     defaultConnectionPoint: { name: 'boundary', args: { offset: 4 }},
     linkPinning: false,

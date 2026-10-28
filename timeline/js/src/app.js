@@ -23,7 +23,6 @@ export const init = () => {
         interactive: false,
         async: true,
         frozen: true,
-        sorting: dia.Paper.sorting.APPROX,
         background: { color: '#F7F7F7' },
         defaultAnchor: { name: 'perpendicular' },
         defaultConnectionPoint: { name: 'boundary' },

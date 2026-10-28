@@ -232,7 +232,6 @@ const start = async function() {
     const paper = new dia.Paper({
         model: graph,
         async: true,
-        sorting: dia.Paper.sorting.APPROX,
         cellViewNamespace: shapes,
         interactive: false,
         background: {

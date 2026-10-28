@@ -1104,7 +1104,6 @@ const paper = new dia.Paper({
     height: '100%',
     async: true,
     frozen: true,
-    sorting: dia.Paper.sorting.APPROX,
     background: { color: '#F3F7F6' },
     interactive: {
         linkMove: false,

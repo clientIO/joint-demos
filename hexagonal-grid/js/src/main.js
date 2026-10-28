@@ -10,7 +10,6 @@ const paper = new dia.Paper({
     cellViewNamespace: shapes,
     frozen: true,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     background: { color: '#ffffff' },
     linkPinning: false,
     clickThreshold: 10,

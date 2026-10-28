@@ -370,7 +370,6 @@ const paper = new dia.Paper({
     async: true,
     autoFreeze: true,
     frozen: true,
-    sorting: dia.Paper.sorting.APPROX,
     background: { color: colors.black },
     cellViewNamespace: namespace,
     defaultRouter: {

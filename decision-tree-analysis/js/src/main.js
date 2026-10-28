@@ -281,7 +281,6 @@ const paper = new dia.Paper({
     model: graph,
     async: true,
     interactive: false,
-    sorting: dia.Paper.sorting.APPROX,
     background: {
         color: 'transparent'
     },

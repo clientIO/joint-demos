@@ -418,7 +418,6 @@ const init = (rootEl) => {
         height: '100%',
         gridSize: GRID_SIZE,
         async: true,
-        sorting: dia.Paper.sorting.APPROX,
         background: { color: colors.canvas }
     });
     rootEl.querySelector('.paper-container').append(paper.el);

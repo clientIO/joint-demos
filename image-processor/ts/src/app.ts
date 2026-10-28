@@ -127,7 +127,6 @@ export class App {
             drawGrid: true,
             drawGridSize: 10,
             async: true,
-            sorting: dia.Paper.sorting.APPROX,
             cellViewNamespace: this.appShapes,
             linkPinning: false,
             snapLinks: { radius: 10 },

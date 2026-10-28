@@ -100,8 +100,7 @@ const HIGHLIGHT_COLOR = '#F4F7FB';
                     }
                 },
                 interactive: { linkMove: false },
-                async: true,
-                sorting: joint.dia.Paper.sorting.APPROX
+                async: true
             });
 
             paper.on('blank:contextmenu', ({ clientX, clientY }, x, y) => {
@@ -430,7 +429,6 @@ const HIGHLIGHT_COLOR = '#F4F7FB';
                 paperOptions: {
                     async: true,
                     autoFreeze: true,
-                    sorting: joint.dia.Paper.sorting.APPROX,
                     elementView: joint.shapes.app.NavigatorElementView,
                     cellViewNamespace: {},
                     viewManagement: {

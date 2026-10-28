@@ -394,7 +394,6 @@ const paper = new dia.Paper({
     height: '100%',
     model: graph,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     cellViewNamespace: namespace,
     overflow: true,
     interactive: {

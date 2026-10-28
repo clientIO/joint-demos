@@ -146,7 +146,6 @@ const paper = new dia.Paper({
     model: graph,
     async: true,
     linkPinning: false,
-    sorting: dia.Paper.sorting.APPROX,
     background: {
         color: '#002b33'
     },

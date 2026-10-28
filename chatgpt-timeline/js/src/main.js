@@ -14,7 +14,6 @@ const paper = new dia.Paper({
     width: '100%',
     gridSize: 20,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     defaultConnector: { name: 'curve' },
     defaultConnectionPoint: {
         name: 'anchor'

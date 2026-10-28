@@ -24,7 +24,6 @@ export function init(): void {
         interactive: false,
         background: { color: '#F3F7F6' },
         defaultConnectionPoint: { name: 'boundary' },
-        sorting: dia.Paper.sorting.APPROX,
         viewManagement: {
             lazyInitialize: true,
             disposeHidden: true

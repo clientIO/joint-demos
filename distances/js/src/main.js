@@ -21,7 +21,6 @@ const paper = new dia.Paper({
     interactive: { linkMove: false },
     async: true,
     autoFreeze: true,
-    sorting: dia.Paper.sorting.APPROX,
     background: { color:  '#F3F7F6' },
     viewManagement: {
         disposeHidden: false,

@@ -336,7 +336,6 @@ const paper = new dia.Paper({
     height: '100%',
     model: graph,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     snapLinks: { radius: 20 },
     clickThreshold: 5,
     defaultLink: () => new shapes.standard.Link(),

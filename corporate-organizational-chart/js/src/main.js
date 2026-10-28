@@ -537,7 +537,6 @@ const paper = new dia.Paper({
     interactive: false,
     async: true,
     frozen: true,
-    sorting: dia.Paper.sorting.APPROX,
     background: { color: 'transparent' },
     defaultConnectionPoint: { name: 'boundary' },
     clickThreshold: 10,
@@ -612,7 +611,6 @@ const navigator = new ui.Navigator({
     paperScroller: scroller,
     paperOptions: {
         async: true,
-        sorting: dia.Paper.sorting.APPROX,
         elementView: dia.ElementView.extend({
             body: null,
 

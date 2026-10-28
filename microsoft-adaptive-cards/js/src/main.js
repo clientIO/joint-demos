@@ -157,7 +157,6 @@ var paper = new dia.Paper({
     height: 1000,
     model: graph,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     overflow: true,
     interactive: { linkMove: false },
     cellViewNamespace: shapes,

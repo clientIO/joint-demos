@@ -17,7 +17,6 @@ export const init = async() => {
         width: 1000,
         height: 1000,
         drawGrid: true,
-        sorting: dia.Paper.sorting.APPROX,
         model: graph,
         interactive: { linkMove: false },
         async: true,

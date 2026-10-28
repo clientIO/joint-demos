@@ -393,7 +393,6 @@ const paper = new dia.Paper({
     height: '100%',
     model: graph,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     defaultRouter: orthogonalRouter,
     defaultConnectionPoint: { name: 'anchor' },
     cellViewNamespace: cellNamespace,

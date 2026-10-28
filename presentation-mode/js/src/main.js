@@ -8,7 +8,6 @@ const paper = new dia.Paper({
     model: graph,
     cellViewNamespace: shapes,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     defaultConnectionPoint: { name: 'boundary' },
     background: { color: '#F3F7F6' },
     restrictTranslate: true,

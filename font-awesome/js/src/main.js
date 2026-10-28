@@ -49,7 +49,6 @@ const paper = new dia.Paper({
     height: '100%',
     model: graph,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     background: {
         color: colors.light
     },

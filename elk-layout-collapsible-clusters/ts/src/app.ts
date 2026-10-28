@@ -20,7 +20,6 @@ export async function init(): Promise<void> {
         cellViewNamespace: cellNamespace,
         frozen: true,
         async: true,
-        sorting: dia.Paper.sorting.APPROX,
         interactive: false,
         background: { color: '#F3F7F6' },
         // Create the view of a cell when it becomes visible for the first time

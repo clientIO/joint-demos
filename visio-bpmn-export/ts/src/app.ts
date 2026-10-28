@@ -10,7 +10,6 @@ export const init = async() => {
         el: document.getElementById('paper'),
         width: 1000,
         height: 600,
-        sorting: dia.Paper.sorting.APPROX,
         model: appGraph,
         async: true,
         interactive: false,

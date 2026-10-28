@@ -30,7 +30,6 @@ export function createPlugins(
     const paper = new dia.Paper({
         model: graph,
         async: true,
-        sorting: dia.Paper.sorting.APPROX,
         gridSize: GRID_SIZE,
         linkPinning: false,
         multiLinks: false,
