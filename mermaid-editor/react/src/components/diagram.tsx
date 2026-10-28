@@ -31,6 +31,7 @@ import type { EdgeArrowChange, EdgeRef } from '@/mermaid/edit-source';
 import type { EdgeData, MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection, FlowLayout } from '@/mermaid/types';
 import { ConnectDraftLine } from './connect-draft-line';
+import { createSyncElk } from './sync-elk';
 import { useConnectDrag } from './use-connect-drag';
 import type { NodeData } from '@/mermaid/to-cells';
 import { AccessibilityCheck } from './accessibility-check';
@@ -239,6 +240,9 @@ function offsetFrom(element: dia.Element | null, point: dia.Point): dia.Point | 
     return { x: point.x - x, y: point.y - y };
 }
 
+/** One ELK for every layout; it holds no state between runs. */
+const ELK = createSyncElk();
+
 const ELK_DIRECTION: Record<FlowDirection, ElkDirection> = {
     TB: 'DOWN',
     BT: 'UP',
@@ -256,6 +260,7 @@ const ELK_DIRECTION: Record<FlowDirection, ElkDirection> = {
  */
 function runElkLayout(graph: dia.Graph, direction: FlowDirection, signal: AbortSignal): Promise<unknown> {
     return elkLayout(graph, {
+        elk: ELK,
         signal,
         elkLayoutOptions: {
             'elk.direction': ELK_DIRECTION[direction],
@@ -376,14 +381,16 @@ function Canvas({
         fit();
     }, [fit]);
 
-    // ELK lays out asynchronously, so typing can start a run while the last
-    // one is still computing. Only the latest may land: each run aborts the
-    // one before it, and a dagre run aborts any ELK run still in flight.
+    // `layout()` from `@joint/layout-elk` returns a promise. With the
+    // synchronous ELK it settles in microtasks, so two runs cannot overlap in
+    // practice — but nothing in its API promises that, so only the latest may
+    // land: each run aborts the one before it, and a dagre run aborts any ELK
+    // run still in flight.
     const elkRun = useRef<AbortController | null>(null);
     useEffect(() => () => elkRun.current?.abort(), []);
 
     // One place decides how nodes get their positions. `onSettled` runs once
-    // they have them — at once for dagre, when the result lands for ELK.
+    // they have them — at once for dagre, in a microtask for ELK.
     const settle = useCallback(
         (target: dia.Graph, onSettled: () => void) => {
             if (!isMeasured(target)) return;
@@ -401,6 +408,13 @@ function Canvas({
                     runElkLayout(target, direction, controller.signal).then(
                         () => {
                             if (elkRun.current === controller) elkRun.current = null;
+                            // The measured callback runs from a ResizeObserver,
+                            // right before the frame is painted, and the hook
+                            // flushes the paper as soon as it returns — before
+                            // this result existed. Flush again, still ahead of
+                            // the paint, or the async paper would draw the
+                            // result a frame late, after the pre-layout one.
+                            paper?.updateViews();
                             onSettled();
                         },
                         (error: unknown) => {
@@ -413,12 +427,13 @@ function Canvas({
                 }
             }
         },
-        [direction, layout]
+        [direction, layout, paper]
     );
 
     // Primary trigger. `useOnElementsMeasured` flushes the paper after the
     // callback, so there is no frame where nodes are visible at their
-    // pre-layout position — for dagre. ELK's result lands after the flush.
+    // pre-layout position. ELK's result lands in microtasks after the flush,
+    // still before the frame is painted (see `createSyncElk`).
     useOnElementsMeasured(({ graph: measuredGraph }) => {
         settle(measuredGraph, fitIfPending);
     });
