@@ -211,18 +211,11 @@ function Canvas({
     // bounds; all this component needs from it is the fit-to-content call.
     const { zoomToFit, paperScroller } = usePaperScroller();
 
-    // The scroller element is the scrollable region, so it must be focusable
-    // and labelled (WCAG 2.1.1, axe `scrollable-region-focusable`).
-    // `@joint/react-plus` 4.3.2 drops HTML attributes passed to
-    // `<PaperScroller>` (clientIO/joint-plus#801), so until that fix ships the
-    // attributes go on imperatively.
+    // After a removal the canvas remounts, and the fresh scroller takes focus
+    // so keyboard users are not dropped on `<body>`.
     useEffect(() => {
         const scrollerElement = paperScroller?.el;
         if (!scrollerElement) return;
-        scrollerElement.setAttribute('tabindex', '0');
-        scrollerElement.setAttribute('role', 'application');
-        scrollerElement.setAttribute('aria-roledescription', 'diagram canvas');
-        scrollerElement.setAttribute('aria-label', 'Flowchart canvas — scrollable');
         if (focusOnMountRef.current) {
             focusOnMountRef.current = false;
             scrollerElement.focus({ preventScroll: true });
@@ -485,7 +478,16 @@ function Canvas({
     return (
         <NodeEditingContext value={editing}>
             <div className="canvas-stage">
-                <PaperScroller className="mermaid-scroller" cursor="grab" inertia>
+                {/* The scrollable region, so it is focusable and labelled (WCAG 2.1.1, axe `scrollable-region-focusable`). */}
+                <PaperScroller
+                    className="mermaid-scroller"
+                    cursor="grab"
+                    inertia
+                    tabIndex={0}
+                    role="application"
+                    aria-roledescription="diagram canvas"
+                    aria-label="Flowchart canvas — scrollable"
+                >
                     <Paper
                         className="mermaid-paper"
                         renderElement={RenderNode}
