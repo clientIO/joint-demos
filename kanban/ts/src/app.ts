@@ -24,7 +24,6 @@ export const init = () => {
         viewManagement: {
             disposeHidden: true,
         },
-        sorting: dia.Paper.sorting.APPROX,
         cellViewNamespace: cellNamespace,
         elementView: (element) => {
             if (TaskShape.isTask(element)) {

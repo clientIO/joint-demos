@@ -62,7 +62,6 @@ export const init = () => {
         height: '100%',
         gridSize: 10,
         async: true,
-        sorting: dia.Paper.sorting.APPROX,
         background: { color: '#F3F7F6' },
         embeddingMode: true,
         clickThreshold: 10,

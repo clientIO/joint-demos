@@ -30,7 +30,6 @@ export const init = () => {
         moveThreshold: 10,
         clickThreshold: 10,
         async: true,
-        sorting: dia.Paper.sorting.APPROX,
         cellViewNamespace: yamazumiShapes,
         interactive: false,
     });

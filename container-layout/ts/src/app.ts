@@ -33,7 +33,6 @@ export const init = () => {
         interactive: false,
         async: true,
         frozen: true,
-        sorting: dia.Paper.sorting.APPROX,
         background: { color: '#F3F7F6' }
     });
 

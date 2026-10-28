@@ -1,4 +1,5 @@
-import { dia, ui, layout } from '@joint/plus';
+import type { dia } from '@joint/plus';
+import { ui, layout } from '@joint/plus';
 import { StencilNode, StencilLink } from './shapes';
 
 export interface List {
@@ -27,7 +28,6 @@ export function createStencil(
         paperOptions: {
             async: true,
             autoFreeze: true,
-            sorting: dia.Paper.sorting.APPROX,
             frozen: true,
             viewManagement: {
                 disposeHidden: true,

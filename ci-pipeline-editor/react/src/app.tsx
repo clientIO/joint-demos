@@ -1,11 +1,13 @@
 import { Diagram, Paper, PaperScroller, useCells, useSelectionCollection } from '@joint/react-plus';
 import type { CellVisibility, InteractionsOptions } from '@joint/react-plus';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Tooltip } from 'react-tooltip';
 
 import { describeMoved } from './actions';
 import { getId } from './data/build';
 import { EditorProvider } from './editor-provider';
+import { createGraph } from './graph';
 import { PAPER_ID, useEditor } from './editor-context';
 import { isCellVisible } from './layout';
 import { Inspector } from './components/inspector';
@@ -14,7 +16,7 @@ import { DiagramLayout } from './components/layout';
 import { Minimap } from './components/minimap';
 import { PaperInteractions } from './components/paper-interactions';
 import { DiagramSelection } from './components/selection';
-import { COLORS, ElementContent, LinkContent, cellNamespace } from './shapes';
+import { COLORS, ElementContent, LinkContent } from './shapes';
 import { PLUS_PATH } from './shapes/buttons';
 import { Toolbar } from './components/toolbar';
 import { TOOLTIP_ID } from './components/use-tooltip';
@@ -73,8 +75,9 @@ function Stage({ children }: { children: ReactNode }): ReactNode {
 }
 
 export function App(): ReactNode {
+    const [graph] = useState(createGraph);
     return (
-        <Diagram cellNamespace={cellNamespace} interactions={INTERACTIONS}>
+        <Diagram graph={graph} interactions={INTERACTIONS}>
             <EditorProvider>
                 <Stage>
                     <Toolbar />

@@ -358,7 +358,6 @@ class Application {
             cellViewNamespace: shapes,
             gridSize: 20,
             async: true,
-            sorting: dia.Paper.sorting.APPROX,
             clickThreshold: 10,
             background: { color: '#18191b' },
             defaultConnectionPoint: { name: 'boundary' },

@@ -62,7 +62,6 @@ export function init(): void {
         // Every element is drawn by the level-of-detail view.
         elementView: ServiceView,
         async: true,
-        sorting: dia.Paper.sorting.APPROX,
         /*
          * Freeze once everything has settled, and wake on the next scheduled
          * update. It also gives the HUD the event it needs: `render:done` only

@@ -23,7 +23,6 @@ import type {
     ZoomToFitOptions,
 } from '@joint/react-plus';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { RefObject } from 'react';
 import { edgeRefOf } from '@/mermaid/edit-source';
 import type { EdgeArrowChange, EdgeRef } from '@/mermaid/edit-source';
 import type { EdgeData, MermaidCell } from '@/mermaid/to-cells';
@@ -106,9 +105,8 @@ const LINK_ROUTING = linkRoutingStraight({
  *   already measured and the effect lays out on the spot. Nothing re-measures,
  *   so no measured callback ever arrives — the effect is the only trigger there
  *   is, which is why it cannot be dropped.
- * - A changed id (rename, insert): the keyed remount builds a fresh graph, every
- *   element is back to 0×0, and the effect stands down. The measured callback
- *   owns that run.
+ * - A changed id (rename, insert): the new element starts at 0×0, and the
+ *   effect stands down. The measured callback owns that run.
  * - A label alone: sizes are stale but non-zero, so both triggers run — the
  *   effect against the old widths, the measured callback against the new ones.
  *   Redundant rather than harmful: the hook flushes the paper afterwards, so
@@ -183,12 +181,6 @@ interface CanvasProps {
     readonly onAddShape: (fromKeyboard: boolean) => void;
     /** Node whose toolbar takes focus when it opens (a keyboard add). */
     readonly focusToolbarFor: CellId | null;
-    /**
-     * Set before a removal: the canvas remounts on the new id set, taking the
-     * focused node (or toolbar button) with it, and the fresh scroller takes
-     * focus on mount so keyboard users are not dropped on `<body>`.
-     */
-    readonly focusOnMountRef: RefObject<boolean>;
 }
 
 function Canvas({
@@ -202,7 +194,6 @@ function Canvas({
     onDirectionChange,
     onAddShape,
     focusToolbarFor,
-    focusOnMountRef,
 }: CanvasProps) {
     const { graph } = useGraph();
     const { paper } = usePaper();
@@ -210,24 +201,6 @@ function Canvas({
     // The scroller owns panning, wheel scrolling, pinch zoom and the zoom
     // bounds; all this component needs from it is the fit-to-content call.
     const { zoomToFit, paperScroller } = usePaperScroller();
-
-    // The scroller element is the scrollable region, so it must be focusable
-    // and labelled (WCAG 2.1.1, axe `scrollable-region-focusable`).
-    // `@joint/react-plus` 4.3.2 drops HTML attributes passed to
-    // `<PaperScroller>` (clientIO/joint-plus#801), so until that fix ships the
-    // attributes go on imperatively.
-    useEffect(() => {
-        const scrollerElement = paperScroller?.el;
-        if (!scrollerElement) return;
-        scrollerElement.setAttribute('tabindex', '0');
-        scrollerElement.setAttribute('role', 'application');
-        scrollerElement.setAttribute('aria-roledescription', 'diagram canvas');
-        scrollerElement.setAttribute('aria-label', 'Flowchart canvas — scrollable');
-        if (focusOnMountRef.current) {
-            focusOnMountRef.current = false;
-            scrollerElement.focus({ preventScroll: true });
-        }
-    }, [focusOnMountRef, paperScroller]);
 
     // Selection is one-way: the app owns it, the canvas renders it and reports
     // clicks upward. Subscribing to the collection here as well would close a
@@ -252,8 +225,8 @@ function Canvas({
         // canvas under them.
         const [first] = selected.filter((cell): cell is dia.Element => cell.isElement());
         if (!first || !paperScroller) return;
-        // A 0×0 element is pre-layout — the graph just remounted and nothing
-        // sits at its real position yet. Scrolling would start a 150 ms
+        // A 0×0 element is pre-layout — it was just added and does not sit at
+        // its real position yet. Scrolling would start a 150 ms
         // animation towards a meaningless point that then lands AFTER the
         // post-layout fit and drags the camera off the diagram.
         if (first.size().width === 0) return;
@@ -288,9 +261,8 @@ function Canvas({
     // Secondary layout trigger, for edits that change what the layout depends
     // on without changing any element's size.
     //
-    // Adding or removing a cell already re-lays-out on its own: it changes the
-    // id set, `MermaidDiagram` keys the graph on that, and the remount
-    // re-measures. What slips through is an edit that keeps every id and every
+    // Adding or removing a cell already re-lays-out on its own: the hook fires
+    // on an element added or removed. What slips through is an edit that keeps every id and every
     // label — switching `flowchart TD` to `LR`, or lengthening `-->` to `---->`
     // for a wider rank gap. Nothing re-measures there, so `useOnElementsMeasured`
     // never fires and the diagram would keep its old shape. Verified: with this
@@ -400,8 +372,8 @@ function Canvas({
     // Removal goes through the source like every other edit. Nodes first —
     // they take their edges with them — then the edges from the last declared
     // down, so removing one never shifts the position of the next among its
-    // duplicates. Focus is handed to the scroller straight away, and again
-    // to the one the remount builds.
+    // duplicates. Focus is handed to the scroller, as the node or toolbar
+    // button that had it goes with the removal.
     const remove = useCallback((ids: readonly CellId[]) => {
         const nodes: CellId[] = [];
         const edges: EdgeRef[] = [];
@@ -414,9 +386,8 @@ function Canvas({
         if (nodes.length === 0 && edges.length === 0) return;
         for (const id of nodes) edit.onRemove(id);
         for (const edge of edges.toSorted((a, b) => b.index - a.index)) linkEdit.onRemove(edge);
-        focusOnMountRef.current = true;
         paperScroller?.el?.focus({ preventScroll: true });
-    }, [cells, edit, focusOnMountRef, linkEdit, paperScroller]);
+    }, [cells, edit, linkEdit, paperScroller]);
 
     // Delete / Backspace on the canvas, a node or a toolbar button. Listened
     // for on the scroller, so the source editor and every text field are out
@@ -485,7 +456,16 @@ function Canvas({
     return (
         <NodeEditingContext value={editing}>
             <div className="canvas-stage">
-                <PaperScroller className="mermaid-scroller" cursor="grab" inertia>
+                {/* The scrollable region, so it is focusable and labelled (WCAG 2.1.1, axe `scrollable-region-focusable`). */}
+                <PaperScroller
+                    className="mermaid-scroller"
+                    cursor="grab"
+                    inertia
+                    tabIndex={0}
+                    role="application"
+                    aria-roledescription="diagram canvas"
+                    aria-label="Flowchart canvas — scrollable"
+                >
                     <Paper
                         className="mermaid-paper"
                         renderElement={RenderNode}
@@ -644,8 +624,7 @@ export interface NodeEditHandlers {
     readonly onImageChange: (id: CellId, url: string | null) => void;
     /**
      * Appends a new node connected from this one. `fromKeyboard` moves focus
-     * into the new node's toolbar, as "+ Shape" does: the button that had
-     * focus unmounts with the remount, and focus must not fall to <body>.
+     * into the new node's toolbar, as "+ Shape" does.
      */
     readonly onAddChild: (id: CellId, fromKeyboard: boolean) => void;
     /** Appends an edge between two existing nodes. */
@@ -714,34 +693,8 @@ export function MermaidDiagram({
     onAddShape,
     focusToolbarFor,
 }: MermaidDiagramProps) {
-    /*
-     * Remount the graph whenever the set of cell ids changes.
-     *
-     * A cell id here is the author's own node name, so renaming a node in the
-     * source removes one cell and adds another. Removing a cell while its
-     * `renderElement` subtree is still mounted tears the store: the subtree is
-     * subscribed to it, so React re-runs its selector on the change and
-     * `useMeasureElement`'s `useCell` throws `no cell with id "…"` before the
-     * parent gets to unmount it — taking the whole canvas down. Replacing every
-     * cell at once does not hit this (switching examples has always worked), so
-     * a keyed remount turns the unsafe partial diff into the safe wholesale one.
-     *
-     * Keyed on the ids alone, so editing a label or an edge — the common case
-     * while typing — still flows through as a plain update.
-     *
-     * Temporary. It goes once the store can drop a cell whose `renderElement`
-     * subtree is still mounted; clientIO/joint#3442 carries the minimal repro.
-     * Three things here are downstream of it and should go at the same time:
-     * the 0×0 pass that `isMeasured` exists to arbitrate, the camera reset on
-     * every rename, and a full graph teardown on a single keystroke.
-     */
-    const graphKey = useMemo(() => cells.map((cell) => cell.id).join(' '), [cells]);
-    // Survives the keyed remount below, which is exactly when it is read.
-    const focusOnMountRef = useRef(false);
-
     return (
         <Diagram
-            key={graphKey}
             cells={cells}
             autoSizeOrigin="center"
             interactions={INTERACTIONS}
@@ -757,7 +710,6 @@ export function MermaidDiagram({
                 onDirectionChange={onDirectionChange}
                 onAddShape={onAddShape}
                 focusToolbarFor={focusToolbarFor}
-                focusOnMountRef={focusOnMountRef}
             />
         </Diagram>
     );

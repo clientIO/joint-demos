@@ -18,7 +18,6 @@ export const init = () => {
         interactive: false,
         async: true,
         autoFreeze: true,
-        sorting: dia.Paper.sorting.APPROX,
         defaultConnector: { name: 'straight', args: { cornerType: 'cubic' }},
         defaultAnchor: { name: 'perpendicular' },
         background: { color: '#FBFBFB' },

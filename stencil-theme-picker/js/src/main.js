@@ -461,7 +461,6 @@ const init = () => {
         gridSize: 1,
         async: true,
         clickThreshold: 10,
-        sorting: dia.Paper.sorting.APPROX,
         background: { color: '#dde6ed' },
         defaultConnectionPoint: {
             name: 'boundary',

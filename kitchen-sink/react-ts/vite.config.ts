@@ -5,42 +5,6 @@ import fs from 'fs';
 
 import type { Plugin } from 'vite';
 
-function copyAndDeleteThemeAssets(): Plugin {
-    const srcDir = 'joint-light-theme/assets';
-    const destDir = 'src/assets';
-
-    const pathsToDeleteAfterCopy: string[] = [];
-
-    function copyAssets(srcDir: string, destDir: string) {
-        const files = fs.readdirSync(srcDir);
-
-        for (const file of files) {
-            const srcPath = path.join(srcDir, file);
-            const destPath = path.join(destDir, file);
-
-            if (fs.statSync(srcPath).isDirectory()) {
-                fs.mkdirSync(destPath, { recursive: true });
-                copyAssets(srcPath, destPath);
-            } else {
-                fs.copyFileSync(srcPath, destPath);
-                pathsToDeleteAfterCopy.push(destPath);
-            }
-        }
-    }
-
-    return {
-        name: 'copy-and-delete-assets',
-        async buildStart() {
-            copyAssets(srcDir, destDir);
-        },
-        async buildEnd() {
-            for (const pathToDelete of pathsToDeleteAfterCopy) {
-                fs.unlinkSync(pathToDelete);
-            }
-        },
-    };
-}
-
 function serveStaticAssets(): Plugin {
     return {
         name: 'serve-static-assets',
@@ -103,7 +67,7 @@ function copyStaticAssets(): Plugin {
 // https://vitejs.dev/config/
 /** @type {import('vite').UserConfig} */
 export default defineConfig({
-    plugins: [react(), copyAndDeleteThemeAssets(), copyStaticAssets(), serveStaticAssets()],
+    plugins: [react(), copyStaticAssets(), serveStaticAssets()],
     resolve: {
         alias: {
             '/assets': path.resolve(__dirname, 'src/assets'),

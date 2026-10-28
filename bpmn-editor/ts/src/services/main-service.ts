@@ -58,7 +58,6 @@ export default class MainService {
             model: this.graph,
             cellViewNamespace: cellNamespace,
             gridSize: 10,
-            sorting: dia.Paper.sorting.APPROX,
             width: 2000,
             height: 2000,
             async: true,

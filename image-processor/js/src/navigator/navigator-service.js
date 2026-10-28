@@ -157,7 +157,6 @@ export class NavigatorService {
             useContentBBox: true,
             paperOptions: {
                 async: true,
-                sorting: dia.Paper.sorting.APPROX,
                 elementView: NavigatorElementView,
                 linkView: NavigatorLinkView,
                 cellViewNamespace: {},

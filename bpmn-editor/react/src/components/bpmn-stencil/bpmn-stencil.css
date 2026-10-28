@@ -11,22 +11,6 @@
     background-color: var(--bpmn-bg-primary);
 }
 
-/* TODO: remove — the stencil drag-preview styling is fixed upstream on */
-/* master; drop this rule once the next @joint/react-plus release ships. */
-.stencil-paper-drag[popover] {
-    margin: 0;
-    border: none;
-    padding: 0;
-    background: transparent;
-    overflow: visible;
-    display: inline-block;
-    pointer-events: none;
-
-    * {
-        pointer-events: none;
-    }
-}
-
 /* Styles for the React-built stencil palette. */
 .stencil-palette {
     display: flex;

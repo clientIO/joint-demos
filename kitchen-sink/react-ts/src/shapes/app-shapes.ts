@@ -27,7 +27,7 @@ export class Link extends shapes.standard.Link {
         }
     };
 
-    static connectionPoint(line: joint.g.Line, view: joint.dia.CellView, magnet: SVGElement, _opt: Record<string, unknown>, type: string, linkView: joint.dia.LinkView): joint.g.Point {
+    static connectionPoint(line: joint.g.Line, view: joint.dia.CellView, magnet: SVGElement, _opt: Record<string, unknown>, type: 'source' | 'target', linkView: joint.dia.LinkView): joint.g.Point {
         const link = linkView.model as Link;
         const markerWidth = (link.get('type') === 'app.Link') ? link.getMarkerWidth(type) : 0;
         const opt = { offset: markerWidth, stroke: true } as { offset: number; stroke: boolean; selector?: string };

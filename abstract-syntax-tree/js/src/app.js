@@ -17,7 +17,6 @@ export const init = () => {
         interactive: false,
         async: true,
         frozen: true,
-        sorting: dia.Paper.sorting.APPROX,
     });
     
     const scroller = new ui.PaperScroller({

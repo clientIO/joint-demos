@@ -30,7 +30,6 @@ const paper = new dia.Paper({
     clickThreshold: 10,
     interactive: false,
     frozen: true,
-    sorting: dia.Paper.sorting.APPROX,
     defaultAnchor: { name: 'center' },
     defaultConnectionPoint: { name: 'boundary' },
 });

@@ -15,7 +15,7 @@ import { debounceTime } from 'rxjs/operators';
 import { SharedEvents } from '../../joint-plus/controller';
 
 import type { OnInit } from '@angular/core';
-import type { EventBusService } from '../../services/event-bus.service';
+import { EventBusService } from '../../services/event-bus.service';
 
 const DEBOUNCE_TIME_MS = 500;
 

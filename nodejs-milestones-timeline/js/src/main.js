@@ -150,7 +150,6 @@ const paper = new dia.Paper({
     },
     gridSize: 10,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     defaultLink: () => new shapes.standard.DoubleLink(),
     defaultLinkAnchor: { name: 'connectionPerpendicular' }
 });

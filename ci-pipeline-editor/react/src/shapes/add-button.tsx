@@ -35,7 +35,7 @@ export class AddButtonModel extends ElementModel {
 export function AddButton(): ReactNode {
     const model = useCellModel<AddButtonModel>();
     const { graph } = useGraph();
-    const [parent] = graph.getNeighbors(model, { inbound: true });
+    const [parent] = model ? graph.getNeighbors(model, { inbound: true }) : [];
     const add = useAddBelow(parent ?? null);
     return (
         <HTMLHost className="add-button-host">

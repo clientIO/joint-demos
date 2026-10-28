@@ -1736,7 +1736,6 @@ const paper = new dia.Paper({
     width: 1000,
     height: 1000,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     clickThreshold: 10,
     defaultConnectionPoint: {
         name: 'boundary'

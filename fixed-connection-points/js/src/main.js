@@ -162,7 +162,6 @@ const paper = new dia.Paper({
     gridSize: 20,
     linkPinning: false,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     background: { color: '#131e29' },
     // configuration for links
     defaultConnector: {

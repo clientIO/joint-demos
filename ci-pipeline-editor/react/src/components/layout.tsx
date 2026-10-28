@@ -4,25 +4,22 @@ import { useEffect, useRef } from 'react';
 
 import { useEditor } from '../editor-context';
 import { runLayout } from '../layout';
-import { GroupModel } from '../shapes';
 
 /**
  * The layout of the diagram, rendered inside `<Paper>`, where the hooks on
  * the paper live: the sizes of the elements come from what React renders
  * (see `shapes/`), so the diagram is laid out once they are measured - and
- * fitted into the view the first time. The store reports every change of a
- * size, the layout's own included - the groups are sized around their
- * content - so the layout runs only when a measured size changed since the
- * last one. The paper mounts the views in batches, so the sizes land over
- * several passes: the view is fitted after each of them, until the first
- * edit or the first move of the view - the user has taken over then.
+ * fitted into the view the first time. The hook fires once per settled
+ * change, when no element waits to be measured - also after a build that
+ * already laid out what it changed (an element removed), so the layout runs
+ * only if the graph is `dirty` (see `graph.ts`). The view is fitted after each of them until the first edit
+ * or the first move of the view - the user has taken over then.
  * The graph itself is built and laid out by the editor after every edit
  * (see `editor-provider.tsx`); this is the pass the measurements ask for.
  */
 export function DiagramLayout(): null {
     const editor = useEditor();
     const { graph } = useGraph();
-    const laidOut = useRef('');
     const fitPending = useRef(true);
 
     useEffect(() => {
@@ -30,14 +27,11 @@ export function DiagramLayout(): null {
     }, [editor.version]);
 
     useOnElementsMeasured(() => {
-        const signature = graph.getElements()
-            .filter((element) => !GroupModel.isGroup(element))
-            .map((element) => `${element.id}:${Math.round(element.size().width)}x${Math.round(element.size().height)}`)
-            .join(' ');
-        if (signature === laidOut.current) return;
-        laidOut.current = signature;
         const root = graph.getCell(editor.data.getRootId());
-        if (root) runLayout(graph, root as dia.Element);
+        if (root && graph.get('dirty')) {
+            runLayout(graph, root as dia.Element);
+            graph.set('dirty', false, { silent: true });
+        }
         if (fitPending.current) editor.fit();
     });
 

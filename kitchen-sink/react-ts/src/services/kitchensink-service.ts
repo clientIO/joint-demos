@@ -119,8 +119,7 @@ class KitchenSinkService {
                 }
             },
             interactive: { linkMove: false },
-            async: true,
-            sorting: joint.dia.Paper.sorting.APPROX
+            async: true
         });
 
         paper.on('blank:contextmenu', ({ clientX, clientY }, x, y) => {

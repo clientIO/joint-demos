@@ -215,7 +215,6 @@ const paper = new dia.Paper({
     gridSize: 10,
     drawGrid: true,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     background: { color: 'transparent' },
     linkPinning: false,
     defaultLink: () =>

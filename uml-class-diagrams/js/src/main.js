@@ -36,7 +36,6 @@ const paper = new dia.Paper({
     gridSize: UNIT,
     drawGrid: { name: 'mesh', color: COLORS.grid },
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     defaultConnectionPoint: {
         name: 'boundary',
         args: {

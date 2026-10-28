@@ -17,7 +17,6 @@ export const init = () => {
         interactive: true,
         async: true,
         frozen: false,
-        sorting: dia.Paper.sorting.APPROX,
         background: { color: '#F3F7F6' },
         cellViewNamespace: cellNamespace
     });

@@ -19,7 +19,6 @@ VisioArchive.fromURL(networkExample).then(function(archive) {
         interactive: false,
         width: page.width,
         height: page.height,
-        sorting: joint.dia.Paper.sorting.APPROX,
         async: true,
         frozen: true
     });

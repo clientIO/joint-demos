@@ -366,7 +366,6 @@ const cells = graphUtils.constructTree(items['organic-compound'], {
 const paper = new dia.Paper({
     model: graph,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     defaultAnchor: {
         name: 'perpendicular'
     },
@@ -449,7 +448,6 @@ function createDialog(name, getContent, options = {}) {
         cellViewNamespace: shapes,
         background: { color: '#fff' },
         interactive: false,
-        sorting: dia.Paper.sorting.APPROX,
         clickThreshold: 10
     });
 

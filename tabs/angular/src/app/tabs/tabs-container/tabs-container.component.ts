@@ -1,10 +1,10 @@
-import { Component, OnDestroy, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild, ViewChildren } from '@angular/core';
 import { ui } from '@joint/plus';
 
-import type { AfterViewInit, ElementRef, OnInit, QueryList } from '@angular/core';
+import type { AfterViewInit, OnInit, QueryList } from '@angular/core';
 import type { MatTabChangeEvent, MatTabGroup } from '@angular/material/tabs';
 import type { TabComponent } from '../tab/tab.component';
-import type { TabsDataService } from '../tabs-data.service';
+import { TabsDataService } from '../tabs-data.service';
 import type { Tab } from '../tabs.models';
 
 @Component({

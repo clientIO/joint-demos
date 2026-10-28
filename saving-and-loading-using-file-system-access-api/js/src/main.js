@@ -18,7 +18,6 @@ const paper = new dia.Paper({
     gridSize: 1,
     drawGrid: { name: 'mesh' },
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     background: { color: colors.white },
     defaultAnchor: { name: 'center' },
     defaultConnectionPoint: {

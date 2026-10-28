@@ -8,7 +8,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "@joint/plus": "4.3.1",
+    "@joint/plus": "4.3.4",
     "core-js": "^3.23.2",
     "vue": "^3.2.31",
     "vue3-tabs": "^0.1.13-beta.3"

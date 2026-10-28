@@ -121,7 +121,6 @@ const paper = new dia.Paper({
         color: colors.white
     },
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     defaultLink: () => new shapes.standard.Link(),
     defaultConnectionPoint: { name: 'boundary' }
 });
@@ -239,7 +238,6 @@ function showMinimap() {
         useContentBBox: true,
         paperOptions: {
             async: true,
-            sorting: dia.Paper.sorting.APPROX,
             elementView: NavigatorElementView,
             cellViewNamespace: {},
             viewManagement: true,

@@ -97,10 +97,14 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
     const version = useEventCounter(data, 'change');
     const { canUndo, canRedo } = useHistoryState(history);
 
-    /** Builds the graph from the data and lays it out; the sizes come from what React measured (see `shapes/`). */
+    /**
+     * Builds the graph from the data and lays it out; the sizes come from
+     * what React measured (see `shapes/`). A graph left `dirty` - an element
+     * added - is laid out by `<DiagramLayout>` instead, once React measured.
+     */
     const build = useCallback(() => {
         buildGraph(graph, data.getData());
-        runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
+        if (!graph.get('dirty')) runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
         // A selected element that the edit removed, or hid, leaves the selection.
         const kept = selection.filter((cell) => graph.getCell(cell.id) === cell && isCellVisible(cell));
         if (kept.length < selection.length) selection.reset(kept);
@@ -221,6 +225,8 @@ export function EditorProvider({ children }: { children: ReactNode }): ReactNode
                 setMove(null);
                 selectCells([]);
                 data.reset();
+                // The build added the add button of the root, so it left the layout to the measurement: the fit needs it now.
+                runLayout(graph, graph.getCell(data.getRootId()) as dia.Element);
                 fit();
             },
             zoomIn: () => setZoom((zoom) => Math.min(MAX_ZOOM, zoom + ZOOM_STEP)),

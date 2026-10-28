@@ -106,6 +106,17 @@ const combinedConfig = defineConfig([
         },
     },
     {
+        // Angular: a service injected through a constructor needs a value import (the token of the injection);
+        // with these options, `consistent-type-imports` leaves the files with decorators alone
+        files: ['**/angular/**/*.ts'],
+        languageOptions: {
+            parserOptions: {
+                emitDecoratorMetadata: true,
+                experimentalDecorators: true,
+            },
+        },
+    },
+    {
         // The SCADA editor: lines of 140 characters at most (texts and URLs aside)
         files: ['scada-editor/**/*.ts'],
         rules: {

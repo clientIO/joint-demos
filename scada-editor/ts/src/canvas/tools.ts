@@ -63,7 +63,5 @@ export const Vertices = linkTools.Vertices.extend({
 /** The options of the vertices of a link: on its line (see `Vertices`), the handles of the bends (see `VertexHandle`) */
 export const verticesOptions: linkTools.Vertices.Options = {
     handleClass: VertexHandle,
-    // TODO: the typings name the option `interactiveLineNode`, the library reads `interactiveLinkNode` (a bug of the
-    // typings: clientIO/joint#3539)
-    vertexAdding: { interactiveLinkNode: 'line' } as linkTools.Vertices.Options['vertexAdding']
+    vertexAdding: { interactiveLinkNode: 'line' }
 };

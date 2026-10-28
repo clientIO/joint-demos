@@ -10,12 +10,12 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
-    "@joint/plus": "4.3.1",
+    "@joint/plus": "4.3.4",
     "@testing-library/jest-dom": "4.2.4",
     "@testing-library/react": "9.5.0",
     "@testing-library/user-event": "7.2.1",
     "@types/jest": "24.9.1",
-    "@types/node": "12.12.38",
+    "@types/node": "12.20.55",
     "@types/react": "16.9.34",
     "@types/react-dom": "16.9.7",
     "@types/react-redux": "7.1.9",

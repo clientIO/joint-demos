@@ -20,7 +20,6 @@ export const init = () => {
         gridSize: 10,
         interactive: true,
         async: true,
-        sorting: dia.Paper.sorting.APPROX,
         background: { color:  '#F3F7F6' },
         clickThreshold: 10,
         cellViewNamespace: shapeNamespace

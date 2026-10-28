@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@joint/layout-directed-graph": "4.3.0",
-    "@joint/plus": "4.3.1",
+    "@joint/plus": "4.3.4",
     "@nbxx/webgl-heatmap": "0.3.2"
   },
   "devDependencies": {

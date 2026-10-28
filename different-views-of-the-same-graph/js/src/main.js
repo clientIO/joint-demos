@@ -11,7 +11,6 @@ const paperOptions = {
     height: '100%',
     gridSize: 20,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     frozen: false,
     defaultConnectionPoint: { name: 'boundary' },
     background: { color: '#F3F7F6' }

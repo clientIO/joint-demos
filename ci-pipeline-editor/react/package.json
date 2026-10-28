@@ -1,7 +1,7 @@
 {
   "name": "@joint/demo-ci-pipeline-editor-react",
   "private": true,
-  "version": "4.3.3",
+  "version": "4.3.4",
   "type": "module",
   "description": "A CI/CD pipeline editor built with @joint/react-plus (JointJS).",
   "scripts": {
@@ -13,8 +13,8 @@
     "test": "npm run typecheck && npm run lint"
   },
   "dependencies": {
-    "@joint/plus": "4.3.3",
-    "@joint/react-plus": "4.3.3",
+    "@joint/plus": "4.3.4",
+    "@joint/react-plus": "4.3.4",
     "highlight.js": "^11.12.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",

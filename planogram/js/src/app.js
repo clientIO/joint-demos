@@ -46,7 +46,6 @@ export const init = () => {
             });
         },
         async: true,
-        sorting: dia.Paper.sorting.APPROX,
         cellViewNamespace: cellNamespace,
         highlighting: {
             embedding: {

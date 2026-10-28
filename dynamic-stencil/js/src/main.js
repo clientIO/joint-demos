@@ -132,7 +132,6 @@ const paper = new dia.Paper({
     height: 600,
     model: graph,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     linkPinning: false,
     cellViewNamespace: shapes,
     background: { color: '#F3F7F6' },

@@ -601,7 +601,6 @@ const paper = new dia.Paper({
     frozen: true,
     autoFreeze: true,
     interactive: false,
-    sorting: dia.Paper.sorting.APPROX,
     cellViewNamespace: cellNamespace,
     defaultConnector: {
         name: 'straight',

@@ -39,7 +39,6 @@ const paper = new dia.Paper({
     async: true,
     autoFreeze: true,
     interactive: false,
-    sorting: dia.Paper.sorting.APPROX,
     defaultAnchor: {
         name: 'midSide',
         args: {

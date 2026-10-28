@@ -380,7 +380,6 @@ const paper = new dia.Paper({
     height: '100%',
     gridSize: 5,
     async: true,
-    sorting: dia.Paper.sorting.APPROX,
     background: { color: bgColor },
     // We enabled the embedding mode to let JointJS deal
     // with fixing the `z` order of elements

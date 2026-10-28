@@ -23,7 +23,6 @@ export const init = () => {
         gridSize: 10,
         async: true,
         frozen: true,
-        sorting: dia.Paper.sorting.APPROX,
         cellViewNamespace: cellNamespace,
         background: { color: '#F3F7F6' },
         magnetThreshold: 'onleave',
