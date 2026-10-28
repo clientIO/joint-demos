@@ -14,8 +14,8 @@
     "test": "npm run typecheck && npm run lint"
   },
   "dependencies": {
-    "@joint/plus": "4.3.3",
-    "@joint/react-plus": "4.3.3",
+    "@joint/plus": "4.3.4",
+    "@joint/react-plus": "4.3.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },

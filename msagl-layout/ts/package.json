@@ -21,7 +21,7 @@
     "./webpack.config.js"
   ],
   "dependencies": {
-    "@joint/core": "4.3.1",
+    "@joint/core": "4.3.4",
     "@joint/layout-msagl": "4.3.0"
   },
   "devDependencies": {

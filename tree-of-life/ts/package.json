@@ -18,7 +18,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@joint/core": "4.3.1",
+    "@joint/core": "4.3.4",
     "perfect-freehand": "^1.2.0"
   }
 }

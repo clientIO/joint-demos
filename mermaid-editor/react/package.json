@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "@joint/layout-directed-graph": "4.3.0",
-    "@joint/plus": "4.3.1",
-    "@joint/react-plus": "^4.3.1",
+    "@joint/plus": "4.3.4",
+    "@joint/react-plus": "^4.3.4",
     "codemirror-lang-mermaid": "^0.5.0",
     "mermaid": "^11.12.2",
     "monaco-editor": "^0.55.1",

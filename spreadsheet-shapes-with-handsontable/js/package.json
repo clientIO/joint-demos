@@ -14,7 +14,7 @@
     "vite": "^7.3.1"
   },
   "dependencies": {
-    "@joint/core": "4.3.1",
+    "@joint/core": "4.3.4",
     "handsontable": "^16.2.0"
   }
 }

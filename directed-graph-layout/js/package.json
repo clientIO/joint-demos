@@ -19,7 +19,7 @@
     "sass-embedded": "^1.80.7"
   },
   "dependencies": {
-    "@joint/core": "4.3.1",
+    "@joint/core": "4.3.4",
     "@joint/layout-directed-graph": "4.3.0"
   }
 }

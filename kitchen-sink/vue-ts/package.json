@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@joint/layout-directed-graph": "4.3.0",
-    "@joint/plus": "4.3.1",
+    "@joint/plus": "4.3.4",
     "core-js": "^3.6.4",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
