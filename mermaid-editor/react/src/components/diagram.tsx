@@ -28,6 +28,7 @@ import type {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { edgeRefOf } from '@/mermaid/edit-source';
 import type { EdgeArrowChange, EdgeRef } from '@/mermaid/edit-source';
+import { LINK_LABEL_FONT_SIZE, LINK_LABEL_PADDING } from '@/mermaid/to-cells';
 import type { EdgeData, MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection, FlowLayout } from '@/mermaid/types';
 import { ConnectDraftLine } from './connect-draft-line';
@@ -258,6 +259,34 @@ const ADD_BUTTON_PLACEMENT: Record<FlowDirection, {
  */
 const CLUSTER_PADDING = { top: 44, left: 18, right: 18, bottom: 18 };
 
+/** Line height of a link label, as a multiple of its font size. */
+const LINK_LABEL_LINE_HEIGHT = 1.2;
+
+let labelMeasure: CanvasRenderingContext2D | null = null;
+
+/**
+ * The box a link's label takes, background padding included — so both layouts
+ * can keep that room clear. Measured from the label text with a canvas in the
+ * label's font (the `--font-mono` stack), not read off the rendered label: the
+ * layout runs before the label has been drawn at its new text.
+ */
+function getLinkLabelSize(link: dia.Link): dia.Size | null {
+    const text = (link.get('data') as EdgeData | undefined)?.label ?? '';
+    if (text === '') return null;
+    if (!labelMeasure) {
+        labelMeasure = document.createElement('canvas').getContext('2d');
+        if (!labelMeasure) return null;
+    }
+    const family = getComputedStyle(document.documentElement).getPropertyValue('--font-mono');
+    labelMeasure.font = `${LINK_LABEL_FONT_SIZE}px ${family}`;
+    const lines = text.split('\n');
+    const width = Math.max(...lines.map((line) => labelMeasure!.measureText(line).width));
+    return {
+        width: Math.ceil(width) + 2 * LINK_LABEL_PADDING.horizontal,
+        height: Math.ceil(lines.length * LINK_LABEL_FONT_SIZE * LINK_LABEL_LINE_HEIGHT) + 2 * LINK_LABEL_PADDING.vertical,
+    };
+}
+
 function runDagreLayout(graph: dia.Graph, direction: FlowDirection): void {
     graph.startBatch('layout');
     // Back to the side midpoints, for links ELK laid out last.
@@ -283,7 +312,16 @@ function runDagreLayout(graph: dia.Graph, direction: FlowDirection): void {
         // `to-cells.ts`) rather than at dagre's label point, which would be
         // overwritten on the next declarative cell sync.
         setLabels: false,
-        exportLink: (link) => ({ minLen: link.get('data')?.minLen ?? 1 }),
+        // The label's size makes dagre reserve room for it on the edge, which
+        // then runs through it — so the label, at the path's midpoint, sits
+        // in that room.
+        exportLink: (link) => {
+            const labelSize = getLinkLabelSize(link);
+            return {
+                minLen: link.get('data')?.minLen ?? 1,
+                ...(labelSize ? { width: labelSize.width, height: labelSize.height, labelpos: 'c' } : {}),
+            };
+        },
     });
     graph.stopBatch('layout');
 }
@@ -326,6 +364,15 @@ function runElkLayout(graph: dia.Graph, direction: FlowDirection, signal: AbortS
             'elk.layered.spacing.nodeNodeBetweenLayers': 64,
             'elk.layered.spacing.edgeNodeBetweenLayers': 24,
             'elk.padding': 20,
+        },
+        // The same reserved room as with dagre. `@joint/layout-elk` exports
+        // each label inline, at the size the link reports — none here, as the
+        // labels are declared without one.
+        exportLinkLabel: ({ link, elkEdgeLabel }) => {
+            const labelSize = getLinkLabelSize(link);
+            if (!labelSize) return false;
+            elkEdgeLabel.width = labelSize.width;
+            elkEdgeLabel.height = labelSize.height;
         },
         // ELK sizes the containers itself; the padding plays the part of
         // dagre's `clusterPadding`, with the title's room at the top.

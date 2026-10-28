@@ -280,13 +280,17 @@ const MARKERS: Record<FlowArrow, LinkMarker> = {
  */
 const LINK_COLOR = 'var(--link-stroke)';
 
+/** Link label metrics — shared with the layouts, which reserve room for the label. */
+export const LINK_LABEL_FONT_SIZE = 12;
+export const LINK_LABEL_PADDING = { horizontal: 10, vertical: 6 } as const;
+
 const LABEL_BASE: Omit<LinkLabel, 'text'> = {
     position: 0.5,
-    fontSize: 12,
+    fontSize: LINK_LABEL_FONT_SIZE,
     className: 'mermaid-link-label-text',
     backgroundClassName: 'mermaid-link-label-body',
     backgroundBorderRadius: 3,
-    backgroundPadding: { horizontal: 10, vertical: 6 },
+    backgroundPadding: LINK_LABEL_PADDING,
 };
 
 /**
