@@ -26,7 +26,7 @@ export class TabComponent implements OnInit, AfterViewInit {
       this.graph = new dia.Graph({}, { cellNamespace: shapes });
 
       if (this.tab.graph) {
-          this.graph.fromJSON(this.tab.graph);
+          this.graph.fromJSON(this.tab.graph as dia.Graph.JSON);
           this.focusPoint = this.graph.getBBox()?.center().toJSON();
       }
 

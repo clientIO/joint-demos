@@ -21,7 +21,7 @@ import type {
     OnInit
 } from '@angular/core';
 import type { dia } from '@joint/plus';
-import type { EventBusService } from '../../services/event-bus.service';
+import { EventBusService } from '../../services/event-bus.service';
 
 
 @Component({

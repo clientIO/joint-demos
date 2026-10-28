@@ -8,7 +8,6 @@ distributed with this file, You can obtain one at
 https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
-/* eslint-disable @typescript-eslint/consistent-type-imports */
 
 import {
     Component,

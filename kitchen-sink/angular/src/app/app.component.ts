@@ -9,7 +9,6 @@ https://www.jointjs.com/license or from the JointJS+ archive as was
 distributed by client IO. See the LICENSE file.
 */
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { StencilService } from '../services/stencil-service';
 import { ToolbarService } from '../services/toolbar-service';

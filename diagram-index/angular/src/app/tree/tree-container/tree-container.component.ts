@@ -4,7 +4,7 @@ import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { dia, highlighters, shapes, ui } from '@joint/plus';
 
 import type { AfterViewInit, OnInit, ElementRef } from '@angular/core';
-import type { TreeDataService } from '../tree-data.service';
+import { TreeDataService } from '../tree-data.service';
 import type { TreeNode } from '../tree.models';
 
 @Component({
@@ -38,7 +38,7 @@ export class TreeContainerComponent implements OnInit, AfterViewInit {
       this.selectedNode.selected = true;
       this.treeControl.toggle(this.selectedNode);
       this.graph = new dia.Graph({}, { cellNamespace: shapes });
-      this.graph.fromJSON(<dia.Graph>this.trees[0].graph);
+      this.graph.fromJSON(this.trees[0].graph!);
   }
 
   ngOnInit(): void {
@@ -127,7 +127,7 @@ export class TreeContainerComponent implements OnInit, AfterViewInit {
       }
       const [ graphId, cellId ] = node.id.split('-');
       if (graphId !== this.graph.id) {
-          this.graph.fromJSON(<dia.Graph>this.nodes[graphId].graph);
+          this.graph.fromJSON(this.nodes[graphId].graph!);
       }
       if (cellId) {
           this.graph.set('selectedCell', cellId);
