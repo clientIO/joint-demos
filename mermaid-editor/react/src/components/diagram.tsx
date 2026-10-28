@@ -496,10 +496,23 @@ function Canvas({
 
     const fit = useCallback(() => zoomToFit(FIT_OPTIONS), [zoomToFit]);
 
+    // A lone selected node or edge has its toolbar open. The toolbar is placed
+    // once, in client pixels, so the camera must not move under it: a pending
+    // fit is dropped rather than run. Kept in a ref, updated before the layout
+    // effects below read it, so a selection change does not re-run the layout.
+    const isToolbarOpen = selectedIds.length === 1 && cells.some((cell) =>
+        cell.id === selectedIds[0]
+        && (cell.type === 'link' || !(cell.data as NodeData).isGroup));
+    const isToolbarOpenRef = useRef(isToolbarOpen);
+    useEffect(() => {
+        isToolbarOpenRef.current = isToolbarOpen;
+    }, [isToolbarOpen]);
+
     // Consumed by whichever layout pass lands first after a fit was requested.
     const fitIfPending = useCallback(() => {
         if (!pendingFit.current) return;
         pendingFit.current = false;
+        if (isToolbarOpenRef.current) return;
         fit();
     }, [fit]);
 

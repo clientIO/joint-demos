@@ -171,6 +171,10 @@ export function App() {
         if (!preset) return;
         setPresetId(preset.id);
         setSource(preset.source, true);
+        // A different diagram: nothing carries over, and an open toolbar would
+        // also stop the canvas from framing it.
+        setSelection(NO_SELECTION);
+        setFocusToolbarFor(null);
         setFitToken((token) => token + 1);
     }
 
