@@ -1,8 +1,11 @@
 // `dia` comes from `@joint/plus` rather than `@joint/core` so the types are the
 // exact ones `@joint/react-plus` is built against — a second `@joint/core` copy
 // would make `useGraph()`'s graph unassignable to anything typed from it.
-import type { dia } from '@joint/plus';
+import { anchors, g, V } from '@joint/plus';
+import type { connectionPoints, dia } from '@joint/plus';
 import { DirectedGraph } from '@joint/layout-directed-graph';
+import { layout as elkLayout } from '@joint/layout-elk';
+import type { Direction as ElkDirection } from '@joint/layout-elk';
 import {
     Diagram,
     ElementOverlay,
@@ -25,9 +28,11 @@ import type {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { edgeRefOf } from '@/mermaid/edit-source';
 import type { EdgeArrowChange, EdgeRef } from '@/mermaid/edit-source';
+import { LINK_LABEL_FONT_SIZE, LINK_LABEL_PADDING } from '@/mermaid/to-cells';
 import type { EdgeData, MermaidCell } from '@/mermaid/to-cells';
-import type { FlowDirection } from '@/mermaid/types';
+import type { FlowDirection, FlowLayout } from '@/mermaid/types';
 import { ConnectDraftLine } from './connect-draft-line';
+import { createSyncElk } from './sync-elk';
 import { useConnectDrag } from './use-connect-drag';
 import type { NodeData } from '@/mermaid/to-cells';
 import { AccessibilityCheck } from './accessibility-check';
@@ -37,6 +42,7 @@ import { NodeEditingContext } from './node-editing';
 import type { NodeEditing } from './node-editing';
 import { NodeToolbar } from './node-toolbar';
 import { RenderNode } from './render-node';
+import { getShapeSpec } from './shapes';
 import { ZoomControls } from './zoom-controls';
 
 const FIT_OPTIONS: ZoomToFitOptions = {
@@ -83,13 +89,123 @@ const DELETE_KEYS = new Set(['Delete', 'Backspace']);
 const SELECTION: SelectionProps = { wrapper: false, allowTranslate: false };
 
 /**
- * Straight links with a small gap at the end, and rounded corners where dagre's vertices turn the line.
+ * Straight links with a small gap at the end, and rounded corners where the
+ * layout's vertices turn the line. The anchor is replaced per direction below.
  */
 const LINK_ROUTING = linkRoutingStraight({
     targetOffset: 6,
     cornerType: 'cubic',
     cornerRadius: 8
 });
+
+/**
+ * Where ELK attached a link's ends, relative to the top-left of each end's
+ * element. Kept on the link under an attribute the cells never declare, so the
+ * controlled graph's re-sync leaves it alone — `source`/`target` are declared
+ * and would be reset to their declared value after every change.
+ */
+const ELK_ENDS = 'elkEnds';
+
+interface ElkEnds {
+    readonly source?: dia.Point;
+    readonly target?: dia.Point;
+}
+
+/**
+ * Which axis a link end attaches on, per flowchart direction: the top/bottom
+ * sides for a vertical chart, the left/right sides for a horizontal one.
+ *
+ * Deliberately the axis rather than a directional pair like `'bottom-top'`.
+ * A pair pins the source to one side and the target to the opposite one no
+ * matter where they sit, which is wrong for the back-edges a flowchart is full
+ * of — a retry loop running up the page would still leave from the bottom.
+ * `'vertical'` lets each end pick the side facing the other one.
+ */
+const ANCHOR_MODE: Record<FlowDirection, 'vertical' | 'horizontal'> = {
+    TB: 'vertical',
+    BT: 'vertical',
+    LR: 'horizontal',
+    RL: 'horizontal',
+};
+
+/**
+ * The point ELK routed the end to, when the last layout was ELK's; the side
+ * midpoint otherwise. Both resolve from the model bbox (`useModelGeometry`),
+ * so neither reads a shape React has not committed its measured size to yet.
+ *
+ * A direction change needs no re-render of the links to pick up the new mode:
+ * the layout moves their end elements, and that re-routes them.
+ */
+function layoutEndAnchor(mode: 'vertical' | 'horizontal'): anchors.Anchor {
+    return (endView, endMagnet, anchorReference, _args, endType, linkView) => {
+        const offset = (linkView.model.get(ELK_ENDS) as ElkEnds | undefined)?.[endType];
+        if (offset) {
+            return (endView.model as dia.Element).getBBox().topLeft().offset(offset.x, offset.y);
+        }
+        return anchors.midSide(
+            endView,
+            endMagnet,
+            anchorReference,
+            { mode, useModelGeometry: true, rotate: true },
+            endType,
+            linkView
+        );
+    };
+}
+
+/**
+ * The outline a node is drawn with, in paper coordinates — from the model
+ * alone (shape name and size, through the same `getShapeSpec` the renderer
+ * draws with), so it never reads the DOM. `null` where the bbox already is the
+ * outline: rectangles, image cards, subgraphs and the outline-less `text`.
+ */
+function getModelOutline(element: dia.Element): g.Path | g.Ellipse | null {
+    const data = element.get('data') as NodeData | undefined;
+    if (!data || data.isGroup || data.img !== undefined) return null;
+    const bbox = element.getBBox();
+    const outline = getShapeSpec(data.shape).outline(bbox);
+    switch (outline.kind) {
+        case 'none':
+        case 'rect':
+            return null;
+        case 'ellipse':
+            return g.Ellipse.fromRect(bbox);
+        case 'path':
+            // `g.Path` reads only M/L/C/Z; the outlines use H/V and arcs too.
+            return new g.Path(V.normalizePathData(outline.d)).translate(bbox.x, bbox.y);
+    }
+}
+
+/** The point of `points` closest to `reference`, if there is any. */
+function getNearest(points: g.Point[] | null, reference: g.Point): g.Point | undefined {
+    return points?.toSorted((a, b) => a.squaredDistance(reference) - b.squaredDistance(reference))[0];
+}
+
+/**
+ * Ends a link on the node's drawn outline rather than its bbox.
+ *
+ * The routing preset stops a link at the bbox — right for a rectangle, and for
+ * a diamond's mid-side anchors, which sit on its vertices. ELK, though,
+ * attaches anywhere along a side, where a diamond or a circle is well inside
+ * the box: the link stopped short of the shape. The end segment, extended into
+ * the box, is cut with the outline and the preset's point shifted along it by
+ * the bbox-to-outline gap — so the preset's arrow offset is kept as it is.
+ */
+function onModelOutline(preset: connectionPoints.ConnectionPoint): connectionPoints.ConnectionPoint {
+    return (line, endView, endMagnet, opt, endType, linkView) => {
+        const point = preset(line, endView, endMagnet, opt, endType, linkView);
+        const element = endView.model;
+        if (!element.isElement()) return point;
+        const outline = getModelOutline(element);
+        if (!outline) return point;
+        const bbox = element.getBBox();
+        const ray = new g.Line(line.start, line.end.clone().move(line.start, bbox.width + bbox.height));
+        const onBox = getNearest(bbox.intersectionWithLine(ray), line.start);
+        const onOutline = getNearest(outline.intersectionWithLine(ray), line.start);
+        if (!onBox || !onOutline) return point;
+        return point.offset(onOutline.x - onBox.x, onOutline.y - onBox.y);
+    };
+}
 
 /**
  * Every element has reported a real size.
@@ -143,8 +259,40 @@ const ADD_BUTTON_PLACEMENT: Record<FlowDirection, {
  */
 const CLUSTER_PADDING = { top: 44, left: 18, right: 18, bottom: 18 };
 
-function runLayout(graph: dia.Graph, direction: FlowDirection): boolean {
-    if (!isMeasured(graph)) return false;
+/** Line height of a link label, as a multiple of its font size. */
+const LINK_LABEL_LINE_HEIGHT = 1.2;
+
+let labelMeasure: CanvasRenderingContext2D | null = null;
+
+/**
+ * The box a link's label takes, background padding included — so both layouts
+ * can keep that room clear. Measured from the label text with a canvas in the
+ * label's font (the `--font-mono` stack), not read off the rendered label: the
+ * layout runs before the label has been drawn at its new text.
+ */
+function getLinkLabelSize(link: dia.Link): dia.Size | null {
+    const text = (link.get('data') as EdgeData | undefined)?.label ?? '';
+    if (text === '') return null;
+    if (!labelMeasure) {
+        labelMeasure = document.createElement('canvas').getContext('2d');
+        if (!labelMeasure) return null;
+    }
+    const family = getComputedStyle(document.documentElement).getPropertyValue('--font-mono');
+    labelMeasure.font = `${LINK_LABEL_FONT_SIZE}px ${family}`;
+    const lines = text.split('\n');
+    const width = Math.max(...lines.map((line) => labelMeasure!.measureText(line).width));
+    return {
+        width: Math.ceil(width) + 2 * LINK_LABEL_PADDING.horizontal,
+        height: Math.ceil(lines.length * LINK_LABEL_FONT_SIZE * LINK_LABEL_LINE_HEIGHT) + 2 * LINK_LABEL_PADDING.vertical,
+    };
+}
+
+function runDagreLayout(graph: dia.Graph, direction: FlowDirection): void {
+    graph.startBatch('layout');
+    // Back to the side midpoints, for links ELK laid out last.
+    for (const link of graph.getLinks()) {
+        if (link.has(ELK_ENDS)) link.unset(ELK_ENDS);
+    }
     DirectedGraph.layout(graph, {
         rankDir: direction,
         nodeSep: 46,
@@ -164,13 +312,94 @@ function runLayout(graph: dia.Graph, direction: FlowDirection): boolean {
         // `to-cells.ts`) rather than at dagre's label point, which would be
         // overwritten on the next declarative cell sync.
         setLabels: false,
-        exportLink: (link) => ({ minLen: link.get('data')?.minLen ?? 1 }),
+        // The label's size makes dagre reserve room for it on the edge, which
+        // then runs through it — so the label, at the path's midpoint, sits
+        // in that room.
+        exportLink: (link) => {
+            const labelSize = getLinkLabelSize(link);
+            return {
+                minLen: link.get('data')?.minLen ?? 1,
+                ...(labelSize ? { width: labelSize.width, height: labelSize.height, labelpos: 'c' } : {}),
+            };
+        },
     });
-    return true;
+    graph.stopBatch('layout');
+}
+
+/** `point` relative to the element's top-left, or nothing without an element. */
+function offsetFrom(element: dia.Element | null, point: dia.Point): dia.Point | undefined {
+    if (!element) return undefined;
+    const { x, y } = element.position();
+    return { x: point.x - x, y: point.y - y };
+}
+
+/** One ELK for every layout; it holds no state between runs. */
+const ELK = createSyncElk();
+
+const ELK_DIRECTION: Record<FlowDirection, ElkDirection> = {
+    TB: 'DOWN',
+    BT: 'UP',
+    LR: 'RIGHT',
+    RL: 'LEFT',
+};
+
+/**
+ * ELK's layered algorithm with orthogonal edge routing — the right-angled
+ * alternative to dagre's splines. Same spacing as dagre, so switching engines
+ * changes the routing, not the density.
+ *
+ * Mermaid's longer arrows (`--->`) have no ELK counterpart: there is no
+ * per-edge rank length, so `minLen` is ignored here.
+ */
+function runElkLayout(graph: dia.Graph, direction: FlowDirection, signal: AbortSignal): Promise<unknown> {
+    return elkLayout(graph, {
+        elk: ELK,
+        signal,
+        elkLayoutOptions: {
+            'elk.direction': ELK_DIRECTION[direction],
+            'elk.edgeRouting': 'ORTHOGONAL',
+            'elk.spacing.nodeNode': 46,
+            'elk.spacing.edgeNode': 24,
+            'elk.spacing.edgeEdge': 12,
+            'elk.layered.spacing.nodeNodeBetweenLayers': 64,
+            'elk.layered.spacing.edgeNodeBetweenLayers': 24,
+            'elk.padding': 20,
+        },
+        // The same reserved room as with dagre. `@joint/layout-elk` exports
+        // each label inline, at the size the link reports — none here, as the
+        // labels are declared without one.
+        exportLinkLabel: ({ link, elkEdgeLabel }) => {
+            const labelSize = getLinkLabelSize(link);
+            if (!labelSize) return false;
+            elkEdgeLabel.width = labelSize.width;
+            elkEdgeLabel.height = labelSize.height;
+        },
+        // ELK sizes the containers itself; the padding plays the part of
+        // dagre's `clusterPadding`, with the title's room at the top.
+        exportElement: ({ element, elkNode }) => {
+            if (!(element.get('data') as NodeData | undefined)?.isGroup) return;
+            elkNode.layoutOptions = { ...elkNode.layoutOptions, 'elk.padding': CLUSTER_PADDING };
+        },
+        // The route, and where ELK attached its ends — read by the paper's
+        // anchor, see `ELK_ENDS`. Not the label positions: they stay at the
+        // midpoint, as with dagre. Element positions are written before the
+        // links, so each offset is taken from where ELK put its element.
+        setLinkAttributes: ({ link, attributes: { vertices }, elkEdge }) => {
+            const [section] = elkEdge.sections ?? [];
+            const ends: ElkEnds = section
+                ? {
+                    source: offsetFrom(link.getSourceElement(), section.startPoint),
+                    target: offsetFrom(link.getTargetElement(), section.endPoint),
+                }
+                : {};
+            link.set({ vertices, [ELK_ENDS]: ends });
+        },
+    });
 }
 
 interface CanvasProps {
     readonly direction: FlowDirection;
+    readonly layout: FlowLayout;
     readonly cells: readonly MermaidCell[];
     readonly selectedIds: readonly CellId[];
     readonly onSelect: (ids: readonly CellId[]) => void;
@@ -178,13 +407,16 @@ interface CanvasProps {
     readonly edit: NodeEditHandlers;
     readonly linkEdit: EdgeEditHandlers;
     readonly onDirectionChange: (direction: FlowDirection) => void;
+    readonly onLayoutChange: (layout: FlowLayout) => void;
     readonly onAddShape: (fromKeyboard: boolean) => void;
     /** Node whose toolbar takes focus when it opens (a keyboard add). */
     readonly focusToolbarFor: CellId | null;
+    readonly addedNode: AddedNode | null;
 }
 
 function Canvas({
     direction,
+    layout,
     cells,
     selectedIds,
     onSelect,
@@ -192,11 +424,21 @@ function Canvas({
     edit,
     linkEdit,
     onDirectionChange,
+    onLayoutChange,
     onAddShape,
     focusToolbarFor,
+    addedNode,
 }: CanvasProps) {
     const { graph } = useGraph();
     const { paper } = usePaper();
+    const linkRouting = useMemo(
+        () => ({
+            ...LINK_ROUTING,
+            defaultAnchor: layoutEndAnchor(ANCHOR_MODE[direction]),
+            defaultConnectionPoint: onModelOutline(LINK_ROUTING.defaultConnectionPoint as connectionPoints.ConnectionPoint),
+        }),
+        [direction]
+    );
     const { selectCells } = useSelection();
     // The scroller owns panning, wheel scrolling, pinch zoom and the zoom
     // bounds; all this component needs from it is the fit-to-content call.
@@ -206,6 +448,10 @@ function Canvas({
     // clicks upward. Subscribing to the collection here as well would close a
     // loop with the editor's caret, each side re-asserting what the other just
     // said, so the collection is written to and never read from.
+    //
+    // Applied again whenever the cells change, not only the ids: a node added
+    // from the canvas is selected before the parse has put it in the graph,
+    // so the first pass finds nothing — the second, once it exists, selects it.
     useEffect(() => {
         // A stale id outlives an edit that deleted its node, and selecting a
         // cell the graph no longer holds would throw.
@@ -217,7 +463,15 @@ function Canvas({
         // single element it returns just that element, which is what a canvas
         // click should do.
         selectCells(graph.getSubgraph(selected));
+    }, [cells, graph, selectCells, selectedIds]);
 
+    // Kept apart from the effect above, keyed on the ids alone: re-running on
+    // every parse would pull the camera back to an off-screen selection while
+    // the user types.
+    useEffect(() => {
+        const selected = selectedIds
+            .map((id) => graph.getCell(id))
+            .filter((cell): cell is dia.Cell => Boolean(cell));
         // Driving the selection from the caret can pick a node that is off
         // screen, so bring the first one into view. Scrolling only when it is
         // not already visible keeps a click on a node the user can see — or a
@@ -228,11 +482,13 @@ function Canvas({
         // A 0×0 element is pre-layout — it was just added and does not sit at
         // its real position yet. Scrolling would start a 150 ms
         // animation towards a meaningless point that then lands AFTER the
-        // post-layout fit and drags the camera off the diagram.
+        // post-layout fit and drags the camera off the diagram. A node added
+        // from the canvas is brought into view once laid out instead — see
+        // `revealIfPending`.
         if (first.size().width === 0) return;
         if (paperScroller.isElementVisible(first, VISIBILITY_OPTIONS)) return;
         paperScroller.scrollToElement(first, SCROLL_OPTIONS);
-    }, [graph, paperScroller, selectCells, selectedIds]);
+    }, [graph, paperScroller, selectedIds]);
     // A fit is *requested*, then consumed once the graph has been laid out —
     // framing before measurement would frame a graph of 0×0 boxes. Fresh on
     // every mount, so the first render of a graph always frames itself.
@@ -240,22 +496,104 @@ function Canvas({
 
     const fit = useCallback(() => zoomToFit(FIT_OPTIONS), [zoomToFit]);
 
-    // One place decides how nodes get their positions: dagre, every time.
-    const settle = useCallback(
-        (target: dia.Graph): boolean => runLayout(target, direction),
-        [direction]
-    );
+    // A lone selected node or edge has its toolbar open. The toolbar is placed
+    // once, in client pixels, so the camera must not move under it: a pending
+    // fit is dropped rather than run. Kept in a ref, updated before the layout
+    // effects below read it, so a selection change does not re-run the layout.
+    const isToolbarOpen = selectedIds.length === 1 && cells.some((cell) =>
+        cell.id === selectedIds[0]
+        && (cell.type === 'link' || !(cell.data as NodeData).isGroup));
+    const isToolbarOpenRef = useRef(isToolbarOpen);
+    useEffect(() => {
+        isToolbarOpenRef.current = isToolbarOpen;
+    }, [isToolbarOpen]);
 
+    // Consumed by whichever layout pass lands first after a fit was requested.
+    const fitIfPending = useCallback(() => {
+        if (!pendingFit.current) return;
+        pendingFit.current = false;
+        if (isToolbarOpenRef.current) return;
+        fit();
+    }, [fit]);
+
+    // The node just added through "+" or "+ Shape". It has no position until
+    // the layout places it, so it is brought into view only then — a new node
+    // can land anywhere once the layout reshuffles the diagram.
+    const pendingReveal = useRef<CellId | null>(null);
+    useEffect(() => {
+        pendingReveal.current = addedNode?.id ?? null;
+    }, [addedNode]);
+    const revealIfPending = useCallback(() => {
+        const id = pendingReveal.current;
+        if (id === null || !paperScroller) return;
+        const element = graph.getCell(id);
+        // Not laid out yet: still waiting for its size.
+        if (!element?.isElement() || element.size().width === 0) return;
+        pendingReveal.current = null;
+        if (paperScroller.isElementVisible(element, VISIBILITY_OPTIONS)) return;
+        paperScroller.scrollToElement(element, SCROLL_OPTIONS);
+    }, [graph, paperScroller]);
+
+    const onLayoutSettled = useCallback(() => {
+        fitIfPending();
+        revealIfPending();
+    }, [fitIfPending, revealIfPending]);
+
+    // `layout()` from `@joint/layout-elk` returns a promise. With the
+    // synchronous ELK it settles in microtasks, so two runs cannot overlap in
+    // practice — but nothing in its API promises that, so only the latest may
+    // land: each run aborts the one before it, and a dagre run aborts any ELK
+    // run still in flight.
+    const elkRun = useRef<AbortController | null>(null);
+    useEffect(() => () => elkRun.current?.abort(), []);
+
+    // One place decides how nodes get their positions. `onSettled` runs once
+    // they have them — at once for dagre, in a microtask for ELK.
+    const settle = useCallback(
+        (target: dia.Graph, onSettled: () => void) => {
+            if (!isMeasured(target)) return;
+            elkRun.current?.abort();
+            elkRun.current = null;
+            switch (layout) {
+                case 'dagre': {
+                    runDagreLayout(target, direction);
+                    onSettled();
+                    return;
+                }
+                case 'elk': {
+                    const controller = new AbortController();
+                    elkRun.current = controller;
+                    runElkLayout(target, direction, controller.signal).then(
+                        () => {
+                            if (elkRun.current === controller) elkRun.current = null;
+                            // The measured callback runs from a ResizeObserver,
+                            // right before the frame is painted, and the hook
+                            // flushes the paper as soon as it returns — before
+                            // this result existed. Flush again, still ahead of
+                            // the paint, or the async paper would draw the
+                            // result a frame late, after the pre-layout one.
+                            paper?.updateViews();
+                            onSettled();
+                        },
+                        (error: unknown) => {
+                            // A superseded run; the newer one settles instead.
+                            if (controller.signal.aborted) return;
+                            throw error;
+                        }
+                    );
+                    return;
+                }
+            }
+        },
+        [direction, layout, paper]
+    );
 
     // Primary trigger. `useOnElementsMeasured` flushes the paper after the
     // callback, so there is no frame where nodes are visible at their
-    // pre-layout position.
+    // pre-layout position. ELK's result lands in microtasks after the flush,
+    // still before the frame is painted (see `createSyncElk`).
     useOnElementsMeasured(({ graph: measuredGraph }) => {
-        if (!settle(measuredGraph)) return;
-        if (pendingFit.current) {
-            pendingFit.current = false;
-            fit();
-        }
+        settle(measuredGraph, onLayoutSettled);
     });
 
     // Secondary layout trigger, for edits that change what the layout depends
@@ -263,22 +601,19 @@ function Canvas({
     //
     // Adding or removing a cell already re-lays-out on its own: the hook fires
     // on an element added or removed. What slips through is an edit that keeps every id and every
-    // label — switching `flowchart TD` to `LR`, or lengthening `-->` to `---->`
-    // for a wider rank gap. Nothing re-measures there, so `useOnElementsMeasured`
-    // never fires and the diagram would keep its old shape. Verified: with this
-    // effect removed, `TD` → `LR` leaves the chart vertical.
+    // label — switching `flowchart TD` to `LR`, lengthening `-->` to `---->`
+    // for a wider rank gap, or `layout: elk` in the front matter. Nothing re-measures
+    // there, so `useOnElementsMeasured` never fires and the diagram would keep
+    // its old shape. Verified: with this effect removed, `TD` → `LR` leaves the
+    // chart vertical.
     //
     // A pending fit is consumed HERE too: when the app raises `fitToken` (a
     // loaded example, the direction switch), the parse lands a commit later,
     // and framing anything earlier would frame the previous layout.
     useEffect(() => {
         if (!paper) return;
-        if (!settle(graph)) return;
-        if (pendingFit.current) {
-            pendingFit.current = false;
-            fit();
-        }
-    }, [cells, fit, graph, paper, settle]);
+        settle(graph, onLayoutSettled);
+    }, [cells, graph, onLayoutSettled, paper, settle]);
 
     // Framing is its own signal, raised by the app when a different diagram is
     // loaded or relaid out wholesale — not on every parse. Typing must not
@@ -472,7 +807,7 @@ function Canvas({
                         drawGrid={false}
                         snapLabels
                         interactive={PAPER_INTERACTIVE}
-                        linkRouting={LINK_ROUTING}
+                        linkRouting={linkRouting}
                         onElementPointerClick={({ model, event }) => {
                             // Shift (or the platform modifier) grows the
                             // selection; a plain click replaces it.
@@ -601,6 +936,8 @@ function Canvas({
                 <CanvasActions
                     direction={direction}
                     onDirectionChange={onDirectionChange}
+                    layout={layout}
+                    onLayoutChange={onLayoutChange}
                     onAddShape={onAddShape}
                 />
                 <ZoomControls onFit={fit} />
@@ -651,6 +988,8 @@ export interface EdgeEditHandlers {
 
 export interface MermaidDiagramProps {
     readonly direction: FlowDirection;
+    /** The engine the source asks for (`config: layout`). */
+    readonly layout: FlowLayout;
     readonly cells: readonly MermaidCell[];
     /** Ids to show as selected; the app owns this state. */
     readonly selectedIds: readonly CellId[];
@@ -667,10 +1006,19 @@ export interface MermaidDiagramProps {
     readonly linkEdit: EdgeEditHandlers;
     /** Rewrites the `flowchart <dir>` header in the source. */
     readonly onDirectionChange: (direction: FlowDirection) => void;
+    /** Rewrites the `layout` key in the source's front matter. */
+    readonly onLayoutChange: (layout: FlowLayout) => void;
     /** Appends a top-level, unconnected node — the from-scratch start. */
     readonly onAddShape: (fromKeyboard: boolean) => void;
     /** Node whose toolbar takes focus when it opens (a keyboard add). */
     readonly focusToolbarFor: CellId | null;
+    /** The node just added from the canvas; brought into view once laid out. */
+    readonly addedNode: AddedNode | null;
+}
+
+/** A node added from the canvas. A new object per add, so each one is a signal. */
+export interface AddedNode {
+    readonly id: CellId;
 }
 
 /**
@@ -683,6 +1031,7 @@ export interface MermaidDiagramProps {
  */
 export function MermaidDiagram({
     direction,
+    layout,
     cells,
     selectedIds,
     onSelect,
@@ -690,8 +1039,10 @@ export function MermaidDiagram({
     edit,
     linkEdit,
     onDirectionChange,
+    onLayoutChange,
     onAddShape,
     focusToolbarFor,
+    addedNode,
 }: MermaidDiagramProps) {
     return (
         <Diagram
@@ -701,6 +1052,7 @@ export function MermaidDiagram({
         >
             <Canvas
                 direction={direction}
+                layout={layout}
                 cells={cells}
                 selectedIds={selectedIds}
                 onSelect={onSelect}
@@ -708,8 +1060,10 @@ export function MermaidDiagram({
                 edit={edit}
                 linkEdit={linkEdit}
                 onDirectionChange={onDirectionChange}
+                onLayoutChange={onLayoutChange}
                 onAddShape={onAddShape}
                 focusToolbarFor={focusToolbarFor}
+                addedNode={addedNode}
             />
         </Diagram>
     );

@@ -1,8 +1,9 @@
 import { useImageExport } from '@joint/react-plus';
-import type { FlowDirection } from '@/mermaid/types';
+import type { FlowDirection, FlowLayout } from '@/mermaid/types';
 
 /**
- * The canvas's action cluster: download as SVG and the auto-layout switch.
+ * The canvas's action cluster: add a shape, download as SVG, the layout
+ * direction and the link routing (dagre or ELK).
  * (The `.mmd` download lives in the editor pane's footer, with the source.)
  *
  * Deliberately not part of the zoom cluster: that is camera state, these act
@@ -63,10 +64,19 @@ const DIRECTIONS: ReadonlyArray<{ readonly id: FlowDirection; readonly label: st
     { id: 'RL', label: 'Right to left', glyph: '←' },
 ];
 
+/** The two engines, named by what the user sees: the shape of the links. */
+const LAYOUTS: ReadonlyArray<{ readonly id: FlowLayout; readonly label: string; readonly title: string }> = [
+    { id: 'dagre', label: 'Curved', title: 'Dagre layout — links follow smooth bends (Mermaid default)' },
+    { id: 'elk', label: 'Orthogonal', title: 'ELK layout — links run at right angles (config: layout: elk)' },
+];
+
 export interface CanvasActionsProps {
     readonly direction: FlowDirection;
     /** Rewrites the `flowchart <dir>` header in the source. */
     readonly onDirectionChange: (direction: FlowDirection) => void;
+    readonly layout: FlowLayout;
+    /** Rewrites the `layout` key in the source's front matter. */
+    readonly onLayoutChange: (layout: FlowLayout) => void;
     /**
      * Appends a top-level, unconnected node — the from-scratch start.
      * `fromKeyboard` lets the app move focus onto the new node's toolbar.
@@ -77,6 +87,8 @@ export interface CanvasActionsProps {
 export function CanvasActions({
     direction,
     onDirectionChange,
+    layout,
+    onLayoutChange,
     onAddShape,
 }: CanvasActionsProps) {
     const [exportSvg, state] = useImageExport(EXPORT);
@@ -133,6 +145,21 @@ export function CanvasActions({
                         onClick={() => onDirectionChange(entry.id)}
                     >
                         {entry.glyph}
+                    </button>
+                ))}
+            </span>
+            <span className="canvas-direction" role="radiogroup" aria-label="Link routing">
+                {LAYOUTS.map((entry) => (
+                    <button
+                        key={entry.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={layout === entry.id}
+                        title={entry.title}
+                        className={`app-button canvas-direction-option${layout === entry.id ? ' is-active' : ''}`}
+                        onClick={() => onLayoutChange(entry.id)}
+                    >
+                        {entry.label}
                     </button>
                 ))}
             </span>

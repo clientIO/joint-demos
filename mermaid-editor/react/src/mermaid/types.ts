@@ -11,6 +11,13 @@
 export type FlowDirection = 'TB' | 'BT' | 'LR' | 'RL';
 
 /**
+ * Mermaid's `layout` config, as far as a flowchart goes: `dagre` (the default)
+ * or `elk`. Set in the source's front matter (`config: layout: elk`), a
+ * `%%{init}%%` directive, or the older `flowchart: defaultRenderer: elk`.
+ */
+export type FlowLayout = 'dagre' | 'elk';
+
+/**
  * Mermaid shape identifier, as normalized by `FlowDB.getTypeFromVertex()`.
  * Kept as a plain `string` because Mermaid keeps adding shapes via the
  * `A@{ shape: … }` syntax; unknown ids fall back to a rectangle.
@@ -97,6 +104,7 @@ export interface FlowEdge {
 
 export interface FlowGraph {
     readonly direction: FlowDirection;
+    readonly layout: FlowLayout;
     readonly nodes: readonly FlowNode[];
     readonly groups: readonly FlowGroup[];
     readonly edges: readonly FlowEdge[];

@@ -10,6 +10,7 @@ import {
     addEdge,
     addNode,
     setDirection,
+    setLayout,
     setEdgeAnimation,
     setEdgeLabel,
     setEdgeArrow,
@@ -27,8 +28,8 @@ import { MermaidParseError, parseFlowchart } from '@/mermaid/parse';
 import { DEFAULT_PRESET, PRESETS } from '@/mermaid/presets';
 import { toCells } from '@/mermaid/to-cells';
 import type { MermaidCell } from '@/mermaid/to-cells';
-import type { FlowDirection } from '@/mermaid/types';
-import type { EdgeEditHandlers, NodeEditHandlers } from '@/components/diagram';
+import type { FlowDirection, FlowLayout } from '@/mermaid/types';
+import type { AddedNode, EdgeEditHandlers, NodeEditHandlers } from '@/components/diagram';
 import type { CellId } from '@joint/react-plus';
 
 /**
@@ -44,10 +45,11 @@ const NO_IDS: readonly CellId[] = [];
 
 interface Rendered {
     readonly direction: FlowDirection;
+    readonly layout: FlowLayout;
     readonly cells: readonly MermaidCell[];
 }
 
-const EMPTY: Rendered = { direction: 'TB', cells: NO_CELLS };
+const EMPTY: Rendered = { direction: 'TB', layout: 'dagre', cells: NO_CELLS };
 
 /**
  * The selected nodes, plus where the selection came from.
@@ -107,6 +109,8 @@ export function App() {
     // shape was added from the keyboard, so the user lands on the new
     // node's controls instead of being left on the button they pressed.
     const [focusToolbarFor, setFocusToolbarFor] = useState<CellId | null>(null);
+    // A fresh object per add, so adding twice in a row is two signals.
+    const [addedNode, setAddedNode] = useState<AddedNode | null>(null);
     const selectFromCanvas = useCallback((ids: readonly CellId[]) => {
         setSelection({ ids, origin: 'canvas' });
         // A selection the user made themselves must not re-trigger the
@@ -125,7 +129,7 @@ export function App() {
             parseFlowchart(source).then(
                 (flow) => {
                     if (cancelled) return;
-                    setRendered({ direction: flow.direction, cells: toCells(flow) });
+                    setRendered({ direction: flow.direction, layout: flow.layout, cells: toCells(flow) });
                     setError(null);
                     setNotice(
                         flow.droppedGroupEdges > 0
@@ -167,6 +171,10 @@ export function App() {
         if (!preset) return;
         setPresetId(preset.id);
         setSource(preset.source, true);
+        // A different diagram: nothing carries over, and an open toolbar would
+        // also stop the canvas from framing it.
+        setSelection(NO_SELECTION);
+        setFocusToolbarFor(null);
         setFitToken((token) => token + 1);
     }
 
@@ -201,6 +209,7 @@ export function App() {
                 // its toolbar opens at once, as "+ Shape" does.
                 setSelection({ ids: [added.id], origin: 'canvas' });
                 setFocusToolbarFor(fromKeyboard ? added.id : null);
+                setAddedNode({ id: added.id });
             },
             onConnect: (from, to) => apply(addEdge(sourceRef.current, from, to)),
             onRemove: (id) => {
@@ -251,6 +260,18 @@ export function App() {
         [setSource]
     );
 
+    const handleLayoutChange = useCallback(
+        (layout: FlowLayout) => {
+            const next = setLayout(sourceRef.current, layout);
+            if (next === null || next === sourceRef.current) return;
+            setSource(next, true);
+            setPresetId('custom');
+            // Another engine reshapes the whole board, as a direction flip does.
+            setFitToken((token) => token + 1);
+        },
+        [setSource]
+    );
+
     /**
      * The from-scratch start: append an unconnected node (seeding the
      * `flowchart TD` header when the text is blank) and select it, so the
@@ -265,6 +286,7 @@ export function App() {
         setPresetId('custom');
         setSelection({ ids: [added.id], origin: 'canvas' });
         setFocusToolbarFor(fromKeyboard ? added.id : null);
+        setAddedNode({ id: added.id });
     }, [setSource]);
 
     function handleSourceChange(next: string, isHistoryStep: boolean) {
@@ -356,6 +378,7 @@ export function App() {
                 <div className="canvas" ref={canvasRef}>
                     <MermaidDiagram
                         direction={rendered.direction}
+                        layout={rendered.layout}
                         cells={rendered.cells}
                         selectedIds={selection.ids}
                         onSelect={selectFromCanvas}
@@ -363,8 +386,10 @@ export function App() {
                         edit={edit}
                         linkEdit={linkEdit}
                         onDirectionChange={handleDirectionChange}
+                        onLayoutChange={handleLayoutChange}
                         onAddShape={handleAddShape}
                         focusToolbarFor={focusToolbarFor}
+                        addedNode={addedNode}
                     />
                 </div>
             </main>

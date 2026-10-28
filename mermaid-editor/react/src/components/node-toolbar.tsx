@@ -1,5 +1,6 @@
-import { ElementOverlay, useGraph, usePaper } from '@joint/react-plus';
-import type { CellId } from '@joint/react-plus';
+import { ElementOverlay, useCells, usePaper } from '@joint/react-plus';
+import type { CellId, CellRecord, Computed, ElementRecord } from '@joint/react-plus';
+import type { dia } from '@joint/plus';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { ChangeEvent, KeyboardEvent, RefObject } from 'react';
 import type { EditableShape } from '@/mermaid/edit-source';
@@ -53,13 +54,29 @@ const FILLS = ['#ddffee', '#fef3c7', '#fee2e2', '#dbeafe', '#ede9fe', '#e5e7eb']
  * right edge would push half the toolbar out of view, so it slides inward by
  * exactly the overhang, measured from the rendered width.
  */
+/** The element's model bbox, or nothing for a missing cell or a link. */
+function selectBox(cell: Computed<CellRecord> | undefined): dia.BBox | undefined {
+    if (!cell || !('position' in cell) || !('size' in cell)) return undefined;
+    const { position, size } = cell as Computed<ElementRecord>;
+    return { x: position.x, y: position.y, width: size.width, height: size.height };
+}
+
 function useToolbarPlacement(
     cellId: CellId,
     rootRef: RefObject<HTMLDivElement | null>
-): { side: 'top' | 'bottom'; dx: number } {
+): { side: 'top' | 'bottom'; dx: number; isPlaced: boolean } {
     const { paper } = usePaper();
-    const { graph } = useGraph();
+    // Subscribed, not read off the model during render: a node added from the
+    // canvas renders its toolbar before the layout has placed it, and reading
+    // the geometry once would keep the side picked for that pre-layout spot —
+    // above or below — until something else happened to re-render. `useCells`
+    // rather than `useCell`, which throws while the node is not in the store
+    // yet: the toolbar can render in the same pass that declares the node.
+    const box = useCells(cellId, selectBox);
+    // Not in the graph yet, or not measured: it has no position to open at.
+    const isPlaced = paper !== null && box !== undefined && box.width > 0;
     // The rendered width, kept current as the extended grid folds and unfolds.
+    // Re-attached once placed — the toolbar renders nothing before that.
     const [width, setWidth] = useState(0);
     useLayoutEffect(() => {
         const root = rootRef.current;
@@ -69,19 +86,17 @@ function useToolbarPlacement(
         const observer = new ResizeObserver(measure);
         observer.observe(root);
         return () => observer.disconnect();
-    }, [rootRef]);
-    if (!paper) return { side: 'top', dx: 0 };
-    const cell = graph.getCell(cellId);
-    if (!cell || !cell.isElement()) return { side: 'top', dx: 0 };
-    const box = cell.getBBox();
-    const top = paper.localToClientPoint({ x: box.x, y: box.y });
-    const bottom = paper.localToClientPoint({ x: box.x, y: box.y + box.height });
-    const center = paper.localToClientPoint({ x: box.x + box.width / 2, y: box.y });
+    }, [rootRef, isPlaced]);
+    if (!isPlaced) return { side: 'top', dx: 0, isPlaced };
+    const { x, y, width: nodeWidth, height: nodeHeight } = box;
+    const top = paper.localToClientPoint({ x, y });
+    const bottom = paper.localToClientPoint({ x, y: y + nodeHeight });
+    const center = paper.localToClientPoint({ x: x + nodeWidth / 2, y });
     // The VISIBLE canvas, not the paper: inside the scroller the paper runs
     // well past the viewport (it starts under the source pane once the canvas
     // is scrolled), so its box is the wrong edge to keep the toolbar inside.
     const viewport = (paper.el.closest<HTMLElement>('.jj-paper-scroller') ?? paper.el).getBoundingClientRect();
-    return placeToolbar({ top: top.y, bottom: bottom.y, centerX: center.x }, width, viewport);
+    return { ...placeToolbar({ top: top.y, bottom: bottom.y, centerX: center.x }, width, viewport), isPlaced };
 }
 
 /** Icon canvas, in CSS px; every shape is drawn at natural size and fitted into it. */
@@ -341,7 +356,8 @@ export function NodeToolbar({ cellId, data, edit, autoFocus = false, onDismiss, 
     const [openEditor, setOpenEditor] = useState<'link' | 'image' | null>(null);
     const isLinkOpen = openEditor === 'link';
     const isImageOpen = openEditor === 'image';
-    const { side, dx } = useToolbarPlacement(cellId, rootRef);
+    const { side, dx, isPlaced } = useToolbarPlacement(cellId, rootRef);
+    if (!isPlaced) return null;
 
     return (
         <ElementOverlay

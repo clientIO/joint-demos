@@ -1,7 +1,7 @@
 import { linkMarkerArrow, linkMarkerCircle, linkMarkerCross } from '@joint/react-plus';
 import type { CellId, CellRecord, ElementRecord, LinkLabel, LinkMarker, LinkRecord } from '@joint/react-plus';
 import type { CSSProperties } from 'react';
-import type { FlowAnimation, FlowArrow, FlowDirection, FlowGraph, FlowShape, FlowStroke } from './types';
+import type { FlowAnimation, FlowArrow, FlowGraph, FlowShape, FlowStroke } from './types';
 
 /** Inline styling from a Mermaid `style` / `classDef` directive. */
 export interface NodeStyle {
@@ -271,36 +271,6 @@ const MARKERS: Record<FlowArrow, LinkMarker> = {
 };
 
 /**
- * Which axis a link end attaches on, per flowchart direction: the top/bottom
- * sides for a vertical chart, the left/right sides for a horizontal one.
- *
- * Deliberately the axis rather than a directional pair like `'bottom-top'`.
- * A pair pins the source to one side and the target to the opposite one no
- * matter where they sit, which is wrong for the back-edges a flowchart is full
- * of — a retry loop running up the page would still leave from the bottom.
- * `'vertical'` lets each end pick the side facing the other one.
- */
-const ANCHOR_MODE: Record<FlowDirection, string> = {
-    TB: 'vertical',
-    BT: 'vertical',
-    LR: 'horizontal',
-    RL: 'horizontal',
-};
-
-/**
- * The anchor rides on the link end rather than on the paper's `defaultAnchor`,
- * so a change of direction is just a new cell record and JointJS re-routes on
- * the next sync — no imperative nudge of the link views.
- *
- * `useModelGeometry` resolves the side from the cell's model bbox instead of
- * the magnet's rendered box, which also means it never reads a shape that React
- * has not committed its measured size to yet.
- */
-function endAnchor(mode: string) {
-    return { name: 'midSide', args: { mode, useModelGeometry: true, rotate: true }};
-}
-
-/**
  * One source of truth for the link colour.
  *
  * It has to be the `style.color` property rather than a CSS rule on the line:
@@ -310,13 +280,17 @@ function endAnchor(mode: string) {
  */
 const LINK_COLOR = 'var(--link-stroke)';
 
+/** Link label metrics — shared with the layouts, which reserve room for the label. */
+export const LINK_LABEL_FONT_SIZE = 12;
+export const LINK_LABEL_PADDING = { horizontal: 10, vertical: 6 } as const;
+
 const LABEL_BASE: Omit<LinkLabel, 'text'> = {
     position: 0.5,
-    fontSize: 12,
+    fontSize: LINK_LABEL_FONT_SIZE,
     className: 'mermaid-link-label-text',
     backgroundClassName: 'mermaid-link-label-body',
     backgroundBorderRadius: 3,
-    backgroundPadding: { horizontal: 10, vertical: 6 },
+    backgroundPadding: LINK_LABEL_PADDING,
 };
 
 /**
@@ -375,7 +349,6 @@ export function toCells(flow: FlowGraph): MermaidCell[] {
         };
     });
 
-    const anchor = endAnchor(ANCHOR_MODE[flow.direction]);
     const links: Array<LinkRecord<EdgeData>> = flow.edges.map((edge) => {
         const paint = toEdgePaint(edge.styles);
         return {
@@ -383,12 +356,12 @@ export function toCells(flow: FlowGraph): MermaidCell[] {
             type: 'link',
             // Behind the elements, so a link never crosses over a node body.
             z: -1,
-            // No `magnet`: the `midSide` anchor below resolves from the model bbox,
-            // and its attachment points already land on the outline of every shape
-            // here (a diamond's mid-side *is* its vertex). Pointing the ends at the
-            // rendered body instead measurably changed nothing.
-            source: { id: edge.source, anchor },
-            target: { id: edge.target, anchor },
+            // No anchor: the paper's default anchor attaches the ends — on the
+            // mid-sides for dagre, where ELK routed them for ELK. Declaring one
+            // here would undo ELK's: the controlled graph re-applies every
+            // declared attribute after each change.
+            source: { id: edge.source },
+            target: { id: edge.target },
             data: {
                 minLen: edge.minLen,
                 index: edge.index,
