@@ -29,7 +29,7 @@ import { DEFAULT_PRESET, PRESETS } from '@/mermaid/presets';
 import { toCells } from '@/mermaid/to-cells';
 import type { MermaidCell } from '@/mermaid/to-cells';
 import type { FlowDirection, FlowLayout } from '@/mermaid/types';
-import type { EdgeEditHandlers, NodeEditHandlers } from '@/components/diagram';
+import type { AddedNode, EdgeEditHandlers, NodeEditHandlers } from '@/components/diagram';
 import type { CellId } from '@joint/react-plus';
 
 /**
@@ -109,6 +109,8 @@ export function App() {
     // shape was added from the keyboard, so the user lands on the new
     // node's controls instead of being left on the button they pressed.
     const [focusToolbarFor, setFocusToolbarFor] = useState<CellId | null>(null);
+    // A fresh object per add, so adding twice in a row is two signals.
+    const [addedNode, setAddedNode] = useState<AddedNode | null>(null);
     const selectFromCanvas = useCallback((ids: readonly CellId[]) => {
         setSelection({ ids, origin: 'canvas' });
         // A selection the user made themselves must not re-trigger the
@@ -203,6 +205,7 @@ export function App() {
                 // its toolbar opens at once, as "+ Shape" does.
                 setSelection({ ids: [added.id], origin: 'canvas' });
                 setFocusToolbarFor(fromKeyboard ? added.id : null);
+                setAddedNode({ id: added.id });
             },
             onConnect: (from, to) => apply(addEdge(sourceRef.current, from, to)),
             onRemove: (id) => {
@@ -279,6 +282,7 @@ export function App() {
         setPresetId('custom');
         setSelection({ ids: [added.id], origin: 'canvas' });
         setFocusToolbarFor(fromKeyboard ? added.id : null);
+        setAddedNode({ id: added.id });
     }, [setSource]);
 
     function handleSourceChange(next: string, isHistoryStep: boolean) {
@@ -381,6 +385,7 @@ export function App() {
                         onLayoutChange={handleLayoutChange}
                         onAddShape={handleAddShape}
                         focusToolbarFor={focusToolbarFor}
+                        addedNode={addedNode}
                     />
                 </div>
             </main>

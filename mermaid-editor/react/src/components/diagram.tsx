@@ -364,6 +364,7 @@ interface CanvasProps {
     readonly onAddShape: (fromKeyboard: boolean) => void;
     /** Node whose toolbar takes focus when it opens (a keyboard add). */
     readonly focusToolbarFor: CellId | null;
+    readonly addedNode: AddedNode | null;
 }
 
 function Canvas({
@@ -379,6 +380,7 @@ function Canvas({
     onLayoutChange,
     onAddShape,
     focusToolbarFor,
+    addedNode,
 }: CanvasProps) {
     const { graph } = useGraph();
     const { paper } = usePaper();
@@ -399,6 +401,10 @@ function Canvas({
     // clicks upward. Subscribing to the collection here as well would close a
     // loop with the editor's caret, each side re-asserting what the other just
     // said, so the collection is written to and never read from.
+    //
+    // Applied again whenever the cells change, not only the ids: a node added
+    // from the canvas is selected before the parse has put it in the graph,
+    // so the first pass finds nothing — the second, once it exists, selects it.
     useEffect(() => {
         // A stale id outlives an edit that deleted its node, and selecting a
         // cell the graph no longer holds would throw.
@@ -410,7 +416,15 @@ function Canvas({
         // single element it returns just that element, which is what a canvas
         // click should do.
         selectCells(graph.getSubgraph(selected));
+    }, [cells, graph, selectCells, selectedIds]);
 
+    // Kept apart from the effect above, keyed on the ids alone: re-running on
+    // every parse would pull the camera back to an off-screen selection while
+    // the user types.
+    useEffect(() => {
+        const selected = selectedIds
+            .map((id) => graph.getCell(id))
+            .filter((cell): cell is dia.Cell => Boolean(cell));
         // Driving the selection from the caret can pick a node that is off
         // screen, so bring the first one into view. Scrolling only when it is
         // not already visible keeps a click on a node the user can see — or a
@@ -421,11 +435,13 @@ function Canvas({
         // A 0×0 element is pre-layout — it was just added and does not sit at
         // its real position yet. Scrolling would start a 150 ms
         // animation towards a meaningless point that then lands AFTER the
-        // post-layout fit and drags the camera off the diagram.
+        // post-layout fit and drags the camera off the diagram. A node added
+        // from the canvas is brought into view once laid out instead — see
+        // `revealIfPending`.
         if (first.size().width === 0) return;
         if (paperScroller.isElementVisible(first, VISIBILITY_OPTIONS)) return;
         paperScroller.scrollToElement(first, SCROLL_OPTIONS);
-    }, [graph, paperScroller, selectCells, selectedIds]);
+    }, [graph, paperScroller, selectedIds]);
     // A fit is *requested*, then consumed once the graph has been laid out —
     // framing before measurement would frame a graph of 0×0 boxes. Fresh on
     // every mount, so the first render of a graph always frames itself.
@@ -439,6 +455,29 @@ function Canvas({
         pendingFit.current = false;
         fit();
     }, [fit]);
+
+    // The node just added through "+" or "+ Shape". It has no position until
+    // the layout places it, so it is brought into view only then — a new node
+    // can land anywhere once the layout reshuffles the diagram.
+    const pendingReveal = useRef<CellId | null>(null);
+    useEffect(() => {
+        pendingReveal.current = addedNode?.id ?? null;
+    }, [addedNode]);
+    const revealIfPending = useCallback(() => {
+        const id = pendingReveal.current;
+        if (id === null || !paperScroller) return;
+        const element = graph.getCell(id);
+        // Not laid out yet: still waiting for its size.
+        if (!element?.isElement() || element.size().width === 0) return;
+        pendingReveal.current = null;
+        if (paperScroller.isElementVisible(element, VISIBILITY_OPTIONS)) return;
+        paperScroller.scrollToElement(element, SCROLL_OPTIONS);
+    }, [graph, paperScroller]);
+
+    const onLayoutSettled = useCallback(() => {
+        fitIfPending();
+        revealIfPending();
+    }, [fitIfPending, revealIfPending]);
 
     // `layout()` from `@joint/layout-elk` returns a promise. With the
     // synchronous ELK it settles in microtasks, so two runs cannot overlap in
@@ -494,7 +533,7 @@ function Canvas({
     // pre-layout position. ELK's result lands in microtasks after the flush,
     // still before the frame is painted (see `createSyncElk`).
     useOnElementsMeasured(({ graph: measuredGraph }) => {
-        settle(measuredGraph, fitIfPending);
+        settle(measuredGraph, onLayoutSettled);
     });
 
     // Secondary layout trigger, for edits that change what the layout depends
@@ -513,8 +552,8 @@ function Canvas({
     // and framing anything earlier would frame the previous layout.
     useEffect(() => {
         if (!paper) return;
-        settle(graph, fitIfPending);
-    }, [cells, fitIfPending, graph, paper, settle]);
+        settle(graph, onLayoutSettled);
+    }, [cells, graph, onLayoutSettled, paper, settle]);
 
     // Framing is its own signal, raised by the app when a different diagram is
     // loaded or relaid out wholesale — not on every parse. Typing must not
@@ -913,6 +952,13 @@ export interface MermaidDiagramProps {
     readonly onAddShape: (fromKeyboard: boolean) => void;
     /** Node whose toolbar takes focus when it opens (a keyboard add). */
     readonly focusToolbarFor: CellId | null;
+    /** The node just added from the canvas; brought into view once laid out. */
+    readonly addedNode: AddedNode | null;
+}
+
+/** A node added from the canvas. A new object per add, so each one is a signal. */
+export interface AddedNode {
+    readonly id: CellId;
 }
 
 /**
@@ -936,6 +982,7 @@ export function MermaidDiagram({
     onLayoutChange,
     onAddShape,
     focusToolbarFor,
+    addedNode,
 }: MermaidDiagramProps) {
     return (
         <Diagram
@@ -956,6 +1003,7 @@ export function MermaidDiagram({
                 onLayoutChange={onLayoutChange}
                 onAddShape={onAddShape}
                 focusToolbarFor={focusToolbarFor}
+                addedNode={addedNode}
             />
         </Diagram>
     );
