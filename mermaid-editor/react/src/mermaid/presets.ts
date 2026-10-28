@@ -23,8 +23,12 @@ export const PRESETS: readonly Preset[] = [
     },
     {
         id: 'release',
-        name: 'Release pipeline (LR)',
-        source: `flowchart LR
+        name: 'Release pipeline (LR, ELK)',
+        source: `---
+config:
+  layout: elk
+---
+flowchart LR
     commit([Commit pushed]) --> build[Build]
     build --> unit{Unit tests}
     unit -->|pass| e2e{E2E tests}
@@ -92,8 +96,12 @@ export const PRESETS: readonly Preset[] = [
     },
     {
         id: 'subgraphs',
-        name: 'Subgraphs and animation',
-        source: `flowchart LR
+        name: 'Subgraphs and animation (ELK)',
+        source: `---
+config:
+  layout: elk
+---
+flowchart LR
     subgraph intake [Intake]
         request([Request]) --> triage{Urgent?}
     end
