@@ -3,7 +3,7 @@ import { edgeSpans } from './edge-spans.ts';
 import type { EdgeSpan } from './edge-spans.ts';
 import { FLOWCHART_HEADER, META_BLOCK_BODY, parseFlowchartSpans } from './flowchart-tree.ts';
 import type { EdgeData } from './to-cells.ts';
-import type { FlowArrow, FlowStroke } from './types.ts';
+import type { FlowArrow, FlowLayout, FlowStroke } from './types.ts';
 
 /**
  * Targeted edits to Mermaid source, for the controls on a selected node.
@@ -508,6 +508,71 @@ export function setDirection(source: string, direction: string): string | null {
     const from = header.index + header[1].length;
     const to = from + (header[2]?.length ?? 0);
     return splice(source, from, to, ` ${direction}`);
+}
+
+/** Mermaid's front matter: a `---` fenced YAML block at the very top. */
+const FRONT_MATTER = /^---[ \t]*\r?\n([\s\S]*?)^---[ \t]*(?:\r?\n|$)/m;
+
+/**
+ * Switch the layout engine via the `layout` key under the front matter's
+ * `config:` block. `elk` writes it — adding the block, or the whole front
+ * matter, when missing; `dagre` is Mermaid's default, so it removes the key
+ * and then whatever that leaves empty.
+ *
+ * A line-level edit, not a YAML round trip: the rest of the front matter is
+ * kept as the author wrote it. A flow-style `config: { … }` is not one this
+ * can edit, and neither is a layout set by a `%%{init}%%` directive — that one
+ * keeps applying whatever the front matter says.
+ * @returns The updated source, `source` itself when nothing needs to change,
+ *   or `null` when there is no flowchart header or the config is flow-style.
+ */
+export function setLayout(source: string, layout: FlowLayout): string | null {
+    if (!FLOWCHART_HEADER.test(source)) return null;
+    const frontMatter = FRONT_MATTER.exec(source);
+    if (!frontMatter || frontMatter.index !== 0) {
+        if (layout === 'dagre') return source;
+        return `---\nconfig:\n  layout: elk\n---\n${source}`;
+    }
+    const lines = frontMatter[1].split(/\r?\n/);
+    // The split leaves an empty last entry for the newline before `---`.
+    if (lines.at(-1) === '') lines.pop();
+    const configAt = lines.findIndex((line) => /^config:/.test(line));
+    if (configAt !== -1 && !/^config:[ \t]*(?:#.*)?$/.test(lines[configAt])) return null;
+
+    // The block's own lines: everything indented (or blank) below `config:`.
+    let end = configAt + 1;
+    if (configAt !== -1) {
+        while (end < lines.length && (/^[ \t]/.test(lines[end]) || lines[end].trim() === '')) end += 1;
+    }
+    const firstChild = configAt === -1
+        ? undefined
+        : lines.slice(configAt + 1, end).find((line) => line.trim() !== '');
+    const indent = firstChild?.match(/^[ \t]+/)?.[0] ?? '  ';
+    const layoutAt = configAt === -1
+        ? -1
+        : lines.findIndex((line, index) =>
+            index > configAt && index < end && new RegExp(`^${indent}layout:`).test(line));
+
+    switch (layout) {
+        case 'elk': {
+            if (layoutAt !== -1) lines[layoutAt] = `${indent}layout: elk`;
+            else if (configAt !== -1) lines.splice(configAt + 1, 0, `${indent}layout: elk`);
+            else lines.push('config:', '  layout: elk');
+            break;
+        }
+        case 'dagre': {
+            if (layoutAt === -1) return source;
+            lines.splice(layoutAt, 1);
+            const isConfigEmpty = lines
+                .slice(configAt + 1, end - 1)
+                .every((line) => line.trim() === '');
+            if (isConfigEmpty) lines.splice(configAt, end - 1 - configAt);
+            break;
+        }
+    }
+    const rest = source.slice(frontMatter[0].length);
+    if (lines.every((line) => line.trim() === '')) return rest;
+    return `---\n${lines.join('\n')}\n---\n${rest}`;
 }
 
 /* ------------------------------------------------------------------------- *

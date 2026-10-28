@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@joint/layout-directed-graph": "4.3.0",
+    "@joint/layout-elk": "4.3.4",
     "@joint/plus": "4.3.4",
     "@joint/react-plus": "^4.3.4",
     "codemirror-lang-mermaid": "^0.5.0",
