@@ -1,8 +1,8 @@
 // `dia` comes from `@joint/plus` rather than `@joint/core` so the types are the
 // exact ones `@joint/react-plus` is built against — a second `@joint/core` copy
 // would make `useGraph()`'s graph unassignable to anything typed from it.
-import { anchors } from '@joint/plus';
-import type { dia } from '@joint/plus';
+import { anchors, g, V } from '@joint/plus';
+import type { connectionPoints, dia } from '@joint/plus';
 import { DirectedGraph } from '@joint/layout-directed-graph';
 import { layout as elkLayout } from '@joint/layout-elk';
 import type { Direction as ElkDirection } from '@joint/layout-elk';
@@ -41,6 +41,7 @@ import { NodeEditingContext } from './node-editing';
 import type { NodeEditing } from './node-editing';
 import { NodeToolbar } from './node-toolbar';
 import { RenderNode } from './render-node';
+import { getShapeSpec } from './shapes';
 import { ZoomControls } from './zoom-controls';
 
 const FIT_OPTIONS: ZoomToFitOptions = {
@@ -148,6 +149,60 @@ function layoutEndAnchor(mode: 'vertical' | 'horizontal'): anchors.Anchor {
             endType,
             linkView
         );
+    };
+}
+
+/**
+ * The outline a node is drawn with, in paper coordinates — from the model
+ * alone (shape name and size, through the same `getShapeSpec` the renderer
+ * draws with), so it never reads the DOM. `null` where the bbox already is the
+ * outline: rectangles, image cards, subgraphs and the outline-less `text`.
+ */
+function getModelOutline(element: dia.Element): g.Path | g.Ellipse | null {
+    const data = element.get('data') as NodeData | undefined;
+    if (!data || data.isGroup || data.img !== undefined) return null;
+    const bbox = element.getBBox();
+    const outline = getShapeSpec(data.shape).outline(bbox);
+    switch (outline.kind) {
+        case 'none':
+        case 'rect':
+            return null;
+        case 'ellipse':
+            return g.Ellipse.fromRect(bbox);
+        case 'path':
+            // `g.Path` reads only M/L/C/Z; the outlines use H/V and arcs too.
+            return new g.Path(V.normalizePathData(outline.d)).translate(bbox.x, bbox.y);
+    }
+}
+
+/** The point of `points` closest to `reference`, if there is any. */
+function getNearest(points: g.Point[] | null, reference: g.Point): g.Point | undefined {
+    return points?.toSorted((a, b) => a.squaredDistance(reference) - b.squaredDistance(reference))[0];
+}
+
+/**
+ * Ends a link on the node's drawn outline rather than its bbox.
+ *
+ * The routing preset stops a link at the bbox — right for a rectangle, and for
+ * a diamond's mid-side anchors, which sit on its vertices. ELK, though,
+ * attaches anywhere along a side, where a diamond or a circle is well inside
+ * the box: the link stopped short of the shape. The end segment, extended into
+ * the box, is cut with the outline and the preset's point shifted along it by
+ * the bbox-to-outline gap — so the preset's arrow offset is kept as it is.
+ */
+function onModelOutline(preset: connectionPoints.ConnectionPoint): connectionPoints.ConnectionPoint {
+    return (line, endView, endMagnet, opt, endType, linkView) => {
+        const point = preset(line, endView, endMagnet, opt, endType, linkView);
+        const element = endView.model;
+        if (!element.isElement()) return point;
+        const outline = getModelOutline(element);
+        if (!outline) return point;
+        const bbox = element.getBBox();
+        const ray = new g.Line(line.start, line.end.clone().move(line.start, bbox.width + bbox.height));
+        const onBox = getNearest(bbox.intersectionWithLine(ray), line.start);
+        const onOutline = getNearest(outline.intersectionWithLine(ray), line.start);
+        if (!onBox || !onOutline) return point;
+        return point.offset(onOutline.x - onBox.x, onOutline.y - onBox.y);
     };
 }
 
@@ -328,7 +383,11 @@ function Canvas({
     const { graph } = useGraph();
     const { paper } = usePaper();
     const linkRouting = useMemo(
-        () => ({ ...LINK_ROUTING, defaultAnchor: layoutEndAnchor(ANCHOR_MODE[direction]) }),
+        () => ({
+            ...LINK_ROUTING,
+            defaultAnchor: layoutEndAnchor(ANCHOR_MODE[direction]),
+            defaultConnectionPoint: onModelOutline(LINK_ROUTING.defaultConnectionPoint as connectionPoints.ConnectionPoint),
+        }),
         [direction]
     );
     const { selectCells } = useSelection();
