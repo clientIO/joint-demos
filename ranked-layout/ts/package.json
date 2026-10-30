@@ -1,0 +1,27 @@
+{
+  "name": "@joint/demo-ranked-layout-ts",
+  "version": "4.3.4",
+  "description": "JointJS - Ranked Layout",
+  "main": "src/main.ts",
+  "homepage": "https://jointjs.com",
+  "author": {
+    "name": "client IO",
+    "url": "https://client.io"
+  },
+  "license": "http://jointjs.com/license",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@joint/core": "4.3.4",
+    "@joint/layout-directed-graph": "4.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}
