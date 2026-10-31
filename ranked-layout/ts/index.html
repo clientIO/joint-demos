@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Ranked Layout | JointJS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+  <div class="ranked-hud">
+    <h1>Ranked Layout</h1>
+    <div class="ranked-control">
+      <label for="seed">Seed</label>
+      <div>
+        <input type="number" id="seed" min="1" step="1" value="1" />
+        <button id="randomize" title="Random seed">Randomize</button>
+      </div>
+    </div>
+    <div class="ranked-control">
+      <label for="ranks">Ranks</label>
+      <div>
+        <input type="range" id="ranks" min="2" max="12" step="1" value="5" />
+        <output for="ranks"></output>
+      </div>
+    </div>
+    <div class="ranked-control">
+      <label for="elements">Elements</label>
+      <div>
+        <input type="range" id="elements" min="2" max="120" step="1" value="24" />
+        <output for="elements"></output>
+      </div>
+    </div>
+    <div class="ranked-control">
+      <label for="links">Links</label>
+      <div>
+        <input type="range" id="links" min="0" max="200" step="1" value="32" />
+        <output for="links"></output>
+      </div>
+    </div>
+    <div class="ranked-control">
+      <label for="jump-link-room">Room for jump links</label>
+      <div>
+        <input type="checkbox" id="jump-link-room" />
+      </div>
+    </div>
+    <div class="ranked-control">
+      <label for="center-ranks">Center ranks</label>
+      <div>
+        <input type="checkbox" id="center-ranks" />
+      </div>
+    </div>
+    <div class="ranked-control">
+      <label for="curvature">Curvature</label>
+      <div>
+        <input type="range" id="curvature" min="0.05" max="1" step="0.05" value="0.25" />
+        <output for="curvature"></output>
+      </div>
+    </div>
+  </div>
+  <div id="paper"></div>
+  <script type="module" src="./src/main.ts"></script>
+</body>
+
+</html>

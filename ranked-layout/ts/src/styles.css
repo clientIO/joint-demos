@@ -1,0 +1,68 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: sans-serif;
+    color: #1f2937;
+}
+
+body {
+    display: flex;
+}
+
+#paper {
+    flex: 1;
+    min-width: 0;
+}
+
+.ranked-hud {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 0 0 280px;
+    padding: 16px;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+}
+
+.ranked-hud h1 {
+    margin: 0 0 4px;
+    font-size: 16px;
+}
+
+.ranked-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.ranked-control div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ranked-control input[type='number'] {
+    width: 72px;
+}
+
+.ranked-control input[type='range'] {
+    width: 120px;
+}
+
+.ranked-control output {
+    min-width: 28px;
+    text-align: right;
+    color: #6b7280;
+}
+
+.ranked-dimmed {
+    opacity: 0.15;
+}
+
+.ranked-link-highlighted {
+    stroke: #0f172a;
+    stroke-width: 2.5;
+}
