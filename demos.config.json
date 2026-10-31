@@ -47,6 +47,12 @@
         "height": 800
       }
     },
+    "ranked-layout": {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      }
+    },
     "force-directed-layout": {
       "screenshotThreshold": 5
     },
