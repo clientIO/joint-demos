@@ -96,7 +96,11 @@ function createLink({ source, target }: LinkData): dia.Link {
             line: {
                 stroke: '#8a90a6',
                 strokeWidth: 1.5,
-                targetMarker: { d: `M 0 -4 ${-MARKER_SIZE} 0 0 4 z` }
+                targetMarker: {
+                    d: `M 0 -4 ${-MARKER_SIZE} 0 0 4 z`,
+                    // Follows the stroke of the line, also when the highlight changes it.
+                    fill: 'context-stroke'
+                }
             }
         }
     });

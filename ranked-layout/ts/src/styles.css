@@ -7,24 +7,23 @@ body {
     color: #1f2937;
 }
 
+body {
+    display: flex;
+}
+
 #paper {
-    position: absolute;
-    inset: 0;
+    flex: 1;
+    min-width: 0;
 }
 
 .ranked-hud {
-    position: absolute;
-    top: 16px;
-    left: 16px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 280px;
+    flex: 0 0 280px;
     padding: 16px;
     background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border-right: 1px solid #e5e7eb;
 }
 
 .ranked-hud h1 {
