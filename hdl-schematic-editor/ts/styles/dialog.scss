@@ -1,0 +1,64 @@
+.joint-dialog {
+    font-family: var(--font);
+
+    // The cell picker: a stencil of cards (see `CellOption`)
+    .joint-stencil {
+        .joint-paper {
+            background-color: var(--background);
+        }
+
+        .cell-option-body {
+            fill: var(--background);
+            stroke: var(--border);
+            transition: fill 0.15s, stroke 0.15s;
+        }
+
+        .joint-element:hover .cell-option-body {
+            fill: var(--muted);
+            stroke: var(--ring-strong);
+        }
+
+        .cell-option-label {
+            fill: var(--foreground);
+            font-family: var(--font);
+        }
+
+        .cell-option-description {
+            fill: var(--muted-foreground);
+            font-family: var(--font);
+        }
+    }
+
+    // A message: a text and a button closing it
+    &.message-dialog {
+        .body {
+            padding: 16px;
+            color: var(--foreground);
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            padding: 0 16px 16px;
+
+            // As the buttons of the toolbar (the theme)
+            .control-button {
+                height: 36px;
+                padding: 0 14px;
+                border: 1px solid var(--input);
+                border-radius: var(--radius-md);
+                background: var(--background);
+                box-shadow: var(--shadow-xs);
+                color: var(--foreground);
+                font: 500 14px/1 var(--font);
+                cursor: pointer;
+                transition: background-color 0.15s;
+
+                &:hover {
+                    background: var(--muted);
+                }
+            }
+        }
+    }
+}

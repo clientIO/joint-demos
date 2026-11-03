@@ -1,0 +1,9 @@
+/*
+ * The JointJS+ styles and the `minimal` theme (see `src/theme/README.md`), in cascade layers:
+ * the styles of the application (not layered, see `main.scss`) override them whatever the specificity.
+ */
+@layer joint, theme;
+
+@import '@joint/plus/joint-plus.css' layer(joint);
+@import '../src/theme/tokens.css';
+@import '../src/theme/theme-minimal.css' layer(theme);

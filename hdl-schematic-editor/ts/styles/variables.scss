@@ -1,0 +1,30 @@
+/*
+ * The variables of the application. The colors of the user interface are the design tokens
+ * of the `minimal` theme (`src/theme/tokens.css`), the variables below are the additional ones.
+ */
+:root {
+    /** Layout **/
+    --app-toolbar-height: 56px;
+    --app-inspector-width: 380px;
+    --app-stencil-width: 250px;
+    --app-inspector-top-offset: var(--app-toolbar-height);
+
+    /** The schematic (the KiCad default schematic colors, see `src/diagram/theme.ts`) **/
+    --app-paper: #F5F4EF;
+    --app-symbol-color: #840000;
+    --app-symbol-fill: #FFFFC2;
+    --app-wire: #009600;
+    --app-bus: #000084;
+    --app-error: #E00000;
+    --app-mono-font: "JetBrains Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
+
+    /** The selection on the canvas (the selection color of the theme) **/
+    --app-selection: var(--selection);
+    --app-selection-shadow: color-mix(in srgb, var(--selection) 45%, transparent);
+
+    /** The syntax colors of the JSON (the schematic colors) **/
+    --app-json-key: #840000;
+    --app-json-string: #006464;
+    --app-json-number: #000084;
+    --app-json-literal: #840084;
+}

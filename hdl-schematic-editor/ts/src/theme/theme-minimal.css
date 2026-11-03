@@ -1,0 +1,817 @@
+/*
+ * The `minimal` theme of JointJS+: flat, thin borders, muted colors - the components styled from scratch on the design
+ * tokens of `tokens.css` (their names as the CSS variables of shadcn/ui: an app using them gets matching components;
+ * inspired by shadcn/ui, MIT). The dark scheme is the one of the tokens.
+ *
+ *     @import '@joint/plus/joint-plus.css' layer(joint);
+ *     @import './theme/tokens.css';
+ *     @import './theme/theme-minimal.css' layer(theme);
+ *
+ *     setTheme('minimal');
+ *
+ * Every rule is scoped to the theme (`.joint-theme-minimal`): the components of another theme are not touched. In a layer
+ * of its own the styles of the app override it whatever the specificity of their selectors.
+ */
+
+/* An icon drawn from one of the `--icon-*` masks, in the color of the text. */
+.joint-toolbar.joint-theme-minimal button::before,
+.joint-stencil.joint-theme-minimal .search-wrap::before,
+.joint-theme-minimal .group > .group-label::before,
+.joint-inspector.joint-theme-minimal .btn-list-del::before {
+    content: '';
+    display: inline-block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    mask: var(--icon) center / contain no-repeat;
+}
+
+/* Toolbar */
+
+/* `ui.Toolbar` replaces the classes of its element. */
+.joint-toolbar.joint-theme-minimal {
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+    gap: 12px;
+    height: 56px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--background);
+}
+
+.joint-toolbar.joint-theme-minimal .joint-toolbar-group {
+    gap: 0;
+}
+
+.joint-toolbar.joint-theme-minimal .joint-widget + .joint-widget,
+.joint-toolbar-group.joint-theme-minimal + .joint-toolbar-group {
+    margin-left: 0;
+}
+
+/* A group aligned to the right (`align: ui.Toolbar.Align.Right`) */
+.joint-toolbar.joint-theme-minimal .joint-toolbar-group.right.group-first {
+    margin-left: auto;
+}
+
+/* A button of the toolbar: outlined, with an icon and / or a text. */
+.joint-toolbar.joint-theme-minimal button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--input);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    box-shadow: var(--shadow-xs);
+    color: var(--foreground);
+    font: 500 14px/1 var(--font);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.joint-toolbar.joint-theme-minimal button:hover:not(:disabled) {
+    background: var(--muted);
+}
+
+.joint-toolbar.joint-theme-minimal button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--ring);
+    border-color: var(--ring-strong);
+}
+
+.joint-toolbar.joint-theme-minimal button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.joint-toolbar.joint-theme-minimal [data-type="zoomIn"] { --icon: var(--icon-zoom-in); }
+.joint-toolbar.joint-theme-minimal [data-type="zoomOut"] { --icon: var(--icon-zoom-out); }
+.joint-toolbar.joint-theme-minimal [data-type="undo"] { --icon: var(--icon-undo); }
+
+/* An active button (e.g. of a panel that is open) */
+.joint-toolbar.joint-theme-minimal button.active {
+    background: var(--muted);
+}
+.joint-toolbar.joint-theme-minimal [data-type="redo"] { --icon: var(--icon-redo); }
+
+/* A group (of the stencil, of the inspector): a header that opens and closes it, and its content. */
+.joint-theme-minimal .group {
+    border-bottom: 1px solid var(--border);
+}
+
+.joint-theme-minimal .group > .group-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 12px 16px;
+    background: none;
+    color: var(--foreground);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    user-select: none;
+    cursor: pointer;
+}
+
+.joint-theme-minimal .group > .group-label:hover {
+    background: var(--muted);
+}
+
+.joint-theme-minimal .group > .group-label::before {
+    --icon: var(--icon-chevron);
+    order: 1;
+    margin-left: auto;
+    width: 14px;
+    height: 14px;
+    color: var(--muted-foreground);
+    transition: transform 0.2s;
+}
+
+.joint-theme-minimal .group.closed > .group-label::before {
+    transform: rotate(-90deg);
+}
+
+/* Stencil */
+
+.joint-stencil.joint-theme-minimal .search-wrap {
+    position: relative;
+    height: 60px;
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* The magnifier inside the search field */
+.joint-stencil.joint-theme-minimal .search-wrap::before {
+    --icon: var(--icon-search);
+    position: absolute;
+    top: 22px;
+    left: 23px;
+    /* Above the input, which the layout of the stencil puts at `z-index: 1`. */
+    z-index: 2;
+    color: var(--muted-foreground);
+    pointer-events: none;
+}
+
+/* The groups are below the search. */
+.joint-stencil.joint-theme-minimal > .content {
+    top: 60px;
+}
+
+.joint-stencil.joint-theme-minimal .search {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px 0 34px;
+    border: 1px solid var(--input);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    box-shadow: var(--shadow-xs);
+    color: var(--foreground);
+    font: 14px var(--font);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.joint-stencil.joint-theme-minimal .search::placeholder {
+    color: var(--muted-foreground);
+}
+
+.joint-stencil.joint-theme-minimal .search:focus {
+    border-color: var(--ring-strong);
+    box-shadow: 0 0 0 3px var(--ring);
+}
+
+/* The layout of the stencil caps a collapsed group at the height of its label. */
+.joint-stencil.joint-theme-minimal .group.closed {
+    max-height: none;
+}
+
+.joint-stencil.joint-theme-minimal .group.closed > .elements {
+    display: none;
+}
+
+/* A search hides the links that don't match too (the default CSS of the stencil hides the elements only) */
+.joint-stencil.joint-theme-minimal .joint-link.unmatched {
+    display: none;
+}
+
+/* A cleared search shows the empty groups again (the stencil leaves them unmatched). */
+.joint-stencil.joint-theme-minimal:not(.stencil-filtered) .group.unmatched:not([hidden]) {
+    display: block;
+}
+
+/* The clear button of the search field */
+.joint-stencil.joint-theme-minimal .search::-webkit-search-cancel-button {
+    width: 14px;
+    height: 14px;
+    background-color: var(--muted-foreground);
+    mask: var(--icon-close) center / contain no-repeat;
+    appearance: none;
+    cursor: pointer;
+}
+
+/* No match: the message of the stencil, below the search. */
+.joint-stencil.joint-theme-minimal.not-found::after {
+    top: 76px;
+    height: auto;
+    padding: 0 16px;
+    color: var(--muted-foreground);
+    font-size: 13px;
+}
+
+/*
+ * The `cellCursor` option of the stencil also sets `pointer-events: bounding-box` on every part
+ * of the cells: the bounding box of a straight link has no height (its stroke doesn't count), so it couldn't be
+ * grabbed. The links hit-tested by their strokes again (the cursor stays).
+ */
+.joint-stencil.joint-theme-minimal.has-cell-cursor .joint-cell.joint-link * {
+    pointer-events: visiblePainted;
+}
+
+/* Inspector */
+
+.joint-inspector.joint-theme-minimal {
+    font-size: 14px;
+}
+
+.joint-inspector.joint-theme-minimal .group {
+    padding-bottom: 8px;
+}
+
+.joint-inspector.joint-theme-minimal .group.closed {
+    padding-bottom: 0;
+}
+
+/*
+ * A closed group hides its fields. The layout of the inspector does it too,
+ * but in the `joint` layer, where the `display` of the fields below would win over it.
+ */
+.joint-inspector.joint-theme-minimal .group.closed > .field {
+    display: none;
+}
+
+.joint-inspector.joint-theme-minimal .field {
+    padding: 6px 16px 10px;
+}
+
+.joint-inspector.joint-theme-minimal label {
+    display: block;
+    margin: 0 0 6px;
+    color: var(--foreground);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* The layout of the inspector appends a colon to every label. */
+.joint-inspector.joint-theme-minimal label::after {
+    content: none;
+}
+
+/* Text, number, a text of several lines */
+
+.joint-inspector.joint-theme-minimal input[type="text"],
+.joint-inspector.joint-theme-minimal input[type="number"],
+.joint-inspector.joint-theme-minimal textarea,
+.joint-inspector.joint-theme-minimal select {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--input);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    box-shadow: var(--shadow-xs);
+    color: var(--foreground);
+    font: 14px var(--font);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.joint-inspector.joint-theme-minimal input[type="text"]:focus,
+.joint-inspector.joint-theme-minimal input[type="number"]:focus,
+.joint-inspector.joint-theme-minimal textarea:focus,
+.joint-inspector.joint-theme-minimal select:focus {
+    border-color: var(--ring-strong);
+    box-shadow: 0 0 0 3px var(--ring);
+}
+
+.joint-inspector.joint-theme-minimal input[type="number"] {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Its lines: as high as 3 of them at first, taller by the user */
+.joint-inspector.joint-theme-minimal textarea {
+    display: block;
+    height: auto;
+    min-height: 76px;
+    padding: 8px 12px;
+    line-height: 20px;
+    resize: vertical;
+}
+
+/* Range: the label on the left, the value on the right, the slider below. */
+
+.joint-inspector.joint-theme-minimal .range-field {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+}
+
+.joint-inspector.joint-theme-minimal .range-field label.with-output {
+    float: none;
+    flex: 1;
+}
+
+.joint-inspector.joint-theme-minimal .range-field output,
+.joint-inspector.joint-theme-minimal .range-field .units {
+    float: none;
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+
+.joint-inspector.joint-theme-minimal input[type="range"] {
+    flex-basis: 100%;
+    width: 100%;
+    margin: 8px 0 0;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* Toggle: a switch. (The inspector lays the checkbox transparently over it.) */
+
+.joint-inspector.joint-theme-minimal .toggle-field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.joint-inspector.joint-theme-minimal .toggle-field > label {
+    margin: 0;
+}
+
+.joint-inspector.joint-theme-minimal .toggle {
+    flex-shrink: 0;
+    width: 36px;
+    height: 20px;
+}
+
+.joint-inspector.joint-theme-minimal .toggle input {
+    position: absolute;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+}
+
+.joint-inspector.joint-theme-minimal .toggle span {
+    border-radius: 999px;
+    background: var(--input);
+    transition: background-color 0.15s;
+}
+
+.joint-inspector.joint-theme-minimal .toggle span::before {
+    display: none;
+}
+
+.joint-inspector.joint-theme-minimal .toggle span i {
+    top: 2px;
+    right: auto;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--background);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+    transition: transform 0.15s;
+}
+
+.joint-inspector.joint-theme-minimal .toggle span i::before {
+    display: none;
+}
+
+.joint-inspector.joint-theme-minimal .toggle input:checked + span {
+    background: var(--primary);
+}
+
+.joint-inspector.joint-theme-minimal .toggle input:checked + span i {
+    right: auto;
+    transform: translateX(16px);
+}
+
+.joint-inspector.joint-theme-minimal .toggle input:focus-visible + span {
+    box-shadow: 0 0 0 3px var(--ring);
+}
+
+/*
+ * A list: a row per item - its properties and a button removing it;
+ * the labels of the properties above the first row only. The button adding an item below the rows.
+ */
+
+.joint-inspector.joint-theme-minimal .list-field > label,
+.joint-inspector.joint-theme-minimal .list-item .object-field > label {
+    display: none;
+}
+
+.joint-inspector.joint-theme-minimal .list-field .field {
+    padding: 0;
+}
+
+.joint-inspector.joint-theme-minimal .list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.joint-inspector.joint-theme-minimal .list-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.joint-inspector.joint-theme-minimal .list-item {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+}
+
+.joint-inspector.joint-theme-minimal .list-item .object-field {
+    flex: 1;
+    min-width: 0;
+}
+
+.joint-inspector.joint-theme-minimal .list-item .object-properties {
+    display: grid;
+    grid-template-columns: 36px 1fr 64px;
+    gap: 6px;
+}
+
+.joint-inspector.joint-theme-minimal .list-item:not(:first-child) .object-property label {
+    display: none;
+}
+
+.joint-inspector.joint-theme-minimal .list-item .object-property label {
+    color: var(--muted-foreground);
+    font-size: 12px;
+}
+
+.joint-inspector.joint-theme-minimal input[type="color"] {
+    display: block;
+    width: 36px;
+    height: 36px;
+    padding: 3px;
+    border: 1px solid var(--input);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    box-shadow: var(--shadow-xs);
+    cursor: pointer;
+}
+
+.joint-inspector.joint-theme-minimal input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.joint-inspector.joint-theme-minimal input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: calc(var(--radius-md) - 3px);
+}
+
+.joint-inspector.joint-theme-minimal input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: calc(var(--radius-md) - 3px);
+}
+
+/* The button removing the item: a trash icon (instead of its text) at the end of the row */
+.joint-inspector.joint-theme-minimal .btn-list-del {
+    --icon: var(--icon-trash);
+    order: 1;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 36px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--muted-foreground);
+    font-size: 0;
+    cursor: pointer;
+}
+
+.joint-inspector.joint-theme-minimal .btn-list-del:hover {
+    background: var(--muted);
+    color: var(--foreground);
+}
+
+.joint-inspector.joint-theme-minimal .btn-list-add {
+    order: 1;
+    height: 32px;
+    border: 1px dashed var(--input);
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--muted-foreground);
+    font: 500 13px/1 var(--font);
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.joint-inspector.joint-theme-minimal .btn-list-add:hover {
+    background: var(--muted);
+    color: var(--foreground);
+}
+
+.joint-inspector.joint-theme-minimal .btn-list-add:disabled,
+.joint-inspector.joint-theme-minimal .btn-list-add.disabled {
+    display: none;
+}
+
+/* Select button group: a segmented control. */
+
+.joint-select-button-group.joint-theme-minimal {
+    display: flex;
+    padding: 3px;
+    border-radius: var(--radius);
+    background: var(--muted);
+}
+
+.joint-theme-minimal .select-button-group-button {
+    /* As wide as the text (and the rest of the group shared): a long option keeps its padding */
+    flex: 1 1 auto;
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    color: var(--muted-foreground);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.joint-theme-minimal .select-button-group-button:hover {
+    color: var(--foreground);
+}
+
+.joint-theme-minimal .select-button-group-button.selected {
+    background: var(--background);
+    box-shadow: var(--shadow-xs);
+    color: var(--foreground);
+}
+
+/* The region selecting the cells (Shift + drag on the blank canvas, `ui.Selection`) */
+
+.joint-selection.joint-theme-minimal.lasso {
+    opacity: 1;
+    border: 1px solid var(--selection);
+    background: color-mix(in srgb, var(--selection) 10%, transparent);
+}
+
+/* The handles of a single selected element (`ui.FreeTransform`): no frame of its own (the selection frames it) */
+
+.joint-free-transform.joint-theme-minimal {
+    border: none;
+}
+
+.joint-free-transform.joint-theme-minimal > div {
+    border: 1.5px solid var(--selection);
+    border-radius: 2px;
+    background: var(--background);
+    box-shadow: var(--shadow-xs);
+}
+
+.joint-free-transform.joint-theme-minimal > .rotate {
+    border-radius: 50%;
+}
+
+.joint-free-transform.joint-theme-minimal > div:hover,
+.joint-free-transform.joint-theme-minimal > div.in-operation {
+    background: var(--selection);
+}
+
+/* The snaplines of a moved or resized element (`ui.Snaplines`: its lines have no color outside of its own themes) */
+
+.joint-snaplines.joint-theme-minimal .snapline.horizontal {
+    border-bottom: 1px dashed var(--selection);
+}
+
+.joint-snaplines.joint-theme-minimal .snapline.vertical {
+    border-right: 1px dashed var(--selection);
+}
+
+/* The handles of a selected link (`linkTools`): its ends and its vertices, the vertices smaller */
+.joint-theme-minimal .source-arrowhead,
+.joint-theme-minimal .target-arrowhead,
+.joint-theme-minimal .vertex-handle {
+    /* In the color set by the tool, ringed with the background, lifted a little from the link */
+    stroke: var(--background);
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
+    /* Not a transform: the tool places the dot with its `transform` attribute. */
+    transition: r 0.12s ease-out;
+}
+
+.joint-theme-minimal .source-arrowhead:hover,
+.joint-theme-minimal .target-arrowhead:hover,
+.joint-theme-minimal .vertex-handle:hover {
+    filter: drop-shadow(0 1px 3px rgb(0 0 0 / 0.45));
+}
+
+.joint-theme-minimal .source-arrowhead:hover,
+.joint-theme-minimal .target-arrowhead:hover {
+    r: 12px;
+}
+
+.joint-theme-minimal .vertex-handle:hover {
+    r: 9px;
+}
+
+/* Navigator (`ui.Navigator`): the visible area */
+
+.joint-navigator.joint-theme-minimal .current-view {
+    border: 1.5px solid var(--selection);
+    border-radius: var(--radius-sm);
+}
+
+/* A select of the inspector: as the text inputs, with a chevron (in the color of the text, drawn by its field) */
+.joint-inspector.joint-theme-minimal select {
+    appearance: none;
+    padding-right: 32px;
+    cursor: pointer;
+}
+
+.joint-inspector.joint-theme-minimal .select-field {
+    position: relative;
+}
+
+.joint-inspector.joint-theme-minimal .select-field::after {
+    content: '';
+    position: absolute;
+    /* In the middle of the right end of the select (inside the padding of the field) */
+    right: 28px;
+    bottom: 21px;
+    width: 14px;
+    height: 14px;
+    background-color: var(--muted-foreground);
+    mask: var(--icon-chevron) center / contain no-repeat;
+    pointer-events: none;
+}
+
+/* Tooltips (`ui.Tooltip`): a bubble in the primary color with a small arrow pointing to the target */
+
+.joint-tooltip.joint-theme-minimal {
+    /* A long text wraps. */
+    max-width: 280px;
+    border-radius: var(--radius-md);
+    background: var(--primary);
+    box-shadow: var(--shadow-xs);
+    color: var(--primary-foreground);
+    font: 500 12px/1.4 var(--font);
+}
+
+.joint-tooltip.joint-theme-minimal .tooltip-content {
+    padding: 6px 10px;
+}
+
+.joint-tooltip.joint-theme-minimal .tooltip-arrow {
+    border-width: 5px;
+}
+
+.joint-tooltip.joint-theme-minimal.left .tooltip-arrow,
+.joint-tooltip.joint-theme-minimal.right .tooltip-arrow {
+    margin-top: -5px;
+}
+
+.joint-tooltip.joint-theme-minimal.top .tooltip-arrow,
+.joint-tooltip.joint-theme-minimal.bottom .tooltip-arrow {
+    margin-left: -5px;
+}
+
+.joint-tooltip.joint-theme-minimal .tooltip-arrow-mask {
+    display: none;
+}
+
+.joint-tooltip.joint-theme-minimal.left .tooltip-arrow { border-right-color: var(--primary); }
+.joint-tooltip.joint-theme-minimal.right .tooltip-arrow { border-left-color: var(--primary); }
+.joint-tooltip.joint-theme-minimal.top .tooltip-arrow { border-bottom-color: var(--primary); }
+.joint-tooltip.joint-theme-minimal.bottom .tooltip-arrow { border-top-color: var(--primary); }
+
+/* A context toolbar (`ui.ContextToolbar`) as a menu: a popover of items */
+
+.joint-context-toolbar.joint-theme-minimal {
+    position: fixed;
+    z-index: 100;
+    min-width: 200px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    box-shadow: var(--shadow-md);
+    font: 13px var(--font);
+}
+
+.joint-context-toolbar.joint-theme-minimal .tools {
+    display: flex;
+    flex-direction: column;
+}
+
+.joint-context-toolbar.joint-theme-minimal .tool {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    height: 30px;
+    padding: 0 8px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--foreground);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.joint-context-toolbar.joint-theme-minimal .tool:hover:not(:disabled) {
+    background: var(--muted);
+}
+
+.joint-context-toolbar.joint-theme-minimal .tool:disabled {
+    color: var(--muted-foreground);
+    cursor: default;
+}
+
+/* Dialog (`ui.Dialog`) */
+
+.joint-dialog.joint-theme-minimal .fg {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--background);
+    box-shadow: var(--shadow-md);
+    color: var(--foreground);
+}
+
+.joint-dialog.joint-theme-minimal .titlebar {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: none;
+    color: var(--foreground);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.joint-dialog.joint-theme-minimal .fg {
+    overflow: hidden;
+}
+
+/* Moved by its title bar */
+.joint-dialog.joint-theme-minimal.draggable .titlebar {
+    cursor: move;
+}
+
+.joint-dialog.joint-theme-minimal .body {
+    padding: 0;
+}
+
+/* The close button: an icon, as the clear button of the search */
+.joint-dialog.joint-theme-minimal .btn-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--muted-foreground);
+    font-size: 0;
+    line-height: 0;
+    cursor: pointer;
+}
+
+.joint-dialog.joint-theme-minimal .btn-close::before {
+    content: '';
+    display: block;
+    width: 14px;
+    height: 14px;
+    margin: auto;
+    background-color: currentColor;
+    mask: var(--icon-close) center / contain no-repeat;
+}
+
+.joint-dialog.joint-theme-minimal .btn-close:hover {
+    background: var(--muted);
+    color: var(--foreground);
+}

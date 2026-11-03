@@ -1,0 +1,71 @@
+@import './fonts';
+
+.toolbar-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 3;
+
+    .joint-toolbar {
+        box-sizing: border-box;
+        height: var(--app-toolbar-height);
+        // The left and the right groups of buttons, the name of the module in the middle
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+
+        .joint-toolbar-group {
+            gap: 8px;
+        }
+
+        [data-group="left"] {
+            justify-self: start;
+        }
+
+        [data-group="right"] {
+            justify-self: end;
+        }
+
+        // The icons of the buttons (the tokens of the theme)
+        button[data-name="save"] { --icon: var(--icon-download); }
+        button[data-name="load"] { --icon: var(--icon-folder-open); }
+        button[data-name="new"] { --icon: var(--icon-file-plus); }
+        button[data-name="layout"] { --icon: var(--icon-network); }
+        button[data-name="example"] { --icon: var(--icon-book-open); }
+
+        // Undo and redo: icons only
+        [data-type="undo"],
+        [data-type="redo"] {
+            width: 36px;
+            padding: 0;
+        }
+
+        [data-type="separator"] {
+            align-self: stretch;
+            width: 1px;
+            margin: 10px 4px;
+            background: var(--border);
+        }
+
+        // The name of the module (editable)
+        .joint-widget[data-type="editableText"] {
+            font: 600 14px var(--font);
+            color: var(--foreground);
+            outline: none;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            text-align: center;
+            padding: 7px 13px;
+
+            &:hover {
+                border-color: var(--border);
+            }
+
+            &:focus {
+                border-color: var(--ring-strong);
+                box-shadow: 0 0 0 3px var(--ring);
+            }
+        }
+    }
+}

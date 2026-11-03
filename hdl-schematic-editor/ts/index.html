@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The JointJS+ HDL Schematic Editor lets you edit a Yosys JSON netlist as a schematic diagram.">
+    <title>JointJS+ HDL Schematic Editor</title>
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+<body>
+
+<div id="app">
+    <div class="toolbar-container"></div>
+    <div class="stencil-container"></div>
+    <div class="paper-container"></div>
+    <div class="sidebar-container">
+        <div class="inspector-container">
+            <div class="inspector-header hidden">
+                <span class="inspector-header-symbol"></span>
+                <div class="inspector-header-text-wrapper">
+                    <span class="inspector-header-name"></span>
+                    <span class="inspector-header-hint"></span>
+                </div>
+            </div>
+            <div class="inspector-separator hidden"></div>
+            <div class="inspector-content"></div>
+        </div>
+        <div class="json-container"></div>
+    </div>
+    <div class="navigator-container"></div>
+</div>
+
+<!-- Application files:  -->
+<script src="bundle.js"></script>
+
+</body>
+</html>

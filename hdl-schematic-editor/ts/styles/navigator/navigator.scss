@@ -1,0 +1,112 @@
+.navigator-container {
+    position: absolute;
+    left: calc(var(--app-stencil-width) + 16px);
+    bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--background);
+    box-shadow: var(--shadow-md);
+    color: var(--muted-foreground);
+    font: 12px/16px var(--font);
+
+    // A compact toolbar (the toolbar of the theme is the main one)
+    .joint-toolbar {
+        height: 48px;
+        padding: 0 8px;
+        border-bottom: none;
+
+        .joint-toolbar-group {
+            gap: 4px;
+        }
+
+        // The icon buttons (the icons are the tokens of the theme, see `Navigator.ts`)
+        button {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-color: transparent;
+            box-shadow: none;
+            background: transparent;
+            color: var(--muted-foreground);
+
+            &:hover:not(:disabled) {
+                background: var(--muted);
+                color: var(--foreground);
+            }
+
+            &.active {
+                background: var(--muted);
+                color: var(--foreground);
+            }
+        }
+
+        [data-type="separator"] {
+            align-self: stretch;
+            width: 1px;
+            margin: 12px 4px;
+            background: var(--border);
+        }
+
+        .joint-widget[data-type="zoomSlider"] {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 4px;
+
+            output {
+                min-width: 34px;
+                font-variant-numeric: tabular-nums;
+                color: var(--muted-foreground);
+            }
+
+            input {
+                accent-color: var(--primary);
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+.joint-navigator {
+    max-height: 180px;
+    transform: scale(1);
+    transform-origin: center bottom;
+    transition: 0.3s ease-in-out;
+    transition-property: max-height, transform;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--app-paper);
+
+    .current-view:not(&.hidden) {
+        opacity: 1;
+        transition-delay: 0.3s;
+        transition-property: opacity;
+        transition-duration: 0.3s;
+        transition-timing-function: ease-in-out;
+    }
+
+    .joint-paper {
+        box-shadow: none;
+
+        .joint-link {
+
+            .labels {
+                display: none;
+            }
+        }
+    }
+
+    &.hidden {
+        max-height: 0;
+        transform: scale(0);
+        border-bottom: none;
+
+        .current-view {
+            opacity: 0;
+            transition: none;
+        }
+    }
+}
