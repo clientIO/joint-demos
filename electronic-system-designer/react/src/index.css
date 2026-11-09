@@ -1,0 +1,814 @@
+/* Font first (plain url import, before Tailwind's layered imports). */
+@import "@fontsource-variable/archivo";
+@import "tailwindcss";
+@import "@joint/react-plus/styles.css" layer(components);
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================================
+   INK & SIGNAL — Electronic System Designer design tokens.
+   Register: product. Aesthetic: JointJS brand — ink-navy surfaces (hue 262),
+   the signature JointJS red (hue ~24) as the single brand accent, chamfered
+   corners echoing the jointjs.com geometry. On the canvas, COLOR IS DATA: each
+   interface type (power, I²C, UART, Ethernet, RS-485…) owns a hue, and the
+   chrome stays ink so the wiring is the loudest thing on screen. Every color
+   is OKLCH; neutrals are tinted toward the ink hue at low chroma.
+   ============================================================================ */
+
+/* LIGHT — cool engineering paper, the schematic reviewed at a desk. */
+:root {
+  /* Pin native UI (scrollbars, form controls) so they match the active theme. */
+  color-scheme: light;
+
+  --background: oklch(0.98 0.002 250);
+  --foreground: oklch(0.21 0.02 262);
+  --card: oklch(0.995 0.001 250);
+  --card-foreground: oklch(0.21 0.02 262);
+  --popover: oklch(0.995 0.001 250);
+  --popover-foreground: oklch(0.21 0.02 262);
+
+  /* The JointJS red. Deep enough that near-white text clears AA at 14 px
+     normal weight (≥4.5:1 measured by Lighthouse). */
+  --primary: oklch(0.505 0.195 25);
+  --primary-foreground: oklch(0.99 0.005 20);
+
+  --secondary: oklch(0.955 0.004 255);
+  --secondary-foreground: oklch(0.28 0.018 262);
+  --muted: oklch(0.955 0.004 255);
+  /* Dark enough for WCAG AA at small sizes on white cards. */
+  --muted-foreground: oklch(0.44 0.015 258);
+  --accent: oklch(0.945 0.005 255);
+  --accent-foreground: oklch(0.26 0.018 262);
+  --destructive: oklch(0.535 0.2 26);
+  --destructive-foreground: oklch(0.99 0.005 20);
+
+  --border: oklch(0.885 0.006 255);
+  --input: oklch(0.885 0.006 255);
+  --ring: oklch(0.505 0.195 25);
+
+  /* Canvas: a touch cooler/greyer than the shell — the drawing sheet. */
+  --canvas: oklch(0.962 0.004 250);
+
+  /* Canvas semantics. */
+  --live: oklch(0.54 0.205 25); /* energized / active accents               */
+  --dead: oklch(0.62 0.012 255); /* unresolved wire fallback                */
+  --symbol-ink: oklch(0.3 0.02 262); /* symbol strokes                      */
+
+  /* Typed interfaces — one hue per protocol; deep enough to read on paper. */
+  --iface-power: oklch(0.54 0.19 26);
+  --iface-gnd: oklch(0.5 0.015 258);
+  --iface-i2c: oklch(0.52 0.13 155);
+  --iface-uart: oklch(0.5 0.16 300);
+  --iface-eth: oklch(0.5 0.14 245);
+  --iface-rs485: oklch(0.58 0.13 75);
+  --iface-can: oklch(0.6 0.14 55);
+  --iface-spi: oklch(0.55 0.11 195);
+  --iface-usb: oklch(0.55 0.16 340);
+  --iface-gpio: oklch(0.5 0.05 262);
+  --iface-analog: oklch(0.55 0.09 210);
+
+  --status-success: oklch(0.45 0.13 150);
+  --status-warning: oklch(0.5 0.14 78);
+  /* Inline links: the brand red reads on light paper; dark needs a lifted one. */
+  --link: var(--primary);
+
+  /* The single decorative note: a faint maroon diagonal wash (brand echo). */
+  --wash-maroon: oklch(0.92 0.018 15);
+
+  /* Chamfer depth for the signature cut corners (top-left + bottom-right). */
+  --chamfer: 10px;
+  --chamfer-panel: 6px;
+
+  /* Panel elevation — cool, restrained. */
+  --panel-shadow:
+    0 1px 1px -0.5px color-mix(in oklch, oklch(0.2 0.02 262) 10%, transparent),
+    0 4px 12px -4px color-mix(in oklch, oklch(0.2 0.02 262) 14%, transparent);
+
+  /* JointJS bridge — grid, selection, connect feedback on-brand. */
+  --jj-paper-grid-color: oklch(0.885 0.005 252);
+  --jj-paper-color: var(--canvas);
+  --jj-paper-scroller-background: var(--canvas);
+  --jj-nav-background: var(--canvas);
+  --jj-nav-viewport-fill-color: color-mix(in oklch, var(--primary) 14%, transparent);
+  --jj-selection-wrapper-color: var(--primary);
+  --jj-selection-wrapper-width: 1.5px;
+  /* Angular identity: square selection frames, no rounding. */
+  --jj-selection-wrapper-radius: 0px;
+  --jj-selection-handle-color: var(--primary);
+  --jj-selection-selected-element-border-color: var(--primary);
+  --jj-selection-selected-link-color: var(--primary);
+  --jj-link-width: 2px;
+  --jj-color-valid: var(--status-success);
+  --jj-highlighter-connecting-color: var(--primary);
+  --jj-box-available-border-color: var(--status-success);
+  --jj-port-border-color: var(--border);
+  --jj-link-connecting-color: var(--primary);
+  --jj-link-connecting-dash: 7 5;
+}
+
+/* DARK (the lab bench at night) — ink navy. */
+.dark {
+  color-scheme: dark;
+
+  --background: oklch(0.185 0.014 262);
+  --foreground: oklch(0.945 0.005 250);
+  --card: oklch(0.24 0.016 262);
+  --card-foreground: oklch(0.945 0.005 250);
+  --popover: oklch(0.245 0.016 262);
+  --popover-foreground: oklch(0.945 0.005 250);
+
+  /* The JointJS red on ink — deep enough that near-white 14 px text clears
+     WCAG AA (≥4.5:1); the live/energized accent stays the brighter cousin. */
+  --primary: oklch(0.575 0.195 25);
+  --primary-foreground: oklch(0.985 0.005 20);
+
+  --secondary: oklch(0.285 0.016 262);
+  --secondary-foreground: oklch(0.9 0.006 255);
+  --muted: oklch(0.285 0.016 262);
+  /* Bright enough for WCAG AA at small sizes on dark cards. */
+  --muted-foreground: oklch(0.74 0.012 255);
+  --accent: oklch(0.305 0.017 262);
+  --accent-foreground: oklch(0.93 0.006 255);
+  --destructive: oklch(0.68 0.18 26);
+  --destructive-foreground: oklch(0.985 0.005 20);
+
+  --border: oklch(0.315 0.016 262);
+  --input: oklch(0.295 0.016 262);
+  --ring: oklch(0.62 0.2 24);
+  /* Focus ring stays the brighter red — it sits on dark surfaces, not under text. */
+
+  /* Deepest layer — the bench-instrument black behind the sheet. */
+  --canvas: oklch(0.16 0.012 262);
+
+  --live: oklch(0.65 0.2 25);
+  --dead: oklch(0.55 0.018 255);
+  --symbol-ink: oklch(0.9 0.008 250);
+
+  /* Typed interfaces — lifted for the ink canvas, chroma kept in check. */
+  --iface-power: oklch(0.66 0.19 26);
+  --iface-gnd: oklch(0.62 0.015 258);
+  --iface-i2c: oklch(0.74 0.14 155);
+  --iface-uart: oklch(0.72 0.15 300);
+  --iface-eth: oklch(0.7 0.13 245);
+  --iface-rs485: oklch(0.78 0.13 80);
+  --iface-can: oklch(0.75 0.14 55);
+  --iface-spi: oklch(0.75 0.11 195);
+  --iface-usb: oklch(0.72 0.15 340);
+  --iface-gpio: oklch(0.7 0.05 262);
+  --iface-analog: oklch(0.74 0.09 210);
+
+  --status-success: oklch(0.73 0.12 152);
+  --status-warning: oklch(0.78 0.12 80);
+  --link: oklch(0.74 0.16 25);
+
+  --wash-maroon: oklch(0.27 0.05 15);
+
+  --panel-shadow:
+    0 1px 2px -0.5px color-mix(in oklch, black 38%, transparent),
+    0 6px 18px -6px color-mix(in oklch, black 50%, transparent);
+
+  --jj-paper-grid-color: oklch(0.245 0.014 262);
+}
+
+/* Tailwind v4 theme — expose the tokens as utility colors + fonts. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-canvas: var(--canvas);
+  --color-live: var(--live);
+  --color-dead: var(--dead);
+  --color-symbol-ink: var(--symbol-ink);
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-link: var(--link);
+  --color-wash-maroon: var(--wash-maroon);
+
+  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+--------------------------------------------------------------------------- */
+
+body {
+  @apply bg-background font-sans text-foreground antialiased;
+}
+
+/* Keyboard-only focus, drawn INSIDE the element: `clip-path` (the chamfer)
+   clips outlines and outset shadows, so the ring must be an inset shadow. */
+:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--ring);
+}
+/* On the brand-red surfaces (active tab, primary buttons, the active net
+   chip) a red ring vanishes into the fill. Two tones: a band in the
+   surface's own text color, held 2px INSIDE the edge by a rim of the fill —
+   flush with the edge, the light band merged into the light page and the
+   button merely looked smaller. */
+.bg-primary:focus-visible {
+  box-shadow:
+    inset 0 0 0 2px var(--primary),
+    inset 0 0 0 4px var(--primary-foreground);
+}
+/* The scroll container cannot show its own ring: Chrome paints a scroll
+   container's outline and inset shadow UNDER the content it scrolls. The
+   sheet wrapper draws the ring instead, over the canvas, while the scroller
+   holds keyboard focus. */
+.esd-sheet:has(> .jj-paper-scroller:focus-visible)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 2px var(--ring);
+}
+
+/* ---------------------------------------------------------------------------
+   The chamfer — the signature JointJS diagonal, cut on top-left+bottom-right.
+--------------------------------------------------------------------------- */
+
+@utility chamfer {
+  clip-path: polygon(
+    var(--chamfer) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%,
+    0 100%,
+    0 var(--chamfer)
+  );
+}
+
+@utility chamfer-panel {
+  clip-path: polygon(
+    var(--chamfer-panel) 0,
+    100% 0,
+    100% calc(100% - var(--chamfer-panel)),
+    calc(100% - var(--chamfer-panel)) 100%,
+    0 100%,
+    0 var(--chamfer-panel)
+  );
+}
+
+/*
+ * A 1px border that FOLLOWS the chamfer. A plain CSS `border` is drawn on the
+ * rectangular box and the clip-path cuts its corners away — the diagonals end
+ * up borderless. This overlay paints the ring itself: one evenodd polygon
+ * whose outer loop is the chamfer outline and whose inner loop is the same
+ * outline inset by 1px, so only the ring between them fills. Set
+ * `--frame-chamfer` to match the element's cut (defaults to --chamfer) and
+ * `--frame-color` to recolor.
+ *
+ * The paint is a BORDER as wide as the cut, not a background: the clipped
+ * ring lies inside that band on every edge, diagonals included, and an
+ * overlay with no background is one contrast checkers see through. With a
+ * background here, axe could not tell what any text inside a framed panel
+ * sat on and left the whole page as "needs review".
+ */
+@utility chamfer-frame {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    pointer-events: none;
+    border: max(1px, var(--frame-chamfer, var(--chamfer))) solid var(--frame-color, var(--border));
+    clip-path: polygon(
+      evenodd,
+      var(--frame-chamfer, var(--chamfer)) 0,
+      100% 0,
+      100% calc(100% - var(--frame-chamfer, var(--chamfer))),
+      calc(100% - var(--frame-chamfer, var(--chamfer))) 100%,
+      0 100%,
+      0 var(--frame-chamfer, var(--chamfer)),
+      1px calc(var(--frame-chamfer, var(--chamfer)) + 0.5px),
+      1px calc(100% - 1px),
+      calc(100% - var(--frame-chamfer, var(--chamfer)) - 0.5px) calc(100% - 1px),
+      calc(100% - 1px) calc(100% - var(--frame-chamfer, var(--chamfer)) - 0.5px),
+      calc(100% - 1px) 1px,
+      calc(var(--frame-chamfer, var(--chamfer)) + 0.5px) 1px
+    );
+  }
+}
+
+/* Uppercase part-tag / panel-title register. */
+@utility text-tag {
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------------------
+   Canvas ambiance — one restrained maroon diagonal behind the paper
+   (the jointjs.com hero motif, at instrument volume). Decorative only.
+--------------------------------------------------------------------------- */
+
+.canvas-wash {
+  background:
+    linear-gradient(
+      118deg,
+      transparent 0 55%,
+      color-mix(in oklch, var(--wash-maroon) 55%, transparent) 55.2%,
+      color-mix(in oklch, var(--wash-maroon) 30%, transparent) 78%,
+      transparent 96%
+    );
+  opacity: 0.5;
+}
+
+/* ---------------------------------------------------------------------------
+   Typed-interface colors. Renderers stamp `data-iface` on a cell/wire group;
+   the group resolves ONE custom property that every mark inside then uses —
+   change the mapping here and both views + the palette follow.
+--------------------------------------------------------------------------- */
+
+[data-iface="power"] { --wire-color: var(--iface-power); }
+[data-iface="gnd"] { --wire-color: var(--iface-gnd); }
+[data-iface="i2c"] { --wire-color: var(--iface-i2c); }
+[data-iface="uart"] { --wire-color: var(--iface-uart); }
+[data-iface="eth"] { --wire-color: var(--iface-eth); }
+[data-iface="rs485"] { --wire-color: var(--iface-rs485); }
+[data-iface="can"] { --wire-color: var(--iface-can); }
+[data-iface="spi"] { --wire-color: var(--iface-spi); }
+[data-iface="usb"] { --wire-color: var(--iface-usb); }
+[data-iface="gpio"] { --wire-color: var(--iface-gpio); }
+[data-iface="analog"] { --wire-color: var(--iface-analog); }
+
+/* ---------------------------------------------------------------------------
+   Wires (drawn by renderLink over the invisible native line).
+--------------------------------------------------------------------------- */
+
+.esd-bundle,
+.esd-sch-wire {
+  stroke: var(--wire-color, var(--dead));
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 200ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* A multi-signal bundle reads as a double line: a canvas-colored core rides
+   the same path over the wider colored stroke. */
+.esd-bundle-core {
+  stroke: var(--canvas);
+  fill: none;
+  stroke-linecap: round;
+}
+
+/* Selection / trace underlay beneath the wire. */
+.esd-wire-halo {
+  stroke: color-mix(in oklch, var(--wire-color, var(--primary)) 32%, transparent);
+  fill: none;
+  stroke-linecap: round;
+}
+
+/* Click-to-trace: the whole net lifts with a same-hue glow; everything not on
+   the net drops back. The dim is on the GROUP, so labels fade with the wire. */
+[data-traced="true"] .esd-bundle,
+[data-traced="true"] .esd-sch-wire {
+  filter: drop-shadow(0 0 4px color-mix(in oklch, var(--wire-color, var(--live)) 65%, transparent));
+}
+[data-dimmed="true"] {
+  opacity: 0.16;
+}
+/* Pins and interface ports are native JointJS ports: siblings of the React
+   symbol group, not its children, so they follow its dim explicitly. */
+.joint-element:has([data-dimmed="true"]) .joint-port {
+  opacity: 0.16;
+}
+.esd-cell {
+  transition: opacity 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.esd-cell[data-traced="true"] .esd-block,
+.esd-cell[data-traced="true"] .esd-body {
+  filter: drop-shadow(0 0 5px color-mix(in oklch, var(--primary) 40%, transparent));
+}
+
+/* The twisted-pair "eye" badging differential nets (RS-485, CAN), drawn in
+   the wire's own interface color; its <title> is the tooltip. */
+.esd-diff-pair path {
+  fill: none;
+  stroke: color-mix(in oklch, var(--wire-color, var(--muted-foreground)) 82%, var(--foreground) 18%);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+
+/* Net / bundle labels sit horizontally at the routed path's midpoint (see
+   canvas/path-label.ts — a textPath would render upside-down on right-to-left
+   runs). The canvas-colored halo (paint-order) keeps them legible over the
+   grid and crossing wires. */
+.esd-wire-label {
+  fill: color-mix(in oklch, var(--wire-color, var(--muted-foreground)) 72%, var(--foreground) 28%);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  paint-order: stroke;
+  stroke: var(--canvas);
+  stroke-width: 3px;
+  /* The label is part of the wire's click target (thin wires are fiddly):
+     re-enable pointer events inside the pointer-events-none decoration group
+     so clicking a net NAME traces / double-clicking expands, like the wire. */
+  pointer-events: all;
+  cursor: pointer;
+}
+
+/* Live-mode flow dots (SMIL animateMotion along the routed path). */
+.esd-flow {
+  fill: var(--wire-color, var(--live));
+}
+
+/* Live-mode bus activity: a bright marching dash over protocol wires. */
+.esd-activity {
+  stroke: color-mix(in oklch, var(--wire-color, var(--live)) 80%, white 20%);
+  stroke-width: 2.4;
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 3 14;
+  animation: esd-march 0.9s linear infinite;
+  opacity: 0.9;
+}
+@keyframes esd-march {
+  to {
+    stroke-dashoffset: -17;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .esd-activity {
+    display: none;
+  }
+}
+
+/* The wire being DRAWN (see createDraftLink) — the one link whose NATIVE
+   line is visible. Marching dashes read as "in progress, not yet copper". */
+.esd-draft-line {
+  animation: esd-draft-march 0.6s linear infinite;
+}
+@keyframes esd-draft-march {
+  to {
+    stroke-dashoffset: -10; /* one full 6+4 dash period — seamless loop */
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .esd-draft-line {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Schematic symbols.
+--------------------------------------------------------------------------- */
+
+.esd-body {
+  /* OPAQUE on purpose: mixed toward the canvas color, never transparent —
+     wires routed behind a symbol must not read through its body. */
+  fill: color-mix(in oklch, var(--card) 62%, var(--canvas));
+  stroke: var(--symbol-ink);
+  stroke-width: 1.5;
+  transition: stroke 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.esd-stroke {
+  stroke: var(--symbol-ink);
+  fill: none;
+  stroke-width: 1.5;
+}
+.esd-fill {
+  fill: var(--symbol-ink);
+}
+/* The off-page-connector chevron on a net label that JOINS wire groups —
+   a label carrying connectivity must not pass for plain text. */
+.esd-net-flag {
+  fill: none;
+  stroke: color-mix(in oklch, var(--wire-color, var(--muted-foreground)) 85%, var(--foreground) 15%);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.esd-pin-line {
+  stroke: var(--symbol-ink);
+  stroke-width: 1.2;
+}
+.esd-pin-name {
+  fill: var(--muted-foreground);
+  font-family: var(--font-sans);
+  font-size: 8.5px;
+  font-weight: 550;
+}
+.esd-pin-number {
+  fill: color-mix(in oklch, var(--muted-foreground) 75%, transparent);
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+}
+.esd-part-name {
+  fill: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.esd-part-footprint {
+  fill: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+}
+.esd-ref {
+  fill: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 650;
+}
+.esd-junction {
+  fill: var(--symbol-ink);
+}
+.esd-offpage-tag {
+  fill: var(--symbol-ink);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+}
+.esd-live-chip {
+  fill: var(--live);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 650;
+}
+
+/* LED live state: halo + emitter light up from the operating point. */
+.esd-led-halo {
+  fill: transparent;
+  transition: fill 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-lit="true"] .esd-led-halo {
+  fill: color-mix(in oklch, var(--status-success) 28%, transparent);
+}
+[data-lit="true"] .esd-fill {
+  fill: var(--status-success);
+}
+
+/* ---------------------------------------------------------------------------
+   Architecture blocks + ports.
+--------------------------------------------------------------------------- */
+
+.esd-block {
+  /* Opaque like .esd-body — bundles behind a block must not show through. */
+  fill: color-mix(in oklch, var(--card) 78%, var(--canvas));
+  stroke: var(--symbol-ink);
+  stroke-width: 1.5;
+  transition: stroke 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.esd-block-name {
+  fill: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+.esd-board-tag {
+  fill: var(--muted-foreground);
+  font-family: var(--font-sans);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.esd-port-line {
+  stroke: var(--symbol-ink);
+  stroke-width: 1.2;
+}
+.esd-port-tick {
+  fill: var(--wire-color, var(--symbol-ink));
+}
+.esd-port-label {
+  fill: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   Board frames (derived outlines behind the schematic).
+--------------------------------------------------------------------------- */
+
+.esd-frame-outline {
+  fill: color-mix(in oklch, var(--card) 24%, transparent);
+  stroke: color-mix(in oklch, var(--muted-foreground) 55%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 10 7;
+  transition: stroke 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.esd-frame-label {
+  fill: color-mix(in oklch, var(--muted-foreground) 80%, transparent);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  cursor: move;
+}
+/* The outline's grab surface: hit-test ONLY the wide invisible edge stroke,
+   so the board drags by its border while the interior stays click-through. */
+.esd-frame-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 16;
+  pointer-events: stroke;
+  cursor: move;
+}
+
+/* ---------------------------------------------------------------------------
+   Connection toast — the drawn-wire receipt. The tick is a port-tick echo:
+   interface hue on success (data-iface resolves --wire-color), amber when the
+   connect was immediately flagged, red when it was declined.
+--------------------------------------------------------------------------- */
+
+.esd-toast {
+  animation: esd-toast-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* `transform`, not `translate` — the Tailwind `-translate-x-1/2` centering
+   lives on the `translate` property and must survive the animation. */
+@keyframes esd-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.esd-toast-tick {
+  width: 3px;
+  height: 14px;
+  flex: none;
+  background: var(--wire-color, var(--status-success));
+}
+.esd-toast[data-kind="warning"] .esd-toast-tick {
+  background: var(--status-warning);
+}
+.esd-toast[data-kind="error"] .esd-toast-tick {
+  background: var(--destructive);
+}
+
+/* ---------------------------------------------------------------------------
+   Validation badges — severity colored, one attention pop on mount.
+--------------------------------------------------------------------------- */
+
+.esd-flag-shape {
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+.esd-flag[data-severity="error"] .esd-flag-shape {
+  fill: var(--destructive);
+  stroke: var(--destructive);
+}
+.esd-flag[data-severity="warning"] .esd-flag-shape {
+  fill: var(--status-warning);
+  stroke: var(--status-warning);
+}
+.esd-flag-mark {
+  stroke: var(--canvas);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.esd-flag-mark-dot {
+  fill: var(--canvas);
+}
+.esd-flag {
+  animation: esd-flag-pop 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes esd-flag-pop {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Interaction affordances.
+--------------------------------------------------------------------------- */
+
+/* Selected cells: react-plus toggles `jj-is-selected` on the cell view root
+   (its default frame styling targets `.jj-box`, which these custom SVG
+   renderers don't have) — recolor the symbol strokes to the brand red so a
+   single click visibly answers "what did I select". */
+.jj-is-selected .esd-block,
+.jj-is-selected .esd-body,
+.jj-is-selected .esd-frame-outline {
+  stroke: var(--primary);
+}
+.jj-is-selected .esd-block,
+.jj-is-selected .esd-body {
+  filter: drop-shadow(0 0 3px color-mix(in oklch, var(--primary) 40%, transparent));
+}
+
+/* Pin/port magnets invite a wire-drag: a round hit zone on each stub tip. */
+.esd-magnet {
+  cursor: crosshair;
+  stroke-width: 1;
+}
+.esd-magnet:hover {
+  fill: color-mix(in oklch, var(--primary) 14%, transparent);
+}
+/* While a wire is dragged: pins it could land on, and the one it snaps to. */
+.esd-magnet.esd-port-available {
+  fill: color-mix(in oklch, var(--status-success) 8%, transparent);
+  stroke: color-mix(in oklch, var(--status-success) 45%, transparent);
+}
+.esd-magnet.esd-port-snap {
+  fill: color-mix(in oklch, var(--status-success) 22%, transparent);
+  stroke: var(--status-success);
+  stroke-width: 1.5;
+}
+
+.esd-hit {
+  fill: transparent;
+}
+
+/* WORKAROUND — an in-flight wire must never swallow its own hit-test. While
+   a link end is being dragged, react-plus marks the view `.jj-is-connecting`
+   and restyles its line as the preview, but leaves the link's wide invisible
+   wrapper (a painted transparent stroke) interactive — it tracks the pointer
+   and shadows every magnet underneath, so the end can never bind and the
+   drop is discarded. Disabling pointer events on the connecting view lets
+   the magnets receive the hover again. */
+.jj-is-connecting {
+  pointer-events: none;
+}
+
+/* Focusable SVG cells: the inset-shadow focus ring doesn't apply to SVG, so
+   keyboard focus draws an outline around the symbol's bbox instead. */
+.esd-focusable:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
+/* Palette / pinout thumbnails render symbols at ~0.2 scale — thicken the
+   strokes so the geometry survives the shrink. */
+.esd-thumb .esd-body,
+.esd-thumb .esd-block,
+.esd-thumb .esd-stroke,
+.esd-thumb .esd-pin-line {
+  stroke-width: 3.5;
+}
+
+/* Purpose-made mini icons (bus arrows, thermometer) draw at ~0.8 scale in a
+   44-unit viewBox — the ×3.5 compensation above would render them 4× heavier
+   than the part-symbol thumbs beside them. */
+.esd-thumb-mini .esd-stroke {
+  stroke-width: 1.4;
+}
+
+/* ---------------------------------------------------------------------------
+   View transitions — one soft settle when a tab mounts. Opacity/transform
+   only; removed entirely under prefers-reduced-motion (blanket rule below).
+--------------------------------------------------------------------------- */
+
+main > [class] {
+  animation: esd-view-in 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes esd-view-in {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Stencil drag ghost (`.jj-stencil-paper` is react-plus's documented styling
+   hook for the flying drag paper). Companion to `revealDragGhost` in
+   palette.tsx: the drag paper is measured before React portals the SVG symbol
+   into it, so its box can end up near-zero — let the ghost paint outside it
+   instead of being clipped away.
+--------------------------------------------------------------------------- */
+.jj-stencil-paper,
+.jj-stencil-paper svg {
+  overflow: visible !important;
+}
+
+/* Reduced motion: kill UI transitions and every canvas animation (flow dots
+   included — the a11y checker also flags animation that can't be paused). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+  .esd-flow {
+    display: none;
+  }
+}
