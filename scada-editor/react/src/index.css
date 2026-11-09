@@ -1,0 +1,445 @@
+/* The editor's stylesheet: Tailwind, the theme tokens (light and dark), the
+ * motion of the shell, and the diagram's own rules (labels, ports, pipes). */
+@import "tailwindcss";
+@import "@joint/react-plus/styles.css" layer(components);
+@import "./shapes/vanilla-colors.css";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme static {
+    --font-display: "Familjen Grotesk", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+    --color-paper: oklch(98.6% 0.005 250);
+    --color-paper-2: oklch(96.2% 0.008 252);
+    --color-paper-3: oklch(93% 0.011 252);
+    --color-ink: oklch(21% 0.028 262);
+    --color-ink-2: oklch(36% 0.022 260);
+    --color-muted: oklch(50% 0.018 258);
+    --color-rule: oklch(90% 0.009 252);
+    --color-rule-2: oklch(83% 0.012 252);
+    --color-accent: oklch(52% 0.19 258);
+    --color-accent-2: oklch(76% 0.13 254);
+    --color-accent-ink: oklch(98.6% 0.005 250);
+    --color-accent-edge: oklch(39% 0.16 260);
+    --color-key-face: oklch(99.4% 0.003 250);
+    --color-key-edge: oklch(80% 0.016 254);
+    --color-focus: oklch(52% 0.19 258);
+    --color-error: oklch(52% 0.19 27);
+    --color-success: oklch(50% 0.12 150);
+
+    /* The canvas. */
+    --color-canvas: oklch(97.4% 0.006 252);
+    --color-grid: oklch(86% 0.012 252);
+    --color-alarm: oklch(58% 0.21 27);
+
+    --shadow-key: 0 2px 0 0 var(--color-key-edge), 0 4px 6px -4px oklch(21% 0.028 262 / 0.25), inset 0 1px 0 oklch(100% 0 0 / 0.9);
+    --shadow-key-accent: 0 2px 0 0 var(--color-accent-edge), 0 4px 6px -4px oklch(30% 0.12 260 / 0.45), inset 0 1px 0 oklch(100% 0 0 / 0.22);
+    --shadow-key-press: inset 0 1px 2px oklch(21% 0.028 262 / 0.14);
+    --shadow-panel: 0 1px 2px oklch(21% 0.028 262 / 0.06), 0 8px 24px -12px oklch(21% 0.028 262 / 0.18);
+
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+    --dur-micro: 120ms;
+    --dur-short: 220ms;
+    --dur-panel: 280ms;
+    /* A live reading glides to its new value: just under the plant's 500ms tick, so it settles before the next one. */
+    --dur-reading: 480ms;
+}
+
+/* The dark theme. The run mode keeps the theme the user chose. */
+@layer base {
+    [data-theme=dark] {
+        --color-paper: oklch(21% 0.024 262);
+        --color-paper-2: oklch(24% 0.026 262);
+        --color-paper-3: oklch(28% 0.028 262);
+        --color-ink: oklch(93% 0.01 250);
+        --color-ink-2: oklch(82% 0.016 252);
+        --color-muted: oklch(69% 0.022 256);
+        --color-rule: oklch(31% 0.026 262);
+        --color-rule-2: oklch(38% 0.028 262);
+        --color-accent: oklch(64% 0.17 256);
+        --color-accent-2: oklch(78% 0.12 254);
+        --color-accent-ink: oklch(16% 0.03 262);
+        --color-accent-edge: oklch(48% 0.16 258);
+        --color-key-face: oklch(30% 0.028 262);
+        --color-key-edge: oklch(17% 0.02 262);
+        --color-focus: oklch(72% 0.15 256);
+        --color-error: oklch(68% 0.18 27);
+        --color-success: oklch(72% 0.13 150);
+        --color-canvas: oklch(18% 0.022 262);
+        --color-grid: oklch(29% 0.026 262);
+        --color-alarm: oklch(66% 0.21 27);
+        --shadow-key: 0 2px 0 0 var(--color-key-edge), inset 0 1px 0 oklch(100% 0 0 / 0.06);
+        --shadow-key-press: inset 0 1px 2px oklch(0% 0 0 / 0.4);
+        --shadow-panel: 0 1px 2px oklch(0% 0 0 / 0.3), 0 8px 24px -12px oklch(0% 0 0 / 0.5);
+        color-scheme: dark;
+    }
+
+    html,
+    body {
+        overflow-x: clip;
+        height: 100%;
+    }
+    html {
+        scrollbar-color: var(--color-rule-2) transparent;
+    }
+    body {
+        background: var(--color-paper);
+        color: var(--color-ink);
+        font-family: var(--font-body);
+        -webkit-font-smoothing: antialiased;
+    }
+    #root {
+        height: 100%;
+    }
+    :focus-visible {
+        outline: 2px solid var(--color-focus);
+        outline-offset: 2px;
+    }
+    ::selection {
+        background: color-mix(in oklab, var(--color-accent) 22%, transparent);
+    }
+}
+
+@layer components {
+    /* A keycap button, used across the app. */
+    .key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 32px;
+        min-width: 32px;
+        padding: 0 12px;
+        border: 1px solid var(--color-rule-2);
+        border-radius: 6px;
+        background: var(--color-key-face);
+        color: var(--color-ink);
+        font: 500 0.875rem/1 var(--font-display);
+        box-shadow: var(--shadow-key);
+        transition: transform var(--dur-micro) var(--ease-out), box-shadow var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out);
+        cursor: pointer;
+        position: relative;
+    }
+    /* Keep a 44px hit target around a 32px key. */
+    .key::after {
+        content: "";
+        position: absolute;
+        inset: -6px;
+    }
+    .key:hover:not(:disabled) {
+        transform: translateY(-1px);
+    }
+    .key:active:not(:disabled),
+    .key[aria-pressed=true] {
+        transform: translateY(2px);
+        box-shadow: var(--shadow-key-press);
+        background: var(--color-paper-3);
+    }
+    .key:disabled {
+        opacity: 0.45;
+        cursor: default;
+    }
+    .key-primary {
+        background: var(--color-accent);
+        border-color: var(--color-accent-edge);
+        color: var(--color-accent-ink);
+        box-shadow: var(--shadow-key-accent);
+    }
+    .key-primary:active:not(:disabled),
+    .key-primary[aria-pressed=true] {
+        background: var(--color-accent-edge);
+    }
+    .field {
+        width: 100%;
+        min-height: 32px;
+        padding: 0 12px;
+        border: 1px solid var(--color-rule-2);
+        border-radius: 6px;
+        background: var(--color-paper);
+        color: var(--color-ink);
+        font-size: 0.875rem;
+        transition: border-color var(--dur-micro) var(--ease-out);
+    }
+    .field:hover {
+        border-color: var(--color-muted);
+    }
+    .field:focus-visible {
+        outline: 2px solid var(--color-focus);
+        outline-offset: 0;
+        border-color: var(--color-accent);
+    }
+}
+
+/* ---- Motion of the shell ------------------------------------------------- */
+/* Every entry starts a step away and transparent, never from nothing. Exits are
+   instant: a panel that leaves gives its room to the canvas at once. */
+
+/* The mode switch: one thumb slides under the chosen mode. */
+.mode-thumb {
+    border-color: var(--color-rule-2);
+    background: var(--color-key-face);
+    box-shadow: var(--shadow-key);
+    transition: transform var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out);
+}
+.mode-switch[data-mode=run] .mode-thumb {
+    transform: translateX(100%);
+    background: var(--color-accent);
+    border-color: var(--color-accent-edge);
+    box-shadow: var(--shadow-key-accent);
+}
+
+/* A side panel enters from its edge; on a phone a sheet rises from the bottom. */
+.dock {
+    transition: transform var(--dur-panel) var(--ease-drawer), opacity var(--dur-panel) var(--ease-out);
+    @starting-style {
+        opacity: 0;
+    }
+}
+.dock-left {
+    @starting-style {
+        transform: translateX(-16px);
+    }
+}
+.dock-right {
+    @starting-style {
+        transform: translateX(16px);
+    }
+}
+.dock-sheet {
+    @starting-style {
+        transform: translateY(100%);
+    }
+}
+
+/* Menus open from where they were asked for. */
+.menu-enter {
+    transform-origin: top left;
+    transition: transform 150ms var(--ease-out), opacity 150ms var(--ease-out);
+    @starting-style {
+        transform: scale(0.97);
+        opacity: 0;
+    }
+}
+
+/* A log row arrives at the top: a short fade, the log runs every half second. */
+.log-row {
+    transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out);
+    @starting-style {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+}
+
+/* The inspector's content changes with the selection. */
+.inspector-enter {
+    transition: opacity var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out);
+    @starting-style {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+}
+
+/* The running chip: its signal ring pulses while the plant runs. */
+@media (prefers-reduced-motion: no-preference) {
+    .live-signal {
+        animation: live-signal 1.6s var(--ease-out) infinite;
+        transform-box: fill-box;
+        transform-origin: center;
+    }
+}
+@keyframes live-signal {
+    from {
+        transform: scale(0.6);
+        opacity: 0.9;
+    }
+    to {
+        transform: scale(1.6);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mode-thumb,
+    .dock,
+    .menu-enter,
+    .log-row,
+    .inspector-enter {
+        transition-property: opacity;
+    }
+}
+
+/* ---- The diagram ---------------------------------------------------------- */
+
+.plant {
+    --jj-selection-wrapper-color: var(--color-accent);
+    --jj-paper-color: var(--color-canvas);
+    --jj-paper-scroller-background: var(--color-canvas);
+    --jj-paper-grid-color: var(--color-grid);
+    --jj-paper-border-width: 0;
+    --jj-paper-box-shadow: none;
+    background: var(--color-canvas);
+    transition: background-color var(--dur-short) var(--ease-out);
+}
+
+.equipment-label {
+    font: 500 13px var(--font-body);
+    fill: var(--shape-label);
+    text-anchor: middle;
+}
+.equipment-tag {
+    font: 500 11px var(--font-body);
+    font-variant-numeric: tabular-nums;
+    fill: var(--color-muted);
+    text-anchor: middle;
+}
+
+/* The ports: the flange at the end of a stub, the end of an electrical lead. */
+.flange {
+    fill: var(--shape-flange-fill);
+    stroke: var(--shape-metal-stroke);
+    stroke-width: 3;
+}
+.terminal {
+    fill: var(--shape-face);
+    stroke: var(--shape-instrument-ink);
+    stroke-width: 2;
+}
+.connectors .lead {
+    stroke: var(--shape-instrument-ink);
+    stroke-width: 2.5;
+}
+.joint-port:hover .flange,
+.joint-port:hover .terminal {
+    stroke: var(--color-accent);
+}
+
+/* A command sent, an alarm raised: rings round the equipment. */
+.pending-ring {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 2;
+    stroke-dasharray: 4 4;
+    opacity: 0;
+}
+.equipment[data-pending=true] .pending-ring {
+    opacity: 1;
+}
+.alarm-ring {
+    fill: none;
+    stroke: var(--color-alarm);
+    stroke-width: 2;
+    opacity: 0;
+}
+[data-mode=run] .equipment[data-alarm=true] .alarm-ring {
+    opacity: 1;
+}
+[data-mode=run] .equipment[data-control=true] {
+    cursor: pointer;
+}
+
+/* A locked shape: the pointer goes through it to what is below, while editing. */
+[data-mode=edit] .joint-element:has(.equipment[data-locked=true]) {
+    pointer-events: none;
+}
+[data-mode=edit] .equipment[data-locked=true] {
+    opacity: 0.6;
+}
+
+/* ---- The pipes ------------------------------------------------------------
+   As the TypeScript editor draws them: a dark outline, the medium's color over
+   it, white dashes of flow over that, shown and moving while the medium flows. */
+.pipe-outline {
+    stroke: var(--shape-pipe-outline);
+}
+.pipe-line {
+    transition: stroke var(--dur-short) var(--ease-out);
+}
+.pipe-water { stroke: var(--medium-water); }
+.pipe-steam { stroke: var(--medium-steam); }
+.pipe-fuel { stroke: var(--medium-fuel); }
+.pipe-air { stroke: var(--medium-air); }
+.pipe-power { stroke: var(--medium-power); }
+[data-mode=run] .pipe-power.is-flowing { stroke: var(--medium-power-live); }
+.pipe-flow {
+    stroke: var(--shape-face);
+    opacity: 0;
+    transition: opacity var(--dur-short) var(--ease-out);
+}
+[data-mode=run] .pipe-flow.is-flowing {
+    opacity: 0.95;
+}
+/* A still pipe recedes while the plant runs: the flowing ones carry the eye. */
+[data-mode=run] .pipe-line:not(.is-flowing) {
+    opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    [data-mode=run] .pipe-flow.is-flowing {
+        animation: pipe-flow 0.9s linear infinite;
+    }
+    [data-mode=run] .pipe-steam ~ .pipe-flow.is-flowing {
+        animation-duration: 0.55s;
+    }
+    [data-mode=run] .pipe-power ~ .pipe-flow.is-flowing {
+        animation-name: wire-flow;
+    }
+    [data-mode=run] .equipment[data-alarm=true] .alarm-ring {
+        animation: alarm-pulse 1.2s var(--ease-out) infinite;
+        transform-box: fill-box;
+        transform-origin: center;
+    }
+    .equipment[data-pending=true] .pending-ring {
+        animation: spin 2s linear infinite;
+        transform-box: fill-box;
+        transform-origin: center;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+/* One dash period of a pipe (6 18) per loop, so the dashes never jump. */
+@keyframes pipe-flow {
+    to {
+        stroke-dashoffset: -24;
+    }
+}
+/* Two dash periods of a wire (4 10): close to a pipe's speed, still seamless. */
+@keyframes wire-flow {
+    to {
+        stroke-dashoffset: -28;
+    }
+}
+/* A key on a turning shaft, seen from the side: it sweeps across the shaft,
+   showing up and fading. Each shaft sets `--shaft-key-travel` (its thickness less the key's). */
+@keyframes shaft-key {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(var(--shaft-key-travel));
+        opacity: 0;
+    }
+}
+@keyframes alarm-pulse {
+    from {
+        transform: scale(1);
+        opacity: 0.9;
+    }
+    to {
+        transform: scale(1.08);
+        opacity: 0;
+    }
+}

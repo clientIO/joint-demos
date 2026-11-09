@@ -5,3 +5,4 @@ An editor of a SCADA plant diagram: tanks, pumps, valves, joins, zones and the p
 ## Available Versions
 
 - [TypeScript](./ts/)
+- [React](./react/)
