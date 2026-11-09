@@ -16,8 +16,8 @@ export class ErrorBoundary extends Component<{ readonly children: ReactNode }, E
     }
 
     componentDidCatch(error: Error, info: ErrorInfo): void {
-        // An error, not a log line: the browser's console shows it as one, with the component stack.
-        console.error(error, info.componentStack);
+        // Kept in the console with the component stack, for whoever debugs it.
+        console.warn(error, info.componentStack);
     }
 
     render(): ReactNode {
