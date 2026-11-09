@@ -1,0 +1,108 @@
+/*
+ * The rotating equipment (see `rotating.tsx`): its few colors with no vanilla
+ * variable, and its run-mode motion. A spinning part turns all the time in the
+ * run mode, paused unless the machine runs: stopped, it halts mid-turn.
+ */
+
+:root {
+    /* The ring round a rotor window, the well behind the rotor, the ink of its vanes */
+    --rotating-frame-stroke: #666;
+    --rotating-well: #777;
+    --rotating-ink: #222;
+    --rotating-blade: #bbb;
+    /* The darkest edges: a hub, the rotor ring of a compressor, a shaft key, a terminal box */
+    --rotating-edge: #333;
+}
+
+[data-theme=dark] {
+    --rotating-frame-stroke: #5b7699;
+    --rotating-well: #34496a;
+    --rotating-ink: #0b1220;
+    --rotating-blade: #b9cbe0;
+    --rotating-edge: #0b1220;
+}
+
+/* The disc a spinning rotor blurs into; the ring and the keys only show while it runs */
+.rotating-blur {
+    fill: var(--rotating-blade);
+    opacity: 0;
+}
+
+.rotating-compressor-ring,
+.rotating-shaft-key {
+    opacity: 0;
+}
+
+.rotating-shaft-key {
+    /* The shaft is 10px thick, the key 2px */
+    --shaft-key-travel: 8px;
+}
+
+/* Turned about the center of their own box, which each centers on the shaft */
+.rotating-pump-rotor,
+.rotating-fan-blades,
+.rotating-compressor-ring {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    @keyframes rotating-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes rotating-hum {
+        from { opacity: 1; }
+        to { opacity: 0.7; }
+    }
+
+    [data-mode=run] .rotating-pump-rotor {
+        animation: rotating-spin 1000ms linear infinite paused;
+    }
+
+    [data-mode=run] .rotating-fan-blades {
+        animation: rotating-spin 600ms linear infinite paused;
+    }
+
+    [data-mode=run] .rotating-compressor-ring {
+        animation: rotating-spin 900ms linear infinite paused;
+        transition: opacity 400ms ease-out;
+    }
+
+    [data-mode=run] .rotating-blur {
+        transition: opacity 400ms ease-out;
+    }
+
+    [data-mode=run] .equipment[data-active=true] :is(.rotating-pump-rotor, .rotating-fan-blades, .rotating-compressor-ring) {
+        animation-play-state: running;
+    }
+
+    [data-mode=run] .equipment[data-active=true] .rotating-blur {
+        opacity: 0.22;
+    }
+
+    [data-mode=run] .equipment[data-active=true] .rotating-compressor-ring {
+        opacity: 0.8;
+    }
+
+    /* Two keys half a turn apart: the shaft always shows one */
+    [data-mode=run] .equipment[data-active=true] .rotating-shaft-key {
+        animation: shaft-key 450ms linear infinite;
+    }
+
+    [data-mode=run] .equipment[data-active=true] .rotating-shaft-key-opposite {
+        animation-delay: -225ms;
+    }
+
+    [data-mode=run] .equipment[data-active=true] .rotating-motor-fins {
+        animation: rotating-hum 900ms ease-in-out infinite alternate;
+    }
+}
+
+/* Without the motion, a running compressor still shows its rotor ring */
+@media (prefers-reduced-motion: reduce) {
+    [data-mode=run] .equipment[data-active=true] .rotating-compressor-ring {
+        opacity: 0.8;
+    }
+}

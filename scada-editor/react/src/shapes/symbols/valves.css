@@ -1,0 +1,181 @@
+/* The valves (see `valves.tsx`): the vanilla colors, open / closed and the run-mode motion */
+
+:root {
+    --valves-outline: #333333;
+    --valves-frame: #777777;
+    --valves-flow: #ffffff;
+    --valves-collar: #a7b0b8;
+}
+
+[data-theme=dark] {
+    --valves-outline: #1e293b;
+    --valves-frame: #64748b;
+    --valves-flow: #f1f5f9;
+    --valves-collar: #9fb4cf;
+}
+
+.valves-outline {
+    stroke: var(--valves-outline);
+    stroke-width: 2;
+}
+
+.valves-collar {
+    fill: var(--valves-collar);
+    stroke: var(--shape-metal-dark-edge);
+    stroke-width: 1;
+}
+
+/* Hand valve: closed, the handwheel has turned (its spokes slid) and lowered, the gate is down in the body */
+
+.valves-hand-operator,
+.valves-hand-spokes,
+.valves-hand-gate {
+    transition: transform var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out);
+}
+
+.valves-hand-spokes {
+    fill: none;
+    stroke: var(--valves-outline);
+    stroke-width: 2;
+    stroke-opacity: 0.4;
+    stroke-linecap: round;
+}
+
+.valves-hand-gate {
+    fill: var(--shape-metal-dark);
+    stroke: var(--shape-metal-dark-edge);
+    stroke-width: 1.5;
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.equipment[data-active=false] .valves-hand-operator {
+    transform: translateY(6px);
+}
+
+.equipment[data-active=false] .valves-hand-spokes {
+    transform: translateX(5px);
+}
+
+.equipment[data-active=false] .valves-hand-gate {
+    opacity: 1;
+    transform: none;
+}
+
+/* Control valve: closed, the stem has traveled down and the cover has slid over the window */
+
+.valves-control-stem,
+.valves-control-cover {
+    transition: transform var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out);
+}
+
+.valves-control-frame {
+    fill: none;
+    stroke: var(--valves-frame);
+    stroke-width: 2;
+}
+
+.valves-control-liquid-outline {
+    stroke: var(--shape-pipe-outline);
+    stroke-width: 16;
+}
+
+.valves-control-liquid {
+    stroke: var(--shape-pipe);
+    stroke-width: 10;
+}
+
+.valves-control-flow {
+    fill: none;
+    stroke: var(--valves-flow);
+    stroke-width: 3;
+    stroke-dasharray: 6 18;
+    stroke-linecap: round;
+    opacity: 0;
+    transition: opacity var(--dur-short) var(--ease-out);
+}
+
+.valves-control-cover {
+    transform-box: fill-box;
+    transform-origin: left center;
+    transform: scaleX(0);
+    opacity: 0;
+}
+
+.equipment[data-active=false] .valves-control-stem {
+    transform: translateY(5px);
+}
+
+.equipment[data-active=false] .valves-control-cover {
+    transform: none;
+    opacity: 1;
+}
+
+/* The liquid flows through the window of an open valve, as through the pipes (one dash period per loop) */
+[data-mode=run] .equipment[data-active=true] .valves-control-flow {
+    opacity: 0.8;
+    animation: valves-flow 800ms linear infinite;
+}
+
+@keyframes valves-flow {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(24px);
+    }
+}
+
+/* Check valve: while flow passes, the filled inlet half shrinks back and the arrow nudges forward */
+
+.valves-check-body {
+    fill: var(--shape-face);
+    stroke: var(--shape-valve-stroke);
+    stroke-width: 2;
+    stroke-linejoin: round;
+}
+
+.valves-check-inlet {
+    fill: var(--shape-valve-inlet);
+    transform-box: fill-box;
+    transform-origin: left center;
+    transition: transform var(--dur-short) var(--ease-out);
+}
+
+.valves-check-arrow {
+    fill: none;
+    stroke: var(--shape-scale);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    transition: transform var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out);
+}
+
+[data-mode=run] .equipment[data-active=true] .valves-check-inlet {
+    transform: scaleX(0.86);
+}
+
+[data-mode=run] .equipment[data-active=true] .valves-check-arrow {
+    transform: translateX(3px);
+}
+
+[data-mode=run] .equipment:not([data-active=true]) .valves-check-arrow {
+    opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .valves-hand-operator,
+    .valves-hand-spokes,
+    .valves-hand-gate,
+    .valves-control-stem,
+    .valves-control-cover,
+    .valves-check-inlet,
+    .valves-check-arrow {
+        transition: opacity var(--dur-short) linear;
+    }
+
+    [data-mode=run] .equipment[data-active=true] .valves-control-flow {
+        animation: none;
+    }
+}

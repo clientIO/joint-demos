@@ -1,0 +1,39 @@
+/* Quiet Mark badge — ported from the JointJS demo-badge design system. The
+   chamfer is a clip-path, so the lift is a drop-shadow filter on the host. */
+.jjw {
+  --badge-chamfer: 8px;
+  --w-bg: #131e29;
+  --w-ink: #dde5ed;
+  --w-logo: #dde5ed;
+  --w-kick: #a3b4c2;
+  --w-hair: rgba(221, 229, 237, 0.2);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--w-bg);
+  color: var(--w-ink);
+  clip-path: polygon(var(--badge-chamfer) 0, 100% 0, 100% calc(100% - var(--badge-chamfer)), calc(100% - var(--badge-chamfer)) 100%, 0 100%, 0 var(--badge-chamfer));
+  user-select: none;
+  font-family: var(--font-body);
+}
+[data-theme=dark] .jjw { --w-bg: #dde5ed; --w-ink: #131e29; --w-logo: #ed2637; --w-kick: #4f6376; --w-hair: rgba(19, 30, 41, 0.16); }
+.jjw a { color: inherit; text-decoration: none; }
+.jjw-logo { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; flex: none; color: var(--w-logo); }
+.jjw-logo:hover { filter: brightness(1.18); }
+.jjw-body {
+  display: flex; align-items: center; max-width: 0; opacity: 0; overflow: hidden;
+  transition: max-width 340ms cubic-bezier(0.22, 0.7, 0.3, 1), opacity 200ms ease;
+}
+.jjw:hover .jjw-body, .jjw:focus-within .jjw-body { max-width: 340px; opacity: 1; }
+.jjw-body-in { display: flex; align-items: center; white-space: nowrap; }
+.jjw-txt { display: flex; flex-direction: column; gap: 2px; padding: 0 12px 0 0; color: var(--w-logo); }
+.jjw-txt:hover .jjw-lock { filter: brightness(1.18); }
+.jjw-kick { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--w-kick); line-height: 1; }
+.jjw-lock { display: flex; align-items: center; gap: 1px; line-height: 1; }
+.jjw-lock em { font-style: normal; font-weight: 600; font-size: 13px; line-height: 1; }
+.jjw-div { width: 1px; align-self: stretch; background: var(--w-hair); flex: none; }
+/* Deeper than the brand red so white text clears 4.5:1 (the brand red gives 3.96:1). */
+.jjw-trial { display: flex; align-items: center; gap: 6px; padding: 0 13px; height: 38px; font-size: 11.5px; font-weight: 600; color: #fff; background: #c41626; }
+.jjw-trial:hover { background: #ab1220; }
+@media (prefers-reduced-motion: reduce) { .jjw-body { transition: none; } }

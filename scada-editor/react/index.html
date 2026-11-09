@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>SCADA Editor | JointJS React</title>
+        <meta
+            name="description"
+            content="Draw a plant as a SCADA diagram, then run it: live levels, pressures and flows from a simulated plant, operated from the diagram. Built with @joint/react-plus (JointJS)."
+        />
+        <meta property="og:site_name" content="JointJS React" />
+        <meta property="og:title" content="SCADA Editor · JointJS+ React" />
+        <meta name="theme-color" content="#f7f9fc" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
+        <script>
+            // The theme before the first paint: a dark-theme user never sees a light frame.
+            try {
+                const stored = localStorage.getItem('scada-editor-theme');
+                const isDark = stored === 'dark' || (stored !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+                document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+            } catch {
+                // Storage blocked: the app applies the theme on load.
+            }
+        </script>
+    </head>
+    <body>
+        <div id="root"></div>
+        <noscript>The SCADA editor needs JavaScript to draw and run the diagram.</noscript>
+        <script type="module" src="/src/main.tsx"></script>
+    </body>
+</html>

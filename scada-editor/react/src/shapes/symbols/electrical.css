@@ -1,0 +1,163 @@
+/* The electrical equipment (see `electrical.tsx`): the vanilla colors, the breaker's states and the run-mode motion */
+
+:root {
+    --electrical-feet: #555555;
+    --electrical-shaft-key: #333333;
+    --electrical-breaker-front: #3a434c;
+    --electrical-breaker-edge: #222222;
+    --electrical-breaker-slot: #1a1f24;
+    --electrical-breaker-lever: #e6e9ec;
+    --electrical-breaker-text: #ffffff;
+}
+
+[data-theme=dark] {
+    --electrical-feet: #64748b;
+    --electrical-shaft-key: #0f172a;
+    --electrical-breaker-front: #2b333c;
+    --electrical-breaker-edge: #0b0f14;
+    --electrical-breaker-slot: #11161b;
+    --electrical-breaker-lever: #cbd5e1;
+}
+
+/* Generator */
+
+.electrical-generator-feet {
+    fill: none;
+    stroke: var(--electrical-feet);
+    stroke-width: 5;
+    stroke-linecap: round;
+}
+
+/* A key on the shaft: hidden until the generator runs, then swept across the shaft as it turns */
+.electrical-generator-key {
+    /* The shaft is 9.6px thick, the key 2px */
+    --shaft-key-travel: 7.6px;
+    fill: var(--electrical-shaft-key);
+    opacity: 0;
+}
+
+/* Transformer */
+
+.electrical-transformer-bushing {
+    stroke: var(--shape-porcelain-3);
+    stroke-width: 1.5;
+}
+
+.electrical-transformer-sheds {
+    fill: none;
+    stroke: var(--shape-porcelain-3);
+    stroke-width: 3;
+    stroke-linecap: round;
+}
+
+/* The energized hum: the fins glow, the flux runs down the windings (run mode only) */
+.electrical-transformer-hum {
+    fill: none;
+    stroke: var(--shape-wire-live);
+    stroke-width: 4;
+    stroke-linecap: round;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.electrical-transformer-flux {
+    fill: none;
+    stroke: var(--shape-wire-live);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-dasharray: 3 7;
+    opacity: 0;
+    pointer-events: none;
+}
+
+[data-mode=run] .equipment[data-active=true] .electrical-transformer-hum {
+    opacity: 0.3;
+}
+
+[data-mode=run] .equipment[data-active=true] .electrical-transformer-flux {
+    opacity: 0.55;
+}
+
+/* Breaker */
+
+.electrical-breaker-front {
+    fill: var(--electrical-breaker-front);
+    stroke: var(--electrical-breaker-edge);
+    stroke-width: 1.5;
+}
+
+.electrical-breaker-slot {
+    fill: var(--electrical-breaker-slot);
+}
+
+/* The lever: up while closed, 16px down (a fifth of the 80px body) while open */
+.electrical-breaker-lever {
+    fill: var(--electrical-breaker-lever);
+    stroke: var(--electrical-breaker-edge);
+    stroke-width: 1.5;
+    transform: translateY(16px);
+    transition: transform var(--dur-short) var(--ease-out);
+}
+
+.equipment[data-active=true] .electrical-breaker-lever {
+    transform: translateY(0);
+}
+
+.electrical-breaker-closed .electrical-breaker-window {
+    fill: var(--shape-breaker-closed);
+}
+
+.electrical-breaker-open .electrical-breaker-window {
+    fill: var(--shape-breaker-open);
+}
+
+.electrical-breaker-state {
+    fill: var(--electrical-breaker-text);
+    font: bold 11px sans-serif;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+}
+
+.electrical-breaker-closed,
+.electrical-breaker-open {
+    transition: opacity var(--dur-short) var(--ease-out);
+}
+
+.electrical-breaker-closed,
+.equipment[data-active=true] .electrical-breaker-open {
+    opacity: 0;
+}
+
+.equipment[data-active=true] .electrical-breaker-closed {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    @keyframes electrical-hum {
+        from { opacity: 0.18; }
+        to { opacity: 0.42; }
+    }
+
+    @keyframes electrical-flux {
+        from { stroke-dashoffset: 0; }
+        to { stroke-dashoffset: -10; }
+    }
+
+    [data-mode=run] .equipment[data-active=true] .electrical-generator-key {
+        animation: shaft-key 450ms linear infinite;
+    }
+
+    /* A second key half a turn behind: the shaft reads as turning, not blinking */
+    [data-mode=run] .equipment[data-active=true] .electrical-generator-key-late {
+        animation-delay: -225ms;
+    }
+
+    [data-mode=run] .equipment[data-active=true] .electrical-transformer-hum {
+        animation: electrical-hum 1200ms ease-in-out infinite alternate;
+    }
+
+    [data-mode=run] .equipment[data-active=true] .electrical-transformer-flux {
+        animation: electrical-flux 600ms linear infinite;
+    }
+}
