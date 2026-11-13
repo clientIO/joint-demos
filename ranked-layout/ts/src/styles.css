@@ -58,6 +58,10 @@ body {
     color: #6b7280;
 }
 
+#export-visio {
+    margin-top: 8px;
+}
+
 .ranked-dimmed {
     opacity: 0.15;
 }

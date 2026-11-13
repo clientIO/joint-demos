@@ -1,6 +1,7 @@
 import { dia, highlighters, shapes } from '@joint/core';
 import { generate } from './generate';
 import { centerRanks, getRank, layoutRanked } from './layout';
+import { exportToVisio } from './visio-export';
 
 import type { connectors } from '@joint/core';
 import type { ElementData, LinkData } from './generate';
@@ -42,6 +43,7 @@ const [ranksInput, elementsInput, linksInput] = rangeInputs;
 const jumpLinkRoomInput = document.getElementById('jump-link-room') as HTMLInputElement;
 const centerRanksInput = document.getElementById('center-ranks') as HTMLInputElement;
 const curvatureInput = document.getElementById('curvature') as HTMLInputElement;
+const exportVisioButton = document.getElementById('export-visio') as HTMLButtonElement;
 
 // The curvature scales the length of the curve's end tangents (connector defaults: 0.6 and 80).
 // Shorter tangents give a straighter middle.
@@ -230,6 +232,14 @@ curvatureInput.addEventListener('input', () => {
 randomizeButton.addEventListener('click', () => {
     seedInput.value = String(1 + Math.floor(Math.random() * 99999));
     build();
+});
+exportVisioButton.addEventListener('click', async() => {
+    exportVisioButton.disabled = true;
+    try {
+        await exportToVisio(paper);
+    } finally {
+        exportVisioButton.disabled = false;
+    }
 });
 
 build();
