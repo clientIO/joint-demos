@@ -31,11 +31,11 @@ const mappings: Record<ShapeKind, ShapeMapping> = {
         update: (shape, cellView) => updateElementShape(shape, cellView as dia.ElementView)
     },
     header: {
-        master: 'Rectangle',
+        master: 'Header',
         update: (shape, cellView) => updateHeaderShape(shape, cellView as dia.ElementView)
     },
     link: {
-        master: 'Dynamic connector',
+        master: 'Connector',
         update: (shape, cellView) => updateLinkShape(shape, cellView as dia.LinkView)
     }
 };
