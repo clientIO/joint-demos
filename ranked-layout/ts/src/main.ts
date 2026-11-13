@@ -12,7 +12,7 @@ import './styles.css';
 const ELEMENT_WIDTH = 80;
 const ELEMENT_HEIGHT = 36;
 const HEADER_GAP = 24;
-// The length of the arrowhead; links end this far from the target, the arrowhead fills the rest.
+// The length of the arrowhead; its tip is at the end of the link.
 const MARKER_SIZE = 8;
 
 const rankColors = ['#264653', '#2a9d8f', '#8ab17d', '#e9c46a', '#f4a261', '#e76f51'];
@@ -31,7 +31,6 @@ const paper = new dia.Paper({
     background: { color: '#f8fafc' },
     interactive: false,
     clickThreshold: 10,
-    defaultAnchor: { name: 'midSide', args: { mode: 'horizontal' }},
     defaultConnectionPoint: { name: 'anchor' }
 });
 
@@ -90,14 +89,13 @@ function createElement({ id, rank }: ElementData): dia.Element {
     });
 }
 
+// A link leaves the right side of its source and enters the left side of its target, a backward link the other way round.
+// An anchor on a given side is exported to Visio as glue to that point (`midSide` would be dynamic glue).
 // A backward link is dashed and goes below the other links.
 function createLink({ source, target }: LinkData, backward: boolean): dia.Link {
     return new shapes.standard.Link({
-        source: { id: source },
-        target: {
-            id: target,
-            anchor: { name: 'midSide', args: { mode: 'horizontal', padding: MARKER_SIZE }}
-        },
+        source: { id: source, anchor: { name: backward ? 'left' : 'right' }},
+        target: { id: target, anchor: { name: backward ? 'right' : 'left' }},
         z: backward ? 0 : 1,
         connector: getConnector(backward),
         attrs: {
@@ -107,7 +105,7 @@ function createLink({ source, target }: LinkData, backward: boolean): dia.Link {
                 strokeDasharray: backward ? '5 4' : 'none',
                 opacity: (backward && fadeBackwardLinksInput.checked) ? FADED_OPACITY : 1,
                 targetMarker: {
-                    d: `M 0 -4 ${-MARKER_SIZE} 0 0 4 z`,
+                    d: `M ${MARKER_SIZE} -4 0 0 ${MARKER_SIZE} 4 z`,
                     // Follows the stroke of the line, also when the highlight changes it.
                     fill: 'context-stroke'
                 }
