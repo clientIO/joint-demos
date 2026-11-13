@@ -13,6 +13,14 @@ This demo is also available online at [demos.jointjs.com](https://demos.jointjs.
   />
 </a>
 
+## How It Works
+
+1. Every element stores its `rank`. `layoutRanked()` (`src/layout.ts`) runs `DirectedGraph.layout()` (dagre) left to right with a custom `ranker` that sets each element's rank instead of letting dagre compute it. Dagre still orders the elements within each rank (fewer crossings) and positions them. The ranks are doubled because dagre doubles the length of every edge.
+2. Links that jump over ranks are left out of the layout by default and drawn as a plain `curve` from source to target. With *Room for jump links* they take part in the layout: dagre keeps room for them in every rank they cross, and `setVertices` turns its route into vertices (simplified).
+3. Dagre gives a rank without elements no width. An element-sized placeholder in every empty rank keeps the columns evenly spaced. The placeholders take part in the layout only; they never enter the graph.
+4. `layoutRanked()` returns the center x of every column; the rank headers are placed above them.
+5. *Center ranks* (`centerRanks()`) keeps the order dagre gave each rank but spaces its elements evenly around the middle of the diagram. The layout's vertices no longer fit and are removed.
+
 ## How to download this demo
 
 You can download this demo using our [`@joint/cli` tool](https://www.npmjs.com/package/@joint/cli):
