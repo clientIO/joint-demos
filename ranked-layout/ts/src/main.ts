@@ -1,6 +1,6 @@
 import { dia, highlighters, shapes } from '@joint/core';
 import { generate } from './generate';
-import { centerRanks, getRank, layoutRanked } from './layout';
+import { centerRanks, layoutRanked } from './layout';
 import { exportToVisio } from './visio-export';
 
 import type { connectors } from '@joint/core';
@@ -36,10 +36,10 @@ const paper = new dia.Paper({
 
 const seedInput = document.getElementById('seed') as HTMLInputElement;
 const randomizeButton = document.getElementById('randomize') as HTMLButtonElement;
-const rangeInputs = ['ranks', 'elements', 'links'].map((id) => {
+const rangeInputs = ['ranks', 'empty-ranks', 'elements', 'links'].map((id) => {
     return document.getElementById(id) as HTMLInputElement;
 });
-const [ranksInput, elementsInput, linksInput] = rangeInputs;
+const [ranksInput, emptyRanksInput, elementsInput, linksInput] = rangeInputs;
 const jumpLinkRoomInput = document.getElementById('jump-link-room') as HTMLInputElement;
 const centerRanksInput = document.getElementById('center-ranks') as HTMLInputElement;
 const curvatureInput = document.getElementById('curvature') as HTMLInputElement;
@@ -108,18 +108,15 @@ function createLink({ source, target }: LinkData): dia.Link {
     });
 }
 
-// A label above the column of each rank.
-function createRankHeaders(): dia.Element[] {
+// A label above the column of each rank (the center x of each column by rank).
+function createRankHeaders(columns: Map<number, number>): dia.Element[] {
     const elements = graph.getElements();
     if (elements.length === 0) {
         return [];
     }
     const top = Math.min(...elements.map((element) => element.position().y));
-    const columns = new Map<number, number>();
-    elements.forEach((element) => {
-        columns.set(getRank(element), element.getBBox().center().x);
-    });
-    return Array.from(columns, ([rank, x]) => new shapes.standard.Rectangle({
+    const sortedColumns = Array.from(columns).sort(([a], [b]) => a - b);
+    return sortedColumns.map(([rank, x]) => new shapes.standard.Rectangle({
         header: true,
         position: { x: x - ELEMENT_WIDTH / 2, y: top - HEADER_GAP - ELEMENT_HEIGHT },
         size: { width: ELEMENT_WIDTH, height: ELEMENT_HEIGHT },
@@ -144,10 +141,13 @@ function updateOutputs() {
 }
 
 function build() {
+    // Only the ranks between the first and the last can be empty.
+    emptyRanksInput.max = String(Number(ranksInput.value) - 2);
     updateOutputs();
     const { elements, links } = generate({
         seed: Number(seedInput.value),
         rankCount: Number(ranksInput.value),
+        emptyRankCount: Number(emptyRanksInput.value),
         elementCount: Number(elementsInput.value),
         linkCount: Number(linksInput.value)
     });
@@ -155,11 +155,11 @@ function build() {
         ...elements.map(createElement),
         ...links.map(createLink)
     ]);
-    layoutRanked(graph, { jumpLinkRoom: jumpLinkRoomInput.checked });
+    const columns = layoutRanked(graph, { jumpLinkRoom: jumpLinkRoomInput.checked });
     if (centerRanksInput.checked) {
         centerRanks(graph);
     }
-    graph.addCells(createRankHeaders());
+    graph.addCells(createRankHeaders(columns));
     paper.transformToFitContent({
         padding: 40,
         maxScale: 1,
