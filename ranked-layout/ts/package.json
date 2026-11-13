@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@joint/core": "4.3.4",
+    "@joint/format-visio": "4.3.4",
     "@joint/layout-directed-graph": "4.3.0"
   },
   "devDependencies": {
