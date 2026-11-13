@@ -5,6 +5,8 @@ export interface GenerateOptions {
     emptyRankCount?: number;
     elementCount: number;
     linkCount: number;
+    // Links that go to an earlier rank.
+    backwardLinkCount?: number;
 }
 
 export interface ElementData {
@@ -43,7 +45,7 @@ function getFilledRanks(rankCount: number, emptyRankCount: number, randomInt: (m
 }
 
 export function generate(options: GenerateOptions): { elements: ElementData[], links: LinkData[] } {
-    const { seed, rankCount, emptyRankCount = 0 } = options;
+    const { seed, rankCount, emptyRankCount = 0, backwardLinkCount = 0 } = options;
     const random = createRandom(seed);
     const randomInt = (max: number) => Math.floor(random() * max);
     const filledRanks = getFilledRanks(rankCount, emptyRankCount, randomInt);
@@ -82,6 +84,28 @@ export function generate(options: GenerateOptions): { elements: ElementData[], l
         }
         keys.add(key);
         links.push({ source: source.id, target: target.id });
+    }
+
+    // Backward links go to a random earlier filled rank, never back along an existing link.
+    // They come last, so that the forward links of a seed stay the same.
+    const backwardSources = elements.filter((element) => element.rank > filledRanks[0]);
+    const maxBackwardAttempts = backwardLinkCount * 20;
+    let backwardCount = 0;
+    for (let attempt = 0; attempt < maxBackwardAttempts && backwardCount < backwardLinkCount; attempt++) {
+        if (backwardSources.length === 0) {
+            break;
+        }
+        const source = backwardSources[randomInt(backwardSources.length)];
+        const targetRank = filledRanks[randomInt(filledRanks.indexOf(source.rank))];
+        const candidates = elementsByRank[targetRank];
+        const target = candidates[randomInt(candidates.length)];
+        const key = `${source.id}-${target.id}`;
+        if (keys.has(key) || keys.has(`${target.id}-${source.id}`)) {
+            continue;
+        }
+        keys.add(key);
+        links.push({ source: source.id, target: target.id });
+        backwardCount++;
     }
 
     return { elements, links };

@@ -18,6 +18,8 @@ interface ShapeMapping {
 
 // Visio arrowhead 4: a filled triangle twice as long as it is wide, as the target marker of the links.
 const VISIO_FILLED_ARROW = '4';
+// Visio line pattern 2: a dashed line.
+const VISIO_LINE_DASHED = '2';
 // Visio connector routing: right-angle style with curved lines (what `fromPaper()` sets for the `curve` connector).
 const VISIO_ROUTE_STYLE_RIGHT_ANGLE = '1';
 const VISIO_LINE_ROUTE_CURVED = '2';
@@ -103,6 +105,10 @@ function updateLinkShape(shape: VisioShape, linkView: dia.LinkView) {
     const lineColor = toVisioColor(link.attr('line/stroke'));
     if (lineColor) {
         shape.setCell(VisioCellName.LineColor, { value: lineColor });
+    }
+    const dasharray = link.attr('line/strokeDasharray');
+    if (dasharray && dasharray !== 'none') {
+        shape.setCell(VisioCellName.LinePattern, { value: VISIO_LINE_DASHED });
     }
     if (link.attr('line/targetMarker')) {
         shape.setCell(VisioCellName.EndArrow, { value: VISIO_FILLED_ARROW });

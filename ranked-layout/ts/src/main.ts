@@ -1,6 +1,7 @@
 import { dia, highlighters, shapes } from '@joint/core';
 import { generate } from './generate';
-import { centerRanks, layoutRanked } from './layout';
+import BackwardLinksBadge from './BackwardLinksBadge';
+import { centerRanks, isBackward, layoutRanked } from './layout';
 import { exportToVisio } from './visio-export';
 
 import type { connectors } from '@joint/core';
@@ -36,24 +37,28 @@ const paper = new dia.Paper({
 
 const seedInput = document.getElementById('seed') as HTMLInputElement;
 const randomizeButton = document.getElementById('randomize') as HTMLButtonElement;
-const rangeInputs = ['ranks', 'empty-ranks', 'elements', 'links'].map((id) => {
+const rangeInputs = ['ranks', 'empty-ranks', 'elements', 'links', 'backward-links'].map((id) => {
     return document.getElementById(id) as HTMLInputElement;
 });
-const [ranksInput, emptyRanksInput, elementsInput, linksInput] = rangeInputs;
+const [ranksInput, emptyRanksInput, elementsInput, linksInput, backwardLinksInput] = rangeInputs;
 const jumpLinkRoomInput = document.getElementById('jump-link-room') as HTMLInputElement;
 const centerRanksInput = document.getElementById('center-ranks') as HTMLInputElement;
+const fadeBackwardLinksInput = document.getElementById('fade-backward-links') as HTMLInputElement;
+// The opacity of a faded backward link; the highlight of a clicked element shows it in full.
+const FADED_OPACITY = 0.2;
 const curvatureInput = document.getElementById('curvature') as HTMLInputElement;
 const exportVisioButton = document.getElementById('export-visio') as HTMLButtonElement;
 
 // The curvature scales the length of the curve's end tangents (connector defaults: 0.6 and 80).
 // Shorter tangents give a straighter middle.
-function getConnector(): connectors.ConnectorJSON {
+// A backward link leaves its source to the left and enters its target from the right.
+function getConnector(backward: boolean): connectors.ConnectorJSON {
     const curvature = Number(curvatureInput.value);
     return {
         name: 'curve',
         args: {
-            sourceDirection: 'right',
-            targetDirection: 'left',
+            sourceDirection: backward ? 'left' : 'right',
+            targetDirection: backward ? 'right' : 'left',
             distanceCoefficient: curvature,
             angleTangentCoefficient: 40 * curvature
         }
@@ -85,19 +90,22 @@ function createElement({ id, rank }: ElementData): dia.Element {
     });
 }
 
-function createLink({ source, target }: LinkData): dia.Link {
+// A backward link is dashed and goes below the other links.
+function createLink({ source, target }: LinkData, backward: boolean): dia.Link {
     return new shapes.standard.Link({
         source: { id: source },
         target: {
             id: target,
             anchor: { name: 'midSide', args: { mode: 'horizontal', padding: MARKER_SIZE }}
         },
-        z: 1,
-        connector: getConnector(),
+        z: backward ? 0 : 1,
+        connector: getConnector(backward),
         attrs: {
             line: {
                 stroke: '#8a90a6',
                 strokeWidth: 1.5,
+                strokeDasharray: backward ? '5 4' : 'none',
+                opacity: (backward && fadeBackwardLinksInput.checked) ? FADED_OPACITY : 1,
                 targetMarker: {
                     d: `M 0 -4 ${-MARKER_SIZE} 0 0 4 z`,
                     // Follows the stroke of the line, also when the highlight changes it.
@@ -133,6 +141,10 @@ function createRankHeaders(columns: Map<number, number>): dia.Element[] {
     }));
 }
 
+function updateConnectors() {
+    graph.getLinks().forEach((link) => link.connector(getConnector(isBackward(link))));
+}
+
 function updateOutputs() {
     [...rangeInputs, curvatureInput].forEach((input) => {
         const output = document.querySelector(`output[for="${input.id}"]`) as HTMLOutputElement;
@@ -149,17 +161,20 @@ function build() {
         rankCount: Number(ranksInput.value),
         emptyRankCount: Number(emptyRanksInput.value),
         elementCount: Number(elementsInput.value),
-        linkCount: Number(linksInput.value)
+        linkCount: Number(linksInput.value),
+        backwardLinkCount: Number(backwardLinksInput.value)
     });
+    const ranks = new Map(elements.map(({ id, rank }) => [id, rank]));
     graph.resetCells([
         ...elements.map(createElement),
-        ...links.map(createLink)
+        ...links.map((link) => createLink(link, ranks.get(link.target)! < ranks.get(link.source)!))
     ]);
     const columns = layoutRanked(graph, { jumpLinkRoom: jumpLinkRoomInput.checked });
     if (centerRanksInput.checked) {
         centerRanks(graph);
     }
     graph.addCells(createRankHeaders(columns));
+    updateBadges();
     paper.transformToFitContent({
         padding: 40,
         maxScale: 1,
@@ -180,11 +195,38 @@ function clearHighlight() {
     });
 }
 
-// Highlights the element, its links and its neighbors, and dims the rest.
+// The backward links that leave the element.
+function getBackwardLinks(element: dia.Element): dia.Link[] {
+    return graph.getConnectedLinks(element, { outbound: true }).filter(isBackward);
+}
+
+const BADGE_HIGHLIGHT = 'ranked-badge';
+
+// With the backward links faded, a badge on every source of some tells their number.
+function updateBadges() {
+    dia.HighlighterView.removeAll(paper, BADGE_HIGHLIGHT);
+    // No badges while an element is selected.
+    if (!fadeBackwardLinksInput.checked || dia.HighlighterView.getAll(paper, SELECTED_HIGHLIGHT).length > 0) {
+        return;
+    }
+    graph.getElements().forEach((element) => {
+        const count = getBackwardLinks(element).length;
+        if (count === 0) {
+            return;
+        }
+        BackwardLinksBadge.add(paper.requireView(element), 'root', BADGE_HIGHLIGHT, { count });
+    });
+}
+
+// Highlights the element, its links and their other ends, and dims the rest.
+// The badges are hidden meanwhile; the highlighted backward links are shown in full anyway.
 function highlight(element: dia.Element) {
     clearHighlight();
+    dia.HighlighterView.removeAll(paper, BADGE_HIGHLIGHT);
     const links = graph.getConnectedLinks(element);
-    const neighbors = graph.getNeighbors(element);
+    const neighbors = links.map((link) => {
+        return (link.source().id === element.id) ? link.getTargetElement()! : link.getSourceElement()!;
+    });
     const related = new Set<dia.Cell>([element, ...links, ...neighbors]);
     highlighters.mask.add(element.findView(paper), 'body', SELECTED_HIGHLIGHT, {
         padding: 4,
@@ -211,23 +253,49 @@ function highlight(element: dia.Element) {
     });
 }
 
-paper.on('element:pointerclick', (elementView: dia.ElementView) => {
+function isBadgeEvent(evt: dia.Event): boolean {
+    return Boolean((evt.target as Element).closest('[data-backward-badge]'));
+}
+
+paper.on('element:pointerclick', (elementView: dia.ElementView, evt: dia.Event) => {
     const element = elementView.model;
-    if (element.get('header')) {
+    if (element.get('header') || isBadgeEvent(evt)) {
         return;
     }
     highlight(element);
 });
-paper.on('blank:pointerclick', () => clearHighlight());
+
+// Hovering a badge shows the backward links it counts.
+const REVEALED_HIGHLIGHT = 'ranked-revealed';
+paper.on('element:mouseover', (elementView: dia.ElementView, evt: dia.Event) => {
+    dia.HighlighterView.removeAll(paper, REVEALED_HIGHLIGHT);
+    if (!isBadgeEvent(evt)) {
+        return;
+    }
+    getBackwardLinks(elementView.model).forEach((link) => {
+        highlighters.addClass.add(link.findView(paper), 'line', REVEALED_HIGHLIGHT, {
+            className: 'ranked-link-revealed'
+        });
+    });
+});
+paper.on('element:mouseleave', () => dia.HighlighterView.removeAll(paper, REVEALED_HIGHLIGHT));
+paper.on('blank:pointerclick', () => {
+    clearHighlight();
+    updateBadges();
+});
 
 seedInput.addEventListener('input', () => build());
 rangeInputs.forEach((input) => input.addEventListener('input', () => build()));
 jumpLinkRoomInput.addEventListener('change', () => build());
 centerRanksInput.addEventListener('change', () => build());
+fadeBackwardLinksInput.addEventListener('change', () => {
+    const opacity = fadeBackwardLinksInput.checked ? FADED_OPACITY : 1;
+    graph.getLinks().filter(isBackward).forEach((link) => link.attr('line/opacity', opacity));
+    updateBadges();
+});
 curvatureInput.addEventListener('input', () => {
     updateOutputs();
-    const connector = getConnector();
-    graph.getLinks().forEach((link) => link.connector(connector));
+    updateConnectors();
 });
 randomizeButton.addEventListener('click', () => {
     seedInput.value = String(1 + Math.floor(Math.random() * 99999));

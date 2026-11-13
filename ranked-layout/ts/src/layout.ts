@@ -43,6 +43,10 @@ function createPlaceholders(elements: dia.Element[]): dia.Element[] {
     return placeholders;
 }
 
+export function isBackward(link: dia.Link): boolean {
+    return getRankSpan(link) < 0;
+}
+
 // Lays the elements out left to right, each in the column of its rank.
 // Dagre orders the elements within the ranks (fewer crossings, linked elements next to each other)
 // and positions them (source and target aligned where possible); only the ranking is ours.
@@ -55,14 +59,14 @@ export function layoutRanked(graph: dia.Graph, options: RankedLayoutOptions = {}
         return columns;
     }
     // Without room for them, links that jump over ranks are left out of the layout
-    // and drawn as a plain curve from their source to their target.
+    // and drawn as a plain curve from their source to their target. So are backward links, always.
     const jumpLinks = graph.getLinks().filter((link) => getRankSpan(link) > 1);
-    jumpLinks.forEach((link) => link.vertices([]));
+    const backwardLinks = graph.getLinks().filter(isBackward);
+    [...jumpLinks, ...backwardLinks].forEach((link) => link.vertices([]));
+    const excludedLinks = new Set<dia.Cell>(jumpLinkRoom ? backwardLinks : [...jumpLinks, ...backwardLinks]);
     const placeholders = createPlaceholders(elements);
     const cells = [
-        ...(jumpLinkRoom
-            ? graph.getCells()
-            : graph.getCells().filter((cell) => !jumpLinks.includes(cell as dia.Link))),
+        ...graph.getCells().filter((cell) => !excludedLinks.has(cell)),
         ...placeholders
     ];
     const cellsById = new Map(cells.map((cell) => [String(cell.id), cell]));
