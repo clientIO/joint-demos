@@ -117,6 +117,72 @@ function updateLinkShape(shape: VisioShape, linkView: dia.LinkView) {
     shape.setCell(VisioCellName.ConLineRouteExt, { value: VISIO_LINE_ROUTE_CURVED });
 }
 
+const VISIO_NAMESPACE = 'http://schemas.microsoft.com/office/visio/2012/main';
+// The connection points of the "Element" master: 2 is the middle of the right side, 4 of the left side.
+const ELEMENT_RIGHT_CONNECTION = 2;
+const ELEMENT_LEFT_CONNECTION = 4;
+// The glue formula `fromPaper()` writes for an anchor on a given side: the sheet and the connection row it adds.
+const GLUE_FORMULA = /^PAR\(PNT\(Sheet\.(\d+)!Connections\.(\w+)\.X,/;
+// The ends of a connector, with their Visio part (visBegin, visEnd).
+const LINK_ENDS = [{ name: 'Begin', part: 9 }, { name: 'End', part: 12 }];
+
+// The archive keeps its files in a JSZip instance.
+interface ArchiveZip {
+    file(path: string): { async(type: 'string'): Promise<string> } | null;
+    file(path: string, content: string): void;
+}
+
+// TODO: a workaround. `fromPaper()` writes no <Connect> elements, so Visio does not take the links as glued
+// to the elements. It relies on library internals: `archive.zip` and `page.fileName`.
+// Each link end is glued to the connection point of the master on the side of its anchor (instead of the row
+// `fromPaper()` adds for the anchor), and a <Connect> element records the glue.
+async function glueLinks(archive: VisioArchive, page: VisioPage) {
+    const { zip } = archive as unknown as { zip: ArchiveZip };
+    const path = `visio/pages/${(page as unknown as { fileName: string }).fileName}.xml`;
+    const xml = await zip.file(path)!.async('string');
+    const pageContents = new DOMParser().parseFromString(xml, 'application/xml');
+    const shapes = new Map<string, Element>();
+    pageContents.querySelectorAll('Shapes > Shape').forEach((shape) => shapes.set(shape.getAttribute('ID')!, shape));
+    let connects = pageContents.querySelector('Connects');
+    if (!connects) {
+        connects = pageContents.createElementNS(VISIO_NAMESPACE, 'Connects');
+        pageContents.documentElement.appendChild(connects);
+    }
+    shapes.forEach((linkShape, linkId) => {
+        LINK_ENDS.forEach(({ name, part }) => {
+            const xCell = linkShape.querySelector(`:scope > Cell[N="${name}X"]`);
+            const yCell = linkShape.querySelector(`:scope > Cell[N="${name}Y"]`);
+            const match = GLUE_FORMULA.exec(xCell?.getAttribute('F') ?? '');
+            if (!xCell || !yCell || !match) {
+                return;
+            }
+            const [, sheetId, rowName] = match;
+            const row = shapes.get(sheetId)?.querySelector(`:scope > Section[N="Connection"] > Row[N="${rowName}"]`);
+            if (!row) {
+                return;
+            }
+            // The row of an anchor on the right side has `X = Width`.
+            const isRight = row.querySelector(':scope > Cell[N="X"]')?.getAttribute('F') === 'Width';
+            const index = isRight ? ELEMENT_RIGHT_CONNECTION : ELEMENT_LEFT_CONNECTION;
+            row.remove();
+            const ref = `Sheet.${sheetId}!Connections`;
+            const formula = `PAR(PNT(${ref}.X${index},${ref}.Y${index}))`;
+            xCell.setAttribute('F', formula);
+            yCell.setAttribute('F', formula);
+            const connect = pageContents.createElementNS(VISIO_NAMESPACE, 'Connect');
+            connect.setAttribute('FromSheet', linkId);
+            connect.setAttribute('FromCell', `${name}X`);
+            connect.setAttribute('FromPart', String(part));
+            connect.setAttribute('ToSheet', sheetId);
+            connect.setAttribute('ToCell', `Connections.X${index}`);
+            // The part of a connection point: 100 + its row index (`X2` is the row 1).
+            connect.setAttribute('ToPart', String(100 + index - 1));
+            connects.appendChild(connect);
+        });
+    });
+    zip.file(path, new XMLSerializer().serializeToString(pageContents));
+}
+
 // Exports the diagram on the paper into the template, the shapes made from the masters of the Ranks stencil.
 export async function exportToVisio(paper: dia.Paper, fileName = 'ranked-layout.vsdx') {
     const archive = await VisioArchive.fromURL(templateUrl);
@@ -140,6 +206,7 @@ export async function exportToVisio(paper: dia.Paper, fileName = 'ranked-layout.
         exportElement: exportCell,
         exportLink: exportCell
     });
+    await glueLinks(archive, page);
 
     const blob = await archive.toVSDX();
     util.downloadBlob(blob, fileName);
