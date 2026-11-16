@@ -1,0 +1,254 @@
+/* The process and storage equipment (see `process.tsx`): the colors the vanilla shapes draw as literals, their run-mode motion. */
+
+:root {
+    --process-firebox: #333333;
+    --process-firebox-edge: #222222;
+    --process-flame-deep: #8b1e1e;
+    --process-tube: #E07A5F;
+    --process-tube-hot: #FFD8A8;
+    --process-bulk: #C8A46E;
+    --process-surface: #FFFFFF;
+    --process-readout-halo: #FFFFFF;
+}
+
+[data-theme=dark] {
+    --process-firebox: #18181b;
+    --process-firebox-edge: #0b0b0d;
+    --process-flame-deep: #9b2a1e;
+    --process-tube: #EE8E73;
+    --process-tube-hot: #FFE3BF;
+    --process-bulk: #B8925C;
+    --process-surface: #E6FFF4;
+    --process-readout-halo: #0b1220;
+}
+
+/* Boiler: the firebox dark, the flames burning only while it fires */
+
+.process-firebox {
+    fill: var(--process-firebox);
+    stroke: var(--process-firebox-edge);
+}
+
+.process-flame-outer {
+    fill: var(--shape-flame);
+}
+
+.process-flame-inner {
+    fill: color-mix(in oklab, var(--shape-flame) 78%, var(--process-flame-deep));
+}
+
+.process-flame {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+}
+
+.process-flames,
+.process-embers {
+    opacity: 0;
+}
+
+.process-embers {
+    fill: var(--shape-flame);
+}
+
+.equipment[data-active=true] .process-flames {
+    opacity: 1;
+}
+
+.equipment[data-active=true] .process-embers {
+    opacity: 0.22;
+}
+
+/* Heat exchanger: the tubes, the heat moving along them while the flow passes */
+
+.process-tubes,
+.process-heat {
+    fill: none;
+    stroke-width: 4;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+.process-tubes {
+    stroke: var(--process-tube);
+}
+
+.process-heat {
+    stroke: var(--process-tube-hot);
+    stroke-width: 2;
+    stroke-dasharray: 6 14;
+    opacity: 0;
+}
+
+/* Filter: the filter element, the cap */
+
+.process-media {
+    fill: none;
+    stroke: var(--shape-surface-ink);
+    stroke-width: 3;
+    stroke-dasharray: 6 4;
+    stroke-linecap: round;
+}
+
+.process-cap {
+    fill: var(--shape-cap);
+}
+
+/* Tank and silo: the contents drawn at full height, scaled to the level; it glides to a new one */
+
+.process-level {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    transition: transform var(--dur-reading) linear;
+}
+
+.process-surface-track {
+    transition: transform var(--dur-reading) linear;
+}
+
+.process-liquid {
+    fill: var(--shape-liquid);
+    fill-opacity: 0.85;
+}
+
+.process-surface {
+    fill: none;
+    stroke: var(--process-surface);
+    stroke-width: 1.5;
+    stroke-opacity: 0.35;
+}
+
+.process-bulk {
+    fill: var(--process-bulk);
+    fill-opacity: 0.9;
+}
+
+.equipment[data-alarm=true] .process-liquid[data-zone=high],
+.equipment[data-alarm=true] .process-bulk[data-zone=high] {
+    fill: var(--shape-liquid-max);
+}
+
+.equipment[data-alarm=true] .process-liquid[data-zone=low],
+.equipment[data-alarm=true] .process-bulk[data-zone=low] {
+    fill: var(--shape-liquid-min);
+}
+
+.process-tank-legs,
+.process-silo-legs {
+    fill: none;
+    stroke-linecap: round;
+}
+
+.process-tank-legs {
+    stroke: var(--shape-tank-legs);
+}
+
+.process-silo-legs {
+    stroke: var(--shape-legs);
+    stroke-width: 6;
+}
+
+.process-scale {
+    fill: none;
+    stroke: var(--shape-surface-ink);
+    stroke-width: 1.5;
+    stroke-opacity: 0.6;
+}
+
+.process-readout {
+    fill: var(--shape-instrument-text);
+    font: 600 14px sans-serif;
+    font-variant-numeric: tabular-nums;
+    text-anchor: middle;
+    dominant-baseline: central;
+    paint-order: stroke;
+    stroke: var(--process-readout-halo);
+    stroke-width: 3;
+    stroke-opacity: 0.6;
+    stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .process-flames,
+    .process-embers {
+        transition: opacity 320ms ease-out;
+    }
+
+    .process-heat {
+        transition: opacity 400ms ease-out;
+    }
+
+    /* The flames lick: two tongues out of phase, scaled from their base */
+    [data-mode=run] .equipment[data-active=true] .process-flame-outer {
+        animation: process-flicker 500ms ease-in-out infinite alternate;
+    }
+
+    [data-mode=run] .equipment[data-active=true] .process-flame-inner {
+        animation: process-flicker 670ms ease-in-out -240ms infinite alternate;
+    }
+
+    [data-mode=run] .equipment[data-active=true] .process-embers {
+        animation: process-glow 1400ms ease-in-out infinite alternate;
+    }
+
+    /* The heat runs along the tubes */
+    [data-mode=run] .equipment[data-active=true] .process-heat {
+        opacity: 0.85;
+        animation: process-heat-travel 900ms linear infinite;
+    }
+
+    /* The liquid seeps through the filter element */
+    [data-mode=run] .equipment[data-active=true] .process-media {
+        animation: process-media-flow 1200ms linear infinite;
+    }
+
+    /* The liquid surface sways, calmly */
+    [data-mode=run] .process-surface {
+        animation: process-ripple 3200ms ease-in-out infinite alternate;
+    }
+}
+
+@keyframes process-flicker {
+    from {
+        transform: scale(1, 1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.04, 0.9);
+        opacity: 0.85;
+    }
+    to {
+        transform: scale(0.97, 1.06);
+        opacity: 0.7;
+    }
+}
+
+@keyframes process-glow {
+    from {
+        opacity: 0.16;
+    }
+    to {
+        opacity: 0.3;
+    }
+}
+
+@keyframes process-heat-travel {
+    to {
+        stroke-dashoffset: -20;
+    }
+}
+
+@keyframes process-media-flow {
+    to {
+        stroke-dashoffset: -10;
+    }
+}
+
+@keyframes process-ripple {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-20px);
+    }
+}

@@ -1,0 +1,148 @@
+/* The instruments (see `instruments.tsx`): their screens, readouts and run-mode motion. */
+:root {
+    /* The screen of a flow meter / display (the vanilla `#1e272e`, its edge `#111`) */
+    --instruments-screen: #1e272e;
+    --instruments-screen-edge: #111111;
+    /* The beacon: its lamp off, the reflection on the glass, the light sweeping around while it's on */
+    --instruments-lamp-off: #9aa3ab;
+    --instruments-shine: #ffffff;
+    --instruments-beam: #fff7e6;
+}
+
+[data-theme=dark] {
+    --instruments-screen: #070d16;
+    --instruments-screen-edge: #000000;
+    --instruments-lamp-off: #5b6b80;
+    --instruments-shine: #dbe6f3;
+    --instruments-beam: #fff1d6;
+}
+
+.instruments-digits {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.instruments-unit {
+    font-family: var(--font-body);
+}
+
+/* The needle glides to the pressure, around the center of the dial (its group's origin) */
+.instruments-needle {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform var(--dur-reading) var(--ease-out);
+}
+
+/* The column rises from the bulb, the reading follows its top */
+.instruments-column {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    transition: transform var(--dur-reading) linear;
+}
+
+.instruments-reading {
+    transition: transform var(--dur-reading) linear;
+}
+
+.instruments-bulb-shine {
+    opacity: 0.55;
+}
+
+/* The flow meter: the flow shown under the reading while it passes */
+.instruments-flow-cue {
+    opacity: 0;
+    transition: opacity 240ms ease-out;
+}
+
+[data-mode=run] .equipment[data-active=true] .instruments-flow-cue {
+    opacity: 0.75;
+}
+
+/* The display: its reading in the liquid's color, red in an alarm */
+.instruments-display-value {
+    fill: var(--shape-liquid);
+}
+
+[data-mode=run] .equipment[data-alarm=true] .instruments-display-value {
+    fill: var(--shape-liquid-max);
+}
+
+/* The beacon: dark until the alarm, then lit, its glow pulsing and its light sweeping around the dome */
+.instruments-glow,
+.instruments-lamp-lit,
+.instruments-beam {
+    opacity: 0;
+    transition: opacity 200ms ease-out;
+}
+
+.instruments-glow {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    pointer-events: none;
+}
+
+.instruments-beam {
+    transform-box: view-box;
+}
+
+[data-mode=run] .equipment[data-alarm=true] .instruments-lamp-lit {
+    opacity: 1;
+}
+
+[data-mode=run] .equipment[data-alarm=true] .instruments-glow {
+    opacity: 0.2;
+}
+
+[data-mode=run] .equipment[data-alarm=true] .instruments-beam {
+    opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    [data-mode=run] .equipment[data-alarm=true] .instruments-glow {
+        animation: instruments-glow-pulse 1000ms var(--ease-out) infinite;
+    }
+
+    [data-mode=run] .equipment[data-alarm=true] .instruments-beam {
+        animation: instruments-beam-sweep 1000ms ease-in-out infinite;
+    }
+
+    [data-mode=run] .equipment[data-active=true] .instruments-flow-cue {
+        animation: instruments-flow 600ms linear infinite;
+    }
+}
+
+/* A halo swelling out of the lamp and fading */
+@keyframes instruments-glow-pulse {
+    from {
+        transform: scale(0.45);
+        opacity: 0.45;
+    }
+    to {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+/* The rotating mirror: a bright band crossing the dome, fading at its edges */
+@keyframes instruments-beam-sweep {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+    20% {
+        opacity: 0.7;
+    }
+    80% {
+        opacity: 0.7;
+    }
+    100% {
+        transform: translateX(42px);
+        opacity: 0;
+    }
+}
+
+@keyframes instruments-flow {
+    to {
+        stroke-dashoffset: -8;
+    }
+}
