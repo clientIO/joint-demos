@@ -137,7 +137,8 @@ function useMenuActions() {
         const up = layers.size === 1 ? adjacentLayer(layer, 1) : undefined;
         const down = layers.size === 1 ? adjacentLayer(layer, -1) : undefined;
 
-        const order = (toFront: boolean) => transaction(() => {
+        // To the front or the back of their layers, kept in their order over each other.
+        const stack = (toFront: boolean) => {
             const cells = ids.flatMap((selected) => graph.getCell(selected) ?? []);
             cells.sort((a, b) => (toFront ? a.z() - b.z() : b.z() - a.z()));
             for (const cell of cells) {
@@ -147,13 +148,16 @@ function useMenuActions() {
                     cell.toBack();
                 }
             }
-        }, { name: toFront ? 'to-front' : 'to-back' });
+        };
 
+        const order = (toFront: boolean) => transaction(() => stack(toFront), { name: toFront ? 'to-front' : 'to-back' });
+
+        // Moved up, the cells go over what is in the layer; moved down, under it.
         const moveToLayer = (target: Layer) => transaction(() => {
             for (const selected of ids) {
                 setCell(selected, (previous) => ({ ...previous, layer: target }));
-                graph.getCell(selected)?.toFront();
             }
+            stack(target === up);
         }, { name: 'to-layer' });
 
         // A connection is kept where it was drawn: its end at the element becomes a free point.
