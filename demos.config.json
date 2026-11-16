@@ -29,6 +29,9 @@
     "data-modeling": {
       "variant": "react"
     },
+    "electronic-system-designer": {
+      "variant": "react"
+    },
     "mermaid-editor": {
       "variant": "react",
       "viewport": {
