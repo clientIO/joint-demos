@@ -19,7 +19,7 @@ export type Side = 'left' | 'right' | 'top' | 'bottom';
 /** Schematic pin stub length outside the body. */
 export const PIN_STUB = 14;
 /** Architecture port stub length outside the block edge. */
-const PORT_STUB = 16;
+export const PORT_STUB = 16;
 /** Square hit zone on a schematic pin tip; generous on purpose. */
 const PIN_MAGNET = 18;
 /** Square hit zone on an architecture port tip. */

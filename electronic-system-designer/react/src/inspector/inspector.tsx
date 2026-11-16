@@ -11,7 +11,6 @@
 import { useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useCells, useSelectionCollection } from '@joint/react-plus';
 import { ChevronDown, ChevronUp, CircleAlert, Locate, Trash2, TriangleAlert, X } from 'lucide-react';
-import { useShallow } from 'zustand/react/shallow';
 import { FindingFixButton } from '@/components/finding-fix-button';
 import { Button } from '@/components/ui/button';
 import { useAnnouncer } from '@/components/ui/announcer-context';
@@ -25,7 +24,7 @@ import {
     type ViewId,
 } from '@/state/designer-store';
 import { parseBundleWireCellId } from '@/views/arch-cells';
-import { boardBounds, parseFrameCellId } from '@/views/sch-cells';
+import { parseFrameCellId } from '@/views/sch-cells';
 
 const FIELD_LABEL = 'text-tag block pb-1 text-muted-foreground';
 const FIELD_INPUT =
@@ -457,50 +456,8 @@ function BundleCard({ id }: { readonly id: string }) {
     );
 }
 
-/** A numeric outline dimension. Uncontrolled while focused (typing "400"
- * passes through "4"), committed on blur/Enter; the `key` remount picks up
- * external changes (drag-resize) whenever the field is not being edited.
- * Enter commits in place (no blur — that would drop focus on <body>); the
- * remount that follows keeps the id, so focus is handed to the new field. */
-function SizeField({
-    id,
-    label,
-    value,
-    onCommit,
-}: {
-  readonly id: string;
-  readonly label: string;
-  readonly value: number;
-  readonly onCommit: (value: number) => void;
-}) {
-    const commit = (raw: string): void => {
-        const parsed = Number(raw);
-        if (Number.isFinite(parsed)) onCommit(parsed);
-    };
-    return (
-        <div className="flex-1">
-            <label className={FIELD_LABEL} htmlFor={id}>
-                {label}
-            </label>
-            <input
-                id={id}
-                key={value}
-                type="number"
-                min={80}
-                step={20}
-                className={`${FIELD_INPUT} h-8`}
-                defaultValue={value}
-                onBlur={(event) => commit(event.target.value)}
-                onKeyDown={(event) => {
-                    if (event.key === 'Enter') commit(event.currentTarget.value);
-                }}
-            />
-        </div>
-    );
-}
-
-/** Board outline properties — the keyboard path to what the canvas handles
- * do: rename, exact width/height, remove-when-empty. */
+/** Board outline properties: rename, remove-when-empty. The outline fits its
+ * parts on the canvas. */
 function BoardCard({ id }: { readonly id: string }) {
     const board = useDesignerStore((state) => state.design.boards.find((candidate) => candidate.id === id));
     const partCount = useDesignerStore(
@@ -511,15 +468,7 @@ function BoardCard({ id }: { readonly id: string }) {
             state.design.boards.length > 1 &&
       !state.design.components.some((component) => component.board === id),
     );
-    // Primitive picks: bounds objects are rebuilt per commit (drag frames too).
-    const [width, height] = useDesignerStore(
-        useShallow((state) => {
-            const bounds = boardBounds(state.design, id);
-            return [Math.round(bounds?.width ?? 0), Math.round(bounds?.height ?? 0)] as const;
-        }),
-    );
     const renameBoard = useDesignerStore((state) => state.renameBoard);
-    const setBoardSize = useDesignerStore((state) => state.setBoardSize);
     const removeBoard = useDesignerStore((state) => state.removeBoard);
     if (board === undefined) return null;
     return (
@@ -533,20 +482,6 @@ function BoardCard({ id }: { readonly id: string }) {
                     className={`${FIELD_INPUT} h-8`}
                     value={board.name}
                     onChange={(event) => renameBoard(id, event.target.value)}
-                />
-            </div>
-            <div className="flex gap-2">
-                <SizeField
-                    id="inspector-board-width"
-                    label="Width"
-                    value={width}
-                    onCommit={(value) => setBoardSize(id, { width: value, height })}
-                />
-                <SizeField
-                    id="inspector-board-height"
-                    label="Height"
-                    value={height}
-                    onCommit={(value) => setBoardSize(id, { width, height: value })}
                 />
             </div>
             <dl className="flex flex-col gap-1 border-y border-border py-2">

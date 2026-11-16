@@ -1,20 +1,27 @@
 // The canvas area — one <Diagram> per view, both CONTROLLED by the store.
 //
-// Switching tabs swaps which Diagram is mounted; nothing is lost because the
-// canvases own no state — cells are derived from the Design, and the trace /
-// live-mode / validation state lives in the store, so a net traced in the
-// architecture view is still lit when the connectivity view opens.
+// Both views stay mounted (the inactive one hidden and inert), so a tab switch
+// keeps each graph, paper, viewport and libavoid router alive: no rebuild, no
+// re-routing. Links are native JointJS links; their look (color, labels,
+// trace and live state) is written into the store's cells (views/link-look),
+// so each <Diagram> gets the store's cells as they are.
 
-import { memo, useEffect, useRef, useState, type ComponentProps, type ReactNode, type RefObject } from 'react';
+import {
+    memo,
+    useEffect,
+    useRef,
+    type ComponentProps,
+    type ReactNode,
+    type RefObject,
+} from 'react';
 import {
     Diagram,
-    FreeTransform,
     getSelectionDefaultHandle,
     Paper,
     PaperScroller,
     Selection,
     Snaplines,
-    useCells,
+    useGraph,
     usePaper,
     usePaperScroller,
     useSelectionCollection,
@@ -26,19 +33,29 @@ import { X } from 'lucide-react';
 import { endCoalescing, useDesignerStore } from '@/state/designer-store';
 import { useAnnouncer } from '@/components/ui/announcer-context';
 import { Button } from '@/components/ui/button';
-import { RenderArchCell, RenderArchLink } from './render-arch';
-import { RenderSchCell, RenderSchLink } from './render-sch';
-import { useAvoidRouting } from './use-avoid-routing';
+import { RenderArchCell } from './render-arch';
+import { RenderSchCell } from './render-sch';
+import { useAvoidRouting, type AvoidTracking } from './use-avoid-routing';
 import { WireEndTools } from './wire-end-tools';
 import {
-    ARCH_LINK_ROUTING,
     CONNECT_HIGHLIGHTING,
     createDraftLink,
+    ARCH_LINK_ROUTING,
     SCH_LINK_ROUTING,
     VALIDATE_CONNECTION,
+    VALIDATE_EMBEDDING,
+    VALIDATE_UNEMBEDDING,
 } from './paper-config';
 import { parseBundleWireCellId } from '@/views/arch-cells';
-import { parseFrameCellId } from '@/views/sch-cells';
+import { BOARD_PADDING } from '@/views/sch-cells';
+import {
+    isBoardFrameCell,
+    isBundleCell,
+    isBundleWireCell,
+    isComponentCell,
+    isSubsystemCell,
+    isWireCell,
+} from '@/views/cell-data';
 import { NavigatorPanel } from './navigator-panel';
 import { AccessibilityCheck } from './accessibility-check';
 import { DesignerPalette } from '@/palette/palette';
@@ -59,7 +76,12 @@ const SELECTION_WRAPPER: SelectionWrapperOptions = {
 // is hidden, the inspector is a bottom sheet), so reserving 594 px of side
 // padding there squeezed the fit to ~20% zoom — unreadable on a phone.
 function fitPadding(): {
-  readonly padding: { left: number; right: number; top: number; bottom: number };
+  readonly padding: {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+  };
   readonly minScale?: number;
   readonly maxScale: number;
   } {
@@ -70,10 +92,16 @@ function fitPadding(): {
     // unreadable overview serves nobody.
     return desktop
         ? { padding: { left: 264, right: 330, top: 32, bottom: 40 }, maxScale: 1 }
-        : { padding: { left: 16, right: 16, top: 24, bottom: 72 }, minScale: 0.5, maxScale: 1 };
+        : {
+            padding: { left: 16, right: 16, top: 24, bottom: 72 },
+            minScale: 0.5,
+            maxScale: 1,
+        };
 }
 
-type Scroller = NonNullable<ReturnType<typeof usePaperScroller>['paperScroller']>;
+type Scroller = NonNullable<
+  ReturnType<typeof usePaperScroller>['paperScroller']
+>;
 
 /**
  * Zooms `rect` (paper coordinates) into the canvas area left free by the
@@ -91,35 +119,35 @@ function frameRect(paperScroller: Scroller, rect: dia.BBox): void {
     );
 }
 
-// Fit the sheet into view once per mount (per view switch). A pending
+// Fit the sheet into view once, on mount (both sheets stay mounted). A
 // drill-down target (set by "Open detailed connectivity" / double-click)
-// lands on that subsystem's parts instead, so the detail you asked for is
-// what fills the screen. INSTANT on purpose: the canvas has just mounted, so
-// there is no visible "before" to animate from. Never `transitionToRect` with
+// zooms the connectivity sheet to that subsystem's parts, so the detail you
+// asked for is what fills the screen. INSTANT on purpose: the sheet is just
+// being shown, so there is no visible "before" to animate from. Never `transitionToRect` with
 // a 0ms duration: a zero-length CSS transition fires no `transitionend`, so
 // PaperScroller never syncs its scroll position — the view stays a stale CSS
 // transform and virtual rendering culls parts that are on screen.
-function FitOnLoad() {
+function FitOnLoad({ drillDown }: { readonly drillDown: boolean }) {
     const { paperScroller, zoomToFit } = usePaperScroller();
-    // Captured once per mount: the effect clears the store's target, and
-    // StrictMode re-runs the effect, so a second read would find it gone and
-    // fit the whole sheet instead.
-    const [focusSubsystemId] = useState(() => useDesignerStore.getState().focusSubsystemId);
+    // Only the connectivity sheet answers a drill-down ("Open detailed
+    // connectivity" / double-click on a block): it zooms to that block's parts.
+    const focusSubsystemId = useDesignerStore((state) =>
+        drillDown ? state.focusSubsystemId : null,
+    );
     useEffect(() => {
+        if (paperScroller) zoomToFit(fitPadding());
+    }, [paperScroller, zoomToFit]);
+    useEffect(() => {
+        if (focusSubsystemId === null || !paperScroller) return;
         const { design, clearFocusSubsystem } = useDesignerStore.getState();
-        if (focusSubsystemId !== null && paperScroller) {
-            clearFocusSubsystem();
-            const graph = paperScroller.options.paper.model;
-            const members = design.components
-                .filter((component) => component.subsystemId === focusSubsystemId)
-                .flatMap((component) => graph.getCell(component.id) ?? []);
-            const bounds = graph.getCellsBBox(members);
-            if (bounds !== null) {
-                frameRect(paperScroller, bounds);
-                return;
-            }
-        }
-        zoomToFit(fitPadding());
+        clearFocusSubsystem();
+        const graph = paperScroller.options.paper.model;
+        const members = design.components
+            .filter((component) => component.subsystemId === focusSubsystemId)
+            .flatMap((component) => graph.getCell(component.id) ?? []);
+        const bounds = graph.getCellsBBox(members);
+        if (bounds === null) zoomToFit(fitPadding());
+        else frameRect(paperScroller, bounds);
     }, [focusSubsystemId, paperScroller, zoomToFit]);
     return null;
 }
@@ -134,9 +162,12 @@ function DetailBreadcrumb() {
         const id = state.detailSubsystemId;
         return id === null
             ? null
-            : state.design.subsystems.find((subsystem) => subsystem.id === id)?.name ?? null;
+            : (state.design.subsystems.find((subsystem) => subsystem.id === id)
+                ?.name ?? null);
     });
-    const clearSubsystemDetail = useDesignerStore((state) => state.clearSubsystemDetail);
+    const clearSubsystemDetail = useDesignerStore(
+        (state) => state.clearSubsystemDetail,
+    );
     const { zoomToFit } = usePaperScroller();
     const announce = useAnnouncer();
     if (detailName === null) return null;
@@ -185,7 +216,9 @@ function useSheetPointerHandlers() {
       state.nets.byWire.get(cellId) ??
       (member === null ? undefined : state.nets.byWire.get(member.wireId)) ??
       (() => {
-          const bundle = state.bundles.bundles.find((candidate) => candidate.id === cellId);
+          const bundle = state.bundles.bundles.find(
+              (candidate) => candidate.id === cellId,
+          );
           const wireId = bundle?.wireIds[0];
           return wireId === undefined ? undefined : state.nets.byWire.get(wireId);
       })();
@@ -198,10 +231,15 @@ function useSheetPointerHandlers() {
         const cellId = String(id);
         const state = useDesignerStore.getState();
         // Collapsed bundle with several signals → expand; expanded member → collapse.
-        const bundle = state.bundles.bundles.find((candidate) => candidate.id === cellId);
+        const bundle = state.bundles.bundles.find(
+            (candidate) => candidate.id === cellId,
+        );
         const member = parseBundleWireCellId(cellId);
         const target =
-      member?.bundleId ?? (bundle !== undefined && bundle.wireIds.length > 1 ? bundle.id : undefined);
+      member?.bundleId ??
+      (bundle !== undefined && bundle.wireIds.length > 1
+          ? bundle.id
+          : undefined);
         if (target === undefined) return;
         state.toggleBundle(target);
         const expanded = useDesignerStore.getState().expandedBundles.has(target);
@@ -221,13 +259,20 @@ function useSheetPointerHandlers() {
     // Schematic components aren't subsystems, so this is a no-op there.
     const onElementPointerDblClick = ({ id }: { readonly id: CellId }): void => {
         const state = useDesignerStore.getState();
-        const subsystem = state.design.subsystems.find((candidate) => candidate.id === String(id));
+        const subsystem = state.design.subsystems.find(
+            (candidate) => candidate.id === String(id),
+        );
         if (subsystem === undefined) return;
         state.openSubsystemDetail(subsystem.id);
         announce(`Opening detailed connectivity for ${subsystem.name}`);
     };
 
-    return { onLinkPointerClick, onLinkPointerDblClick, onBlankPointerClick, onElementPointerDblClick };
+    return {
+        onLinkPointerClick,
+        onLinkPointerDblClick,
+        onBlankPointerClick,
+        onElementPointerDblClick,
+    };
 }
 
 /** The active-trace pill: names the traced net, counts its reach, and offers
@@ -279,7 +324,11 @@ function ConnectionToast() {
         if (toast === null) return;
         // Spoken through the app's one persistent live region: a region that
         // mounts WITH its text is not reliably announced by screen readers.
-        announce(toast.detail === undefined ? toast.title : `${toast.title} — ${toast.detail}`);
+        announce(
+            toast.detail === undefined
+                ? toast.title
+                : `${toast.title} — ${toast.detail}`,
+        );
         const timer = setTimeout(dismissToast, 4200);
         return () => clearTimeout(timer);
     }, [toast, dismissToast, announce]);
@@ -296,7 +345,9 @@ function ConnectionToast() {
             <div className="flex items-baseline gap-2">
                 <span className="text-xs font-semibold">{toast.title}</span>
                 {toast.detail === undefined ? null : (
-                    <span className="font-mono text-[11px] text-muted-foreground">{toast.detail}</span>
+                    <span className="font-mono text-[11px] text-muted-foreground">
+                        {toast.detail}
+                    </span>
                 )}
             </div>
             <Button size="icon" aria-label="Dismiss" onClick={dismissToast}>
@@ -309,7 +360,10 @@ function ConnectionToast() {
 /** Keyboard + assistive-tech plumbing for the scroll container and symbols
  * (focus selects, keyboard focus pans off-screen symbols into view, ESC hops
  * back to the toolbar). Same contract as the Data Modeling demo. */
-function useCanvasAccessibility(rootRef: RefObject<HTMLDivElement | null>, label: string) {
+function useCanvasAccessibility(
+    rootRef: RefObject<HTMLDivElement | null>,
+    label: string,
+) {
     const { selectCells } = useSelectionCollection();
     const { paperScroller } = usePaperScroller();
     const { paper } = usePaper();
@@ -327,7 +381,10 @@ function useCanvasAccessibility(rootRef: RefObject<HTMLDivElement | null>, label
         if (scroller instanceof HTMLElement) {
             scroller.tabIndex = 0;
             scroller.setAttribute('role', 'application');
-            scroller.setAttribute('aria-label', `${label} — scrollable; use arrow keys to pan`);
+            scroller.setAttribute(
+                'aria-label',
+                `${label} — scrollable; use arrow keys to pan`,
+            );
         }
 
         let pointerInitiated = false;
@@ -345,7 +402,8 @@ function useCanvasAccessibility(rootRef: RefObject<HTMLDivElement | null>, label
 
         const onFocusIn = (event: FocusEvent): void => {
             const target = event.target;
-            const view = target instanceof Element ? target.closest('[model-id]') : null;
+            const view =
+        target instanceof Element ? target.closest('[model-id]') : null;
             const id = view?.getAttribute('model-id');
             if (!id || !(view instanceof Element)) return;
             selectCells([id]);
@@ -353,7 +411,10 @@ function useCanvasAccessibility(rootRef: RefObject<HTMLDivElement | null>, label
                 pointerInitiated = false;
                 return;
             }
-            const viewport = scroller instanceof HTMLElement ? scroller.getBoundingClientRect() : null;
+            const viewport =
+        scroller instanceof HTMLElement
+            ? scroller.getBoundingClientRect()
+            : null;
             const box = view.getBoundingClientRect();
             const offScreen =
         !!viewport &&
@@ -421,30 +482,14 @@ function useCanvasAccessibility(rootRef: RefObject<HTMLDivElement | null>, label
     }, [paper, selectCells]);
 }
 
-/** Resize handles for a selected board outline. Parts and blocks have fixed
- * footprints, so FreeTransform attaches ONLY to frame cells; the write-back
- * turns the resize into the board's stored outline rect. The selector keeps
- * the subscription to the ID ONLY — cell records are replaced per attribute
- * commit, so subscribing to the records would re-render every drag frame. */
-function BoardResizeHandles() {
-    const { collection } = useSelectionCollection();
-    const frameId = useCells(collection, (cells): CellId | null => {
-        const single = cells.length === 1 ? cells[0] : undefined;
-        return single !== undefined &&
-      typeof single.id === 'string' &&
-      parseFrameCellId(single.id) !== undefined
-            ? single.id
-            : null;
-    });
-    if (frameId === null) return null;
-    return <FreeTransform cell={frameId} allowRotation={false} minWidth={160} minHeight={120} />;
-}
-
 interface SheetProps {
   readonly label: string;
   readonly renderElement: ComponentProps<typeof Paper>['renderElement'];
-  readonly renderLink: ComponentProps<typeof Paper>['renderLink'];
-  readonly linkRouting: ComponentProps<typeof Paper>['linkRouting'];
+  /** What libavoid routes on this sheet. */
+  readonly routing: AvoidTracking;
+  /** The connectivity sheet: parts move from board to board (embedding) and
+   * a drill-down zooms to a block's parts. */
+  readonly isConnectivity?: boolean;
   /** Rendered INSIDE the paper (needs its context): tools, overlays. */
   readonly paperChildren?: ReactNode;
   /** Rendered BEFORE the scroller — the palette rail. Tab order is DOM
@@ -457,8 +502,8 @@ interface SheetProps {
 const Sheet = memo(function Sheet({
     label,
     renderElement,
-    renderLink,
-    linkRouting,
+    routing,
+    isConnectivity = false,
     paperChildren,
     rail,
     children,
@@ -467,11 +512,20 @@ const Sheet = memo(function Sheet({
     useCanvasAccessibility(rootRef, label);
     const { collection, selectCells } = useSelectionCollection();
     const pointerHandlers = useSheetPointerHandlers();
+    const isRouted = useAvoidRouting(routing);
 
     return (
     // esd-sheet: draws the scroller's keyboard-focus ring (index.css).
-        <div ref={rootRef} className="esd-sheet relative size-full">
-            <div aria-hidden className="canvas-wash pointer-events-none absolute inset-0" />
+    // data-routing hides the links until libavoid's first pass has landed.
+        <div
+            ref={rootRef}
+            className="esd-sheet relative size-full"
+            data-routing={isRouted ? undefined : true}
+        >
+            <div
+                aria-hidden
+                className="canvas-wash pointer-events-none absolute inset-0"
+            />
             {rail}
             <PaperScroller className="relative size-full touch-none" virtualRendering>
                 <Paper
@@ -479,8 +533,13 @@ const Sheet = memo(function Sheet({
                     gridSize={4}
                     drawGridSize={20}
                     renderElement={renderElement}
-                    renderLink={renderLink}
-                    linkRouting={linkRouting}
+                    linkRouting={isConnectivity ? SCH_LINK_ROUTING : ARCH_LINK_ROUTING}
+                    embeddingMode={isConnectivity}
+                    // Test every element under a dropped part, front to back: the topmost
+                    // is often another part (rejected), and the board behind it is the parent.
+                    frontParentOnly={false}
+                    validateEmbedding={VALIDATE_EMBEDDING}
+                    validateUnembedding={VALIDATE_UNEMBEDDING}
                     validateConnection={VALIDATE_CONNECTION}
                     highlighting={CONNECT_HIGHLIGHTING}
                     defaultLink={createDraftLink}
@@ -508,9 +567,8 @@ const Sheet = memo(function Sheet({
                     onBlankPointerClick={pointerHandlers.onBlankPointerClick}
                 >
                     <Selection wrapper={SELECTION_WRAPPER} />
-                    <BoardResizeHandles />
                     <Snaplines />
-                    <FitOnLoad />
+                    <FitOnLoad drillDown={isConnectivity} />
                     {paperChildren}
                 </Paper>
             </PaperScroller>
@@ -547,48 +605,120 @@ const SCH_CHROME = <DesignerInspector view="connectivity" />;
 // Hoisted for the same reason: a fresh element per render would miss the memo.
 const SCH_PAPER_TOOLS = <WireEndTools />;
 
-/** The architecture sheet: subsystem blocks + typed interface bundles. */
-export const ArchitectureCanvas = memo(function ArchitectureCanvas() {
-    const cells = useDesignerStore((state) => state.archCells);
-    const onCellsChange = useDesignerStore((state) => state.onArchCellsChange);
-    return (
-        <Diagram cells={cells} onCellsChange={onCellsChange}>
-            <Sheet
-                label="System architecture canvas"
-                renderElement={RenderArchCell}
-                renderLink={RenderArchLink}
-                linkRouting={ARCH_LINK_ROUTING}
-                rail={ARCH_RAIL}
-            >
-                {ARCH_CHROME}
-            </Sheet>
-        </Diagram>
-    );
-});
+// What libavoid routes around and routes, per sheet. Module constants: the
+// routing service restarts when they change.
+const ARCH_ROUTING: AvoidTracking = {
+    trackElement: ({ element }) => isSubsystemCell(element.get('data')),
+    trackLink: ({ link }) => {
+        const data: unknown = link.get('data');
+        return isBundleCell(data) || isBundleWireCell(data);
+    },
+};
+// Board outlines are not obstacles: they enclose everything on them.
+const SCH_ROUTING: AvoidTracking = {
+    trackElement: ({ element }) => isComponentCell(element.get('data')),
+    trackLink: ({ link }) => isWireCell(link.get('data')),
+};
 
-/** Mount point for the libavoid routing service — needs the Diagram's graph. */
-function AvoidRouting() {
-    useAvoidRouting();
+/**
+ * Keeps each board outline around its parts with JointJS `fitToChildren`:
+ * a part moved, or moved to another board, refits the boards involved.
+ * Parts carried along by their board (`translateBy` the board) change nothing.
+ */
+function FitBoards() {
+    const { graph } = useGraph();
+    useEffect(() => {
+        const fit = (board: dia.Cell | null | undefined): void => {
+            if (board?.isElement() && isBoardFrameCell(board.get('data'))) {
+                board.fitToChildren({ padding: BOARD_PADDING });
+            }
+        };
+        const onMove = (
+            cell: dia.Cell,
+            _value: unknown,
+            opt: { translateBy?: dia.Cell.ID },
+        ): void => {
+            if (opt.translateBy !== undefined && opt.translateBy !== cell.id) return;
+            fit(cell.getParentCell());
+        };
+        const onParent = (cell: dia.Cell): void => {
+            const previous: unknown = cell.previous('parent');
+            if (typeof previous === 'string') fit(graph.getCell(previous));
+            fit(cell.getParentCell());
+        };
+        graph.on('change:position change:size', onMove);
+        graph.on('change:parent', onParent);
+        return () => {
+            graph.off('change:position change:size', onMove);
+            graph.off('change:parent', onParent);
+        };
+    }, [graph]);
     return null;
 }
 
-/** The connectivity sheet: schematic parts + pin-to-pin wires. */
-export const ConnectivityCanvas = memo(function ConnectivityCanvas() {
+/** Keeps an inactive view mounted but hidden: invisible (it keeps its size,
+ * so the paper and scroller need no re-layout when shown) and inert (out of
+ * the tab order and the pointer's reach). */
+function ViewFrame({
+    isVisible,
+    children,
+}: {
+  readonly isVisible: boolean;
+  readonly children: ReactNode;
+}) {
+    return (
+        <div
+            className={isVisible ? 'absolute inset-0' : 'invisible absolute inset-0'}
+            inert={!isVisible}
+        >
+            {children}
+        </div>
+    );
+}
+
+interface CanvasProps {
+  readonly isVisible: boolean;
+}
+
+/** The architecture sheet: subsystem blocks + typed interface bundles. */
+export const ArchitectureCanvas = memo(function ArchitectureCanvas({ isVisible }: CanvasProps) {
+    const cells = useDesignerStore((state) => state.archCells);
+    const onCellsChange = useDesignerStore((state) => state.onArchCellsChange);
+    return (
+        <ViewFrame isVisible={isVisible}>
+            <Diagram cells={cells} onCellsChange={onCellsChange}>
+                <Sheet
+                    label="System architecture canvas"
+                    renderElement={RenderArchCell}
+                    routing={ARCH_ROUTING}
+                    rail={ARCH_RAIL}
+                >
+                    {ARCH_CHROME}
+                </Sheet>
+            </Diagram>
+        </ViewFrame>
+    );
+});
+
+/** The connectivity sheet: schematic parts + pin-to-pin wires on their boards. */
+export const ConnectivityCanvas = memo(function ConnectivityCanvas({ isVisible }: CanvasProps) {
     const cells = useDesignerStore((state) => state.schCells);
     const onCellsChange = useDesignerStore((state) => state.onSchCellsChange);
     return (
-        <Diagram cells={cells} onCellsChange={onCellsChange}>
-            <AvoidRouting />
-            <Sheet
-                label="Detailed connectivity canvas"
-                renderElement={RenderSchCell}
-                renderLink={RenderSchLink}
-                linkRouting={SCH_LINK_ROUTING}
-                paperChildren={SCH_PAPER_TOOLS}
-                rail={SCH_RAIL}
-            >
-                {SCH_CHROME}
-            </Sheet>
-        </Diagram>
+        <ViewFrame isVisible={isVisible}>
+            <Diagram cells={cells} onCellsChange={onCellsChange}>
+                <FitBoards />
+                <Sheet
+                    label="Detailed connectivity canvas"
+                    renderElement={RenderSchCell}
+                    routing={SCH_ROUTING}
+                    isConnectivity
+                    paperChildren={SCH_PAPER_TOOLS}
+                    rail={SCH_RAIL}
+                >
+                    {SCH_CHROME}
+                </Sheet>
+            </Diagram>
+        </ViewFrame>
     );
 });

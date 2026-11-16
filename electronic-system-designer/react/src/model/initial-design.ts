@@ -26,8 +26,8 @@ import type { Board, Component, Design, Subsystem, Wire } from './design';
 // --- Boards ----------------------------------------------------------------
 
 const BOARDS: readonly Board[] = [
-    { id: 'main', name: 'Main PCB', origin: { x: 40, y: 40 }},
-    { id: 'sensor', name: 'Sensor Board', origin: { x: 1300, y: 160 }},
+    { id: 'main', name: 'Main PCB', origin: { x: 8, y: 40 }, size: { width: 1364, height: 928 }},
+    { id: 'sensor', name: 'Sensor Board', origin: { x: 1392, y: 132 }, size: { width: 220, height: 372 }},
 ];
 
 // --- Components (connectivity sheet, positions are schematic top-lefts) ----
@@ -426,5 +426,4 @@ export const INITIAL_DESIGN: Design = {
     subsystems: SUBSYSTEMS,
     components: COMPONENTS,
     wires: WIRES,
-    archVertices: {},
 };

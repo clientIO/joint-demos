@@ -1,43 +1,34 @@
-// Static <Paper> configuration shared by both canvas views: routing,
-// connection rules, drag feedback, and the draft-link factories. Pure values,
+// Static <Paper> configuration: routing, connection rules, embedding, drag
+// feedback, and the draft-link factory. Pure values,
 // kept out of the components so canvas.tsx stays a wiring file.
 
-import type { DefaultLink, PaperProps } from '@joint/react-plus';
+import { linkRoutingStraight, type DefaultLink, type PaperProps } from '@joint/react-plus';
 import { newId } from '@/model/design';
+import { isBoardFrameCell, isComponentCell } from '@/views/cell-data';
+import { PIN_STUB, PORT_STUB } from '@/symbols/port-markup';
 
 /**
- * Schematic routing:
- * - route GEOMETRY comes from libavoid (`use-avoid-routing` writes each
- *   wire's vertices), so the paper router is `normal` — straight segments
- *   through the vertices the service computed; anything smarter here would
- *   re-bend libavoid's already-orthogonal runs;
- * - the `jumpover` connector arcs where wires cross — the drawing convention
- *   that separates crossings from junctions (junction DOTS are drawn at pins);
- * - ends sit on native ports (the stub tips, or the router's anchors), so
- *   the connection point is simply "the anchor".
+ * Link routing for a view whose pins have stubs of the given length.
+ * libavoid (`use-avoid-routing`) writes each link's bends and end anchors,
+ * so the paper only draws straight segments through them: the library's
+ * straight preset. Two swaps:
+ * - the connector is `jumpover`, which arcs where wires cross (the drawing
+ *   convention that separates crossings from junctions);
+ * - the link ends at its anchor (the pin on the body edge, where libavoid
+ *   ends the route) moved back along the route by the stub length: on the
+ *   stub tip. The preset's `boundary` point would clip at the round hit zone
+ *   instead, short of the tip and past the route's last bend.
  */
-export const SCH_LINK_ROUTING: NonNullable<PaperProps['linkRouting']> = {
-    defaultRouter: { name: 'normal' },
-    defaultConnector: { name: 'jumpover', args: { size: 6 }},
-    // Ends without an explicit anchor (a wire being drawn, a wire libavoid has
-    // not routed yet) sit on the port magnet's center: the stub tip.
-    defaultAnchor: { name: 'center' },
-    defaultConnectionPoint: { name: 'anchor' },
-};
+function linkRoutingForStub(stub: number): NonNullable<PaperProps['linkRouting']> {
+    return {
+        ...linkRoutingStraight(),
+        defaultConnector: { name: 'jumpover', args: { size: 6 }},
+        defaultConnectionPoint: { name: 'anchor', args: { offset: stub }},
+    };
+}
 
-/**
- * Architecture routing: same conventions, but the `manhattan` router — it
- * routes AROUND elements, so bundles never run under a subsystem block no
- * matter where the user drags one. (The schematic keeps the lighter
- * `orthogonal` router: its board outlines are elements too, and an obstacle
- * router would treat the whole board as a wall.)
- */
-export const ARCH_LINK_ROUTING: NonNullable<PaperProps['linkRouting']> = {
-    defaultRouter: { name: 'manhattan', args: { padding: 20, step: 4 }},
-    defaultConnector: { name: 'jumpover', args: { size: 6 }},
-    defaultAnchor: { name: 'center' },
-    defaultConnectionPoint: { name: 'anchor' },
-};
+export const SCH_LINK_ROUTING = linkRoutingForStub(PIN_STUB);
+export const ARCH_LINK_ROUTING = linkRoutingForStub(PORT_STUB);
 
 /**
  * Connection rules: wires attach to PINS, never to a symbol's body — exactly
@@ -83,15 +74,19 @@ export const CONNECT_HIGHLIGHTING: NonNullable<PaperProps['highlighting']> = {
     connecting: { name: 'addClass', options: { className: 'esd-port-snap' }},
 };
 
+/** Parts embed only into board outlines (the connectivity sheet). */
+export const VALIDATE_EMBEDDING: NonNullable<PaperProps['validateEmbedding']> = ({ child, parent }) =>
+    isComponentCell(child.model.get('data')) && isBoardFrameCell(parent.model.get('data'));
+
+/** A part never leaves its board: dropped outside every board, it goes back. */
+export const VALIDATE_UNEMBEDDING: NonNullable<PaperProps['validateUnembedding']> = () => false;
+
 /**
- * The draft link minted when the user drags a wire out of a pin. It carries
- * no `data.kind` the renderers know, so — unlike the derived wires, whose
- * native line hides behind renderLink — its native line IS the preview the
- * user follows: dashed, theme-colored, visibly not-yet-copper. The `style`
- * shorthand lands as inline CSS, so the CSS variable themes correctly. On
- * connect, the write-back reads its end ids + ports and mints the REAL wire
- * (or expands an interface bundle), and the draft disappears on the next
- * derive.
+ * The draft link minted when the user drags a wire out of a pin: a dashed,
+ * theme-colored rubber band, visibly not-yet-copper. The `style` shorthand
+ * lands as inline CSS, so the CSS variable themes correctly. On connect, the
+ * store reads its end ids + ports and mints the REAL wire (or expands an
+ * interface bundle), and the draft is replaced.
  */
 export const createDraftLink: DefaultLink = () => ({
     id: newId('draft'),

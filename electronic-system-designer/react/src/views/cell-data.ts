@@ -1,16 +1,22 @@
 // The typed `data` payloads carried on graph cells, plus the guards that
 // narrow them back.
 //
-// Cells carry IDENTITY, not content: a subsystem cell holds only the
-// subsystem id and the renderers look the real record up in the store. That
-// keeps the Design the single source of truth — and it is what makes the
-// stencil drop work in controlled mode: the drop clones the palette record
-// (minting a fresh cell id), but the `data` payload survives verbatim, so the
-// write-back can tell WHAT was dropped even though the id it minted is gone.
+// Connectivity cells are the document: a part's or wire's cell carries its
+// whole record. Architecture cells carry identity only (a subsystem id, a
+// bundle id), since that sheet is a view of the subsystems and the wires.
+// Palette drops keep their `data` verbatim through the stencil clone, so the
+// store can tell WHAT was dropped.
 
 import type { GraphProviderProps } from '@joint/react-plus';
-import { PART_CATALOG, type PartKindId } from '@/model/catalog';
-import { isSubsystemTemplateId, type SubsystemTemplateId } from './subsystem-templates';
+import {
+    PART_CATALOG,
+    type InterfaceKind,
+    type PartKindId,
+} from '@/model/catalog';
+import {
+    isSubsystemTemplateId,
+    type SubsystemTemplateId,
+} from './subsystem-templates';
 
 /** The element/link JSON the graph accepts (same shape both views). */
 export type Cell = NonNullable<GraphProviderProps['cells']>[number];
@@ -38,29 +44,33 @@ export interface BundleWireCellData {
 
 // --- Connectivity view -----------------------------------------------------
 
-/** A schematic part (one component). */
+/**
+ * A schematic part. The cell IS the component's record: everything but its
+ * position (the cell's own) and its board (the cell's embedding parent).
+ */
 export interface ComponentCellData {
   readonly kind: 'component';
   readonly componentId: string;
+  readonly ref: string;
+  readonly part: PartKindId;
+  readonly subsystemId: string;
+  readonly notes?: string;
 }
 
-/** A pin-to-pin wire. */
+/** A pin-to-pin wire. The cell IS the wire's record; its ends are the link's ports. */
 export interface WireCellData {
   readonly kind: 'wire';
   readonly wireId: string;
-  /** No route for the current part positions yet: drawn once libavoid answers. */
-  readonly unrouted?: true;
+  readonly label?: string;
+  readonly labelAt?: number;
+  readonly iface?: InterfaceKind;
 }
 
-/** The board outline behind a board's components — grabbable by its edge
- * (move) and resizable when selected. Geometry and the display name ride in
- * the data so the renderer needs no lookup. */
+/** A board outline: the parent element of the board's parts. */
 export interface BoardFrameCellData {
   readonly kind: 'board-frame';
   readonly board: string;
   readonly name: string;
-  readonly width: number;
-  readonly height: number;
 }
 
 // --- Palette drops ---------------------------------------------------------
@@ -94,11 +104,19 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export function isSubsystemCell(data: unknown): data is SubsystemCellData {
-    return isRecord(data) && data.kind === 'subsystem' && typeof data.subsystemId === 'string';
+    return (
+        isRecord(data) &&
+    data.kind === 'subsystem' &&
+    typeof data.subsystemId === 'string'
+    );
 }
 
 export function isBundleCell(data: unknown): data is BundleCellData {
-    return isRecord(data) && data.kind === 'bundle' && typeof data.bundleId === 'string';
+    return (
+        isRecord(data) &&
+    data.kind === 'bundle' &&
+    typeof data.bundleId === 'string'
+    );
 }
 
 export function isBundleWireCell(data: unknown): data is BundleWireCellData {
@@ -111,11 +129,21 @@ export function isBundleWireCell(data: unknown): data is BundleWireCellData {
 }
 
 export function isComponentCell(data: unknown): data is ComponentCellData {
-    return isRecord(data) && data.kind === 'component' && typeof data.componentId === 'string';
+    return (
+        isRecord(data) &&
+    data.kind === 'component' &&
+    typeof data.componentId === 'string' &&
+    typeof data.ref === 'string' &&
+    typeof data.part === 'string' &&
+    data.part in PART_CATALOG &&
+    typeof data.subsystemId === 'string'
+    );
 }
 
 export function isWireCell(data: unknown): data is WireCellData {
-    return isRecord(data) && data.kind === 'wire' && typeof data.wireId === 'string';
+    return (
+        isRecord(data) && data.kind === 'wire' && typeof data.wireId === 'string'
+    );
 }
 
 export function isBoardFrameCell(data: unknown): data is BoardFrameCellData {
@@ -123,9 +151,7 @@ export function isBoardFrameCell(data: unknown): data is BoardFrameCellData {
         isRecord(data) &&
     data.kind === 'board-frame' &&
     typeof data.board === 'string' &&
-    typeof data.name === 'string' &&
-    typeof data.width === 'number' &&
-    typeof data.height === 'number'
+    typeof data.name === 'string'
     );
 }
 
@@ -138,7 +164,9 @@ export function isPartDropCell(data: unknown): data is PartDropCellData {
     );
 }
 
-export function isSubsystemDropCell(data: unknown): data is SubsystemDropCellData {
+export function isSubsystemDropCell(
+    data: unknown,
+): data is SubsystemDropCellData {
     return (
         isRecord(data) &&
     data.kind === 'palette-subsystem' &&
@@ -148,13 +176,6 @@ export function isSubsystemDropCell(data: unknown): data is SubsystemDropCellDat
 }
 
 // --- Shared cell helpers (used by both view projections) -------------------
-
-/**
- * The native link line is transparent on purpose: renderLink draws the
- * typed-interface wire over the same routed path while the native wrapper
- * keeps the wide pointer hit-area (hover, selection, vertex dragging).
- */
-export const TRANSPARENT_WIRE_STYLE = { color: 'transparent', width: 2, wrapperWidth: 16 } as const;
 
 /** Indexes cells by their (stringified) id — the write-backs' lookup table. */
 export function cellsById(cells: readonly Cell[]): Map<string, Cell> {
@@ -171,7 +192,11 @@ export function cellsById(cells: readonly Cell[]): Map<string, Cell> {
 export function readEndId(end: unknown): string | undefined {
     if (!isRecord(end) || !('id' in end)) return undefined;
     const { id } = end;
-    return typeof id === 'string' ? id : typeof id === 'number' ? String(id) : undefined;
+    return typeof id === 'string'
+        ? id
+        : typeof id === 'number'
+            ? String(id)
+            : undefined;
 }
 
 /**
@@ -182,4 +207,31 @@ export function readEndId(end: unknown): string | undefined {
 export function readEndPort(end: unknown): string | undefined {
     if (!isRecord(end)) return undefined;
     return typeof end.port === 'string' ? end.port : undefined;
+}
+
+/** True when two link ends point at the same element and port. */
+function sameEnd(a: unknown, b: unknown): boolean {
+    return readEndId(a) === readEndId(b) && readEndPort(a) === readEndPort(b);
+}
+
+/**
+ * Applies a record built from the domain model over the cell the graph holds
+ * under the same id, keeping what only the graph writes: libavoid's vertices
+ * and end anchors, the embedding. A link keeps its ends (and so its route)
+ * only while it still connects the same two ports.
+ */
+export function mergeCell(previous: Cell | undefined, record: Cell): Cell {
+    if (previous === undefined || previous.type !== record.type) return record;
+    if (record.type !== 'link') return { ...previous, ...record };
+    if (
+        !sameEnd(previous.source, record.source) ||
+    !sameEnd(previous.target, record.target)
+    )
+        return record;
+    return {
+        ...previous,
+        ...record,
+        source: previous.source,
+        target: previous.target,
+    };
 }

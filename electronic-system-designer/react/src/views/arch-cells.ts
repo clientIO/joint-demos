@@ -1,4 +1,4 @@
-// Architecture view projection: Design → cells, and canvas edits → Design.
+// Architecture view: Design → cells, and canvas edits → Design.
 //
 // The architecture sheet shows SUBSYSTEMS and BUNDLES. A bundle is not
 // stored anywhere — it is the group of schematic wires that cross between two
@@ -17,18 +17,17 @@ import {
     wireInterface,
     type ArchPort,
     type Design,
-    type Point,
     type Wire,
 } from '@/model/design';
 import {
     cellsById,
+    mergeCell,
     isBundleCell,
     isBundleWireCell,
     isSubsystemCell,
     isSubsystemDropCell,
     readEndId,
     readEndPort,
-    TRANSPARENT_WIRE_STYLE,
     type Cell,
 } from './cell-data';
 import { getSubsystemTemplate } from './subsystem-templates';
@@ -191,17 +190,12 @@ export function deriveBundles(design: Design): BundleIndex {
 
 // --- Cells -----------------------------------------------------------------
 
-/**
- * A bundle end: the subsystem's native interface port. `fan` spreads the
- * member wires of an EXPANDED bundle along the edge so the individual signals
- * leave the port side by side instead of stacked.
- */
-function portEnd(subsystemId: string, port: ArchPort, fan = 0) {
-    const end = { id: subsystemId, port: port.id, magnet: PORT_MAGNET_SELECTOR };
-    if (fan === 0) return end;
-    const along = port.side === 'left' || port.side === 'right' ? { dy: fan } : { dx: fan };
-    return { ...end, anchor: { name: 'center', args: along }};
+/** A bundle end: the subsystem's native interface port. */
+function portEnd(subsystemId: string, port: ArchPort) {
+    return { id: subsystemId, port: port.id, magnet: PORT_MAGNET_SELECTOR };
 }
+
+
 
 /**
  * A block's ports, rebuilt only when its port list or size changes: the
@@ -218,19 +212,22 @@ function blockPorts(list: readonly ArchPort[], width: number, height: number): R
     return ports;
 }
 
-// NOTE on identity: the derivers rebuild every cell object on each call, and
-// that is fine — the controlled `cells` prop is applied through the graph's
-// VALUE-based sync (`graph.syncCells`), so an equal-but-new object causes no
-// graph change and no re-render. No memoization needed.
+/**
+ * The architecture cells for a Design, patched over the cells the graph holds
+ * (`current`), so the routes libavoid wrote into them stay. Bundles are not
+ * stored anywhere: they are recomputed from the wires on every change.
+ */
 export function deriveArchCells(
     design: Design,
     bundleIndex: BundleIndex,
     expandedBundles: ReadonlySet<string>,
+    current: readonly Cell[],
 ): readonly Cell[] {
+    const previous = cellsById(current);
     const cells: Cell[] = [];
 
     for (const subsystem of design.subsystems) {
-        cells.push({
+        cells.push(mergeCell(previous.get(subsystem.id), {
             id: subsystem.id,
             type: 'element',
             position: { x: subsystem.position.x, y: subsystem.position.y },
@@ -243,7 +240,7 @@ export function deriveArchCells(
             ),
             z: Z_ARCH_BLOCK,
             data: { kind: 'subsystem', subsystemId: subsystem.id },
-        });
+        }));
     }
 
     for (const bundle of bundleIndex.bundles) {
@@ -251,38 +248,34 @@ export function deriveArchCells(
         const subsystemB = subsystemById(design, bundle.b.subsystemId);
         if (subsystemA === undefined || subsystemB === undefined) continue;
 
-        // EXPANDED bus: one link per member signal, fanned along the port edge.
+        const source = portEnd(bundle.a.subsystemId, bundle.a.port);
+        const target = portEnd(bundle.b.subsystemId, bundle.b.port);
+
+        // EXPANDED bus: one link per member signal (libavoid sets them apart).
         if (expandedBundles.has(bundle.id) && bundle.wireIds.length > 1) {
-            const count = bundle.wireIds.length;
-            bundle.wireIds.forEach((wireId, index) => {
-                const fan = (index - (count - 1) / 2) * 10;
-                cells.push({
-                    id: bundleWireCellId(bundle.id, wireId),
+            for (const wireId of bundle.wireIds) {
+                const id = bundleWireCellId(bundle.id, wireId);
+                cells.push(mergeCell(previous.get(id), {
+                    id,
                     type: 'link',
-                    source: portEnd(bundle.a.subsystemId, bundle.a.port, fan),
-                    target: portEnd(bundle.b.subsystemId, bundle.b.port, fan),
+                    source,
+                    target,
                     z: Z_ARCH_BUNDLE,
-                    style: TRANSPARENT_WIRE_STYLE,
                     data: { kind: 'bundle-wire', bundleId: bundle.id, wireId },
-                });
-            });
+                }));
+            }
             continue;
         }
 
         // Collapsed bus: one typed bundle link.
-        const source = portEnd(bundle.a.subsystemId, bundle.a.port);
-        const target = portEnd(bundle.b.subsystemId, bundle.b.port);
-        const vertices = design.archVertices[bundle.id];
-        cells.push({
+        cells.push(mergeCell(previous.get(bundle.id), {
             id: bundle.id,
             type: 'link',
             source,
             target,
-            ...(vertices === undefined ? {} : { vertices: vertices.map((point) => ({ ...point })) }),
             z: Z_ARCH_BUNDLE,
-            style: TRANSPARENT_WIRE_STYLE,
             data: { kind: 'bundle', bundleId: bundle.id },
-        });
+        }));
     }
 
     return cells;
@@ -306,7 +299,8 @@ function matchPortPins(a: ArchPort, b: ArchPort): readonly (readonly [ArchPort['
 
 /**
  * Reconciles an architecture `onCellsChange` back into the Design: block
- * moves, deletions, template drops, drawn bundles, and dragged vertices.
+ * moves, deletions, template drops, and drawn bundles. Routes are libavoid's
+ * and stay in the cells.
  */
 export function applyArchCellsChange(
     design: Design,
@@ -361,21 +355,7 @@ export function applyArchCellsChange(
     });
     if (subsystemsChanged) next = { ...next, subsystems: movedSubsystems };
 
-    // 3) Dragged bundle vertices.
-    let vertexPatch: Record<string, readonly Point[]> | undefined;
-    for (const bundle of bundleIndex.bundles) {
-        const cell = seen.get(bundle.id);
-        if (cell === undefined || !('vertices' in cell)) continue;
-        const drawn = (cell.vertices ?? []).map((point: Point) => ({ x: point.x, y: point.y }));
-        const stored = next.archVertices[bundle.id] ?? [];
-        if (JSON.stringify(drawn) === JSON.stringify(stored)) continue;
-        vertexPatch = vertexPatch ?? { ...next.archVertices };
-        if (drawn.length === 0) delete vertexPatch[bundle.id];
-        else vertexPatch[bundle.id] = drawn;
-    }
-    if (vertexPatch !== undefined) next = { ...next, archVertices: vertexPatch };
-
-    // 4) Additions: template drops and freshly drawn port-to-port connections.
+    // 3) Additions: template drops and freshly drawn port-to-port connections.
     const knownLinkIds = new Set(bundleIndex.bundles.map((bundle) => bundle.id));
     for (const bundle of bundleIndex.bundles) {
         for (const wireId of bundle.wireIds) knownLinkIds.add(bundleWireCellId(bundle.id, wireId));

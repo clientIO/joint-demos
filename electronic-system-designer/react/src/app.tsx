@@ -1,7 +1,7 @@
-// App shell. Each canvas view is its own <Diagram> (graph + CONTROLLED
-// cells derived from the store); the Outputs view is plain React. The header
-// tabs switch which one is mounted — nothing is lost across switches because
-// every piece of state lives in the zustand store, not in the canvases.
+// App shell. Each canvas view is its own <Diagram> (graph + CONTROLLED cells
+// from the store); the Outputs view is plain React. Both canvases stay mounted
+// and the header tabs only show one: switching keeps each graph, viewport and
+// router alive. Every piece of state lives in the zustand store.
 
 import { useEffect } from 'react';
 import { useDesignerStore } from '@/state/designer-store';
@@ -97,10 +97,10 @@ export function App() {
                             id={`panel-${view}`}
                             role="tabpanel"
                             aria-labelledby={`tab-${view}`}
-                            className="size-full"
+                            className="relative size-full"
                         >
-                            {view === 'architecture' ? <ArchitectureCanvas /> : null}
-                            {view === 'connectivity' ? <ConnectivityCanvas /> : null}
+                            <ArchitectureCanvas isVisible={view === 'architecture'} />
+                            <ConnectivityCanvas isVisible={view === 'connectivity'} />
                             {view === 'outputs' ? <OutputsView /> : null}
                         </div>
                     </main>

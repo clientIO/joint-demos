@@ -1,34 +1,44 @@
 // The zustand store — the single source of truth for the whole designer.
 //
-// The store owns ONE thing: the `Design` document. Everything else in state
-// is DERIVED from it on every change (sub-millisecond at this scale):
+// The document is two things:
+// - `schCells`: the connectivity sheet's cells, kept exactly as the graph
+//   reports them through `onCellsChange` (parts, wires, board outlines, and
+//   everything the graph writes into them: libavoid's routes, embedding);
+// - `subsystems`: the architecture blocks.
+// Everything else is DERIVED from it on every change:
 //
-//   design ──► nets ──► operating ──► findings ──► flags (badges per cell)
-//          ──► bundles ──► archCells   (architecture view, controlled)
-//          ──► schCells                (connectivity view, controlled)
+//   schCells ──► design ──► nets ──► operating ──► findings ──► flags
+//                       ──► bundles ──► archCells (architecture view)
 //
-// Both canvases run in CONTROLLED mode: `<Diagram cells={…}>` renders the
-// derived cells, and every canvas edit flows back through `onCellsChange`
-// into a write-back that patches the Design — so the two views, the outputs,
-// and the validation can never disagree.
+// Both canvases run in CONTROLLED mode. Canvas edits arrive as cells; edits
+// made elsewhere (inspector, fixes, the architecture view) are Design patches
+// written into the cells by `toSchCells`, which keeps what the graph wrote.
 //
-// History is DOMAIN-level: undo/redo snapshots the Design itself, which is
-// why fixing a finding, rewiring a pin, or dropping a subsystem all undo
-// cleanly with one stack. Canvas drags coalesce into a single history entry.
+// History snapshots the document, so fixing a finding, rewiring a pin, or
+// dropping a subsystem all undo with one stack. Canvas drags coalesce into a
+// single entry, and graph-only writes (routes) make no entry at all.
 
 import { useMemo } from 'react';
 import { create } from 'zustand';
-import { useShallow } from 'zustand/react/shallow';
 import { getPart, type InterfaceKind, type PartKindId } from '@/model/catalog';
-import { newId, nextRef, pinKey, type Design, type Point, type Wire } from '@/model/design';
+import { newId, nextRef, pinKey, type Design, type Point, type Subsystem, type Wire } from '@/model/design';
 import { INITIAL_DESIGN } from '@/model/initial-design';
 import { getSubsystemTemplate, type SubsystemTemplateId } from '@/views/subsystem-templates';
 import { deriveNets, type NetIndex } from '@/model/nets';
 import { solveOperating, type OperatingPoint } from '@/model/operating';
 import { validateDesign, type BusCheck, type Finding, type FindingSeverity } from '@/model/validation';
 import { applyArchCellsChange, deriveArchCells, deriveBundles, type BundleIndex } from '@/views/arch-cells';
-import { applySchCellsChange, boardAt, boardBounds, deriveSchCells, nearestSubsystem } from '@/views/sch-cells';
+import {
+    addDrawnCells,
+    boardAt,
+    designFromSchCells,
+    EMPTY_BOARD_SIZE,
+    nearestSubsystem,
+    removesKeptBoard,
+    toSchCells,
+} from '@/views/sch-cells';
 import { readEndId, type Cell } from '@/views/cell-data';
+import { lookArchCells, lookSchCells } from '@/views/link-look';
 
 export type ViewId = 'architecture' | 'connectivity' | 'outputs';
 
@@ -54,21 +64,27 @@ export interface TraceSets {
   readonly subsystems: ReadonlySet<string>;
 }
 
+/** The undoable, persisted document. */
+interface DesignerDocument {
+  readonly schCells: readonly Cell[];
+  readonly subsystems: readonly Subsystem[];
+}
+
 interface Derived {
+  /** The domain model the engines read, computed from the document. */
+  readonly design: Design;
   readonly nets: NetIndex;
   readonly operating: OperatingPoint;
   readonly findings: readonly Finding[];
   readonly bundles: BundleIndex;
   readonly archCells: readonly Cell[];
-  readonly schCells: readonly Cell[];
   /** Worst finding severity per cell id (component, wire, bundle, subsystem). */
   readonly flags: ReadonlyMap<string, FindingSeverity>;
   /** Pins with 2+ wires per component — drawn with a junction dot. */
   readonly junctions: ReadonlyMap<string, ReadonlySet<string>>;
 }
 
-interface DesignerState extends Derived {
-  readonly design: Design;
+interface DesignerState extends Derived, DesignerDocument {
 
   readonly view: ViewId;
   readonly liveMode: boolean;
@@ -88,8 +104,8 @@ interface DesignerState extends Derived {
   readonly toast: ConnectionToast | null;
   readonly dismissToast: () => void;
 
-  readonly past: readonly Design[];
-  readonly future: readonly Design[];
+  readonly past: readonly DesignerDocument[];
+  readonly future: readonly DesignerDocument[];
 
   readonly setView: (view: ViewId) => void;
   readonly toggleLiveMode: () => void;
@@ -111,8 +127,6 @@ interface DesignerState extends Derived {
   readonly renameBoard: (boardId: string, name: string) => void;
   /** Removes an EMPTY board (components keep their board otherwise). */
   readonly removeBoard: (boardId: string) => void;
-  /** Sets a board's stored outline rect size (keyboard path to resize). */
-  readonly setBoardSize: (boardId: string, size: { width: number; height: number }) => void;
   readonly setComponentBoard: (componentId: string, boardId: string) => void;
   readonly setSubsystemBoard: (subsystemId: string, boardId: string) => void;
 
@@ -182,15 +196,16 @@ function deriveBusChecks(design: Design, bundles: BundleIndex): readonly BusChec
     return checks;
 }
 
-/** Recomputes every derived slice for a design (sub-millisecond at this
- * scale, so eager-on-every-commit keeps every projection trivially fresh). */
-function derive(design: Design, expandedBundles: ReadonlySet<string>): Derived {
+/** Recomputes every derived slice for a document (sub-millisecond at this
+ * scale, so eager-on-every-commit keeps every projection trivially fresh).
+ * `archCurrent` is what the architecture graph holds: its routes stay. */
+function derive(document: DesignerDocument, expandedBundles: ReadonlySet<string>, archCurrent: readonly Cell[]): Derived {
+    const design = designFromSchCells(document.schCells, document.subsystems);
     const nets = deriveNets(design);
     const operating = solveOperating(design, nets);
     const bundles = deriveBundles(design);
     const findings = validateDesign(design, nets, operating, deriveBusChecks(design, bundles));
-    const archCells = deriveArchCells(design, bundles, expandedBundles);
-    const schCells = deriveSchCells(design);
+    const archCells = deriveArchCells(design, bundles, expandedBundles, archCurrent);
 
     // Badge map: findings name components/wires; bundles and subsystems flag
     // when any of their members do — that is how one problem shows in BOTH views.
@@ -235,7 +250,7 @@ function derive(design: Design, expandedBundles: ReadonlySet<string>): Derived {
         junctions.set(componentId, set);
     }
 
-    return { nets, operating, findings, bundles, archCells, schCells, flags, junctions };
+    return { design, nets, operating, findings, bundles, archCells, flags, junctions };
 }
 
 /** Resolves a net into highlightable cell ids for both views. */
@@ -255,6 +270,18 @@ function traceSetsFor(netId: string, derived: Derived, design: Design): TraceSet
         if (bundle.wireIds.some((wireId) => wires.has(wireId))) bundles.add(bundle.id);
     }
     return { netId, netName: net.name, wires, components, bundles, subsystems };
+}
+
+/** What a link's look depends on (all held in the store). */
+type LookInputs = Pick<DesignerState, 'nets' | 'bundles' | 'operating' | 'flags' | 'trace' | 'liveMode'>;
+
+/** Both canvases' cells with every link's look written in. The store's cells
+ * are exactly what `<Diagram cells>` gets, so every write that changes the
+ * cells or a look input goes through this. */
+function withLooks(
+    state: LookInputs & Pick<DesignerState, 'schCells' | 'archCells'>,
+): Pick<DesignerState, 'schCells' | 'archCells'> {
+    return { schCells: lookSchCells(state.schCells, state), archCells: lookArchCells(state.archCells, state) };
 }
 
 /**
@@ -287,11 +314,10 @@ export function endCoalescing(): void {
     lastCoalesceKey = null;
 }
 
-// Local design history: the document survives a reload. Guarded so the store
-// also runs where localStorage doesn't exist (unit tests in node). Version
-// bump when the Design shape changes (v2 added dynamic boards; v3 the
-// review-corrected seed — refdes classes, DE wire, open-drain narrative).
-const STORAGE_KEY = 'esd-design/3';
+// The document survives a reload. Guarded so the store also runs where
+// localStorage doesn't exist (unit tests in node). Version bump when the
+// document shape changes (v4: cells instead of the Design).
+const STORAGE_KEY = 'esd-document/4';
 
 interface Rect {
   readonly x: number;
@@ -334,27 +360,19 @@ function findClearPoint(occupied: readonly Rect[], width: number, height: number
 }
 
 /** Shallow shape check on our own persisted JSON (same-origin round-trip). */
-function isPersistedDesign(value: unknown): value is Design {
+function isPersistedDocument(value: unknown): value is DesignerDocument {
     if (typeof value !== 'object' || value === null) return false;
     const record: Record<string, unknown> = { ...value };
-    return (
-        Array.isArray(record.boards) &&
-    Array.isArray(record.subsystems) &&
-    Array.isArray(record.components) &&
-    Array.isArray(record.wires) &&
-    typeof record.archVertices === 'object' &&
-    record.archVertices !== null
-    );
+    return Array.isArray(record.schCells) && Array.isArray(record.subsystems);
 }
 
-function loadPersistedDesign(): Design | null {
+function loadPersistedDocument(): DesignerDocument | null {
     try {
         if (typeof localStorage === 'undefined') return null;
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw === null) return null;
         const parsed: unknown = JSON.parse(raw);
-        if (!isPersistedDesign(parsed)) return null;
-        return parsed;
+        return isPersistedDocument(parsed) ? parsed : null;
     } catch {
         return null;
     }
@@ -364,25 +382,43 @@ function loadPersistedDesign(): Design | null {
 // localStorage write at pointer-move frequency would jank the drag. A whole
 // gesture collapses into one write.
 let persistTimer: ReturnType<typeof setTimeout> | undefined;
-let pendingPersist: Design | null = null;
+let pendingPersist: DesignerDocument | null = null;
 
-function writePersisted(design: Design): void {
+function writePersisted(document: DesignerDocument): void {
     try {
         if (typeof localStorage === 'undefined') return;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(design));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ schCells: document.schCells, subsystems: document.subsystems }));
     } catch {
     // Quota/privacy-mode failures just mean no persistence this session.
     }
 }
 
-function persistDesign(design: Design): void {
-    pendingPersist = design;
+function persistDocument(document: DesignerDocument): void {
+    pendingPersist = document;
     clearTimeout(persistTimer);
     persistTimer = setTimeout(() => {
         pendingPersist = null;
-        writePersisted(design);
+        writePersisted(document);
     }, 500);
 }
+
+/**
+ * Domain-level equality. Writes only the graph cares about (libavoid's
+ * routes, a fit that changed nothing) leave the Design equal: they are kept
+ * in the cells but make no history entry.
+ */
+function sameDesign(a: Design, b: Design): boolean {
+    return (
+        a.subsystems === b.subsystems &&
+    JSON.stringify([a.boards, a.components, a.wires]) === JSON.stringify([b.boards, b.components, b.wires])
+    );
+}
+
+/** The seed document: the initial Design written into fresh cells. */
+const INITIAL_DOCUMENT: DesignerDocument = {
+    schCells: toSchCells([], INITIAL_DESIGN),
+    subsystems: INITIAL_DESIGN.subsystems,
+};
 
 // Edits made inside the debounce window must survive a reload: flush the
 // pending write synchronously when the page goes away.
@@ -395,26 +431,46 @@ if (typeof window !== 'undefined') {
 }
 
 export const useDesignerStore = create<DesignerState>()((set, get) => {
-    /** The one mutation path: derive, manage history, keep the trace fresh. */
-    const commit = (design: Design, coalesceKey?: string): void => {
+    /** `set` for any change to the cells or a look input: writes the looks in. */
+    const setWithLooks = (partial: Partial<DesignerState>): void => {
+        set({ ...partial, ...withLooks({ ...get(), ...partial }) });
+    };
+
+    /**
+   * The one mutation path: derive, manage history, keep the trace fresh.
+   * `archCurrent` is what the architecture graph holds (its routes stay).
+   */
+    const apply = (document: DesignerDocument, coalesceKey?: string, archCurrent = get().archCells): void => {
         const state = get();
-        if (design === state.design) return;
+        const derived = derive(document, state.expandedBundles, archCurrent);
+        if (sameDesign(derived.design, state.design)) {
+            // Graph-only change (a route): keep the cells, nothing else moved.
+            setWithLooks({ schCells: document.schCells, archCells: derived.archCells });
+            return;
+        }
         const now = Date.now();
         const coalesced =
       coalesceKey !== undefined && coalesceKey === lastCoalesceKey && now - lastCoalesceAt < COALESCE_WINDOW_MS;
         lastCoalesceKey = coalesceKey ?? null;
         lastCoalesceAt = now;
 
-        const derived = derive(design, state.expandedBundles);
-        const trace = state.trace === null ? null : traceSetsFor(state.trace.netId, derived, design);
-        set({
-            design,
+        const trace = state.trace === null ? null : traceSetsFor(state.trace.netId, derived, derived.design);
+        const previous = { schCells: state.schCells, subsystems: state.subsystems };
+        setWithLooks({
+            ...document,
             ...derived,
             trace,
-            past: coalesced ? state.past : [...state.past.slice(-(HISTORY_CAP - 1)), state.design],
+            past: coalesced ? state.past : [...state.past.slice(-(HISTORY_CAP - 1)), previous],
             future: [],
         });
-        persistDesign(design);
+        persistDocument(document);
+    };
+
+    /** A Design edit made off the canvas, written into the cells. */
+    const commit = (design: Design, coalesceKey?: string): void => {
+        const state = get();
+        if (design === state.design) return;
+        apply({ schCells: toSchCells(state.schCells, design), subsystems: design.subsystems }, coalesceKey);
     };
 
     /**
@@ -462,13 +518,17 @@ export const useDesignerStore = create<DesignerState>()((set, get) => {
     };
 
     /** Undo/redo restore a snapshot without touching the history semantics. */
-    const restore = (design: Design, past: readonly Design[], future: readonly Design[]): void => {
+    const restore = (
+        document: DesignerDocument,
+        past: readonly DesignerDocument[],
+        future: readonly DesignerDocument[],
+    ): void => {
         const state = get();
         lastCoalesceKey = null;
-        const derived = derive(design, state.expandedBundles);
-        const trace = state.trace === null ? null : traceSetsFor(state.trace.netId, derived, design);
-        set({ design, ...derived, trace, past, future });
-        persistDesign(design);
+        const derived = derive(document, state.expandedBundles, state.archCells);
+        const trace = state.trace === null ? null : traceSetsFor(state.trace.netId, derived, derived.design);
+        setWithLooks({ ...document, ...derived, trace, past, future });
+        persistDocument(document);
     };
 
     const NO_EXPANDED: ReadonlySet<string> = new Set();
@@ -476,18 +536,19 @@ export const useDesignerStore = create<DesignerState>()((set, get) => {
     // parts or pins that no longer exist in the catalog — deriving it would
     // throw during module evaluation and white-screen the app with no way out.
     // Fall back to the seed instead of trusting old storage that far.
-    let initialDesign = loadPersistedDesign() ?? INITIAL_DESIGN;
+    let initialDocument = loadPersistedDocument() ?? INITIAL_DOCUMENT;
     let initial: Derived;
     try {
-        initial = derive(initialDesign, NO_EXPANDED);
+        initial = derive(initialDocument, NO_EXPANDED, []);
     } catch {
-        initialDesign = INITIAL_DESIGN;
-        initial = derive(initialDesign, NO_EXPANDED);
+        initialDocument = INITIAL_DOCUMENT;
+        initial = derive(initialDocument, NO_EXPANDED, []);
     }
 
     return {
-        design: initialDesign,
+        ...initialDocument,
         ...initial,
+        ...withLooks({ ...initialDocument, ...initial, trace: null, liveMode: false }),
         view: 'architecture',
         liveMode: false,
         trace: null,
@@ -499,17 +560,12 @@ export const useDesignerStore = create<DesignerState>()((set, get) => {
         past: [],
         future: [],
 
-        // Opening the connectivity sheet re-derives its cells: the stored ones
-        // date from the last Design commit, before the router remembered the
-        // routes it has drawn since — mounting those showed every wire on stale
-        // ends for a frame, then jumping.
-        setView: (view) =>
-            set(view === 'connectivity' ? { view, schCells: deriveSchCells(get().design) } : { view }),
-        toggleLiveMode: () => set((state) => ({ liveMode: !state.liveMode })),
+        setView: (view) => set({ view }),
+        toggleLiveMode: () => setWithLooks({ liveMode: !get().liveMode }),
 
         setTracedNet: (netId) => {
             const state = get();
-            set({ trace: netId === null ? null : traceSetsFor(netId, state, state.design) });
+            setWithLooks({ trace: netId === null ? null : traceSetsFor(netId, state, state.design) });
         },
 
         toggleBundle: (bundleId) => {
@@ -518,7 +574,7 @@ export const useDesignerStore = create<DesignerState>()((set, get) => {
             if (expandedBundles.has(bundleId)) expandedBundles.delete(bundleId);
             else expandedBundles.add(bundleId);
             // Same design, different projection — re-derive the architecture cells.
-            set({ expandedBundles, ...derive(state.design, expandedBundles) });
+            setWithLooks({ expandedBundles, ...derive(state, expandedBundles, state.archCells) });
         },
 
         openSubsystemDetail: (subsystemId) => {
@@ -560,14 +616,14 @@ export const useDesignerStore = create<DesignerState>()((set, get) => {
             const { design } = get();
             // Stack the new empty outline to the right of everything on the sheet.
             let rightEdge = 40;
-            for (const board of design.boards) {
-                const bounds = boardBounds(design, board.id);
-                if (bounds !== undefined) rightEdge = Math.max(rightEdge, bounds.x + bounds.width);
-            }
+            for (const board of design.boards) rightEdge = Math.max(rightEdge, board.origin.x + board.size.width);
             const trimmed = name.trim() === '' ? `Board ${design.boards.length + 1}` : name.trim();
             commit({
                 ...design,
-                boards: [...design.boards, { id: newId('board'), name: trimmed, origin: { x: rightEdge + 80, y: 80 }}],
+                boards: [
+                    ...design.boards,
+                    { id: newId('board'), name: trimmed, origin: { x: rightEdge + 80, y: 80 }, size: { ...EMPTY_BOARD_SIZE }},
+                ],
             });
         },
 
@@ -596,27 +652,6 @@ export const useDesignerStore = create<DesignerState>()((set, get) => {
                     subsystem.board === boardId ? { ...subsystem, board: design.boards[0]?.id ?? boardId } : subsystem,
                 ),
             });
-        },
-
-        setBoardSize: (boardId, size) => {
-            const { design } = get();
-            const board = design.boards.find((candidate) => candidate.id === boardId);
-            if (board === undefined || size.width < 80 || size.height < 80) return;
-            // A board without a stored rect draws at its derived bounds — anchor the
-            // new rect there so the outline resizes in place instead of jumping.
-            const origin =
-        board.size === undefined ? boardBounds(design, boardId) ?? board.origin : board.origin;
-            commit(
-                {
-                    ...design,
-                    boards: design.boards.map((candidate) =>
-                        candidate.id === boardId
-                            ? { ...candidate, origin: { x: origin.x, y: origin.y }, size: { ...size }}
-                            : candidate,
-                    ),
-                },
-                `board-size-${boardId}`,
-            );
         },
 
         setComponentBoard: (componentId, boardId) => {
@@ -650,13 +685,15 @@ export const useDesignerStore = create<DesignerState>()((set, get) => {
             const next = applyArchCellsChange(state.design, state.bundles, state.expandedBundles, cells);
             if (next === state.design) {
                 // An accepted drop the write-back could NOT mint (e.g. two ports with
-                // no shared signal roles) leaves its link in the graph — and with no
-                // commit there is no re-sync to purge it. Re-issue the derived cells
-                // so the controlled sync prunes the leftover.
+                // no shared signal roles) leaves its link in the graph: re-derive
+                // the cells so the controlled sync prunes the leftover.
                 if (hasForeignConnectedLink(cells, state.archCells)) {
-                    set({ archCells: deriveArchCells(state.design, state.bundles, state.expandedBundles) });
+                    setWithLooks({ archCells: deriveArchCells(state.design, state.bundles, state.expandedBundles, cells) });
                     toastDeclined('These ports share no matching signals');
+                    return;
                 }
+                // Nothing in the Design changed (a route): keep what the graph drew.
+                setWithLooks({ archCells: cells });
                 return;
             }
             const structureUnchanged =
@@ -666,39 +703,37 @@ export const useDesignerStore = create<DesignerState>()((set, get) => {
             const knownWires = new Set(state.design.wires.map((wire) => wire.id));
             const addedWires = next.wires.filter((wire) => !knownWires.has(wire.id));
             const findingsBefore = state.findings.length;
-            commit(next, geometryOnly ? 'arch-geometry' : undefined);
+            apply(
+                { schCells: toSchCells(state.schCells, next), subsystems: next.subsystems },
+                geometryOnly ? 'arch-geometry' : undefined,
+                cells,
+            );
             // Only a DRAWN connection (wires grew, structure untouched) toasts —
             // template drops add subsystems/components and announce elsewhere.
             if (structureUnchanged && addedWires.length > 0) toastDrawnWires(addedWires, findingsBefore);
         },
         onSchCellsChange: (cells) => {
             const state = get();
-            const next = applySchCellsChange(state.design, cells);
-            if (next === state.design) {
-                // Same no-commit-no-resync trap as the foreign-link case: a derived
-                // cell deleted in the graph without a domain effect (e.g. the remove
-                // handle on a board outline that still has parts) would stay gone —
-                // and a foreign ELEMENT the write-back declined to mint (a part drop
-                // with no subsystem to assign it to) would stay as a ghost.
-                const present = new Set(cells.map((cell) => String(cell.id)));
-                const derivedIds = new Set(state.schCells.map((cell) => String(cell.id)));
-                const declinedLink = hasForeignConnectedLink(cells, state.schCells);
-                if (
-                    declinedLink ||
-          state.schCells.some((cell) => !present.has(String(cell.id))) ||
-          cells.some((cell) => cell.type !== 'link' && !derivedIds.has(String(cell.id)))
-                ) {
-                    set({ schCells: deriveSchCells(state.design) });
-                    if (declinedLink) toastDeclined('Wires connect pin to pin — try a pin stub');
-                }
+            const read = designFromSchCells(cells, state.subsystems);
+            // Removing a board removes the parts embedded in it: refuse it for a
+            // board that still has parts (or the last one). A fresh array makes
+            // the controlled sync put the removed cells back.
+            if (removesKeptBoard(state.design, read)) {
+                setWithLooks({ schCells: state.schCells });
                 return;
             }
+            const { design: next, drawn, declined } = addDrawnCells(read, cells);
+            if (declined) toastDeclined('Wires connect pin to pin — try a pin stub');
+            // Drops and drawn links become domain records (new ids), or go when
+            // they cannot: rewrite the cells from the Design. Everything else is
+            // kept exactly as the graph reported it.
+            const schCells = drawn ? toSchCells(cells, next) : cells;
             const structureUnchanged = next.components.length === state.design.components.length;
             const geometryOnly = structureUnchanged && next.wires.length === state.design.wires.length;
             const knownWires = new Set(state.design.wires.map((wire) => wire.id));
             const addedWires = next.wires.filter((wire) => !knownWires.has(wire.id));
             const findingsBefore = state.findings.length;
-            commit(next, geometryOnly ? 'sch-geometry' : undefined);
+            apply({ schCells, subsystems: state.subsystems }, geometryOnly ? 'sch-geometry' : undefined);
             // Only a drawn pin-to-pin wire toasts — part drops announce elsewhere.
             if (structureUnchanged && addedWires.length > 0) toastDrawnWires(addedWires, findingsBefore);
         },
@@ -710,7 +745,7 @@ export const useDesignerStore = create<DesignerState>()((set, get) => {
             commit(finding.fix.apply(state.design));
             // Locate → Fix is the natural flow, and the fix's canvas change often
             // lands OUTSIDE the traced net — lift the dim so it is actually seen.
-            set({ trace: null });
+            setWithLooks({ trace: null });
             return finding;
         },
 
@@ -832,19 +867,21 @@ export const useDesignerStore = create<DesignerState>()((set, get) => {
             const state = get();
             const previous = state.past[state.past.length - 1];
             if (previous === undefined) return;
-            restore(previous, state.past.slice(0, -1), [state.design, ...state.future]);
+            const present = { schCells: state.schCells, subsystems: state.subsystems };
+            restore(previous, state.past.slice(0, -1), [present, ...state.future]);
         },
         redo: () => {
             const state = get();
             const [next, ...rest] = state.future;
             if (next === undefined) return;
-            restore(next, [...state.past, state.design], rest);
+            const present = { schCells: state.schCells, subsystems: state.subsystems };
+            restore(next, [...state.past, present], rest);
         },
 
         clearDesign: () => {
             const { design } = get();
-            const first = design.boards[0] ?? { id: newId('board'), name: 'Board 1', origin: { x: 80, y: 80 }};
-            commit({ boards: [first], subsystems: [], components: [], wires: [], archVertices: {}});
+            const first = design.boards[0] ?? { id: newId('board'), name: 'Board 1', origin: { x: 80, y: 80 }, size: { ...EMPTY_BOARD_SIZE }};
+            commit({ boards: [first], subsystems: [], components: [], wires: [] });
             // A drill-down context or one-shot zoom target must not outlive its
             // subsystem; the trace already cleared itself through the commit.
             set({ focusSubsystemId: null, detailSubsystemId: null });
@@ -853,19 +890,19 @@ export const useDesignerStore = create<DesignerState>()((set, get) => {
         reset: () => {
             lastCoalesceKey = null;
             const state = get();
-            const derived = derive(INITIAL_DESIGN, NO_EXPANDED);
-            set({
-                design: INITIAL_DESIGN,
+            const derived = derive(INITIAL_DOCUMENT, NO_EXPANDED, state.archCells);
+            setWithLooks({
+                ...INITIAL_DOCUMENT,
                 ...derived,
                 trace: null,
                 liveMode: false,
                 expandedBundles: NO_EXPANDED,
                 focusSubsystemId: null,
                 detailSubsystemId: null,
-                past: [...state.past.slice(-(HISTORY_CAP - 1)), state.design],
+                past: [...state.past.slice(-(HISTORY_CAP - 1)), { schCells: state.schCells, subsystems: state.subsystems }],
                 future: [],
             });
-            persistDesign(INITIAL_DESIGN);
+            persistDocument(INITIAL_DOCUMENT);
         },
     };
 });
@@ -880,38 +917,6 @@ export function useComponent(id: string) {
 /** One subsystem record by id. */
 export function useSubsystem(id: string) {
     return useDesignerStore((state) => state.design.subsystems.find((subsystem) => subsystem.id === id));
-}
-
-/**
- * Everything a schematic wire renders from its net, as PRIMITIVES. The
- * derived maps are rebuilt on every commit (drag frames included), so
- * returning the Net object itself would re-render every mounted wire per
- * frame; a useShallow tuple of primitives stays referentially quiet.
- */
-export function useWireLabeling(wireId: string): {
-  readonly netName: string | undefined;
-  readonly iface: InterfaceKind | undefined;
-  readonly showLabel: boolean;
-  readonly joined: boolean;
-  readonly labelAt: number;
-} {
-    return useDesignerStore(
-        useShallow((state) => {
-            const net = state.nets.byWire.get(wireId);
-            const wire = net?.wires.find((candidate) => candidate.id === wireId);
-            // A label that JOINS disjoint groups renders on every wire carrying it
-            // (each flag is a live connection point); a plain name renders once
-            // per net, on its first wire — the schematic convention.
-            const joined = net?.labelJoined === true && wire?.label !== undefined;
-            return {
-                netName: net?.name,
-                iface: net?.iface,
-                showLabel: net !== undefined && (joined || net.wires[0]?.id === wireId),
-                joined,
-                labelAt: wire?.labelAt ?? 0.5,
-            };
-        }),
-    );
 }
 
 /** Worst finding severity badging a cell, if any. */

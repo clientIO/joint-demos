@@ -45,7 +45,6 @@ describe('deriveNets', () => {
             subsystems: [],
             components: INITIAL_DESIGN.components,
             wires: [{ id: 'w', from: { component: 'R1', pin: 'a' }, to: { component: 'R2', pin: 'a' }}],
-            archVertices: {},
         };
         const [only] = deriveNets(anonymous).nets;
         expect(only?.name).toBe('N$1');
@@ -61,7 +60,6 @@ describe('deriveNets', () => {
                 { id: 'wa', label: 'SYNC', from: { component: 'R1', pin: 'a' }, to: { component: 'R1', pin: 'b' }},
                 { id: 'wb', label: 'SYNC', from: { component: 'R2', pin: 'a' }, to: { component: 'R2', pin: 'b' }},
             ],
-            archVertices: {},
         };
         const derived = deriveNets(labeled);
         expect(derived.nets).toHaveLength(1);
@@ -82,7 +80,6 @@ describe('deriveNets', () => {
                 { id: 'wa', label: 'SYNC', from: { component: 'R1', pin: 'a' }, to: { component: 'R1', pin: 'b' }},
                 { id: 'wb', label: 'CLK', from: { component: 'R2', pin: 'a' }, to: { component: 'R2', pin: 'b' }},
             ],
-            archVertices: {},
         };
         expect(deriveNets(labeled).nets).toHaveLength(2);
     });

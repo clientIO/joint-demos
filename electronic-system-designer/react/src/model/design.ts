@@ -17,18 +17,17 @@ export interface Point {
 
 /**
  * A physical board (PCB) in the design. Boards are DATA, not an enum: users
- * create new ones from scratch and rename them; the connectivity sheet draws
- * one outline per board, hugging its components (or `origin` while empty).
+ * create new ones from scratch and rename them. On the connectivity sheet a
+ * board is the PARENT element of its parts (JointJS embedding): dragging it
+ * carries them, and it grows to fit them.
  */
 export interface Board {
   readonly id: string;
   readonly name: string;
-  /** Top-left of the board's own outline rect on the schematic (also where an
-   * empty board's placeholder sits). Dragging the outline moves this. */
+  /** Top-left of the board's outline on the schematic. */
   readonly origin: Point;
-  /** User-resized outline footprint. Omitted → the outline hugs its
-   * components (legacy behavior) or shows the empty-board placeholder. */
-  readonly size?: { readonly width: number; readonly height: number };
+  /** The outline's footprint. */
+  readonly size: { readonly width: number; readonly height: number };
 }
 
 export function boardById(design: Design, id: string): Board | undefined {
@@ -124,8 +123,6 @@ export interface Design {
   readonly subsystems: readonly Subsystem[];
   readonly components: readonly Component[];
   readonly wires: readonly Wire[];
-  /** User-dragged route points of architecture bundles, keyed by bundle id. */
-  readonly archVertices: Readonly<Record<string, readonly Point[]>>;
 }
 
 // --- Small helpers shared by every engine ----------------------------------
