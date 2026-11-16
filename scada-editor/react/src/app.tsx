@@ -28,6 +28,7 @@ function Dock({
     label,
     isPhone,
     isOpen,
+    isInert = false,
     onClose,
     children,
 }: {
@@ -35,6 +36,8 @@ function Dock({
     readonly label: string;
     readonly isPhone: boolean;
     readonly isOpen: boolean;
+    /** Shown but not usable: keeps its place so the canvas does not resize. */
+    readonly isInert?: boolean;
     readonly onClose: () => void;
     readonly children: ReactNode;
 }) {
@@ -53,7 +56,7 @@ function Dock({
         );
     }
     return (
-        <aside aria-label={label} className={`dock relative z-10 min-h-0 shrink-0 overflow-y-auto bg-paper-2 ${side === 'left' ? 'dock-left w-60 border-r' : 'dock-right w-80 border-l'} border-rule`}>
+        <aside aria-label={label} inert={isInert} className={`dock ${isInert ? 'dock-inert' : ''} relative z-10 min-h-0 shrink-0 overflow-y-auto bg-paper-2 ${side === 'left' ? 'dock-left w-60 border-r' : 'dock-right w-80 border-l'} border-rule`}>
             {children}
         </aside>
     );
@@ -91,13 +94,12 @@ export function App() {
                     </div>
                 )}
                 <div className="relative flex min-h-0 flex-1">
-                    {!isRunning && (
-                        <Dock side="left" label="Equipment" isPhone={isPhone} isOpen={sheet === 'palette'} onClose={() => setSheet('none')}>
-                            <Stencil paper={PAPER_ID} className="h-full">
-                                <Palette />
-                            </Stencil>
-                        </Dock>
-                    )}
+                    {/* Kept while the plant runs, so the canvas keeps its size and the diagram does not move. */}
+                    <Dock side="left" label="Equipment" isPhone={isPhone} isOpen={sheet === 'palette'} isInert={isRunning} onClose={() => setSheet('none')}>
+                        <Stencil paper={PAPER_ID} className="h-full">
+                            <Palette />
+                        </Stencil>
+                    </Dock>
                     <main className="relative min-w-0 flex-1">
                         <Canvas isRunning={isRunning} diagramVersion={diagramVersion} hasViewCard={!isPhone} />
                         <div className="absolute bottom-3 left-3 z-20 drop-shadow-[0_2px_6px_oklch(0%_0_0/0.25)]">

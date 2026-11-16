@@ -203,6 +203,10 @@
         transform: translateX(-16px);
     }
 }
+/* The palette while the plant runs: in place, but not in use. */
+.dock-inert {
+    opacity: 0.4;
+}
 .dock-right {
     @starting-style {
         transform: translateX(16px);

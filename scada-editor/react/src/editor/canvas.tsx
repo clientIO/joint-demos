@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useRef } from 'react';
 import {
     Paper,
     PaperScroller,
@@ -66,49 +66,8 @@ function FitOnLoad({ version }: { readonly version: number }) {
     return null;
 }
 
-// The panels around the canvas come and go with the mode: keep the diagram where
-// it was on the screen instead of letting it jump with the canvas's edge.
-function useStableViewport(isRunning: boolean) {
-    const { paperScroller } = usePaperScroller(PAPER_ID);
-    const previousLeft = useRef<number | null>(null);
-
-    // Any other resize (the window, a phone turned) moves the edge too: start from there.
-    useEffect(() => {
-        if (!paperScroller) {
-            return;
-        }
-        const observer = new ResizeObserver(() => {
-            previousLeft.current = paperScroller.el.getBoundingClientRect().left;
-        });
-        observer.observe(paperScroller.el);
-        return () => observer.disconnect();
-    }, [paperScroller]);
-
-    // Runs before the observer reports the mode's resize, so it still sees the old edge.
-    useLayoutEffect(() => {
-        if (!paperScroller) {
-            return;
-        }
-        const left = paperScroller.el.getBoundingClientRect().left;
-        const shift = previousLeft.current === null ? 0 : left - previousLeft.current;
-        previousLeft.current = left;
-        if (shift === 0) {
-            return;
-        }
-        // The scroll position survived the resize: move the view by the edge's shift, in paper units.
-        const visible = paperScroller.getVisibleArea();
-        const scale = paperScroller.options.paper.scale().sx;
-        paperScroller.center(visible.x + shift / scale + visible.width / 2, visible.y + visible.height / 2);
-    }, [isRunning, paperScroller]);
-}
-
 function UniqueTags() {
     useUniqueTags();
-    return null;
-}
-
-function StableViewport({ isRunning }: { readonly isRunning: boolean }) {
-    useStableViewport(isRunning);
     return null;
 }
 
@@ -152,7 +111,6 @@ export function Canvas({ isRunning, diagramVersion, hasViewCard }: CanvasProps) 
                     {!isRunning && <Snaplines />}
                 </Paper>
                 <FitOnLoad version={diagramVersion} />
-                <StableViewport isRunning={isRunning} />
                 {!isRunning && <ContextMenu />}
                 <UniqueTags />
             </PaperScroller>
