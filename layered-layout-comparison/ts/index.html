@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Layered Layout Comparison | JointJS+</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+  <div class="hud">
+    <h1>Layered Layout Comparison</h1>
+    <p class="hint">One supply chain, three layered layout engines: Dagre, ELK and MSAGL.</p>
+    <fieldset class="segmented">
+      <legend>Engine</legend>
+      <label><input type="radio" name="engine" value="dagre" checked /><span>Dagre</span></label>
+      <label><input type="radio" name="engine" value="elk" /><span>ELK</span></label>
+      <label><input type="radio" name="engine" value="msagl" /><span>MSAGL</span></label>
+    </fieldset>
+    <fieldset class="segmented">
+      <legend>Direction</legend>
+      <label><input type="radio" name="direction" value="LR" checked /><span>Left → Right</span></label>
+      <label><input type="radio" name="direction" value="TB" /><span>Top → Bottom</span></label>
+    </fieldset>
+    <div class="control">
+      <label for="node-sep">Node spacing</label>
+      <div>
+        <input type="range" id="node-sep" min="10" max="80" step="5" value="20" />
+        <output for="node-sep"></output>
+      </div>
+    </div>
+    <div class="control">
+      <label for="rank-sep">Layer spacing</label>
+      <div>
+        <input type="range" id="rank-sep" min="30" max="200" step="10" value="80" />
+        <output for="rank-sep"></output>
+      </div>
+    </div>
+    <div class="control">
+      <label for="align-layers">Align layers by category</label>
+      <input type="checkbox" id="align-layers" checked />
+    </div>
+    <div class="control">
+      <label for="transport-labels">Transport labels</label>
+      <input type="checkbox" id="transport-labels" checked />
+    </div>
+    <div class="control">
+      <label for="category-lane">Category summary</label>
+      <input type="checkbox" id="category-lane" checked />
+    </div>
+    <button id="fit">Fit to screen</button>
+    <section>
+      <h2>Layout</h2>
+      <dl id="stats"></dl>
+    </section>
+    <section>
+      <h2>Selection</h2>
+      <div id="details"></div>
+    </section>
+  </div>
+  <div class="canvas">
+    <div id="scroller"></div>
+    <div id="navigator"></div>
+  </div>
+  <script type="module" src="./src/main.ts"></script>
+</body>
+
+</html>

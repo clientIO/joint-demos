@@ -1,0 +1,29 @@
+{
+  "name": "@joint/demo-layered-layout-comparison-ts",
+  "version": "4.3.4",
+  "description": "JointJS+ - Layered Layout Comparison",
+  "main": "src/main.ts",
+  "homepage": "https://jointjs.com",
+  "author": {
+    "name": "client IO",
+    "url": "https://client.io"
+  },
+  "license": "http://jointjs.com/license",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@joint/layout-directed-graph": "4.3.0",
+    "@joint/layout-elk": "4.3.4",
+    "@joint/layout-msagl": "4.3.0",
+    "@joint/plus": "4.3.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}

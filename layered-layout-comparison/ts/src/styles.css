@@ -1,0 +1,194 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Inter, system-ui, sans-serif;
+    color: #1f2937;
+}
+
+body {
+    display: flex;
+}
+
+.canvas {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+#scroller,
+#scroller .joint-paper-scroller {
+    width: 100%;
+    height: 100%;
+}
+
+/* The color of the paper around the paper too. */
+#scroller .joint-paper-scroller {
+    background: #f8fafc;
+}
+
+#navigator {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+}
+
+/* The map is too small to read the labels of the links. */
+#navigator .joint-link .labels {
+    display: none;
+}
+
+.hud {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 0 0 280px;
+    padding: 16px;
+    overflow-y: auto;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+    font-size: 13px;
+}
+
+.hud h1 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.hud h2 {
+    margin: 4px 0 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+}
+
+.hint {
+    margin: 0;
+    color: #64748b;
+}
+
+.segmented {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.segmented legend {
+    margin-bottom: 6px;
+    padding: 0;
+}
+
+.segmented label {
+    flex: 1;
+}
+
+.segmented input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.segmented span {
+    display: block;
+    padding: 6px 4px;
+    text-align: center;
+    border: 1px solid #cbd5e1;
+    margin-left: -1px;
+    cursor: pointer;
+    background: #fff;
+}
+
+.segmented label:first-of-type span {
+    margin-left: 0;
+    border-radius: 6px 0 0 6px;
+}
+
+.segmented label:last-of-type span {
+    border-radius: 0 6px 6px 0;
+}
+
+.segmented input:checked + span {
+    background: #0f172a;
+    border-color: #0f172a;
+    color: #fff;
+}
+
+.segmented input:focus-visible + span {
+    outline: 2px solid #0ea5e9;
+    outline-offset: 1px;
+}
+
+.control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.control div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.control input[type='range'] {
+    width: 110px;
+}
+
+.control output {
+    min-width: 28px;
+    text-align: right;
+    color: #6b7280;
+}
+
+#fit {
+    padding: 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+}
+
+#fit:hover {
+    background: #f1f5f9;
+}
+
+dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 12px;
+    margin: 0;
+}
+
+dt {
+    color: #64748b;
+}
+
+dd {
+    margin: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+#details {
+    color: #64748b;
+}
+
+#details dd {
+    color: #1f2937;
+}
+
+.dimmed {
+    opacity: 0.15;
+}
+
+.path-link {
+    stroke: #0f172a;
+    stroke-width: 2.5;
+}
