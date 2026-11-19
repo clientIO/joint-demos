@@ -20,9 +20,6 @@ interface ShapeMapping {
 const VISIO_FILLED_ARROW = '4';
 // Visio line pattern 2: a dashed line.
 const VISIO_LINE_DASHED = '2';
-// Visio connector routing: right-angle style with curved lines (what `fromPaper()` sets for the `curve` connector).
-const VISIO_ROUTE_STYLE_RIGHT_ANGLE = '1';
-const VISIO_LINE_ROUTE_CURVED = '2';
 
 // JointJS shape -> Visio shape.
 const mappings: Record<ShapeKind, ShapeMapping> = {
@@ -113,8 +110,6 @@ function updateLinkShape(shape: VisioShape, linkView: dia.LinkView) {
     if (link.attr('line/targetMarker')) {
         shape.setCell(VisioCellName.EndArrow, { value: VISIO_FILLED_ARROW });
     }
-    shape.setCell(VisioCellName.ShapeRouteStyle, { value: VISIO_ROUTE_STYLE_RIGHT_ANGLE });
-    shape.setCell(VisioCellName.ConLineRouteExt, { value: VISIO_LINE_ROUTE_CURVED });
 }
 
 // Exports the diagram on the paper into the template, the shapes made from the masters of the Ranks stencil.
