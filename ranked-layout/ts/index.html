@@ -25,6 +25,13 @@
       </div>
     </div>
     <div class="ranked-control">
+      <label for="empty-ranks">Empty ranks</label>
+      <div>
+        <input type="range" id="empty-ranks" min="0" max="3" step="1" value="0" />
+        <output for="empty-ranks"></output>
+      </div>
+    </div>
+    <div class="ranked-control">
       <label for="elements">Elements</label>
       <div>
         <input type="range" id="elements" min="2" max="120" step="1" value="24" />
@@ -36,6 +43,13 @@
       <div>
         <input type="range" id="links" min="0" max="200" step="1" value="32" />
         <output for="links"></output>
+      </div>
+    </div>
+    <div class="ranked-control">
+      <label for="backward-links">Backward links</label>
+      <div>
+        <input type="range" id="backward-links" min="0" max="50" step="1" value="0" />
+        <output for="backward-links"></output>
       </div>
     </div>
     <div class="ranked-control">
@@ -51,12 +65,19 @@
       </div>
     </div>
     <div class="ranked-control">
+      <label for="fade-backward-links">Fade backward links</label>
+      <div>
+        <input type="checkbox" id="fade-backward-links" />
+      </div>
+    </div>
+    <div class="ranked-control">
       <label for="curvature">Curvature</label>
       <div>
         <input type="range" id="curvature" min="0.05" max="1" step="0.05" value="0.25" />
         <output for="curvature"></output>
       </div>
     </div>
+    <button id="export-visio">Export to Visio</button>
   </div>
   <div id="paper"></div>
   <script type="module" src="./src/main.ts"></script>

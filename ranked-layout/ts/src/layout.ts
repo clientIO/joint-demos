@@ -1,4 +1,4 @@
-import { g } from '@joint/core';
+import { g, shapes } from '@joint/core';
 import { DirectedGraph } from '@joint/layout-directed-graph';
 
 import type { dia } from '@joint/core';
@@ -26,19 +26,51 @@ export function getRankSpan(link: dia.Link): number {
     return getRank(target) - getRank(source);
 }
 
+// Dagre gives a rank without elements no width. A placeholder of the size of the elements
+// in every empty rank (between the first and the last rank) keeps the columns evenly spaced.
+// The placeholders take part in the layout only; they are never added to the graph.
+function createPlaceholders(elements: dia.Element[]): dia.Element[] {
+    const ranks = new Set(elements.map(getRank));
+    const width = Math.max(...elements.map((element) => element.size().width));
+    const height = Math.max(...elements.map((element) => element.size().height));
+    const placeholders: dia.Element[] = [];
+    for (let rank = Math.min(...ranks) + 1; rank < Math.max(...ranks); rank++) {
+        if (ranks.has(rank)) {
+            continue;
+        }
+        placeholders.push(new shapes.standard.Rectangle({ rank, size: { width, height }}));
+    }
+    return placeholders;
+}
+
+export function isBackward(link: dia.Link): boolean {
+    return getRankSpan(link) < 0;
+}
+
 // Lays the elements out left to right, each in the column of its rank.
 // Dagre orders the elements within the ranks (fewer crossings, linked elements next to each other)
 // and positions them (source and target aligned where possible); only the ranking is ours.
-export function layoutRanked(graph: dia.Graph, options: RankedLayoutOptions = {}): g.Rect {
+// Returns the center x of the column of every rank, the empty ones included.
+export function layoutRanked(graph: dia.Graph, options: RankedLayoutOptions = {}): Map<number, number> {
     const { rankSep = 120, nodeSep = 30, jumpLinkRoom = false } = options;
+    const columns = new Map<number, number>();
+    const elements = graph.getElements();
+    if (elements.length === 0) {
+        return columns;
+    }
     // Without room for them, links that jump over ranks are left out of the layout
-    // and drawn as a plain curve from their source to their target.
+    // and drawn as a plain curve from their source to their target. So are backward links, always.
     const jumpLinks = graph.getLinks().filter((link) => getRankSpan(link) > 1);
-    jumpLinks.forEach((link) => link.vertices([]));
-    const cells = jumpLinkRoom
-        ? graph.getCells()
-        : graph.getCells().filter((cell) => !jumpLinks.includes(cell as dia.Link));
-    return DirectedGraph.layout(cells, {
+    const backwardLinks = graph.getLinks().filter(isBackward);
+    [...jumpLinks, ...backwardLinks].forEach((link) => link.vertices([]));
+    const excludedLinks = new Set<dia.Cell>(jumpLinkRoom ? backwardLinks : [...jumpLinks, ...backwardLinks]);
+    const placeholders = createPlaceholders(elements);
+    const cells = [
+        ...graph.getCells().filter((cell) => !excludedLinks.has(cell)),
+        ...placeholders
+    ];
+    const cellsById = new Map(cells.map((cell) => [String(cell.id), cell]));
+    DirectedGraph.layout(cells, {
         rankDir: 'LR',
         rankSep,
         nodeSep,
@@ -48,7 +80,7 @@ export function layoutRanked(graph: dia.Graph, options: RankedLayoutOptions = {}
         // Nodes dagre adds itself (the root of its nesting graph) go one rank before the first.
         ranker: ((dagreGraph: DagreGraph) => {
             dagreGraph.nodes().forEach((id) => {
-                const cell = graph.getCell(id);
+                const cell = cellsById.get(id);
                 dagreGraph.node(id).rank = (cell && cell.isElement()) ? 2 * getRank(cell) : -2;
             });
         }) as unknown as DirectedGraph.LayoutOptions['ranker'],
@@ -63,6 +95,10 @@ export function layoutRanked(graph: dia.Graph, options: RankedLayoutOptions = {}
             link.vertices(polyline.points.slice(1, -1).map((point) => point.toJSON()));
         }
     });
+    [...elements, ...placeholders].forEach((element) => {
+        columns.set(getRank(element), element.getBBox().center().x);
+    });
+    return columns;
 }
 
 // Post-process: keeps the order the layout gave the elements of each rank, but spaces them
