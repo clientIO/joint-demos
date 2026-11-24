@@ -29,6 +29,14 @@
     "data-modeling": {
       "variant": "react"
     },
+    "playbook-collaboration": {
+      "variant": "react",
+      "viewport": {
+        "width": 1280,
+        "height": 692
+      },
+      "skipScreenshotComparison": true
+    },
     "mermaid-editor": {
       "variant": "react",
       "viewport": {

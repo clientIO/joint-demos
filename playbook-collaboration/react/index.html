@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary meta -->
+    <title>Playbook | JointJS React</title>
+    <meta
+      name="description"
+      content="Playbook: design your team's processes together on one live board. Live cursors, card frames, shared edits and an activity feed. Built with @joint/react-plus (JointJS) and Liveblocks."
+    />
+    <meta
+      name="keywords"
+      content="process design, playbook, workflow, collaboration, multiplayer, realtime, presence, live cursors, Liveblocks, JointJS, @joint/react-plus, diagramming"
+    />
+    <meta name="author" content="JointJS" />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://www.jointjs.com/" />
+
+    <meta name="theme-color" content="#f7f6f4" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#23252e" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- Apply the saved theme before first paint, so the page never flashes the wrong one. -->
+    <script>
+      try {
+        var saved = localStorage.getItem('playbook:theme');
+        var dark = saved !== null ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', dark);
+      } catch (error) {
+        /* the default theme stands */
+      }
+    </script>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="JointJS React" />
+    <meta property="og:title" content="Playbook · JointJS+ React" />
+    <meta
+      property="og:description"
+      content="Design your team's processes together on one live board. Built with @joint/react-plus (JointJS) and Liveblocks."
+    />
+    <meta property="og:url" content="https://www.jointjs.com/" />
+    <meta property="og:image" content="/favicon.svg" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Playbook · JointJS+ React" />
+    <meta
+      name="twitter:description"
+      content="Design your team's processes together on one live board. Built with @joint/react-plus (JointJS) and Liveblocks."
+    />
+    <meta name="twitter:image" content="/favicon.svg" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
