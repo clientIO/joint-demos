@@ -42,6 +42,11 @@ jobs:
         run: bash .github/scripts/build-demos.sh
         env:
           JOINTJS_NPM_TOKEN: ${{ secrets.JOINTJS_NPM_TOKEN }}
+          # A Liveblocks *public* key (pk_...), read by the Playbook collaboration
+          # demo. A repository variable, not a secret: Vite inlines it into the
+          # served bundle by design. Without it the deployed demo shows its setup
+          # notice instead of the board.
+          VITE_LIVEBLOCKS_PUBLIC_KEY: ${{ vars.VITE_LIVEBLOCKS_PUBLIC_KEY }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
