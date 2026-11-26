@@ -1,0 +1,69 @@
+/*
+ * The run-mode animations of the process equipment, with the full animations only (`data-animations` of the app:
+ * none in edit mode, none with "Alarms only"): what moves while it runs (`data-power`).
+ */
+
+/* The flames of a firing boiler flicker, each at its own pace. */
+@keyframes scada-flicker {
+    50% {
+        opacity: 0.65;
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=Boiler][data-power] .scada-flame-outer {
+    animation: scada-flicker 0.5s linear infinite;
+}
+
+[data-animations=full] .scada-shape[data-kind=Boiler][data-power] .scada-flame-inner {
+    animation: scada-flicker 0.67s linear infinite;
+}
+
+/* The impeller of a reactor turns around its shaft: seen from the side, it flips over. */
+@keyframes scada-stir {
+    0%,
+    100% {
+        transform: scaleX(1);
+    }
+    50% {
+        transform: scaleX(-1);
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=Reactor][data-power] .scada-impeller {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: scada-stir 1.1s ease-in-out infinite;
+}
+
+/* The fans of an air cooler: drawn around their hubs (their groups moved there). */
+@keyframes scada-fan-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=AirCooler][data-power] .scada-fan {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: scada-fan-spin 0.5s linear infinite;
+}
+
+[data-animations=full] .scada-shape[data-kind=AirCooler][data-power] .scada-fan-2 {
+    animation-duration: 0.55s;
+}
+
+/* The bags of a bag filter are cleaned by pulses of air, one after the other (their delays set on them). */
+@keyframes scada-bag-pulse {
+    0%,
+    10%,
+    100% {
+        transform: translateY(0);
+    }
+    4% {
+        transform: translateY(-3px);
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=BagFilter] .scada-bag {
+    animation: scada-bag-pulse 4s linear infinite;
+}

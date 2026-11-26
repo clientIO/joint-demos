@@ -1,0 +1,101 @@
+/*
+ * The run-mode motion of the bulk handling, while it runs (`data-power`) with the full animations only: the boxes
+ * ride the belt, the buckets go up, the liners move round with the drum, the flywheel turns and swings the jaw,
+ * the flame of the kiln burns.
+ */
+@keyframes scada-ride {
+    0% {
+        transform: translateX(var(--scada-ride-from));
+        opacity: 0;
+    }
+    10%,
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(var(--scada-ride-to));
+        opacity: 0;
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=ConveyorBelt][data-power] .scada-ride {
+    animation: scada-ride var(--scada-ride-duration) linear var(--scada-ride-delay) infinite;
+}
+
+/* The dashes move along the path by one period of their pattern (`BUCKET_PATTERN`, `LINER_PATTERN`). */
+@keyframes scada-buckets {
+    from {
+        stroke-dashoffset: 24;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes scada-liners {
+    from {
+        stroke-dashoffset: 20;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=BucketElevator][data-power] .scada-buckets {
+    animation: scada-buckets 0.5s linear infinite;
+}
+
+[data-animations=full] .scada-shape[data-kind=Mill][data-power] .scada-liners {
+    animation: scada-liners 0.7s linear infinite;
+}
+
+@keyframes scada-spokes {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* The jaw swings to the fixed one and back, about its top (its `transform-origin`, set by the drawing). */
+@keyframes scada-jaw {
+    to {
+        transform: rotate(-6deg);
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=Crusher][data-power] .scada-spokes {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: scada-spokes 0.6s linear infinite;
+}
+
+[data-animations=full] .scada-shape[data-kind=Crusher][data-power] .scada-jaw {
+    transform-box: view-box;
+    animation: scada-jaw 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes scada-flicker {
+    50% {
+        opacity: 0.65;
+    }
+}
+
+@keyframes scada-glow {
+    from {
+        fill-opacity: 0.2;
+    }
+    to {
+        fill-opacity: 0.45;
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=RotaryKiln][data-power] .scada-flame-outer {
+    animation: scada-flicker 0.5s linear infinite;
+}
+
+[data-animations=full] .scada-shape[data-kind=RotaryKiln][data-power] .scada-flame-inner {
+    animation: scada-flicker 0.67s linear infinite;
+}
+
+[data-animations=full] .scada-shape[data-kind=RotaryKiln][data-power] .scada-hot-zone {
+    animation: scada-glow 1.4s ease-in-out infinite alternate;
+}

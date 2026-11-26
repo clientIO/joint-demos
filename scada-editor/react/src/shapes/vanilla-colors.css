@@ -1,0 +1,148 @@
+/*
+ * The colors of the equipment, ported from the TypeScript SCADA editor (`ts/src/shapes/shapes.css`).
+ * Shapes read the `--shape-*` variables; the dark theme redefines them.
+ */
+:root {
+    /* The steel: the stops of the metal gradients (see `metal.tsx`), blue in the dark */
+    --shape-metal-1: #737c84;
+    --shape-metal-2: #a3acb4;
+    --shape-metal-3: #e9edf0;
+    --shape-metal-4: #ffffff;
+    --shape-metal-5: #d6dce1;
+    --shape-metal-6: #a7b0b8;
+    --shape-metal-7: #6a737b;
+    --shape-sphere-1: #ffffff;
+    --shape-sphere-2: #eef1f4;
+    --shape-sphere-3: #bac2c9;
+    --shape-sphere-4: #7f888f;
+    --shape-plate-1: #f4f6f8;
+    --shape-plate-2: #dde2e6;
+    --shape-plate-3: #b9c1c8;
+
+    /* The outline of the metal parts, the flat light metal (a rotor ring, a fan housing) */
+    --shape-metal-stroke: #6a737b;
+    --shape-metal-flat: #eee;
+
+    /* The ends (flanges) of the pipe stubs */
+    --shape-flange-fill: #fff;
+
+    /* The white faces (valves, gauges, instruments): dark, with light strokes in the dark */
+    --shape-face: #fff;
+    --shape-valve-stroke: #555;
+    --shape-thermometer-stroke: #6a737b;
+    --shape-instrument-ink: #333;
+    --shape-instrument-text: #131e29;
+
+    /* The dial of a gauge, the scale of a thermometer, the arrow of a check valve */
+    --shape-gauge-ink: #333;
+    --shape-gauge-unit: #555;
+    --shape-scale: #333;
+    --shape-needle: #dc2626;
+
+    /* The parts of the valves: the cover of a control valve, the filled half of a check valve (brighter than the steel around it) */
+    --shape-valve-cover: #fff;
+    --shape-valve-inlet: #555;
+
+    /* The rest: the legs, the labels */
+    --shape-legs: #555;
+    --shape-tank-legs: #350100;
+    --shape-label: #1e293b;
+    /* The electrical shapes: a wire (live in the run mode), the states of a breaker */
+    --shape-wire: #52525b;
+    --shape-wire-live: #ea580c;
+    --shape-breaker-closed: #dc2626;
+    --shape-breaker-open: #16a34a;
+    /* Porcelain and glass (the insulators of a transformer, the shine of a thermometer's bulb) */
+    --shape-porcelain-1: #fdfaf3;
+    --shape-porcelain-2: #ece5d6;
+    --shape-porcelain-3: #b9ae98;
+    --shape-glass-1: #ffffff;
+
+    /* The liquid and its warning colors */
+    --shape-liquid: #0EAD69;
+    --shape-liquid-max: #ED2637;
+    --shape-liquid-min: #FFD23F;
+
+    /* The accents of the shapes: the operators of the valves, a terminal box */
+    --shape-valve-operator: #666666;
+    --shape-terminal-box: #555555;
+
+    /* The metal of the details: a stem, a shaft, the feet; their edge */
+    --shape-metal-dark: #555555;
+    --shape-metal-mid: #777777;
+    --shape-metal-pale: #999999;
+    --shape-metal-dark-edge: #333333;
+    --shape-flame: #F4A261;
+    --shape-cap: #666666;
+    --shape-support: #777777;
+
+    /* A pipe: its default color (the medium), its outline */
+    --shape-pipe: #6CC59A;
+    --shape-pipe-outline: #444444;
+
+    /* The ink on a surface (a scale, a unit) */
+    --shape-surface-ink: #222;
+}
+
+[data-theme=dark] {
+    --shape-metal-1: #3f5877;
+    --shape-metal-2: #6f88a8;
+    --shape-metal-3: #b9cbe0;
+    --shape-metal-4: #dbe6f3;
+    --shape-metal-5: #9fb4cf;
+    --shape-metal-6: #6f86a4;
+    --shape-metal-7: #34496a;
+    --shape-sphere-1: #dbe6f3;
+    --shape-sphere-2: #c3d3e6;
+    --shape-sphere-3: #7f97b6;
+    --shape-sphere-4: #3f5877;
+    --shape-plate-1: #cfdcea;
+    --shape-plate-2: #a9bcd3;
+    --shape-plate-3: #7f95b1;
+
+    --shape-metal-stroke: #5b7699;
+    --shape-metal-flat: #7f95b1;
+
+    --shape-flange-fill: #a9bcd3;
+
+    --shape-face: #10213a;
+    --shape-valve-stroke: #9fb4cf;
+    --shape-thermometer-stroke: #9fb4cf;
+    --shape-instrument-ink: #9fb4cf;
+    --shape-instrument-text: #dbe6f3;
+
+    --shape-gauge-ink: #dbe6f3;
+    --shape-gauge-unit: #9fb4cf;
+    --shape-scale: #a1a1aa;
+    /* Lighter, softer on the dark canvas */
+    --shape-needle: #f87171;
+
+    --shape-valve-cover: #9fb4cf;
+    --shape-valve-inlet: #f1f5f9;
+
+    --shape-legs: #a1a1aa;
+    --shape-tank-legs: #a1a1aa;
+    --shape-label: #cfdcee;
+    --shape-wire: #94a3b8;
+    --shape-wire-live: #fb923c;
+    --shape-breaker-closed: #ef4444;
+    --shape-breaker-open: #22c55e;
+    --shape-porcelain-1: #e6e9ef;
+    --shape-porcelain-2: #b9c3d0;
+    --shape-porcelain-3: #7d8a9c;
+    --shape-glass-1: #dbe6f3;
+
+    /* Softer on the dark canvas, the outline apart from it */
+    --shape-pipe: #5bb48b;
+    --shape-pipe-outline: #3a4658;
+}
+
+/* What the pipes carry, in the colors of the TypeScript example. */
+:root {
+    --medium-water: #93C5FD;
+    --medium-steam: #F87171;
+    --medium-fuel: #FCD34D;
+    --medium-air: #9aa3ab;
+    --medium-power: var(--shape-wire);
+    --medium-power-live: var(--shape-wire-live);
+}
