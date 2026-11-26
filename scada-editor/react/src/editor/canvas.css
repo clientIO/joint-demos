@@ -1,0 +1,118 @@
+/*
+ * The canvas: its color (of the theme and the diagram style), its gradient, and the run-mode motion of the links:
+ * the liquid flowing through the pipes, the cleats of a running belt, a live wire.
+ */
+.scada-canvas .scada-scroller,
+.scada-canvas .scada-diagram {
+    background: var(--shape-canvas);
+}
+
+/* The canvas lighter at the top, darker at the bottom: behind a transparent paper, it stays put while scrolling. */
+:root[data-canvas-gradient] .scada-canvas .scada-scroller {
+    background: linear-gradient(var(--canvas-gradient-top), var(--canvas-gradient-bottom));
+}
+
+:root[data-canvas-gradient] .scada-canvas .scada-diagram {
+    background: transparent;
+}
+
+/* The dashes of the flowing liquid: hidden, shown moving while the medium flows in run mode. */
+.scada-flow {
+    stroke-opacity: 0;
+}
+
+@keyframes scada-flow-along {
+    from {
+        stroke-dashoffset: 24;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+[data-animations=full] .scada-flow.is-flowing {
+    stroke-opacity: 0.8;
+    animation: scada-flow-along 800ms linear infinite;
+}
+
+/* The cleats of a running belt move from its start to its end. */
+@keyframes scada-cleats-along {
+    from {
+        stroke-dashoffset: 16;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+[data-animations=full] .scada-cleats.is-running {
+    animation: scada-cleats-along 400ms linear infinite;
+}
+
+/* A live wire in run mode. */
+[data-mode=run] .scada-wire.is-live {
+    stroke: var(--shape-wire-live);
+}
+
+/* Run mode: the screen fills the window - its frame and name are a guide of the editor only. */
+[data-mode=run] .scada-screen {
+    display: none;
+}
+
+/* A locked shape lets the pointer through while editing (a background image, a frame). */
+[data-mode=edit] .joint-element:has(> * > .scada-shape[data-locked]) {
+    pointer-events: none;
+}
+
+/* The frames of the selection: solid; a selected group's dashed (it draws nothing of its own). */
+.scada-canvas .jj-selection-frame {
+    --jj-selection-frame-pattern: solid;
+}
+
+.scada-canvas .jj-selection-frame.scada-group-frame {
+    --jj-selection-frame-pattern: dashed;
+}
+
+/* The badge of a selected group over its frame: its ID and how many elements it has. */
+.scada-group-badge {
+    font: 600 13px var(--font-body);
+    color: var(--jj-selection-frame-color, var(--color-accent));
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* Run mode with a screen: it takes the whole window - the toolbar slides up out of the way, and down when the
+ * pointer comes to the top (the strip under it is a part of it: hovered with it) or a key focuses it. */
+.scada-app[data-screen=shown] {
+    position: relative;
+}
+
+.scada-app[data-screen=shown] .scada-toolbar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 40;
+    transform: translateY(-100%);
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+}
+
+.scada-app[data-screen=shown] .scada-toolbar::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: 32px;
+}
+
+.scada-app[data-screen=shown] .scada-toolbar:is(:hover, :has(:focus-visible)) {
+    transform: translateY(0);
+    box-shadow: var(--shadow-panel);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scada-app[data-screen=shown] .scada-toolbar {
+        transition: none;
+    }
+}

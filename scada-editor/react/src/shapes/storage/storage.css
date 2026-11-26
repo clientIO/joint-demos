@@ -1,0 +1,32 @@
+/*
+ * The run-mode motion of the storage: the agitator of a mixer stirs while it runs (the full animations only); the
+ * fuel in the sight glass glides to its new level (any animations: a change, not a constant motion).
+ */
+
+/*
+ * The impeller flips over (seen from the side) with one ease-in-out over the whole turn: the curve split in its
+ * halves, one for each keyframe.
+ */
+@keyframes scada-stir {
+    0% {
+        transform: scaleX(1);
+        animation-timing-function: cubic-bezier(0.42, 0, 0.71, 0.5);
+    }
+    50% {
+        transform: scaleX(-1);
+        animation-timing-function: cubic-bezier(0.29, 0.5, 0.58, 1);
+    }
+    100% {
+        transform: scaleX(1);
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=MixingTank][data-power] .scada-stir {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: scada-stir 0.9s infinite;
+}
+
+[data-animations] .scada-shape[data-kind=FuelTank] .scada-fuel {
+    transition: y 1s ease-in-out, height 1s ease-in-out;
+}

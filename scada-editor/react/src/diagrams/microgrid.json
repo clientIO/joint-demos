@@ -1,0 +1,1413 @@
+{
+  "cells": [
+    {
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1920,
+        "height": 1080
+      },
+      "angle": 0,
+      "type": "Screen",
+      "layer": "background",
+      "z": -1000,
+      "id": "24a4ee82-1fa7-470d-9243-4a1de9434b99"
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1920,
+        "height": 1080
+      },
+      "angle": 0,
+      "type": "CustomImage",
+      "label": {
+        "text": "",
+        "position": "bottom"
+      },
+      "id": "7346f8b5-9775-4b34-afc5-016ba794bb69",
+      "layer": "background",
+      "z": -999,
+      "imageId": "image-frame",
+      "locked": true,
+      "style": {
+        "opacity": 0.25
+      }
+    },
+    {
+      "position": {
+        "x": 350,
+        "y": 40
+      },
+      "size": {
+        "width": 540,
+        "height": 120
+      },
+      "angle": 0,
+      "type": "Rectangle",
+      "id": "1ccc7013-ec91-42a6-b78e-6454cdf43556",
+      "layer": "background",
+      "z": -999,
+      "parent": "5967f76c-5031-4c33-92bb-7b775f5f22b0",
+      "style": {
+        "color": "var(--color-amber)",
+        "opacity": 0.18
+      }
+    },
+    {
+      "position": {
+        "x": 770,
+        "y": 40
+      },
+      "size": {
+        "width": 340,
+        "height": 120
+      },
+      "angle": 0,
+      "type": "CustomImage",
+      "label": {
+        "text": "",
+        "position": "bottom"
+      },
+      "id": "080378d5-3ac0-4940-9803-ecd65eba13dc",
+      "layer": "background",
+      "z": -1,
+      "parent": "5967f76c-5031-4c33-92bb-7b775f5f22b0",
+      "imageId": "image-jointjs-badge"
+    },
+    {
+      "position": {
+        "x": 350,
+        "y": 40
+      },
+      "size": {
+        "width": 760,
+        "height": 120
+      },
+      "angle": 0,
+      "type": "Group",
+      "id": "5967f76c-5031-4c33-92bb-7b775f5f22b0",
+      "layer": "background",
+      "z": 0,
+      "tag": "GRP-101"
+    },
+    {
+      "position": {
+        "x": 350,
+        "y": 65
+      },
+      "size": {
+        "width": 420,
+        "height": 100
+      },
+      "angle": 0,
+      "type": "Label",
+      "label": {
+        "text": "Microgrid",
+        "size": 80,
+        "weight": 600,
+        "align": "middle"
+      },
+      "id": "01520282-b166-40fc-b47c-5b921184e28a",
+      "layer": "background",
+      "z": 1,
+      "parent": "5967f76c-5031-4c33-92bb-7b775f5f22b0",
+      "style": {
+        "color": "var(--color-amber)"
+      }
+    },
+    {
+      "source": {
+        "id": "534bc943-50a8-4cd3-9e1a-d6f9e39dd028",
+        "port": "right"
+      },
+      "target": {
+        "id": "3a9c65c0-16a7-4a77-aea9-ddb815e9e7aa",
+        "port": "left"
+      },
+      "type": "Pipe",
+      "layer": "pipes",
+      "z": -1,
+      "routing": "orthogonal",
+      "id": "03f9e5b9-d117-4a44-9a33-f113acb57b4a",
+      "style": {
+        "lineWidth": "thin",
+        "color": "#fdba74"
+      }
+    },
+    {
+      "source": {
+        "id": "aaf377c2-db82-4f54-a5dc-42071c1ece48",
+        "port": "out"
+      },
+      "target": {
+        "id": "4f09132b-3cdf-4405-87e9-66399bd56f4a",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "bfc07677-2a0f-4cf9-95d6-f5bef3a2f60f",
+      "z": 1,
+      "style": {
+        "lineWidth": "thick"
+      }
+    },
+    {
+      "source": {
+        "id": "4f09132b-3cdf-4405-87e9-66399bd56f4a",
+        "port": "out"
+      },
+      "target": {
+        "id": "2f5316d3-4c9d-46ac-be85-47ff15eb7730",
+        "port": "top4"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "e16b71b7-71e7-443d-8303-e292bcf0e31f",
+      "z": 2,
+      "style": {
+        "lineWidth": "thick"
+      }
+    },
+    {
+      "source": {
+        "id": "7bed483b-44b3-4dd3-adbc-d2ab8f0727e5",
+        "port": "out"
+      },
+      "target": {
+        "id": "28004267-7662-4b16-9112-dd53f99cebf3",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "f8364d41-e235-4dca-9479-8481dd67c2f2",
+      "z": 3,
+      "style": {
+        "lineWidth": "thick"
+      }
+    },
+    {
+      "source": {
+        "id": "28004267-7662-4b16-9112-dd53f99cebf3",
+        "port": "out"
+      },
+      "target": {
+        "id": "2f5316d3-4c9d-46ac-be85-47ff15eb7730",
+        "port": "top9"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "00f7bc6e-d058-496b-b253-7a7457472d50",
+      "z": 4,
+      "style": {
+        "lineWidth": "thick"
+      }
+    },
+    {
+      "source": {
+        "id": "3a9c65c0-16a7-4a77-aea9-ddb815e9e7aa",
+        "port": "out"
+      },
+      "target": {
+        "id": "1ab39615-bd0d-4ef6-9afb-25aa684a984e",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "cc07df20-ea96-49c4-9036-68a9a8b904ee",
+      "z": 5,
+      "style": {
+        "lineWidth": "thick"
+      }
+    },
+    {
+      "source": {
+        "id": "1ab39615-bd0d-4ef6-9afb-25aa684a984e",
+        "port": "out"
+      },
+      "target": {
+        "id": "2f5316d3-4c9d-46ac-be85-47ff15eb7730",
+        "port": "top16"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "fe7bf742-9aa4-424c-afdf-5282ab519853",
+      "z": 6,
+      "style": {
+        "lineWidth": "thick"
+      }
+    },
+    {
+      "source": {
+        "id": "ed1fffe5-acf0-433e-b1af-22c2a31e07a0",
+        "port": "out"
+      },
+      "target": {
+        "id": "e910e44a-6e24-4fe2-86e0-293ca7fbd15a",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "ee0c7179-c87e-4140-8fc9-2cb7d1e77b7f",
+      "z": 7,
+      "style": {
+        "lineWidth": "thick"
+      }
+    },
+    {
+      "source": {
+        "id": "e910e44a-6e24-4fe2-86e0-293ca7fbd15a",
+        "port": "out"
+      },
+      "target": {
+        "id": "2f5316d3-4c9d-46ac-be85-47ff15eb7730",
+        "port": "top19"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "87c6f6d0-a291-4da6-8b6a-af1d34b2ff97",
+      "z": 8,
+      "style": {
+        "lineWidth": "thick"
+      }
+    },
+    {
+      "source": {
+        "id": "2f5316d3-4c9d-46ac-be85-47ff15eb7730",
+        "port": "right"
+      },
+      "target": {
+        "id": "82879419-6e17-4681-b94c-91794cce4de3",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "55853ef7-2681-4ecf-8e9a-b8ee9d06822e",
+      "z": 9,
+      "style": {
+        "lineWidth": "thin"
+      }
+    },
+    {
+      "source": {
+        "id": "2f5316d3-4c9d-46ac-be85-47ff15eb7730",
+        "port": "bottom1"
+      },
+      "target": {
+        "id": "4424d276-007d-4341-b0d6-4af37a8bffcd",
+        "port": "line"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "f5ecbf03-1786-4a49-ad29-8177613c9159",
+      "z": 10,
+      "style": {
+        "lineWidth": "thin"
+      }
+    },
+    {
+      "source": {
+        "id": "4424d276-007d-4341-b0d6-4af37a8bffcd",
+        "port": "ground"
+      },
+      "target": {
+        "id": "2ef2f39a-32fe-46cf-b260-013f8d3941cc",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "3b2acb85-5586-4bb0-830e-17d6db09878f",
+      "z": 11,
+      "style": {
+        "lineWidth": "thin"
+      }
+    },
+    {
+      "source": {
+        "id": "2f5316d3-4c9d-46ac-be85-47ff15eb7730",
+        "port": "bottom3"
+      },
+      "target": {
+        "id": "8aa250b9-2371-4b36-b658-ce11087b81d5",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "0559e390-8d2f-4568-be6e-2d0888f3253a",
+      "z": 12
+    },
+    {
+      "source": {
+        "id": "8aa250b9-2371-4b36-b658-ce11087b81d5",
+        "port": "out"
+      },
+      "target": {
+        "id": "3e6e97a1-94ae-49e8-a066-0839e3e585ae",
+        "port": "in1"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "faae2e25-1928-4d76-be7b-d89ca2b64d89",
+      "z": 13
+    },
+    {
+      "source": {
+        "id": "3e6e97a1-94ae-49e8-a066-0839e3e585ae",
+        "port": "feeder1"
+      },
+      "target": {
+        "id": "c8649af8-9315-402b-838d-d004c9f34424",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "3e75facd-6366-4e1f-be26-c45d9a617bf1",
+      "z": 14,
+      "style": {
+        "lineWidth": "thin"
+      }
+    },
+    {
+      "source": {
+        "id": "3e6e97a1-94ae-49e8-a066-0839e3e585ae",
+        "port": "feeder2"
+      },
+      "target": {
+        "id": "ef7dc225-f764-4521-a328-06aa7491177e",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "3753fe2a-19d9-45cb-82f9-7430089bee4e",
+      "z": 15,
+      "style": {
+        "lineWidth": "thin"
+      }
+    },
+    {
+      "source": {
+        "id": "3e6e97a1-94ae-49e8-a066-0839e3e585ae",
+        "port": "feeder3"
+      },
+      "target": {
+        "id": "3c875a9f-814f-40b8-b720-2e5e0683735c",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "6a5ccf8c-1541-4932-81b6-34eff3601d85",
+      "z": 16,
+      "style": {
+        "lineWidth": "thin"
+      }
+    },
+    {
+      "source": {
+        "id": "3e6e97a1-94ae-49e8-a066-0839e3e585ae",
+        "port": "feeder4"
+      },
+      "target": {
+        "id": "d3026c98-8405-43ed-a1e1-0fe7b109c88f",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "363a4bd6-5a99-4165-b534-6aaaad3d961d",
+      "z": 17,
+      "style": {
+        "lineWidth": "thin"
+      }
+    },
+    {
+      "source": {
+        "id": "2f5316d3-4c9d-46ac-be85-47ff15eb7730",
+        "port": "bottom13"
+      },
+      "target": {
+        "id": "b9fbeb79-c0a3-4301-92f9-39af70374922",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "710a4714-a416-4457-9e3a-d5c24798bacc",
+      "z": 18
+    },
+    {
+      "source": {
+        "id": "b9fbeb79-c0a3-4301-92f9-39af70374922",
+        "port": "out"
+      },
+      "target": {
+        "id": "8f3d9567-16bd-4237-9f54-1692c119182f",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "c7001219-00db-47e9-a566-450ae776c93f",
+      "z": 19
+    },
+    {
+      "source": {
+        "id": "8f3d9567-16bd-4237-9f54-1692c119182f",
+        "port": "out1"
+      },
+      "target": {
+        "id": "e34e40fe-80d7-4a49-bbd1-64d76494a908",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "9e38586c-281b-41e2-ba72-427cdc5be18d",
+      "z": 20,
+      "style": {
+        "lineWidth": "thin"
+      }
+    },
+    {
+      "source": {
+        "id": "8f3d9567-16bd-4237-9f54-1692c119182f",
+        "port": "out2"
+      },
+      "target": {
+        "id": "b74eb15f-6517-4a53-9576-4d230a82f248",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "59792764-fbac-42ba-b9c5-f6d50b74ac8d",
+      "z": 21,
+      "style": {
+        "lineWidth": "thin"
+      }
+    },
+    {
+      "source": {
+        "id": "8f3d9567-16bd-4237-9f54-1692c119182f",
+        "port": "out3"
+      },
+      "target": {
+        "id": "e41daf3a-5828-4d6a-9192-e0cc3c37b26f",
+        "port": "in"
+      },
+      "type": "Wire",
+      "layer": "pipes",
+      "routing": "orthogonal",
+      "id": "cb78aa1d-0349-4685-bed2-15ed2eb70b0e",
+      "z": 22,
+      "style": {
+        "lineWidth": "thin"
+      }
+    },
+    {
+      "position": {
+        "x": 120,
+        "y": 560
+      },
+      "size": {
+        "width": 1520,
+        "height": 20
+      },
+      "angle": 0,
+      "type": "Busbar",
+      "label": {
+        "text": "Main Bus 400 V"
+      },
+      "taps": 19,
+      "id": "2f5316d3-4c9d-46ac-be85-47ff15eb7730",
+      "layer": "equipment",
+      "z": 1,
+      "tag": "BB-101"
+    },
+    {
+      "position": {
+        "x": 150,
+        "y": 90
+      },
+      "size": {
+        "width": 140,
+        "height": 220
+      },
+      "angle": 0,
+      "type": "WindTurbine",
+      "label": {
+        "text": "Wind Turbine",
+        "position": "left"
+      },
+      "data": {
+        "power": 1
+      },
+      "id": "aaf377c2-db82-4f54-a5dc-42071c1ece48",
+      "layer": "equipment",
+      "z": 2,
+      "tag": "WT-101"
+    },
+    {
+      "position": {
+        "x": 290,
+        "y": 400
+      },
+      "size": {
+        "width": 60,
+        "height": 80
+      },
+      "angle": 0,
+      "type": "CircuitBreaker",
+      "label": {
+        "text": "CB-W",
+        "position": "top"
+      },
+      "data": {
+        "open": false
+      },
+      "id": "4f09132b-3cdf-4405-87e9-66399bd56f4a",
+      "layer": "equipment",
+      "z": 3,
+      "tag": "CB-101"
+    },
+    {
+      "position": {
+        "x": 430,
+        "y": 250
+      },
+      "size": {
+        "width": 180,
+        "height": 100
+      },
+      "angle": 0,
+      "type": "SolarArray",
+      "label": {
+        "text": "Solar Array",
+        "position": "bottom"
+      },
+      "id": "7bed483b-44b3-4dd3-adbc-d2ab8f0727e5",
+      "layer": "equipment",
+      "z": 4,
+      "tag": "PV-101"
+    },
+    {
+      "position": {
+        "x": 690,
+        "y": 400
+      },
+      "size": {
+        "width": 60,
+        "height": 80
+      },
+      "angle": 0,
+      "type": "CircuitBreaker",
+      "label": {
+        "text": "CB-S",
+        "position": "top"
+      },
+      "data": {
+        "open": false
+      },
+      "id": "28004267-7662-4b16-9112-dd53f99cebf3",
+      "layer": "equipment",
+      "z": 5,
+      "tag": "CB-102"
+    },
+    {
+      "position": {
+        "x": 980,
+        "y": 240
+      },
+      "size": {
+        "width": 200,
+        "height": 100
+      },
+      "angle": 0,
+      "type": "DieselGenerator",
+      "label": {
+        "text": "Diesel Backup",
+        "position": "bottom"
+      },
+      "data": {
+        "power": 0
+      },
+      "id": "3a9c65c0-16a7-4a77-aea9-ddb815e9e7aa",
+      "layer": "equipment",
+      "z": 6,
+      "tag": "DG-101"
+    },
+    {
+      "position": {
+        "x": 750,
+        "y": 260
+      },
+      "size": {
+        "width": 160,
+        "height": 80
+      },
+      "angle": 0,
+      "type": "FuelTank",
+      "label": {
+        "text": "Day Tank",
+        "position": "bottom"
+      },
+      "data": {
+        "level": 70
+      },
+      "id": "534bc943-50a8-4cd3-9e1a-d6f9e39dd028",
+      "layer": "equipment",
+      "z": 7,
+      "tag": "DT-101"
+    },
+    {
+      "position": {
+        "x": 1260,
+        "y": 400
+      },
+      "size": {
+        "width": 60,
+        "height": 80
+      },
+      "angle": 0,
+      "type": "CircuitBreaker",
+      "label": {
+        "text": "CB-D",
+        "position": "top"
+      },
+      "data": {
+        "open": false
+      },
+      "id": "1ab39615-bd0d-4ef6-9afb-25aa684a984e",
+      "layer": "equipment",
+      "z": 8,
+      "tag": "CB-103"
+    },
+    {
+      "position": {
+        "x": 1260,
+        "y": 190
+      },
+      "size": {
+        "width": 160,
+        "height": 100
+      },
+      "angle": 0,
+      "type": "BatteryBank",
+      "label": {
+        "text": "Battery Bank",
+        "position": "bottom"
+      },
+      "data": {
+        "level": 80
+      },
+      "id": "ed1fffe5-acf0-433e-b1af-22c2a31e07a0",
+      "layer": "equipment",
+      "z": 9,
+      "tag": "BESS-101"
+    },
+    {
+      "position": {
+        "x": 1500,
+        "y": 400
+      },
+      "size": {
+        "width": 60,
+        "height": 80
+      },
+      "angle": 0,
+      "type": "CircuitBreaker",
+      "label": {
+        "text": "CB-B",
+        "position": "top"
+      },
+      "data": {
+        "open": false
+      },
+      "id": "e910e44a-6e24-4fe2-86e0-293ca7fbd15a",
+      "layer": "equipment",
+      "z": 10,
+      "tag": "CB-104"
+    },
+    {
+      "position": {
+        "x": 300,
+        "y": 180
+      },
+      "size": {
+        "width": 140,
+        "height": 20
+      },
+      "angle": 0,
+      "type": "Table",
+      "header": false,
+      "title": "Table",
+      "names": false,
+      "columns": [
+        {
+          "name": "State",
+          "kind": "state"
+        },
+        {
+          "name": "Value",
+          "kind": "number"
+        },
+        {
+          "name": "Unit",
+          "kind": "text",
+          "width": 50
+        }
+      ],
+      "rows": 1,
+      "data": {
+        "values": [
+          [
+            "on",
+            "850",
+            "kW"
+          ]
+        ]
+      },
+      "style": {
+        "color": "var(--shape-face)",
+        "outline": "var(--shape-table-line)",
+        "accent": "var(--shape-table-header)"
+      },
+      "id": "14afbcc8-bb8c-4254-ab33-20222d3b08cc",
+      "layer": "equipment",
+      "z": 11,
+      "tag": "TBL-101",
+      "sourceTag": "WT-101"
+    },
+    {
+      "position": {
+        "x": 450,
+        "y": 210
+      },
+      "size": {
+        "width": 140,
+        "height": 20
+      },
+      "angle": 0,
+      "type": "Table",
+      "header": false,
+      "title": "Table",
+      "names": false,
+      "columns": [
+        {
+          "name": "State",
+          "kind": "state"
+        },
+        {
+          "name": "Value",
+          "kind": "number"
+        },
+        {
+          "name": "Unit",
+          "kind": "text",
+          "width": 50
+        }
+      ],
+      "rows": 1,
+      "data": {
+        "values": [
+          [
+            "on",
+            "420",
+            "kW"
+          ]
+        ]
+      },
+      "style": {
+        "color": "var(--shape-face)",
+        "outline": "var(--shape-table-line)",
+        "accent": "var(--shape-table-header)"
+      },
+      "id": "6e84ae8d-d4f7-4dfe-8d9c-45baffb49188",
+      "layer": "equipment",
+      "z": 12,
+      "tag": "TBL-102",
+      "sourceTag": "PV-101"
+    },
+    {
+      "position": {
+        "x": 980,
+        "y": 180
+      },
+      "size": {
+        "width": 140,
+        "height": 20
+      },
+      "angle": 0,
+      "type": "Table",
+      "header": false,
+      "title": "Table",
+      "names": false,
+      "columns": [
+        {
+          "name": "State",
+          "kind": "state"
+        },
+        {
+          "name": "Value",
+          "kind": "number"
+        },
+        {
+          "name": "Unit",
+          "kind": "text",
+          "width": 50
+        }
+      ],
+      "rows": 1,
+      "data": {
+        "values": [
+          [
+            "off",
+            "400",
+            "kW"
+          ]
+        ]
+      },
+      "style": {
+        "color": "var(--shape-face)",
+        "outline": "var(--shape-table-line)",
+        "accent": "var(--shape-table-header)"
+      },
+      "id": "ce2728aa-841c-4734-ac63-4cccd7358fbe",
+      "layer": "equipment",
+      "z": 13,
+      "tag": "TBL-103",
+      "sourceTag": "DG-101"
+    },
+    {
+      "position": {
+        "x": 1270,
+        "y": 150
+      },
+      "size": {
+        "width": 140,
+        "height": 20
+      },
+      "angle": 0,
+      "type": "Table",
+      "header": false,
+      "title": "Table",
+      "names": false,
+      "columns": [
+        {
+          "name": "State",
+          "kind": "state"
+        },
+        {
+          "name": "Value",
+          "kind": "number"
+        },
+        {
+          "name": "Unit",
+          "kind": "text",
+          "width": 50
+        }
+      ],
+      "rows": 1,
+      "data": {
+        "values": [
+          [
+            "on",
+            "120",
+            "kW"
+          ]
+        ]
+      },
+      "style": {
+        "color": "var(--shape-face)",
+        "outline": "var(--shape-table-line)",
+        "accent": "var(--shape-table-header)"
+      },
+      "id": "1aa2195e-00c6-489e-91a9-29aca864b0ef",
+      "layer": "equipment",
+      "z": 14,
+      "tag": "TBL-104",
+      "sourceTag": "BESS-101"
+    },
+    {
+      "position": {
+        "x": 140,
+        "y": 640
+      },
+      "size": {
+        "width": 40,
+        "height": 80
+      },
+      "angle": 0,
+      "type": "SurgeArrester",
+      "label": {
+        "text": "Arrester",
+        "position": "left"
+      },
+      "id": "4424d276-007d-4341-b0d6-4af37a8bffcd",
+      "layer": "equipment",
+      "z": 15,
+      "tag": "SA-101"
+    },
+    {
+      "position": {
+        "x": 130,
+        "y": 760
+      },
+      "size": {
+        "width": 60,
+        "height": 60
+      },
+      "angle": 0,
+      "type": "Ground",
+      "label": {
+        "text": "Earth",
+        "position": "bottom"
+      },
+      "id": "2ef2f39a-32fe-46cf-b260-013f8d3941cc",
+      "layer": "equipment",
+      "z": 16,
+      "tag": "GND-101"
+    },
+    {
+      "position": {
+        "x": 360,
+        "y": 680
+      },
+      "size": {
+        "width": 60,
+        "height": 80
+      },
+      "angle": 0,
+      "type": "CircuitBreaker",
+      "label": {
+        "text": "CB-L",
+        "position": "top"
+      },
+      "data": {
+        "open": false
+      },
+      "id": "8aa250b9-2371-4b36-b658-ce11087b81d5",
+      "layer": "equipment",
+      "z": 17,
+      "tag": "CB-105"
+    },
+    {
+      "position": {
+        "x": 480,
+        "y": 690
+      },
+      "size": {
+        "width": 480,
+        "height": 150
+      },
+      "angle": 0,
+      "type": "Switchgear",
+      "label": {
+        "text": "Lighting Switchgear",
+        "position": "top"
+      },
+      "id": "3e6e97a1-94ae-49e8-a066-0839e3e585ae",
+      "layer": "equipment",
+      "z": 18,
+      "tag": "SWG-101"
+    },
+    {
+      "position": {
+        "x": 510,
+        "y": 920
+      },
+      "size": {
+        "width": 60,
+        "height": 80
+      },
+      "angle": 0,
+      "type": "Lamp",
+      "label": {
+        "text": "Hall",
+        "position": "bottom"
+      },
+      "id": "c8649af8-9315-402b-838d-d004c9f34424",
+      "layer": "equipment",
+      "z": 19,
+      "tag": "LMP-101"
+    },
+    {
+      "position": {
+        "x": 630,
+        "y": 920
+      },
+      "size": {
+        "width": 60,
+        "height": 80
+      },
+      "angle": 0,
+      "type": "Lamp",
+      "label": {
+        "text": "Yard",
+        "position": "bottom"
+      },
+      "id": "ef7dc225-f764-4521-a328-06aa7491177e",
+      "layer": "equipment",
+      "z": 20,
+      "tag": "LMP-102"
+    },
+    {
+      "position": {
+        "x": 740,
+        "y": 920
+      },
+      "size": {
+        "width": 80,
+        "height": 60
+      },
+      "angle": 0,
+      "type": "Heater",
+      "label": {
+        "text": "Office",
+        "position": "bottom"
+      },
+      "id": "3c875a9f-814f-40b8-b720-2e5e0683735c",
+      "layer": "equipment",
+      "z": 21,
+      "tag": "HTR-101"
+    },
+    {
+      "position": {
+        "x": 870,
+        "y": 920
+      },
+      "size": {
+        "width": 60,
+        "height": 80
+      },
+      "angle": 0,
+      "type": "Lamp",
+      "label": {
+        "text": "Gate",
+        "position": "bottom"
+      },
+      "id": "d3026c98-8405-43ed-a1e1-0fe7b109c88f",
+      "layer": "equipment",
+      "z": 22,
+      "tag": "LMP-103"
+    },
+    {
+      "position": {
+        "x": 1160,
+        "y": 650
+      },
+      "size": {
+        "width": 80,
+        "height": 20
+      },
+      "angle": 0,
+      "type": "Fuse",
+      "label": {
+        "text": "F-MCC",
+        "position": "bottom"
+      },
+      "id": "b9fbeb79-c0a3-4301-92f9-39af70374922",
+      "layer": "equipment",
+      "z": 23,
+      "tag": "FU-101"
+    },
+    {
+      "position": {
+        "x": 1290,
+        "y": 640
+      },
+      "size": {
+        "width": 120,
+        "height": 200
+      },
+      "angle": 0,
+      "type": "MotorControlCenter",
+      "label": {
+        "text": "MCC",
+        "position": "right"
+      },
+      "id": "8f3d9567-16bd-4237-9f54-1692c119182f",
+      "layer": "equipment",
+      "z": 24,
+      "tag": "MCC-101"
+    },
+    {
+      "position": {
+        "x": 1190,
+        "y": 920
+      },
+      "size": {
+        "width": 80,
+        "height": 60
+      },
+      "angle": 0,
+      "type": "Heater",
+      "label": {
+        "text": "Tank Heater",
+        "position": "bottom"
+      },
+      "id": "e34e40fe-80d7-4a49-bbd1-64d76494a908",
+      "layer": "equipment",
+      "z": 25,
+      "tag": "HTR-102"
+    },
+    {
+      "position": {
+        "x": 1320,
+        "y": 920
+      },
+      "size": {
+        "width": 60,
+        "height": 80
+      },
+      "angle": 0,
+      "type": "Lamp",
+      "label": {
+        "text": "Pump Room",
+        "position": "bottom"
+      },
+      "id": "b74eb15f-6517-4a53-9576-4d230a82f248",
+      "layer": "equipment",
+      "z": 26,
+      "tag": "LMP-104"
+    },
+    {
+      "position": {
+        "x": 1440,
+        "y": 920
+      },
+      "size": {
+        "width": 60,
+        "height": 80
+      },
+      "angle": 0,
+      "type": "Lamp",
+      "label": {
+        "text": "Workshop",
+        "position": "bottom"
+      },
+      "id": "e41daf3a-5828-4d6a-9192-e0cc3c37b26f",
+      "layer": "equipment",
+      "z": 27,
+      "tag": "LMP-105"
+    },
+    {
+      "position": {
+        "x": 1700,
+        "y": 540
+      },
+      "size": {
+        "width": 120,
+        "height": 60
+      },
+      "angle": 0,
+      "type": "ElectricMeter",
+      "label": {
+        "text": "Bus Voltage",
+        "position": "bottom"
+      },
+      "unit": "V",
+      "data": {
+        "value": 230
+      },
+      "id": "82879419-6e17-4681-b94c-91794cce4de3",
+      "layer": "instruments",
+      "z": 2,
+      "tag": "EI-101"
+    },
+    {
+      "position": {
+        "x": 1580,
+        "y": 650
+      },
+      "size": {
+        "width": 300,
+        "height": 130
+      },
+      "angle": 0,
+      "type": "LineChart",
+      "label": {
+        "text": "Load (kW)",
+        "position": "bottom"
+      },
+      "data": {
+        "values": [
+          42,
+          45,
+          44,
+          50,
+          55,
+          52,
+          58,
+          61,
+          57,
+          60,
+          64,
+          62
+        ]
+      },
+      "id": "66726e3c-1844-40ef-a749-c546f4a99499",
+      "layer": "instruments",
+      "z": 3,
+      "tag": "TRD-101"
+    },
+    {
+      "position": {
+        "x": 1580,
+        "y": 860
+      },
+      "size": {
+        "width": 120,
+        "height": 60
+      },
+      "angle": 0,
+      "type": "Display",
+      "label": {
+        "text": "Frequency",
+        "position": "bottom"
+      },
+      "unit": "Hz",
+      "data": {
+        "value": 50
+      },
+      "id": "3791fa1c-3931-4c76-b45b-3c5fa6773c7e",
+      "layer": "instruments",
+      "z": 4,
+      "tag": "DI-101"
+    },
+    {
+      "position": {
+        "x": 1760,
+        "y": 860
+      },
+      "size": {
+        "width": 120,
+        "height": 60
+      },
+      "angle": 0,
+      "type": "Display",
+      "label": {
+        "text": "Battery",
+        "position": "bottom"
+      },
+      "unit": "%",
+      "data": {
+        "value": 80
+      },
+      "id": "07769402-aed6-4783-8e2e-ac2a215703be",
+      "layer": "instruments",
+      "z": 5,
+      "tag": "DI-102"
+    },
+    {
+      "position": {
+        "x": 980,
+        "y": 460
+      },
+      "size": {
+        "width": 240,
+        "height": 20
+      },
+      "angle": 0,
+      "type": "Label",
+      "label": {
+        "text": "Starts when the battery is low",
+        "size": 14,
+        "weight": 600,
+        "align": "middle",
+        "styles": [
+          "italic"
+        ]
+      },
+      "id": "29febbff-570a-4707-9c07-b76036dfb495",
+      "layer": "instruments",
+      "z": 6,
+      "style": {
+        "color": "var(--color-blue)"
+      }
+    },
+    {
+      "source": {
+        "id": "29febbff-570a-4707-9c07-b76036dfb495",
+        "anchor": {
+          "name": "topLeft",
+          "args": {
+            "dx": "0%",
+            "dy": "50%",
+            "rotate": true,
+            "useModelGeometry": true
+          }
+        }
+      },
+      "target": {
+        "id": "3a9c65c0-16a7-4a77-aea9-ddb815e9e7aa",
+        "anchor": {
+          "name": "topLeft",
+          "args": {
+            "dx": "10%",
+            "dy": "100%",
+            "rotate": true,
+            "useModelGeometry": true
+          }
+        }
+      },
+      "type": "Arrow",
+      "layer": "instruments",
+      "routing": "smooth",
+      "sourceArrowhead": "none",
+      "targetArrowhead": "arrow",
+      "id": "9d002598-e549-465d-ae31-254bb512b66c",
+      "z": 7,
+      "style": {
+        "color": "var(--color-blue)"
+      }
+    }
+  ],
+  "images": {
+    "image-jointjs-badge": {
+      "href": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MjAgMTUwIiB3aWR0aD0iNDIwIiBoZWlnaHQ9IjE1MCI+PHBhdGggZmlsbD0iIzFlMjcyZSIgZD0iTTI0IDBINDIwVjEyNkwzOTYgMTUwSDBWMjRaIi8+PHN2ZyB4PSI2NCIgeT0iNDAiIHdpZHRoPSI1OC42IiBoZWlnaHQ9IjcwIiB2aWV3Qm94PSIwIDAgMTEzIDEzNSI+PHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTU2LjMxMzUgMTAzLjk5N0w4Mi4zMzY5IDc3Ljk3MjdWMEg2MC42NzA5VjgyLjMzNEgwTDIxLjY2MTEgMTAzLjk5N0g1Ni4zMTM1Wk04Ni42NTgyIDEzNC4zNDVMMTEyLjY4OCAxMDguMzJWMzAuMzQ3N0g5MS4wMjE1VjExMi42ODJIMzAuMzQzOEw1Mi4wMDQ5IDEzNC4zNDVIODYuNjU4MloiLz48L3N2Zz48dGV4dCB4PSIxNzAiIHk9IjYyIiBmaWxsPSIjRkZGRkZGIiBmaWxsLW9wYWNpdHk9IjAuNiIgZm9udC1mYW1pbHk9IkhlbHZldGljYSwgQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjIiIGZvbnQtd2VpZ2h0PSI1MDAiIGxldHRlci1zcGFjaW5nPSI0LjQiPkJVSUxUIFdJVEg8L3RleHQ+PHN2ZyB4PSIxNjgiIHk9Ijc0IiB3aWR0aD0iMTU3LjUiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjI2OCA1OCA2MzAgMTYwIj48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJtMTMwLjcxIDIyNS43MWwtMjcuMjgtMjcuMjdxMC0wLjAxIDAtMC4wMWg3Ni40MXYtMTAzLjY4aDI3LjI4YzAgMCAwIDU5LjQgMCA5OC4xOWwtMzIuNzcgMzIuNzd6bTMzMC4zNy0xMTYuOTdjMTAuNjggMTAuNDEgMTcuMjkgMjUuODcgMTcuMjkgNDYuMTMgMCAyMC4yNi02LjYxIDM1LjcxLTE3LjI5IDQ2LjEzLTEwLjY5IDEwLjQxLTI1LjQ3IDE1Ljc5LTQxLjkxIDE1Ljc5LTE2LjQ0IDAtMzEuMjItNS4zOC00MS45MS0xNS43OS0xMC42OC0xMC40Mi0xNy4yOS0yNS44Ny0xNy4yOS00Ni4xMyAwLTIwLjI2IDYuNjEtMzUuNzIgMTcuMjktNDYuMTMgMTAuNjktMTAuNDEgMjUuNDctMTUuNzkgNDEuOTEtMTUuNzkgMTYuNDQgMCAzMS4yMiA1LjM4IDQxLjkxIDE1Ljc5em00MDEuNDEtMTguNjFxLTguMjMtNy4xNC0yMi43Ni03LjE1LTExLjc3IDAuMDEtMTguMyA1LjA3LTYuNTkgNS4xMS02LjU5IDE0LjQyIDAgNi42NyAzLjQ3IDEwLjg5IDMuNDIgNC4xOCAxMC4yNyA3LjU5IDYuNzcgMy4zNyAyMC45NiA4LjZoMC4wMXExNC45OCA1Ljg1IDIzLjk1IDEwLjYyIDguOTIgNC43NCAxNS4zMSAxMy4yNiA2LjM4IDguNDggNi4zOCAyMS4xNiAwIDEyLjQ4LTYuMjggMjIuMDUtNi4yOSA5LjU4LTE4LjAzIDE0Ljg2LTExLjc4IDUuMjktMjcuNzYgNS4yOS0xNS45OSAwLTI4LjA5LTUuNC0xMi4wNS01LjM5LTE4LjU1LTE1LjE4LTYuNDktOS43OS02LjQ5LTIyLjcxdi03LjY2aDIzLjM3djYuMzZxLTAuMDEgMTAuMTcgOC43MSAxNi45MiA4LjY0IDYuNyAyMi45NSA2LjcgMTMuMDUtMC4wMSAxOS42OS01Ljc0IDYuNjktNS43NiA2LjY5LTE0Ljg0LTAuMDEtNi4yMy0zLjY5LTEwLjU2LTMuNjMtNC4yOS0xMC4zNy03LjgxLTYuNjctMy40OC0yMC4wMS04LjcgMCAwLTAuMDEgMC0xNC45OC01LjY0LTI0LjI3LTEwLjYzLTkuMjMtNC45NS0xNS40Mi0xMy40Ni02LjE2LTguNDktNi4xNi0yMS4xNyAwLTE4LjkzIDEzLjM5LTI5LjkgMTMuNDUtMTEgMzUuOTMtMTAuOTkgMTUuNzcgMCAyNy44NiA1LjYxIDEyLjA3IDUuNiAxOC43OCAxNS42MiA2LjcgMTAuMDEgNi43IDIzLjEzdjUuOTJoLTIzLjM3di00LjYxcTAtMTAuMzgtOC4yNy0xNy41NnptLTMxOC41NCAxOC4zNWgxLjUyYzcuMi05LjYgMTguNjMtMTUuNTMgMzQuOTQtMTUuNTMgMTQuMTIgMCAyNS41MSA0LjIzIDMzLjM4IDEyLjE4IDcuODggNy45NSAxMi4yNyAxOS42NSAxMi4yNyAzNC43MXY3NC45NmgtMjEuNzR2LTcxLjcxYzAtOS44NC0yLjQ2LTE3LjM3LTcuMjQtMjIuNDItNC43OC01LjAzLTExLjg0LTcuNTUtMjAuODgtNy41NS0xMC4wOSAwLTE4LjE5IDMuMDUtMjMuNzQgOS40LTUuMDUgNS43OS03Ljk5IDE0LjI2LTguNTEgMjUuNDd2NjYuNTNoLTIxLjgzdi0xMTkuNzZoMjEuODN6bS0xOTQuOTUtMTMuNzNjMCAwIDAgNjMuNTggMCA5OC4ybC0yMS44NSAyMS44NWMtMTAuMjkgMC0yMi41MyAwLTMyLjgxIDBsLTIxLjgzLTIxLjgzcTAgMCAwIDBoNTQuNjZ2LTk4LjIyem0zNTMuNDYgOTguMjJsLTIxLjgzIDIxLjgzYzAgMC0xMC44OSAwLTIxLjggMGwtMjEuODUtMjEuODV2LTEzMC45NGgyMS44M3YzMi43NGgzMi43NHYyMS44M2gtMzIuNzR2NzYuMzloOTguMzF2LTEzMC45NmgyMS44M2MwIDAgMCA4OC43IDAgMTMwLjk0bC0yMS44NSAyMS44NWMtMTAuMjkgMC0yMi41MyAwLTMyLjgxIDAgMCAwLTIxLjgzLTIxLjgzLTIxLjgzLTIxLjgzem0tMjEzLjE3LTk4LjIyaDIxLjgzdjExOS43N2gtMjEuODN6bS05Ni44IDI5LjM2Yy02LjYgNy4wNS0xMC40NCAxNy40NC0xMC40NCAzMC43NSAwIDEzLjMgMy44NCAyMy42OSAxMC40NCAzMC43NCA2LjU3IDcuMDIgMTUuODYgMTAuNjkgMjYuNjggMTAuNjkgMTAuODIgMCAyMC4xMS0zLjY3IDI2LjY4LTEwLjY5IDYuNjEtNy4wNSAxMC40NS0xNy40NCAxMC40NS0zMC43NCAwLTEzLjMxLTMuODQtMjMuNy0xMC40NS0zMC43NS02LjU3LTcuMDEtMTUuODYtMTAuNjktMjYuNjgtMTAuNjktMTAuODIgMC0yMC4xMSAzLjY4LTI2LjY4IDEwLjY5em0tMjk5Ljk5IDYzLjM4bC0yNy4yOC0yNy4yOHEwIDAgMCAwaDc2LjR2LTEwMy42OWgyNy4yOWMwIDAgMCA1OS40IDAgOTguMmwtMzIuNzcgMzIuNzd6bTM5Ni43OS0xMjUuNDhoMjEuODJ2MjEuODJoLTIxLjgyem0tMTYyLjExIDBoMjEuODJ2MjEuODNoLTIxLjgyeiIvPjwvc3ZnPjxwYXRoIGZpbGw9IiNGRkZGRkYiIGQ9Ik0zNDMuMCA4Ny4yaDV2Ny41aDcuNXY1aC03LjV2Ny41aC01di03LjVoLTcuNXYtNWg3LjV6Ii8+PC9zdmc+",
+      "width": 420,
+      "height": 150,
+      "name": "Built with JointJS"
+    },
+    "image-frame": {
+      "href": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIwIiBoZWlnaHQ9IjEwODAiIHZpZXdCb3g9IjAgMCAxOTIwIDEwODAiPgogIDxkZWZzPgogICAgPCEtLSBUaGUgd2Fsa3dheSBhbG9uZyB0aGUgZWRnZXM6IGhhdGNoZWQgLS0+CiAgICA8cGF0dGVybiBpZD0iaGF0Y2giIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKDQ1KSI+CiAgICAgIDxwYXRoIGQ9Ik0gMCAwIFYgMTYiIHN0cm9rZT0iIzgwODA4MCIgc3Ryb2tlLW9wYWNpdHk9IjAuNSIgc3Ryb2tlLXdpZHRoPSI1Ii8+CiAgICA8L3BhdHRlcm4+CiAgPC9kZWZzPgogIDwhLS0gVGhlIHdhbGt3YXkgYXJvdW5kIHRoZSBmbG9vciwgaXRzIGlubmVyIGVkZ2UgLS0+CiAgPHBhdGggZD0iTSAwIDAgSCAxOTIwIFYgMTA4MCBIIDAgWiBNIDI0IDI0IFYgMTA1NiBIIDE4OTYgViAyNCBaIiBmaWxsPSJ1cmwoI2hhdGNoKSIgZmlsbC1ydWxlPSJldmVub2RkIi8+CiAgPHJlY3QgeD0iMjQiIHk9IjI0IiB3aWR0aD0iMTg3MiIgaGVpZ2h0PSIxMDMyIiBmaWxsPSJub25lIiBzdHJva2U9IiM4MDgwODAiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K",
+      "width": 1920,
+      "height": 1080,
+      "name": "Frame"
+    }
+  },
+  "favorites": [
+    "Wire",
+    "CircuitBreaker",
+    "Lamp"
+  ],
+  "animations": "full",
+  "style": {
+    "canvas": "var(--canvas-sand)",
+    "canvasGradient": true,
+    "labelSize": "large",
+    "labelColor": "var(--color-slate)",
+    "labels": "both"
+  }
+}

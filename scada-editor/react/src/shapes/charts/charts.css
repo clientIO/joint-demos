@@ -1,0 +1,17 @@
+/*
+ * The values of a table are the plant's to send: placeholders while the diagram is edited (and in the palette), the
+ * values in run mode (`data-animations` of the app is set then, at any level).
+ */
+.scada-shape[data-kind=Table] .scada-table-live {
+    display: none;
+}
+
+:is([data-animations=full], [data-animations=alarms]) .scada-shape[data-kind=Table] {
+    .scada-table-live {
+        display: inline;
+    }
+
+    .scada-table-idle {
+        display: none;
+    }
+}

@@ -38,9 +38,12 @@ npm run dev
 
 ## How it is built
 
-- **The diagram** — `src/app.tsx` wraps the editor in `<Diagram>` with five graph layers (background, pipes, equipment, instruments, foreground), undo/redo and a clipboard.
-- **The equipment** — `src/shapes/`: `catalog.ts` lists every kind (size, stubs, controls), `equipment-node.tsx` draws an element (stubs, shaded body, label) and `symbols/` holds a React component per kind with its run-mode animations in CSS.
-- **The plant** — `src/plant/simulate.ts` is one pure step of the plant (flow traced from pumps through open valves into tanks, pressures, levels, readings, alarms), `use-plant.ts` runs it while the editor is in run mode and restores the diagram afterwards.
-- **The editor** — `src/editor/`: the palette (drag, or Enter to add), the inspector, the context menus, the controls and the log.
+The React version of the TypeScript SCADA editor (`../ts`), feature for feature: the same shapes, examples, settings and run mode, and the same diagram file format - a diagram saved by one opens in the other.
 
-To connect a real plant, replace the timer in `use-plant.ts` with your transport (WebSocket, MQTT, OPC UA gateway): write each update into the diagram with `setCellData(id, data, { skipHistory: true })`, and send the operator's commands from `sendCommand`.
+- **The shapes** - `src/shapes/`: every element of the palette (88) as a React SVG drawing per palette group, its spec (`define-shape.ts`: size, ports, flip, control, layer, colors) beside it. `shape-node.tsx` draws an element: its pipe stubs and terminals, its drawing (the directional parts mirrored when flipped), its label on the side chosen, horizontal on a rotated shape. `surface.tsx` paints the shaded or flat metal in the shape's color, `shapes.css` holds the colors of both themes.
+- **The connections** - `src/connections/`: pipes, wires, signal lines, arrows and conveyors are native links, their look made from their data.
+- **The editor** - `src/scada-app.tsx` wraps it in `<Diagram>` with five graph layers, undo/redo and a clipboard; `src/editor/`: the canvas (`<Paper>`, `<PaperScroller>`, `<Selection>`, `<FreeTransform>`, `<Snaplines>`, `<Navigator>`), the palette (`<Stencil>`), the inspector, the settings, the context menus, Find, groups.
+- **Run mode** - `src/runtime/` and `src/plant/`: the simulated plant writes its values by tag (`setCellData(..., { skipHistory: true })`), the controls send commands it confirms, the log lists both.
+- **Files** - `src/files/`: the diagram file (the examples in `src/diagrams/` are the TypeScript version's), checked before anything changes.
+
+To connect a real plant, replace the mock in `src/plant/mock/` with your transport (WebSocket, MQTT, OPC UA gateway): apply each `tag, property, value` update the way `PlantSession` does, and send the operator's commands from it.

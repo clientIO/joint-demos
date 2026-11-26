@@ -1,0 +1,73 @@
+/*
+ * The run-mode animations of the rotating equipment: what moves while it runs (`data-power`), with the full
+ * animations only (`data-animations` of the app: none in edit mode, none with "Alarms only").
+ */
+@keyframes scada-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=Pump][data-power] .scada-spin {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: scada-spin 1s linear infinite;
+}
+
+/* The blades of a fan, the spokes of a blower: drawn around the hub (their group moved there). */
+[data-animations=full] .scada-shape[data-kind=Fan][data-power] .scada-spin {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: scada-spin 0.6s linear infinite;
+}
+
+[data-animations=full] .scada-shape[data-kind=Blower][data-power] .scada-spin {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: scada-spin 0.7s linear infinite;
+}
+
+/* The rotor of a compressor: its dashed ring shown, turning around the symbol. */
+[data-animations=full] .scada-shape[data-kind=Compressor][data-power] .scada-compressor-rotor {
+    stroke-opacity: 0.8;
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: scada-spin 0.9s linear infinite;
+}
+
+/* A key on the shaft of a motor: it sweeps across the shaft from its top to its bottom, showing up and fading. */
+@keyframes scada-shaft-mark {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(8px);
+        opacity: 0;
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=Motor][data-power] .scada-shaft-mark {
+    animation: scada-shaft-mark 0.45s linear infinite;
+}
+
+/* The steam streams through the casing of a turbine: its dashes shown and moving. */
+@keyframes scada-steam {
+    from {
+        stroke-dashoffset: 16;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=Turbine][data-power] .scada-steam {
+    stroke-opacity: 0.7;
+    animation: scada-steam 0.35s linear infinite;
+}

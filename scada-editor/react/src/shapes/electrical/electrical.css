@@ -1,0 +1,76 @@
+/*
+ * The electrical shapes in run mode: the energized look (`data-energized`, the vanilla `energized` class of
+ * `runtime.css`), what moves while a source runs (`data-power`, the full animations only), the charge gliding.
+ */
+
+/* Energized: a lit lamp, the lamps of a cabinet, a glowing heater */
+.electrical-lamp-glass[data-energized] {
+    fill: var(--shape-lamp-on);
+    filter: drop-shadow(0 0 8px var(--shape-lamp-on));
+}
+
+.electrical-cabinet-lamp[data-energized] {
+    fill: #22c55e;
+    filter: drop-shadow(0 0 3px #22c55e);
+}
+
+.electrical-heater-coil[data-energized] {
+    stroke: var(--shape-heater-on);
+    filter: drop-shadow(0 0 4px var(--shape-heater-on));
+}
+
+/* The rotor of a wind turbine, drawn around its hub */
+@keyframes electrical-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=WindTurbine][data-power] .electrical-rotor {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: electrical-spin 3s linear infinite;
+}
+
+/* The exhaust of a diesel generator smokes */
+@keyframes electrical-smoke {
+    from {
+        transform: translateY(0);
+        opacity: 0.9;
+    }
+    to {
+        transform: translateY(-12px);
+        opacity: 0.2;
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=DieselGenerator][data-power] .electrical-smoke {
+    animation: electrical-smoke 1.4s ease-out infinite;
+}
+
+/* A key on the shaft of a generator sweeps across it as it turns (`--shaft-travel`: the shaft's thickness less the key's) */
+@keyframes electrical-shaft-key {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(var(--shaft-travel));
+        opacity: 0;
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=Generator][data-power] .electrical-shaft-key {
+    animation: electrical-shaft-key 450ms linear infinite;
+}
+
+/* The charge of a battery bank glides to a new level */
+[data-animations] .scada-shape[data-kind=BatteryBank] .electrical-charge {
+    transition: width 1s ease-in-out;
+}

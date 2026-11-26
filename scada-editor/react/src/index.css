@@ -2,7 +2,7 @@
  * motion of the shell, and the diagram's own rules (labels, ports, pipes). */
 @import "tailwindcss";
 @import "@joint/react-plus/styles.css" layer(components);
-@import "./shapes/vanilla-colors.css";
+@import "./shapes/shapes.css";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 

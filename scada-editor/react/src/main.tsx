@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import { App } from './app';
+import { ScadaApp } from './scada-app';
 import { ErrorBoundary } from './ui/error-boundary';
 
 const root = document.getElementById('root');
@@ -12,7 +12,7 @@ if (!root) {
 createRoot(root).render(
     <StrictMode>
         <ErrorBoundary>
-            <App />
+            <ScadaApp />
         </ErrorBoundary>
     </StrictMode>,
 );

@@ -1,0 +1,19 @@
+/*
+ * The run-mode animations of the valves, with the full animations only (`data-animations` of the app): the liquid
+ * flows through the window of an open control valve (`data-open`) as through the pipes - its dashes moved by one
+ * period of their pattern.
+ */
+@keyframes scada-valve-flow {
+    from {
+        stroke-opacity: 0.8;
+        stroke-dashoffset: 24;
+    }
+    to {
+        stroke-opacity: 0.8;
+        stroke-dashoffset: 0;
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=ControlValve][data-open] .scada-flow {
+    animation: scada-valve-flow 0.8s linear infinite;
+}

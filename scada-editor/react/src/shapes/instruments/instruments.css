@@ -1,0 +1,25 @@
+/*
+ * The run-mode animations of the instruments (`data-animations` of the app: none in edit mode). The glow of a
+ * beacon is an alarm and a level glides to a new value: both at any level of the animations ("Alarms only" too).
+ */
+@keyframes scada-beacon-pulse {
+    from {
+        opacity: 0.3;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+:is([data-animations=full], [data-animations=alarms]) .scada-shape[data-kind=Beacon][data-power] .scada-glow {
+    animation: scada-beacon-pulse 500ms linear infinite alternate;
+}
+
+/* The liquid of a level panel, the column of a thermometer and its reading glide to a new value */
+:is([data-animations=full], [data-animations=alarms]) .scada-shape:is([data-kind=Panel], [data-kind=Thermometer]) .scada-level {
+    transition:
+        y 1s ease-in-out,
+        height 1s ease-in-out,
+        fill 1s ease-in-out,
+        transform 1s ease-in-out;
+}

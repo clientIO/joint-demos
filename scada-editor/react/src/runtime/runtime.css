@@ -1,0 +1,215 @@
+/*
+ * Run mode: the controls of the equipment (see `controls.tsx`), the pings, the marker, the ID badges, the cells
+ * dimmed by the log (see `highlighters.ts`), the hidden cursor (see `use-hidden-cursor.ts`).
+ */
+
+:root {
+    /* The commands of the operator (the log, their pings), the marker: of none of the states of the plant */
+    --run-command: oklch(72% 0.16 70);
+    --run-marker: oklch(56% 0.22 295);
+    --run-update: var(--color-accent);
+}
+
+/* The controls: HTML over the paper, scaled with it */
+
+.scada-control {
+    font: 13px var(--font-body);
+}
+
+.scada-control-switch,
+.scada-control-checkbox,
+.scada-control-slider {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    border: 1px solid var(--color-rule-2);
+    border-radius: 6px;
+    background: var(--color-paper);
+    box-shadow: 0 1px 2px oklch(0% 0 0 / 0.08);
+    color: var(--color-ink);
+}
+
+.scada-control-switch,
+.scada-control-slider {
+    padding: 3px;
+}
+
+/* Open / closed: a segmented control, the state the valve is in pressed */
+.scada-control-switch {
+    display: flex;
+    gap: 2px;
+    background: var(--color-paper-3);
+}
+
+.scada-control-switch-on,
+.scada-control-switch-off {
+    flex: 1;
+    height: 100%;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: none;
+    color: var(--color-muted);
+    font: 500 12px var(--font-body);
+    cursor: pointer;
+}
+
+.scada-control-switch-on:hover,
+.scada-control-switch-off:hover {
+    color: var(--color-ink);
+}
+
+.scada-control-switch [aria-pressed="true"] {
+    background: var(--color-paper);
+    box-shadow: 0 1px 2px oklch(0% 0 0 / 0.12);
+    color: var(--color-ink);
+    font-weight: 600;
+    cursor: default;
+}
+
+.scada-control-checkbox {
+    display: grid;
+    place-items: center;
+}
+
+.scada-control-checkbox-input {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+}
+
+.scada-control-slider-input {
+    display: block;
+    width: 100%;
+    margin: 0;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+}
+
+.scada-control-slider-output {
+    display: block;
+    width: 100%;
+    color: var(--color-muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+/* Focused from the keyboard: a ring around the control (around the focused button of a switch) */
+.scada-control-checkbox :focus-visible,
+.scada-control-slider :focus-visible {
+    outline: none;
+}
+
+.scada-control-switch :focus-visible,
+.scada-control-checkbox:has(:focus-visible),
+.scada-control-slider:has(:focus-visible) {
+    outline: 2px solid var(--color-focus, var(--color-accent));
+    outline-offset: 2px;
+}
+
+.scada-control-switch :focus-visible {
+    outline-offset: 0;
+}
+
+/* A command sent, not done by the plant yet: a busy cursor, the state asked for pulsing */
+.scada-control-pending,
+.scada-control-pending * {
+    cursor: progress !important;
+}
+
+.scada-control-switch [data-pending] {
+    background: color-mix(in srgb, var(--run-update) 25%, transparent);
+    color: var(--color-ink);
+    animation: scada-control-pending-pulse 0.8s ease-in-out infinite alternate;
+}
+
+.scada-control-checkbox.scada-control-pending {
+    outline: 2px solid var(--run-update);
+    outline-offset: 1px;
+    animation: scada-control-pending-pulse 0.8s ease-in-out infinite alternate;
+}
+
+.scada-control-pending .scada-control-slider-output {
+    color: var(--run-update);
+    animation: scada-control-pending-pulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes scada-control-pending-pulse {
+    from { opacity: 1; }
+    to { opacity: 0.45; }
+}
+
+/* The pointer resting on the canvas: no cursor - over the controls and the clickable cells too */
+.scada-cursor-hidden,
+.scada-cursor-hidden * {
+    cursor: none !important;
+}
+
+/* The log open: a click on a cell with an ID filters the log by it */
+.scada-diagram .joint-cell.scada-log-clickable {
+    cursor: pointer;
+}
+
+/*
+ * The cells the log's filter leaves out: gray and flat - in the background; faded in Safari, which does not draw
+ * the CSS filter functions on the SVG elements
+ */
+.scada-diagram .scada-grayed,
+.scada-control.scada-grayed {
+    filter: grayscale(1) contrast(0.5) brightness(1.15);
+}
+
+.scada-diagram .scada-faded,
+.scada-control.scada-faded {
+    opacity: 0.25;
+}
+
+/* The arrow of the marked cell: dropped onto it once, as it is shown */
+.scada-marker-arrow {
+    animation: scada-marker-drop 0.35s cubic-bezier(0.3, 1.4, 0.6, 1);
+}
+
+@keyframes scada-marker-drop {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* An element pinged: two rings out of its middle, growing and fading */
+.scada-ping circle {
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    animation: scada-ping 1s cubic-bezier(0.2, 0.6, 0.3, 1) forwards;
+}
+
+.scada-ping circle + circle {
+    animation-delay: 0.35s;
+}
+
+@keyframes scada-ping {
+    0% { opacity: 0.7; transform: scale(0.3); }
+    60% { opacity: 0.5; }
+    100% { opacity: 0; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scada-marker-arrow,
+    .scada-control-pending,
+    .scada-control-pending *,
+    .scada-control-switch [data-pending] {
+        animation: none;
+    }
+}
+
+/* While editing the controls are shown inert: dimmed, the pointer through them to the element. */
+.scada-control-inert {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.scada-control-inert * {
+    pointer-events: none;
+}

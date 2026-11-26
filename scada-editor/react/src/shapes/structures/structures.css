@@ -1,0 +1,30 @@
+/*
+ * The run-mode motion of the structures (always, with the full animations only): the smoke rises out of the stack,
+ * the plume of the cooling tower swells and settles.
+ */
+@keyframes scada-smoke {
+    from {
+        transform: translateY(0);
+        opacity: 0.9;
+    }
+    to {
+        transform: translateY(-12px);
+        opacity: 0.3;
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=Stack] .scada-smoke {
+    animation: scada-smoke 1.8s ease-out infinite;
+}
+
+/* About the top of the tower: its `transform-origin`, set by the drawing. */
+@keyframes scada-plume {
+    to {
+        transform: scale(1.06, 1.12);
+    }
+}
+
+[data-animations=full] .scada-shape[data-kind=CoolingTower] .scada-plume {
+    transform-box: view-box;
+    animation: scada-plume 2.2s ease-in-out infinite alternate;
+}
